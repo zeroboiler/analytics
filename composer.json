@@ -1,0 +1,48 @@
+{
+    "name": "zeroboiler/analytics",
+    "description": "Google Analytics 4, GTM and Meta Pixel integration for Laravel",
+    "type": "library",
+    "license": "proprietary",
+    "version": "1.0.0",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^8.5",
+        "illuminate/contracts": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/support": "^13.0",
+        "zeroboiler/response": "^1.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "phpstan/phpstan": "^2.0",
+        "laravel/pint": "^1.0",
+        "rector/rector": "^2.0",
+        "illuminate/config": "^13.21"
+    },
+    "autoload": {
+        "psr-4": {
+            "ZeroBoiler\\Analytics\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZeroBoiler\\Analytics\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ZeroBoiler\\Analytics\\AnalyticsServiceProvider"
+            ],
+            "aliases": {
+                "Analytics": "ZeroBoiler\\Analytics\\Facades\\Analytics"
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
