@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Trackers;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\DTO\ConsentState;
 
 interface TrackerInterface
 {
@@ -27,4 +28,14 @@ interface TrackerInterface
      * Get the script tags for body section.
      */
     public function bodyScripts(): string;
+
+    /**
+     * Update the tracker's consent state.
+     */
+    public function setConsent(ConsentState $state): void;
+
+    /**
+     * Get the current consent state applied to this tracker.
+     */
+    public function getConsent(): ConsentState;
 }

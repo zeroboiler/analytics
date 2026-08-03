@@ -7,6 +7,7 @@ namespace ZeroBoiler\Analytics;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Trackers\GA4Tracker;
 use ZeroBoiler\Analytics\Trackers\GTMTracker;
 use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
@@ -52,6 +53,12 @@ class AnalyticsManager
             accessToken: $metaConfig['access_token'] ?? '',
             enabled: $metaConfig['enabled'] ?? false,
         );
+
+        // Apply default consent state from config (GDPR-safe defaults)
+        $consentDefault = $config->get('zeroboiler.analytics.consent.default', 'granted');
+        if ($consentDefault === 'denied') {
+            $this->denyConsent();
+        }
     }
 
     /**
@@ -160,6 +167,43 @@ class AnalyticsManager
     public function meta(): MetaPixelTracker
     {
         return $this->meta;
+    }
+
+    /**
+     * Set consent state across all trackers.
+     *
+     * Propagates the given ConsentState to GA4, GTM, and Meta Pixel trackers.
+     * Use this when the user grants or denies consent (e.g. via a cookie banner).
+     */
+    public function setConsent(ConsentState $state): void
+    {
+        $this->ga4->setConsent($state);
+        $this->gtm->setConsent($state);
+        $this->meta->setConsent($state);
+    }
+
+    /**
+     * Grant all consent (shortcut for GDPR opt-in).
+     */
+    public function grantConsent(): void
+    {
+        $this->setConsent(ConsentState::granted());
+    }
+
+    /**
+     * Deny all consent (shortcut for GDPR opt-out / default state).
+     */
+    public function denyConsent(): void
+    {
+        $this->setConsent(ConsentState::denied());
+    }
+
+    /**
+     * Get the current consent state from the primary tracker (GA4).
+     */
+    public function getConsent(): ConsentState
+    {
+        return $this->ga4->getConsent();
     }
 
     /**

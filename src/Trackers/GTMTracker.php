@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Trackers;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\DTO\ConsentState;
 
 class GTMTracker implements TrackerInterface
 {
@@ -17,15 +18,23 @@ class GTMTracker implements TrackerInterface
      */
     private array $dataLayer = [];
 
+    private ConsentState $consent;
+
     public function __construct(string $containerId, bool $enabled = false)
     {
         $this->containerId = $containerId;
         $this->enabled = $enabled;
+        $this->consent = ConsentState::granted();
     }
 
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
+            return;
+        }
+
+        // Respect analytics_storage consent
+        if ($this->consent->isDenied('analytics_storage')) {
             return;
         }
 
@@ -46,13 +55,14 @@ class GTMTracker implements TrackerInterface
             return '';
         }
 
+        $consentInit = $this->renderConsentDefault();
         $dataLayerInit = '';
         if (! empty($this->dataLayer)) {
             $dataLayerInit = "\n  window.dataLayer = window.dataLayer || [];\n".$this->renderDataLayer();
         }
 
         return <<<HTML
-<!-- Google Tag Manager -->{$dataLayerInit}
+<!-- Google Tag Manager -->{$consentInit}{$dataLayerInit}
 <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);}})(window,document,'script','dataLayer','{$this->containerId}');</script>
 <!-- End Google Tag Manager -->
 HTML;
@@ -94,6 +104,30 @@ HTML;
     public function getContainerId(): string
     {
         return $this->containerId;
+    }
+
+    public function setConsent(ConsentState $state): void
+    {
+        $this->consent = $state;
+    }
+
+    public function getConsent(): ConsentState
+    {
+        return $this->consent;
+    }
+
+    /**
+     * Render the gtag consent default initialization snippet.
+     */
+    private function renderConsentDefault(): string
+    {
+        if (empty($this->consent->signals)) {
+            return '';
+        }
+
+        $json = json_encode($this->consent->signals, JSON_THROW_ON_ERROR);
+
+        return "<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('consent', 'default', {$json});\n</script>\n";
     }
 
     /**

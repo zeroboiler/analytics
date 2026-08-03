@@ -18,5 +18,19 @@ return [
             'id' => env('ANALYTICS_META_PIXEL_ID', ''),
             'access_token' => env('ANALYTICS_META_PIXEL_ACCESS_TOKEN', ''),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Consent Mode (GDPR)
+        |--------------------------------------------------------------------------
+        |
+        | Default consent state applied to all trackers on initialization.
+        | Set to 'denied' for GDPR-safe defaults (users must explicitly opt-in).
+        | Options: 'granted', 'denied'
+        |
+        */
+        'consent' => [
+            'default' => env('ANALYTICS_CONSENT_DEFAULT', 'granted'),
+        ],
     ],
 ];

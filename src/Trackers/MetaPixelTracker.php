@@ -7,6 +7,7 @@ namespace ZeroBoiler\Analytics\Trackers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\DTO\ConsentState;
 
 class MetaPixelTracker implements TrackerInterface
 {
@@ -17,6 +18,8 @@ class MetaPixelTracker implements TrackerInterface
     private string $accessToken;
 
     private bool $enabled;
+
+    private ConsentState $consent;
 
     /**
      * Standard Meta Pixel events mapping.
@@ -47,11 +50,17 @@ class MetaPixelTracker implements TrackerInterface
         $this->pixelId = $pixelId;
         $this->accessToken = $accessToken;
         $this->enabled = $enabled;
+        $this->consent = ConsentState::granted();
     }
 
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
+            return;
+        }
+
+        // Respect analytics_storage consent — if denied, don't send server-side events
+        if ($this->consent->isDenied('analytics_storage')) {
             return;
         }
 
@@ -92,11 +101,17 @@ class MetaPixelTracker implements TrackerInterface
             return '';
         }
 
+        // If consent is denied, revoke before init
+        $consentScript = '';
+        if ($this->consent->isDenied('analytics_storage')) {
+            $consentScript = "\n  fbq('consent', 'revoke');";
+        }
+
         return <<<HTML
 <!-- Meta Pixel Code -->
 <script>
   !function(f,b,e,v,n,t,s)
-  {{if(f.fbq)return;n=f.fbq=function(){{n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)}};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  {{if(f.fbq)return;n=f.fbq=function(){{n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)}};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');{$consentScript}
   fbq('init', '{$this->pixelId}');
   fbq('track', 'PageView');
 </script>
@@ -125,6 +140,16 @@ HTML;
     public function getAccessToken(): string
     {
         return $this->accessToken;
+    }
+
+    public function setConsent(ConsentState $state): void
+    {
+        $this->consent = $state;
+    }
+
+    public function getConsent(): ConsentState
+    {
+        return $this->consent;
     }
 
     /**

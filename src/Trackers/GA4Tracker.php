@@ -7,6 +7,7 @@ namespace ZeroBoiler\Analytics\Trackers;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\DTO\ConsentState;
 
 class GA4Tracker implements TrackerInterface
 {
@@ -20,16 +21,24 @@ class GA4Tracker implements TrackerInterface
 
     private bool $enabled;
 
+    private ConsentState $consent;
+
     public function __construct(string $measurementId, string $apiSecret, bool $enabled = false)
     {
         $this->measurementId = $measurementId;
         $this->apiSecret = $apiSecret;
         $this->enabled = $enabled;
+        $this->consent = ConsentState::granted();
     }
 
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
+            return;
+        }
+
+        // Respect analytics_storage consent — if denied, don't send hits
+        if ($this->consent->isDenied('analytics_storage')) {
             return;
         }
 
@@ -100,9 +109,11 @@ class GA4Tracker implements TrackerInterface
             return '';
         }
 
+        $consentInit = $this->renderConsentDefault();
+
         return <<<HTML
 <!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={$this->measurementId}"></script>
+{$consentInit}<script async src="https://www.googletagmanager.com/gtag/js?id={$this->measurementId}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -131,6 +142,30 @@ HTML;
     /**
      * Validate GA4 Measurement ID format (G-XXXXXXXX).
      */
+    public function setConsent(ConsentState $state): void
+    {
+        $this->consent = $state;
+    }
+
+    public function getConsent(): ConsentState
+    {
+        return $this->consent;
+    }
+
+    /**
+     * Render the gtag consent default initialization snippet.
+     */
+    private function renderConsentDefault(): string
+    {
+        if (empty($this->consent->signals)) {
+            return '';
+        }
+
+        $json = json_encode($this->consent->signals, JSON_THROW_ON_ERROR);
+
+        return "<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('consent', 'default', {$json});\n</script>\n";
+    }
+
     public function isValidMeasurementId(string $id): bool
     {
         return preg_match('/^G-[A-Z0-9]{8,}$/', $id) === 1;
