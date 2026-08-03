@@ -9,6 +9,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
+use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
+use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
+use ZeroBoiler\Analytics\Services\MetaPixelService;
 
 class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -30,6 +33,28 @@ class AnalyticsServiceProvider extends ServiceProvider
         });
 
         $this->app->alias('zeroboiler.analytics', AnalyticsManager::class);
+
+        // Bind convenience service wrappers
+        $this->app->singleton(GoogleAnalyticsService::class, function (Application $app): GoogleAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new GoogleAnalyticsService($manager->ga4());
+        });
+
+        $this->app->singleton(GoogleTagManagerService::class, function (Application $app): GoogleTagManagerService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new GoogleTagManagerService($manager->gtm());
+        });
+
+        $this->app->singleton(MetaPixelService::class, function (Application $app): MetaPixelService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new MetaPixelService($manager->meta());
+        });
     }
 
     /**

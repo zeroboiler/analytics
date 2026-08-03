@@ -49,9 +49,6 @@ class GoogleTagManagerService
 
     /**
      * Push a conversion event.
-     */
-    /**
-     * Push a conversion event.
      *
      * @param  array<string, mixed>  $params
      */

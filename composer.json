@@ -44,5 +44,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/tmp/response"
+        }
+    ]
 }

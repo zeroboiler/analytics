@@ -74,6 +74,10 @@ class AnalyticsManager
             $this->ga4->track($event);
         }
 
+        if ($this->gtm->isEnabled()) {
+            $this->gtm->track($event);
+        }
+
         if ($this->meta->isEnabled()) {
             $this->meta->track($event);
         }
@@ -86,6 +90,10 @@ class AnalyticsManager
     {
         if ($this->ga4->isEnabled()) {
             $this->ga4->track($event);
+        }
+
+        if ($this->gtm->isEnabled()) {
+            $this->gtm->track($event);
         }
 
         if ($this->meta->isEnabled()) {

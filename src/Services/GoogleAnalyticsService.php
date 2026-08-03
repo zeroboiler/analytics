@@ -62,9 +62,6 @@ class GoogleAnalyticsService
 
     /**
      * Track a custom event.
-     */
-    /**
-     * Track a custom event.
      *
      * @param  array<string, mixed>  $params
      */

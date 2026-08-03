@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static \ZeroBoiler\Analytics\Trackers\GA4Tracker ga4()
  * @method static \ZeroBoiler\Analytics\Trackers\GTMTracker gtm()
  * @method static \ZeroBoiler\Analytics\Trackers\MetaPixelTracker meta()
+ * @method static void setConsent(\ZeroBoiler\Analytics\DTO\ConsentState $state)
+ * @method static void grantConsent()
+ * @method static void denyConsent()
+ * @method static \ZeroBoiler\Analytics\DTO\ConsentState getConsent()
  */
 class Analytics extends Facade
 {
