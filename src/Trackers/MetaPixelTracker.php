@@ -6,6 +6,7 @@ namespace ZeroBoiler\Analytics\Trackers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
@@ -66,8 +67,18 @@ class MetaPixelTracker implements TrackerInterface
 
         $eventName = $this->isStandardEvent($event->name) ? $event->name : 'CustomEvent';
 
-        /** @var Request $request */
-        $request = app(Request::class);
+        // Resolve request context (with fallback for non-Laravel environments)
+        try {
+            /** @var Request $request */
+            $request = app(Request::class);
+            $url = $request->fullUrl();
+            $ip = $request->ip() ?? '127.0.0.1';
+            $ua = $request->userAgent() ?? '';
+        } catch (\Throwable) {
+            $url = '';
+            $ip = '127.0.0.1';
+            $ua = '';
+        }
 
         $payload = [
             'data' => [
@@ -76,18 +87,33 @@ class MetaPixelTracker implements TrackerInterface
                     'event_time' => time(),
                     'event_id' => $event->params['event_id'] ?? uniqid('', true),
                     'action_source' => 'website',
-                    'event_source_url' => $event->params['url'] ?? $request->fullUrl(),
+                    'event_source_url' => $event->params['url'] ?? $url,
                     'user_data' => [
-                        'client_ip_address' => $request->ip() ?? '127.0.0.1',
-                        'client_user_agent' => $request->userAgent() ?? '',
+                        'client_ip_address' => $ip,
+                        'client_user_agent' => $ua,
                     ],
                     'custom_data' => array_diff_key($event->params, array_flip(['event_id', 'url'])),
                 ],
             ],
         ];
 
-        Http::withToken($this->accessToken)
-            ->post($this->buildUrl(), $payload);
+        try {
+            $response = Http::withToken($this->accessToken)
+                ->post($this->buildUrl(), $payload);
+
+            if (! $response->successful()) {
+                Log::warning('MetaPixelTracker: event dispatch failed', [
+                    'event' => $event->name,
+                    'status' => $response->status(),
+                    'body' => (string) $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('MetaPixelTracker: event dispatch error', [
+                'event' => $event->name,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function isEnabled(): bool

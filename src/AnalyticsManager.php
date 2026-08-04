@@ -219,9 +219,6 @@ class AnalyticsManager
      */
     private function getContainer(): Container
     {
-        /** @var Container $container */
-        $container = app();
-
-        return $container;
+        return app();
     }
 }

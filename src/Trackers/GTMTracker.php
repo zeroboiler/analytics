@@ -13,12 +13,10 @@ class GTMTracker implements TrackerInterface
 
     private bool $enabled;
 
-    /**
-     * @var array<int, array<string, mixed>>
-     */
+    /** @var array<int, array<string, mixed>> */
     private array $dataLayer = [];
 
-    private ConsentState $consent;
+    use TrackerHelpers;
 
     public function __construct(string $containerId, bool $enabled = false)
     {
@@ -34,7 +32,7 @@ class GTMTracker implements TrackerInterface
         }
 
         // Respect analytics_storage consent
-        if ($this->consent->isDenied('analytics_storage')) {
+        if ($this->isAnalyticsDenied()) {
             return;
         }
 
@@ -114,20 +112,6 @@ HTML;
     public function getConsent(): ConsentState
     {
         return $this->consent;
-    }
-
-    /**
-     * Render the gtag consent default initialization snippet.
-     */
-    private function renderConsentDefault(): string
-    {
-        if (empty($this->consent->signals)) {
-            return '';
-        }
-
-        $json = json_encode($this->consent->signals, JSON_THROW_ON_ERROR);
-
-        return "<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('consent', 'default', {$json});\n</script>\n";
     }
 
     /**

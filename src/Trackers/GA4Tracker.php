@@ -6,6 +6,7 @@ namespace ZeroBoiler\Analytics\Trackers;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
@@ -21,7 +22,7 @@ class GA4Tracker implements TrackerInterface
 
     private bool $enabled;
 
-    private ConsentState $consent;
+    use TrackerHelpers;
 
     public function __construct(string $measurementId, string $apiSecret, bool $enabled = false)
     {
@@ -38,7 +39,7 @@ class GA4Tracker implements TrackerInterface
         }
 
         // Respect analytics_storage consent — if denied, don't send hits
-        if ($this->consent->isDenied('analytics_storage')) {
+        if ($this->isAnalyticsDenied()) {
             return;
         }
 
@@ -54,7 +55,22 @@ class GA4Tracker implements TrackerInterface
             ],
         ];
 
-        Http::post($this->buildUrl(self::MEASUREMENT_PROTOCOL_URL), $payload);
+        try {
+            $response = Http::post($this->buildUrl(self::MEASUREMENT_PROTOCOL_URL), $payload);
+
+            if (! $response->successful()) {
+                Log::warning('GA4Tracker: event dispatch failed', [
+                    'event' => $event->name,
+                    'status' => $response->status(),
+                    'body' => (string) $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('GA4Tracker: event dispatch error', [
+                'event' => $event->name,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -139,9 +155,6 @@ HTML;
         return $this->apiSecret;
     }
 
-    /**
-     * Validate GA4 Measurement ID format (G-XXXXXXXX).
-     */
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
@@ -150,20 +163,6 @@ HTML;
     public function getConsent(): ConsentState
     {
         return $this->consent;
-    }
-
-    /**
-     * Render the gtag consent default initialization snippet.
-     */
-    private function renderConsentDefault(): string
-    {
-        if (empty($this->consent->signals)) {
-            return '';
-        }
-
-        $json = json_encode($this->consent->signals, JSON_THROW_ON_ERROR);
-
-        return "<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('consent', 'default', {$json});\n</script>\n";
     }
 
     public function isValidMeasurementId(string $id): bool
