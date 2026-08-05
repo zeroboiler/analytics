@@ -25,6 +25,6 @@ final readonly class CancellationEvent extends AnalyticsEvent
             'plan_name' => $planName,
             'reason' => $reason,
             'is_trial' => $isTrial,
-        ]));
+        ], fn (mixed $v): bool => $v !== null));
     }
 }

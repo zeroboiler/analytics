@@ -35,14 +35,14 @@ final readonly class ViewItemEvent extends AnalyticsEvent
         parent::__construct('view_item', array_filter([
             'currency' => $currency,
             'value' => $price,
-            'items' => [[
+            'items' => [array_filter([
                 'item_id' => $itemId,
                 'item_name' => $itemName,
                 'price' => $price,
                 'item_category' => $itemCategory,
                 'item_variant' => $itemVariant,
                 'item_brand' => $itemBrand,
-            ]],
+            ])],
         ]));
     }
 }

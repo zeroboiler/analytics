@@ -143,7 +143,7 @@ class EcommerceAnalyticsService
     {
         $this->manager->trackEvent(new RefundEvent(
             transactionId: $transactionId,
-            value: $refundValue,
+            refundValue: $refundValue,
             currency: $this->defaultCurrency,
             items: $items !== null ? $this->formatItems($items) : [],
         ));
@@ -164,7 +164,7 @@ class EcommerceAnalyticsService
             'quantity' => (int) ($item['quantity'] ?? 1),
         ];
 
-        // Remove empty values
+        // Remove empty values (empty strings and zeros are treated as "not set")
         return array_filter($formatted, fn (mixed $v): bool => $v !== '' && $v !== 0);
     }
 

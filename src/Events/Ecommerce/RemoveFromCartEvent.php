@@ -33,13 +33,13 @@ final readonly class RemoveFromCartEvent extends AnalyticsEvent
         parent::__construct('remove_from_cart', array_filter([
             'currency' => $currency,
             'value' => ($price ?? 0) * $quantity,
-            'items' => [[
+            'items' => [array_filter([
                 'item_id' => $itemId,
                 'item_name' => $itemName,
                 'price' => $price,
                 'quantity' => $quantity,
                 'item_category' => $itemCategory,
-            ]],
+            ])],
         ]));
     }
 }

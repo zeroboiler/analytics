@@ -37,6 +37,6 @@ final readonly class SubscriptionEvent extends AnalyticsEvent
             'billing_cycle' => $billingCycle,
             'transaction_id' => $transactionId,
             'is_renewal' => $isRenewal,
-        ]));
+        ], fn (mixed $v): bool => $v !== null));
     }
 }

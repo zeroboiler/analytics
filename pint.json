@@ -1,6 +1,7 @@
 {
     "preset": "laravel",
     "rules": {
-        "fully_qualified_strict_types": false
+        "fully_qualified_strict_types": false,
+        "unary_operator_spaces": false
     }
 }

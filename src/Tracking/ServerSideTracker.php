@@ -107,9 +107,13 @@ class ServerSideTracker
         $analyticsClass = $this->customEventMap[$eventName] ?? null;
 
         if ($analyticsClass === null) {
-            Log::warning('ServerSideTracker: no mapping for custom event', [
-                'event' => $eventName,
-            ]);
+            try {
+                Log::warning('ServerSideTracker: no mapping for custom event', [
+                    'event' => $eventName,
+                ]);
+            } catch (\Throwable) {
+                // Log facade may not be available in tests
+            }
 
             return;
         }

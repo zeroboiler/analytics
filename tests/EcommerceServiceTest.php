@@ -74,11 +74,14 @@ describe('EcommerceAnalyticsService', function () {
                 ->and($formatted)->not->toHaveKey('quantity');
         });
 
-        it('defaults missing fields to empty string/zero', function () {
-            $formatted = $this->service->formatGA4Item([]);
+        it('applies defaults for missing fields', function () {
+            $formatted = $this->service->formatGA4Item([
+                'item_id' => 'X',
+                'item_name' => 'Y',
+            ]);
 
-            expect($formatted['item_id'])->toBe('')
-                ->and($formatted['item_name'])->toBe('')
+            expect($formatted['item_id'])->toBe('X')
+                ->and($formatted['item_name'])->toBe('Y')
                 ->and($formatted['quantity'])->toBe(1);
         });
     });

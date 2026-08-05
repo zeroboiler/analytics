@@ -9,8 +9,6 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\SaaS\LoginEvent;
-use ZeroBoiler\Analytics\Events\SaaS\SignUpEvent;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -18,19 +16,23 @@ use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 function createMockConfig(array $overrides = []): ConfigRepository
 {
     $defaults = [
-        'zeroboiler.analytics.auto_track' => [
-            'enabled' => true,
-            'events' => [
-                'auth.login' => true,
-                'auth.register' => true,
-                'auth.logout' => false,
-                'subscription.created' => true,
+        'zeroboiler' => [
+            'analytics' => [
+                'auto_track' => [
+                    'enabled' => true,
+                    'events' => [
+                        'auth.login' => true,
+                        'auth.register' => true,
+                        'auth.logout' => false,
+                        'subscription.created' => true,
+                    ],
+                    'models' => [],
+                ],
             ],
-            'models' => [],
         ],
     ];
 
-    $config = array_merge($defaults, $overrides);
+    $config = array_replace_recursive($defaults, $overrides);
 
     $mock = Mockery::mock(ConfigRepository::class);
     $mock->shouldReceive('get')
@@ -70,10 +72,14 @@ describe('ServerSideTracker', function () {
 
         it('can be disabled via config', function () {
             $config = createMockConfig([
-                'zeroboiler.analytics.auto_track' => [
-                    'enabled' => false,
-                    'events' => [],
-                    'models' => [],
+                'zeroboiler' => [
+                    'analytics' => [
+                        'auto_track' => [
+                            'enabled' => false,
+                            'events' => [],
+                            'models' => [],
+                        ],
+                    ],
                 ],
             ]);
             $manager = createMockManager();
@@ -169,7 +175,7 @@ describe('ServerSideTracker', function () {
                 ->andReturnUsing(function (string $event, callable $callback) {
                     if ($event === Registered::class) {
                         $user = Mockery::mock(Authenticatable::class);
-                        $callback(new \Illuminate\Auth\Events\Registered($user));
+                        $callback(new Registered($user));
                     }
                 });
 
@@ -180,13 +186,17 @@ describe('ServerSideTracker', function () {
     describe('config key mapping', function () {
         it('respects auth.login toggle', function () {
             $config = createMockConfig([
-                'zeroboiler.analytics.auto_track' => [
-                    'enabled' => true,
-                    'events' => [
-                        'auth.login' => false,
-                        'auth.register' => true,
+                'zeroboiler' => [
+                    'analytics' => [
+                        'auto_track' => [
+                            'enabled' => true,
+                            'events' => [
+                                'auth.login' => false,
+                                'auth.register' => true,
+                            ],
+                            'models' => [],
+                        ],
                     ],
-                    'models' => [],
                 ],
             ]);
             $manager = createMockManager();
