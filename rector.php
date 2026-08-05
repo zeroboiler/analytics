@@ -7,12 +7,7 @@ use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withPhpVersion(PhpVersion::PHP_85)
-    ->withPreparedSets(
-        deadCode: true,
-        codeQuality: true,
-        codingStyle: false,
-        typeDeclarations: true,
-    )
+    ->withPreparedSets(deadCode: true, codeQuality: false, codingStyle: false, typeDeclarations: false)
     ->withPaths([
         __DIR__.'/src',
         __DIR__.'/tests',
