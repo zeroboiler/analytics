@@ -12,6 +12,7 @@ use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
+use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
@@ -89,6 +90,15 @@ class AnalyticsServiceProvider extends ServiceProvider
             $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
 
             return new UserIdentityTracker($manager, $queue, $cookieName);
+        });
+
+        $this->app->singleton(EcommerceAnalyticsService::class, function (Application $app): EcommerceAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EcommerceAnalyticsService($manager, $config);
         });
     }
 

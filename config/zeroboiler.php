@@ -92,5 +92,19 @@ return [
             'cookie_secure' => env('ANALYTICS_IDENTITY_COOKIE_SECURE', true),
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | E-commerce
+        |--------------------------------------------------------------------------
+        |
+        | Default settings for e-commerce event tracking.
+        | Used by EcommerceAnalyticsService when no override is provided.
+        |
+        */
+        'ecommerce' => [
+            'currency' => env('ANALYTICS_ECOMMERCE_CURRENCY', 'USD'),
+            'brand' => env('ANALYTICS_ECOMMERCE_BRAND', ''),
+        ],
     ],
 ];
