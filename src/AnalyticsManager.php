@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * This file is part of ZeroBoiler, licensed under the proprietary license.
+ */
+
 declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics;
@@ -68,25 +72,21 @@ class AnalyticsManager
      */
     public function track(string $eventName, array $params = []): void
     {
-        $event = new AnalyticsEvent(name: $eventName, params: $params);
-
-        if ($this->ga4->isEnabled()) {
-            $this->ga4->track($event);
-        }
-
-        if ($this->gtm->isEnabled()) {
-            $this->gtm->track($event);
-        }
-
-        if ($this->meta->isEnabled()) {
-            $this->meta->track($event);
-        }
+        $this->dispatchToTrackers(new AnalyticsEvent(name: $eventName, params: $params));
     }
 
     /**
      * Track an AnalyticsEvent DTO across all configured providers.
      */
     public function trackEvent(AnalyticsEvent $event): void
+    {
+        $this->dispatchToTrackers($event);
+    }
+
+    /**
+     * Dispatch an event to all enabled trackers.
+     */
+    private function dispatchToTrackers(AnalyticsEvent $event): void
     {
         if ($this->ga4->isEnabled()) {
             $this->ga4->track($event);

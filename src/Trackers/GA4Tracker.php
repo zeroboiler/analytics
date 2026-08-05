@@ -96,22 +96,36 @@ class GA4Tracker implements TrackerInterface
             ],
         ];
 
-        /** @var Response $response */
-        $response = Http::post($this->buildUrl(self::VALIDATE_URL), $payload);
+        try {
+            /** @var Response $response */
+            $response = Http::post($this->buildUrl(self::VALIDATE_URL), $payload);
 
-        if (! $response->ok()) {
+            if (! $response->ok()) {
+                Log::warning('GA4Tracker: validation request failed', [
+                    'event' => $event->name,
+                    'status' => $response->status(),
+                ]);
+
+                return null;
+            }
+
+            $body = $response->body();
+            $decoded = json_decode($body, true);
+
+            if (! is_array($decoded)) {
+                return null;
+            }
+
+            /** @var array<string, mixed> $decoded */
+            return $decoded;
+        } catch (\Throwable $e) {
+            Log::error('GA4Tracker: validation request error', [
+                'event' => $event->name,
+                'error' => $e->getMessage(),
+            ]);
+
             return null;
         }
-
-        $body = $response->body();
-        $decoded = json_decode($body, true);
-
-        if (! is_array($decoded)) {
-            return null;
-        }
-
-        /** @var array<string, mixed> $decoded */
-        return $decoded;
     }
 
     public function isEnabled(): bool

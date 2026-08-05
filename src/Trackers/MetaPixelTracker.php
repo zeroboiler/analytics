@@ -20,7 +20,7 @@ class MetaPixelTracker implements TrackerInterface
 
     private bool $enabled;
 
-    private ConsentState $consent;
+    use TrackerHelpers;
 
     /**
      * Standard Meta Pixel events mapping.
@@ -61,7 +61,7 @@ class MetaPixelTracker implements TrackerInterface
         }
 
         // Respect analytics_storage consent — if denied, don't send server-side events
-        if ($this->consent->isDenied('analytics_storage')) {
+        if ($this->isAnalyticsDenied()) {
             return;
         }
 
@@ -129,7 +129,7 @@ class MetaPixelTracker implements TrackerInterface
 
         // If consent is denied, revoke before init
         $consentScript = '';
-        if ($this->consent->isDenied('analytics_storage')) {
+        if ($this->isAnalyticsDenied()) {
             $consentScript = "\n  fbq('consent', 'revoke');";
         }
 
