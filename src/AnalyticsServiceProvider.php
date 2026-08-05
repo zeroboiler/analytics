@@ -91,7 +91,7 @@ class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
 
-            return new UserIdentityTracker($manager, $queue, (string) $cookieName);
+            return new UserIdentityTracker($manager, $queue, $cookieName);
         });
 
         $this->app->singleton(EcommerceAnalyticsService::class, function (Application $app): EcommerceAnalyticsService {

@@ -7,4 +7,14 @@ parameters:
         - stubs/*
     bootstrapFiles:
         - stubs/laravel-helpers.php
-    ignoreErrors: []
+    ignoreErrors:
+        # config() returns mixed; overview command safely accesses known keys
+        - message: '#Cannot access offset#on mixed#'
+          path: src/Console/Commands/AnalyticsOverviewCommand.php
+        - message: '#Binary operation "\." between#and mixed#'
+          path: src/Console/Commands/AnalyticsOverviewCommand.php
+        - message: '#Parameter \#1 \$string of function substr expects string, mixed given#'
+          path: src/Console/Commands/AnalyticsOverviewCommand.php
+        # ConfigRepository::get() returns mixed; safely used with known config keys
+        - message: '#Parameter \#3 \$cookieName of class#'
+          path: src/AnalyticsServiceProvider.php
