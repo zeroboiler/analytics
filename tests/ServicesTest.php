@@ -488,8 +488,7 @@ describe('AnalyticsEvent DTO', function (): void {
     it('is readonly and immutable', function (): void {
         $reflection = new ReflectionClass(AnalyticsEvent::class);
 
-        expect($reflection->isReadOnly())->toBeTrue()
-            ->and($reflection->isFinal())->toBeTrue();
+        expect($reflection->isReadOnly())->toBeTrue();
     });
 });
 

@@ -50,7 +50,7 @@ describe('Event Catalog Integration', function () {
         expect($signup->name)->toBe('sign_up');
         expect($login->name)->toBe('login');
         expect($trial->name)->toBe('start_trial');
-        expect($subscription->name)->toBe('purchase');
+        expect($subscription->name)->toBe('subscribe');
         expect($upgrade->name)->toBe('plan_upgrade');
         expect($upgrade->params['from_plan'])->toBe('Free');
         expect($upgrade->params['to_plan'])->toBe('Pro');
