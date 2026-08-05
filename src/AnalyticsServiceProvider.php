@@ -16,6 +16,7 @@ use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
+use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 
 class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -76,6 +77,18 @@ class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new QueuedAnalyticsDispatcher($manager, $config);
+        });
+
+        $this->app->singleton(UserIdentityTracker::class, function (Application $app): UserIdentityTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
+
+            return new UserIdentityTracker($manager, $queue, $cookieName);
         });
     }
 
