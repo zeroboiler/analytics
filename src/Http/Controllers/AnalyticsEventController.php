@@ -25,6 +25,8 @@ class AnalyticsEventController extends Controller
 
     private const MAX_BATCH_SIZE = 25;
 
+    private const MAX_EVENT_NAME_LENGTH = 100;
+
     public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         $this->manager = $manager;
@@ -164,6 +166,61 @@ class AnalyticsEventController extends Controller
             'status' => 'ok',
             'consent' => $state->toArray(),
         ]);
+    }
+
+    /**
+     * Health check endpoint for monitoring and load balancers.
+     *
+     * GET /api/analytics/health
+     */
+    public function health(): JsonResponse
+    {
+        $providers = [];
+
+        if ($this->manager->ga4()->isEnabled()) {
+            $providers['ga4'] = ['status' => 'ok', 'measurement_id' => $this->manager->ga4()->getMeasurementId()];
+        }
+
+        if ($this->manager->gtm()->isEnabled()) {
+            $providers['gtm'] = ['status' => 'ok'];
+        }
+
+        if ($this->manager->meta()->isEnabled()) {
+            $providers['meta'] = ['status' => 'ok'];
+        }
+
+        if ($this->manager->plausible()->isEnabled()) {
+            $providers['plausible'] = ['status' => 'ok', 'domain' => $this->manager->plausible()->getDomain()];
+        }
+
+        if ($this->manager->posthog()->isEnabled()) {
+            $providers['posthog'] = ['status' => 'ok', 'host' => $this->manager->posthog()->getHost()];
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '1.1.0',
+            'providers' => $providers,
+            'consent' => $this->manager->getConsent()->toArray(),
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Validate the event name format.
+     *
+     * @return array{valid: bool, sanitized: string}
+     */
+    private function validateEventName(string $name): array
+    {
+        $sanitized = preg_replace('/[^a-z0-9_]/', '', strtolower($name));
+        $sanitized = $sanitized !== '' && $sanitized !== '0' ? $sanitized : $name;
+
+        $valid = strlen($sanitized) <= self::MAX_EVENT_NAME_LENGTH
+            && $sanitized !== ''
+            && preg_match('/^[a-z][a-z0-9_]*$/', $sanitized) === 1;
+
+        return ['valid' => $valid, 'sanitized' => $sanitized];
     }
 
     /**

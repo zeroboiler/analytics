@@ -15,10 +15,13 @@ use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
+use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
+use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
+use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 
 class AnalyticsServiceProvider extends ServiceProvider
@@ -99,6 +102,29 @@ class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EcommerceAnalyticsService($manager, $config);
+        });
+
+        $this->app->singleton(SaaSAnalyticsService::class, function (Application $app): SaaSAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SaaSAnalyticsService($manager);
+        });
+
+        $this->app->singleton(EventValidationService::class, function (Application $app): EventValidationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventValidationService($config);
+        });
+
+        $this->app->singleton(SessionTracker::class, function (Application $app): SessionTracker {
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SessionTracker($queue, $manager);
         });
     }
 
@@ -196,8 +222,21 @@ class AnalyticsServiceProvider extends ServiceProvider
             return;
         }
 
+        // Health endpoint — no auth required
+        Route::prefix('api')
+            ->middleware(['throttle:120,1'])
+            ->group(function (): void {
+                Route::get('analytics/health', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'health']);
+            });
+
+        // Authenticated endpoints
         Route::prefix('api')
             ->middleware(['auth:sanctum', 'throttle:60,1'])
-            ->group(__DIR__.'/../routes/analytics.php');
+            ->group(function (): void {
+                Route::post('analytics/events', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'track']);
+                Route::post('analytics/batch', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'batch']);
+                Route::post('analytics/identify', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'identify']);
+                Route::post('analytics/consent', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'updateConsent']);
+            });
     }
 }

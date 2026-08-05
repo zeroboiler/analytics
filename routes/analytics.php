@@ -11,11 +11,16 @@ use ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController;
 |--------------------------------------------------------------------------
 |
 | Server-side endpoints for frontend event tracking.
-| All routes require authentication and are rate-limited.
+| Track/batch/identify/consent require authentication and are rate-limited.
+| Health endpoint is public for monitoring.
 |
 */
 
 Route::prefix('analytics')->group(function () {
+    // Public health check (no auth required)
+    Route::get('health', [AnalyticsEventController::class, 'health']);
+
+    // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);
     Route::post('identify', [AnalyticsEventController::class, 'identify']);

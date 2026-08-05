@@ -6,12 +6,19 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler\Analytics
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 let trackingId = null;
 let config = null;
 let initialized = false;
+
+// ─── Batch Queue ─────────────────────────────────────────────────────
+
+const eventQueue = [];
+let flushTimer = null;
+const FLUSH_INTERVAL = 5000; // 5 seconds
+const MAX_QUEUE_SIZE = 25;
 
 /**
  * Initialize the analytics library.
@@ -65,6 +72,24 @@ export function init(pageProps) {
     if (analytics.posthogHost) {
         initPostHog(analytics);
     }
+
+    // Start batch flush timer
+    startFlushTimer();
+}
+
+/**
+ * Cleanup analytics listeners and timers.
+ * Call this when your component unmounts or on app teardown.
+ */
+export function destroy() {
+    if (flushTimer) {
+        clearInterval(flushTimer);
+        flushTimer = null;
+    }
+    eventQueue.length = 0;
+    initialized = false;
+    config = null;
+    trackingId = null;
 }
 
 /**
@@ -160,19 +185,81 @@ function initPostHog() {
 /**
  * Track a custom event to the server-side API.
  *
- * Events are dispatched via POST to /api/analytics/events, which then
- * fans out to all configured server-side providers (GA4 MP, Meta CAPI, etc.).
+ * Events are queued and flushed in batches for performance.
+ * Set `immediate: true` to bypass batching.
  *
  * @param {string} name - Event name (e.g. 'button_click', 'tutorial_completed')
  * @param {object} params - Event parameters
+ * @param {object} [options] - Additional options
+ * @param {boolean} [options.immediate=false] - Bypass batch queue
  * @returns {Promise<void>}
  *
  * @example
  * await trackEvent('button_click', { element: 'buy_now', page: '/products' });
  */
-export async function trackEvent(name, params = {}) {
+export async function trackEvent(name, params = {}, options = {}) {
     if (!initialized) return;
 
+    const event = { name, params };
+
+    if (options.immediate) {
+        return sendEvent(event);
+    }
+
+    eventQueue.push(event);
+
+    if (eventQueue.length >= MAX_QUEUE_SIZE) {
+        await flushQueue();
+    }
+}
+
+/**
+ * Flush the batch event queue.
+ *
+ * Sends all queued events to the server in a single batch request.
+ * @returns {Promise<void>}
+ */
+export async function flushQueue() {
+    if (eventQueue.length === 0) return;
+
+    const events = [...eventQueue];
+    eventQueue.length = 0;
+
+    try {
+        await fetch('/api/analytics/batch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                Authorization: `Bearer ${getAuthToken()}`,
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ events }),
+        });
+    } catch {
+        // Re-queue failed events (up to max size)
+        for (const event of events) {
+            if (eventQueue.length < MAX_QUEUE_SIZE) {
+                eventQueue.push(event);
+            }
+        }
+    }
+}
+
+/**
+ * Start the automatic flush timer.
+ */
+function startFlushTimer() {
+    if (flushTimer) clearInterval(flushTimer);
+    flushTimer = setInterval(() => flushQueue(), FLUSH_INTERVAL);
+}
+
+/**
+ * Send a single event directly (not batched).
+ * @param {object} event
+ * @returns {Promise<void>}
+ */
+async function sendEvent(event) {
     try {
         await fetch('/api/analytics/events', {
             method: 'POST',
@@ -182,7 +269,7 @@ export async function trackEvent(name, params = {}) {
                 Authorization: `Bearer ${getAuthToken()}`,
                 Accept: 'application/json',
             },
-            body: JSON.stringify({ name, params }),
+            body: JSON.stringify({ name: event.name, params: event.params }),
         });
     } catch {
         // Silent fail — don't break the UI for analytics
@@ -214,6 +301,16 @@ export async function trackPageView(title = '', location = '', referrer = '') {
     // Push to Meta Pixel
     if (config?.metaPixelId && window.fbq) {
         window.fbq('track', 'PageView');
+    }
+
+    // Push to Plausible
+    if (config?.plausibleDomain && typeof window.plausible === 'function') {
+        window.plausible('pageview');
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$pageview', params);
     }
 
     // Also send server-side for server-side providers
@@ -259,8 +356,8 @@ export async function trackEcommerce(name, data = {}) {
         }
     }
 
-    // Server-side dispatch
-    await trackEvent(name, data);
+    // Server-side dispatch (immediate — don't batch ecommerce)
+    await trackEvent(name, data, { immediate: true });
 }
 
 /**
@@ -458,6 +555,206 @@ export function initInertiaPageViewTracker() {
     return () => document.removeEventListener('inertia:navigate', handler);
 }
 
+// ─── Auto Form Tracking ────────────────────────────────────────────────
+
+/**
+ * Initialize automatic form interaction tracking.
+ *
+ * Tracks form_start when a user interacts with a form and form_submit on submit.
+ * Supports forms with data-analytics-form attribute for custom form names.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {boolean} [options.trackStart=true] - Track form_start events
+ * @param {boolean} [options.trackSubmit=true] - Track form_submit events
+ * @returns {function} Cleanup function to remove listeners
+ *
+ * @example
+ * const cleanup = initFormTracking();
+ *
+ * // In HTML:
+ * // <form data-analytics-form="contact" ...>
+ */
+export function initFormTracking(options = {}) {
+    if (!initialized) return () => {};
+
+    const { trackStart = true, trackSubmit = true } = options;
+    const trackedForms = new WeakSet();
+
+    function onFormInteract(e) {
+        const form = e.target.closest('form');
+        if (!form || trackedForms.has(form)) return;
+
+        const formName = form.dataset.analyticsForm || form.id || form.action || 'unknown';
+        trackedForms.add(form);
+
+        if (trackStart) {
+            trackEvent('form_start', {
+                form_name: formName,
+                form_id: form.id || null,
+                form_action: form.action || null,
+                page_location: window.location.href,
+            });
+        }
+    }
+
+    function onFormSubmit(e) {
+        const form = e.target.closest('form');
+        if (!form) return;
+
+        const formName = form.dataset.analyticsForm || form.id || form.action || 'unknown';
+
+        if (trackSubmit) {
+            trackEvent('form_submit', {
+                form_name: formName,
+                form_id: form.id || null,
+                form_method: form.method?.toUpperCase() || 'GET',
+                page_location: window.location.href,
+            }, { immediate: true });
+        }
+    }
+
+    document.addEventListener('focusin', onFormInteract, true);
+    document.addEventListener('submit', onFormSubmit, true);
+
+    return () => {
+        document.removeEventListener('focusin', onFormInteract, true);
+        document.removeEventListener('submit', onFormSubmit, true);
+    };
+}
+
+// ─── Auto Error Tracking ──────────────────────────────────────────────
+
+/**
+ * Initialize automatic JavaScript error tracking.
+ *
+ * Captures unhandled errors and unhandled promise rejections.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {boolean} [options.trackErrors=true] - Track JS errors
+ * @param {boolean} [options.trackRejections=true] - Track unhandled promise rejections
+ * @param {string[]} [options.ignorePatterns] - Regex patterns for errors to ignore
+ * @returns {function} Cleanup function to remove listeners
+ *
+ * @example
+ * const cleanup = initErrorTracking({
+ *     ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
+ * });
+ */
+export function initErrorTracking(options = {}) {
+    if (!initialized) return () => {};
+
+    const {
+        trackErrors = true,
+        trackRejections = true,
+        ignorePatterns = [],
+    } = options;
+
+    function shouldIgnore(message) {
+        if (!message) return false;
+        return ignorePatterns.some((pattern) => new RegExp(pattern).test(message));
+    }
+
+    function onError(event) {
+        if (!trackErrors) return;
+
+        const message = event.message || event.error?.message || 'Unknown error';
+        if (shouldIgnore(message)) return;
+
+        trackEvent('js_error', {
+            error_message: message,
+            error_source: event.filename || null,
+            error_line: event.lineno || null,
+            error_col: event.colno || null,
+            page_location: window.location.href,
+        }, { immediate: true });
+    }
+
+    function onUnhandledRejection(event) {
+        if (!trackRejections) return;
+
+        const message = event.reason?.message || String(event.reason) || 'Unhandled rejection';
+        if (shouldIgnore(message)) return;
+
+        trackEvent('js_error', {
+            error_message: message,
+            error_type: 'unhandled_rejection',
+            page_location: window.location.href,
+        }, { immediate: true });
+    }
+
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onUnhandledRejection);
+
+    return () => {
+        window.removeEventListener('error', onError);
+        window.removeEventListener('unhandledrejection', onUnhandledRejection);
+    };
+}
+
+// ─── Performance Tracking ──────────────────────────────────────────────
+
+/**
+ * Track a Web Vitals metric.
+ *
+ * @param {string} metricName - Metric name (e.g. 'LCP', 'FID', 'CLS', 'INP')
+ * @param {number} value - Metric value
+ * @param {object} [params] - Additional params
+ *
+ * @example
+ * // Use with web-vitals library:
+ * import { onLCP, onFID, onCLS, onINP } from 'web-vitals';
+ * onLCP(metric => trackPerformance('LCP', metric.value));
+ * onFID(metric => trackPerformance('FID', metric.value));
+ * onCLS(metric => trackPerformance('CLS', metric.value, { rating: metric.rating }));
+ */
+export async function trackPerformance(metricName, value, params = {}) {
+    if (!initialized) return;
+
+    await trackEvent('web_vitals', {
+        metric_name: metricName,
+        metric_value: Math.round(value * 100) / 100,
+        page_location: window.location.href,
+        ...params,
+    });
+}
+
+/**
+ * Track a timing event using the Performance API.
+ *
+ * @param {string} name - Timing name
+ * @returns {void}
+ */
+export function trackTiming(name) {
+    if (!initialized || typeof performance === 'undefined') return;
+
+    const startMark = `zb_${name}_start`;
+
+    performance.mark(startMark);
+
+    return () => {
+        const endMark = `zb_${name}_end`;
+        performance.mark(endMark);
+
+        try {
+            performance.measure(name, startMark, endMark);
+            const entries = performance.getEntriesByName(name);
+            const duration = entries[entries.length - 1]?.duration || 0;
+
+            trackEvent('timing', {
+                timing_name: name,
+                timing_duration_ms: Math.round(duration),
+                page_location: window.location.href,
+            });
+
+            performance.clearMarks(startMark);
+            performance.clearMarks(endMark);
+            performance.clearMeasures(name);
+        } catch {
+            // Performance API not supported
+        }
+    };
+}
+
 // ─── GTM Data Layer Push ─────────────────────────────────────────────────
 
 /**
@@ -514,4 +811,21 @@ function getMetaContent(name) {
 
     const meta = document.querySelector(`meta[name="${name}"]`);
     return meta ? meta.getAttribute('content') : '';
+}
+
+/**
+ * Generate a UUID v4 for client-side identifiers.
+ * @returns {string}
+ */
+function generateUUID() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+
+        return v.toString(16);
+    });
 }

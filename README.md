@@ -8,14 +8,18 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 - **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events
 - **Server-Side Auto-Tracking** — Automatically tracks Laravel auth events (login, register, logout) and custom app events (subscriptions, trials, features)
 - **Inertia.js Integration** — Middleware injects analytics config into page props for Svelte/Vue/React
-- **API Endpoints** — Server-side endpoints for frontend event tracking (track, batch, identify, consent)
-- **JS Client Library** — ES module for Svelte/Inertia with auto page view, scroll depth, consent management
+- **API Endpoints** — Server-side endpoints for frontend event tracking (track, batch, identify, consent, health)
+- **JS Client Library** — ES module for Svelte/Inertia with auto page view, scroll depth, form tracking, error tracking, performance monitoring, and batch queue
 - **Async Queue Dispatch** — Queue analytics events to background workers (configurable)
 - **User Identity Linking** — Cross-device identification via client ID ↔ user ID association
-- **E-commerce Helpers** — High-level service for view item, cart, checkout, purchase, refund
+- **E-commerce Helpers** — High-level service for view item, cart, checkout, purchase, refund with GA4 + Meta format conversion
+- **SaaS Analytics Service** — Convenience methods for SaaS lifecycle: sign-up, login, trial, subscription, plan changes, cancellation, feature usage
+- **Session Tracker** — Session start/end, page counts, duration tracking, conversion funnel monitoring
+- **Event Validation** — Event name validation, parameter sanitization, and deduplication
 - **Consent Mode v2** — Full GDPR compliance with granular consent signals
 - **Blade Directives** — `@analyticsHead`, `@analyticsBody` for traditional Laravel apps
 - **Admin Commands** — `zb:analytics:overview` and `zb:analytics:test`
+- **Debug Mode** — Development-friendly logging without dispatching to providers
 
 ## Installation
 
@@ -82,6 +86,15 @@ ANALYTICS_IDENTITY_COOKIE_TTL=525600
 # E-commerce
 ANALYTICS_ECOMMERCE_CURRENCY=USD
 ANALYTICS_ECOMMERCE_BRAND=
+
+# Debug
+ANALYTICS_DEBUG_ENABLED=false
+ANALYTICS_DEBUG_LOG_EVENTS=false
+
+# Event Validation
+ANALYTICS_VALIDATION_STRICT=false
+ANALYTICS_VALIDATION_MAX_NAME_LENGTH=100
+ANALYTICS_VALIDATION_DEDUP_WINDOW=10
 ```
 
 ## Usage
@@ -134,6 +147,73 @@ Analytics::trackEvent(new SubscriptionEvent(plan: 'pro', value: 29.99, currency:
 Analytics::trackEvent(new PlanUpgradeEvent(fromPlan: 'starter', toPlan: 'pro'));
 Analytics::trackEvent(new CancellationEvent(plan: 'pro', reason: 'too_expensive'));
 Analytics::trackEvent(new FeatureUsedEvent(feature: 'export', usageCount: 5));
+```
+
+### SaaS Analytics Service (Convenience)
+
+```php
+use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
+
+$saas = app(SaaSAnalyticsService::class);
+
+$saas->trackSignUp('google');
+$saas->trackLogin('sanctum');
+$saas->trackTrialStart('pro', 14);
+$saas->trackSubscription('business', 99.99, 'EUR');
+$saas->trackPlanUpgrade('starter', 'pro');
+$saas->trackCancellation('pro', 'too_expensive');
+$saas->trackFeatureUsed('export', 5);
+$saas->trackCustomEvent('onboarding_complete', ['step_count' => 5]);
+```
+
+### Session Tracking
+
+```php
+use ZeroBoiler\Analytics\Tracking\SessionTracker;
+
+$session = app(SessionTracker::class);
+
+// Start a session
+$session->startSession($sessionId, ['source' => 'email_campaign']);
+
+// Track pages within the session
+$session->trackSessionPageView($sessionId, ['page' => '/pricing']);
+
+// Track conversion funnels
+$session->trackFunnelStep('signup', 'landing', 1);
+$session->trackFunnelStep('signup', 'form', 2);
+$session->trackFunnelStep('signup', 'confirm', 3);
+$session->trackFunnelComplete('signup', 3);
+
+// Track abandonment
+$session->trackFunnelAbandon('purchase', 'checkout', 4);
+
+// End session
+$session->endSession($sessionId); // Tracks duration + page count
+```
+
+### Event Validation
+
+```php
+use ZeroBoiler\Analytics\Services\EventValidationService;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+$validator = app(EventValidationService::class);
+
+$result = $validator->validate(new AnalyticsEvent(
+    name: 'page_view',
+    params: ['key' => 'value'],
+));
+
+if ($result['valid']) {
+    Analytics::trackEvent($result['event']);
+} else {
+    foreach ($result['errors'] as $error) {
+        Log::warning("Analytics validation: {$error}");
+    }
+}
+
+// Enable strict mode via config to only allow whitelisted events
 ```
 
 ### Engagement Events
@@ -253,6 +333,7 @@ Route::middleware(['web', 'analytics.inertia'])->group(function () {
 import { page } from '@inertiajs/svelte';
 import {
     init,
+    destroy,
     trackPageView,
     trackEvent,
     trackEcommerce,
@@ -260,6 +341,9 @@ import {
     updateConsent,
     initScrollDepth,
     initInertiaPageViewTracker,
+    initFormTracking,
+    initErrorTracking,
+    flushQueue,
 } from '../resources/js/analytics';
 
 // Initialize on app boot
@@ -267,16 +351,88 @@ $: if (page.props.zbAnalytics) {
     init(page.props);
 }
 
-// Auto-track page views
+// Setup tracking on mount
 onMount(() => {
     const cleanupScroll = initScrollDepth();
     const cleanupInertia = initInertiaPageViewTracker();
+    const cleanupForm = initFormTracking();
+    const cleanupErrors = initErrorTracking({
+        ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
+    });
 
     return () => {
         cleanupScroll();
         cleanupInertia();
+        cleanupForm();
+        cleanupErrors();
+        destroy();
     };
 });
+```
+
+## JS Client Library
+
+### Event Tracking
+
+```javascript
+import { trackEvent, flushQueue } from '../resources/js/analytics';
+
+// Events are batched automatically (flushed every 5 seconds or 25 events)
+await trackEvent('button_click', { element: 'buy_now' });
+
+// Force immediate flush
+await flushQueue();
+
+// Immediate (non-batched) dispatch
+await trackEvent('purchase', { value: 99.99 }, { immediate: true });
+```
+
+### E-commerce
+
+```javascript
+import { trackEcommerce } from '../resources/js/analytics';
+
+await trackEcommerce('purchase', {
+    transaction_id: 'TXN-12345',
+    value: 99.99,
+    currency: 'USD',
+    items: [{ item_id: 'SKU-001', item_name: 'Widget', price: 49.99, quantity: 2 }],
+});
+```
+
+### Auto Form Tracking
+
+```html
+<form data-analytics-form="contact" ...>
+```
+
+```javascript
+import { initFormTracking } from '../resources/js/analytics';
+const cleanup = initFormTracking(); // Tracks form_start + form_submit
+```
+
+### Auto Error Tracking
+
+```javascript
+import { initErrorTracking } from '../resources/js/analytics';
+
+const cleanup = initErrorTracking({
+    trackErrors: true,
+    trackRejections: true,
+    ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
+});
+```
+
+### Performance Tracking
+
+```javascript
+import { trackPerformance } from '../resources/js/analytics';
+
+// With web-vitals library:
+import { onLCP, onCLS, onINP } from 'web-vitals';
+onLCP(metric => trackPerformance('LCP', metric.value));
+onCLS(metric => trackPerformance('CLS', metric.value));
+onINP(metric => trackPerformance('INP', metric.value));
 ```
 
 ## Blade Directives (Traditional Laravel)
@@ -293,7 +449,6 @@ onMount(() => {
     <!-- Your content -->
 
     <script>
-        // Track client-side events
         function trackClick(element) {
             fetch('/api/analytics/events', {
                 method: 'POST',
@@ -314,14 +469,32 @@ onMount(() => {
 
 ## API Endpoints
 
-All endpoints require authentication (`auth:sanctum`) and are rate-limited (60 req/min):
+All authenticated endpoints require `auth:sanctum` and are rate-limited (60 req/min).
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/analytics/events` | Track a single event |
-| POST | `/api/analytics/batch` | Track up to 25 events |
-| POST | `/api/analytics/identify` | Link client ID ↔ user ID |
-| POST | `/api/analytics/consent` | Update consent signals |
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/analytics/health` | No | Health check for monitoring |
+| POST | `/api/analytics/events` | Yes | Track a single event |
+| POST | `/api/analytics/batch` | Yes | Track up to 25 events |
+| POST | `/api/analytics/identify` | Yes | Link client ID ↔ user ID |
+| POST | `/api/analytics/consent` | Yes | Update consent signals |
+
+### Health Check
+
+```json
+GET /api/analytics/health
+
+Response: {
+    "status": "ok",
+    "version": "1.1.0",
+    "providers": {
+        "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
+        "meta": { "status": "ok" }
+    },
+    "consent": { "analytics_storage": "granted", ... },
+    "timestamp": "2026-08-05T12:00:00Z"
+}
+```
 
 ### Track Event
 
@@ -449,10 +622,13 @@ src/
 │   ├── GoogleAnalyticsService.php
 │   ├── GoogleTagManagerService.php
 │   ├── MetaPixelService.php
-│   └── EcommerceAnalyticsService.php  # E-commerce convenience methods
+│   ├── EcommerceAnalyticsService.php  # E-commerce convenience methods
+│   ├── SaaSAnalyticsService.php      # SaaS lifecycle convenience methods
+│   └── EventValidationService.php    # Event validation & deduplication
 ├── Tracking/
 │   ├── ServerSideTracker.php     # Auto-track Laravel events
-│   └── UserIdentityTracker.php   # User ↔ client linking
+│   ├── UserIdentityTracker.php   # User ↔ client linking
+│   └── SessionTracker.php        # Session & funnel tracking
 ├── Queue/
 │   └── QueuedAnalyticsDispatcher.php  # Async queue dispatch
 ├── Http/

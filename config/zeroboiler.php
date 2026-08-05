@@ -154,5 +154,39 @@ return [
             'host' => env('ANALYTICS_POSTHOG_HOST', 'https://eu.posthog.com'),
             'project_id' => env('ANALYTICS_POSTHOG_PROJECT_ID', ''),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Debug Mode
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, events are logged but not sent to providers.
+        | Useful for development and debugging.
+        |
+        */
+        'debug' => [
+            'enabled' => env('ANALYTICS_DEBUG_ENABLED', false),
+            'log_events' => env('ANALYTICS_DEBUG_LOG_EVENTS', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Validation
+        |--------------------------------------------------------------------------
+        |
+        | Configure event name validation and deduplication.
+        | In strict mode, only whitelisted event names are accepted.
+        | Deduplication prevents the same event from being sent multiple times
+        | within a configurable time window.
+        |
+        */
+        'validation' => [
+            'strict' => env('ANALYTICS_VALIDATION_STRICT', false),
+            'whitelist' => [], // Add allowed event names, e.g. ['page_view', 'purchase']
+            'max_event_name_length' => (int) env('ANALYTICS_VALIDATION_MAX_NAME_LENGTH', 100),
+            'max_param_key_length' => (int) env('ANALYTICS_VALIDATION_MAX_PARAM_KEY_LENGTH', 100),
+            'deduplication_window' => (int) env('ANALYTICS_VALIDATION_DEDUP_WINDOW', 10),
+            'max_recent_events' => (int) env('ANALYTICS_VALIDATION_MAX_RECENT', 500),
+        ],
     ],
 ];
