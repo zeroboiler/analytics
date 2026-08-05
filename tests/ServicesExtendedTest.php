@@ -221,7 +221,7 @@ describe('AnalyticsEventController', function () {
         $config = new Repository([]);
         $manager = new AnalyticsManager($config);
 
-        $controller = new \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController($manager);
+        $controller = new \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController($manager, $config);
 
         expect($controller)->toBeInstanceOf(\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class);
     });
