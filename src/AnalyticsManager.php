@@ -26,9 +26,9 @@ class AnalyticsManager
 
     protected MetaPixelTracker $meta;
 
-    protected ?PlausibleTracker $plausible;
+    protected PlausibleTracker $plausible;
 
-    protected ?PosthogTracker $posthog;
+    protected PosthogTracker $posthog;
 
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
