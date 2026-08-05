@@ -9,6 +9,8 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
@@ -112,6 +114,11 @@ class AnalyticsServiceProvider extends ServiceProvider
                 [__DIR__.'/../config/zeroboiler.php' => $this->app->configPath('zeroboiler.php')],
                 'zeroboiler-analytics-config',
             );
+
+            $this->commands([
+                AnalyticsTestCommand::class,
+                AnalyticsOverviewCommand::class,
+            ]);
         }
 
         $this->registerBladeDirectives();
