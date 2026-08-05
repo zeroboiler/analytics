@@ -28,7 +28,7 @@ jobs:
         run: composer config -g github-oauth.github.com ${{ secrets.COMPOSER_TOKEN }}
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update --no-interaction --prefer-dist
 
       - name: Run Rector
         run: vendor/bin/rector --no-progress-bar

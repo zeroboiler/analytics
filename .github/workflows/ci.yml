@@ -25,7 +25,7 @@ jobs:
         run: composer config -g github-oauth.github.com ${{ secrets.COMPOSER_TOKEN }}
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update --no-interaction --prefer-dist
 
       - name: Pint (Formatting)
         run: vendor/bin/pint --test
@@ -54,7 +54,7 @@ jobs:
         run: composer config -g github-oauth.github.com ${{ secrets.COMPOSER_TOKEN }}
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update --no-interaction --prefer-dist
 
       - name: Pest (Tests)
         run: vendor/bin/pest --coverage --min=80
