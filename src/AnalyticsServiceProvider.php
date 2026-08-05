@@ -196,7 +196,7 @@ class AnalyticsServiceProvider extends ServiceProvider
             return;
         }
 
-        Route::middleware(['auth:sanctum'])
+        Route::middleware(['auth:sanctum', 'throttle:60,1'])
             ->group(__DIR__.'/../routes/analytics.php');
     }
 }
