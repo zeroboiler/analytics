@@ -53,6 +53,10 @@
         {
             "type": "path",
             "url": "/tmp/dto"
+        },
+        {
+            "type": "path",
+            "url": "/tmp/value-objects"
         }
     ]
 }

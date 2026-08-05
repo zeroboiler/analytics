@@ -27,6 +27,8 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.COMPOSER_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
+          # Clone dependency chain: analytics → response → dto → value-objects
+          git clone https://x-access-token:${COMPOSER_TOKEN}@github.com/zeroboiler/value-objects.git /tmp/value-objects
           git clone https://x-access-token:${COMPOSER_TOKEN}@github.com/zeroboiler/dto.git /tmp/dto
           git clone https://x-access-token:${COMPOSER_TOKEN}@github.com/zeroboiler/response.git /tmp/response
 
