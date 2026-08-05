@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ZeroBoiler\Analytics\Events\SaaS;
+
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+/**
+ * Tracks a user sign-up / registration.
+ *
+ * GA4: sign_up
+ * Meta: CompleteRegistration
+ */
+final readonly class SignUpEvent extends AnalyticsEvent
+{
+    /**
+     * @param  string|null  $method  Registration method (e.g. 'email', 'google', 'github')
+     */
+    public function __construct(?string $method = null)
+    {
+        parent::__construct('sign_up', array_filter([
+            'method' => $method,
+        ]));
+    }
+}
