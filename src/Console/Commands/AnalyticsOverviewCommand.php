@@ -23,6 +23,7 @@ class AnalyticsOverviewCommand extends Command
         $this->info('📊 ZeroBoiler Analytics Overview');
         $this->newLine();
 
+        /** @var array<string, mixed> $config */
         $config = config('zeroboiler.analytics', []);
 
         // Providers
@@ -30,6 +31,7 @@ class AnalyticsOverviewCommand extends Command
         $this->line('─────────────────────────────');
 
         foreach (['ga4', 'gtm', 'meta_pixel'] as $provider) {
+            /** @var array<string, mixed> $providerConfig */
             $providerConfig = $config[$provider] ?? [];
             $enabled = (bool) ($providerConfig['enabled'] ?? false);
             $status = $enabled ? '<fg=green>●</> enabled' : '<fg=yellow>○</> disabled';

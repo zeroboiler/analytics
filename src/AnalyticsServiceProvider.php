@@ -91,7 +91,7 @@ class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
 
-            return new UserIdentityTracker($manager, $queue, $cookieName);
+            return new UserIdentityTracker($manager, $queue, (string) $cookieName);
         });
 
         $this->app->singleton(EcommerceAnalyticsService::class, function (Application $app): EcommerceAnalyticsService {
@@ -162,6 +162,7 @@ class AnalyticsServiceProvider extends ServiceProvider
     private function registerAutoTracking(): void
     {
         $tracker = $this->app->make(ServerSideTracker::class);
+        /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
         $dispatcher = $this->app->make('events');
 
         $tracker->register($dispatcher);
@@ -169,7 +170,7 @@ class AnalyticsServiceProvider extends ServiceProvider
         // Register custom application events from config
         $config = $this->app->make(ConfigRepository::class);
         $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
-        /** @var array{events?: array<string, bool>} $autoTrack */
+        /** @var array{events?: array<string, bool>, models?: array<class-string, array<int, string>>} $autoTrack */
         $customEvents = $autoTrack['events'] ?? [];
 
         foreach (array_keys($customEvents) as $eventName) {
@@ -193,7 +194,7 @@ class AnalyticsServiceProvider extends ServiceProvider
      */
     private function registerRoutes(): void
     {
-        if ($this->app->routesAreCached()) {
+        if ($this->app instanceof \Illuminate\Foundation\Application && $this->app->routesAreCached()) {
             return;
         }
 
