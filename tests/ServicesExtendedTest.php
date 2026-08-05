@@ -203,7 +203,7 @@ describe('UserIdentityTracker', function () {
 
             $manager = new AnalyticsManager($config);
             $dispatcher = new QueuedAnalyticsDispatcher($manager, $config);
-            $tracker = new UserIdentityTracker($manager, $dispatcher);
+            $tracker = new UserIdentityTracker($dispatcher);
 
             $tracker->identify('user-123', 'client-abc');
 

@@ -149,7 +149,7 @@ class AnalyticsEventController extends Controller
         ]);
 
         $signals = $request->input('signals', []);
-        /** @var array<string, string|null> $signals */
+        $signals = is_array($signals) ? $signals : [];
 
         $state = $this->manager->getConsent()->with($signals);
 

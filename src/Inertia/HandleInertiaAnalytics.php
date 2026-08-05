@@ -77,7 +77,7 @@ class HandleInertiaAnalytics
     private function getOrCreateTrackingId(Request $request): string
     {
         $cookieName = $this->config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
-        /** @var string $cookieName */
+        $cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
 
         $existing = $request->cookie($cookieName);
 

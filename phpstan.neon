@@ -33,6 +33,14 @@ parameters:
           path: src/Http/Controllers/AnalyticsEventController.php
         - message: '~Argument of an invalid type mixed supplied for foreach~'
           path: src/Http/Controllers/AnalyticsEventController.php
+        - message: '~Parameter #1 \$signals of method .+ConsentState::with\(\) expects array<string, string\|null>, mixed given~'
+          path: src/Http/Controllers/AnalyticsEventController.php
         # config() returns mixed; test command safely uses option() values
         - message: '~Cannot cast array\|bool\|float\|int\|string\|null to string~'
           path: src/Console/Commands/AnalyticsTestCommand.php
+        # config() returns mixed; middleware safely uses known config keys
+        - message: '~Parameter #1 \$key of method Illuminate\\Http\\Request::cookie\(\) expects string\|null, mixed given~'
+          path: src/Inertia/HandleInertiaAnalytics.php
+        # auth()->user() returns mixed to PHPStan via facade
+        - message: '~Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::user\(\)~'
+          path: src/Inertia/HandleInertiaAnalytics.php
