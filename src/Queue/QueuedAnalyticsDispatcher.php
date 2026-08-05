@@ -21,8 +21,6 @@ class QueuedAnalyticsDispatcher
 {
     private AnalyticsManager $manager;
 
-    private ConfigRepository $config;
-
     private bool $enabled;
 
     private string $queueName;
@@ -32,7 +30,6 @@ class QueuedAnalyticsDispatcher
     public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         $this->manager = $manager;
-        $this->config = $config;
 
         $queueConfig = $config->get('zeroboiler.analytics.queue', []);
         /** @var array{enabled?: bool, queue?: string, connection?: string} $queueConfig */
@@ -53,11 +50,15 @@ class QueuedAnalyticsDispatcher
             return;
         }
 
-        dispatch(function () use ($event): void {
+        $pendingJob = dispatch(function () use ($event): void {
             $this->safeTrack($event);
         })
             ->onQueue($this->queueName)
             ->afterCommit();
+
+        if ($this->connection !== null) {
+            $pendingJob->onConnection($this->connection);
+        }
     }
 
     /**

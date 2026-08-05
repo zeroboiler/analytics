@@ -116,14 +116,17 @@ class HandleInertiaAnalytics
      */
     private function getUserId(): ?string
     {
+        /** @var \Illuminate\Contracts\Auth\Authenticatable|null $user */
         $user = auth()->user();
 
         if ($user === null) {
             return null;
         }
 
+        $key = method_exists($user, 'getKeyName') ? $user->getKeyName() : 'id';
+
         return method_exists($user, 'getAttribute')
-            ? (string) $user->getAttribute($user->getKeyName())
+            ? (string) $user->getAttribute($key)
             : (string) $user->getKey();
     }
 
