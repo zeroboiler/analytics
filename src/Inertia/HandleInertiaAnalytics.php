@@ -8,8 +8,8 @@ use Closure;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
 
 /**

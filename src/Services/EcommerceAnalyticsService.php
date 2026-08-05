@@ -165,7 +165,7 @@ class EcommerceAnalyticsService
         ];
 
         // Remove empty values (empty strings and zeros are treated as "not set")
-        return array_filter($formatted, fn (mixed $v): bool => $v !== '' && $v !== 0);
+        return array_filter($formatted, fn (mixed $v): bool => $v != '' && $v != 0);
     }
 
     /**
