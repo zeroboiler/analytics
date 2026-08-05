@@ -49,15 +49,15 @@
     "repositories": [
         {
             "type": "path",
-            "url": "/tmp/response"
+            "url": "../response"
         },
         {
             "type": "path",
-            "url": "/tmp/dto"
+            "url": "../dto"
         },
         {
             "type": "path",
-            "url": "/tmp/value-objects"
+            "url": "../value-objects"
         }
     ]
 }

@@ -83,15 +83,13 @@ class AnalyticsServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(UserIdentityTracker::class, function (Application $app): UserIdentityTracker {
-            /** @var AnalyticsManager $manager */
-            $manager = $app->make('zeroboiler.analytics');
             /** @var QueuedAnalyticsDispatcher $queue */
             $queue = $app->make(QueuedAnalyticsDispatcher::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
 
-            return new UserIdentityTracker($manager, $queue, $cookieName);
+            return new UserIdentityTracker($queue, $cookieName);
         });
 
         $this->app->singleton(EcommerceAnalyticsService::class, function (Application $app): EcommerceAnalyticsService {

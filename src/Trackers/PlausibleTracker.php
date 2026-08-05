@@ -65,6 +65,7 @@ class PlausibleTracker implements TrackerInterface
         $payload = array_filter($payload, fn (mixed $v): bool => $v !== null && $v !== '');
 
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$this->apiKey}",
                 'Content-Type' => 'application/json',

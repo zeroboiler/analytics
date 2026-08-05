@@ -67,6 +67,7 @@ class PosthogTracker implements TrackerInterface
         }
 
         try {
+            /** @var \Illuminate\Http\Client\Response $response */
             $response = Http::post(
                 "{$this->host}/capture",
                 $payload,

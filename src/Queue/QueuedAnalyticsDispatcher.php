@@ -82,13 +82,17 @@ class QueuedAnalyticsDispatcher
             return;
         }
 
-        dispatch(function () use ($events): void {
+        $pendingJob = dispatch(function () use ($events): void {
             foreach ($events as $event) {
                 $this->safeTrack($event);
             }
         })
             ->onQueue($this->queueName)
             ->afterCommit();
+
+        if ($this->connection !== null) {
+            $pendingJob->onConnection($this->connection);
+        }
     }
 
     /**

@@ -7,7 +7,6 @@ namespace ZeroBoiler\Analytics\Tracking;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 
@@ -20,18 +19,14 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  */
 class UserIdentityTracker
 {
-    private AnalyticsManager $manager;
-
     private QueuedAnalyticsDispatcher $queue;
 
     private string $cookieName;
 
     public function __construct(
-        AnalyticsManager $manager,
         QueuedAnalyticsDispatcher $queue,
         string $cookieName = 'zb_analytics_id',
     ) {
-        $this->manager = $manager;
         $this->queue = $queue;
         $this->cookieName = $cookieName;
     }
@@ -65,7 +60,8 @@ class UserIdentityTracker
      */
     public function onLogin(Authenticatable $user, Request $request): void
     {
-        $userId = (string) $user->getAuthIdentifier();
+        $authId = $user->getAuthIdentifier();
+        $userId = is_int($authId) || is_string($authId) ? (string) $authId : '';
         $clientId = $this->extractClientId($request);
 
         if ($clientId === null) {
@@ -87,7 +83,8 @@ class UserIdentityTracker
      */
     public function onRegister(Authenticatable $user, Request $request): void
     {
-        $userId = (string) $user->getAuthIdentifier();
+        $authId = $user->getAuthIdentifier();
+        $userId = is_int($authId) || is_string($authId) ? (string) $authId : '';
         $clientId = $this->extractClientId($request);
 
         if ($clientId === null) {
@@ -109,7 +106,8 @@ class UserIdentityTracker
      */
     public function onLogout(Authenticatable $user, Request $request): void
     {
-        $userId = (string) $user->getAuthIdentifier();
+        $authId = $user->getAuthIdentifier();
+        $userId = is_int($authId) || is_string($authId) ? (string) $authId : '';
 
         $event = new AnalyticsEvent(
             name: 'logout',

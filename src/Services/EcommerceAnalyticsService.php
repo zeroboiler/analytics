@@ -42,6 +42,8 @@ class EcommerceAnalyticsService
 
     /**
      * Track a product view.
+     *
+     * @param  array<string, mixed>  $item
      */
     public function viewItem(array $item): void
     {
@@ -56,6 +58,8 @@ class EcommerceAnalyticsService
 
     /**
      * Track add-to-cart action.
+     *
+     * @param  array<string, mixed>  $item
      */
     public function addToCart(array $item): void
     {
@@ -71,6 +75,8 @@ class EcommerceAnalyticsService
 
     /**
      * Track remove-from-cart action.
+     *
+     * @param  array<string, mixed>  $item
      */
     public function removeFromCart(array $item): void
     {
@@ -86,6 +92,8 @@ class EcommerceAnalyticsService
 
     /**
      * Track viewing the cart.
+     *
+     * @param  array<string, mixed>  $items
      */
     public function viewCart(array $items, float $value): void
     {
@@ -98,6 +106,9 @@ class EcommerceAnalyticsService
 
     /**
      * Track begin checkout.
+     *
+     * @param  array<string, mixed>  $items
+     * @param  array<string, mixed>  $params
      */
     public function beginCheckout(array $items, float $value, array $params = []): void
     {
@@ -121,6 +132,9 @@ class EcommerceAnalyticsService
 
     /**
      * Track a purchase.
+     *
+     * @param  array<string, mixed>  $items
+     * @param  array<string, mixed>  $params
      */
     public function purchase(string $transactionId, float $value, array $items, array $params = []): void
     {
@@ -138,6 +152,8 @@ class EcommerceAnalyticsService
 
     /**
      * Track a refund.
+     *
+     * @param  array<string, mixed>|null  $items
      */
     public function refund(string $transactionId, ?float $refundValue = null, ?array $items = null): void
     {
@@ -151,6 +167,9 @@ class EcommerceAnalyticsService
 
     /**
      * Format items for GA4 (standardized format).
+     *
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
      */
     public function formatGA4Item(array $item): array
     {
@@ -170,6 +189,9 @@ class EcommerceAnalyticsService
 
     /**
      * Format items for Meta Pixel (contents array format).
+     *
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
      */
     public function formatMetaItem(array $item): array
     {
@@ -184,6 +206,9 @@ class EcommerceAnalyticsService
 
     /**
      * Format an array of items using the GA4 format.
+     *
+     * @param  array<string, mixed>  $items
+     * @return array<int, array<string, mixed>>
      */
     private function formatItems(array $items): array
     {

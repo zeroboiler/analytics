@@ -137,6 +137,8 @@ class ServerSideTracker
      *   'models' => [
      *       App\Models\Habit::class => ['created', 'deleted'],
      *   ]
+     *
+     * @param  array<class-string, array<int, string>>  $modelEvents
      */
     public function registerModelListeners(array $modelEvents): void
     {
@@ -208,10 +210,7 @@ class ServerSideTracker
     ): void {
         try {
             $analyticsEvent = $this->buildAnalyticsEvent($analyticsEventClass, $payload);
-
-            if ($analyticsEvent !== null) {
-                $manager->trackEvent($analyticsEvent);
-            }
+            $manager->trackEvent($analyticsEvent);
         } catch (\Throwable $e) {
             Log::error('ServerSideTracker: failed to dispatch analytics event', [
                 'analytics_class' => $analyticsEventClass,
@@ -223,12 +222,12 @@ class ServerSideTracker
     /**
      * Build a typed analytics event from a Laravel event payload.
      */
-    private function buildAnalyticsEvent(string $analyticsEventClass, mixed $payload): ?AnalyticsEvent
+    private function buildAnalyticsEvent(string $analyticsEventClass, mixed $payload): AnalyticsEvent
     {
         // Auth events carry a user property
         if ($payload instanceof Login) {
             /** @var AnalyticsEvent $event */
-            $event = new $analyticsEventClass(method: $payload->guard ?? 'default');
+            $event = new $analyticsEventClass(method: $payload->guard);
 
             return $event;
         }
@@ -256,9 +255,16 @@ class ServerSideTracker
 
     /**
      * Extract constructor argument values from an associative array payload.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<int, mixed>
      */
     private function extractConstructorArgs(string $class, array $payload): array
     {
+        if (! class_exists($class)) {
+            return [];
+        }
+
         try {
             $reflection = new \ReflectionClass($class);
             $constructor = $reflection->getConstructor();

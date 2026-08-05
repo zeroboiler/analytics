@@ -168,7 +168,7 @@ describe('UserIdentityTracker', function () {
 
         $manager = new AnalyticsManager($config);
         $dispatcher = new QueuedAnalyticsDispatcher($manager, $config);
-        $tracker = new UserIdentityTracker($manager, $dispatcher);
+        $tracker = new UserIdentityTracker($dispatcher);
 
         expect($tracker)->toBeInstanceOf(UserIdentityTracker::class);
     });
@@ -185,7 +185,7 @@ describe('UserIdentityTracker', function () {
 
         $manager = new AnalyticsManager($config);
         $dispatcher = new QueuedAnalyticsDispatcher($manager, $config);
-        $tracker = new UserIdentityTracker($manager, $dispatcher, 'custom_tracking_id');
+        $tracker = new UserIdentityTracker($dispatcher, 'custom_tracking_id');
 
         expect($tracker)->toBeInstanceOf(UserIdentityTracker::class);
     });
