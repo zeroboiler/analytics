@@ -17,7 +17,7 @@ final readonly class AddToCartEvent extends AnalyticsEvent
     /**
      * @param  string  $itemId  Product/item ID
      * @param  string  $itemName  Product/item name
-     * @param  float  $price  Item price
+     * @param  float|null  $price  Item price
      * @param  int  $quantity  Number of items added
      * @param  string  $currency  Currency code (ISO 4217)
      * @param  string|null  $itemCategory  Category of the item
@@ -26,7 +26,7 @@ final readonly class AddToCartEvent extends AnalyticsEvent
     public function __construct(
         string $itemId,
         string $itemName,
-        float $price,
+        ?float $price = null,
         int $quantity = 1,
         string $currency = 'USD',
         ?string $itemCategory = null,
@@ -34,7 +34,7 @@ final readonly class AddToCartEvent extends AnalyticsEvent
     ) {
         parent::__construct('add_to_cart', array_filter([
             'currency' => $currency,
-            'value' => $price * $quantity,
+            'value' => ($price ?? 0) * $quantity,
             'items' => [[
                 'item_id' => $itemId,
                 'item_name' => $itemName,

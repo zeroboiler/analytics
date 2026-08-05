@@ -17,7 +17,7 @@ final readonly class ViewItemEvent extends AnalyticsEvent
     /**
      * @param  string  $itemId  Product/item ID
      * @param  string  $itemName  Product/item name
-     * @param  float  $price  Item price
+     * @param  float|null  $price  Item price
      * @param  string  $currency  Currency code (ISO 4217)
      * @param  string|null  $itemCategory  Category of the item
      * @param  string|null  $itemVariant  Variant of the item
@@ -26,7 +26,7 @@ final readonly class ViewItemEvent extends AnalyticsEvent
     public function __construct(
         string $itemId,
         string $itemName,
-        float $price,
+        ?float $price = null,
         string $currency = 'USD',
         ?string $itemCategory = null,
         ?string $itemVariant = null,
