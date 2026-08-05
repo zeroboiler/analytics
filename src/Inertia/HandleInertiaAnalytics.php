@@ -68,6 +68,14 @@ class HandleInertiaAnalytics
             $analyticsProps['metaPixelId'] = $this->manager->meta()->getPixelId();
         }
 
+        if ($this->manager->plausible()->isEnabled()) {
+            $analyticsProps['plausibleDomain'] = $this->manager->plausible()->getDomain();
+        }
+
+        if ($this->manager->posthog()->isEnabled()) {
+            $analyticsProps['posthogHost'] = $this->manager->posthog()->getHost();
+        }
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 
@@ -137,6 +145,8 @@ class HandleInertiaAnalytics
     {
         return $this->manager->ga4()->isEnabled()
             || $this->manager->gtm()->isEnabled()
-            || $this->manager->meta()->isEnabled();
+            || $this->manager->meta()->isEnabled()
+            || $this->manager->plausible()->isEnabled()
+            || $this->manager->posthog()->isEnabled();
     }
 }

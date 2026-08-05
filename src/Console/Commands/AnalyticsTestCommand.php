@@ -39,8 +39,10 @@ class AnalyticsTestCommand extends Command
         $ga4 = $this->manager->ga4();
         $gtm = $this->manager->gtm();
         $meta = $this->manager->meta();
+        $plausible = $this->manager->plausible();
+        $posthog = $this->manager->posthog();
 
-        $anyEnabled = $ga4->isEnabled() || $gtm->isEnabled() || $meta->isEnabled();
+        $anyEnabled = $ga4->isEnabled() || $gtm->isEnabled() || $meta->isEnabled() || $plausible->isEnabled() || $posthog->isEnabled();
 
         if (! $anyEnabled) {
             $this->warn('⚠️  No analytics providers are enabled.');
@@ -98,6 +100,24 @@ class AnalyticsTestCommand extends Command
         if ($meta->isEnabled()) {
             $this->line('  Pixel ID: '.$meta->getPixelId());
             $meta->track($event);
+            $this->info('  ✅ Event dispatched successfully');
+        }
+
+        // Plausible
+        $this->newLine();
+        $this->section('Plausible', $plausible->isEnabled());
+        if ($plausible->isEnabled()) {
+            $this->line('  Domain: '.$plausible->getDomain());
+            $plausible->track($event);
+            $this->info('  ✅ Event dispatched successfully');
+        }
+
+        // PostHog
+        $this->newLine();
+        $this->section('PostHog', $posthog->isEnabled());
+        if ($posthog->isEnabled()) {
+            $this->line('  Host: '.$posthog->getHost());
+            $posthog->track($event);
             $this->info('  ✅ Event dispatched successfully');
         }
 

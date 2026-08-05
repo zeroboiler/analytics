@@ -30,7 +30,29 @@ class AnalyticsOverviewCommand extends Command
         $this->line('<fg=cyan;options=bold>PROVIDERS</>');
         $this->line('─────────────────────────────');
 
-        foreach (['ga4', 'gtm', 'meta_pixel'] as $provider) {
+        $providerDetails = [
+            'ga4' => function (array $c): void {
+                $this->line('    Measurement ID: '.($c['measurement_id'] ?? '—'));
+                $this->line('    API Secret: '.((($c['api_secret'] ?? '') !== '') ? substr($c['api_secret'], 0, 8).'...' : '—'));
+            },
+            'gtm' => function (array $c): void {
+                $this->line('    Container ID: '.($c['container_id'] ?? '—'));
+            },
+            'meta_pixel' => function (array $c): void {
+                $this->line('    Pixel ID: '.($c['id'] ?? '—'));
+                $this->line('    Access Token: '.((($c['access_token'] ?? '') !== '') ? substr($c['access_token'], 0, 8).'...' : '—'));
+            },
+            'plausible' => function (array $c): void {
+                $this->line('    Domain: '.($c['domain'] ?? '—'));
+                $this->line('    API Key: '.((($c['api_key'] ?? '') !== '') ? substr($c['api_key'], 0, 8).'...' : '—'));
+            },
+            'posthog' => function (array $c): void {
+                $this->line('    API Key: '.((($c['api_key'] ?? '') !== '') ? substr($c['api_key'], 0, 8).'...' : '—'));
+                $this->line('    Host: '.($c['host'] ?? '—'));
+            },
+        ];
+
+        foreach (array_keys($providerDetails) as $provider) {
             /** @var array<string, mixed> $providerConfig */
             $providerConfig = $config[$provider] ?? [];
             $enabled = (bool) ($providerConfig['enabled'] ?? false);
@@ -38,17 +60,7 @@ class AnalyticsOverviewCommand extends Command
             $this->line("  {$status}  {$provider}");
 
             if ($enabled) {
-                if ($provider === 'ga4') {
-                    $this->line('    Measurement ID: '.($providerConfig['measurement_id'] ?? '—'));
-                    $secret = $providerConfig['api_secret'] ?? '';
-                    $this->line('    API Secret: '.($secret ? substr($secret, 0, 8).'...' : '—'));
-                } elseif ($provider === 'gtm') {
-                    $this->line('    Container ID: '.($providerConfig['container_id'] ?? '—'));
-                } elseif ($provider === 'meta_pixel') {
-                    $this->line('    Pixel ID: '.($providerConfig['id'] ?? '—'));
-                    $token = $providerConfig['access_token'] ?? '';
-                    $this->line('    Access Token: '.($token ? substr($token, 0, 8).'...' : '—'));
-                }
+                $providerDetails[$provider]($providerConfig);
             }
         }
 
@@ -115,10 +127,12 @@ class AnalyticsOverviewCommand extends Command
             'GA4 Measurement Protocol (server-side)',
             'GTM dataLayer push (server-side)',
             'Meta Pixel CAPI (server-side)',
+            'Plausible Analytics (server-side)',
+            'PostHog Analytics (server-side)',
             'Consent Mode v2 (GDPR)',
             'Blade directives',
             'Auto-inject middleware',
-            'Event catalog (ecommerce, SaaS, engagement)',
+            'Event catalog (ecommerce, SaaS, engagement, custom)',
             'Server-side lifecycle tracker',
             'Inertia middleware (prop injection)',
             'API endpoints (track, batch, identify, consent)',
@@ -126,6 +140,7 @@ class AnalyticsOverviewCommand extends Command
             'Queued async dispatch',
             'User identity tracking',
             'Ecommerce analytics service',
+            'Admin commands (test, overview)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");
