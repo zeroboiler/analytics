@@ -3,7 +3,6 @@
     "description": "Google Analytics 4, GTM and Meta Pixel integration for Laravel",
     "type": "library",
     "license": "proprietary",
-    "version": "1.0.0",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
