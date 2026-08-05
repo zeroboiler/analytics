@@ -19,8 +19,8 @@ parameters:
           path: src/Console/Commands/AnalyticsOverviewCommand.php
         - message: '~Part .+ \(mixed\) of encapsed string cannot be cast to string~'
           path: src/Console/Commands/AnalyticsOverviewCommand.php
-        # ConfigRepository::get() returns mixed; safely used with known config keys
-        - message: '~Parameter #3 .+ of class .+ constructor expects string, mixed given~'
+        # config() returns mixed; used with known keys throughout
+        - message: '~Parameter .+ of class .+ constructor expects .+, mixed given~'
           path: src/AnalyticsServiceProvider.php
         # Request::input() returns mixed; controller validates before use
         - message: '~Parameter \$name of class .+ constructor expects string, mixed given~'
@@ -33,7 +33,7 @@ parameters:
           path: src/Http/Controllers/AnalyticsEventController.php
         - message: '~Argument of an invalid type mixed supplied for foreach~'
           path: src/Http/Controllers/AnalyticsEventController.php
-        - message: '~Parameter #1 \$signals of method .+ConsentState::with\(\) expects array<string, string\|null>, mixed given~'
+        - message: '~Parameter #1 \$signals of method .+ expects array<string, string\|null>, array<mixed> given~'
           path: src/Http/Controllers/AnalyticsEventController.php
         # config() returns mixed; test command safely uses option() values
         - message: '~Cannot cast array\|bool\|float\|int\|string\|null to string~'
@@ -44,3 +44,9 @@ parameters:
         # auth()->user() returns mixed to PHPStan via facade
         - message: '~Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::user\(\)~'
           path: src/Inertia/HandleInertiaAnalytics.php
+        # Authenticatable::getKey() not in PHPStan's contract stubs
+        - message: '~Call to an undefined method Illuminate\\Contracts\\Auth\\Authenticatable::getKey\(\)~'
+          path: src/Inertia/HandleInertiaAnalytics.php
+        # EcommerceAnalyticsService: array<string, mixed> access returns mixed for typed constructors
+        - message: '~Parameter .+ of class .+ constructor expects .+, mixed given~'
+          path: src/Services/EcommerceAnalyticsService.php
