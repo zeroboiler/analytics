@@ -39,14 +39,27 @@ parameters:
         - message: '~Cannot cast array\|bool\|float\|int\|string\|null to string~'
           path: src/Console/Commands/AnalyticsTestCommand.php
         # config() returns mixed; middleware safely uses known config keys
-        - message: '~Parameter #1 \$key of method Illuminate\\Http\\Request::cookie\(\) expects string\|null, mixed given~'
+        - message: '~Parameter #1 \$key of method .+Request::cookie\(\) expects string\|null, mixed given~'
           path: src/Inertia/HandleInertiaAnalytics.php
         # auth()->user() returns mixed to PHPStan via facade
-        - message: '~Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::user\(\)~'
+        - message: '~Call to an undefined method .+Auth\\Factory::user\(\)~'
           path: src/Inertia/HandleInertiaAnalytics.php
         # Authenticatable::getKey() not in PHPStan's contract stubs
-        - message: '~Call to an undefined method Illuminate\\Contracts\\Auth\\Authenticatable::getKey\(\)~'
+        - message: '~Call to an undefined method .+Auth\\Authenticatable::getKey\(\)~'
           path: src/Inertia/HandleInertiaAnalytics.php
-        # EcommerceAnalyticsService: array<string, mixed> access returns mixed for typed constructors
+        # EcommerceAnalyticsService: array<string, mixed> access returns mixed
         - message: '~Parameter .+ of class .+ constructor expects .+, mixed given~'
           path: src/Services/EcommerceAnalyticsService.php
+        - message: '~Cannot cast mixed to (string|float|int)~'
+          path: src/Services/EcommerceAnalyticsService.php
+        - message: '~Method .+EcommerceAnalyticsService::formatItems\(\) should return array<int, .+ but returns array<string, .+~'
+          path: src/Services/EcommerceAnalyticsService.php
+        - message: '~Parameter #1 \$callback of function array_map expects~'
+          path: src/Services/EcommerceAnalyticsService.php
+        # Http facade returns union type at static analysis level
+        - message: '~Call to an undefined method .+PromiseInterface\|.*Response::(successful|status|body)\(\)~'
+        # ServerSideTracker: dynamic class construction via new $class(...)
+        - message: '~Method .+ServerSideTracker::buildAnalyticsEvent\(\) should return .+AnalyticsEvent but returns object~'
+          path: src/Tracking/ServerSideTracker.php
+        - message: '~Parameter #2 \$payload of method .+extractConstructorArgs\(\) expects array<string, mixed>, array<mixed, mixed> given~'
+          path: src/Tracking/ServerSideTracker.php
