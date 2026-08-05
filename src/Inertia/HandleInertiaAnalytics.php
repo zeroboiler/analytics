@@ -42,7 +42,7 @@ class HandleInertiaAnalytics
         $response = $next($request);
 
         // Only modify Inertia responses
-        if (! $response instanceof \Inertia\Response) {
+        if (!$response instanceof \Inertia\Response) {
             return $response;
         }
 

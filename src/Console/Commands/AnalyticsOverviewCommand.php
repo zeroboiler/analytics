@@ -37,15 +37,15 @@ class AnalyticsOverviewCommand extends Command
 
             if ($enabled) {
                 if ($provider === 'ga4') {
-                    $this->line('    Measurement ID: ' . ($providerConfig['measurement_id'] ?? '—'));
+                    $this->line('    Measurement ID: '.($providerConfig['measurement_id'] ?? '—'));
                     $secret = $providerConfig['api_secret'] ?? '';
-                    $this->line('    API Secret: ' . ($secret ? substr($secret, 0, 8) . '...' : '—'));
+                    $this->line('    API Secret: '.($secret ? substr($secret, 0, 8).'...' : '—'));
                 } elseif ($provider === 'gtm') {
-                    $this->line('    Container ID: ' . ($providerConfig['container_id'] ?? '—'));
+                    $this->line('    Container ID: '.($providerConfig['container_id'] ?? '—'));
                 } elseif ($provider === 'meta_pixel') {
-                    $this->line('    Pixel ID: ' . ($providerConfig['id'] ?? '—'));
+                    $this->line('    Pixel ID: '.($providerConfig['id'] ?? '—'));
                     $token = $providerConfig['access_token'] ?? '';
-                    $this->line('    Access Token: ' . ($token ? substr($token, 0, 8) . '...' : '—'));
+                    $this->line('    Access Token: '.($token ? substr($token, 0, 8).'...' : '—'));
                 }
             }
         }
@@ -56,7 +56,7 @@ class AnalyticsOverviewCommand extends Command
         $this->line('─────────────────────────────');
 
         $consentDefault = $config['consent']['default'] ?? 'granted';
-        $this->line('  Default: ' . $consentDefault);
+        $this->line('  Default: '.$consentDefault);
 
         // Auto-Track
         $this->newLine();
@@ -65,7 +65,7 @@ class AnalyticsOverviewCommand extends Command
 
         $autoTrack = $config['auto_track'] ?? [];
         $autoEnabled = (bool) ($autoTrack['enabled'] ?? true);
-        $this->line('  Enabled: ' . ($autoEnabled ? '✅' : '🚫'));
+        $this->line('  Enabled: '.($autoEnabled ? '✅' : '🚫'));
 
         $events = $autoTrack['events'] ?? [];
         foreach ($events as $event => $toggle) {
@@ -80,10 +80,10 @@ class AnalyticsOverviewCommand extends Command
 
         $queue = $config['queue'] ?? [];
         $queueEnabled = (bool) ($queue['enabled'] ?? true);
-        $this->line('  Enabled: ' . ($queueEnabled ? '✅' : '🚫'));
-        $this->line('  Queue: ' . ($queue['queue'] ?? 'analytics'));
+        $this->line('  Enabled: '.($queueEnabled ? '✅' : '🚫'));
+        $this->line('  Queue: '.($queue['queue'] ?? 'analytics'));
         $connection = $queue['connection'] ?? 'default';
-        $this->line('  Connection: ' . $connection);
+        $this->line('  Connection: '.$connection);
 
         // Identity
         $this->newLine();
@@ -91,10 +91,10 @@ class AnalyticsOverviewCommand extends Command
         $this->line('─────────────────────────────');
 
         $identity = $config['identity'] ?? [];
-        $this->line('  Cookie: ' . ($identity['cookie_name'] ?? 'zb_analytics_id'));
-        $this->line('  TTL: ' . ($identity['cookie_ttl'] ?? 525600) . ' minutes');
-        $this->line('  Secure: ' . (($identity['cookie_secure'] ?? true) ? '✅' : '🚫'));
-        $this->line('  SameSite: ' . ($identity['cookie_samesite'] ?? 'Lax'));
+        $this->line('  Cookie: '.($identity['cookie_name'] ?? 'zb_analytics_id'));
+        $this->line('  TTL: '.($identity['cookie_ttl'] ?? 525600).' minutes');
+        $this->line('  Secure: '.(($identity['cookie_secure'] ?? true) ? '✅' : '🚫'));
+        $this->line('  SameSite: '.($identity['cookie_samesite'] ?? 'Lax'));
 
         // Ecommerce
         $this->newLine();
@@ -102,8 +102,8 @@ class AnalyticsOverviewCommand extends Command
         $this->line('─────────────────────────────');
 
         $ecommerce = $config['ecommerce'] ?? [];
-        $this->line('  Currency: ' . ($ecommerce['currency'] ?? 'USD'));
-        $this->line('  Brand: ' . ($ecommerce['brand'] ?? '(none)'));
+        $this->line('  Currency: '.($ecommerce['currency'] ?? 'USD'));
+        $this->line('  Brand: '.($ecommerce['brand'] ?? '(none)'));
 
         // Available features
         $this->newLine();

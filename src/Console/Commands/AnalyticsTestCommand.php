@@ -12,7 +12,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Sends a test event to all configured analytics providers.
  *
  * Useful for verifying that API keys, measurement IDs, and access tokens
- * are correctly configured. Validates the response from each provider.
+ * are correctly configured.Validates the response from each provider.
  */
 class AnalyticsTestCommand extends Command
 {
@@ -44,7 +44,7 @@ class AnalyticsTestCommand extends Command
 
         if (! $anyEnabled) {
             $this->warn('⚠️  No analytics providers are enabled.');
-            $this->line('Check your .env configuration:');
+            $this->line('Check your.env configuration:');
             $this->line('  ANALYTICS_GA4_ENABLED=true');
             $this->line('  ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX');
             $this->line('  ANALYTICS_GA4_API_SECRET=your_secret');

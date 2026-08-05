@@ -62,7 +62,7 @@ class AnalyticsEventController extends Controller
      *
      * POST /api/analytics/batch
      *
-     * Body: { "events": [ { "name": "...", "params": {...} }, ... ] }
+     * Body: { "events": [ { "name": "...", "params": {...} },...] }
      */
     public function batch(Request $request): JsonResponse
     {

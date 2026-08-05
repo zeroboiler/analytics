@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Tracking;
 
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
@@ -35,9 +39,9 @@ class ServerSideTracker
      * @var array<class-string, class-string>
      */
     protected array $eventMap = [
-        \Illuminate\Auth\Events\Login::class => LoginEvent::class,
-        \Illuminate\Auth\Events\Registered::class => SignUpEvent::class,
-        \Illuminate\Auth\Events\Logout::class => LogoutEvent::class,
+        Login::class => LoginEvent::class,
+        Registered::class => SignUpEvent::class,
+        Logout::class => LogoutEvent::class,
     ];
 
     /**
@@ -82,7 +86,7 @@ class ServerSideTracker
      */
     public function register(EventDispatcher $dispatcher): void
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return;
         }
 
@@ -109,7 +113,7 @@ class ServerSideTracker
             return;
         }
 
-        if (! $this->isEventEnabled($eventName)) {
+        if (!$this->isEventEnabled($eventName)) {
             return;
         }
 
@@ -131,7 +135,7 @@ class ServerSideTracker
      */
     public function registerModelListeners(array $modelEvents): void
     {
-        if (! $this->enabled) {
+        if (!$this->enabled) {
             return;
         }
 
@@ -144,7 +148,7 @@ class ServerSideTracker
                 \Illuminate\Support\Facades\Event::listen($eventName, function (
                     mixed $event,
                 ) use ($manager, $analyticsName, $modelClass, $action): void {
-                    $model = $event instanceof \Illuminate\Database\Eloquent\Model ? $event : null;
+                    $model = $event instanceof Model ? $event : null;
 
                     $analyticsEvent = new AnalyticsEvent($analyticsName, array_filter([
                         'model' => Str::afterLast($modelClass, '\\'),
@@ -177,7 +181,7 @@ class ServerSideTracker
         // Map Laravel event class to config key
         $configKey = $this->laravelEventToConfigKey($laravelEvent);
 
-        if (! $this->isEventEnabled($configKey)) {
+        if (!$this->isEventEnabled($configKey)) {
             return;
         }
 
@@ -217,18 +221,18 @@ class ServerSideTracker
     private function buildAnalyticsEvent(string $analyticsEventClass, mixed $payload): ?AnalyticsEvent
     {
         // Auth events carry a user property
-        if ($payload instanceof \Illuminate\Auth\Events\Login) {
+        if ($payload instanceof Login) {
             /** @var AnalyticsEvent $event */
             $event = new $analyticsEventClass(method: $payload->guard ?? 'default');
 
             return $event;
         }
 
-        if ($payload instanceof \Illuminate\Auth\Events\Registered) {
+        if ($payload instanceof Registered) {
             return new SignUpEvent(method: 'default');
         }
 
-        if ($payload instanceof \Illuminate\Auth\Events\Logout) {
+        if ($payload instanceof Logout) {
             return new LogoutEvent;
         }
 
@@ -281,9 +285,9 @@ class ServerSideTracker
     private function laravelEventToConfigKey(string $laravelEvent): string
     {
         $map = [
-            \Illuminate\Auth\Events\Login::class => 'auth.login',
-            \Illuminate\Auth\Events\Registered::class => 'auth.register',
-            \Illuminate\Auth\Events\Logout::class => 'auth.logout',
+            Login::class => 'auth.login',
+            Registered::class => 'auth.register',
+            Logout::class => 'auth.logout',
         ];
 
         return $map[$laravelEvent] ?? 'custom.'.$laravelEvent;
