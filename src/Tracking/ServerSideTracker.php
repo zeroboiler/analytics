@@ -128,8 +128,6 @@ class ServerSideTracker
      *   'models' => [
      *       App\Models\Habit::class => ['created', 'deleted'],
      *   ]
-     *
-     * @param  array<class-string, array<int, string>>  $modelEvents
      */
     public function registerModelListeners(array $modelEvents): void
     {
@@ -170,9 +168,6 @@ class ServerSideTracker
 
     /**
      * Register a listener for a Laravel framework event.
-     *
-     * @param  class-string  $laravelEvent
-     * @param  class-string  $analyticsEventClass
      */
     private function registerLaravelListener(
         EventDispatcher $dispatcher,
@@ -196,8 +191,6 @@ class ServerSideTracker
 
     /**
      * Dispatch an analytics event from a Laravel event payload.
-     *
-     * @param  class-string  $analyticsEventClass
      */
     private function dispatchAnalyticsEvent(
         AnalyticsManager $manager,
@@ -220,8 +213,6 @@ class ServerSideTracker
 
     /**
      * Build a typed analytics event from a Laravel event payload.
-     *
-     * @param  class-string  $analyticsEventClass
      */
     private function buildAnalyticsEvent(string $analyticsEventClass, mixed $payload): ?AnalyticsEvent
     {
@@ -256,10 +247,6 @@ class ServerSideTracker
 
     /**
      * Extract constructor argument values from an associative array payload.
-     *
-     * @param  class-string  $class
-     * @param  array<string, mixed>  $payload
-     * @return array<int, mixed>
      */
     private function extractConstructorArgs(string $class, array $payload): array
     {
@@ -290,8 +277,6 @@ class ServerSideTracker
 
     /**
      * Convert a Laravel event class FQCN to a config key.
-     *
-     * @param  class-string  $laravelEvent
      */
     private function laravelEventToConfigKey(string $laravelEvent): string
     {

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 
 /**
  * API controller for frontend event tracking.
@@ -68,7 +67,7 @@ class AnalyticsEventController extends Controller
     public function batch(Request $request): JsonResponse
     {
         $request->validate([
-            'events' => 'required|array|max:' . self::MAX_BATCH_SIZE,
+            'events' => 'required|array|max:'.self::MAX_BATCH_SIZE,
             'events.*.name' => 'required|string|max:100',
             'events.*.params' => 'array',
         ]);

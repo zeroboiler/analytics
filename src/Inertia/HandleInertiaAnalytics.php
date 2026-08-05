@@ -11,7 +11,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 
 /**
  * Inertia middleware that injects analytics configuration into page props.

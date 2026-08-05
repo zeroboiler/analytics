@@ -2,11 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Routing\Controller;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
@@ -25,11 +20,6 @@ use ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SignUpEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SubscriptionEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
-use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
-use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
-use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
-use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
-use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 
 // ── Integration Tests ───────────────────────────────────────────────────────
 

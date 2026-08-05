@@ -67,13 +67,13 @@ class AnalyticsTestCommand extends Command
         // GA4
         $this->section('GA4', $ga4->isEnabled());
         if ($ga4->isEnabled()) {
-            $this->line("  Measurement ID: {$ga4->getMeasurementId()}");
+            $this->line('  Measurement ID: '.$ga4->getMeasurementId());
 
             if ($useValidate) {
                 $this->line('  Using debug/validate endpoint...');
                 $result = $ga4->validate($event);
                 if ($result !== null) {
-                    $this->line('  Response: ' . json_encode($result, JSON_PRETTY_PRINT));
+                    $this->line('  Response: '.json_encode($result, JSON_PRETTY_PRINT));
                 } else {
                     $this->warn('  No response received (check network/credentials)');
                 }
@@ -88,7 +88,7 @@ class AnalyticsTestCommand extends Command
         $this->newLine();
         $this->section('GTM', $gtm->isEnabled());
         if ($gtm->isEnabled()) {
-            $this->line("  Container ID: {$gtm->getContainerId()}");
+            $this->line('  Container ID: '.$gtm->getContainerId());
             $this->line('  GTM is client-side only (check browser console for events)');
         }
 
@@ -96,7 +96,7 @@ class AnalyticsTestCommand extends Command
         $this->newLine();
         $this->section('Meta Pixel', $meta->isEnabled());
         if ($meta->isEnabled()) {
-            $this->line("  Pixel ID: {$meta->getPixelId()}");
+            $this->line('  Pixel ID: '.$meta->getPixelId());
             $meta->track($event);
             $this->info('  ✅ Event dispatched successfully');
         }

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;

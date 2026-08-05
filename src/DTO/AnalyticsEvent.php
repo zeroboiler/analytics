@@ -7,7 +7,7 @@ namespace ZeroBoiler\Analytics\DTO;
 /**
  * Immutable DTO representing an analytics event to be tracked.
  */
-final readonly class AnalyticsEvent
+readonly class AnalyticsEvent
 {
     /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')

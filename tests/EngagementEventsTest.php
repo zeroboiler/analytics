@@ -30,7 +30,7 @@ describe('Engagement Events', function () {
         });
 
         it('creates with empty parameters', function () {
-            $event = new PageViewEvent();
+            $event = new PageViewEvent;
 
             expect($event->name)->toBe('page_view');
             expect($event->params)->toBeEmpty();

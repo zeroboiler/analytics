@@ -6,7 +6,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\AddPaymentInfoEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\AddToCartEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\BeginCheckoutEvent;
@@ -43,8 +42,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track a product view.
-     *
-     * @param  array{item_id: string, item_name?: string, item_category?: string, price?: float, currency?: string}  $item
      */
     public function viewItem(array $item): void
     {
@@ -59,8 +56,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track add-to-cart action.
-     *
-     * @param  array{item_id: string, item_name?: string, item_category?: string, price?: float, quantity?: int, currency?: string}  $item
      */
     public function addToCart(array $item): void
     {
@@ -76,8 +71,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track remove-from-cart action.
-     *
-     * @param  array{item_id: string, item_name?: string, item_category?: string, price?: float, quantity?: int, currency?: string}  $item
      */
     public function removeFromCart(array $item): void
     {
@@ -93,9 +86,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track viewing the cart.
-     *
-     * @param  array<int, array{item_id: string, item_name?: string, price?: float, quantity?: int}>  $items
-     * @param  float  $value  Total cart value
      */
     public function viewCart(array $items, float $value): void
     {
@@ -108,10 +98,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track begin checkout.
-     *
-     * @param  array<int, array{item_id: string, item_name?: string, price?: float, quantity?: int}>  $items
-     * @param  float  $value
-     * @param  array{coupon?: string}  $params
      */
     public function beginCheckout(array $items, float $value, array $params = []): void
     {
@@ -125,8 +111,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track add payment info.
-     *
-     * @param  string  $paymentType  Payment method (e.g. 'credit_card', 'paypal')
      */
     public function addPaymentInfo(string $paymentType): void
     {
@@ -137,11 +121,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track a purchase.
-     *
-     * @param  string  $transactionId
-     * @param  float  $value
-     * @param  array<int, array{item_id: string, item_name?: string, price?: float, quantity?: int, item_category?: string}>  $items
-     * @param  array{coupon?: string, tax?: float, shipping?: float, affiliation?: string, currency?: string}  $params
      */
     public function purchase(string $transactionId, float $value, array $items, array $params = []): void
     {
@@ -159,10 +138,6 @@ class EcommerceAnalyticsService
 
     /**
      * Track a refund.
-     *
-     * @param  string  $transactionId
-     * @param  float|null  $refundValue  Partial refund amount (null for full refund)
-     * @param  array<int, array{item_id: string, price?: float, quantity?: int}>|null  $items  Affected items
      */
     public function refund(string $transactionId, ?float $refundValue = null, ?array $items = null): void
     {
@@ -176,9 +151,6 @@ class EcommerceAnalyticsService
 
     /**
      * Format items for GA4 (standardized format).
-     *
-     * @param  array<int, array<string, mixed>>  $items
-     * @return array<int, array<string, mixed>>
      */
     public function formatGA4Item(array $item): array
     {
@@ -198,9 +170,6 @@ class EcommerceAnalyticsService
 
     /**
      * Format items for Meta Pixel (contents array format).
-     *
-     * @param  array<string, mixed>  $item
-     * @return array<string, mixed>
      */
     public function formatMetaItem(array $item): array
     {
@@ -215,9 +184,6 @@ class EcommerceAnalyticsService
 
     /**
      * Format an array of items using the GA4 format.
-     *
-     * @param  array<int, array<string, mixed>>  $items
-     * @return array<int, array<string, mixed>>
      */
     private function formatItems(array $items): array
     {

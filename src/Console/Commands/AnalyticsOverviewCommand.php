@@ -37,7 +37,7 @@ class AnalyticsOverviewCommand extends Command
 
             if ($enabled) {
                 if ($provider === 'ga4') {
-                    $this->line("    Measurement ID: " . ($providerConfig['measurement_id'] ?? '—'));
+                    $this->line('    Measurement ID: ' . ($providerConfig['measurement_id'] ?? '—'));
                     $secret = $providerConfig['api_secret'] ?? '';
                     $this->line('    API Secret: ' . ($secret ? substr($secret, 0, 8) . '...' : '—'));
                 } elseif ($provider === 'gtm') {

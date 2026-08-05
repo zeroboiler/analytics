@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Trackers;
 
-use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
 /**
