@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
@@ -86,7 +87,7 @@ class ServerSideTracker
      */
     public function register(EventDispatcher $dispatcher): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -113,7 +114,7 @@ class ServerSideTracker
             return;
         }
 
-        if (!$this->isEventEnabled($eventName)) {
+        if (! $this->isEventEnabled($eventName)) {
             return;
         }
 
@@ -135,7 +136,7 @@ class ServerSideTracker
      */
     public function registerModelListeners(array $modelEvents): void
     {
-        if (!$this->enabled) {
+        if (! $this->enabled) {
             return;
         }
 
@@ -145,7 +146,7 @@ class ServerSideTracker
                 $analyticsName = "model_{$action}";
                 $manager = $this->manager;
 
-                \Illuminate\Support\Facades\Event::listen($eventName, function (
+                Event::listen($eventName, function (
                     mixed $event,
                 ) use ($manager, $analyticsName, $modelClass, $action): void {
                     $model = $event instanceof Model ? $event : null;
@@ -181,7 +182,7 @@ class ServerSideTracker
         // Map Laravel event class to config key
         $configKey = $this->laravelEventToConfigKey($laravelEvent);
 
-        if (!$this->isEventEnabled($configKey)) {
+        if (! $this->isEventEnabled($configKey)) {
             return;
         }
 

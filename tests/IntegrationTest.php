@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Config\Repository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
@@ -181,7 +182,7 @@ describe('ConsentState', function () {
 
 function createTestManager(): AnalyticsManager
 {
-    $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
+    $config = Mockery::mock(Repository::class);
     $config->shouldReceive('get')->andReturnUsing(function (string $key, $default = null) {
         $map = [
             'zeroboiler.analytics.ga4' => ['enabled' => false, 'measurement_id' => '', 'api_secret' => ''],
