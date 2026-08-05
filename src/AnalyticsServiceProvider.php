@@ -6,6 +6,7 @@ namespace ZeroBoiler\Analytics;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
@@ -83,6 +84,7 @@ class AnalyticsServiceProvider extends ServiceProvider
         $this->registerBladeDirectives();
         $this->registerMiddleware();
         $this->registerAutoTracking();
+        $this->registerRoutes();
     }
 
     /**
@@ -144,5 +146,18 @@ class AnalyticsServiceProvider extends ServiceProvider
         if (! empty($modelEvents)) {
             $tracker->registerModelListeners($modelEvents);
         }
+    }
+
+    /**
+     * Register analytics API routes.
+     */
+    private function registerRoutes(): void
+    {
+        if ($this->app->routesAreCached()) {
+            return;
+        }
+
+        Route::middleware(['auth:sanctum'])
+            ->group(__DIR__.'/../routes/analytics.php');
     }
 }
