@@ -38,9 +38,6 @@ parameters:
         # config() returns mixed; test command safely uses option() values
         - message: '~Cannot cast array\|bool\|float\|int\|string\|null to string~'
           path: src/Console/Commands/AnalyticsTestCommand.php
-        # config() returns mixed; middleware safely uses known config keys
-        - message: '~Parameter #1 \$key of method .+Request::cookie\(\) expects string\|null, mixed given~'
-          path: src/Inertia/HandleInertiaAnalytics.php
         # auth()->user() returns mixed to PHPStan via facade
         - message: '~Call to an undefined method .+Auth\\Factory::user\(\)~'
           path: src/Inertia/HandleInertiaAnalytics.php
@@ -55,6 +52,9 @@ parameters:
         - message: '~Method .+EcommerceAnalyticsService::formatItems\(\) should return array<int, .+ but returns array<string, .+~'
           path: src/Services/EcommerceAnalyticsService.php
         - message: '~Parameter #1 \$callback of function array_map expects~'
+          path: src/Services/EcommerceAnalyticsService.php
+        # EcommerceAnalyticsService: formatItems returns array<string,mixed> but events expect shaped arrays
+        - message: '~Parameter \$items of class .+ constructor expects array<int, array\{.+\}>, array<int, array<string, mixed>> given~'
           path: src/Services/EcommerceAnalyticsService.php
         # Http facade returns union type at static analysis level
         - message: '~Call to an undefined method .+PromiseInterface\|.*Response::(successful|status|body)\(\)~'
