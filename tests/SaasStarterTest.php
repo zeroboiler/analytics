@@ -663,7 +663,7 @@ describe('AnalyticsEventController (Health)', function () {
         expect($response->getStatusCode())->toBe(200);
         $data = $response->getData(true);
         expect($data['status'])->toBe('ok');
-        expect($data['version'])->toBe('1.1.0');
+        expect($data['version'])->toBe('1.2.0');
         expect($data['providers'])->toHaveKey('ga4');
         expect($data['providers'])->toHaveKey('gtm');
         expect($data['timestamp'])->not->toBeEmpty();

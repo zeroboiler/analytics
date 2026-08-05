@@ -12,6 +12,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Container\Container;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
+use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\Trackers\GA4Tracker;
 use ZeroBoiler\Analytics\Trackers\GTMTracker;
 use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
@@ -29,6 +30,10 @@ class AnalyticsManager
     protected PlausibleTracker $plausible;
 
     protected PosthogTracker $posthog;
+
+    private bool $debugMode;
+
+    private bool $logEvents;
 
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
@@ -89,6 +94,12 @@ class AnalyticsManager
         if ($consentDefault === 'denied') {
             $this->denyConsent();
         }
+
+        // Debug mode configuration
+        $debugConfig = $config->get('zeroboiler.analytics.debug', []);
+        /** @var array{enabled?: bool, log_events?: bool} $debugConfig */
+        $this->debugMode = (bool) ($debugConfig['enabled'] ?? false);
+        $this->logEvents = (bool) ($debugConfig['log_events'] ?? false);
     }
 
     /**
@@ -114,6 +125,20 @@ class AnalyticsManager
      */
     private function dispatchToTrackers(AnalyticsEvent $event): void
     {
+        // Debug mode: log but never send
+        if ($this->debugMode) {
+            if ($this->logEvents) {
+                Log::debug('ZeroBoiler Analytics [debug]', [
+                    'event' => $event->name,
+                    'params' => $event->params,
+                    'client_id' => $event->clientId,
+                    'user_id' => $event->userId,
+                ]);
+            }
+
+            return;
+        }
+
         if ($this->ga4->isEnabled()) {
             $this->ga4->track($event);
         }
@@ -280,5 +305,33 @@ class AnalyticsManager
     private function getContainer(): Container
     {
         return app();
+    }
+
+    /**
+     * Check if debug mode is enabled.
+     *
+     * When debug mode is on, events are logged but not dispatched to providers.
+     */
+    public function isDebug(): bool
+    {
+        return $this->debugMode;
+    }
+
+    /**
+     * Check if event logging is enabled in debug mode.
+     */
+    public function shouldLogEvents(): bool
+    {
+        return $this->logEvents;
+    }
+
+    /**
+     * Enable or disable debug mode.
+     *
+     * When enabled, events are logged but not sent to any provider.
+     */
+    public function setDebug(bool $enabled): void
+    {
+        $this->debugMode = $enabled;
     }
 }

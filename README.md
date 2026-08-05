@@ -19,7 +19,8 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 - **Consent Mode v2** — Full GDPR compliance with granular consent signals
 - **Blade Directives** — `@analyticsHead`, `@analyticsBody` for traditional Laravel apps
 - **Admin Commands** — `zb:analytics:overview` and `zb:analytics:test`
-- **Debug Mode** — Development-friendly logging without dispatching to providers
+- **Debug Mode** — Development-friendly logging without dispatching to providers, runtime toggle via `setDebug()`
+- **Server-Side Event Validation** — Auto-validation and sanitization on API endpoints, deduplication, strict whitelist mode
 
 ## Installation
 
@@ -486,7 +487,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
@@ -650,6 +651,39 @@ config/
 └── zeroboiler.php                # Configuration file
 routes/
 └── analytics.php                 # API route definitions
+```
+
+### Debug Mode
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// Check if debug mode is active
+if (Analytics::isDebug()) {
+    // Events are logged but not dispatched
+}
+
+// Toggle debug mode at runtime
+Analytics::setDebug(true);
+
+// Check if event logging is enabled
+Analytics::shouldLogEvents(); // bool
+```
+
+When `ANALYTICS_DEBUG_ENABLED=true`, all events are intercepted and optionally logged
+instead of being dispatched to providers. Useful for development and staging environments.
+
+### Server-Side Event Validation
+
+Events received via the API endpoints are automatically validated and sanitized
+when `EventValidationService` is available (registered by the service provider):
+
+```php
+// Events are sanitized before dispatch:
+// - Control characters stripped from keys/values
+// - Event names validated against allowed patterns
+// - Duplicate detection within configurable time window
+// - Strict mode rejects non-whitelisted events
 ```
 
 ## Testing

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Services\EventValidationService;
 
 /**
  * API controller for frontend event tracking.
@@ -23,15 +24,23 @@ class AnalyticsEventController extends Controller
 
     private string $cookieName;
 
+    private ?EventValidationService $validator;
+
     private const MAX_BATCH_SIZE = 25;
 
     private const MAX_EVENT_NAME_LENGTH = 100;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
+    /**
+     * @param  AnalyticsManager  $manager
+     * @param  ConfigRepository  $config
+     * @param  EventValidationService|null  $validator  Optional event validator (injected when available)
+     */
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config, ?EventValidationService $validator = null)
     {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
+        $this->validator = $validator;
     }
 
     /**
@@ -58,6 +67,9 @@ class AnalyticsEventController extends Controller
             clientId: $clientId,
             userId: is_int($userId) || is_string($userId) ? (string) $userId : null,
         );
+
+        // Validate and sanitize event if validator is available
+        $event = $this->validateEvent($event);
 
         $this->manager->trackEvent($event);
 
@@ -92,6 +104,9 @@ class AnalyticsEventController extends Controller
                 clientId: $clientId,
                 userId: $userIdStr,
             );
+
+            // Validate and sanitize each event
+            $event = $this->validateEvent($event);
 
             $this->manager->trackEvent($event);
         }
@@ -199,7 +214,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '1.1.0',
+            'version' => '1.2.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'timestamp' => now()->toIso8601String(),
@@ -243,5 +258,22 @@ class AnalyticsEventController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Validate and sanitize an event using EventValidationService.
+     *
+     * Returns the sanitized event. If validation fails in strict mode,
+     * returns the sanitized event anyway (errors are logged).
+     */
+    private function validateEvent(AnalyticsEvent $event): AnalyticsEvent
+    {
+        if ($this->validator === null) {
+            return $event;
+        }
+
+        $result = $this->validator->validate($event);
+
+        return $result['event'];
     }
 }
