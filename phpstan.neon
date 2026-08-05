@@ -9,12 +9,12 @@ parameters:
         - stubs/laravel-helpers.php
     ignoreErrors:
         # config() returns mixed; overview command safely accesses known keys
-        - message: '#Cannot access offset .+ on mixed#'
+        - message: '~Cannot access offset .+ on mixed~'
           path: src/Console/Commands/AnalyticsOverviewCommand.php
-        - message: '#Binary operation "\\." between .+ and mixed#'
+        - message: '~Binary operation "\." between .+ and mixed~'
           path: src/Console/Commands/AnalyticsOverviewCommand.php
-        - message: '#Parameter #1 .+ of function substr expects string, mixed given#'
+        - message: '~Parameter #1 .+ of function substr expects string, mixed given~'
           path: src/Console/Commands/AnalyticsOverviewCommand.php
         # ConfigRepository::get() returns mixed; safely used with known config keys
-        - message: '#Parameter #3 .+ of class .+ constructor expects string, mixed given#'
+        - message: '~Parameter #3 .+ of class .+ constructor expects string, mixed given~'
           path: src/AnalyticsServiceProvider.php
