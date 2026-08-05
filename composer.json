@@ -47,8 +47,8 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "/tmp/response"
+            "type": "vcs",
+            "url": "https://github.com/zeroboiler/response.git"
         }
     ]
 }

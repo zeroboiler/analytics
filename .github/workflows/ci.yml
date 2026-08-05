@@ -20,6 +20,10 @@ jobs:
           coverage: none
           tools: composer:v2
 
+
+      - name: Configure composer auth
+        run: composer config -g github-oauth.github.com ${{ secrets.COMPOSER_TOKEN }}
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
@@ -44,6 +48,10 @@ jobs:
           php-version: '8.5'
           coverage: xdebug
           tools: composer:v2
+
+
+      - name: Configure composer auth
+        run: composer config -g github-oauth.github.com ${{ secrets.COMPOSER_TOKEN }}
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
