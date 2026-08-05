@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.COMPOSER_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -22,6 +22,13 @@ jobs:
           php-version: '8.5'
           coverage: none
           tools: composer:v2
+
+      - name: Resolve private dependencies
+        env:
+          COMPOSER_TOKEN: ${{ secrets.COMPOSER_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          git clone https://x-access-token:${COMPOSER_TOKEN}@github.com/zeroboiler/dto.git /tmp/dto
+          git clone https://x-access-token:${COMPOSER_TOKEN}@github.com/zeroboiler/response.git /tmp/response
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
