@@ -58,8 +58,24 @@ return [
             ],
             'models' => [
                 // Track Eloquent model events as analytics events
-                // Example: App\Models\Habit::class => ['created', 'deleted'],
+                // Example: App\\Models\\Habit::class => ['created', 'deleted'],
             ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Queue (Async Event Dispatch)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, analytics events dispatched via QueuedAnalyticsDispatcher
+        | are sent asynchronously through a background queue worker.
+        | Set to false for synchronous (blocking) dispatch.
+        |
+        */
+        'queue' => [
+            'enabled' => env('ANALYTICS_QUEUE_ENABLED', true),
+            'queue' => env('ANALYTICS_QUEUE', 'analytics'),
+            'connection' => env('ANALYTICS_QUEUE_CONNECTION'),
         ],
         /*
         |--------------------------------------------------------------------------

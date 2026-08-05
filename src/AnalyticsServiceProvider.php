@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
+use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
@@ -66,6 +67,15 @@ class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new ServerSideTracker($manager, $config);
+        });
+
+        $this->app->singleton(QueuedAnalyticsDispatcher::class, function (Application $app): QueuedAnalyticsDispatcher {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new QueuedAnalyticsDispatcher($manager, $config);
         });
     }
 
