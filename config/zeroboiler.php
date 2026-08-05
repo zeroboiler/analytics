@@ -106,5 +106,53 @@ return [
             'currency' => env('ANALYTICS_ECOMMERCE_CURRENCY', 'USD'),
             'brand' => env('ANALYTICS_ECOMMERCE_BRAND', ''),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API (Frontend Event Tracking)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the server-side API endpoints that accept events
+        | from the JS client library.
+        |
+        */
+        'api' => [
+            'enabled' => env('ANALYTICS_API_ENABLED', true),
+            'throttle' => env('ANALYTICS_API_THROTTLE', 60),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Plausible Analytics (Optional)
+        |--------------------------------------------------------------------------
+        |
+        | Privacy-focused analytics via server-side API. No cookies required.
+        | Enable by setting ANALYTICS_PLAUSIBLE_ENABLED=true and providing
+        | your site domain and API key.
+        |
+        */
+        'plausible' => [
+            'enabled' => env('ANALYTICS_PLAUSIBLE_ENABLED', false),
+            'domain' => env('ANALYTICS_PLAUSIBLE_DOMAIN', ''),
+            'api_key' => env('ANALYTICS_PLAUSIBLE_API_KEY', ''),
+            'base_url' => env('ANALYTICS_PLAUSIBLE_BASE_URL', 'https://plausible.io/api/event'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | PostHog (Optional)
+        |--------------------------------------------------------------------------
+        |
+        | Product analytics with feature flags via server-side capture endpoint.
+        | Enable by setting ANALYTICS_POSTHOG_ENABLED=true and providing
+        | your API key.
+        |
+        */
+        'posthog' => [
+            'enabled' => env('ANALYTICS_POSTHOG_ENABLED', false),
+            'api_key' => env('ANALYTICS_POSTHOG_API_KEY', ''),
+            'host' => env('ANALYTICS_POSTHOG_HOST', 'https://eu.posthog.com'),
+            'project_id' => env('ANALYTICS_POSTHOG_PROJECT_ID', ''),
+        ],
     ],
 ];

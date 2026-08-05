@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \ZeroBoiler\Analytics\Trackers\GA4Tracker ga4()
  * @method static \ZeroBoiler\Analytics\Trackers\GTMTracker gtm()
  * @method static \ZeroBoiler\Analytics\Trackers\MetaPixelTracker meta()
+ * @method static \ZeroBoiler\Analytics\Trackers\PlausibleTracker plausible()
+ * @method static \ZeroBoiler\Analytics\Trackers\PosthogTracker posthog()
  * @method static void setConsent(\ZeroBoiler\Analytics\DTO\ConsentState $state)
  * @method static void grantConsent()
  * @method static void denyConsent()

@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Trackers\GA4Tracker;
 use ZeroBoiler\Analytics\Trackers\GTMTracker;
 use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
+use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
+use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 
 class AnalyticsManager
 {
@@ -23,6 +25,10 @@ class AnalyticsManager
     protected GTMTracker $gtm;
 
     protected MetaPixelTracker $meta;
+
+    protected ?PlausibleTracker $plausible;
+
+    protected ?PosthogTracker $posthog;
 
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
@@ -56,6 +62,26 @@ class AnalyticsManager
             pixelId: $metaConfig['id'] ?? '',
             accessToken: $metaConfig['access_token'] ?? '',
             enabled: $metaConfig['enabled'] ?? false,
+        );
+
+        // Optional: Plausible Analytics
+        $plausibleConfig = $config->get('zeroboiler.analytics.plausible', []);
+        /** @var array{enabled?: bool, domain?: string, api_key?: string, base_url?: string} $plausibleConfig */
+        $this->plausible = new PlausibleTracker(
+            domain: $plausibleConfig['domain'] ?? '',
+            apiKey: $plausibleConfig['api_key'] ?? '',
+            baseUrl: $plausibleConfig['base_url'] ?? 'https://plausible.io/api/event',
+            enabled: $plausibleConfig['enabled'] ?? false,
+        );
+
+        // Optional: PostHog Analytics
+        $posthogConfig = $config->get('zeroboiler.analytics.posthog', []);
+        /** @var array{enabled?: bool, api_key?: string, host?: string, project_id?: string} $posthogConfig */
+        $this->posthog = new PosthogTracker(
+            apiKey: $posthogConfig['api_key'] ?? '',
+            host: $posthogConfig['host'] ?? 'https://eu.posthog.com',
+            projectId: $posthogConfig['project_id'] ?? '',
+            enabled: $posthogConfig['enabled'] ?? false,
         );
 
         // Apply default consent state from config (GDPR-safe defaults)
@@ -99,6 +125,14 @@ class AnalyticsManager
         if ($this->meta->isEnabled()) {
             $this->meta->track($event);
         }
+
+        if ($this->plausible->isEnabled()) {
+            $this->plausible->track($event);
+        }
+
+        if ($this->posthog->isEnabled()) {
+            $this->posthog->track($event);
+        }
     }
 
     /**
@@ -118,6 +152,14 @@ class AnalyticsManager
 
         if ($this->meta->isEnabled()) {
             $scripts[] = $this->meta->headScripts();
+        }
+
+        if ($this->plausible->isEnabled()) {
+            $scripts[] = $this->plausible->headScripts();
+        }
+
+        if ($this->posthog->isEnabled()) {
+            $scripts[] = $this->posthog->headScripts();
         }
 
         return implode("\n", array_filter($scripts));
@@ -178,6 +220,22 @@ class AnalyticsManager
     }
 
     /**
+     * Get the Plausible tracker instance (optional).
+     */
+    public function plausible(): PlausibleTracker
+    {
+        return $this->plausible;
+    }
+
+    /**
+     * Get the PostHog tracker instance (optional).
+     */
+    public function posthog(): PosthogTracker
+    {
+        return $this->posthog;
+    }
+
+    /**
      * Set consent state across all trackers.
      *
      * Propagates the given ConsentState to GA4, GTM, and Meta Pixel trackers.
@@ -188,6 +246,8 @@ class AnalyticsManager
         $this->ga4->setConsent($state);
         $this->gtm->setConsent($state);
         $this->meta->setConsent($state);
+        $this->plausible->setConsent($state);
+        $this->posthog->setConsent($state);
     }
 
     /**
