@@ -61,5 +61,20 @@ return [
                 // Example: App\Models\Habit::class => ['created', 'deleted'],
             ],
         ],
+        /*
+        |--------------------------------------------------------------------------
+        | Identity Tracking
+        |--------------------------------------------------------------------------
+        |
+        | Server-generated tracking ID stored in a cookie for client/server
+        | matching. Used by the Inertia middleware and API endpoints.
+        |
+        */
+        'identity' => [
+            'cookie_name' => env('ANALYTICS_IDENTITY_COOKIE', 'zb_analytics_id'),
+            'cookie_ttl' => env('ANALYTICS_IDENTITY_COOKIE_TTL', 525600), // 365 days (minutes)
+            'cookie_secure' => env('ANALYTICS_IDENTITY_COOKIE_SECURE', true),
+            'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
+        ],
     ],
 ];

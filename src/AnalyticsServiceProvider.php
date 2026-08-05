@@ -9,6 +9,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
+use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
@@ -105,6 +106,10 @@ class AnalyticsServiceProvider extends ServiceProvider
             $router->aliasMiddleware(
                 'analytics.scripts',
                 InjectAnalyticsScripts::class,
+            );
+            $router->aliasMiddleware(
+                'analytics.inertia',
+                HandleInertiaAnalytics::class,
             );
         }
     }
