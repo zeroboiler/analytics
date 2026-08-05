@@ -1,0 +1,306 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ZeroBoiler\Analytics\Tracking;
+
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use ZeroBoiler\Analytics\AnalyticsManager;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\SaaS\CancellationEvent;
+use ZeroBoiler\Analytics\Events\SaaS\FeatureUsedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\LoginEvent;
+use ZeroBoiler\Analytics\Events\SaaS\LogoutEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PlanDowngradeEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SignUpEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SubscriptionEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
+
+/**
+ * Auto-tracks Laravel framework events as analytics events.
+ *
+ * Maps Illuminate\Auth\Events and custom application events to typed
+ * ZeroBoiler analytics events. Configurable via zeroboiler.analytics.auto_track.
+ */
+class ServerSideTracker
+{
+    /**
+     * Default mapping of Laravel event classes → ZeroBoiler analytics event classes.
+     *
+     * @var array<class-string, class-string>
+     */
+    protected array $eventMap = [
+        \Illuminate\Auth\Events\Login::class => LoginEvent::class,
+        \Illuminate\Auth\Events\Registered::class => SignUpEvent::class,
+        \Illuminate\Auth\Events\Logout::class => LogoutEvent::class,
+    ];
+
+    /**
+     * Custom event name → analytics event class mappings.
+     * For application-specific events (e.g. SubscriptionCreated).
+     *
+     * @var array<string, class-string>
+     */
+    protected array $customEventMap = [
+        'subscription.created' => SubscriptionEvent::class,
+        'subscription.upgraded' => PlanUpgradeEvent::class,
+        'subscription.downgraded' => PlanDowngradeEvent::class,
+        'subscription.cancelled' => CancellationEvent::class,
+        'trial.started' => TrialStartEvent::class,
+        'trial.ended' => TrialEndEvent::class,
+        'feature.used' => FeatureUsedEvent::class,
+    ];
+
+    /**
+     * Config key toggles for each auto-trackable event.
+     *
+     * @var array<string, bool>
+     */
+    protected array $eventToggles;
+
+    private AnalyticsManager $manager;
+
+    private bool $enabled;
+
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
+    {
+        $this->manager = $manager;
+
+        $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
+        /** @var array{enabled?: bool, events?: array<string, bool>} $autoTrack */
+        $this->enabled = (bool) ($autoTrack['enabled'] ?? true);
+        $this->eventToggles = $autoTrack['events'] ?? [];
+    }
+
+    /**
+     * Register all event listeners on the dispatcher.
+     */
+    public function register(EventDispatcher $dispatcher): void
+    {
+        if (! $this->enabled) {
+            return;
+        }
+
+        foreach ($this->eventMap as $laravelEvent => $analyticsEvent) {
+            $this->registerLaravelListener($dispatcher, $laravelEvent, $analyticsEvent);
+        }
+    }
+
+    /**
+     * Listen for a specific custom application event name.
+     *
+     * Call this in your service provider boot() to register custom events:
+     *   $tracker->listen('subscription.created', $dispatcher);
+     */
+    public function listen(string $eventName, EventDispatcher $dispatcher): void
+    {
+        $analyticsClass = $this->customEventMap[$eventName] ?? null;
+
+        if ($analyticsClass === null) {
+            Log::warning('ServerSideTracker: no mapping for custom event', [
+                'event' => $eventName,
+            ]);
+
+            return;
+        }
+
+        if (! $this->isEventEnabled($eventName)) {
+            return;
+        }
+
+        $manager = $this->manager;
+        $class = $analyticsClass;
+
+        $dispatcher->listen($eventName, function (mixed $payload) use ($manager, $class): void {
+            $this->dispatchAnalyticsEvent($manager, $class, $payload);
+        });
+    }
+
+    /**
+     * Track an Eloquent model event as an analytics event.
+     *
+     * Usage in config:
+     *   'models' => [
+     *       App\Models\Habit::class => ['created', 'deleted'],
+     *   ]
+     *
+     * @param  array<class-string, array<int, string>>  $modelEvents
+     */
+    public function registerModelListeners(array $modelEvents): void
+    {
+        if (! $this->enabled) {
+            return;
+        }
+
+        foreach ($modelEvents as $modelClass => $actions) {
+            foreach ($actions as $action) {
+                $eventName = "eloquent.{$action}: {$modelClass}";
+                $analyticsName = "model_{$action}";
+                $manager = $this->manager;
+
+                \Illuminate\Support\Facades\Event::listen($eventName, function (
+                    mixed $event,
+                ) use ($manager, $analyticsName, $modelClass, $action): void {
+                    $model = $event instanceof \Illuminate\Database\Eloquent\Model ? $event : null;
+
+                    $analyticsEvent = new AnalyticsEvent($analyticsName, array_filter([
+                        'model' => Str::afterLast($modelClass, '\\'),
+                        'action' => $action,
+                        'model_id' => $model?->getKey(),
+                    ]));
+
+                    $manager->trackEvent($analyticsEvent);
+                });
+            }
+        }
+    }
+
+    /**
+     * Check if a specific event is enabled in config.
+     */
+    protected function isEventEnabled(string $eventKey): bool
+    {
+        return (bool) ($this->eventToggles[$eventKey] ?? true);
+    }
+
+    /**
+     * Register a listener for a Laravel framework event.
+     *
+     * @param  class-string  $laravelEvent
+     * @param  class-string  $analyticsEventClass
+     */
+    private function registerLaravelListener(
+        EventDispatcher $dispatcher,
+        string $laravelEvent,
+        string $analyticsEventClass,
+    ): void {
+        // Map Laravel event class to config key
+        $configKey = $this->laravelEventToConfigKey($laravelEvent);
+
+        if (! $this->isEventEnabled($configKey)) {
+            return;
+        }
+
+        $manager = $this->manager;
+        $class = $analyticsEventClass;
+
+        $dispatcher->listen($laravelEvent, function (mixed $event) use ($manager, $class): void {
+            $this->dispatchAnalyticsEvent($manager, $class, $event);
+        });
+    }
+
+    /**
+     * Dispatch an analytics event from a Laravel event payload.
+     *
+     * @param  class-string  $analyticsEventClass
+     */
+    private function dispatchAnalyticsEvent(
+        AnalyticsManager $manager,
+        string $analyticsEventClass,
+        mixed $payload,
+    ): void {
+        try {
+            $analyticsEvent = $this->buildAnalyticsEvent($analyticsEventClass, $payload);
+
+            if ($analyticsEvent !== null) {
+                $manager->trackEvent($analyticsEvent);
+            }
+        } catch (\Throwable $e) {
+            Log::error('ServerSideTracker: failed to dispatch analytics event', [
+                'analytics_class' => $analyticsEventClass,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Build a typed analytics event from a Laravel event payload.
+     *
+     * @param  class-string  $analyticsEventClass
+     */
+    private function buildAnalyticsEvent(string $analyticsEventClass, mixed $payload): ?AnalyticsEvent
+    {
+        // Auth events carry a user property
+        if ($payload instanceof \Illuminate\Auth\Events\Login) {
+            /** @var AnalyticsEvent $event */
+            $event = new $analyticsEventClass(method: $payload->guard ?? 'default');
+
+            return $event;
+        }
+
+        if ($payload instanceof \Illuminate\Auth\Events\Registered) {
+            return new SignUpEvent(method: 'default');
+        }
+
+        if ($payload instanceof \Illuminate\Auth\Events\Logout) {
+            return new LogoutEvent;
+        }
+
+        // Custom application events — try to construct with the payload as params
+        if (is_array($payload)) {
+            return new $analyticsEventClass(...$this->extractConstructorArgs($analyticsEventClass, $payload));
+        }
+
+        if ($payload instanceof AnalyticsEvent) {
+            return $payload;
+        }
+
+        // Fallback: construct with no args
+        return new $analyticsEventClass;
+    }
+
+    /**
+     * Extract constructor argument values from an associative array payload.
+     *
+     * @param  class-string  $class
+     * @param  array<string, mixed>  $payload
+     * @return array<int, mixed>
+     */
+    private function extractConstructorArgs(string $class, array $payload): array
+    {
+        try {
+            $reflection = new \ReflectionClass($class);
+            $constructor = $reflection->getConstructor();
+
+            if ($constructor === null) {
+                return [];
+            }
+
+            $args = [];
+            foreach ($constructor->getParameters() as $param) {
+                $name = $param->getName();
+                $args[] = $payload[$name] ?? $param->getDefaultValue();
+            }
+
+            return $args;
+        } catch (\Throwable $e) {
+            Log::warning('ServerSideTracker: failed to extract constructor args', [
+                'class' => $class,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Convert a Laravel event class FQCN to a config key.
+     *
+     * @param  class-string  $laravelEvent
+     */
+    private function laravelEventToConfigKey(string $laravelEvent): string
+    {
+        $map = [
+            \Illuminate\Auth\Events\Login::class => 'auth.login',
+            \Illuminate\Auth\Events\Registered::class => 'auth.register',
+            \Illuminate\Auth\Events\Logout::class => 'auth.logout',
+        ];
+
+        return $map[$laravelEvent] ?? 'custom.'.$laravelEvent;
+    }
+}

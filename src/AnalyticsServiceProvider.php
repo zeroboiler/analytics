@@ -12,6 +12,7 @@ use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
+use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 
 class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -55,6 +56,15 @@ class AnalyticsServiceProvider extends ServiceProvider
 
             return new MetaPixelService($manager->meta());
         });
+
+        $this->app->singleton(ServerSideTracker::class, function (Application $app): ServerSideTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ServerSideTracker($manager, $config);
+        });
     }
 
     /**
@@ -71,6 +81,7 @@ class AnalyticsServiceProvider extends ServiceProvider
 
         $this->registerBladeDirectives();
         $this->registerMiddleware();
+        $this->registerAutoTracking();
     }
 
     /**
@@ -95,6 +106,38 @@ class AnalyticsServiceProvider extends ServiceProvider
                 'analytics.scripts',
                 InjectAnalyticsScripts::class,
             );
+        }
+    }
+
+    /**
+     * Register server-side auto-tracking of Laravel events.
+     */
+    private function registerAutoTracking(): void
+    {
+        $tracker = $this->app->make(ServerSideTracker::class);
+        $dispatcher = $this->app->make('events');
+
+        $tracker->register($dispatcher);
+
+        // Register custom application events from config
+        $config = $this->app->make(ConfigRepository::class);
+        $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
+        /** @var array{events?: array<string, bool>} $autoTrack */
+        $customEvents = $autoTrack['events'] ?? [];
+
+        foreach (array_keys($customEvents) as $eventName) {
+            if (str_starts_with($eventName, 'auth.')) {
+                continue; // Laravel framework events, already registered
+            }
+
+            $tracker->listen($eventName, $dispatcher);
+        }
+
+        // Register Eloquent model listeners
+        /** @var array<class-string, array<int, string>> $modelEvents */
+        $modelEvents = $autoTrack['models'] ?? [];
+        if (! empty($modelEvents)) {
+            $tracker->registerModelListeners($modelEvents);
         }
     }
 }

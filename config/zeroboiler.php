@@ -32,5 +32,34 @@ return [
         'consent' => [
             'default' => env('ANALYTICS_CONSENT_DEFAULT', 'granted'),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Auto-Track (Server-Side Event Tracking)
+        |--------------------------------------------------------------------------
+        |
+        | Automatically track Laravel framework events as analytics events.
+        | Toggle individual events on/off. Set 'enabled' to false to disable
+        | all server-side auto-tracking.
+        |
+        */
+        'auto_track' => [
+            'enabled' => env('ANALYTICS_AUTO_TRACK_ENABLED', true),
+            'events' => [
+                'auth.login' => true,
+                'auth.register' => true,
+                'auth.logout' => false,
+                'subscription.created' => true,
+                'subscription.upgraded' => true,
+                'subscription.cancelled' => true,
+                'trial.started' => true,
+                'trial.ended' => false,
+                'feature.used' => false,
+            ],
+            'models' => [
+                // Track Eloquent model events as analytics events
+                // Example: App\Models\Habit::class => ['created', 'deleted'],
+            ],
+        ],
     ],
 ];
