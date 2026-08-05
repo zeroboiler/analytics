@@ -37,7 +37,7 @@ class HandleInertiaAnalytics
     /**
      * Handle an incoming request and inject analytics data into Inertia props.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next): Response|\Inertia\Response
     {
         $response = $next($request);
 
@@ -77,6 +77,7 @@ class HandleInertiaAnalytics
     private function getOrCreateTrackingId(Request $request): string
     {
         $cookieName = $this->config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
+        /** @var string $cookieName */
 
         $existing = $request->cookie($cookieName);
 

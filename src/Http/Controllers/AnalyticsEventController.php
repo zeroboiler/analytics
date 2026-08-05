@@ -91,7 +91,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'count' => count($events),
+            'count' => count((array) $events),
         ]);
     }
 
@@ -108,7 +108,7 @@ class AnalyticsEventController extends Controller
             'client_id' => 'required|string',
         ]);
 
-        $clientId = $request->input('client_id');
+        $clientId = is_string($request->input('client_id')) ? $request->input('client_id') : null;
         $user = $request->user();
 
         if ($user === null) {
@@ -149,6 +149,7 @@ class AnalyticsEventController extends Controller
         ]);
 
         $signals = $request->input('signals', []);
+        /** @var array<string, string|null> $signals */
 
         $state = $this->manager->getConsent()->with($signals);
 
