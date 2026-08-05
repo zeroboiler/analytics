@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Http\Controllers;
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -20,11 +21,15 @@ class AnalyticsEventController extends Controller
 {
     private AnalyticsManager $manager;
 
+    private string $cookieName;
+
     private const MAX_BATCH_SIZE = 25;
 
-    public function __construct(AnalyticsManager $manager)
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         $this->manager = $manager;
+        $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
+        $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
     }
 
     /**
@@ -174,8 +179,7 @@ class AnalyticsEventController extends Controller
         }
 
         // Fall back to cookie
-        $cookieName = 'zb_analytics_id';
-        $cookie = $request->cookie($cookieName);
+        $cookie = $request->cookie($this->cookieName);
 
         if (is_string($cookie) && $cookie !== '') {
             return $cookie;

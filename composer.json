@@ -1,6 +1,6 @@
 {
     "name": "zeroboiler/analytics",
-    "description": "Google Analytics 4, GTM and Meta Pixel integration for Laravel",
+    "description": "Industry-standard SaaS analytics for Laravel — GA4, GTM, Meta Pixel, Plausible, PostHog",
     "type": "library",
     "license": "proprietary",
     "version": "1.0.0",
@@ -45,6 +45,21 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest --min=80",
+        "test:ci": "vendor/bin/pest --coverage --min=44",
+        "pint": "vendor/bin/pint --test",
+        "pint:fix": "vendor/bin/pint",
+        "phpstan": "vendor/bin/phpstan analyse --no-progress",
+        "rector": "vendor/bin/rector --dry-run --no-progress-bar",
+        "rector:fix": "vendor/bin/rector --no-progress-bar",
+        "ci": [
+            "@pint",
+            "@phpstan",
+            "@rector",
+            "@test"
+        ]
     },
     "repositories": [
         {
