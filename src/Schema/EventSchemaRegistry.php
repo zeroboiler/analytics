@@ -249,6 +249,25 @@ class EventSchemaRegistry
             ],
         );
 
+        $this->schemas['add_to_wishlist'] = new EventSchema(
+            name: 'add_to_wishlist',
+            category: 'ecommerce',
+            description: 'Tracks adding an item to the wishlist',
+            requiredParams: [
+                'item_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            optionalParams: [
+                'item_name' => new EventParam(type: 'string', maxLength: 200),
+                'item_category' => new EventParam(type: 'string', maxLength: 100),
+                'price' => new EventParam(type: 'float', min: 0),
+                'currency' => new EventParam(type: 'string', maxLength: 3),
+            ],
+            providerMapping: [
+                'ga4' => 'add_to_wishlist',
+                'meta' => 'AddToWishlist',
+            ],
+        );
+
         $this->schemas['purchase'] = new EventSchema(
             name: 'purchase',
             category: 'ecommerce',
@@ -704,6 +723,51 @@ class EventSchemaRegistry
             optionalParams: [
                 'timing_name' => new EventParam(type: 'string', maxLength: 100),
                 'timing_duration_ms' => new EventParam(type: 'int', min: 0),
+                'page_location' => new EventParam(type: 'string', maxLength: 2000),
+            ],
+        );
+
+        $this->schemas['set_user_properties'] = new EventSchema(
+            name: 'set_user_properties',
+            category: 'core',
+            description: 'Sets user traits/properties across all providers',
+            optionalParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+        );
+
+        $this->schemas['alias'] = new EventSchema(
+            name: 'alias',
+            category: 'core',
+            description: 'Merges two user identities (anonymous → authenticated)',
+            requiredParams: [
+                'previous_id' => new EventParam(type: 'string', maxLength: 200),
+                'new_id' => new EventParam(type: 'string', maxLength: 200),
+            ],
+        );
+
+        $this->schemas['outbound_click'] = new EventSchema(
+            name: 'outbound_click',
+            category: 'engagement',
+            description: 'Tracks an outbound (external) link click',
+            optionalParams: [
+                'link_name' => new EventParam(type: 'string', maxLength: 200),
+                'link_url' => new EventParam(type: 'string', maxLength: 2048),
+                'link_type' => new EventParam(type: 'string', maxLength: 20),
+                'link_text' => new EventParam(type: 'string', maxLength: 200),
+                'page_location' => new EventParam(type: 'string', maxLength: 2000),
+            ],
+        );
+
+        $this->schemas['internal_click'] = new EventSchema(
+            name: 'internal_click',
+            category: 'engagement',
+            description: 'Tracks an internal (same-origin) link click',
+            optionalParams: [
+                'link_name' => new EventParam(type: 'string', maxLength: 200),
+                'link_url' => new EventParam(type: 'string', maxLength: 2048),
+                'link_type' => new EventParam(type: 'string', maxLength: 20),
+                'link_text' => new EventParam(type: 'string', maxLength: 200),
                 'page_location' => new EventParam(type: 'string', maxLength: 2000),
             ],
         );

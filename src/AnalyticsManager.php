@@ -714,6 +714,37 @@ class AnalyticsManager
     }
 
     /**
+     * Track a wishlist add event.
+     *
+     * Convenience method for tracking when a user adds an item
+     * to their wishlist. Maps to GA4 'add_to_wishlist' and Meta 'AddToWishlist'.
+     *
+     * @param  array<string, mixed>  $item  Item data (item_id, item_name, item_category, price, currency)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function wishlist(array $item, array $params = []): void
+    {
+        $this->track('add_to_wishlist', array_merge([
+            'item_id' => $item['item_id'] ?? '',
+            'item_name' => $item['item_name'] ?? null,
+            'item_category' => $item['item_category'] ?? null,
+            'price' => $item['price'] ?? null,
+            'currency' => $item['currency'] ?? 'USD',
+        ], $params));
+
+        // Track Meta equivalent if enabled
+        if ($this->meta->isEnabled()) {
+            $this->track('AddToWishlist', [
+                'content_ids' => [$item['item_id'] ?? ''],
+                'content_name' => $item['item_name'] ?? null,
+                'content_type' => 'product',
+                'currency' => $item['currency'] ?? 'USD',
+                'value' => $item['price'] ?? 0,
+            ]);
+        }
+    }
+
+    /**
      * Format e-commerce items for Meta Pixel (contents array format).
      *
      * Converts GA4-style item arrays to Meta Pixel's `contents` format.
@@ -880,7 +911,7 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.5.0';
+        return '2.6.0';
     }
 
     /**

@@ -3,7 +3,7 @@
     "description": "Industry-standard SaaS analytics for Laravel — GA4, GTM, Meta Pixel, Plausible, PostHog",
     "type": "library",
     "license": "MIT",
-    "version": "2.3.0",
+    "version": "2.6.0",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {

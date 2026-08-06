@@ -66,9 +66,9 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **32 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
+- **33 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
-- **EventSchemaRegistry** — 30+ event schemas with typed parameters, validation, and custom schema registration
+- **EventSchemaRegistry** — 40+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
 
 ### Event Processing
@@ -90,9 +90,10 @@ Done. That's it.
 - **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
 
 ### E-commerce
-- **8 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund
+- **9 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
 - **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping (JS + PHP)
+- **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
 
 ### Identity & GDPR
 - **User Identity Linking** — Client ID ↔ User ID association for cross-device identification
@@ -137,6 +138,8 @@ Done. That's it.
 ### Admin Commands
 - `zb:analytics:overview` — Shows enabled providers, consent state, auto-track config, queue settings, identity config, ecommerce settings
 - `zb:analytics:test` — Sends test event to all providers, supports `--validate` (GA4 debug) and `--event=` (custom name)
+- `zb:analytics:export` — Export event catalog as JSON, CSV, or Markdown for documentation
+- `zb:analytics:revenue-report` — Revenue analytics configuration overview with dry-run preview
 
 ### Blade Integration
 - `@analyticsHead` — GA4/GTM/Meta/Plausible/PostHog head script tags
@@ -229,7 +232,9 @@ src/
 │   └── HandleInertiaAnalytics.php   # Inertia page prop injection + tracking ID cookie
 ├── Console/Commands/
 │   ├── AnalyticsOverviewCommand.php  # Config overview
-│   └── AnalyticsTestCommand.php     # Test event dispatch
+│   ├── AnalyticsTestCommand.php     # Test event dispatch
+│   ├── AnalyticsExportCommand.php   # Export catalog as JSON/CSV/Markdown
+│   └── RevenueReportCommand.php      # Revenue analytics report
 ├── Blade/Directives/
 │   └── AnalyticsDirectives.php      # @analyticsHead, @analyticsBody
 ├── Facades/
@@ -347,7 +352,10 @@ Analytics::trackEvent(new ClickEvent(element: 'cta_button', page: '/pricing'));
 // Quick purchase tracking (convenience)
 Analytics::purchase('TXN-12345', 99.99, [
     ['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2],
-], ['currency' => 'USD', 'coupon' => 'WELCOME20']);
+]);
+
+// Wishlist (GA4 + Meta AddToWishlist auto-formatted)
+Analytics::wishlist(['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99]);
 
 // Identify a user (cross-device linking)
 Analytics::identify('42', 'client-uuid', ['email_hash' => hash('sha256', 'user@example.com'), 'plan' => 'pro']);
@@ -567,8 +575,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 32 events across 3 categories
-EventCatalog::count();          // 32
+// Unified catalog — 33 events across 3 categories
+EventCatalog::count();          // 33
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -881,6 +889,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `AddPaymentInfoEvent` | add_payment_info | AddPaymentInfo |
 | `PurchaseEvent` | purchase | Purchase |
 | `RefundEvent` | refund | — |
+| `WishlistEvent` | add_to_wishlist | AddToWishlist |
 
 ### SaaS Lifecycle Events
 
@@ -962,6 +971,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | Function | Description |
 |----------|-------------|
 | `trackEcommerce(name, data)` | Track with GA4 ↔ Meta conversion |
+| `trackWishlist(item)` | Wishlist add with GA4 + Meta |
 
 ### Identity
 
@@ -1015,6 +1025,27 @@ php artisan zb:analytics:test --validate
 
 # Custom event name
 php artisan zb:analytics:test --event=custom_test
+
+# Export event catalog as JSON (default)
+php artisan zb:analytics:export
+
+# Export as CSV
+php artisan zb:analytics:export --format=csv
+
+# Export as Markdown table
+php artisan zb:analytics:export --format=markdown
+
+# Export to file
+php artisan zb:analytics:export --output=docs/event-catalog.json
+
+# Filter by category
+php artisan zb:analytics:export --category=ecommerce --format=markdown
+
+# Revenue analytics report
+php artisan zb:analytics:revenue-report
+
+# Dry-run a revenue event
+php artisan zb:analytics:revenue-report --dry-run --event=mrr --amount=5000
 ```
 
 ## Testing
@@ -1086,7 +1117,15 @@ composer ci  # Pint + PHPStan + Rector + Tests
 
 ## Changelog
 
-### v2.3.0 — DataBus Integration, Test Suite Expansion, v2.3.0 hardening
+### v2.6.0 — Wishlist Convenience, Schema Expansion, Catalog Export
+- **`Analytics::wishlist()`** — Convenience method for wishlist tracking with automatic Meta `AddToWishlist` formatting
+- **Facade proxy** — `wishlist()` added to Analytics facade
+- **EventSchemaRegistry expanded** — Added schemas for `add_to_wishlist`, `set_user_properties`, `alias`, `outbound_click`, `internal_click` (40+ total schemas)
+- **`zb:analytics:export` command** — Export full event catalog as JSON, CSV, or Markdown for documentation and integration
+- **README updates** — Export command docs, wishlist usage, updated event counts (33 events, 40+ schemas)
+- **Version consistency** — composer.json, AnalyticsManager, health endpoint, JS client all aligned to v2.6.0
+
+### v2.5.0 — AnalyticsMetrics, PII sanitization, event sampling, AnonymousIdTracker
 - **DataBus-aware dispatch** — AnalyticsManager now routes events through DataBus when routing rules are configured, falling back to direct dispatch when no rules exist
 - **directDispatch()** — New public method to bypass DataBus and send events to all providers directly
 - **Facade proxy** — `directDispatch()` added to Analytics facade

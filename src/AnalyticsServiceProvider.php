@@ -14,6 +14,7 @@ use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
@@ -275,6 +276,7 @@ class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                AnalyticsExportCommand::class,
                 RevenueReportCommand::class,
             ]);
         }
