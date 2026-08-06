@@ -1177,7 +1177,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `initFormTracking(options?)` | form_start + form_submit |
 | `initErrorTracking(options?)` | JS errors + unhandled rejections |
 | `initLinkTracking(options?)` | Outbound/internal link clicks |
-| `initSessionHeartbeat(seconds?)` | Periodic session heartbeat (10–300s) |
+| `initSessionHeartbeat(seconds?)` | Periodic session heartbeat (10–300s, tracks `session_heartbeat` events) |
 | `stopSessionHeartbeat()` | Stop the session heartbeat timer |
 | `isHeartbeatActive()` | Check if heartbeat is running |
 
