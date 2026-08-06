@@ -110,6 +110,45 @@ final class EngagementEvents
                 'ga4' => 'notification',
                 'meta' => null,
             ],
+            // Performance & client-side events
+            'web_vitals' => [
+                'name' => 'web_vitals',
+                'class' => WebVitalsEvent::class,
+                'ga4' => 'web_vitals',
+                'meta' => null,
+            ],
+            'js_error' => [
+                'name' => 'js_error',
+                'class' => JSErrorEvent::class,
+                'ga4' => 'js_error',
+                'meta' => null,
+            ],
+            'timing' => [
+                'name' => 'timing',
+                'class' => TimingEvent::class,
+                'ga4' => 'timing',
+                'meta' => null,
+            ],
+            // Session lifecycle events
+            'session_start' => [
+                'name' => 'session_start',
+                'class' => SessionStartEvent::class,
+                'ga4' => 'session_start',
+                'meta' => null,
+            ],
+            'session_end' => [
+                'name' => 'session_end',
+                'class' => SessionEndEvent::class,
+                'ga4' => 'session_end',
+                'meta' => null,
+            ],
+            // Link click events
+            'outbound_click' => [
+                'name' => 'outbound_click',
+                'class' => OutboundClickEvent::class,
+                'ga4' => 'outbound_click',
+                'meta' => null,
+            ],
         ];
 
         return self::$catalog;

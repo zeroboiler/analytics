@@ -11,6 +11,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use ZeroBoiler\Analytics\AnalyticsManager;
+use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
 
 /**
  * HTTP middleware that auto-injects analytics scripts into HTML responses.
@@ -21,7 +22,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  *
  * Register as route middleware: `analytics.scripts`
  */
-class InjectAnalyticsScripts
+class InjectAnalyticsScripts implements HttpMiddlewareContract
 {
     public function __construct(
         protected AnalyticsManager $analytics,

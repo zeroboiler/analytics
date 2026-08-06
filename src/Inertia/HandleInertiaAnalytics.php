@@ -14,6 +14,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
+use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
 
 /**
  * Inertia middleware that injects analytics configuration into page props.
@@ -25,7 +26,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * - Server-generated tracking ID (cookie-stored for client/server matching)
  * - Authenticated user ID (when available)
  */
-class HandleInertiaAnalytics
+class HandleInertiaAnalytics implements HttpMiddlewareContract
 {
     private AnalyticsManager $manager;
 
@@ -105,6 +106,34 @@ class HandleInertiaAnalytics
         $debugConfig = $this->config->get('zeroboiler.analytics.debug', []);
         /** @var array{enabled?: bool} $debugConfig */
         $analyticsProps['debug'] = (bool) ($debugConfig['enabled'] ?? false);
+
+        // Client-side auto-tracking settings (config-driven)
+        $clientAutoTrack = $this->config->get('zeroboiler.analytics.client_auto_track', []);
+        /** @var array{page_views?: bool, scroll_depth?: bool, form_tracking?: bool, error_tracking?: bool, link_tracking?: bool, session_tracking?: bool, idle_timeout?: int, error_ignore_patterns?: list<string>} $clientAutoTrack */
+        $analyticsProps['autoTrack'] = [
+            'pageViews' => (bool) ($clientAutoTrack['page_views'] ?? true),
+            'scrollDepth' => (bool) ($clientAutoTrack['scroll_depth'] ?? true),
+            'formTracking' => (bool) ($clientAutoTrack['form_tracking'] ?? true),
+            'errorTracking' => (bool) ($clientAutoTrack['error_tracking'] ?? true),
+            'linkTracking' => (bool) ($clientAutoTrack['link_tracking'] ?? false),
+            'sessionTracking' => (bool) ($clientAutoTrack['session_tracking'] ?? true),
+            'idleTimeout' => (int) ($clientAutoTrack['idle_timeout'] ?? 1800),
+            'errorIgnorePatterns' => (array) ($clientAutoTrack['error_ignore_patterns'] ?? []),
+        ];
+
+        // Performance tracking settings (Core Web Vitals)
+        $performanceConfig = $this->config->get('zeroboiler.analytics.performance', []);
+        /** @var array{enabled?: bool, track_lcp?: bool, track_fid?: bool, track_cls?: bool, track_inp?: bool, track_ttfb?: bool, track_fcp?: bool, send_to_server?: bool} $performanceConfig */
+        $analyticsProps['performance'] = [
+            'enabled' => (bool) ($performanceConfig['enabled'] ?? false),
+            'trackLCP' => (bool) ($performanceConfig['track_lcp'] ?? true),
+            'trackFID' => (bool) ($performanceConfig['track_fid'] ?? true),
+            'trackCLS' => (bool) ($performanceConfig['track_cls'] ?? true),
+            'trackINP' => (bool) ($performanceConfig['track_inp'] ?? true),
+            'trackTTFB' => (bool) ($performanceConfig['track_ttfb'] ?? true),
+            'trackFCP' => (bool) ($performanceConfig['track_fcp'] ?? false),
+            'sendToServer' => (bool) ($performanceConfig['send_to_server'] ?? true),
+        ];
 
         return $response->with('zbAnalytics', $analyticsProps);
     }

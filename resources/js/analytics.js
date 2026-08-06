@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.9.0
+ * @version 2.11.0
  */
 
 let trackingId = null;
@@ -863,16 +863,171 @@ export async function trackPerformance(metricName, value, params = {}) {
 }
 
 /**
+ * Initialize Web Vitals tracking with the Performance Observer API.
+ *
+ * Uses the native browser PerformanceObserver when available to capture
+ * LCP, FID/INP, and CLS metrics. Falls back gracefully if the API
+ * is not supported or if the web-vitals library is not loaded.
+ *
+ * Respects the performance config from Inertia props.
+ *
+ * @param {object} [options] - Override options
+ * @param {boolean} [options.sendToServer] - Force server dispatch (overrides config)
+ * @returns {function} Cleanup function to disconnect observers
+ *
+ * @example
+ * const cleanup = initWebVitals();
+ * // Or with web-vitals library:
+ * import { onLCP, onCLS, onINP, onTTFB, onFCP } from 'web-vitals';
+ * initWebVitals({ onLCP, onCLS, onINP, onTTFB, onFCP });
+ */
+export function initWebVitals(options = {}) {
+    if (!initialized) return () => {};
+
+    const perfConfig = config?.performance || {};
+    const enabled = options.enabled !== undefined ? options.enabled : perfConfig.enabled;
+    const sendToServer = options.sendToServer !== undefined ? options.sendToServer : perfConfig.sendToServer;
+
+    if (!enabled) return () => {};
+
+    const observers = [];
+
+    function observeMetric(type, callback) {
+        if (typeof PerformanceObserver === 'undefined') return;
+
+        try {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    callback(entry);
+                }
+            });
+            observer.observe({ type, buffered: true });
+            observers.push(observer);
+        } catch {
+            // PerformanceObserver not supported for this type
+        }
+    }
+
+    // Largest Contentful Paint (LCP)
+    if (perfConfig.trackLCP !== false) {
+        observeMetric('largest-contentful-paint', (entry) => {
+            const value = entry.startTime;
+            trackEvent('web_vitals', {
+                metric_name: 'LCP',
+                metric_value: Math.round(value),
+                rating: value <= 2500 ? 'good' : value <= 4000 ? 'needs-improvement' : 'poor',
+                page_location: window.location.href,
+            }, { immediate: sendToServer });
+        });
+    }
+
+    // First Input / Interaction to Next Paint (INP)
+    if (perfConfig.trackFID !== false) {
+        if (typeof PerformanceObserver !== 'undefined') {
+            try {
+                // Try INP first (modern browsers)
+                const inpObserver = new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                        const value = entry.duration;
+                        trackEvent('web_vitals', {
+                            metric_name: 'INP',
+                            metric_value: Math.round(value),
+                            rating: value <= 200 ? 'good' : value <= 500 ? 'needs-improvement' : 'poor',
+                            page_location: window.location.href,
+                        }, { immediate: sendToServer });
+                    }
+                });
+
+                if (PerformanceObserver.supportedEntryTypes?.includes('event')) {
+                    inpObserver.observe({ type: 'event', buffered: true });
+                    observers.push(inpObserver);
+                } else {
+                    // Fallback: try first-input
+                    const fiObserver = new PerformanceObserver((list) => {
+                        for (const entry of list.getEntries()) {
+                            const value = entry.processingStart - entry.startTime;
+                            trackEvent('web_vitals', {
+                                metric_name: 'FID',
+                                metric_value: Math.round(value),
+                                rating: value <= 100 ? 'good' : value <= 300 ? 'needs-improvement' : 'poor',
+                                page_location: window.location.href,
+                            }, { immediate: sendToServer });
+                        }
+                    });
+                    fiObserver.observe({ type: 'first-input', buffered: true });
+                    observers.push(fiObserver);
+                }
+            } catch {
+                // Not supported
+            }
+        }
+    }
+
+    // Cumulative Layout Shift (CLS)
+    if (perfConfig.trackCLS !== false) {
+        observeMetric('layout-shift', (entry) => {
+            if (!entry.hadRecentInput) {
+                trackEvent('web_vitals', {
+                    metric_name: 'CLS',
+                    metric_value: Math.round(entry.value * 1000) / 1000,
+                    rating: entry.value <= 0.1 ? 'good' : entry.value <= 0.25 ? 'needs-improvement' : 'poor',
+                    page_location: window.location.href,
+                }, { immediate: sendToServer });
+            }
+        });
+    }
+
+    // Time to First Byte (TTFB)
+    if (perfConfig.trackTTFB !== false) {
+        observeMetric('navigation', (entry) => {
+            const value = entry.responseStart;
+            trackEvent('web_vitals', {
+                metric_name: 'TTFB',
+                metric_value: Math.round(value),
+                rating: value <= 800 ? 'good' : value <= 1800 ? 'needs-improvement' : 'poor',
+                page_location: window.location.href,
+            }, { immediate: sendToServer });
+        });
+    }
+
+    // First Contentful Paint (FCP)
+    if (perfConfig.trackFCP) {
+        observeMetric('paint', (entry) => {
+            if (entry.name === 'first-contentful-paint') {
+                const value = entry.startTime;
+                trackEvent('web_vitals', {
+                    metric_name: 'FCP',
+                    metric_value: Math.round(value),
+                    rating: value <= 1800 ? 'good' : value <= 3000 ? 'needs-improvement' : 'poor',
+                    page_location: window.location.href,
+                }, { immediate: sendToServer });
+            }
+        });
+    }
+
+    return () => {
+        for (const observer of observers) {
+            observer.disconnect();
+        }
+        observers.length = 0;
+    };
+}
+
+/**
  * Track a timing event using the Performance API.
  *
  * @param {string} name - Timing name
- * @returns {void}
+ * @returns {function} End function — call to stop the timer and record the event
+ *
+ * @example
+ * const end = trackTiming('api_request');
+ * await fetch('/api/data');
+ * end();
  */
 export function trackTiming(name) {
-    if (!initialized || typeof performance === 'undefined') return;
+    if (!initialized || typeof performance === 'undefined') return () => {};
 
     const startMark = `zb_${name}_start`;
-
     performance.mark(startMark);
 
     return () => {
@@ -897,6 +1052,336 @@ export function trackTiming(name) {
             // Performance API not supported
         }
     };
+}
+
+// ─── Session Lifecycle Tracking ────────────────────────────────────────
+
+let sessionState = {
+    active: false,
+    id: null,
+    startTime: null,
+    eventCount: 0,
+    pageViewCount: 0,
+    lastActivity: null,
+    idleTimer: null,
+    visibilityHandler: null,
+    cleanupFns: [],
+};
+
+/**
+ * Initialize client-side session lifecycle tracking.
+ *
+ * Tracks session_start on initialization and session_end on:
+ * - Tab visibility change (user switches away)
+ * - Idle timeout (configurable, default 30 minutes)
+ * - BeforeUnload event
+ *
+ * Session events include duration, event counts, and exit reason
+ * for engagement analysis.
+ *
+ * @param {object} [options] - Override options
+ * @param {number} [options.idleTimeout] - Idle timeout in seconds (default from config)
+ * @returns {function} Cleanup function
+ *
+ * @example
+ * const cleanup = initSessionTracking();
+ */
+export function initSessionTracking(options = {}) {
+    if (!initialized || sessionState.active) return () => {};
+
+    const autoTrackConfig = config?.autoTrack || {};
+    const idleTimeout = options.idleTimeout || autoTrackConfig.idleTimeout || 1800;
+
+    sessionState = {
+        active: true,
+        id: generateSessionId(),
+        startTime: Date.now(),
+        eventCount: 0,
+        pageViewCount: 0,
+        lastActivity: Date.now(),
+        idleTimer: null,
+        visibilityHandler: null,
+        cleanupFns: [],
+    };
+
+    // Track session start
+    trackEvent('session_start', {
+        session_id: sessionState.id,
+        page_path: window.location.pathname,
+        referrer: document.referrer || null,
+        source: utmParams.utm_source || 'direct',
+    }, { immediate: true });
+
+    // Visibility change handler — end session when tab is hidden
+    sessionState.visibilityHandler = () => {
+        if (document.visibilityState === 'hidden') {
+            endSession('visibility');
+        } else if (document.visibilityState === 'visible') {
+            // Restart session if user comes back after a brief absence
+            if (sessionState.active === false && Date.now() - (sessionState.lastActivity || 0) < 300000) {
+                // Resume: track a new session_start
+                sessionState.active = true;
+                sessionState.startTime = Date.now();
+                sessionState.eventCount = 0;
+                sessionState.pageViewCount = 0;
+                sessionState.id = generateSessionId();
+
+                trackEvent('session_start', {
+                    session_id: sessionState.id,
+                    page_path: window.location.pathname,
+                    referrer: null,
+                    source: 'resume',
+                }, { immediate: true });
+
+                resetIdleTimer(idleTimeout);
+            }
+        }
+    };
+
+    document.addEventListener('visibilitychange', sessionState.visibilityHandler);
+
+    // BeforeUnload handler — best-effort session end
+    const beforeUnloadHandler = () => {
+        if (sessionState.active) {
+            endSession('unload');
+        }
+    };
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    // Reset idle timer on user activity
+    const activityHandler = () => {
+        sessionState.lastActivity = Date.now();
+        resetIdleTimer(idleTimeout);
+    };
+
+    const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+    for (const eventName of activityEvents) {
+        window.addEventListener(eventName, activityHandler, { passive: true });
+    }
+
+    sessionState.cleanupFns = [
+        () => document.removeEventListener('visibilitychange', sessionState.visibilityHandler),
+        () => window.removeEventListener('beforeunload', beforeUnloadHandler),
+        ...activityEvents.map((eventName) => () => window.removeEventListener(eventName, activityHandler, { passive: true })),
+        () => { if (sessionState.idleTimer) clearTimeout(sessionState.idleTimer); },
+    ];
+
+    resetIdleTimer(idleTimeout);
+
+    return () => {
+        if (sessionState.active) {
+            endSession('cleanup');
+        }
+        for (const fn of sessionState.cleanupFns) {
+            fn();
+        }
+        sessionState.active = false;
+    };
+}
+
+/**
+ * Reset the idle timer.
+ */
+function resetIdleTimer(idleTimeout) {
+    if (sessionState.idleTimer) {
+        clearTimeout(sessionState.idleTimer);
+    }
+
+    sessionState.idleTimer = setTimeout(() => {
+        if (sessionState.active) {
+            endSession('idle');
+        }
+    }, idleTimeout * 1000);
+}
+
+/**
+ * End the current session and dispatch a session_end event.
+ */
+function endSession(reason) {
+    if (!sessionState.active) return;
+
+    const duration = Math.round((Date.now() - sessionState.startTime) / 1000);
+
+    trackEvent('session_end', {
+        session_id: sessionState.id,
+        duration_seconds: duration,
+        event_count: sessionState.eventCount,
+        page_view_count: sessionState.pageViewCount,
+        exit_page: window.location.pathname,
+        end_reason: reason,
+    }, { immediate: true });
+
+    if (sessionState.idleTimer) {
+        clearTimeout(sessionState.idleTimer);
+        sessionState.idleTimer = null;
+    }
+
+    sessionState.active = false;
+}
+
+/**
+ * Generate a short session ID.
+ */
+function generateSessionId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID().slice(0, 8);
+    }
+
+    return Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * Record an event for session counting.
+ */
+export function recordSessionEvent() {
+    if (sessionState.active) {
+        sessionState.eventCount++;
+        sessionState.lastActivity = Date.now();
+    }
+}
+
+/**
+ * Record a page view for session counting.
+ */
+export function recordSessionPageView() {
+    if (sessionState.active) {
+        sessionState.pageViewCount++;
+        sessionState.lastActivity = Date.now();
+    }
+}
+
+/**
+ * Get the current session state (for debugging).
+ */
+export function getSessionState() {
+    return { ...sessionState };
+}
+
+// ─── Auto-Init Everything ──────────────────────────────────────────────
+
+let autoInitCleanup = null;
+
+/**
+ * Initialize all analytics tracking in one call.
+ *
+ * Reads configuration from the Inertia page props (config.autoTrack
+ * and config.performance) and enables/disables each tracker
+ * accordingly. Returns a cleanup function that tears down all
+ * active trackers.
+ *
+ * @param {object} pageProps - Inertia page props containing `zbAnalytics`
+ * @param {object} [options] - Override options for individual trackers
+ * @param {boolean} [options.pageViews] - Override page view auto-tracking
+ * @param {boolean} [options.scrollDepth] - Override scroll depth tracking
+ * @param {boolean} [options.formTracking] - Override form tracking
+ * @param {boolean} [options.errorTracking] - Override error tracking
+ * @param {boolean} [options.linkTracking] - Override link tracking
+ * @param {boolean} [options.sessionTracking] - Override session tracking
+ * @param {boolean} [options.performanceTracking] - Override Web Vitals tracking
+ * @param {number} [options.idleTimeout] - Override idle timeout (seconds)
+ * @param {string[]} [options.errorIgnorePatterns] - Override error ignore patterns
+ * @returns {function} Cleanup function to tear down all trackers
+ *
+ * @example
+ * // Svelte root component:
+ * import { initAll } from '../resources/js/analytics';
+ * import { onDestroy } from 'svelte';
+ *
+ * const cleanup = initAll(page.props);
+ * onDestroy(cleanup);
+ *
+ * // With overrides:
+ * const cleanup = initAll(page.props, {
+ *     linkTracking: true,
+ *     performanceTracking: true,
+ *     idleTimeout: 600,
+ * });
+ */
+export function initAll(pageProps, options = {}) {
+    // Cleanup previous auto-init if any
+    if (autoInitCleanup) {
+        autoInitCleanup();
+        autoInitCleanup = null;
+    }
+
+    // Initialize the core library
+    init(pageProps);
+
+    if (!initialized) return () => {};
+
+    const cleanups = [];
+    const atConfig = config?.autoTrack || {};
+    const perfConfig = config?.performance || {};
+
+    // Resolve effective settings: explicit options > Inertia config > defaults
+    const pageViews = options.pageViews ?? atConfig.pageViews ?? true;
+    const scrollDepth = options.scrollDepth ?? atConfig.scrollDepth ?? true;
+    const formTracking = options.formTracking ?? atConfig.formTracking ?? true;
+    const errorTracking = options.errorTracking ?? atConfig.errorTracking ?? true;
+    const linkTracking = options.linkTracking ?? atConfig.linkTracking ?? false;
+    const sessionTracking = options.sessionTracking ?? atConfig.sessionTracking ?? true;
+    const performanceTracking = options.performanceTracking ?? perfConfig.enabled ?? false;
+    const idleTimeout = options.idleTimeout ?? atConfig.idleTimeout ?? 1800;
+    const errorIgnorePatterns = options.errorIgnorePatterns ?? atConfig.errorIgnorePatterns ?? [];
+
+    // 1. Session tracking (start first to count events)
+    if (sessionTracking) {
+        cleanups.push(initSessionTracking({ idleTimeout }));
+    }
+
+    // 2. Inertia page view auto-tracking
+    if (pageViews) {
+        const pvCleanup = initInertiaPageViewTracker();
+        cleanups.push(pvCleanup);
+    }
+
+    // 3. Scroll depth tracking
+    if (scrollDepth) {
+        cleanups.push(initScrollDepth());
+    }
+
+    // 4. Form interaction tracking
+    if (formTracking) {
+        cleanups.push(initFormTracking());
+    }
+
+    // 5. JavaScript error tracking
+    if (errorTracking) {
+        cleanups.push(initErrorTracking({ ignorePatterns: errorIgnorePatterns }));
+    }
+
+    // 6. Link click tracking
+    if (linkTracking) {
+        cleanups.push(initLinkTracking());
+    }
+
+    // 7. Core Web Vitals tracking
+    if (performanceTracking) {
+        cleanups.push(initWebVitals());
+    }
+
+    autoInitCleanup = () => {
+        for (const fn of cleanups) {
+            try { fn(); } catch { /* best-effort cleanup */ }
+        }
+        cleanups.length = 0;
+    };
+
+    return autoInitCleanup;
+}
+
+/**
+ * Cleanup all auto-initialized trackers.
+ *
+ * Call this in your component's onDestroy/cleanup lifecycle.
+ * Also called automatically when initAll() is called again.
+ */
+export function destroyAll() {
+    if (autoInitCleanup) {
+        autoInitCleanup();
+        autoInitCleanup = null;
+    }
+    destroy();
 }
 
 // ─── GTM Data Layer Push ─────────────────────────────────────────────────

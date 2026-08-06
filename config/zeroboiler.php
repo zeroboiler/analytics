@@ -355,5 +355,52 @@ return [
         'stream' => [
             'buffer_size' => (int) env('ANALYTICS_STREAM_BUFFER_SIZE', 1000),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Client-Side Auto-Tracking
+        |-------------------------------------------------------------------------- 
+        |
+        | Config-driven settings exposed to the JS client via Inertia props.
+        | When initAll() is called on the client, these settings determine
+        | which auto-trackers are enabled. Individual trackers can be
+        | toggled on/off without code changes.
+        |
+        */
+        'client_auto_track' => [
+            'page_views' => env('ANALYTICS_CLIENT_PAGE_VIEWS', true),
+            'scroll_depth' => env('ANALYTICS_CLIENT_SCROLL_DEPTH', true),
+            'form_tracking' => env('ANALYTICS_CLIENT_FORM_TRACKING', true),
+            'error_tracking' => env('ANALYTICS_CLIENT_ERROR_TRACKING', true),
+            'link_tracking' => env('ANALYTICS_CLIENT_LINK_TRACKING', false),
+            'session_tracking' => env('ANALYTICS_CLIENT_SESSION_TRACKING', true),
+            'idle_timeout' => (int) env('ANALYTICS_CLIENT_IDLE_TIMEOUT', 1800), // 30 minutes
+            'error_ignore_patterns' => [
+                'ResizeObserver',
+                'Non-Error promise rejection',
+                'Script error',
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Performance Tracking (Core Web Vitals)
+        |-------------------------------------------------------------------------- 
+        |
+        | Settings for client-side performance monitoring.
+        | When enabled, the Inertia middleware exposes these settings
+        | so the JS client can initialize Web Vitals tracking.
+        |
+        */
+        'performance' => [
+            'enabled' => env('ANALYTICS_PERFORMANCE_ENABLED', false),
+            'track_lcp' => env('ANALYTICS_PERFORMANCE_LCP', true),
+            'track_fid' => env('ANALYTICS_PERFORMANCE_FID', true),
+            'track_cls' => env('ANALYTICS_PERFORMANCE_CLS', true),
+            'track_inp' => env('ANALYTICS_PERFORMANCE_INP', true),
+            'track_ttfb' => env('ANALYTICS_PERFORMANCE_TTFB', true),
+            'track_fcp' => env('ANALYTICS_PERFORMANCE_FCP', false),
+            'send_to_server' => env('ANALYTICS_PERFORMANCE_SERVER', true),
+        ],
     ],
 ];
