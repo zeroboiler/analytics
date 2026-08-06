@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */
-class RevenueAttributionService
+final class RevenueAttributionService
 {
     private AnalyticsManager $manager;
 

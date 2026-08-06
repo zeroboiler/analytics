@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
  * Provides convenience methods for common SaaS lifecycle tracking scenarios
  * including user acquisition, trial, subscription, and retention events.
  */
-class SaaSAnalyticsService
+final class SaaSAnalyticsService
 {
     private AnalyticsManager $manager;
 

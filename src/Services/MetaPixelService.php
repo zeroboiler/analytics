@@ -19,11 +19,11 @@ use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
  * Resolved from the container as a singleton; receives the MetaPixelTracker
  * instance from the AnalyticsManager.
  */
-class MetaPixelService
+final class MetaPixelService
 {
     public function __construct(
         protected MetaPixelTracker $tracker,
-    ) {}
+    ): void {}
 
     /**
      * Track a PageView event.

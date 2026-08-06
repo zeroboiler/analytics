@@ -1261,6 +1261,18 @@ composer test:ci      # Run with coverage
 composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 ```
 
+### Production Readiness
+
+All source files use `declare(strict_types=1)`. Every leaf class is marked `final` (AnalyticsManager, trackers, services, middleware, pipeline, commands, etc.). The `AnalyticsEvent` DTO is `readonly`. All constructors on leaf classes declare `:void` return types. The package requires **PHP 8.5+** with `minimum-stability: stable`.
+
+Run the structural verification suite:
+
+```bash
+composer test -- --filter=ProductionReadinessTest
+```
+
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 143+ source files.
+
 ## Troubleshooting
 
 ### Events not appearing in GA4

@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\Events\SaaS\RevenueEvent;
  * All revenue events include structured parameters for segmentation
  * by plan, user, and revenue type.
  */
-class RevenueAnalyticsService
+final class RevenueAnalyticsService
 {
     private AnalyticsManager $manager;
 

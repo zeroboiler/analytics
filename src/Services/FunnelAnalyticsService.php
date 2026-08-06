@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */
-class FunnelAnalyticsService
+final class FunnelAnalyticsService
 {
     /** @var array<string, mixed> */
     private array $activeFunnels = [];

@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * worker instead of blocking the HTTP request. Uses the 'analytics' queue
  * connection by default.
  */
-class QueuedAnalyticsDispatcher
+final class QueuedAnalyticsDispatcher
 {
     private AnalyticsManager $manager;
 

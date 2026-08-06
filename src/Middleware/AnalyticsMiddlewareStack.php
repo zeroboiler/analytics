@@ -33,7 +33,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @see AnalyticsMiddlewareInterface
  */
-class AnalyticsMiddlewareStack
+final class AnalyticsMiddlewareStack implements \Countable
 {
     /** @var array<int, AnalyticsMiddlewareInterface> */
     private array $middleware = [];

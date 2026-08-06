@@ -29,7 +29,7 @@ use ZeroBoiler\Analytics\Events\Ecommerce\WishlistEvent;
  * Formats items correctly for both GA4 and Meta Pixel, then dispatches
  * to all enabled providers.
  */
-class EcommerceAnalyticsService
+final class EcommerceAnalyticsService
 {
     private AnalyticsManager $manager;
 

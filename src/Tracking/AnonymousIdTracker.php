@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
  * Complements the UserIdentityTracker by handling anonymous → authenticated
  * identity transitions and providing a stable identifier before login.
  */
-class AnonymousIdTracker
+final class AnonymousIdTracker
 {
     private readonly string $cookieName;
 

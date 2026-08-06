@@ -19,11 +19,11 @@ use ZeroBoiler\Analytics\Trackers\GA4Tracker;
  * Resolved from the container as a singleton; receives the GA4Tracker
  * instance from the AnalyticsManager.
  */
-class GoogleAnalyticsService
+final class GoogleAnalyticsService
 {
     public function __construct(
         protected GA4Tracker $tracker,
-    ) {}
+    ): void {}
 
     /**
      * Track a page view.

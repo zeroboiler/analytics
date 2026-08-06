@@ -18,11 +18,11 @@ use ZeroBoiler\Analytics\Trackers\GTMTracker;
  * Resolved from the container as a singleton; receives the GTMTracker
  * instance from the AnalyticsManager.
  */
-class GoogleTagManagerService
+final class GoogleTagManagerService
 {
     public function __construct(
         protected GTMTracker $tracker,
-    ) {}
+    ): void {}
 
     /**
      * Push data to the dataLayer.

@@ -34,7 +34,7 @@ use ZeroBoiler\Analytics\EventInterceptorRegistry;
  *
  * @see \ZeroBoiler\Analytics\Facades\Analytics
  */
-class AnalyticsManager
+final class AnalyticsManager
 {
     protected GA4Tracker $ga4;
 
@@ -59,7 +59,7 @@ class AnalyticsManager
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
      */
-    public function __construct(?ConfigRepository $config = null)
+    public function __construct(?ConfigRepository $config = null): void
     {
         if ($config === null) {
             $container = $this->getContainer();

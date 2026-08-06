@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * authenticated user ID with their client tracking ID (from cookie/header).
  * This enables cross-device user identification in analytics providers.
  */
-class UserIdentityTracker
+final class UserIdentityTracker
 {
     private QueuedAnalyticsDispatcher $queue;
 

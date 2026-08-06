@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
-class GA4Tracker implements TrackerInterface
+final class GA4Tracker implements TrackerInterface
 {
     private const MEASUREMENT_PROTOCOL_URL = 'https://www.google-analytics.com/mp/collect';
 

@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */
-class CohortAnalyticsService
+final class CohortAnalyticsService
 {
     private AnalyticsManager $manager;
 

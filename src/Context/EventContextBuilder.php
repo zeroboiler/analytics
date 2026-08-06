@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Auth;
  *
  * This context can be merged into any analytics event before dispatch.
  */
-class EventContextBuilder
+final class EventContextBuilder
 {
     /** @var array<string, mixed> */
     private array $context = [];

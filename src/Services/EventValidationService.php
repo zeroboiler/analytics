@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Provides event name validation against a whitelist,
  * parameter sanitization, and event deduplication.
  */
-class EventValidationService
+final class EventValidationService
 {
     /** @var array<string, true> */
     private array $eventNameWhitelist;

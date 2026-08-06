@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */
-class AnalyticsDataBus
+final class AnalyticsDataBus
 {
     /** @var array<int, array{condition: callable, providers: list<string>}> */
     private array $rules = [];

@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * and conversion funnel tracking. Works with the QueuedAnalyticsDispatcher
  * for async, non-blocking event dispatch.
  */
-class SessionTracker
+final class SessionTracker
 {
     /** @var array<string, int> */
     private array $sessionPageCounts = [];

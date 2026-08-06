@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
  */
-class EventReplayQueue
+final class EventReplayQueue
 {
     /** @var array<int, array{event: AnalyticsEvent, attempt: int, nextRetry: float, maxAttempts: int}> */
     private array $pending = [];

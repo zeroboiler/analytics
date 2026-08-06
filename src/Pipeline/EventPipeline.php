@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *       ->pipe(new TimestampEnricher($sessionId))
  *       ->process($event);
  */
-class EventPipeline
+final class EventPipeline
 {
     /** @var array<int, callable(AnalyticsEvent): AnalyticsEvent|null> */
     private array $pipes = [];

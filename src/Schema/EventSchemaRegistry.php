@@ -17,12 +17,12 @@ namespace ZeroBoiler\Analytics\Schema;
  * @see EventSchema
  * @see EventParam
  */
-class EventSchemaRegistry
+final class EventSchemaRegistry implements \Countable
 {
     /** @var array<string, EventSchema> */
     private array $schemas = [];
 
-    public function __construct()
+    public function __construct(): void
     {
         $this->registerEcommerceSchemas();
         $this->registerSaaSSchemas();
