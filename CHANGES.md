@@ -2,6 +2,19 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.15.0] - 2026-08-06
+
+### Added
+- **SelectItemEvent** — GA4 `select_item` event for product list selection (e-commerce funnel)
+- **SelectPromotionEvent** — GA4 `select_promotion` event for promotion click tracking
+- **ViewPromotionEvent** — GA4 `view_promotion` event for promotion impression tracking
+- **EcommerceEvents catalog** expanded to 12 events (from 9)
+- **AnalyticsManager** convenience methods: `selectItem()`, `selectPromotion()`, `viewPromotion()`
+- **EcommerceAnalyticsService** methods: `selectItem()`, `selectPromotion()`, `viewPromotion()`
+- **EventTransformer** Plausible event mapping (`toPlausibleEventName()`, `toPlausibleEventMap()`, `transformForPlausible()`)
+- **JS client** promotion tracking: `trackSelectItem()`, `trackPromotionView()`, `trackPromotionClick()`
+- 3 new test suites covering events, catalog expansion, and Plausible transformer
+
 ## [2.14.0] - 2026-08-06
 
 ### Fixed

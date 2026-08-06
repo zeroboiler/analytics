@@ -37,6 +37,9 @@ final class EventTransformer
             'purchase' => 'Purchase',
             'refund' => null,
             'add_to_wishlist' => 'AddToWishlist',
+            'select_item' => null,
+            'select_promotion' => null,
+            'view_promotion' => null,
         ];
     }
 
@@ -146,6 +149,37 @@ final class EventTransformer
     // ── Bulk Transform ───────────────────────────────────────────────────
 
     /**
+     * Map event names to Plausible-compatible custom event names.
+     *
+     * Plausible uses pageview by default for navigation. Custom events
+     * are sent as-is but page_view events are mapped to 'pageview'.
+     *
+     * @return array<string, string|null>
+     */
+    public static function toPlausibleEventMap(): array
+    {
+        return [
+            'page_view' => 'pageview',
+            'scroll_depth' => null,  // Not supported by Plausible
+            'click' => null,        // Not supported by Plausible
+            'session_start' => null,
+            'session_end' => null,
+            'form_start' => null,
+            'form_submit' => null,
+        ];
+    }
+
+    /**
+     * Transform an event name for Plausible.
+     *
+     * @return string|null Transformed event name or null if not applicable for Plausible
+     */
+    public static function toPlausibleEventName(string $eventName): ?string
+    {
+        return self::toPlausibleEventMap()[$eventName] ?? $eventName;
+    }
+
+    /**
      * Transform a single event for a specific provider.
      *
      * @param  AnalyticsEvent  $event  Original event
@@ -160,7 +194,8 @@ final class EventTransformer
         return match ($provider) {
             'meta' => self::transformForMeta($name, $params, $event),
             'posthog' => self::transformForPosthog($name, $params, $event),
-            default => $event, // ga4, plausible, webhook use original format
+            'plausible' => self::transformForPlausible($name, $params, $event),
+            default => $event, // ga4, webhook use original format
         };
     }
 
@@ -211,6 +246,41 @@ final class EventTransformer
         if (isset($posthogMap[$name])) {
             return new AnalyticsEvent(
                 name: $posthogMap[$name],
+                params: $params,
+                clientId: $event->clientId,
+                userId: $event->userId,
+            );
+        }
+
+        return $event;
+    }
+
+    /**
+     * Transform an event for Plausible.
+     *
+     * Plausible only supports pageview and custom events.
+     * Unsupported events (scroll, click, session, form) return null to skip dispatch.
+     *
+     * @param  string  $name  Original event name
+     * @param  array<string, mixed>  $params  Original params
+     * @param  AnalyticsEvent  $event  Original event
+     * @return AnalyticsEvent  Transformed event
+     */
+    private static function transformForPlausible(
+        string $name,
+        array $params,
+        AnalyticsEvent $event,
+    ): AnalyticsEvent {
+        $plausibleName = self::toPlausibleEventName($name);
+
+        if ($plausibleName === null) {
+            // Event not supported by Plausible — return original (tracker will handle)
+            return $event;
+        }
+
+        if ($plausibleName !== $name) {
+            return new AnalyticsEvent(
+                name: $plausibleName,
                 params: $params,
                 clientId: $event->clientId,
                 userId: $event->userId,

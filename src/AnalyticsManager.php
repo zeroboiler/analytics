@@ -745,6 +745,70 @@ class AnalyticsManager
     }
 
     /**
+     * Track an item selection from a list.
+     *
+     * Part of the GA4 e-commerce product funnel.
+     * Typically fired before view_item or add_to_cart.
+     *
+     * @param  array<int, array<string, mixed>>  $items  Selected items
+     * @param  string|null  $itemListId  Item list identifier (e.g. 'related_products')
+     * @param  string|null  $itemListName  Item list name (e.g. 'Related Products')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function selectItem(array $items = [], ?string $itemListId = null, ?string $itemListName = null, array $params = []): void
+    {
+        $this->track('select_item', array_merge([
+            'item_list_id' => $itemListId,
+            'item_list_name' => $itemListName,
+            'items' => $items,
+        ], $params));
+    }
+
+    /**
+     * Track a promotion click/selection.
+     *
+     * Part of the GA4 e-commerce promotion funnel.
+     * Use this when a user clicks on a promotion banner or link.
+     *
+     * @param  string|null  $promotionId  Promotion ID
+     * @param  string|null  $promotionName  Promotion name (e.g. 'Summer Sale')
+     * @param  string|null  $creativeName  Creative name (e.g. 'hero_banner')
+     * @param  string|null  $creativeSlot  Creative slot position (e.g. 'homepage_top')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function selectPromotion(?string $promotionId = null, ?string $promotionName = null, ?string $creativeName = null, ?string $creativeSlot = null, array $params = []): void
+    {
+        $this->track('select_promotion', array_filter(array_merge([
+            'promotion_id' => $promotionId,
+            'promotion_name' => $promotionName,
+            'creative_name' => $creativeName,
+            'creative_slot' => $creativeSlot,
+        ], $params)));
+    }
+
+    /**
+     * Track a promotion view.
+     *
+     * Part of the GA4 e-commerce promotion funnel.
+     * Use this when a promotion banner is displayed to the user.
+     *
+     * @param  string|null  $promotionId  Promotion ID
+     * @param  string|null  $promotionName  Promotion name (e.g. 'Summer Sale')
+     * @param  string|null  $creativeName  Creative name (e.g. 'hero_banner')
+     * @param  string|null  $creativeSlot  Creative slot position (e.g. 'homepage_top')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function viewPromotion(?string $promotionId = null, ?string $promotionName = null, ?string $creativeName = null, ?string $creativeSlot = null, array $params = []): void
+    {
+        $this->track('view_promotion', array_filter(array_merge([
+            'promotion_id' => $promotionId,
+            'promotion_name' => $promotionName,
+            'creative_name' => $creativeName,
+            'creative_slot' => $creativeSlot,
+        ], $params)));
+    }
+
+    /**
      * Format e-commerce items for Meta Pixel (contents array format).
      *
      * Converts GA4-style item arrays to Meta Pixel's `contents` format.
@@ -816,6 +880,9 @@ class AnalyticsManager
             'add_payment_info' => 'AddPaymentInfo',
             'purchase' => 'Purchase',
             'refund' => null,
+            'select_item' => null,
+            'select_promotion' => null,
+            'view_promotion' => null,
         ];
 
         return $mapping[$eventName] ?? null;
@@ -951,7 +1018,7 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.14.0';
+        return '2.15.0';
     }
 
     /**

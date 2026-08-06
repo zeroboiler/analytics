@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.13.0
+ * @version 2.15.0
  */
 
 let trackingId = null;
@@ -465,6 +465,9 @@ function mapToMetaEvent(name) {
         purchase: 'Purchase',
         refund: null, // No standard Meta equivalent
         view_cart: null, // No Meta equivalent
+        select_item: null, // No Meta equivalent
+        select_promotion: null, // No Meta equivalent
+        view_promotion: null, // No Meta equivalent
     };
 
     return mapping[name] || null;
@@ -543,6 +546,123 @@ export async function trackWishlist(item) {
 
     // Server-side dispatch
     await trackEvent('add_to_wishlist', params, { immediate: true });
+}
+
+/**
+ * Track an item selection from a list (GA4 select_item).
+ *
+ * Part of the e-commerce product funnel — typically fired before
+ * view_item or add_to_cart.
+ *
+ * @param {Array} items - Selected items
+ * @param {string} [itemListId] - Item list identifier (e.g. 'related_products')
+ * @param {string} [itemListName] - Item list name (e.g. 'Related Products')
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSelectItem(
+ *     [{ item_id: 'SKU-001', item_name: 'Widget', price: 49.99 }],
+ *     'related_products',
+ *     'Related Products',
+ * );
+ */
+export async function trackSelectItem(items = [], itemListId, itemListName) {
+    if (!initialized) return;
+
+    const params = {
+        item_list_id: itemListId || null,
+        item_list_name: itemListName || null,
+        items,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'select_item', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('select_item', params, { immediate: true });
+}
+
+/**
+ * Track a promotion view impression (GA4 view_promotion).
+ *
+ * Use this when a promotion banner is displayed to the user.
+ *
+ * @param {object} promotion - Promotion data
+ * @param {string} [promotion.promotion_id] - Promotion ID
+ * @param {string} [promotion.promotion_name] - Promotion name (e.g. 'Summer Sale')
+ * @param {string} [promotion.creative_name] - Creative name (e.g. 'hero_banner')
+ * @param {string} [promotion.creative_slot] - Creative slot position
+ * @param {string} [promotion.location_id] - Location ID
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPromotionView({
+ *     promotion_id: 'PROMO-001',
+ *     promotion_name: 'Summer Sale',
+ *     creative_name: 'hero_banner',
+ *     creative_slot: 'homepage_top',
+ * });
+ */
+export async function trackPromotionView(promotion = {}) {
+    if (!initialized) return;
+
+    const params = {
+        promotion_id: promotion.promotion_id || null,
+        promotion_name: promotion.promotion_name || null,
+        creative_name: promotion.creative_name || null,
+        creative_slot: promotion.creative_slot || null,
+        location_id: promotion.location_id || null,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'view_promotion', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('view_promotion', params, { immediate: true });
+}
+
+/**
+ * Track a promotion click/selection (GA4 select_promotion).
+ *
+ * Use this when a user clicks on a promotion banner or link.
+ *
+ * @param {object} promotion - Promotion data
+ * @param {string} [promotion.promotion_id] - Promotion ID
+ * @param {string} [promotion.promotion_name] - Promotion name
+ * @param {string} [promotion.creative_name] - Creative name
+ * @param {string} [promotion.creative_slot] - Creative slot position
+ * @param {string} [promotion.location_id] - Location ID
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPromotionClick({
+ *     promotion_id: 'PROMO-001',
+ *     promotion_name: 'Summer Sale',
+ *     creative_slot: 'sidebar',
+ * });
+ */
+export async function trackPromotionClick(promotion = {}) {
+    if (!initialized) return;
+
+    const params = {
+        promotion_id: promotion.promotion_id || null,
+        promotion_name: promotion.promotion_name || null,
+        creative_name: promotion.creative_name || null,
+        creative_slot: promotion.creative_slot || null,
+        location_id: promotion.location_id || null,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'select_promotion', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('select_promotion', params, { immediate: true });
 }
 
 /**

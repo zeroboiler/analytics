@@ -15,8 +15,11 @@ use ZeroBoiler\Analytics\Events\Ecommerce\BeginCheckoutEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\PurchaseEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\RefundEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\RemoveFromCartEvent;
+use ZeroBoiler\Analytics\Events\Ecommerce\SelectItemEvent;
+use ZeroBoiler\Analytics\Events\Ecommerce\SelectPromotionEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\ViewCartEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\ViewItemEvent;
+use ZeroBoiler\Analytics\Events\Ecommerce\ViewPromotionEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\WishlistEvent;
 
 /**
@@ -182,6 +185,70 @@ class EcommerceAnalyticsService
             itemCategory: $item['item_category'] ?? '',
             price: $item['price'] ?? null,
             currency: $item['currency'] ?? $this->defaultCurrency,
+        ));
+    }
+
+    /**
+     * Track an item selection from a list.
+     *
+     * Part of the GA4 e-commerce product funnel.
+     * Typically fired before view_item or add_to_cart.
+     *
+     * @param  array<int, array<string, mixed>>  $items  Selected items
+     * @param  string|null  $itemListId  Item list identifier (e.g. 'related_products')
+     * @param  string|null  $itemListName  Item list name (e.g. 'Related Products')
+     */
+    public function selectItem(array $items = [], ?string $itemListId = null, ?string $itemListName = null): void
+    {
+        $this->manager->trackEvent(new SelectItemEvent(
+            items: $this->formatItems($items),
+            itemListId: $itemListId,
+            itemListName: $itemListName,
+            currency: $this->defaultCurrency,
+        ));
+    }
+
+    /**
+     * Track a promotion click/selection.
+     *
+     * Part of the GA4 e-commerce promotion funnel.
+     *
+     * @param  string|null  $promotionId  Promotion ID
+     * @param  string|null  $promotionName  Promotion name
+     * @param  string|null  $creativeName  Creative name
+     * @param  string|null  $creativeSlot  Creative slot position
+     * @param  string|null  $locationId  Location ID
+     */
+    public function selectPromotion(?string $promotionId = null, ?string $promotionName = null, ?string $creativeName = null, ?string $creativeSlot = null, ?string $locationId = null): void
+    {
+        $this->manager->trackEvent(new SelectPromotionEvent(
+            promotionId: $promotionId,
+            promotionName: $promotionName,
+            creativeName: $creativeName,
+            creativeSlot: $creativeSlot,
+            locationId: $locationId,
+        ));
+    }
+
+    /**
+     * Track a promotion view impression.
+     *
+     * Part of the GA4 e-commerce promotion funnel.
+     *
+     * @param  string|null  $promotionId  Promotion ID
+     * @param  string|null  $promotionName  Promotion name
+     * @param  string|null  $creativeName  Creative name
+     * @param  string|null  $creativeSlot  Creative slot position
+     * @param  string|null  $locationId  Location ID
+     */
+    public function viewPromotion(?string $promotionId = null, ?string $promotionName = null, ?string $creativeName = null, ?string $creativeSlot = null, ?string $locationId = null): void
+    {
+        $this->manager->trackEvent(new ViewPromotionEvent(
+            promotionId: $promotionId,
+            promotionName: $promotionName,
+            creativeName: $creativeName,
+            creativeSlot: $creativeSlot,
+            locationId: $locationId,
         ));
     }
 

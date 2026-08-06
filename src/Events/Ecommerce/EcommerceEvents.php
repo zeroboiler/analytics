@@ -86,6 +86,24 @@ final class EcommerceEvents
                 'ga4' => 'add_to_wishlist',
                 'meta' => 'AddToWishlist',
             ],
+            'select_item' => [
+                'name' => 'select_item',
+                'class' => SelectItemEvent::class,
+                'ga4' => 'select_item',
+                'meta' => null,
+            ],
+            'select_promotion' => [
+                'name' => 'select_promotion',
+                'class' => SelectPromotionEvent::class,
+                'ga4' => 'select_promotion',
+                'meta' => null,
+            ],
+            'view_promotion' => [
+                'name' => 'view_promotion',
+                'class' => ViewPromotionEvent::class,
+                'ga4' => 'view_promotion',
+                'meta' => null,
+            ],
         ];
 
         return self::$catalog;

@@ -95,7 +95,7 @@ Done. That's it.
 - **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
 
 ### E-commerce
-- **9 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist
+- **12 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
 - **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping (JS + PHP)
 - **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
