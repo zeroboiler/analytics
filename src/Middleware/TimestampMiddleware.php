@@ -31,6 +31,7 @@ final readonly class TimestampMiddleware implements AnalyticsMiddlewareInterface
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         if (! $this->overwrite && isset($event->params[$this->paramName])) {
@@ -49,12 +50,14 @@ final readonly class TimestampMiddleware implements AnalyticsMiddlewareInterface
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function priority(): int
     {
         return 80; // Low priority — add timestamp near the end
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function name(): string
     {
         return 'timestamp';

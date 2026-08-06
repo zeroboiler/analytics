@@ -29,6 +29,7 @@ final readonly class ContextAttachmentMiddleware implements AnalyticsMiddlewareI
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         // Merge context into event params (event params take precedence)
@@ -43,12 +44,14 @@ final readonly class ContextAttachmentMiddleware implements AnalyticsMiddlewareI
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function priority(): int
     {
         return 20; // After validation, before filters
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function name(): string
     {
         return 'context_attachment';

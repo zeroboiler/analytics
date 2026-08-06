@@ -34,6 +34,7 @@ final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterfa
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         // Block all events when analytics consent is denied
@@ -50,12 +51,14 @@ final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterfa
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function priority(): int
     {
         return 5; // Very high priority — check consent first
     }
 
     /** {@inheritdoc} */
+    #[\Override]
     public function name(): string
     {
         return 'consent_gate';

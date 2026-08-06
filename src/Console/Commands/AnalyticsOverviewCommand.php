@@ -21,6 +21,7 @@ class AnalyticsOverviewCommand extends Command
 
     protected $description = 'Display analytics configuration overview and status';
 
+    #[\Override]
     public function handle(): int
     {
         $this->info('📊 ZeroBoiler Analytics Overview');

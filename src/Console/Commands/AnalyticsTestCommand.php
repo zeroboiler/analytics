@@ -33,6 +33,7 @@ class AnalyticsTestCommand extends Command
         $this->manager = $manager;
     }
 
+    #[\Override]
     public function handle(): int
     {
         $this->info('🧪 ZeroBoiler Analytics Test');

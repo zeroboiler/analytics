@@ -43,6 +43,7 @@ class PlausibleTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
+    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -89,6 +90,7 @@ class PlausibleTracker implements TrackerInterface
         }
     }
 
+    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled
@@ -96,6 +98,7 @@ class PlausibleTracker implements TrackerInterface
             && $this->apiKey !== '';
     }
 
+    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled()) {
@@ -109,16 +112,19 @@ class PlausibleTracker implements TrackerInterface
 HTML;
     }
 
+    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
+    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
+    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;

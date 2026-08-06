@@ -40,6 +40,7 @@ class HandleInertiaAnalytics
     /**
      * Handle an incoming request and inject analytics data into Inertia props.
      */
+    #[\Override]
     public function handle(Request $request, Closure $next): Response|\Inertia\Response
     {
         $response = $next($request);

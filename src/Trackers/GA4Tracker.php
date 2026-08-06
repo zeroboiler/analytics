@@ -35,6 +35,7 @@ class GA4Tracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
+    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -131,11 +132,13 @@ class GA4Tracker implements TrackerInterface
         }
     }
 
+    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->isValidMeasurementId($this->measurementId) && $this->apiSecret !== '';
     }
 
+    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isValidMeasurementId($this->measurementId)) {
@@ -157,6 +160,7 @@ class GA4Tracker implements TrackerInterface
 HTML;
     }
 
+    #[\Override]
     public function bodyScripts(): string
     {
         return '';
@@ -172,11 +176,13 @@ HTML;
         return $this->apiSecret;
     }
 
+    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
+    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;

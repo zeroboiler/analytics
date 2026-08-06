@@ -142,6 +142,7 @@ class EventSchemaRegistry
     /**
      * Get the total number of registered schemas.
      */
+    #[\Override]
     public function count(): int
     {
         return count($this->schemas);
