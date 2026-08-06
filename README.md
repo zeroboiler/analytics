@@ -5,7 +5,7 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 ## Features
 
 - **Multi-Provider Tracking** — GA4 (Measurement Protocol + client), GTM (dataLayer + ecommerce), Meta Pixel (CAPI + client), Plausible, PostHog
-- **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events
+- **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events (32 total)
 - **Event Schema Registry** — Centralized schema definitions for 30+ events with typed parameters, validation, and provider-specific name mappings
 - **Middleware Stack** — Priority-ordered, composable middleware system (consent gate, context attachment, schema validation, timestamp, logging)
 - **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
@@ -15,8 +15,8 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 - **Server-Side Auto-Tracking** — Automatically tracks Laravel auth events (login, register, logout) and custom app events (subscriptions, trials, features)
 - **Inertia.js Integration** — Middleware injects analytics config into page props for Svelte/Vue/React
 - **API Endpoints** — Server-side endpoints for frontend event tracking (track, batch, identify, consent, health)
-- **JS Client Library** — ES module for Svelte/Inertia with auto page view, scroll depth, form tracking, error tracking, performance monitoring, and batch queue
-- **Async Queue Dispatch** — Queue analytics events to background workers (configurable)
+- **JS Client Library** — ES module for Svelte/Inertia with auto page view, screen view, scroll depth, form tracking, error tracking, A/B test exposure, notification tracking, performance monitoring, and batch queue
+- **Async Queue Dispatch** — Queue analytics events to background workers (configurable), with `trackAsync()` facade shortcut
 - **User Identity Linking** — Cross-device identification via client ID ↔ user ID association
 - **E-commerce Helpers** — High-level service for view item, cart, checkout, purchase, refund with GA4 + Meta format conversion
 - **SaaS Analytics Service** — Convenience methods for SaaS lifecycle: sign-up, login, trial, subscription, plan changes, cancellation, feature usage
@@ -131,6 +131,45 @@ Analytics::purchase('TXN-12345', 99.99, [
 
 // Identify a user (cross-device linking)
 Analytics::identify('42', 'client-uuid', ['email_hash' => hash('sha256', 'user@example.com'), 'plan' => 'pro']);
+
+// Screen view tracking (multi-page / SPA navigation)
+Analytics::screenView('Dashboard', 'main');
+Analytics::screenView('Settings', 'modal', ['tab' => 'billing']);
+
+// A/B test exposure
+Analytics::abTestExposure('pricing_redesign_v2', 'variant_a', ['experiment_name' => 'Pricing Redesign']);
+
+// Notification tracking
+Analytics::notification('email', 'sent', 'welcome');
+Analytics::notification('push', 'opened', 'weekly_digest');
+Analytics::notification('sms', 'delivered', 'otp_verification');
+
+// Async event dispatch (queued)
+Analytics::trackAsync('background_job', ['job_id' => '12345']);
+```
+
+### Screen View & A/B Test Tracking
+
+```php
+use ZeroBoiler\Analytics\Events\Engagement\{ScreenViewEvent, AbTestExposureEvent, NotificationEvent};
+
+// Typed screen view events (SPA navigation)
+Analytics::trackEvent(new ScreenViewEvent('Dashboard'));
+Analytics::trackEvent(new ScreenViewEvent('Settings', 'modal', ['tab' => 'profile']));
+
+// A/B test exposure
+Analytics::trackEvent(new AbTestExposureEvent('cta_color_test', 'control'));
+Analytics::trackEvent(new AbTestExposureEvent(
+    'pricing_redesign_v2',
+    'variant_a',
+    ['experiment_name' => 'Pricing Page Redesign'],
+));
+
+// Notification events
+Analytics::trackEvent(new NotificationEvent('email', 'sent', 'welcome_email'));
+Analytics::trackEvent(new NotificationEvent('push', 'clicked', 'daily_reminder'));
+Analytics::trackEvent(new NotificationEvent('in_app', 'dismissed', 'upgrade_cta'));
+Analytics::trackEvent(new NotificationEvent('sms', 'failed', 'otp_verification'));
 ```
 
 ### E-commerce Tracking
@@ -360,8 +399,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 29 events across 3 categories
-EventCatalog::count();          // 29
+// Unified catalog — 32 events across 3 categories
+EventCatalog::count();          // 32
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -491,8 +530,10 @@ import {
     init,
     destroy,
     trackPageView,
+    trackScreenView,
     trackEvent,
     trackEcommerce,
+    trackAbTestExposure,
     identify,
     updateConsent,
     initScrollDepth,
@@ -554,6 +595,19 @@ await trackEcommerce('purchase', {
     currency: 'USD',
     items: [{ item_id: 'SKU-001', item_name: 'Widget', price: 49.99, quantity: 2 }],
 });
+```
+
+### Screen View & A/B Test Tracking (JS)
+
+```javascript
+import { trackScreenView, trackAbTestExposure } from '../resources/js/analytics';
+
+// Track screen views in SPAs
+await trackScreenView('Dashboard', { screenClass: 'main' });
+await trackScreenView('Settings', { params: { tab: 'billing' } });
+
+// Track A/B test exposures
+await trackAbTestExposure('pricing_redesign_v2', 'variant_a', { experiment_name: 'Pricing Redesign' });
 ```
 
 ### Auto Form Tracking
@@ -642,7 +696,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
@@ -738,6 +792,7 @@ php artisan zb:analytics:test --event=custom_test
 | Class | Event Name |
 |-------|-----------|
 | `PageViewEvent` | page_view |
+| `ScreenViewEvent` | screen_view |
 | `ScrollDepthEvent` | scroll_depth |
 | `ClickEvent` | click |
 | `FormStartEvent` | form_start |
@@ -747,6 +802,8 @@ php artisan zb:analytics:test --event=custom_test
 | `ErrorEvent` | error |
 | `TimeOnPageEvent` | time_on_page |
 | `CampaignAttributionEvent` | campaign_attribution |
+| `AbTestExposureEvent` | ab_test_exposure |
+| `NotificationEvent` | notification |
 
 ### Generic
 
@@ -848,7 +905,7 @@ src/
 ├── Events/
 │   ├── Ecommerce/                # 8 e-commerce event classes + EcommerceEvents catalog
 │   ├── SaaS/                     # 11 SaaS lifecycle event classes + SaaSEvents catalog
-│   ├── Engagement/               # 10 engagement event classes + EngagementEvents catalog
+│   ├── Engagement/               # 13 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php           # Generic custom event
 │   └── EventCatalog.php          # Unified catalog aggregating all categories
 ├── Middleware/

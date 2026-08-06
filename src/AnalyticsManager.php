@@ -394,6 +394,84 @@ class AnalyticsManager
     }
 
     /**
+     * Track a screen view event (for multi-page / SPA navigation).
+     *
+     * Use this to track navigation between distinct screens within a
+     * single-page app (e.g. "Dashboard", "Settings", "Billing").
+     *
+     * @param  string  $screenName  Screen or view name
+     * @param  string|null  $screenClass  Optional screen class/type
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function screenView(string $screenName, ?string $screenClass = null, array $params = []): void
+    {
+        $this->track('screen_view', array_merge([
+            'screen_name' => $screenName,
+            'screen_class' => $screenClass,
+        ], $params));
+    }
+
+    /**
+     * Track an A/B test exposure event.
+     *
+     * @param  string  $experimentId  The experiment identifier
+     * @param  string  $variantId  The variant assigned to this user
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function abTestExposure(string $experimentId, string $variantId, array $params = []): void
+    {
+        $this->track('ab_test_exposure', array_merge([
+            'experiment_id' => $experimentId,
+            'variant_id' => $variantId,
+        ], $params));
+    }
+
+    /**
+     * Track a notification event.
+     *
+     * @param  string  $channel  Notification channel (email, push, in_app, sms)
+     * @param  string  $action  Action type (sent, delivered, opened, clicked, failed)
+     * @param  string|null  $notificationType  Notification type/template
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function notification(
+        string $channel,
+        string $action,
+        ?string $notificationType = null,
+        array $params = [],
+    ): void {
+        $this->track('notification', array_filter(array_merge([
+            'notification_channel' => $channel,
+            'notification_action' => $action,
+            'notification_type' => $notificationType,
+        ], $params)));
+    }
+
+    /**
+     * Dispatch an event asynchronously via the queue dispatcher.
+     *
+     * Shortcut for queuing events without injecting QueuedAnalyticsDispatcher.
+     *
+     * @param  array<string, mixed>  $params
+     */
+    public function trackAsync(string $eventName, array $params = []): void
+    {
+        $event = new AnalyticsEvent(name: $eventName, params: $params);
+
+        try {
+            $dispatcher = app(\ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher::class);
+            $dispatcher->dispatch($event);
+        } catch (\Throwable $e) {
+            // Fallback to synchronous dispatch
+            Log::warning('ZeroBoiler Analytics: async dispatch failed, falling back to sync', [
+                'event' => $eventName,
+                'error' => $e->getMessage(),
+            ]);
+            $this->trackEvent($event);
+        }
+    }
+
+    /**
      * Get the event catalog summary (event counts per category).
      *
      * @return array{ecommerce: int, saas: int, engagement: int, total: int}
@@ -403,8 +481,8 @@ class AnalyticsManager
         return [
             'ecommerce' => 8,
             'saas' => 11,
-            'engagement' => 10,
-            'total' => 29,
+            'engagement' => 13,
+            'total' => 32,
         ];
     }
 }

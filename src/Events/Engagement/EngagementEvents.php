@@ -92,6 +92,24 @@ final class EngagementEvents
                 'ga4' => 'campaign_attribution',
                 'meta' => null,
             ],
+            'screen_view' => [
+                'name' => 'screen_view',
+                'class' => ScreenViewEvent::class,
+                'ga4' => 'screen_view',
+                'meta' => null,
+            ],
+            'ab_test_exposure' => [
+                'name' => 'ab_test_exposure',
+                'class' => AbTestExposureEvent::class,
+                'ga4' => 'ab_test_exposure',
+                'meta' => null,
+            ],
+            'notification' => [
+                'name' => 'notification',
+                'class' => NotificationEvent::class,
+                'ga4' => 'notification',
+                'meta' => null,
+            ],
         ];
 
         return self::$catalog;

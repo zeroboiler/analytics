@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler\Analytics
- * @version 1.6.0
+ * @version 1.7.0
  */
 
 let trackingId = null;
@@ -329,6 +329,84 @@ export async function trackPageView(title = '', location = '', referrer = '') {
 
     // Also send server-side for server-side providers
     await trackEvent('page_view', params);
+}
+
+/**
+ * Track a screen view event (for multi-page / SPA navigation).
+ *
+ * Use this to track navigation between distinct screens within a
+ * single-page app (e.g. "Dashboard", "Settings", "Billing").
+ * Complements page_view which tracks URL-based navigation.
+ *
+ * @param {string} screenName - Screen or view name
+ * @param {object} [options] - Additional options
+ * @param {string} [options.screenClass] - Optional screen class/type
+ * @param {object} [options.params] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackScreenView('Dashboard', { screenClass: 'main' });
+ * await trackScreenView('Settings', { params: { tab: 'billing' } });
+ */
+export async function trackScreenView(screenName, options = {}) {
+    if (!initialized) return;
+
+    const params = {
+        screen_name: screenName,
+        screen_class: options.screenClass || null,
+        ...options.params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'screen_view', params);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$screenview', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('screen_view', params, { immediate: true });
+}
+
+/**
+ * Track an A/B test exposure event.
+ *
+ * @param {string} experimentId - The experiment identifier
+ * @param {string} variantId - The variant assigned to this user
+ * @param {object} [params] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackAbTestExposure('pricing_redesign_v2', 'variant_a', { experiment_name: 'Pricing Redesign' });
+ */
+export async function trackAbTestExposure(experimentId, variantId, params = {}) {
+    if (!initialized) return;
+
+    const enrichedParams = {
+        experiment_id: experimentId,
+        variant_id: variantId,
+        ...params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'ab_test_exposure', enrichedParams);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$feature_flag_called', {
+            $feature_flag: experimentId,
+            $feature_flag_variant: variantId,
+            ...params,
+        });
+    }
+
+    // Server-side dispatch
+    await trackEvent('ab_test_exposure', enrichedParams, { immediate: true });
 }
 
 /**
