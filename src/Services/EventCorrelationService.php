@@ -67,7 +67,7 @@ final class EventCorrelationService
         int $maxPatternLength = 5,
         int $maxJourneysPerUser = 100,
         bool $useCache = true,
-    ) {
+    ): void {
         $this->metrics = $metrics;
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
