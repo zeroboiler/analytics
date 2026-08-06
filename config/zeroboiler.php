@@ -514,6 +514,52 @@ return [
         */
         'funnels' => [
             'enabled' => env('ANALYTICS_FUNNELS_ENABLED', true),
+            'cache_enabled' => env('ANALYTICS_FUNNELS_CACHE_ENABLED', true),
+            'cache_ttl' => env('ANALYTICS_FUNNELS_CACHE_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Alert Rules
+        |-------------------------------------------------------------------------- 
+        |
+        | Config-driven alert rules that trigger when event metrics exceed
+        | configured thresholds. Supports rate-based, count-based, and error-rate
+        | alerts with cooldown periods to prevent alert fatigue.
+        |
+        | Rule types: 'count' (total event count), 'rate' (events/minute),
+        |             'total' (total dispatched), 'error_rate' (errors/total %)
+        | Conditions: 'gt' (>), 'gte' (>=), 'lt' (<), 'lte' (<=), 'eq' (==)
+        |
+        | Example rule:
+        |   'high_purchase_rate' => [
+        |       'type' => 'rate',
+        |       'event' => 'purchase',
+        |       'condition' => 'gt',
+        |       'threshold' => 100,
+        |       'window' => 60,
+        |       'cooldown' => 600,
+        |       'severity' => 'warning',
+        |       'message' => 'Purchase rate exceeds 100/min',
+        |       'dispatch' => true,
+        |   ],
+        |
+        */
+        'alerts' => [
+            'enabled' => env('ANALYTICS_ALERTS_ENABLED', true),
+            'cooldown' => env('ANALYTICS_ALERTS_COOLDOWN', 300), // 5 minutes
+            'max_history' => (int) env('ANALYTICS_ALERTS_MAX_HISTORY', 200),
+            'rules' => [
+                'high_error_rate' => [
+                    'type' => 'error_rate',
+                    'condition' => 'gt',
+                    'threshold' => 5.0, // 5% error rate
+                    'cooldown' => 600, // 10 minutes
+                    'severity' => 'elevated',
+                    'message' => 'Error rate exceeds 5% of total events',
+                    'dispatch' => true,
+                ],
+            ],
         ],
     ],
 ];

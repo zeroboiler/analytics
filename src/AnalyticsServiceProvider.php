@@ -61,6 +61,8 @@ use ZeroBoiler\Analytics\Services\AttributionService;
 use ZeroBoiler\Analytics\Services\GdprErasureService;
 use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
 use ZeroBoiler\Analytics\Services\InboundWebhookService;
+use ZeroBoiler\Analytics\Services\EventAlertRulesService;
+use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -533,6 +535,36 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $preferenceService = $app->make(TrackingPreferenceService::class);
 
             return new GdprErasureService($profileService, $attributionService, $preferenceService);
+        });
+
+        // Event alert rules service for threshold-based alerting
+        $this->app->singleton(EventAlertRulesService::class, function (Application $app): EventAlertRulesService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventAlertRulesService($manager, $metrics, $queue, $cache, $config);
+        });
+
+        // Funnel data builder service for API-ready visualization responses
+        $this->app->singleton(FunnelDataBuilderService::class, function (Application $app): FunnelDataBuilderService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelDataBuilderService($manager, $metrics, $cache, $config);
         });
     }
 

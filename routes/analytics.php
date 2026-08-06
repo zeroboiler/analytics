@@ -39,6 +39,16 @@ Route::prefix('analytics')->group(function () {
     // Inbound webhook (public, signature-verified)
     Route::post('webhook/inbound', [AnalyticsEventController::class, 'inboundWebhook']);
 
+    // Alert rules (public, for admin dashboards)
+    Route::get('alerts', [AnalyticsEventController::class, 'alerts']);
+    Route::post('alerts/evaluate', [AnalyticsEventController::class, 'evaluateAlerts']);
+
+    // Funnel visualization (public, for admin dashboards)
+    Route::get('funnels', [AnalyticsEventController::class, 'funnelData']);
+    Route::post('funnels/compare', [AnalyticsEventController::class, 'funnelCompare']);
+    Route::get('funnels/drop-off', [AnalyticsEventController::class, 'funnelDropOff']);
+    Route::get('funnels/chart', [AnalyticsEventController::class, 'funnelChart']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);

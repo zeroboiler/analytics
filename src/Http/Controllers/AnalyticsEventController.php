@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
 use ZeroBoiler\Analytics\Services\InboundWebhookService;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\EventAlertRulesService;
+use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 
 /**
  * API controller for frontend event tracking.
@@ -68,6 +70,10 @@ final class AnalyticsEventController extends Controller
 
     private ?EventSchemaRegistry $schemaRegistry;
 
+    private ?EventAlertRulesService $alertRulesService;
+
+    private ?FunnelDataBuilderService $funnelDataBuilderService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -79,6 +85,8 @@ final class AnalyticsEventController extends Controller
      * @param  AnalyticsStatsService|null  $statsService  Optional stats service
      * @param  InboundWebhookService|null  $inboundWebhookService  Optional inbound webhook service
      * @param  EventSchemaRegistry|null  $schemaRegistry  Optional schema registry
+     * @param  EventAlertRulesService|null  $alertRulesService  Optional alert rules service
+     * @param  FunnelDataBuilderService|null  $funnelDataBuilderService  Optional funnel data builder service
      */
     public function __construct(
         AnalyticsManager $manager,
@@ -91,6 +99,8 @@ final class AnalyticsEventController extends Controller
         ?AnalyticsStatsService $statsService = null,
         ?InboundWebhookService $inboundWebhookService = null,
         ?EventSchemaRegistry $schemaRegistry = null,
+        ?EventAlertRulesService $alertRulesService = null,
+        ?FunnelDataBuilderService $funnelDataBuilderService = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -103,6 +113,8 @@ final class AnalyticsEventController extends Controller
         $this->statsService = $statsService;
         $this->inboundWebhookService = $inboundWebhookService;
         $this->schemaRegistry = $schemaRegistry;
+        $this->alertRulesService = $alertRulesService;
+        $this->funnelDataBuilderService = $funnelDataBuilderService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -380,7 +392,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.23.0',
+            'version' => '2.24.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -466,7 +478,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.23.0',
+            'version' => '2.24.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -824,7 +836,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.23.0',
+            'version' => '2.24.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -870,5 +882,172 @@ final class AnalyticsEventController extends Controller
         };
 
         return response()->json($result, $statusCode);
+    }
+
+    /**
+     * Evaluate all alert rules against current metrics.
+     *
+     * POST /api/analytics/alerts/evaluate
+     *
+     * Checks all configured alert rules and returns any that were triggered.
+     * Respects cooldown periods to prevent alert fatigue.
+     */
+    public function evaluateAlerts(): JsonResponse
+    {
+        if ($this->alertRulesService === null) {
+            return response()->json(['error' => 'Alert rules service not available'], 503);
+        }
+
+        $triggered = $this->alertRulesService->evaluate();
+
+        return response()->json([
+            'status' => 'ok',
+            'triggered' => count($triggered),
+            'alerts' => $triggered,
+        ]);
+    }
+
+    /**
+     * Get alert rules summary and history.
+     *
+     * GET /api/analytics/alerts
+     *
+     * Returns the current alert rules configuration, recent alert history,
+     * and cooldown status. Useful for admin dashboards.
+     */
+    public function alerts(): JsonResponse
+    {
+        if ($this->alertRulesService === null) {
+            return response()->json(['error' => 'Alert rules service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'summary' => $this->alertRulesService->summary(),
+            'history' => $this->alertRulesService->getAlertHistory(25),
+            'has_cooldowns' => $this->alertRulesService->hasCooldowns(),
+        ]);
+    }
+
+    /**
+     * Build funnel visualization data.
+     *
+     * GET /api/analytics/funnels?name=signup&steps[]=landing_view&steps[]=form_start&steps[]=form_submit&steps[]=confirmation
+     *
+     * Returns API-ready funnel data with per-step conversion rates,
+     * drop-off analysis, and timing data for dashboard rendering.
+     */
+    public function funnelData(Request $request): JsonResponse
+    {
+        if ($this->funnelDataBuilderService === null) {
+            return response()->json(['error' => 'Funnel data builder not available'], 503);
+        }
+
+        $funnelName = $request->query('name', 'default');
+        $steps = $request->input('steps', []);
+        $steps = is_array($steps) ? $steps : [];
+
+        $formattedSteps = [];
+        foreach ($steps as $i => $step) {
+            if (is_string($step)) {
+                $formattedSteps[] = ['name' => $step, 'order' => $i + 1];
+            } elseif (is_array($step) && isset($step['name'])) {
+                $formattedSteps[] = [
+                    'name' => (string) $step['name'],
+                    'order' => (int) ($step['order'] ?? $i + 1),
+                ];
+            }
+        }
+
+        $data = $this->funnelDataBuilderService->build(
+            is_string($funnelName) ? $funnelName : 'default',
+            $formattedSteps,
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'funnel' => $data,
+        ]);
+    }
+
+    /**
+     * Build funnel comparison data across multiple funnels.
+     *
+     * POST /api/analytics/funnels/compare
+     *
+     * Body: { "funnels": ["signup", "purchase", "trial"] }
+     *
+     * Returns side-by-side funnel performance metrics for comparison.
+     */
+    public function funnelCompare(Request $request): JsonResponse
+    {
+        if ($this->funnelDataBuilderService === null) {
+            return response()->json(['error' => 'Funnel data builder not available'], 503);
+        }
+
+        $request->validate([
+            'funnels' => 'required|array|max:10',
+            'funnels.*' => 'string',
+        ]);
+
+        $funnelNames = $request->input('funnels', []);
+        $funnelNames = is_array($funnelNames) ? $funnelNames : [];
+
+        $data = $this->funnelDataBuilderService->compare($funnelNames);
+
+        return response()->json([
+            'status' => 'ok',
+            'comparison' => $data,
+        ]);
+    }
+
+    /**
+     * Build funnel drop-off analysis.
+     *
+     * GET /api/analytics/funnels/drop-off?name=signup
+     *
+     * Returns step-by-step drop-off analysis identifying the bottleneck step.
+     */
+    public function funnelDropOff(Request $request): JsonResponse
+    {
+        if ($this->funnelDataBuilderService === null) {
+            return response()->json(['error' => 'Funnel data builder not available'], 503);
+        }
+
+        $funnelName = $request->query('name', 'default');
+
+        $data = $this->funnelDataBuilderService->buildDropOffAnalysis(
+            is_string($funnelName) ? $funnelName : 'default',
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'analysis' => $data,
+        ]);
+    }
+
+    /**
+     * Build funnel chart-ready data.
+     *
+     * GET /api/analytics/funnels/chart?name=signup
+     *
+     * Returns funnel data in Chart.js/Recharts-compatible format.
+     */
+    public function funnelChart(Request $request): JsonResponse
+    {
+        if ($this->funnelDataBuilderService === null) {
+            return response()->json(['error' => 'Funnel data builder not available'], 503);
+        }
+
+        $funnelName = $request->query('name', 'default');
+
+        $data = $this->funnelDataBuilderService->buildChartData(
+            is_string($funnelName) ? $funnelName : 'default',
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'chart' => $data,
+        ]);
     }
 }
