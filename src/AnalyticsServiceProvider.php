@@ -14,11 +14,13 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
+use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
+use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -126,6 +128,19 @@ class AnalyticsServiceProvider extends ServiceProvider
 
             return new SessionTracker($queue, $manager);
         });
+
+        $this->app->singleton(RevenueAnalyticsService::class, function (Application $app): RevenueAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $ecommerce = $config->get('zeroboiler.analytics.ecommerce', []);
+            /** @var array{currency?: string} $ecommerce */
+
+            return new RevenueAnalyticsService($manager, $ecommerce['currency'] ?? 'USD');
+        });
+
+        $this->app->bind(EventPipeline::class);
     }
 
     /**

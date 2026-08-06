@@ -6,6 +6,9 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 
 - **Multi-Provider Tracking** — GA4 (Measurement Protocol + client), GTM (dataLayer + ecommerce), Meta Pixel (CAPI + client), Plausible, PostHog
 - **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events
+- **Event Pipeline** — Middleware chain for filtering, enriching, and transforming events before dispatch (UTM, user context, consent, timestamps)
+- **Revenue Analytics** — MRR, ARR, one-time, add-on, upgrade, downgrade, and churn revenue tracking service
+- **UTM Campaign Attribution** — Auto-capture UTM params (server-side + client-side), attach to all events for marketing attribution
 - **Server-Side Auto-Tracking** — Automatically tracks Laravel auth events (login, register, logout) and custom app events (subscriptions, trials, features)
 - **Inertia.js Integration** — Middleware injects analytics config into page props for Svelte/Vue/React
 - **API Endpoints** — Server-side endpoints for frontend event tracking (track, batch, identify, consent, health)
@@ -96,6 +99,10 @@ ANALYTICS_DEBUG_LOG_EVENTS=false
 ANALYTICS_VALIDATION_STRICT=false
 ANALYTICS_VALIDATION_MAX_NAME_LENGTH=100
 ANALYTICS_VALIDATION_DEDUP_WINDOW=10
+
+# Event Pipeline
+ANALYTICS_PIPELINE_AUTO_UTM=true
+ANALYTICS_PIPELINE_AUTO_TIMESTAMP=false
 ```
 
 ## Usage
@@ -487,7 +494,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
@@ -576,6 +583,7 @@ php artisan zb:analytics:test --event=custom_test
 | `PlanDowngradeEvent` | plan_downgrade | — |
 | `CancellationEvent` | cancellation | — |
 | `FeatureUsedEvent` | feature_used | — |
+| `RevenueEvent` | revenue_tracked | Purchase (mapped) |
 
 ### Engagement Events
 
@@ -590,12 +598,93 @@ php artisan zb:analytics:test --event=custom_test
 | `ShareEvent` | share |
 | `ErrorEvent` | error |
 | `TimeOnPageEvent` | time_on_page |
+| `CampaignAttributionEvent` | campaign_attribution |
 
 ### Generic
 
 | Class | Description |
 |-------|-------------|
 | `CustomEvent` | Arbitrary event name + params |
+
+### Revenue Analytics
+
+```php
+use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
+
+$revenue = app(RevenueAnalyticsService::class);
+
+// Track MRR
+$revenue->trackMRR(5000.0, 42); // $5,000 MRR, 42 subscribers
+
+// Track ARR
+$revenue->trackARR(60000.0, 42);
+
+// Track one-time revenue
+$revenue->trackOneTime(149.99, 'consulting_fee');
+
+// Track add-on revenue
+$revenue->trackAddon(9.99, 'extra_storage', 'pro');
+
+// Track upgrade/downgrade revenue impact
+$revenue->trackUpgradeRevenue(99.99, 29.99, 'starter', 'pro');
+$revenue->trackDowngradeRevenue(29.99, 99.99, 'pro', 'starter');
+
+// Track churn revenue loss
+$revenue->trackChurnRevenue(29.99, 'pro', 'too_expensive');
+```
+
+### Event Pipeline
+
+```php
+use ZeroBoiler\Analytics\Pipeline\EventPipeline;
+use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
+use ZeroBoiler\Analytics\Pipeline\ConsentFilter;
+use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
+
+$pipeline = new EventPipeline;
+
+// Add UTM enrichment from request
+$pipeline->pipe(new UtmEnricher($request->only([
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+])));
+
+// Filter events when consent is denied
+$pipeline->pipe(new ConsentFilter(
+    $manager->getConsent()->hasAnalyticsConsent()
+));
+
+// Add timestamp and session context
+$pipeline->pipe(new TimestampEnricher($sessionId));
+
+// Process event through pipeline
+$result = $pipeline->process($event);
+if ($result !== null) {
+    $manager->trackEvent($result);
+}
+
+// Or use defaults (UTM + user context):
+$pipeline = EventPipeline::withDefaults($context);
+```
+
+UTM enrichment is automatically applied to all API events when `ANALYTICS_PIPELINE_AUTO_UTM=true`.
+
+### UTM Campaign Tracking (JS)
+
+```javascript
+import { captureUTM, getUTMParams, hasUTMParams, init } from '../resources/js/analytics';
+
+// UTM is auto-captured on init(), but you can also manually capture:
+const utm = captureUTM();
+
+if (hasUTMParams()) {
+    console.log('Campaign source:', utm.utm_source);
+    console.log('Campaign medium:', utm.utm_medium);
+}
+
+// UTM params are automatically attached to all tracked events
+await trackEvent('signup', { method: 'email' });
+// → params automatically include utm_source, utm_medium, etc.
+```
 
 ## Architecture
 
@@ -608,9 +697,15 @@ src/
 │   └── ConsentState.php          # GDPR consent state
 ├── Events/
 │   ├── Ecommerce/                # 8 e-commerce event classes
-│   ├── SaaS/                     # 10 SaaS lifecycle event classes
-│   ├── Engagement/               # 9 engagement event classes
+│   ├── SaaS/                     # 11 SaaS lifecycle event classes
+│   ├── Engagement/               # 10 engagement event classes
 │   └── CustomEvent.php           # Generic custom event
+├── Pipeline/
+│   ├── EventPipeline.php         # Middleware pipeline for event processing
+│   ├── UtmEnricher.php           # UTM campaign parameter enrichment
+│   ├── UserContextEnricher.php   # User context enrichment
+│   ├── ConsentFilter.php         # Consent-based event filtering
+│   └── TimestampEnricher.php     # Timestamp & session enrichment
 ├── Trackers/
 │   ├── GA4Tracker.php            # GA4 Measurement Protocol
 │   ├── GTMTracker.php            # GTM dataLayer
@@ -625,6 +720,7 @@ src/
 │   ├── MetaPixelService.php
 │   ├── EcommerceAnalyticsService.php  # E-commerce convenience methods
 │   ├── SaaSAnalyticsService.php      # SaaS lifecycle convenience methods
+│   ├── RevenueAnalyticsService.php    # Revenue tracking (MRR, ARR, churn)
 │   └── EventValidationService.php    # Event validation & deduplication
 ├── Tracking/
 │   ├── ServerSideTracker.php     # Auto-track Laravel events
@@ -633,7 +729,7 @@ src/
 ├── Queue/
 │   └── QueuedAnalyticsDispatcher.php  # Async queue dispatch
 ├── Http/
-│   ├── Controllers/AnalyticsEventController.php  # API endpoints
+│   ├── Controllers/AnalyticsEventController.php  # API endpoints + pipeline
 │   └── Middleware/InjectAnalyticsScripts.php
 ├── Inertia/
 │   └── HandleInertiaAnalytics.php  # Inertia prop injection
@@ -646,7 +742,7 @@ src/
 │   └── Analytics.php
 resources/
 └── js/
-    └── analytics.js              # ES module client library
+    └── analytics.js              # ES module client library (UTM, batch, form, error, perf)
 config/
 └── zeroboiler.php                # Configuration file
 routes/

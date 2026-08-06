@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Pipeline\EventPipeline;
+use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
+use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 
 /**
@@ -26,6 +29,10 @@ class AnalyticsEventController extends Controller
 
     private ?EventValidationService $validator;
 
+    private bool $autoUtm;
+
+    private bool $autoTimestamp;
+
     private const MAX_BATCH_SIZE = 25;
 
     private const MAX_EVENT_NAME_LENGTH = 100;
@@ -41,6 +48,37 @@ class AnalyticsEventController extends Controller
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
         $this->validator = $validator;
+
+        $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
+        /** @var array{auto_utm?: bool, auto_timestamp?: bool} $pipelineConfig */
+        $this->autoUtm = (bool) ($pipelineConfig['auto_utm'] ?? true);
+        $this->autoTimestamp = (bool) ($pipelineConfig['auto_timestamp'] ?? false);
+    }
+
+    /**
+     * Build the event pipeline for a request.
+     *
+     * @param  Request  $request
+     * @return EventPipeline
+     */
+    private function buildPipeline(Request $request): EventPipeline
+    {
+        $pipeline = new EventPipeline;
+
+        if ($this->autoUtm) {
+            $utmContext = array_filter($request->only([
+                'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+            ]));
+            if (! empty($utmContext)) {
+                $pipeline->pipe(new UtmEnricher($utmContext));
+            }
+        }
+
+        if ($this->autoTimestamp) {
+            $pipeline->pipe(new TimestampEnricher);
+        }
+
+        return $pipeline;
     }
 
     /**
@@ -71,7 +109,15 @@ class AnalyticsEventController extends Controller
         // Validate and sanitize event if validator is available
         $event = $this->validateEvent($event);
 
-        $this->manager->trackEvent($event);
+        // Process through event pipeline (UTM enrichment, etc.)
+        $pipeline = $this->buildPipeline($request);
+        $processed = $pipeline->process($event);
+
+        if ($processed === null) {
+            return response()->json(['status' => 'filtered']);
+        }
+
+        $this->manager->trackEvent($processed);
 
         return response()->json(['status' => 'ok']);
     }
@@ -97,6 +143,10 @@ class AnalyticsEventController extends Controller
 
         $events = $request->input('events', []);
 
+        // Build pipeline once for all events in the batch
+        $pipeline = $this->buildPipeline($request);
+        $dispatchedCount = 0;
+
         foreach ($events as $eventData) {
             $event = new AnalyticsEvent(
                 name: $eventData['name'],
@@ -108,12 +158,20 @@ class AnalyticsEventController extends Controller
             // Validate and sanitize each event
             $event = $this->validateEvent($event);
 
-            $this->manager->trackEvent($event);
+            // Process through pipeline
+            $processed = $pipeline->process($event);
+
+            if ($processed === null) {
+                continue; // Event was filtered out
+            }
+
+            $this->manager->trackEvent($processed);
+            $dispatchedCount++;
         }
 
         return response()->json([
             'status' => 'ok',
-            'count' => count((array) $events),
+            'count' => $dispatchedCount,
         ]);
     }
 
@@ -214,7 +272,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '1.2.0',
+            'version' => '1.3.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'timestamp' => now()->toIso8601String(),

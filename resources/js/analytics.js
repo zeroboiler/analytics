@@ -75,6 +75,9 @@ export function init(pageProps) {
 
     // Start batch flush timer
     startFlushTimer();
+
+    // Auto-capture UTM parameters on init
+    captureUTM();
 }
 
 /**
@@ -200,7 +203,18 @@ function initPostHog() {
 export async function trackEvent(name, params = {}, options = {}) {
     if (!initialized) return;
 
-    const event = { name, params };
+    // Auto-attach UTM parameters if captured
+    const enrichedParams = { ...params };
+    if (Object.keys(utmParams).length > 0) {
+        // Only attach UTM if not already present in params
+        for (const [key, value] of Object.entries(utmParams)) {
+            if (!(key in enrichedParams)) {
+                enrichedParams[key] = value;
+            }
+        }
+    }
+
+    const event = { name, params: enrichedParams };
 
     if (options.immediate) {
         return sendEvent(event);
@@ -231,7 +245,7 @@ export async function flushQueue() {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                Authorization: `Bearer ${getAuthToken()}`,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ events }),
@@ -266,7 +280,7 @@ async function sendEvent(event) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                Authorization: `Bearer ${getAuthToken()}`,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ name: event.name, params: event.params }),
@@ -419,7 +433,7 @@ export async function identify(userId = null) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                Authorization: `Bearer ${getAuthToken()}`,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ client_id: trackingId }),
@@ -461,7 +475,7 @@ export async function updateConsent(signals) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${getAuthToken()}`,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ signals }),
@@ -828,4 +842,92 @@ function generateUUID() {
 
         return v.toString(16);
     });
+}
+
+// ─── UTM Campaign Tracking ───────────────────────────────────────────
+
+let utmParams = {};
+let utmCaptured = false;
+
+/**
+ * Capture UTM parameters from the current URL.
+ *
+ * Call this once on app initialization to capture attribution data.
+ * Parameters are automatically attached to all tracked events.
+ *
+ * @returns {object} Captured UTM parameters
+ *
+ * @example
+ * // Auto-capture on init:
+ * const utm = captureUTM();
+ * if (utm.utm_source) {
+ *     trackEvent('campaign_visit', utm);
+ * }
+ */
+export function captureUTM() {
+    if (utmCaptured || typeof window === 'undefined') return utmParams;
+
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+    for (const key of utmKeys) {
+        const value = urlParams.get(key);
+        if (value) {
+            utmParams[key] = value;
+        }
+    }
+
+    if (Object.keys(utmParams).length > 0) {
+        utmCaptured = true;
+        // Store in sessionStorage for page navigation persistence
+        try {
+            sessionStorage.setItem('zb_utm', JSON.stringify(utmParams));
+        } catch {
+            // Storage not available
+        }
+    } else {
+        // Restore from sessionStorage if available
+        try {
+            const stored = sessionStorage.getItem('zb_utm');
+            if (stored) {
+                utmParams = JSON.parse(stored);
+                utmCaptured = true;
+            }
+        } catch {
+            // Storage not available
+        }
+    }
+
+    return utmParams;
+}
+
+/**
+ * Get currently captured UTM parameters.
+ *
+ * @returns {object} UTM parameters object
+ */
+export function getUTMParams() {
+    return utmParams;
+}
+
+/**
+ * Clear captured UTM parameters.
+ */
+export function clearUTMParams() {
+    utmParams = {};
+    utmCaptured = false;
+
+    try {
+        sessionStorage.removeItem('zb_utm');
+    } catch {
+        // Storage not available
+    }
+}
+
+/**
+ * Check if UTM parameters were captured.
+ */
+export function hasUTMParams() {
+    return Object.keys(utmParams).length > 0;
 }

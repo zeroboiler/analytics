@@ -188,5 +188,20 @@ return [
             'deduplication_window' => (int) env('ANALYTICS_VALIDATION_DEDUP_WINDOW', 10),
             'max_recent_events' => (int) env('ANALYTICS_VALIDATION_MAX_RECENT', 500),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Pipeline
+        |--------------------------------------------------------------------------
+        |
+        | Configure the event processing pipeline.
+        | When auto_utm is enabled, UTM parameters from requests are automatically
+        | attached to all events.
+        |
+        */
+        'pipeline' => [
+            'auto_utm' => env('ANALYTICS_PIPELINE_AUTO_UTM', true),
+            'auto_timestamp' => env('ANALYTICS_PIPELINE_AUTO_TIMESTAMP', false),
+        ],
     ],
 ];
