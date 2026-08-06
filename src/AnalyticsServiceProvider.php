@@ -16,6 +16,9 @@ use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
+use ZeroBoiler\Analytics\Context\EventContextBuilder;
+use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
@@ -141,6 +144,10 @@ class AnalyticsServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(EventPipeline::class);
+
+        $this->app->singleton(EventSchemaRegistry::class);
+        $this->app->bind(AnalyticsMiddlewareStack::class);
+        $this->app->bind(EventContextBuilder::class);
     }
 
     /**

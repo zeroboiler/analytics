@@ -6,6 +6,9 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 
 - **Multi-Provider Tracking** — GA4 (Measurement Protocol + client), GTM (dataLayer + ecommerce), Meta Pixel (CAPI + client), Plausible, PostHog
 - **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events
+- **Event Schema Registry** — Centralized schema definitions for 30+ events with typed parameters, validation, and provider-specific name mappings
+- **Middleware Stack** — Priority-ordered, composable middleware system (consent gate, context attachment, schema validation, timestamp, logging)
+- **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
 - **Event Pipeline** — Middleware chain for filtering, enriching, and transforming events before dispatch (UTM, user context, consent, timestamps)
 - **Revenue Analytics** — MRR, ARR, one-time, add-on, upgrade, downgrade, and churn revenue tracking service
 - **UTM Campaign Attribution** — Auto-capture UTM params (server-side + client-side), attach to all events for marketing attribution
@@ -579,7 +582,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
@@ -777,6 +780,8 @@ await trackEvent('signup', { method: 'email' });
 src/
 ├── AnalyticsManager.php          # Core manager — dispatches to all trackers
 ├── AnalyticsServiceProvider.php   # Laravel service provider
+├── Context/
+│   └── EventContextBuilder.php   # Auto-collect request context (user, UTM, session, device)
 ├── DTO/
 │   ├── AnalyticsEvent.php        # Immutable event DTO
 │   └── ConsentState.php          # GDPR consent state
@@ -785,6 +790,18 @@ src/
 │   ├── SaaS/                     # 11 SaaS lifecycle event classes
 │   ├── Engagement/               # 10 engagement event classes
 │   └── CustomEvent.php           # Generic custom event
+├── Middleware/
+│   ├── AnalyticsMiddlewareInterface.php  # Middleware contract
+│   ├── AnalyticsMiddlewareStack.php     # Priority-ordered middleware stack
+│   ├── ConsentGateMiddleware.php        # Consent-based event filtering
+│   ├── ContextAttachmentMiddleware.php  # Auto-attach context to events
+│   ├── SchemaValidationMiddleware.php   # Schema-aware event validation
+│   ├── TimestampMiddleware.php          # Auto-add timestamps
+│   └── LoggingMiddleware.php             # Debug event logging
+├── Schema/
+│   ├── EventSchema.php          # Event parameter schema definition
+│   ├── EventParam.php           # Parameter type & constraints
+│   └── EventSchemaRegistry.php  # Central schema registry (30+ events)
 ├── Pipeline/
 │   ├── EventPipeline.php         # Middleware pipeline for event processing
 │   ├── UtmEnricher.php           # UTM campaign parameter enrichment
@@ -832,6 +849,97 @@ config/
 └── zeroboiler.php                # Configuration file
 routes/
 └── analytics.php                 # API route definitions
+```
+
+### Event Schema Registry
+
+The `EventSchemaRegistry` provides a single source of truth for event definitions:
+
+```php
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+
+$registry = app(EventSchemaRegistry::class);
+
+// Validate event params against schema
+$result = $registry->validate('purchase', [
+    'transaction_id' => 'TXN-123',
+    'value' => 99.99,
+]);
+
+if ($result['valid']) {
+    Analytics::trackEvent(new AnalyticsEvent('purchase', $result['sanitized']));
+}
+
+// Register custom schemas
+$registry->register(new EventSchema(
+    name: 'onboarding_complete',
+    category: 'custom',
+    description: 'User completed onboarding flow',
+    requiredParams: [
+        'steps_completed' => new EventParam(type: 'int', min: 1),
+    ],
+    optionalParams: [
+        'duration_seconds' => new EventParam(type: 'int'),
+    ],
+));
+
+// Get events by category
+$ecommerceEvents = $registry->getEventsByCategory('ecommerce');
+$allSchemas = $registry->getSchemasByCategory();
+```
+
+### Middleware Stack
+
+The `AnalyticsMiddlewareStack` provides a composable, priority-ordered middleware system:
+
+```php
+use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
+use ZeroBoiler\Analytics\Middleware\{ConsentGateMiddleware, ContextAttachmentMiddleware, SchemaValidationMiddleware};
+
+$stack = new AnalyticsMiddlewareStack;
+
+// Add middleware (executed in priority order — lower number = first)
+$stack->add(new ConsentGateMiddleware(Analytics::getConsent()->hasAnalyticsConsent()));
+$stack->add(new ContextAttachmentMiddleware(['app_version' => '1.4.0']));
+$stack->add(new SchemaValidationMiddleware(app(EventSchemaRegistry::class)));
+
+// Process an event through the stack
+$processed = $stack->process($event);
+if ($processed !== null) {
+    Analytics::trackEvent($processed);
+}
+
+// Or use the pre-configured default stack
+$stack = AnalyticsMiddlewareStack::createDefault(
+    analyticsGranted: true,
+    context: ['source' => 'web'],
+);
+```
+
+### Event Context Builder
+
+The `EventContextBuilder` automatically collects server-side context:
+
+```php
+use ZeroBoiler\Analytics\Context\EventContextBuilder;
+
+$context = (new EventContextBuilder($request))
+    ->withUserIdentity()       // user_id, user_email_hash, user_plan
+    ->withClientId()           // from cookie or header
+    ->withSession()            // session_id
+    ->withUTM()                // utm_source, utm_medium, etc.
+    ->withPage()               // page_url, page_path
+    ->withDevice()             // ip, user_agent, locale
+    ->withCustom(['app_version' => '1.4.0'])
+    ->build();
+
+// Merge context into an event
+$enrichedEvent = new AnalyticsEvent(
+    name: 'page_view',
+    params: array_merge($event->params, $context),
+    clientId: $context['client_id'] ?? null,
+    userId: $context['user_id'] ?? null,
+);
 ```
 
 ### Debug Mode
