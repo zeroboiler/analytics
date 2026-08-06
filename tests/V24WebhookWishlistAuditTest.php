@@ -278,7 +278,7 @@ describe('AnalyticsManager v2.4', function () {
         expect($manager->webhook()->getWebhookUrl())->toBe('https://hooks.example.com/analytics');
     });
 
-    it('version is 2.4.0', function () {
+    it('version is 2.5.0', function () {
         $config = new Repository([
             'zeroboiler' => [
                 'analytics' => [],
@@ -287,7 +287,7 @@ describe('AnalyticsManager v2.4', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('2.4.0');
+        expect($manager->version())->toBe('2.5.0');
     });
 
     it('providerSummary includes webhook', function () {

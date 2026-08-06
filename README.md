@@ -72,10 +72,12 @@ Done. That's it.
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
 
 ### Event Processing
-- **Middleware Stack** — Priority-ordered, composable middleware (consent gate, context attachment, schema validation, timestamp, logging)
+- **Middleware Stack** — Priority-ordered, composable middleware (consent gate, context attachment, schema validation, timestamp, logging, PII sanitization)
 - **Event Pipeline** — Lightweight pipe chain for UTM enrichment, user context, consent filtering, and timestamp enrichment
 - **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
 - **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
+- **PII Sanitization** — Auto-scrub Personally Identifiable Information from events (hash, remove, or mask strategies)
+- **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)
 
 ### SaaS Analytics
 - **SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue
@@ -143,10 +145,14 @@ Done. That's it.
 
 ### Developer Experience
 - **Debug Mode** — `ANALYTICS_DEBUG_ENABLED=true` logs events without dispatching, runtime toggle via `setDebug()`
-- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, and 25+ more methods
-- **Config-Driven** — 30+ environment variables, sensible defaults, zero-required-config to start
+- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, `Analytics::metrics()`, and 25+ more methods
+- **Config-Driven** — 35+ environment variables, sensible defaults, zero-required-config to start
+- **Metrics & Observability** — Per-provider dispatch/failure counters for monitoring and debugging
+- **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
+- **Event Sampling** — Control analytics volume with configurable sample rates
+- **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 50+ tests
+- **Pest PHP** — 55+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -155,6 +161,7 @@ Done. That's it.
 ```
 src/
 ├── AnalyticsManager.php              # Core manager — dispatches to all 6 trackers
+├── AnalyticsMetrics.php              # Dispatch metrics (per-provider counters for observability)
 ├── AnalyticsServiceProvider.php       # Laravel service provider (registers everything)
 ├── Bus/
 │   └── AnalyticsDataBus.php          # Rule-based conditional event routing
@@ -176,6 +183,7 @@ src/
 │   ├── ConsentGateMiddleware.php          # Consent-based event filtering
 │   ├── ContextAttachmentMiddleware.php    # Auto-attach context to events
 │   ├── SchemaValidationMiddleware.php     # Schema-aware event validation
+│   ├── PiiSanitizationMiddleware.php      # PII auto-scrub (hash, remove, mask)
 │   ├── TimestampMiddleware.php            # Auto-add timestamps
 │   └── LoggingMiddleware.php              # Debug event logging
 ├── Schema/
@@ -184,6 +192,7 @@ src/
 │   └── EventSchemaRegistry.php    # Central schema registry (30+ events)
 ├── Pipeline/
 │   ├── EventPipeline.php            # Middleware pipeline for event processing
+│   ├── SamplingFilter.php           # Probabilistic event sampling
 │   ├── UtmEnricher.php              # UTM campaign parameter enrichment
 │   ├── UserContextEnricher.php      # User context enrichment
 │   ├── ConsentFilter.php            # Consent-based event filtering
@@ -209,6 +218,7 @@ src/
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
 │   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
+│   ├── AnonymousIdTracker.php     # Persistent UUID anonymous ID management + cookies
 │   └── SessionTracker.php          # Session, funnel, and conversion tracking
 ├── Queue/
 │   └── QueuedAnalyticsDispatcher.php   # Async queue dispatch (configurable)
@@ -305,6 +315,19 @@ ANALYTICS_VALIDATION_DEDUP_WINDOW=10
 # ── Event Pipeline ────────────────────────────────────────────────
 ANALYTICS_PIPELINE_AUTO_UTM=true
 ANALYTICS_PIPELINE_AUTO_TIMESTAMP=false
+
+# ── Event Sampling (High-Traffic) ────────────────────────────────
+ANALYTICS_SAMPLING_ENABLED=false
+ANALYTICS_SAMPLING_RATE=1.0
+ANALYTICS_SAMPLING_DETERMINISTIC=true
+
+# ── PII Sanitization ────────────────────────────────────────────
+ANALYTICS_PII_ENABLED=false
+ANALYTICS_PII_STRATEGY=hash
+
+# ── Metrics & Observability ──────────────────────────────────
+ANALYTICS_METRICS_ENABLED=false
+ANALYTICS_METRICS_LOG_ON_FLUSH=false
 ```
 
 ## Usage

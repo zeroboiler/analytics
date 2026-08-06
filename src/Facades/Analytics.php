@@ -58,6 +58,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static int totalEventCount()
  * @method static string version()
  * @method static array<string, array{enabled: bool, id?: string}> providerSummary()
+ * @method static \ZeroBoiler\Analytics\AnalyticsMetrics metrics()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

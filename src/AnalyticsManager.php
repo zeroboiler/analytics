@@ -19,6 +19,7 @@ use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
 use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 use ZeroBoiler\Analytics\Trackers\WebhookTracker;
+use ZeroBoiler\Analytics\AnalyticsMetrics;
 
 /**
  * Central analytics manager — dispatches events to all configured trackers.
@@ -45,6 +46,8 @@ class AnalyticsManager
     protected PosthogTracker $posthog;
 
     protected WebhookTracker $webhook;
+
+    private AnalyticsMetrics $metrics;
 
     private bool $debugMode;
 
@@ -128,6 +131,9 @@ class AnalyticsManager
         /** @var array{enabled?: bool, log_events?: bool} $debugConfig */
         $this->debugMode = (bool) ($debugConfig['enabled'] ?? false);
         $this->logEvents = (bool) ($debugConfig['log_events'] ?? false);
+
+        // Metrics tracking
+        $this->metrics = new AnalyticsMetrics($config);
     }
 
     /**
@@ -236,27 +242,57 @@ class AnalyticsManager
     public function directDispatch(AnalyticsEvent $event): void
     {
         if ($this->ga4->isEnabled()) {
-            $this->ga4->track($event);
+            try {
+                $this->ga4->track($event);
+                $this->metrics->recordDispatch('ga4');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('ga4', $e->getMessage());
+            }
         }
 
         if ($this->gtm->isEnabled()) {
-            $this->gtm->track($event);
+            try {
+                $this->gtm->track($event);
+                $this->metrics->recordDispatch('gtm');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('gtm', $e->getMessage());
+            }
         }
 
         if ($this->meta->isEnabled()) {
-            $this->meta->track($event);
+            try {
+                $this->meta->track($event);
+                $this->metrics->recordDispatch('meta');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('meta', $e->getMessage());
+            }
         }
 
         if ($this->plausible->isEnabled()) {
-            $this->plausible->track($event);
+            try {
+                $this->plausible->track($event);
+                $this->metrics->recordDispatch('plausible');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('plausible', $e->getMessage());
+            }
         }
 
         if ($this->posthog->isEnabled()) {
-            $this->posthog->track($event);
+            try {
+                $this->posthog->track($event);
+                $this->metrics->recordDispatch('posthog');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('posthog', $e->getMessage());
+            }
         }
 
         if ($this->webhook->isEnabled()) {
-            $this->webhook->track($event);
+            try {
+                $this->webhook->track($event);
+                $this->metrics->recordDispatch('webhook');
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('webhook', $e->getMessage());
+            }
         }
     }
 
@@ -844,7 +880,18 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.4.0';
+        return '2.5.0';
+    }
+
+    /**
+     * Get the analytics metrics instance.
+     *
+     * Use this to access dispatch counts, failure rates, and per-provider
+     * statistics for monitoring and debugging.
+     */
+    public function metrics(): AnalyticsMetrics
+    {
+        return $this->metrics;
     }
 
     /**

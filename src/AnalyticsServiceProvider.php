@@ -23,7 +23,10 @@ use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
 use ZeroBoiler\Analytics\Bus\AnalyticsDataBus;
 use ZeroBoiler\Analytics\Context\EventContextBuilder;
 use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
+use ZeroBoiler\Analytics\Middleware\PiiSanitizationMiddleware;
+use ZeroBoiler\Analytics\Pipeline\SamplingFilter;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\FunnelAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
@@ -128,6 +131,46 @@ class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSAnalyticsService($manager);
+        });
+
+        // PII sanitization middleware (configurable strategy)
+        $this->app->bind(PiiSanitizationMiddleware::class, function (Application $app): PiiSanitizationMiddleware {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $piiConfig = $config->get('zeroboiler.analytics.pii_sanitization', []);
+            /** @var array{enabled?: bool, strategy?: string, custom_fields?: list<string>} $piiConfig */
+
+            $strategy = $piiConfig['strategy'] ?? PiiSanitizationMiddleware::STRATEGY_HASH;
+            $customFields = $piiConfig['custom_fields'] ?? null;
+
+            return new PiiSanitizationMiddleware(
+                piiFields: $customFields,
+                strategy: $strategy,
+            );
+        });
+
+        // Event sampling filter for high-traffic applications
+        $this->app->bind(SamplingFilter::class, function (Application $app): SamplingFilter {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $samplingConfig = $config->get('zeroboiler.analytics.sampling', []);
+            /** @var array{enabled?: bool, rate?: float, deterministic?: bool} $samplingConfig */
+
+            $rate = (float) ($samplingConfig['rate'] ?? 1.0);
+            $deterministic = (bool) ($samplingConfig['deterministic'] ?? true);
+
+            return new SamplingFilter(
+                sampleRate: $rate,
+                deterministic: $deterministic,
+            );
+        });
+
+        // Anonymous ID tracker for persistent client-side identifiers
+        $this->app->singleton(AnonymousIdTracker::class, function (Application $app): AnonymousIdTracker {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnonymousIdTracker($config);
         });
 
         $this->app->singleton(EventValidationService::class, function (Application $app): EventValidationService {

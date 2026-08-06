@@ -276,5 +276,51 @@ return [
             'auto_utm' => env('ANALYTICS_PIPELINE_AUTO_UTM', true),
             'auto_timestamp' => env('ANALYTICS_PIPELINE_AUTO_TIMESTAMP', false),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Sampling (High-Traffic Control)
+        |-------------------------------------------------------------------------- 
+        |
+        | Drop events probabilistically to control volume during traffic spikes.
+        | Rate 1.0 = no sampling (all events), 0.1 = ~10% of events processed.
+        | Deterministic mode ensures the same event names are consistently sampled.
+        |
+        */
+        'sampling' => [
+            'enabled' => env('ANALYTICS_SAMPLING_ENABLED', false),
+            'rate' => (float) env('ANALYTICS_SAMPLING_RATE', 1.0),
+            'deterministic' => env('ANALYTICS_SAMPLING_DETERMINISTIC', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | PII Sanitization
+        |-------------------------------------------------------------------------- 
+        |
+        | Automatically sanitize Personally Identifiable Information from event
+        | parameters before dispatch. Strategies: hash (SHA-256), remove, mask.
+        |
+        */
+        'pii_sanitization' => [
+            'enabled' => env('ANALYTICS_PII_ENABLED', false),
+            'strategy' => env('ANALYTICS_PII_STRATEGY', 'hash'), // hash, remove, mask
+            'custom_fields' => [],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Metrics & Observability
+        |-------------------------------------------------------------------------- 
+        |
+        | Track event dispatch counts, success/failure rates, and per-provider
+        | statistics for monitoring and debugging. Disabled by default for
+        | zero-overhead in production.
+        |
+        */
+        'metrics' => [
+            'enabled' => env('ANALYTICS_METRICS_ENABLED', false),
+            'log_on_flush' => env('ANALYTICS_METRICS_LOG_ON_FLUSH', false),
+        ],
     ],
 ];
