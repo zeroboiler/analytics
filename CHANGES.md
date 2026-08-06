@@ -2,6 +2,25 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.28.0] - 2026-08-06
+
+### Added
+- **LifecycleEventMapper** — Config-driven lifecycle event mapping service that automatically maps Laravel auth events, subscription lifecycle events, trial events, feature usage, e-commerce, and engagement events to typed ZeroBoiler analytics events. Supports 15 built-in mappings across 6 lifecycle categories (auth, subscription, trial, feature, ecommerce, engagement) with priority ordering, conditional filtering, custom param extractors, and config-driven enable/disable toggles. Custom mappings can be merged with or replace defaults.
+- **EventCorrelationService** — Event pattern detection and predictive analytics service. Detects frequent event sequences (n-gram patterns), calculates transition probabilities, predicts next events, computes conversion rates for arbitrary event sequences, builds co-occurrence matrices, and tracks user journeys. All analysis is performed in-memory with optional cache persistence. Useful for identifying common user flows, optimizing conversion paths, and proactive analytics.
+- **5 new API endpoints** — `GET /api/analytics/lifecycle` (lifecycle mapping configuration), `GET /api/analytics/correlation/patterns` (frequent event patterns), `GET /api/analytics/correlation/transitions` (top event transitions), `GET /api/analytics/correlation/predict` (next-event prediction), `GET /api/analytics/correlation/summary` (correlation analysis summary).
+- **2 new config sections** — `lifecycle` (enabled, override_defaults, events toggles, custom_mappings) and `correlation` (enabled, cache settings, max_pattern_length, max_journeys_per_user).
+- **11 new AnalyticsConfig accessors** — lifecycleEnabled(), lifecycleOverrideDefaults(), lifecycleEvents(), lifecycleCustomMappings(), correlationEnabled(), correlationCacheEnabled(), correlationCacheTtl(), correlationMaxPatternLength(), correlationMaxJourneysPerUser(). summary() now includes 24 sections (was 22).
+- **2 new service bindings** in AnalyticsServiceProvider: LifecycleEventMapper, EventCorrelationService.
+- **V28LifecycleCorrelationTest** — 30+ new test cases covering LifecycleEventMapper (construction, config, toggles, custom mappings, override_defaults, summary, registration), EventCorrelationService (recording, journeys, transitions, pattern detection, conversion rates, prediction, correlation matrix, clear, cache), and version/config consistency.
+
+### Changed
+- Version bump to 2.28.0
+- AnalyticsManager::version() returns '2.28.0' (was '2.27.0')
+- Controller version strings updated to 2.28.0 on lifecycle and correlation endpoints
+- Total service count: 35+ services registered in ServiceProvider
+- Total API endpoints: 28 public + 10 authenticated
+- Total config sections: 24 (was 22)
+
 ## [2.27.0] - 2026-08-06
 
 ### Added

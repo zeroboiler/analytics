@@ -561,5 +561,80 @@ return [
                 ],
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Lifecycle Event Mapping
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven mapping of application events to analytics events.
+        | LifecycleEventMapper automatically maps Laravel auth events, subscription
+        | lifecycle events, trial events, feature usage, e-commerce, and engagement
+        | events to typed ZeroBoiler analytics events.
+        |
+        | Toggle individual events on/off. Set 'enabled' to false to disable
+        | the entire lifecycle mapper.
+        |
+        | Add custom mappings in 'custom_mappings' to extend beyond defaults.
+        | Set 'override_defaults' to true to replace all built-in mappings.
+        |
+        */
+        'lifecycle' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_ENABLED', true),
+            'override_defaults' => env('ANALYTICS_LIFECYCLE_OVERRIDE_DEFAULTS', false),
+            'events' => [
+                'auth.login' => true,
+                'auth.register' => true,
+                'auth.logout' => false,
+                'subscription.created' => true,
+                'subscription.upgraded' => true,
+                'subscription.downgraded' => true,
+                'subscription.cancelled' => true,
+                'trial.started' => true,
+                'trial.ended' => false,
+                'feature.used' => false,
+                'order.completed' => true,
+                'order.refunded' => true,
+                'form.submitted' => false,
+                'search.performed' => false,
+                'error.occurred' => false,
+            ],
+            /*
+            | Custom event mappings (merged with or override defaults).
+            | Each mapping: source event name → target analytics event class.
+            |
+            | Example:
+            |   'custom_mappings' => [
+            |       'team.invited' => [
+            |           'source' => 'team.invited',
+            |           'target' => \App\Analytics\Events\TeamInvitedEvent::class,
+            |           'params_extractor' => 'extractTeamParams',
+            |           'priority' => 90,
+            |       ],
+            |   ],
+            */
+            'custom_mappings' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Correlation & Pattern Detection
+        |--------------------------------------------------------------------------
+        |
+        | Analyzes user journeys to detect frequent event patterns, calculate
+        | transition probabilities, and predict next events. Useful for
+        | understanding user behavior and optimizing conversion paths.
+        |
+        | Pattern analysis is cached for performance. Adjust cache_ttl and
+        | max_pattern_length based on your traffic volume.
+        |
+        */
+        'correlation' => [
+            'enabled' => env('ANALYTICS_CORRELATION_ENABLED', true),
+            'cache_enabled' => env('ANALYTICS_CORRELATION_CACHE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CORRELATION_CACHE_TTL', 300), // 5 minutes
+            'max_pattern_length' => (int) env('ANALYTICS_CORRELATION_MAX_PATTERN_LENGTH', 5),
+            'max_journeys_per_user' => (int) env('ANALYTICS_CORRELATION_MAX_JOURNEYS', 100),
+        ],
     ],
 ];

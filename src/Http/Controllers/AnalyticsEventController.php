@@ -28,7 +28,9 @@ use ZeroBoiler\Analytics\Services\InboundWebhookService;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Services\EventAlertRulesService;
+use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
+use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 
 /**
  * API controller for frontend event tracking.
@@ -74,6 +76,10 @@ final class AnalyticsEventController extends Controller
 
     private ?FunnelDataBuilderService $funnelDataBuilderService;
 
+    private ?LifecycleEventMapper $lifecycleMapper;
+
+    private ?EventCorrelationService $correlationService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -87,6 +93,8 @@ final class AnalyticsEventController extends Controller
      * @param  EventSchemaRegistry|null  $schemaRegistry  Optional schema registry
      * @param  EventAlertRulesService|null  $alertRulesService  Optional alert rules service
      * @param  FunnelDataBuilderService|null  $funnelDataBuilderService  Optional funnel data builder service
+     * @param  LifecycleEventMapper|null  $lifecycleMapper  Optional lifecycle event mapper service
+     * @param  EventCorrelationService|null  $correlationService  Optional event correlation service
      */
     public function __construct(
         AnalyticsManager $manager,
@@ -101,6 +109,8 @@ final class AnalyticsEventController extends Controller
         ?EventSchemaRegistry $schemaRegistry = null,
         ?EventAlertRulesService $alertRulesService = null,
         ?FunnelDataBuilderService $funnelDataBuilderService = null,
+        ?LifecycleEventMapper $lifecycleMapper = null,
+        ?EventCorrelationService $correlationService = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -115,6 +125,8 @@ final class AnalyticsEventController extends Controller
         $this->schemaRegistry = $schemaRegistry;
         $this->alertRulesService = $alertRulesService;
         $this->funnelDataBuilderService = $funnelDataBuilderService;
+        $this->lifecycleMapper = $lifecycleMapper;
+        $this->correlationService = $correlationService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -392,7 +404,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.27.0',
+            'version' => '2.28.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -478,7 +490,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.27.0',
+            'version' => '2.28.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -836,7 +848,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.27.0',
+            'version' => '2.28.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1048,6 +1060,136 @@ final class AnalyticsEventController extends Controller
         return response()->json([
             'status' => 'ok',
             'chart' => $data,
+        ]);
+    }
+
+    /**
+     * Get the lifecycle event mapping configuration.
+     *
+     * GET /api/analytics/lifecycle
+     *
+     * Returns all registered lifecycle event mappings, their enabled status,
+     * and the current mapper configuration. Useful for admin dashboards.
+     */
+    public function lifecycle(): JsonResponse
+    {
+        if ($this->lifecycleMapper === null) {
+            return response()->json(['error' => 'Lifecycle mapper not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.28.0',
+            'mapper' => $this->lifecycleMapper->summary(),
+            'mappings' => $this->lifecycleMapper->getMappings(),
+        ]);
+    }
+
+    /**
+     * Get detected event patterns from correlation analysis.
+     *
+     * GET /api/analytics/correlation/patterns?min_length=2&limit=20
+     *
+     * Returns the most common event sequences detected across user journeys.
+     * Useful for identifying common user flows and conversion paths.
+     */
+    public function correlationPatterns(Request $request): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not available'], 503);
+        }
+
+        $minLength = min((int) $request->query('min_length', 2), 10);
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        $patterns = $this->correlationService->frequentPatterns($minLength, $limit);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.28.0',
+            'min_length' => $minLength,
+            'count' => count($patterns),
+            'patterns' => $patterns,
+        ]);
+    }
+
+    /**
+     * Get top event transitions.
+     *
+     * GET /api/analytics/correlation/transitions?limit=20
+     *
+     * Returns the most common event-to-event transitions across all users.
+     * Each transition includes the probability (percentage of times event B
+     * follows event A).
+     */
+    public function correlationTransitions(Request $request): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.28.0',
+            'count' => count($this->correlationService->topTransitions($limit)),
+            'transitions' => $this->correlationService->topTransitions($limit),
+        ]);
+    }
+
+    /**
+     * Predict next events after a given event.
+     *
+     * GET /api/analytics/correlation/predict?after=sign_up&limit=5
+     *
+     * Uses transition probabilities to predict which events are likely
+     * to follow the given event. Useful for proactive analytics and
+     * user journey optimization.
+     */
+    public function correlationPredict(Request $request): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not available'], 503);
+        }
+
+        $afterEvent = $request->query('after');
+        $limit = min((int) $request->query('limit', 5), 20);
+
+        if (! is_string($afterEvent) || $afterEvent === '') {
+            return response()->json(['error' => 'Missing required query parameter: after'], 400);
+        }
+
+        $predictions = $this->correlationService->predictNext($afterEvent, $limit);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.28.0',
+            'after' => $afterEvent,
+            'count' => count($predictions),
+            'predictions' => $predictions,
+        ]);
+    }
+
+    /**
+     * Get event correlation analysis summary.
+     *
+     * GET /api/analytics/correlation/summary
+     *
+     * Returns a comprehensive summary of the correlation service state
+     * including total events, unique events, transitions, user journeys,
+     * and detected patterns.
+     */
+    public function correlationSummary(): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.28.0',
+            'summary' => $this->correlationService->summary(),
         ]);
     }
 }

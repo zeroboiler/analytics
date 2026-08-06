@@ -62,7 +62,9 @@ use ZeroBoiler\Analytics\Services\GdprErasureService;
 use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
 use ZeroBoiler\Analytics\Services\InboundWebhookService;
 use ZeroBoiler\Analytics\Services\EventAlertRulesService;
+use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
+use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -566,6 +568,39 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new FunnelDataBuilderService($manager, $metrics, $cache, $config);
         });
+
+        // Lifecycle event mapper for config-driven event mapping
+        $this->app->singleton(LifecycleEventMapper::class, function (Application $app): LifecycleEventMapper {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new LifecycleEventMapper($manager, $config);
+        });
+
+        // Event correlation service for pattern detection and predictive analytics
+        $this->app->singleton(EventCorrelationService::class, function (Application $app): EventCorrelationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $correlationConfig = $config->get('zeroboiler.analytics.correlation', []);
+            /** @var array{enabled?: bool, cache_ttl?: int, max_pattern_length?: int, max_journeys_per_user?: int} $correlationConfig */
+
+            return new EventCorrelationService(
+                $metrics,
+                $cache,
+                (int) ($correlationConfig['cache_ttl'] ?? 300),
+                (int) ($correlationConfig['max_pattern_length'] ?? 5),
+                (int) ($correlationConfig['max_journeys_per_user'] ?? 100),
+                (bool) ($correlationConfig['cache_enabled'] ?? true),
+            );
+        });
     }
 
     /**
@@ -686,6 +721,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/funnels/compare', [$controller, 'funnelCompare']);
                 Route::get('analytics/funnels/drop-off', [$controller, 'funnelDropOff']);
                 Route::get('analytics/funnels/chart', [$controller, 'funnelChart']);
+
+                // Lifecycle mapping endpoint
+                Route::get('analytics/lifecycle', [$controller, 'lifecycle']);
+
+                // Event correlation endpoints
+                Route::get('analytics/correlation/patterns', [$controller, 'correlationPatterns']);
+                Route::get('analytics/correlation/transitions', [$controller, 'correlationTransitions']);
+                Route::get('analytics/correlation/predict', [$controller, 'correlationPredict']);
+                Route::get('analytics/correlation/summary', [$controller, 'correlationSummary']);
             });
 
         // Authenticated endpoints

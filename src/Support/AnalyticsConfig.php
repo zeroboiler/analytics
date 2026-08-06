@@ -706,6 +706,65 @@ final class AnalyticsConfig
         return (bool) $this->get('pipeline.schema_enrichment', false);
     }
 
+    // ── Lifecycle Event Mapping ──────────────────────────────────────
+
+    public function lifecycleEnabled(): bool
+    {
+        return (bool) $this->get('lifecycle.enabled', true);
+    }
+
+    public function lifecycleOverrideDefaults(): bool
+    {
+        return (bool) $this->get('lifecycle.override_defaults', false);
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function lifecycleEvents(): array
+    {
+        $events = $this->get('lifecycle.events', []);
+
+        return is_array($events) ? $events : [];
+    }
+
+    /**
+     * @return array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}>
+     */
+    public function lifecycleCustomMappings(): array
+    {
+        $mappings = $this->get('lifecycle.custom_mappings', []);
+
+        return is_array($mappings) ? $mappings : [];
+    }
+
+    // ── Event Correlation ───────────────────────────────────────────
+
+    public function correlationEnabled(): bool
+    {
+        return (bool) $this->get('correlation.enabled', true);
+    }
+
+    public function correlationCacheEnabled(): bool
+    {
+        return (bool) $this->get('correlation.cache_enabled', true);
+    }
+
+    public function correlationCacheTtl(): int
+    {
+        return (int) $this->get('correlation.cache_ttl', 300);
+    }
+
+    public function correlationMaxPatternLength(): int
+    {
+        return (int) $this->get('correlation.max_pattern_length', 5);
+    }
+
+    public function correlationMaxJourneysPerUser(): int
+    {
+        return (int) $this->get('correlation.max_journeys_per_user', 100);
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -847,6 +906,17 @@ final class AnalyticsConfig
             'inbound_webhook' => [
                 'enabled' => $this->inboundWebhookEnabled(),
                 'require_signature' => $this->inboundWebhookRequireSignature(),
+            ],
+            'lifecycle' => [
+                'enabled' => $this->lifecycleEnabled(),
+                'override_defaults' => $this->lifecycleOverrideDefaults(),
+                'events_count' => count($this->lifecycleEvents()),
+                'custom_mappings_count' => count($this->lifecycleCustomMappings()),
+            ],
+            'correlation' => [
+                'enabled' => $this->correlationEnabled(),
+                'cache_enabled' => $this->correlationCacheEnabled(),
+                'max_pattern_length' => $this->correlationMaxPatternLength(),
             ],
             'stream' => [
                 'buffer_size' => $this->streamBufferSize(),
