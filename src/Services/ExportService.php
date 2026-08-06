@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
-use ZeroBoiler\Analytics\Services\EventStreamService;
 
 /**
  * Export service for analytics event data.

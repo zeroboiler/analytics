@@ -498,17 +498,14 @@ class AnalyticsEventController extends Controller
 
         if ($compliance) {
             $content = $this->exportService->complianceExport($limit);
-            $mimeType = 'application/json';
         } elseif ($format === 'csv') {
             $content = $this->exportService->toCsv(
                 is_string($filter) && $filter !== '' ? $filter : null,
                 is_string($category) && $category !== '' ? $category : null,
                 $limit,
             );
-            $mimeType = 'text/csv';
         } elseif ($format === 'metrics') {
             $content = $this->exportService->metricsExport();
-            $mimeType = 'application/json';
         } else {
             $content = $this->exportService->toJson(
                 is_string($filter) && $filter !== '' ? $filter : null,
@@ -516,7 +513,6 @@ class AnalyticsEventController extends Controller
                 $limit,
                 true,
             );
-            $mimeType = 'application/json';
         }
 
         return response()->json([
