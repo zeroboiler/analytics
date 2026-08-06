@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler\Analytics
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 let trackingId = null;

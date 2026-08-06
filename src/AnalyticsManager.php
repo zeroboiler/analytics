@@ -656,6 +656,86 @@ class AnalyticsManager
     }
 
     /**
+     * Track a full e-commerce event with cross-provider formatting.
+     *
+     * Convenience method that dispatches the event to all providers with
+     * proper GA4 and Meta Pixel formatting. The Meta equivalent event name
+     * and formatted `contents` parameter are automatically computed.
+     *
+     * @param  string  $eventName  GA4 event name (e.g. 'purchase', 'add_to_cart', 'view_item')
+     * @param  array<string, mixed>  $data  Event data (value, currency, items, transaction_id, etc.)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackEcommerce(string $eventName, array $data = [], array $params = []): void
+    {
+        // Track GA4 event with original data
+        $this->track($eventName, array_merge($data, $params));
+
+        // Track Meta Pixel equivalent if applicable
+        $metaEvent = $this->mapEcommerceToMeta($eventName);
+        if ($metaEvent !== null && $this->meta->isEnabled()) {
+            $metaParams = $this->buildMetaParams($data);
+            $this->track($metaEvent, array_merge($metaParams, $params));
+        }
+    }
+
+    /**
+     * Map GA4 e-commerce event names to Meta Pixel equivalents.
+     *
+     * @return string|null Meta Pixel event name, or null if no equivalent exists
+     */
+    private function mapEcommerceToMeta(string $eventName): ?string
+    {
+        $mapping = [
+            'view_item' => 'ViewContent',
+            'add_to_cart' => 'AddToCart',
+            'remove_from_cart' => null,
+            'view_cart' => null,
+            'begin_checkout' => 'InitiateCheckout',
+            'add_payment_info' => 'AddPaymentInfo',
+            'purchase' => 'Purchase',
+            'refund' => null,
+        ];
+
+        return $mapping[$eventName] ?? null;
+    }
+
+    /**
+     * Build Meta Pixel-compatible parameters from GA4 e-commerce data.
+     *
+     * @param  array<string, mixed>  $data  GA4-format event data
+     * @return array<string, mixed>  Meta Pixel formatted parameters
+     */
+    private function buildMetaParams(array $data): array
+    {
+        $params = [
+            'value' => $data['value'] ?? null,
+            'currency' => $data['currency'] ?? 'USD',
+        ];
+
+        if (isset($data['items']) && is_array($data['items'])) {
+            $params['contents'] = array_map(
+                fn (array $item): array => [
+                    'id' => (string) ($item['item_id'] ?? ''),
+                    'quantity' => (int) ($item['quantity'] ?? 1),
+                    'item_price' => (float) ($item['price'] ?? 0),
+                    'name' => (string) ($item['item_name'] ?? ''),
+                    'category' => (string) ($item['item_category'] ?? ''),
+                ],
+                $data['items'],
+            );
+            $params['content_ids'] = array_column($data['items'], 'item_id');
+            $params['num_items'] = array_sum(array_column($data['items'], 'quantity'));
+        }
+
+        if (isset($data['transaction_id'])) {
+            $params['content_ids'] ??= [];
+        }
+
+        return array_filter($params, fn (mixed $v): bool => $v !== null);
+    }
+
+    /**
      * Get the event catalog summary (event counts per category).
      *
      * Dynamically computes counts from the category catalogs

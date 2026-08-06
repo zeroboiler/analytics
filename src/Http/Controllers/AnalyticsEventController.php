@@ -328,7 +328,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.0.0',
+            'version' => '2.1.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'timestamp' => now()->toIso8601String(),

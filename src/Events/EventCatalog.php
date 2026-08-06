@@ -118,6 +118,39 @@ final class EventCatalog
     }
 
     /**
+     * Search events by name pattern (partial match).
+     *
+     * @return list<EventEntry>
+     */
+    public static function search(string $pattern): array
+    {
+        $results = [];
+
+        foreach (self::all() as $name => $entry) {
+            if (str_contains($name, strtolower($pattern))) {
+                $results[] = $entry;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get events grouped by provider name.
+     *
+     * Returns arrays keyed by provider name (ga4, meta) with deduplicated event names.
+     *
+     * @return array{ga4: list<string>, meta: list<string>}
+     */
+    public static function byProvider(): array
+    {
+        return [
+            'ga4' => self::allGa4Names(),
+            'meta' => self::allMetaNames(),
+        ];
+    }
+
+    /**
      * Get the event class for a given event name.
      *
      * @return class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>|null

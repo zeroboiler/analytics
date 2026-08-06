@@ -122,6 +122,7 @@ return [
         'ecommerce' => [
             'currency' => env('ANALYTICS_ECOMMERCE_CURRENCY', 'USD'),
             'brand' => env('ANALYTICS_ECOMMERCE_BRAND', ''),
+            'tax_behavior' => env('ANALYTICS_ECOMMERCE_TAX_BEHAVIOR', 'inclusive'), // inclusive, exclusive, not_specified
         ],
 
         /*

@@ -124,7 +124,7 @@ Done. That's it.
 - **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, and 25+ more methods
 - **Config-Driven** — 30+ environment variables, sensible defaults, zero-required-config to start
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 37+ tests
+- **Pest PHP** — 40+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -334,6 +334,14 @@ use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
 // Quick purchase
 Analytics::purchase('TXN-12345', 99.99, [
     ['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2],
+]);
+
+// Cross-provider e-commerce (auto-formats for GA4 + Meta)
+Analytics::trackEcommerce('purchase', [
+    'transaction_id' => 'TXN-12345',
+    'value' => 99.99,
+    'currency' => 'USD',
+    'items' => [['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2]],
 ]);
 
 // Full e-commerce flow
@@ -708,7 +716,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -876,7 +884,77 @@ composer test:ci      # Run with coverage
 composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 ```
 
+## Troubleshooting
+
+### Events not appearing in GA4
+- Verify `ANALYTICS_GA4_ENABLED=true` and `ANALYTICS_GA4_MEASUREMENT_ID` is set
+- Check `ANALYTICS_GA4_API_SECRET` for server-side Measurement Protocol
+- Enable debug mode (`ANALYTICS_DEBUG_ENABLED=true`, `ANALYTICS_DEBUG_LOG_EVENTS=true`) to inspect dispatched events
+- Use `php artisan zb:analytics:test --validate` to test against GA4's debug endpoint
+
+### Consent blocking events
+- Default consent is `granted` — set `ANALYTICS_CONSENT_DEFAULT=denied` for GDPR-safe defaults
+- If using a cookie banner, call `Analytics::updateConsent()` from the JS client after user consent
+- Check browser console for gtag consent update errors
+
+### Inertia props not showing zbAnalytics
+- Ensure the `analytics.inertia` middleware is registered on your Inertia routes
+- Verify at least one provider is enabled (check with `php artisan zb:analytics:overview`)
+- If using a custom middleware group, make sure it runs after `HandleInertiaMiddleware`
+
+### Queue jobs failing
+- Run `php artisan queue:work --queue=analytics` to process the analytics queue
+- Set `ANALYTICS_QUEUE_ENABLED=false` for synchronous dispatch during debugging
+- Check `ANALYTICS_QUEUE_CONNECTION` if using a non-default queue connection
+
+### Identity not linking (anonymous → authenticated)
+- Ensure the `zb_analytics_id` cookie is set by the Inertia middleware (check browser cookies)
+- The JS client sends `X-Analytics-Client-Id` header on API requests
+- Call `identify()` after login to explicitly link identities
+- Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
+
+## Upgrading
+
+### From v2.0.x to v2.1.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- `Analytics::trackEcommerce('purchase', $data)` — auto-formats for GA4 + Meta
+- `EventCatalog::search('cart')` — find events by partial name
+- `EventCatalog::byProvider()` — group events by provider
+- New config option: `ANALYTICS_ECOMMERCE_TAX_BEHAVIOR`
+
+### From v1.x to v2.0.0
+- Requires PHP 8.5+ and Laravel 13+
+- All existing APIs are backward compatible
+- New optional features (Plausible, PostHog, queue dispatch) are disabled by default
+- Publish updated config: `php artisan vendor:publish --tag=zeroboiler-analytics-config --force`
+
+## Contributing
+
+```bash
+git clone https://github.com/zeroboiler/analytics.git
+cd analytics
+composer install
+composer ci  # Pint + PHPStan + Rector + Tests
+```
+
 ## Changelog
+
+### v2.1.0 — E-commerce Convenience + Test Suite Expansion
+- **trackEcommerce()** — Cross-provider e-commerce event dispatch (GA4 + Meta Pixel auto-formatting)
+- **Facade proxy** — `trackEcommerce()` added to Analytics facade
+- **EventCatalog::search()** — Partial name match search across all event categories
+- **EventCatalog::byProvider()** — Events grouped by provider (ga4, meta)
+- **Config** — `ecommerce.tax_behavior` setting (inclusive/exclusive/not_specified)
+- **Tests** — 25+ new test cases across 3 new files (API controller, Inertia middleware, identity tracker, ecommerce convenience, event catalog)
+- **LICENSE** — MIT license file added
+- **README** — Troubleshooting, Upgrading, and Contributing sections added
+- **Version bump** — composer.json, health endpoint, JS client updated to v2.1.0
 
 ### v2.0.0 — Full SaaS Starter
 - **pageView()** and **serverSidePageView()** convenience methods on AnalyticsManager + Facade
