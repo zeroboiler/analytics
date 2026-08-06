@@ -89,6 +89,22 @@ class HandleInertiaAnalytics
             'externalPrefix' => (string) ($trackLinks['external_prefix'] ?? 'outbound'),
         ];
 
+        // Device context for client-side analytics enrichment
+        $analyticsProps['device'] = [
+            'userAgent' => $request->userAgent(),
+            'ip' => $request->ip(),
+            'locale' => $request->locale(),
+        ];
+
+        // API endpoint base URL (for cross-origin or custom API routes)
+        $analyticsProps['apiBase'] = $this->config->get('zeroboiler.analytics.api.base_url', '/api/analytics');
+        $analyticsProps['apiEnabled'] = (bool) $this->config->get('zeroboiler.analytics.api.enabled', true);
+
+        // Debug mode (client-side should respect server debug setting)
+        $debugConfig = $this->config->get('zeroboiler.analytics.debug', []);
+        /** @var array{enabled?: bool} $debugConfig */
+        $analyticsProps['debug'] = (bool) ($debugConfig['enabled'] ?? false);
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

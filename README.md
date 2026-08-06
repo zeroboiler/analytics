@@ -1,8 +1,8 @@
 # ZeroBoiler Analytics
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Laravel 11+](https://img.shields.io/badge/Laravel-11%2B-red.svg)](https://laravel.com)
-[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-8892BF.svg)](https://www.php.net)
+[![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
+[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, and GDPR consent.
 
@@ -121,10 +121,10 @@ Done. That's it.
 
 ### Developer Experience
 - **Debug Mode** — `ANALYTICS_DEBUG_ENABLED=true` logs events without dispatching, runtime toggle via `setDebug()`
-- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()` and 20+ more methods
+- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, and 25+ more methods
 - **Config-Driven** — 30+ environment variables, sensible defaults, zero-required-config to start
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 35+ tests
+- **Pest PHP** — 37+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -248,6 +248,7 @@ ANALYTICS_QUEUE_CONNECTION=
 # ── API Endpoints ─────────────────────────────────────────────────
 ANALYTICS_API_ENABLED=true
 ANALYTICS_API_THROTTLE=60
+ANALYTICS_API_BASE_URL=/api/analytics
 
 # ── Identity Tracking ────────────────────────────────────────────
 ANALYTICS_IDENTITY_COOKIE=zb_analytics_id
@@ -304,6 +305,15 @@ Analytics::identify('42', 'client-uuid', ['email_hash' => hash('sha256', 'user@e
 // Screen view (SPA navigation)
 Analytics::screenView('Dashboard', 'main');
 
+// Page view (server-side, middleware-based)
+Analytics::pageView('Pricing', 'https://example.com/pricing', 'https://google.com');
+Analytics::serverSidePageView('Home', '/home', '', 'client-uuid', 'user-42');
+
+// Logout / trial end / plan downgrade
+Analytics::logout('sanctum');
+Analytics::trialEnd('converted', 'pro');
+Analytics::planDowngrade('pro', 'starter');
+
 // A/B test exposure
 Analytics::abTestExposure('pricing_redesign_v2', 'variant_a');
 
@@ -335,6 +345,10 @@ $ecommerce->beginCheckout([['item_id' => 'SKU-001', 'price' => 49.99]], 49.99, [
 $ecommerce->addPaymentInfo('credit_card');
 $ecommerce->purchase('TXN-12345', 49.99, [['item_id' => 'SKU-001', 'price' => 49.99, 'quantity' => 1]]);
 $ecommerce->refund('TXN-12345', 49.99);
+
+// Cross-provider format conversion
+$metaFormat = $ecommerce->formatMetaItem(['item_id' => 'SKU-001', 'price' => 49.99, 'quantity' => 1]);
+$metaCart = Analytics::formatEcommerceForMeta([['item_id' => 'SKU-001', 'price' => 49.99, 'quantity' => 1]]);
 ```
 
 ### SaaS Lifecycle Events
@@ -350,8 +364,11 @@ $saas->trackLogin('sanctum');
 $saas->trackTrialStart('pro', 14);
 $saas->trackSubscription('business', 99.99, 'EUR');
 $saas->trackPlanUpgrade('starter', 'pro');
-$saas->trackPlanDowngrade('pro', 'starter');
 $saas->trackCancellation('pro', 'too_expensive');
+$saas->trackPlanDowngrade('pro', 'starter');
+$saas->trackLogout('sanctum');
+$saas->trackTrialEnd('converted', 'pro');
+$saas->trackRevenue(5000.00, 'mrr', 'business');
 $saas->trackFeatureUsed('export', 5);
 $saas->trackCustomEvent('onboarding_complete', ['step_count' => 5]);
 ```
@@ -600,7 +617,11 @@ The middleware injects `zbAnalytics` into every Inertia response:
   "consent": { "analytics_storage": "granted", "..." },
   "ga4MeasurementId": "G-XXXXX",
   "metaPixelId": "123456789",
-  "trackLinks": { "enabled": false, "trackExternal": true, "trackInternal": false }
+  "trackLinks": { "enabled": false, "trackExternal": true, "trackInternal": false },
+  "device": { "userAgent": "...", "ip": "...", "locale": "en" },
+  "apiBase": "/api/analytics",
+  "apiEnabled": true,
+  "debug": false
 }
 ```
 
@@ -687,7 +708,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -856,6 +877,19 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 ```
 
 ## Changelog
+
+### v2.0.0 — Full SaaS Starter
+- **pageView()** and **serverSidePageView()** convenience methods on AnalyticsManager + Facade
+- **logout()**, **trialEnd()**, **planDowngrade()** convenience methods on AnalyticsManager + Facade
+- **formatEcommerceForMeta()** — GA4 → Meta Pixel item format conversion on AnalyticsManager
+- **SaaSAnalyticsService** extended: trackPlanDowngrade, trackLogout, trackTrialEnd, trackRevenue
+- **Inertia middleware** enhanced: device context (userAgent, IP, locale), apiBase, apiEnabled, debug props
+- **Config-driven event map**: `auto_track.event_map` for custom event → class mapping in ServerSideTracker
+- **Config**: `api.base_url` for custom API route prefix
+- **Facade**: 7 new proxy methods (pageView, serverSidePageView, logout, trialEnd, planDowngrade, formatEcommerceForMeta)
+- **Tests**: 20+ new test cases across 2 new test files (V20ManagerPageViewTest, V20SaasServiceExtendedTest)
+- **composer.json**: v2.0.0, requires PHP 8.5+, illuminate 13.0+
+- **README**: Updated Laravel/PHP badges, Inertia props docs, changelog
 
 ### v1.9.0 — Industry-Standard SaaS Analytics
 - README overhaul: Quick Start, full API reference, architecture diagram, JS client API table, changelog

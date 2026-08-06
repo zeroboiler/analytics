@@ -60,6 +60,23 @@ return [
                 // Track Eloquent model events as analytics events
                 // Example: App\\Models\\Habit::class => ['created', 'deleted'],
             ],
+            /*
+            |------------------------------------------------------------------
+            | Custom Event Map (Config-Driven)
+            |------------------------------------------------------------------
+            |
+            | Map custom application event names to analytics event classes.
+            | These are merged with the built-in event map in ServerSideTracker.
+            | Classes must extend ZeroBoiler\Analytics\DTO\AnalyticsEvent.
+            |
+            | Example:
+            |   'event_map' => [
+            |       'team.invited' => \App\Analytics\Events\TeamInvitedEvent::class,
+            |       'workspace.created' => \App\Analytics\Events\WorkspaceCreatedEvent::class,
+            |   ],
+            |
+            */
+            'event_map' => [],
         ],
 
         /*
@@ -135,6 +152,7 @@ return [
         'api' => [
             'enabled' => env('ANALYTICS_API_ENABLED', true),
             'throttle' => env('ANALYTICS_API_THROTTLE', 60),
+            'base_url' => env('ANALYTICS_API_BASE_URL', '/api/analytics'),
         ],
 
         /*

@@ -12,9 +12,12 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\SaaS\CancellationEvent;
 use ZeroBoiler\Analytics\Events\SaaS\FeatureUsedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\LoginEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PlanDowngradeEvent;
 use ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent;
+use ZeroBoiler\Analytics\Events\SaaS\RevenueEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SignUpEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SubscriptionEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
 
 /**
@@ -132,6 +135,71 @@ class SaaSAnalyticsService
         $this->manager->trackEvent(new FeatureUsedEvent(
             feature: $feature,
             usageCount: $usageCount,
+        ));
+    }
+
+    /**
+     * Track a plan downgrade.
+     *
+     * @param  string  $fromPlan  Current plan name
+     * @param  string  $toPlan  New (lower) plan name
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackPlanDowngrade(string $fromPlan, string $toPlan, array $params = []): void
+    {
+        $this->manager->trackEvent(new PlanDowngradeEvent(
+            fromPlan: $fromPlan,
+            toPlan: $toPlan,
+        ));
+
+        $this->manager->track('plan_downgrade', array_merge([
+            'from_plan' => $fromPlan,
+            'to_plan' => $toPlan,
+        ], $params));
+    }
+
+    /**
+     * Track a user logout.
+     *
+     * @param  string|null  $method  Auth guard used
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackLogout(?string $method = null, array $params = []): void
+    {
+        $this->manager->track('logout', array_filter(array_merge([
+            'method' => $method,
+        ], $params)));
+    }
+
+    /**
+     * Track a trial end (converted or expired).
+     *
+     * @param  string  $outcome  'converted' or 'expired'
+     * @param  string|null  $planName  Trial plan name
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackTrialEnd(string $outcome, ?string $planName = null, array $params = []): void
+    {
+        $this->manager->trackEvent(new TrialEndEvent(
+            outcome: $outcome,
+            planName: $planName,
+        ));
+    }
+
+    /**
+     * Track a revenue event.
+     *
+     * @param  float  $amount  Revenue amount
+     * @param  string  $type  Revenue type (mrr, arr, one_time, addon, etc.)
+     * @param  string|null  $plan  Associated plan name
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackRevenue(float $amount, string $type = 'one_time', ?string $plan = null, array $params = []): void
+    {
+        $this->manager->trackEvent(new RevenueEvent(
+            amount: $amount,
+            revenueType: $type,
+            planName: $plan,
         ));
     }
 

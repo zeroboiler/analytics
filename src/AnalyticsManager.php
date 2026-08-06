@@ -522,6 +522,140 @@ class AnalyticsManager
     }
 
     /**
+     * Track a page view event.
+     *
+     * Convenience method for server-side page view tracking without
+     * needing the API controller. Useful for server-rendered pages,
+     * middleware-based tracking, or non-JS environments.
+     *
+     * @param  string  $title  Page title
+     * @param  string  $location  Full URL of the page
+     * @param  string  $referrer  Referrer URL
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function pageView(string $title = '', string $location = '', string $referrer = '', array $params = []): void
+    {
+        $this->track('page_view', array_filter(array_merge([
+            'page_title' => $title,
+            'page_location' => $location,
+            'page_referrer' => $referrer,
+        ], $params)));
+    }
+
+    /**
+     * Track a server-side page view with client/user identity.
+     *
+     * Full-featured server-side page view tracking that combines the
+     * page view event with client ID and user ID resolution. Designed
+     * for middleware-based tracking where the request context is available.
+     *
+     * @param  string  $title  Page title
+     * @param  string  $location  Full URL of the page
+     * @param  string  $referrer  Referrer URL
+     * @param  string|null  $clientId  Client tracking ID
+     * @param  string|null  $userId  Authenticated user ID
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function serverSidePageView(
+        string $title = '',
+        string $location = '',
+        string $referrer = '',
+        ?string $clientId = null,
+        ?string $userId = null,
+        array $params = [],
+    ): void {
+        $event = new AnalyticsEvent(
+            name: 'page_view',
+            params: array_filter(array_merge([
+                'page_title' => $title,
+                'page_location' => $location,
+                'page_referrer' => $referrer,
+            ], $params)),
+            clientId: $clientId,
+            userId: $userId,
+        );
+
+        $this->trackEvent($event);
+    }
+
+    /**
+     * Track a logout event.
+     *
+     * Convenience method for logout tracking from the facade.
+     *
+     * @param  string|null  $method  Auth guard used (e.g. 'web', 'sanctum')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function logout(?string $method = null, array $params = []): void
+    {
+        $this->track('logout', array_filter(array_merge([
+            'method' => $method,
+        ], $params)));
+    }
+
+    /**
+     * Track a trial end event.
+     *
+     * @param  string  $outcome  'converted' or 'expired'
+     * @param  string|null  $planName  Trial plan name
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trialEnd(string $outcome, ?string $planName = null, array $params = []): void
+    {
+        $this->track('trial_end', array_filter(array_merge([
+            'outcome' => $outcome,
+            'plan_name' => $planName,
+        ], $params)));
+    }
+
+    /**
+     * Track a plan downgrade event.
+     *
+     * @param  string  $fromPlan  Previous plan name
+     * @param  string  $toPlan  New (lower) plan name
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function planDowngrade(string $fromPlan, string $toPlan, array $params = []): void
+    {
+        $this->track('plan_downgrade', array_merge([
+            'from_plan' => $fromPlan,
+            'to_plan' => $toPlan,
+        ], $params));
+    }
+
+    /**
+     * Format e-commerce items for Meta Pixel (contents array format).
+     *
+     * Converts GA4-style item arrays to Meta Pixel's `contents` format.
+     * Useful for cross-provider event dispatching.
+     *
+     * @param  array<int, array<string, mixed>>  $items  GA4-format item arrays
+     * @return array{content_ids: list<string>, contents: array<int, array<string, mixed>>, num_items: int}
+     */
+    public function formatEcommerceForMeta(array $items): array
+    {
+        $contentIds = [];
+        $contents = [];
+
+        foreach ($items as $item) {
+            $contentIds[] = (string) ($item['item_id'] ?? '');
+            $contents[] = [
+                'id' => (string) ($item['item_id'] ?? ''),
+                'quantity' => (int) ($item['quantity'] ?? 1),
+                'item_price' => (float) ($item['price'] ?? 0),
+                'name' => (string) ($item['item_name'] ?? ''),
+                'category' => (string) ($item['item_category'] ?? ''),
+            ];
+        }
+
+        return [
+            'content_ids' => $contentIds,
+            'contents' => $contents,
+            'num_items' => array_sum(array_column($contents, 'quantity')),
+        ];
+    }
+
+    /**
      * Get the event catalog summary (event counts per category).
      *
      * Dynamically computes counts from the category catalogs

@@ -65,6 +65,14 @@ class ServerSideTracker
     ];
 
     /**
+     * Additional event mappings loaded from config.
+     * Merged with $customEventMap at construction time.
+     *
+     * @var array<string, class-string>
+     */
+    protected array $configEventMap = [];
+
+    /**
      * Config key toggles for each auto-trackable event.
      *
      * @var array<string, bool>
@@ -80,9 +88,12 @@ class ServerSideTracker
         $this->manager = $manager;
 
         $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
-        /** @var array{enabled?: bool, events?: array<string, bool>} $autoTrack */
+        /** @var array{enabled?: bool, events?: array<string, bool>, event_map?: array<string, class-string>} $autoTrack */
         $this->enabled = (bool) ($autoTrack['enabled'] ?? true);
         $this->eventToggles = $autoTrack['events'] ?? [];
+
+        // Load additional event → class mappings from config
+        $this->configEventMap = $autoTrack['event_map'] ?? [];
     }
 
     /**
@@ -107,7 +118,9 @@ class ServerSideTracker
      */
     public function listen(string $eventName, EventDispatcher $dispatcher): void
     {
-        $analyticsClass = $this->customEventMap[$eventName] ?? null;
+        $analyticsClass = $this->customEventMap[$eventName]
+            ?? $this->configEventMap[$eventName]
+            ?? null;
 
         if ($analyticsClass === null) {
             try {
