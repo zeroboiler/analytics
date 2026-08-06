@@ -548,12 +548,13 @@ describe('Pipeline Integration', function () {
             'utm_medium' => 'email',
         ]);
 
-        expect($pipeline->pipeCount())->toBe(2);
+        expect($pipeline->pipeCount())->toBe(4);
 
         $event = new AnalyticsEvent(name: 'click');
         $result = $pipeline->process($event);
 
         expect($result)->not->toBeNull();
         expect($result->params['utm_source'])->toBe('newsletter');
+        expect($result->params)->toHaveKey('event_timestamp');
     });
 });

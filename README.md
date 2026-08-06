@@ -174,6 +174,91 @@ $saas->trackFeatureUsed('export', 5);
 $saas->trackCustomEvent('onboarding_complete', ['step_count' => 5]);
 ```
 
+### Revenue Analytics Service
+
+```php
+use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
+
+$revenue = app(RevenueAnalyticsService::class);
+
+// Track MRR / ARR
+$revenue->trackMRR(5000.00, 120);             // amount, subscriber count
+$revenue->trackARR(60000.00, 120, 'EUR');      // custom currency
+
+// One-time and add-on revenue
+$revenue->trackOneTime(49.99, 'setup fee');
+$revenue->trackAddon(15.00, 'extra_storage', 'pro');
+
+// Plan changes
+$revenue->trackUpgradeRevenue(29.99, 9.99, 'starter', 'pro');
+$revenue->trackDowngradeRevenue(9.99, 29.99, 'pro', 'starter');
+$revenue->trackChurnRevenue(29.99, 'pro', 'too_expensive');
+
+// Custom revenue events
+$revenue->trackCustom(75.00, 'expansion', 'enterprise', ['team_size' => 10]);
+```
+
+### Revenue & Campaign Events
+
+```php
+use ZeroBoiler\Analytics\Events\SaaS\RevenueEvent;
+use ZeroBoiler\Analytics\Events\Engagement\CampaignAttributionEvent;
+
+// Revenue event for billing/metrics tracking
+Analytics::trackEvent(new RevenueEvent(
+    amount: 29.99,
+    currency: 'USD',
+    revenueType: 'mrr',
+    planName: 'pro',
+));
+
+// Campaign attribution from UTM parameters
+Analytics::trackEvent(new CampaignAttributionEvent(
+    source: 'google',
+    medium: 'cpc',
+    campaign: 'spring_sale',
+    term: 'analytics tool',
+    landingPage: 'https://example.com/pricing',
+));
+```
+
+### Event Pipeline
+
+Process events through a middleware pipeline before dispatch:
+
+```php
+use ZeroBoiler\Analytics\Pipeline\EventPipeline;
+use ZeroBoiler\Analytics\Pipeline\{ConsentFilter, UtmEnricher, UserContextEnricher, TimestampEnricher};
+
+$pipeline = new EventPipeline;
+
+// Drop events when analytics consent is denied
+$pipeline->pipe(new ConsentFilter($consentGranted));
+
+// Auto-attach UTM params from request
+$pipeline->pipe(new UtmEnricher($request->query->all()));
+
+// Attach authenticated user context
+$pipeline->pipe(new UserContextEnricher(['user_id' => '42', 'user_plan' => 'pro']));
+
+// Add timestamp and session ID
+$pipeline->pipe(new TimestampEnricher($sessionId));
+
+// Process event — returns null if filtered out
+$processed = $pipeline->process($event);
+
+if ($processed !== null) {
+    Analytics::trackEvent($processed);
+}
+```
+
+Or use the pre-configured pipeline with sensible defaults:
+
+```php
+$pipeline = EventPipeline::withDefaults($request->query->all(), true, $sessionId);
+$result = $pipeline->process($event);
+```
+
 ### Session Tracking
 
 ```php
