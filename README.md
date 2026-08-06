@@ -66,9 +66,9 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **33 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
+- **49 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
-- **EventSchemaRegistry** — 40+ event schemas with typed parameters, validation, and custom schema registration
+- **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
 
 ### Event Processing
@@ -173,7 +173,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 100+ tests
+- **Pest PHP** — 150+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -193,11 +193,11 @@ src/
 │   ├── ConsentState.php              # GDPR consent state (6 granular signals)
 │   └── UtmAttribution.php            # UTM campaign attribution DTO
 ├── Events/
-│   ├── Ecommerce/                    # 8 e-commerce event classes + EcommerceEvents catalog
+│   ├── Ecommerce/                    # 12 e-commerce event classes + EcommerceEvents catalog
 │   ├── SaaS/                         # 11 lifecycle + 6 cohort event classes + SaaSEvents catalog
-│   ├── Engagement/                   # 13 engagement event classes + EngagementEvents catalog
+│   ├── Engagement/                   # 20 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php               # Generic custom event
-│   └── EventCatalog.php              # Unified catalog (32 events, cross-provider mappings)
+│   └── EventCatalog.php              # Unified catalog (49 events, cross-provider mappings)
 ├── Middleware/
 │   ├── AnalyticsMiddlewareInterface.php   # Middleware contract
 │   ├── AnalyticsMiddlewareStack.php       # Priority-ordered middleware stack
@@ -210,7 +210,7 @@ src/
 ├── Schema/
 │   ├── EventSchema.php             # Event parameter schema definition
 │   ├── EventParam.php              # Parameter type & constraints
-│   └── EventSchemaRegistry.php    # Central schema registry (30+ events)
+│   └── EventSchemaRegistry.php    # Central schema registry (55+ events)
 ├── Pipeline/
 │   ├── EventPipeline.php            # Middleware pipeline for event processing
 │   ├── SamplingFilter.php           # Probabilistic event sampling
@@ -637,6 +637,8 @@ use ZeroBoiler\Analytics\Events\Engagement\{
     PageViewEvent, ScrollDepthEvent, ClickEvent, FormStartEvent,
     FormSubmitEvent, SearchEvent, ShareEvent, ErrorEvent, TimeOnPageEvent,
     ScreenViewEvent, AbTestExposureEvent, NotificationEvent, CampaignAttributionEvent,
+    JSErrorEvent, TimingEvent, SessionStartEvent, SessionEndEvent, OutboundClickEvent,
+    WebVitalsEvent,
 };
 
 Analytics::trackEvent(new PageViewEvent('Pricing', 'https://example.com/pricing'));
@@ -658,8 +660,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 39 events across 3 categories
-EventCatalog::count();          // 39
+// Unified catalog — 49 events across 3 categories
+EventCatalog::count();          // 49
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -906,7 +908,7 @@ The middleware injects `zbAnalytics` into every Inertia response:
 ```javascript
 import { page } from '@inertiajs/svelte';
 import {
-    init, destroy,
+    init, destroy, initAll,
     trackEvent, trackPageView, trackScreenView,
     trackEcommerce, trackAbTestExposure,
     identify, alias, identifyWithTraits, setUserProperties,
@@ -914,33 +916,37 @@ import {
     initScrollDepth, initInertiaPageViewTracker,
     initFormTracking, initErrorTracking,
     initLinkTracking, trackPerformance,
-    flushQueue, getTrackingId, isInitialized,
+    flushQueue, getTrackingId, getApiBaseUrl, isInitialized,
     captureUTM, getUTMParams, clearUTMParams,
     pushToDataLayer, trackTiming,
 } from '../resources/js/analytics';
 
-// Initialize
+// Initialize everything in one call (recommended for Svelte/Inertia)
 $: if (page.props.zbAnalytics) {
-    init(page.props);
+    cleanup = initAll(page.props);
 }
 
-// Setup tracking
-onMount(() => {
-    const cleanupScroll = initScrollDepth();
-    const cleanupInertia = initInertiaPageViewTracker();
-    const cleanupForm = initFormTracking();
-    const cleanupErrors = initErrorTracking({
-        ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
-    });
-
-    return () => {
-        cleanupScroll();
-        cleanupInertia();
-        cleanupForm();
-        cleanupErrors();
-        destroy();
-    };
-});
+// Or fine-grained setup:
+// $: if (page.props.zbAnalytics) {
+//     init(page.props);
+// }
+//
+// onMount(() => {
+//     const cleanupScroll = initScrollDepth();
+//     const cleanupInertia = initInertiaPageViewTracker();
+//     const cleanupForm = initFormTracking();
+//     const cleanupErrors = initErrorTracking({
+//         ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
+//     });
+//
+//     return () => {
+//         cleanupScroll();
+//         cleanupInertia();
+//         cleanupForm();
+//         cleanupErrors();
+//         destroy();
+//     };
+// });
 ```
 
 ## Blade Integration (Traditional Laravel)
@@ -1009,6 +1015,9 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `PurchaseEvent` | purchase | Purchase |
 | `RefundEvent` | refund | — |
 | `WishlistEvent` | add_to_wishlist | AddToWishlist |
+| `SelectItemEvent` | select_item | — |
+| `SelectPromotionEvent` | select_promotion | — |
+| `ViewPromotionEvent` | view_promotion | — |
 
 ### SaaS Lifecycle Events
 
@@ -1034,21 +1043,27 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 
 ### Engagement Events
 
-| Class | Event Name |
-|-------|-----------|
-| `PageViewEvent` | page_view |
-| `ScreenViewEvent` | screen_view |
-| `ScrollDepthEvent` | scroll_depth |
-| `ClickEvent` | click |
-| `FormStartEvent` | form_start |
-| `FormSubmitEvent` | form_submit |
-| `SearchEvent` | search |
-| `ShareEvent` | share |
-| `ErrorEvent` | error |
-| `TimeOnPageEvent` | time_on_page |
-| `CampaignAttributionEvent` | campaign_attribution |
-| `AbTestExposureEvent` | ab_test_exposure |
-| `NotificationEvent` | notification |
+| Class | Event Name | Meta Equivalent |
+|-------|-----------|----------------|
+| `PageViewEvent` | page_view | PageView |
+| `ScrollDepthEvent` | scroll_depth | — |
+| `ClickEvent` | click | — |
+| `FormStartEvent` | form_start | — |
+| `FormSubmitEvent` | form_submit | Lead |
+| `SearchEvent` | search | Search |
+| `ShareEvent` | share | Share |
+| `ErrorEvent` | error | — |
+| `TimeOnPageEvent` | time_on_page | — |
+| `CampaignAttributionEvent` | campaign_attribution | — |
+| `ScreenViewEvent` | screen_view | — |
+| `AbTestExposureEvent` | ab_test_exposure | — |
+| `NotificationEvent` | notification | — |
+| `WebVitalsEvent` | web_vitals | — |
+| `JSErrorEvent` | js_error | — |
+| `TimingEvent` | timing | — |
+| `SessionStartEvent` | session_start | — |
+| `SessionEndEvent` | session_end | — |
+| `OutboundClickEvent` | outbound_click | — |
 
 ### Generic
 
@@ -1083,9 +1098,11 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | Function | Description |
 |----------|-------------|
 | `init(pageProps)` | Initialize from Inertia props |
+| `initAll(pageProps, options?)` | Initialize + all auto-trackers (one-call setup) |
 | `destroy()` | Cleanup listeners, timers, state |
 | `isInitialized()` | Check if analytics is active |
 | `getTrackingId()` | Get server-generated tracking UUID |
+| `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
 | `flushQueue()` | Flush batch queue immediately |
 | `trackPageView(title?, location?, referrer?)` | Client + server page view |

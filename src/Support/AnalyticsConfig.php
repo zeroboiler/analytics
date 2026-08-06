@@ -558,6 +558,13 @@ final class AnalyticsConfig
         return (int) $this->get('audit_log.priority', 100);
     }
 
+    // ── Tracking Preference ─────────────────────────────────────────────
+
+    public function trackingPreferenceTtl(): int
+    {
+        return (int) $this->get('tracking_preference.ttl', 604800);
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -666,6 +673,9 @@ final class AnalyticsConfig
                 'error_tracking' => $this->clientAutoTrackErrorTracking(),
                 'link_tracking' => $this->clientAutoTrackLinkTracking(),
                 'session_tracking' => $this->clientAutoTrackSessionTracking(),
+            ],
+            'tracking_preference' => [
+                'ttl' => $this->trackingPreferenceTtl(),
             ],
         ];
     }

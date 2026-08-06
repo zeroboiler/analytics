@@ -303,6 +303,52 @@ class EventSchemaRegistry
                 'items' => new EventParam(type: 'array'),
             ],
         );
+
+        $this->schemas['select_item'] = new EventSchema(
+            name: 'select_item',
+            category: 'ecommerce',
+            description: 'Tracks an item selection from a list',
+            optionalParams: [
+                'item_list_id' => new EventParam(type: 'string', maxLength: 100),
+                'item_list_name' => new EventParam(type: 'string', maxLength: 200),
+                'items' => new EventParam(type: 'array'),
+            ],
+            providerMapping: [
+                'ga4' => 'select_item',
+            ],
+        );
+
+        $this->schemas['select_promotion'] = new EventSchema(
+            name: 'select_promotion',
+            category: 'ecommerce',
+            description: 'Tracks a promotion click/selection',
+            optionalParams: [
+                'promotion_id' => new EventParam(type: 'string', maxLength: 100),
+                'promotion_name' => new EventParam(type: 'string', maxLength: 200),
+                'creative_name' => new EventParam(type: 'string', maxLength: 200),
+                'creative_slot' => new EventParam(type: 'string', maxLength: 100),
+                'location_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            providerMapping: [
+                'ga4' => 'select_promotion',
+            ],
+        );
+
+        $this->schemas['view_promotion'] = new EventSchema(
+            name: 'view_promotion',
+            category: 'ecommerce',
+            description: 'Tracks a promotion view/impression',
+            optionalParams: [
+                'promotion_id' => new EventParam(type: 'string', maxLength: 100),
+                'promotion_name' => new EventParam(type: 'string', maxLength: 200),
+                'creative_name' => new EventParam(type: 'string', maxLength: 200),
+                'creative_slot' => new EventParam(type: 'string', maxLength: 100),
+                'location_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            providerMapping: [
+                'ga4' => 'view_promotion',
+            ],
+        );
     }
 
     /**

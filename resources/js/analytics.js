@@ -6,12 +6,13 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.16.0
+ * @version 2.17.0
  */
 
 let trackingId = null;
 let config = null;
 let initialized = false;
+let apiBaseUrl = '/api/analytics';
 
 // ─── Batch Queue ─────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ export function init(pageProps) {
 
     config = analytics;
     trackingId = analytics.trackingId;
+    apiBaseUrl = analytics.apiBase || '/api/analytics';
     initialized = true;
 
     // Initialize GA4 gtag
@@ -93,6 +95,7 @@ export function destroy() {
     initialized = false;
     config = null;
     trackingId = null;
+    apiBaseUrl = '/api/analytics';
 }
 
 /**
@@ -107,6 +110,13 @@ export function isInitialized() {
  */
 export function getTrackingId() {
     return trackingId;
+}
+
+/**
+ * Get the configured API base URL.
+ */
+export function getApiBaseUrl() {
+    return apiBaseUrl;
 }
 
 // ─── GA4 Initialization ─────────────────────────────────────────────────
@@ -240,7 +250,7 @@ export async function flushQueue() {
     eventQueue.length = 0;
 
     try {
-        await fetch('/api/analytics/batch', {
+        await fetch(`${apiBaseUrl}/batch`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -275,7 +285,7 @@ function startFlushTimer() {
  */
 async function sendEvent(event) {
     try {
-        await fetch('/api/analytics/events', {
+        await fetch(`${apiBaseUrl}/events`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -678,7 +688,7 @@ export async function identify(userId = null) {
     if (!initialized) return;
 
     try {
-        await fetch('/api/analytics/identify', {
+        await fetch(`${apiBaseUrl}/identify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -721,7 +731,7 @@ export async function updateConsent(signals) {
 
     // Update server-side consent
     try {
-        await fetch('/api/analytics/consent', {
+        await fetch(`${apiBaseUrl}/consent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1805,7 +1815,7 @@ export async function setUserProperties(properties, userId = null) {
         const body = { properties };
         if (userId) body.user_id = userId;
 
-        await fetch('/api/analytics/events', {
+        await fetch(`${apiBaseUrl}/events`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1866,7 +1876,7 @@ export async function identifyWithTraits(traits = {}) {
             body.traits = traits;
         }
 
-        await fetch('/api/analytics/identify', {
+        await fetch(`${apiBaseUrl}/identify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1903,7 +1913,7 @@ export async function trackServerPageView(options = {}) {
     if (!initialized) return;
 
     try {
-        await fetch('/api/analytics/pageview', {
+        await fetch(`${apiBaseUrl}/pageview`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1941,7 +1951,7 @@ export async function optOutTracking() {
     if (!initialized) return false;
 
     try {
-        const response = await fetch('/api/analytics/opt-out', {
+        const response = await fetch(`${apiBaseUrl}/opt-out`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1978,7 +1988,7 @@ export async function optInTracking() {
     if (trackingId === null) return false;
 
     try {
-        const response = await fetch('/api/analytics/opt-in', {
+        const response = await fetch(`${apiBaseUrl}/opt-in`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2013,7 +2023,7 @@ export async function getTrackingPreference() {
     if (!initialized) return null;
 
     try {
-        const response = await fetch('/api/analytics/preference', {
+        const response = await fetch(`${apiBaseUrl}/preference`, {
             headers: {
                 Accept: 'application/json',
                 ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
@@ -2026,4 +2036,106 @@ export async function getTrackingPreference() {
     } catch {
         return null;
     }
+}
+
+// ─── initAll: One-Call Setup ─────────────────────────────────────────────
+
+/**
+ * Initialize analytics AND set up all auto-trackers in one call.
+ *
+ * Designed for Svelte/Inertia onMount — a single import and call gets you
+ * page views, scroll depth, form tracking, error tracking, link tracking,
+ * and session tracking with one cleanup function.
+ *
+ * @param {object} pageProps - Inertia page props containing `zbAnalytics`
+ * @param {object} [options] - Tracker configuration
+ * @param {boolean} [options.pageViews=true] - Auto-track Inertia page views
+ * @param {boolean} [options.scrollDepth=true] - Track scroll depth thresholds
+ * @param {boolean} [options.formTracking=true] - Track form_start + form_submit
+ * @param {boolean} [options.errorTracking=true] - Track JS errors + rejections
+ * @param {boolean} [options.linkTracking=false] - Track outbound/internal link clicks
+ * @param {string[]} [options.errorIgnorePatterns] - Error patterns to ignore
+ * @param {boolean} [options.sessionTracking=true] - Track session start/end
+ * @param {boolean} [options.performanceTracking=false] - Track Web Vitals
+ * @returns {function} Cleanup function to remove all listeners
+ *
+ * @example
+ * // Svelte/Inertia root component:
+ * import { page } from '@inertiajs/svelte';
+ * import { initAll } from '../resources/js/analytics';
+ *
+ * $: if (page.props.zbAnalytics) {
+ *     cleanup = initAll(page.props);
+ * }
+ *
+ * // On destroy:
+ * // cleanup?.();
+ */
+export function initAll(pageProps, options = {}) {
+    const {
+        pageViews = true,
+        scrollDepth = true,
+        formTracking = true,
+        errorTracking = true,
+        linkTracking = false,
+        errorIgnorePatterns = ['ResizeObserver', 'Non-Error promise rejection', 'Script error'],
+        sessionTracking = true,
+        performanceTracking = false,
+    } = options;
+
+    // Initialize core analytics
+    init(pageProps);
+
+    if (!initialized) return () => {};
+
+    const cleanups = [];
+
+    // Session start
+    if (sessionTracking) {
+        trackEvent('session_start', {
+            session_id: generateUUID(),
+            page_path: typeof window !== 'undefined' ? window.location.pathname : null,
+            source: 'auto',
+        }, { immediate: true });
+    }
+
+    // Inertia page view tracking
+    if (pageViews) {
+        cleanups.push(initInertiaPageViewTracker());
+    }
+
+    // Scroll depth tracking
+    if (scrollDepth) {
+        cleanups.push(initScrollDepth());
+    }
+
+    // Form interaction tracking
+    if (formTracking) {
+        cleanups.push(initFormTracking());
+    }
+
+    // JS error tracking
+    if (errorTracking) {
+        cleanups.push(initErrorTracking({
+            ignorePatterns: errorIgnorePatterns,
+        }));
+    }
+
+    // Link click tracking
+    if (linkTracking) {
+        cleanups.push(initLinkTracking());
+    }
+
+    // Web Vitals tracking
+    if (performanceTracking) {
+        cleanups.push(initWebVitals());
+    }
+
+    // Return combined cleanup function
+    return () => {
+        for (const cleanup of cleanups) {
+            cleanup?.();
+        }
+        destroy();
+    };
 }

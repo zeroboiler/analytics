@@ -2,6 +2,21 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.17.0] - 2026-08-06
+
+### Added
+- **`initAll()` — One-Call Setup** — Initialize analytics AND all auto-trackers (page views, scroll depth, form tracking, error tracking, link tracking, session tracking, Web Vitals) with a single function call. Returns a combined cleanup function for Svelte `onMount` compatibility. Recommended for Svelte/Inertia apps.
+- **Dynamic API base URL** — JS client now reads `apiBase` from Inertia `zbAnalytics` props. All fetch URLs use the configured base URL instead of hardcoded `/api/analytics`. New `getApiBaseUrl()` export.
+- **EventSchemaRegistry expansion** — Added schemas for `select_item`, `select_promotion`, `view_promotion` e-commerce events with GA4 provider mappings and typed parameter definitions.
+- **`AnalyticsConfig::trackingPreferenceTtl()`** — Type-safe accessor for tracking preference cache TTL configuration. Added to `summary()` output.
+- **20 typed engagement event classes** — All engagement events now have dedicated typed classes (JSErrorEvent, OutboundClickEvent, TimingEvent, SessionStartEvent, SessionEndEvent, WebVitalsEvent) instead of CustomEvent references.
+- **Event catalog count** — Total events now 49 (12 e-commerce + 17 SaaS + 20 engagement)
+- **`V33EngagementExpansionTest.php`** — 30+ new test cases covering all 20 engagement event classes, catalog completeness verification (total counts, category counts, typed class validation, GA4 mappings), and manager dispatch integration.
+
+### Changed
+- **JS client** — All API fetch URLs now use dynamic `${apiBaseUrl}` variable (was hardcoded `/api/analytics`). Configurable via `ANALYTICS_API_BASE_URL` → Inertia props → JS client.
+- **README** — Updated event catalog reference with full engagement events table (20 entries including WebVitals, JSError, Timing, Session, OutboundClick). Updated feature list to 49 events and 50+ schemas. Added `initAll()` to quick start and JS API reference. Updated Svelte example to recommend `initAll()` as primary setup method.
+
 ## [2.16.0] - 2026-08-06
 
 ### Added
