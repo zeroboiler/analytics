@@ -24,6 +24,7 @@ final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
         $this->includeParams = $includeParams;
     }
 
+    /** {@inheritdoc} */
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         $logData = [
@@ -41,11 +42,13 @@ final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
         return $event; // Always pass through
     }
 
+    /** {@inheritdoc} */
     public function priority(): int
     {
         return 90; // Very low priority — log after everything else
     }
 
+    /** {@inheritdoc} */
     public function name(): string
     {
         return 'logging';
