@@ -9,6 +9,15 @@ namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\Trackers\GTMTracker;
 
+/**
+ * High-level service wrapper for Google Tag Manager.
+ *
+ * Provides convenience methods for pushing data to the GTM dataLayer,
+ * including ecommerce data, user data, and conversion events.
+ *
+ * Resolved from the container as a singleton; receives the GTMTracker
+ * instance from the AnalyticsManager.
+ */
 class GoogleTagManagerService
 {
     public function __construct(

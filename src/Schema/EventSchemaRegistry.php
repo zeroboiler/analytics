@@ -554,6 +554,53 @@ class EventSchemaRegistry
                 'landing_page' => new EventParam(type: 'string', maxLength: 2000),
             ],
         );
+
+        $this->schemas['screen_view'] = new EventSchema(
+            name: 'screen_view',
+            category: 'engagement',
+            description: 'Tracks a screen/view navigation in SPAs',
+            requiredParams: [
+                'screen_name' => new EventParam(type: 'string', maxLength: 200),
+            ],
+            optionalParams: [
+                'screen_class' => new EventParam(type: 'string', maxLength: 50),
+            ],
+            providerMapping: [
+                'ga4' => 'screen_view',
+            ],
+        );
+
+        $this->schemas['ab_test_exposure'] = new EventSchema(
+            name: 'ab_test_exposure',
+            category: 'engagement',
+            description: 'Tracks A/B test variant exposure',
+            requiredParams: [
+                'experiment_id' => new EventParam(type: 'string', maxLength: 100),
+                'variant_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            optionalParams: [
+                'experiment_name' => new EventParam(type: 'string', maxLength: 200),
+            ],
+            providerMapping: [
+                'ga4' => 'ab_test_exposure',
+            ],
+        );
+
+        $this->schemas['notification'] = new EventSchema(
+            name: 'notification',
+            category: 'engagement',
+            description: 'Tracks notification events (sent, delivered, opened, clicked, failed)',
+            requiredParams: [
+                'notification_channel' => new EventParam(type: 'string', maxLength: 20),
+                'notification_action' => new EventParam(type: 'string', maxLength: 20),
+            ],
+            optionalParams: [
+                'notification_type' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            providerMapping: [
+                'ga4' => 'notification',
+            ],
+        );
     }
 
     /**

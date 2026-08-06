@@ -6,18 +6,21 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Mockery;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Events\Engagement\AbTestExposureEvent;
 use ZeroBoiler\Analytics\Events\Engagement\NotificationEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ScreenViewEvent;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
+use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 
 describe('v1.7.0 — Screen View, A/B Test, Notification Events', function () {
     beforeEach(function () {
-        $this->config = Mockery::mock(Illuminate\Contracts\Config\Repository::class);
+        $this->config = Mockery::mock(ConfigRepository::class);
         $this->config->shouldReceive('get')->andReturn([]); // Default: all disabled
     });
 
@@ -167,13 +170,14 @@ describe('v1.7.0 — Screen View, A/B Test, Notification Events', function () {
     });
 
     describe('EventCatalog (unified)', function () {
-        it('reports 32 total events', function () {
-            expect(EventCatalog::count())->toBe(32);
+        it('reports correct total events', function () {
+            $total = EcommerceEvents::count() + SaaSEvents::count() + EngagementEvents::count();
+            expect(EventCatalog::count())->toBe($total);
         });
 
         it('reports updated engagement count', function () {
             $summary = EventCatalog::byCategory();
-            expect($summary['engagement'])->toHaveCount(13);
+            expect($summary['engagement'])->toHaveCount(EngagementEvents::count());
         });
 
         it('has all new events in unified catalog', function () {
@@ -199,7 +203,7 @@ describe('v1.7.0 — Screen View, A/B Test, Notification Events', function () {
 
 describe('v1.7.0 — AnalyticsManager convenience methods', function () {
     beforeEach(function () {
-        $this->config = Mockery::mock(Illuminate\Contracts\Config\Repository::class);
+        $this->config = Mockery::mock(ConfigRepository::class);
         $this->config->shouldReceive('get')->andReturn([]);
         $this->manager = new AnalyticsManager($this->config);
         $this->manager->setDebug(true); // Prevent actual HTTP calls
@@ -238,15 +242,15 @@ describe('v1.7.0 — AnalyticsManager convenience methods', function () {
     });
 
     describe('eventCatalogSummary()', function () {
-        it('returns updated counts for v1.7.0', function () {
+        it('returns dynamic counts that match catalog sizes', function () {
             $summary = $this->manager->eventCatalogSummary();
 
-            expect($summary)->toBe([
-                'ecommerce' => 8,
-                'saas' => 11,
-                'engagement' => 13,
-                'total' => 32,
-            ]);
+            expect($summary['ecommerce'])->toBe(EcommerceEvents::count());
+            expect($summary['saas'])->toBe(SaaSEvents::count());
+            expect($summary['engagement'])->toBe(EngagementEvents::count());
+            expect($summary['total'])->toBe(
+                EcommerceEvents::count() + SaaSEvents::count() + EngagementEvents::count(),
+            );
         });
     });
 });

@@ -283,7 +283,10 @@ class AnalyticsEventController extends Controller
     }
 
     /**
-     * Validate the event name format.
+     * Validate the event name format against naming conventions.
+     *
+     * Ensures event names contain only lowercase letters, numbers, and
+     * underscores, starting with a letter. Used internally for pre-validation.
      *
      * @return array{valid: bool, sanitized: string}
      */

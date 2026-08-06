@@ -19,6 +19,18 @@ use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
 use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 
+/**
+ * Central analytics manager — dispatches events to all configured trackers.
+ *
+ * Manages GA4, GTM, Meta Pixel, Plausible, and PostHog tracker instances.
+ * Provides convenience methods for common events (purchase, identify, screenView),
+ * consent management, debug mode, GDPR identity reset, and async dispatch.
+ *
+ * Typically accessed via the `Analytics` facade or resolved from the container
+ * as `zeroboiler.analytics`.
+ *
+ * @see \ZeroBoiler\Analytics\Facades\Analytics
+ */
 class AnalyticsManager
 {
     protected GA4Tracker $ga4;
@@ -474,15 +486,22 @@ class AnalyticsManager
     /**
      * Get the event catalog summary (event counts per category).
      *
+     * Dynamically computes counts from the category catalogs
+     * rather than using hard-coded values.
+     *
      * @return array{ecommerce: int, saas: int, engagement: int, total: int}
      */
     public function eventCatalogSummary(): array
     {
+        $ecommerce = \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents::count();
+        $saas = \ZeroBoiler\Analytics\Events\SaaS\SaaSEvents::count();
+        $engagement = \ZeroBoiler\Analytics\Events\Engagement\EngagementEvents::count();
+
         return [
-            'ecommerce' => 8,
-            'saas' => 11,
-            'engagement' => 13,
-            'total' => 32,
+            'ecommerce' => $ecommerce,
+            'saas' => $saas,
+            'engagement' => $engagement,
+            'total' => $ecommerce + $saas + $engagement,
         ];
     }
 }

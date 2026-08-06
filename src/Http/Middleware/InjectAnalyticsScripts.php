@@ -12,6 +12,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use ZeroBoiler\Analytics\AnalyticsManager;
 
+/**
+ * HTTP middleware that auto-injects analytics scripts into HTML responses.
+ *
+ * Inserts head and body scripts from enabled trackers (GA4, GTM, Meta Pixel)
+ * directly into the HTML response. Only applies to HTML responses with
+ * successful status codes and non-JSON content types.
+ *
+ * Register as route middleware: `analytics.scripts`
+ */
 class InjectAnalyticsScripts
 {
     public function __construct(

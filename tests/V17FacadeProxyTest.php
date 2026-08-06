@@ -6,6 +6,9 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Support\Facades\App;
+use Mockery;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ScreenViewEvent;
@@ -15,7 +18,7 @@ use ZeroBoiler\Analytics\Facades\Analytics;
 
 describe('v1.7.0 — Facade proxy methods', function () {
     beforeEach(function () {
-        $this->config = Mockery::mock(Illuminate\Contracts\Config\Repository::class);
+        $this->config = Mockery::mock(ConfigRepository::class);
         $this->config->shouldReceive('get')->andReturn([]);
         $this->manager = new AnalyticsManager($this->config);
         $this->manager->setDebug(true);

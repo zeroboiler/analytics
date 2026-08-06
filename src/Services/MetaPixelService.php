@@ -10,6 +10,15 @@ namespace ZeroBoiler\Analytics\Services;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
 
+/**
+ * High-level service wrapper for Meta Pixel (Conversions API).
+ *
+ * Provides convenience methods for tracking standard Meta Pixel events
+ * (PageView, ViewContent, Lead, Purchase, CompleteRegistration, custom).
+ *
+ * Resolved from the container as a singleton; receives the MetaPixelTracker
+ * instance from the AnalyticsManager.
+ */
 class MetaPixelService
 {
     public function __construct(

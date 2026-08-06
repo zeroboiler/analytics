@@ -10,6 +10,15 @@ namespace ZeroBoiler\Analytics\Services;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Trackers\GA4Tracker;
 
+/**
+ * High-level service wrapper for Google Analytics 4.
+ *
+ * Provides convenience methods for common GA4 tracking scenarios
+ * (page views, purchases, signups, custom events).
+ *
+ * Resolved from the container as a singleton; receives the GA4Tracker
+ * instance from the AnalyticsManager.
+ */
 class GoogleAnalyticsService
 {
     public function __construct(

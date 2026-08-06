@@ -9,6 +9,12 @@ namespace ZeroBoiler\Analytics\Blade\Directives;
 
 use Illuminate\Support\Facades\Blade;
 
+/**
+ * Registers Blade directives for analytics script injection.
+ *
+ * Provides `@analyticsHead`, `@analyticsBody`, `@analyticsTrack`, and
+ * `@dataLayerPush` directives for traditional Laravel Blade templates.
+ */
 class AnalyticsDirectives
 {
     /**
