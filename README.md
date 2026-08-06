@@ -78,6 +78,8 @@ Done. That's it.
 - **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
 - **PII Sanitization** — Auto-scrub Personally Identifiable Information from events (hash, remove, or mask strategies)
 - **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)
+- **Session Analytics** — Session-level event recording, aggregation, summaries, and end-of-session dispatch
+- **Event Aggregation** — Real-time event counting with time-windowed rotation, top events ranking, and category grouping
 
 ### SaaS Analytics
 - **17 SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)
@@ -147,6 +149,7 @@ Done. That's it.
 - `zb:analytics:test` — Sends test event to all providers, supports `--validate` (GA4 debug) and `--event=` (custom name)
 - `zb:analytics:export` — Export event catalog as JSON, CSV, or Markdown for documentation
 - `zb:analytics:revenue-report` — Revenue analytics configuration overview with dry-run preview
+- `zb:analytics:health` — Comprehensive health diagnostic with warnings, recommendations, JSON output (`--json`)
 
 ### Blade Integration
 - `@analyticsHead` — GA4/GTM/Meta/Plausible/PostHog head script tags
@@ -224,7 +227,9 @@ src/
 │   ├── RevenueAnalyticsService.php      # Revenue tracking (MRR, ARR, churn)
 │   ├── RevenueAttributionService.php    # Revenue attribution, LTV, cohort analysis
 │   ├── FunnelAnalyticsService.php       # Conversion funnel tracking
-│   └── EventValidationService.php      # Event validation & deduplication
+│   ├── EventValidationService.php      # Event validation & deduplication
+│   ├── SessionAnalyticsService.php     # Session-level event aggregation & summaries
+│   ├── EventAggregationService.php     # Real-time event counting & health diagnostics
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
 │   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
@@ -242,7 +247,8 @@ src/
 │   ├── AnalyticsOverviewCommand.php  # Config overview
 │   ├── AnalyticsTestCommand.php     # Test event dispatch
 │   ├── AnalyticsExportCommand.php   # Export catalog as JSON/CSV/Markdown
-│   └── RevenueReportCommand.php      # Revenue analytics report
+│   ├── RevenueReportCommand.php      # Revenue analytics report
+│   └── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
 ├── Blade/Directives/
 │   └── AnalyticsDirectives.php      # @analyticsHead, @analyticsBody
 ├── Facades/
@@ -1106,6 +1112,15 @@ php artisan zb:analytics:revenue-report
 
 # Dry-run a revenue event
 php artisan zb:analytics:revenue-report --dry-run --event=mrr --amount=5000
+
+# Comprehensive health diagnostic
+php artisan zb:analytics:health
+
+# Health diagnostic as JSON (for CI/monitoring)
+php artisan zb:analytics:health --json
+
+# Health diagnostic without recommendations
+php artisan zb:analytics:health --no-recommendations
 ```
 
 ## Testing
@@ -1146,6 +1161,19 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.7.x to v2.8.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- `SessionAnalyticsService` — session-level event recording, summaries, and end-of-session dispatch
+- `EventAggregationService` — real-time event counting with top events and category grouping
+- `zb:analytics:health` command — comprehensive health diagnostic with warnings and recommendations
+- Health report (JSON or console) checking all providers, queue, replay, consent, validation, sampling, PII
 
 ### From v2.6.x to v2.7.0
 No breaking changes. Update via:
@@ -1191,6 +1219,18 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v2.8.0 — Session Analytics, Event Aggregation, Health Diagnostic
+
+- **SessionAnalyticsService** — Session-level event recording, aggregation, summaries, and session end tracking with configurable memory limits and LRU eviction
+- **EventAggregationService** — Real-time event counting with time-windowed aggregation, top events ranking, category grouping, and configurable window rotation
+- **AnalyticsHealthCommand** — Comprehensive health diagnostic (`zb:analytics:health`) checking providers, queue, replay, consent, validation, sampling, PII sanitization, and metrics with actionable warnings and recommendations
+- **Health report** — Structured JSON or formatted console output with warnings, recommendations, and overall status (healthy/warning/error)
+- **Windowed aggregation** — Configurable window size for automatic count rotation in high-traffic scenarios
+- **Session summaries** — Automatic `analytics_session_summary` event dispatched on session end with event count, page count, unique events, duration estimate, and event types
+- **Service Provider** — SessionAnalyticsService and EventAggregationService registered as singletons
+- **Tests** — 25+ new test cases covering session analytics, event aggregation, health diagnostics, window rotation, and version consistency
+- **Version consistency** — composer.json, AnalyticsManager, health endpoint, catalog endpoint, JS client all aligned to v2.8.0
 
 ### v2.7.0 — Cohort Analytics, Event Replay Queue, Health Check Expansion
 - **CohortAnalyticsService** — Time-based cohort tracking with assignCohort, trackRetention, trackChurn, trackConversion, trackMigration, trackEngagementSummary

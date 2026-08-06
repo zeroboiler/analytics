@@ -852,5 +852,23 @@ class EventSchemaRegistry
                 'period' => new EventParam(type: 'string', maxLength: 20),
             ],
         );
+
+        // ── Session Analytics Schema ────────────────────────────────────
+
+        $this->schemas['analytics_session_summary'] = new EventSchema(
+            name: 'analytics_session_summary',
+            category: 'core',
+            description: 'Tracks a session summary on session end with aggregated engagement stats',
+            requiredParams: [
+                'session_id' => new EventParam(type: 'string', maxLength: 100),
+            ],
+            optionalParams: [
+                'session_event_count' => new EventParam(type: 'int', min: 0),
+                'session_page_count' => new EventParam(type: 'int', min: 0),
+                'session_unique_events' => new EventParam(type: 'int', min: 0),
+                'session_duration_estimate' => new EventParam(type: 'int', min: 0),
+                'session_event_types' => new EventParam(type: 'array'),
+            ],
+        );
     }
 }

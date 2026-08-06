@@ -238,6 +238,9 @@ class AnalyticsOverviewCommand extends Command
             'CohortAnalyticsService (retention, churn, conversion, migration)',
             'Event replay queue (exponential backoff retry)',
             'Health check (metrics, replay, catalog summary)',
+            'Session analytics service (session recording, summaries, end-of-session dispatch)',
+            'Event aggregation service (real-time counting, top events, health diagnostics)',
+            'Health diagnostic command (zb:analytics:health)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

@@ -41,6 +41,9 @@ use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 use ZeroBoiler\Analytics\Queue\EventReplayQueue;
 use ZeroBoiler\Analytics\Services\CohortAnalyticsService;
+use ZeroBoiler\Analytics\Services\EventAggregationService;
+use ZeroBoiler\Analytics\Services\SessionAnalyticsService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -272,6 +275,39 @@ class AnalyticsServiceProvider extends ServiceProvider
             return new EventReplayQueue($manager, $manager->metrics(), $config);
         });
 
+        // Session analytics service
+        $this->app->singleton(SessionAnalyticsService::class, function (Application $app): SessionAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+            /** @var array{enabled?: bool} $queueConfig */
+
+            return new SessionAnalyticsService(
+                $manager,
+                $queue,
+                (bool) ($queueConfig['enabled'] ?? true),
+            );
+        });
+
+        // Event aggregation service
+        $this->app->singleton(EventAggregationService::class, function (Application $app): EventAggregationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var EventReplayQueue $replayQueue */
+            $replayQueue = $app->make(EventReplayQueue::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventAggregationService($manager, $metrics, $replayQueue, $config);
+        });
+
         // Cohort analytics service
         $this->app->singleton(CohortAnalyticsService::class, function (Application $app): CohortAnalyticsService {
             /** @var AnalyticsManager $manager */
@@ -309,6 +345,7 @@ class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsOverviewCommand::class,
                 AnalyticsExportCommand::class,
                 RevenueReportCommand::class,
+                AnalyticsHealthCommand::class,
             ]);
         }
 

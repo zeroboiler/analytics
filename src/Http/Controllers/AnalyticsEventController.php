@@ -311,7 +311,7 @@ class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.7.0',
+            'version' => '2.8.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -391,7 +391,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.7.0',
+            'version' => '2.8.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
