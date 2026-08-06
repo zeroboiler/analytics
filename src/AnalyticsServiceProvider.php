@@ -162,6 +162,7 @@ class AnalyticsServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
+    #[\Override]
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
