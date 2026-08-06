@@ -756,4 +756,71 @@ class AnalyticsManager
             'total' => $ecommerce + $saas + $engagement,
         ];
     }
+
+    /**
+     * Check if a specific event name exists in any catalog.
+     */
+    public function eventExists(string $eventName): bool
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::has($eventName);
+    }
+
+    /**
+     * Get the category of an event name.
+     *
+     * @return string|null Category name or null if not found
+     */
+    public function eventCategory(string $eventName): ?string
+    {
+        $entry = \ZeroBoiler\Analytics\Events\EventCatalog::get($eventName);
+
+        return $entry['category'] ?? null;
+    }
+
+    /**
+     * Get the total number of tracked events across all categories.
+     */
+    public function totalEventCount(): int
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::count();
+    }
+
+    /**
+     * Get the package version.
+     */
+    public function version(): string
+    {
+        return '2.2.0';
+    }
+
+    /**
+     * Get a summary of all enabled providers.
+     *
+     * @return array<string, array{enabled: bool, id?: string}>
+     */
+    public function providerSummary(): array
+    {
+        return [
+            'ga4' => [
+                'enabled' => $this->ga4->isEnabled(),
+                'id' => $this->ga4->isEnabled() ? $this->ga4->getMeasurementId() : null,
+            ],
+            'gtm' => [
+                'enabled' => $this->gtm->isEnabled(),
+                'id' => $this->gtm->isEnabled() ? $this->gtm->getContainerId() : null,
+            ],
+            'meta' => [
+                'enabled' => $this->meta->isEnabled(),
+                'id' => $this->meta->isEnabled() ? $this->meta->getPixelId() : null,
+            ],
+            'plausible' => [
+                'enabled' => $this->plausible->isEnabled(),
+                'id' => $this->plausible->isEnabled() ? $this->plausible->getDomain() : null,
+            ],
+            'posthog' => [
+                'enabled' => $this->posthog->isEnabled(),
+                'id' => $this->posthog->isEnabled() ? $this->posthog->getHost() : null,
+            ],
+        ];
+    }
 }

@@ -62,8 +62,11 @@ Done. That's it.
 - **SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
+- **RevenueAttributionService** — Revenue tracking with UTM attribution, MRR changes, LTV estimates, cohort revenue, and revenue breakdown by channel
+- **FunnelAnalyticsService** — Multi-step conversion funnel tracking with step tracking, abandonment detection, completion rate, and retry tracking
 - **Server-Side Auto-Tracking** — Config-driven mapping of Laravel auth events and custom app events to analytics events
 - **Session & Funnel Tracker** — Session start/end, page counts, duration, and conversion funnel step tracking
+- **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
 
 ### E-commerce
 - **8 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund
@@ -134,11 +137,14 @@ Done. That's it.
 src/
 ├── AnalyticsManager.php              # Core manager — dispatches to all 6 trackers
 ├── AnalyticsServiceProvider.php       # Laravel service provider (registers everything)
+├── Bus/
+│   └── AnalyticsDataBus.php          # Rule-based conditional event routing
 ├── Context/
 │   └── EventContextBuilder.php        # Auto-collect request context (user, UTM, session, device)
 ├── DTO/
 │   ├── AnalyticsEvent.php            # Immutable event DTO (name, params, clientId, userId)
-│   └── ConsentState.php              # GDPR consent state (6 granular signals)
+│   ├── ConsentState.php              # GDPR consent state (6 granular signals)
+│   └── UtmAttribution.php            # UTM campaign attribution DTO
 ├── Events/
 │   ├── Ecommerce/                    # 8 e-commerce event classes + EcommerceEvents catalog
 │   ├── SaaS/                         # 11 SaaS lifecycle event classes + SaaSEvents catalog
@@ -178,6 +184,8 @@ src/
 │   ├── EcommerceAnalyticsService.php     # Full e-commerce flow methods
 │   ├── SaaSAnalyticsService.php         # SaaS lifecycle convenience methods
 │   ├── RevenueAnalyticsService.php      # Revenue tracking (MRR, ARR, churn)
+│   ├── RevenueAttributionService.php    # Revenue attribution, LTV, cohort analysis
+│   ├── FunnelAnalyticsService.php       # Conversion funnel tracking
 │   └── EventValidationService.php      # Event validation & deduplication
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
@@ -396,6 +404,97 @@ $revenue->trackUpgradeRevenue(29.99, 9.99, 'starter', 'pro');
 $revenue->trackDowngradeRevenue(9.99, 29.99, 'pro', 'starter');
 $revenue->trackChurnRevenue(29.99, 'pro', 'too_expensive');
 $revenue->trackCustom(75.00, 'expansion', 'enterprise', ['team_size' => 10]);
+```
+
+### Revenue Attribution & LTV
+
+```php
+use ZeroBoiler\Analytics\Services\RevenueAttributionService;
+use ZeroBoiler\Analytics\DTO\UtmAttribution;
+
+$attribution = app(RevenueAttributionService::class);
+
+// Track revenue with UTM attribution
+$utm = UtmAttribution::fromRequest(
+    $request->only(['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']),
+    firstTouch: true,
+    referrer: $request->headers->get('referer'),
+);
+$attribution->trackRevenue('rev-001', 99.99, ['plan' => 'pro'], $utm, (string) $user->id);
+
+// MRR change tracking
+$attribution->trackMrrChange((string) $user->id, 49.99, 29.99, 'pro', 'upgrade');
+
+// LTV estimation
+$attribution->trackLtv((string) $user->id, 599.99, 299.99, 180);
+
+// Cohort revenue
+$attribution->trackCohortRevenue('2026-01', 15000.00, 250);
+
+// Revenue breakdown by channel
+$attribution->trackRevenueBreakdown('stripe', 'organic', 5000.00, 50);
+```
+
+### Conversion Funnels
+
+```php
+use ZeroBoiler\Analytics\Services\FunnelAnalyticsService;
+
+$funnel = app(FunnelAnalyticsService::class);
+
+// Signup funnel
+$funnel->startFunnel('signup', ['source' => 'landing_page']);
+$funnel->trackStep('signup', 'form_start', 1);
+$funnel->trackStep('signup', 'email_confirmed', 2);
+$funnel->trackStep('signup', 'profile_setup', 3);
+$funnel->complete('signup', 3, ['plan' => 'pro']);
+
+// Abandonment tracking
+$funnel->startFunnel('checkout');
+$funnel->trackStep('checkout', 'shipping_info', 1);
+$funnel->abandon('checkout', 'shipping_info', 4, ['reason' => 'form_complexity']);
+
+// Retry tracking
+$funnel->retry('signup', 2);
+
+// State inspection
+$funnel->isActive('signup');              // bool
+$funnel->getCurrentStep('checkout');      // ?string
+$funnel->getActiveFunnels();              // list<string>
+```
+
+### Event Routing (Data Bus)
+
+```php
+use ZeroBoiler\Analytics\Bus\AnalyticsDataBus;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+$bus = app(AnalyticsDataBus::class);
+
+// Route ecommerce events only to GA4
+$bus->routeByCategory('ecommerce', ['ga4']);
+
+// Route PII events to privacy-safe providers only
+$bus->routePiiOnly(['ga4', 'posthog']);
+
+// Route by event name pattern
+$bus->routeByPattern('purchase*', ['ga4', 'meta']);
+
+// Route by parameter value
+$bus->routeByParam('method', 'github', ['ga4', 'gtm']);
+
+// One-off routing
+$bus->routeTo($event, ['ga4']);
+$bus->routeExcept($event, ['meta', 'posthog']);
+
+// Custom rule
+$bus->addRule(
+    fn (AnalyticsEvent $e) => ($e->params['value'] ?? 0) > 100,
+    ['ga4', 'meta'],
+);
+
+// Clear all rules
+$bus->clearRules();
 ```
 
 ### Engagement Events

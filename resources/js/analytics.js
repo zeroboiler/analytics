@@ -5,8 +5,8 @@
  * Reads configuration from Inertia page props (zbAnalytics) and provides
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
- * @package ZeroBoiler\Analytics
- * @version 2.1.0
+ * @package ZeroBoiler Analytics
+ * @version 2.2.0
  */
 
 let trackingId = null;

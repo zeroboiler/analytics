@@ -19,14 +19,17 @@ use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
+use ZeroBoiler\Analytics\Bus\AnalyticsDataBus;
 use ZeroBoiler\Analytics\Context\EventContextBuilder;
 use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 use ZeroBoiler\Analytics\Services\EventValidationService;
+use ZeroBoiler\Analytics\Services\FunnelAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
 use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
+use ZeroBoiler\Analytics\Services\RevenueAttributionService;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -157,6 +160,59 @@ class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventSchemaRegistry::class);
         $this->app->bind(AnalyticsMiddlewareStack::class);
         $this->app->bind(EventContextBuilder::class);
+
+        // Funnel analytics service
+        $this->app->singleton(FunnelAnalyticsService::class, function (Application $app): FunnelAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelAnalyticsService($manager, $queue, $config);
+        });
+
+        // Revenue attribution service
+        $this->app->singleton(RevenueAttributionService::class, function (Application $app): RevenueAttributionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $ecommerce = $config->get('zeroboiler.analytics.ecommerce', []);
+            /** @var array{currency?: string} $ecommerce */
+            $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+            /** @var array{enabled?: bool} $queueConfig */
+
+            return new RevenueAttributionService(
+                $manager,
+                $queue,
+                $ecommerce['currency'] ?? 'USD',
+                (bool) ($queueConfig['enabled'] ?? true),
+            );
+        });
+
+        // Analytics data bus for conditional routing
+        $this->app->singleton(AnalyticsDataBus::class, function (Application $app): AnalyticsDataBus {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+            /** @var array{enabled?: bool} $queueConfig */
+
+            return new AnalyticsDataBus(
+                $manager,
+                $queue,
+                (bool) ($queueConfig['enabled'] ?? true),
+            );
+        });
     }
 
     /**
