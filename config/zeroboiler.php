@@ -340,5 +340,20 @@ return [
             'enabled' => env('ANALYTICS_METRICS_ENABLED', false),
             'log_on_flush' => env('ANALYTICS_METRICS_LOG_ON_FLUSH', false),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Stream (Real-Time Dashboard)
+        |-------------------------------------------------------------------------- 
+        |
+        | In-memory ring buffer for real-time event streaming to dashboards.
+        | The buffer stores recent events that can be polled via the
+        | GET /api/analytics/stream endpoint. Configure the buffer size
+        | based on your dashboard's polling frequency and data requirements.
+        |
+        */
+        'stream' => [
+            'buffer_size' => (int) env('ANALYTICS_STREAM_BUFFER_SIZE', 1000),
+        ],
     ],
 ];

@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
 use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
 use ZeroBoiler\Analytics\Services\EventValidationService;
+use ZeroBoiler\Analytics\Services\EventStreamService;
+use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
@@ -41,17 +43,30 @@ class AnalyticsEventController extends Controller
 
     private const MAX_EVENT_NAME_LENGTH = 100;
 
+    private ?EventStreamService $streamService;
+
+    private ?ExportService $exportService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      * @param  EventValidationService|null  $validator  Optional event validator (injected when available)
+     * @param  EventStreamService|null  $streamService  Optional event stream service
+     * @param  ExportService|null  $exportService  Optional export service
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config, ?EventValidationService $validator = null)
-    {
+    public function __construct(
+        AnalyticsManager $manager,
+        ConfigRepository $config,
+        ?EventValidationService $validator = null,
+        ?EventStreamService $streamService = null,
+        ?ExportService $exportService = null,
+    ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
         $this->validator = $validator;
+        $this->streamService = $streamService;
+        $this->exportService = $exportService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool} $pipelineConfig */
@@ -311,7 +326,7 @@ class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.8.0',
+            'version' => '2.9.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -389,15 +404,126 @@ class AnalyticsEventController extends Controller
         // Include event catalog summary
         $catalogSummary = $this->manager->eventCatalogSummary();
 
+        // Include event stream stats if available
+        $streamSummary = null;
+        if ($this->streamService !== null) {
+            $streamSummary = $this->streamService->stats();
+        }
+
         return response()->json([
             'status' => 'ok',
-            'version' => '2.8.0',
+            'version' => '2.9.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
             'replay' => $replaySummary,
             'catalog' => $catalogSummary,
+            'stream' => $streamSummary,
             'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Get real-time events from the event stream.
+     *
+     * GET /api/analytics/stream?after=0&filter=*&category=saas&limit=100
+     *
+     * Returns events from the ring buffer for live dashboard consumption.
+     * Supports cursor-based polling via the `after` parameter.
+     */
+    public function stream(Request $request): JsonResponse
+    {
+        if ($this->streamService === null) {
+            return response()->json(['error' => 'Event stream not available'], 503);
+        }
+
+        $after = (int) $request->query('after', 0);
+        $filter = $request->query('filter');
+        $category = $request->query('category');
+        $limit = min((int) $request->query('limit', 100), 500);
+
+        $events = [];
+
+        if ($category !== null && is_string($category) && $category !== '') {
+            $events = $this->streamService->filterByCategory($category, $limit);
+        } elseif ($filter !== null && is_string($filter) && $filter !== '') {
+            $events = $this->streamService->filter($filter, $limit);
+        } else {
+            $events = $this->streamService->since($after, $limit);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'cursor' => $this->streamService->cursor(),
+            'count' => count($events),
+            'events' => $events,
+        ]);
+    }
+
+    /**
+     * Get event stream statistics.
+     *
+     * GET /api/analytics/stream/stats
+     */
+    public function streamStats(): JsonResponse
+    {
+        if ($this->streamService === null) {
+            return response()->json(['error' => 'Event stream not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'stats' => $this->streamService->stats(),
+        ]);
+    }
+
+    /**
+     * Export analytics events.
+     *
+     * GET /api/analytics/export?format=json&filter=*&category=ecommerce&limit=1000&compliance=false
+     *
+     * Supports JSON and CSV formats. When compliance=true, all PII is redacted.
+     */
+    public function export(Request $request): JsonResponse
+    {
+        if ($this->exportService === null) {
+            return response()->json(['error' => 'Export service not available'], 503);
+        }
+
+        $format = $request->query('format', 'json');
+        $filter = $request->query('filter');
+        $category = $request->query('category');
+        $limit = min((int) $request->query('limit', 1000), 10000);
+        $compliance = $request->boolean('compliance', false);
+
+        if ($compliance) {
+            $content = $this->exportService->complianceExport($limit);
+            $mimeType = 'application/json';
+        } elseif ($format === 'csv') {
+            $content = $this->exportService->toCsv(
+                is_string($filter) && $filter !== '' ? $filter : null,
+                is_string($category) && $category !== '' ? $category : null,
+                $limit,
+            );
+            $mimeType = 'text/csv';
+        } elseif ($format === 'metrics') {
+            $content = $this->exportService->metricsExport();
+            $mimeType = 'application/json';
+        } else {
+            $content = $this->exportService->toJson(
+                is_string($filter) && $filter !== '' ? $filter : null,
+                is_string($category) && $category !== '' ? $category : null,
+                $limit,
+                true,
+            );
+            $mimeType = 'application/json';
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'format' => $format,
+            'size' => strlen($content),
+            'data' => $content,
         ]);
     }
 

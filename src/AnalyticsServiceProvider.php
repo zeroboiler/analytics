@@ -43,6 +43,10 @@ use ZeroBoiler\Analytics\Queue\EventReplayQueue;
 use ZeroBoiler\Analytics\Services\CohortAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventAggregationService;
 use ZeroBoiler\Analytics\Services\SessionAnalyticsService;
+use ZeroBoiler\Analytics\Services\UserJourneyService;
+use ZeroBoiler\Analytics\Services\AnomalyDetectionService;
+use ZeroBoiler\Analytics\Services\EventStreamService;
+use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 
 /**
@@ -326,6 +330,64 @@ class AnalyticsServiceProvider extends ServiceProvider
                 (bool) ($queueConfig['enabled'] ?? true),
             );
         });
+
+        // User journey mapping service
+        $this->app->singleton(UserJourneyService::class, function (Application $app): UserJourneyService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+            /** @var array{enabled?: bool} $queueConfig */
+
+            return new UserJourneyService(
+                $manager,
+                $queue,
+                (bool) ($queueConfig['enabled'] ?? true),
+            );
+        });
+
+        // Anomaly detection service
+        $this->app->singleton(AnomalyDetectionService::class, function (Application $app): AnomalyDetectionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+
+            return new AnomalyDetectionService($manager, $metrics, $queue);
+        });
+
+        // Event stream service for real-time dashboards
+        $this->app->singleton(EventStreamService::class, function (Application $app): EventStreamService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+
+            $config = $app->make(ConfigRepository::class);
+            $streamConfig = $config->get('zeroboiler.analytics.stream', []);
+            /** @var array{buffer_size?: int} $streamConfig */
+            $bufferSize = (int) ($streamConfig['buffer_size'] ?? 1000);
+
+            return new EventStreamService($manager, $metrics, $bufferSize);
+        });
+
+        // Export service
+        $this->app->singleton(ExportService::class, function (Application $app): ExportService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var EventStreamService $stream */
+            $stream = $app->make(EventStreamService::class);
+
+            return new ExportService($manager, $metrics, $stream);
+        });
     }
 
     /**
@@ -428,12 +490,15 @@ class AnalyticsServiceProvider extends ServiceProvider
 
         $controller = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class;
 
-        // Health + Catalog endpoints — no auth required
+        // Health + Catalog + Stream + Export endpoints — no auth required
         Route::prefix('api')
             ->middleware(['throttle:120,1'])
             ->group(function () use ($controller): void {
                 Route::get('analytics/health', [$controller, 'health']);
                 Route::get('analytics/catalog', [$controller, 'catalog']);
+                Route::get('analytics/stream', [$controller, 'stream']);
+                Route::get('analytics/stream/stats', [$controller, 'streamStats']);
+                Route::get('analytics/export', [$controller, 'export']);
             });
 
         // Authenticated endpoints

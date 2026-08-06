@@ -23,6 +23,16 @@ Route::prefix('analytics')->group(function () {
     // Public health check (no auth required)
     Route::get('health', [AnalyticsEventController::class, 'health']);
 
+    // Public catalog endpoint
+    Route::get('catalog', [AnalyticsEventController::class, 'catalog']);
+
+    // Event stream (public, for dashboards — event data is non-sensitive)
+    Route::get('stream', [AnalyticsEventController::class, 'stream']);
+    Route::get('stream/stats', [AnalyticsEventController::class, 'streamStats']);
+
+    // Export endpoint
+    Route::get('export', [AnalyticsEventController::class, 'export']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);
