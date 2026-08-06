@@ -28,6 +28,9 @@ final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterfa
         $this->adGranted = $adGranted;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         // Block all events when analytics consent is denied
@@ -43,11 +46,13 @@ final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterfa
         return $event;
     }
 
+    /** {@inheritdoc} */
     public function priority(): int
     {
         return 5; // Very high priority — check consent first
     }
 
+    /** {@inheritdoc} */
     public function name(): string
     {
         return 'consent_gate';

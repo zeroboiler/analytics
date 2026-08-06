@@ -29,6 +29,12 @@ use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 
+/**
+ * Laravel service provider for the ZeroBoiler Analytics package.
+ *
+ * Registers the analytics manager, tracker services, pipeline,
+ * schema registry, Blade directives, middleware, and API routes.
+ */
 class AnalyticsServiceProvider extends ServiceProvider
 {
     /**
