@@ -6,6 +6,25 @@
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, and GDPR consent.
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Inertia.js Integration](#inertiajs-integration)
+- [Blade Integration](#blade-integration-traditional-laravel)
+- [API Reference](#api-reference)
+- [Event Catalog Reference](#event-catalog-reference)
+- [Server-Side Auto-Tracking](#server-side-auto-tracking)
+- [JS Client API Reference](#js-client-api-reference)
+- [Admin Commands](#admin-commands)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Upgrading](#upgrading)
+- [License](#license)
+
 ## Quick Start
 
 ```bash
