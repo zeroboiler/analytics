@@ -1,0 +1,672 @@
+<?php
+/**
+ * This file is part of ZeroBoiler, licensed under the MIT license.
+ */
+
+declare(strict_types=1);
+
+namespace ZeroBoiler\Analytics\Support;
+
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+
+/**
+ * Type-safe analytics configuration accessor.
+ *
+ * Provides a single entry point for reading all analytics config values
+ * with explicit return types, sensible defaults, and no raw array access.
+ * Designed for use in services, middleware, and controllers that need
+ * structured access to analytics settings.
+ */
+final class AnalyticsConfig
+{
+    private const CONFIG_KEY = 'zeroboiler.analytics';
+
+    /**
+     * @param  ConfigRepository  $config  Laravel config repository
+     */
+    public function __construct(
+        private readonly ConfigRepository $config,
+    ) {}
+
+    /**
+     * Get a raw config value from the analytics section.
+     *
+     * @param  string  $key  Dot-notation key relative to 'zeroboiler.analytics'
+     * @param  mixed  $default
+     * @return mixed
+     */
+    public function get(string $key, mixed $default = null): mixed
+    {
+        return $this->config->get(self::CONFIG_KEY.'.'.$key, $default);
+    }
+
+    /**
+     * Check if a config key exists.
+     */
+    public function has(string $key): bool
+    {
+        return $this->config->has(self::CONFIG_KEY.'.'.$key);
+    }
+
+    // ── GA4 ────────────────────────────────────────────────────────────
+
+    public function ga4Enabled(): bool
+    {
+        return (bool) $this->get('ga4.enabled', false);
+    }
+
+    public function ga4MeasurementId(): string
+    {
+        return (string) $this->get('ga4.measurement_id', '');
+    }
+
+    public function ga4ApiSecret(): string
+    {
+        return (string) $this->get('ga4.api_secret', '');
+    }
+
+    // ── GTM ────────────────────────────────────────────────────────────
+
+    public function gtmEnabled(): bool
+    {
+        return (bool) $this->get('gtm.enabled', false);
+    }
+
+    public function gtmContainerId(): string
+    {
+        return (string) $this->get('gtm.container_id', '');
+    }
+
+    // ── Meta Pixel ──────────────────────────────────────────────────────
+
+    public function metaPixelEnabled(): bool
+    {
+        return (bool) $this->get('meta_pixel.enabled', false);
+    }
+
+    public function metaPixelId(): string
+    {
+        return (string) $this->get('meta_pixel.id', '');
+    }
+
+    public function metaPixelAccessToken(): string
+    {
+        return (string) $this->get('meta_pixel.access_token', '');
+    }
+
+    // ── Consent ──────────────────────────────────────────────────────────
+
+    public function consentDefault(): string
+    {
+        return (string) $this->get('consent.default', 'granted');
+    }
+
+    public function consentDefaultDenied(): bool
+    {
+        return $this->consentDefault() === 'denied';
+    }
+
+    // ── Queue ────────────────────────────────────────────────────────────
+
+    public function queueEnabled(): bool
+    {
+        return (bool) $this->get('queue.enabled', true);
+    }
+
+    public function queueName(): string
+    {
+        return (string) $this->get('queue.queue', 'analytics');
+    }
+
+    public function queueConnection(): ?string
+    {
+        $connection = $this->get('queue.connection');
+
+        return is_string($connection) && $connection !== '' ? $connection : null;
+    }
+
+    // ── Identity ─────────────────────────────────────────────────────────
+
+    public function identityCookieName(): string
+    {
+        return (string) $this->get('identity.cookie_name', 'zb_analytics_id');
+    }
+
+    public function identityCookieTtl(): int
+    {
+        return (int) $this->get('identity.cookie_ttl', 525600);
+    }
+
+    public function identityCookieSecure(): bool
+    {
+        return (bool) $this->get('identity.cookie_secure', true);
+    }
+
+    public function identityCookieSameSite(): string
+    {
+        return (string) $this->get('identity.cookie_samesite', 'Lax');
+    }
+
+    // ── API ────────────────────────────────────────────────────────────
+
+    public function apiEnabled(): bool
+    {
+        return (bool) $this->get('api.enabled', true);
+    }
+
+    public function apiThrottle(): int
+    {
+        return (int) $this->get('api.throttle', 60);
+    }
+
+    public function apiBaseUrl(): string
+    {
+        return (string) $this->get('api.base_url', '/api/analytics');
+    }
+
+    // ── Auto-Track ──────────────────────────────────────────────────────
+
+    public function autoTrackEnabled(): bool
+    {
+        return (bool) $this->get('auto_track.enabled', true);
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function autoTrackEvents(): array
+    {
+        $events = $this->get('auto_track.events', []);
+
+        return is_array($events) ? $events : [];
+    }
+
+    /**
+     * @return array<class-string, list<string>>
+     */
+    public function autoTrackModels(): array
+    {
+        $models = $this->get('auto_track.models', []);
+
+        return is_array($models) ? $models : [];
+    }
+
+    /**
+     * @return array<string, class-string>
+     */
+    public function autoTrackEventMap(): array
+    {
+        $map = $this->get('auto_track.event_map', []);
+
+        return is_array($map) ? $map : [];
+    }
+
+    // ── E-commerce ──────────────────────────────────────────────────────
+
+    public function ecommerceCurrency(): string
+    {
+        return (string) $this->get('ecommerce.currency', 'USD');
+    }
+
+    public function ecommerceBrand(): string
+    {
+        return (string) $this->get('ecommerce.brand', '');
+    }
+
+    public function ecommerceTaxBehavior(): string
+    {
+        return (string) $this->get('ecommerce.tax_behavior', 'inclusive');
+    }
+
+    // ── Track Links ──────────────────────────────────────────────────────
+
+    public function trackLinksEnabled(): bool
+    {
+        return (bool) $this->get('track_links.enabled', false);
+    }
+
+    public function trackLinksExternal(): bool
+    {
+        return (bool) $this->get('track_links.track_external', true);
+    }
+
+    public function trackLinksInternal(): bool
+    {
+        return (bool) $this->get('track_links.track_internal', false);
+    }
+
+    public function trackLinksExternalPrefix(): string
+    {
+        return (string) $this->get('track_links.external_prefix', 'outbound');
+    }
+
+    // ── Plausible ────────────────────────────────────────────────────────
+
+    public function plausibleEnabled(): bool
+    {
+        return (bool) $this->get('plausible.enabled', false);
+    }
+
+    public function plausibleDomain(): string
+    {
+        return (string) $this->get('plausible.domain', '');
+    }
+
+    public function plausibleApiKey(): string
+    {
+        return (string) $this->get('plausible.api_key', '');
+    }
+
+    // ── PostHog ─────────────────────────────────────────────────────────
+
+    public function posthogEnabled(): bool
+    {
+        return (bool) $this->get('posthog.enabled', false);
+    }
+
+    public function posthogApiKey(): string
+    {
+        return (string) $this->get('posthog.api_key', '');
+    }
+
+    public function posthogHost(): string
+    {
+        return (string) $this->get('posthog.host', 'https://eu.posthog.com');
+    }
+
+    public function posthogProjectId(): string
+    {
+        return (string) $this->get('posthog.project_id', '');
+    }
+
+    // ── Webhook ─────────────────────────────────────────────────────────
+
+    public function webhookEnabled(): bool
+    {
+        return (bool) $this->get('webhook.enabled', false);
+    }
+
+    public function webhookUrl(): string
+    {
+        return (string) $this->get('webhook.url', '');
+    }
+
+    public function webhookSecret(): string
+    {
+        return (string) $this->get('webhook.secret', '');
+    }
+
+    public function webhookTimeout(): int
+    {
+        return (int) $this->get('webhook.timeout', 5);
+    }
+
+    public function webhookRetries(): int
+    {
+        return (int) $this->get('webhook.retries', 1);
+    }
+
+    public function webhookSign(): bool
+    {
+        return (bool) $this->get('webhook.sign', false);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function webhookHeaders(): array
+    {
+        $headers = $this->get('webhook.headers', []);
+
+        return is_array($headers) ? $headers : [];
+    }
+
+    // ── Debug ───────────────────────────────────────────────────────────
+
+    public function debugEnabled(): bool
+    {
+        return (bool) $this->get('debug.enabled', false);
+    }
+
+    public function debugLogEvents(): bool
+    {
+        return (bool) $this->get('debug.log_events', false);
+    }
+
+    // ── Validation ──────────────────────────────────────────────────────
+
+    public function validationStrict(): bool
+    {
+        return (bool) $this->get('validation.strict', false);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function validationWhitelist(): array
+    {
+        $whitelist = $this->get('validation.whitelist', []);
+
+        return is_array($whitelist) ? $whitelist : [];
+    }
+
+    public function validationMaxEventNameLength(): int
+    {
+        return (int) $this->get('validation.max_event_name_length', 100);
+    }
+
+    public function validationDeduplicationWindow(): int
+    {
+        return (int) $this->get('validation.deduplication_window', 10);
+    }
+
+    // ── Pipeline ────────────────────────────────────────────────────────
+
+    public function pipelineAutoUtm(): bool
+    {
+        return (bool) $this->get('pipeline.auto_utm', true);
+    }
+
+    public function pipelineAutoTimestamp(): bool
+    {
+        return (bool) $this->get('pipeline.auto_timestamp', false);
+    }
+
+    // ── Sampling ─────────────────────────────────────────────────────────
+
+    public function samplingEnabled(): bool
+    {
+        return (bool) $this->get('sampling.enabled', false);
+    }
+
+    public function samplingRate(): float
+    {
+        return (float) $this->get('sampling.rate', 1.0);
+    }
+
+    public function samplingDeterministic(): bool
+    {
+        return (bool) $this->get('sampling.deterministic', true);
+    }
+
+    // ── PII Sanitization ─────────────────────────────────────────────────
+
+    public function piiEnabled(): bool
+    {
+        return (bool) $this->get('pii_sanitization.enabled', false);
+    }
+
+    public function piiStrategy(): string
+    {
+        return (string) $this->get('pii_sanitization.strategy', 'hash');
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function piiCustomFields(): array
+    {
+        $fields = $this->get('pii_sanitization.custom_fields', []);
+
+        return is_array($fields) ? $fields : [];
+    }
+
+    // ── Replay Queue ────────────────────────────────────────────────────
+
+    public function replayEnabled(): bool
+    {
+        return (bool) $this->get('replay.enabled', true);
+    }
+
+    public function replayMaxAttempts(): int
+    {
+        return (int) $this->get('replay.max_attempts', 3);
+    }
+
+    public function replayBaseDelay(): float
+    {
+        return (float) $this->get('replay.base_delay', 1.0);
+    }
+
+    public function replayMaxDelay(): float
+    {
+        return (float) $this->get('replay.max_delay', 60.0);
+    }
+
+    public function replayJitter(): float
+    {
+        return (float) $this->get('replay.jitter', 0.2);
+    }
+
+    // ── Metrics ─────────────────────────────────────────────────────────
+
+    public function metricsEnabled(): bool
+    {
+        return (bool) $this->get('metrics.enabled', false);
+    }
+
+    public function metricsLogOnFlush(): bool
+    {
+        return (bool) $this->get('metrics.log_on_flush', false);
+    }
+
+    // ── Stream ──────────────────────────────────────────────────────────
+
+    public function streamBufferSize(): int
+    {
+        return (int) $this->get('stream.buffer_size', 1000);
+    }
+
+    // ── Client Auto-Track ───────────────────────────────────────────────
+
+    public function clientAutoTrackPageViews(): bool
+    {
+        return (bool) $this->get('client_auto_track.page_views', true);
+    }
+
+    public function clientAutoTrackScrollDepth(): bool
+    {
+        return (bool) $this->get('client_auto_track.scroll_depth', true);
+    }
+
+    public function clientAutoTrackFormTracking(): bool
+    {
+        return (bool) $this->get('client_auto_track.form_tracking', true);
+    }
+
+    public function clientAutoTrackErrorTracking(): bool
+    {
+        return (bool) $this->get('client_auto_track.error_tracking', true);
+    }
+
+    public function clientAutoTrackLinkTracking(): bool
+    {
+        return (bool) $this->get('client_auto_track.link_tracking', false);
+    }
+
+    public function clientAutoTrackSessionTracking(): bool
+    {
+        return (bool) $this->get('client_auto_track.session_tracking', true);
+    }
+
+    public function clientAutoTrackIdleTimeout(): int
+    {
+        return (int) $this->get('client_auto_track.idle_timeout', 1800);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function clientAutoTrackErrorIgnorePatterns(): array
+    {
+        $patterns = $this->get('client_auto_track.error_ignore_patterns', []);
+
+        return is_array($patterns) ? $patterns : [];
+    }
+
+    // ── Performance ─────────────────────────────────────────────────────
+
+    public function performanceEnabled(): bool
+    {
+        return (bool) $this->get('performance.enabled', false);
+    }
+
+    public function performanceTrackLcp(): bool
+    {
+        return (bool) $this->get('performance.track_lcp', true);
+    }
+
+    public function performanceTrackFid(): bool
+    {
+        return (bool) $this->get('performance.track_fid', true);
+    }
+
+    public function performanceTrackCls(): bool
+    {
+        return (bool) $this->get('performance.track_cls', true);
+    }
+
+    public function performanceTrackInp(): bool
+    {
+        return (bool) $this->get('performance.track_inp', true);
+    }
+
+    public function performanceTrackTtfb(): bool
+    {
+        return (bool) $this->get('performance.track_ttfb', true);
+    }
+
+    public function performanceTrackFcp(): bool
+    {
+        return (bool) $this->get('performance.track_fcp', false);
+    }
+
+    public function performanceSendToServer(): bool
+    {
+        return (bool) $this->get('performance.send_to_server', true);
+    }
+
+    // ── Audit Log ───────────────────────────────────────────────────────
+
+    public function auditLogEnabled(): bool
+    {
+        return (bool) $this->get('audit_log.enabled', false);
+    }
+
+    public function auditLogPriority(): int
+    {
+        return (int) $this->get('audit_log.priority', 100);
+    }
+
+    // ── Convenience Summary ─────────────────────────────────────────────
+
+    /**
+     * Get a summary of all config values for diagnostics / admin commands.
+     *
+     * @return array<string, mixed>
+     */
+    public function summary(): array
+    {
+        return [
+            'ga4' => [
+                'enabled' => $this->ga4Enabled(),
+                'measurement_id' => $this->ga4MeasurementId(),
+            ],
+            'gtm' => [
+                'enabled' => $this->gtmEnabled(),
+                'container_id' => $this->gtmContainerId(),
+            ],
+            'meta_pixel' => [
+                'enabled' => $this->metaPixelEnabled(),
+                'id' => $this->metaPixelId(),
+            ],
+            'plausible' => [
+                'enabled' => $this->plausibleEnabled(),
+                'domain' => $this->plausibleDomain(),
+            ],
+            'posthog' => [
+                'enabled' => $this->posthogEnabled(),
+                'host' => $this->posthogHost(),
+            ],
+            'webhook' => [
+                'enabled' => $this->webhookEnabled(),
+                'url' => $this->webhookUrl(),
+            ],
+            'consent' => [
+                'default' => $this->consentDefault(),
+            ],
+            'queue' => [
+                'enabled' => $this->queueEnabled(),
+                'queue' => $this->queueName(),
+                'connection' => $this->queueConnection(),
+            ],
+            'identity' => [
+                'cookie_name' => $this->identityCookieName(),
+                'cookie_ttl' => $this->identityCookieTtl(),
+                'cookie_secure' => $this->identityCookieSecure(),
+                'cookie_samesite' => $this->identityCookieSameSite(),
+            ],
+            'api' => [
+                'enabled' => $this->apiEnabled(),
+                'throttle' => $this->apiThrottle(),
+                'base_url' => $this->apiBaseUrl(),
+            ],
+            'auto_track' => [
+                'enabled' => $this->autoTrackEnabled(),
+                'events_count' => count($this->autoTrackEvents()),
+                'models_count' => count($this->autoTrackModels()),
+                'event_map_count' => count($this->autoTrackEventMap()),
+            ],
+            'ecommerce' => [
+                'currency' => $this->ecommerceCurrency(),
+                'brand' => $this->ecommerceBrand(),
+                'tax_behavior' => $this->ecommerceTaxBehavior(),
+            ],
+            'track_links' => [
+                'enabled' => $this->trackLinksEnabled(),
+                'track_external' => $this->trackLinksExternal(),
+                'track_internal' => $this->trackLinksInternal(),
+            ],
+            'debug' => [
+                'enabled' => $this->debugEnabled(),
+                'log_events' => $this->debugLogEvents(),
+            ],
+            'validation' => [
+                'strict' => $this->validationStrict(),
+                'whitelist_count' => count($this->validationWhitelist()),
+                'max_event_name_length' => $this->validationMaxEventNameLength(),
+                'deduplication_window' => $this->validationDeduplicationWindow(),
+            ],
+            'sampling' => [
+                'enabled' => $this->samplingEnabled(),
+                'rate' => $this->samplingRate(),
+                'deterministic' => $this->samplingDeterministic(),
+            ],
+            'pii_sanitization' => [
+                'enabled' => $this->piiEnabled(),
+                'strategy' => $this->piiStrategy(),
+            ],
+            'replay' => [
+                'enabled' => $this->replayEnabled(),
+                'max_attempts' => $this->replayMaxAttempts(),
+            ],
+            'metrics' => [
+                'enabled' => $this->metricsEnabled(),
+            ],
+            'audit_log' => [
+                'enabled' => $this->auditLogEnabled(),
+            ],
+            'performance' => [
+                'enabled' => $this->performanceEnabled(),
+            ],
+            'client_auto_track' => [
+                'page_views' => $this->clientAutoTrackPageViews(),
+                'scroll_depth' => $this->clientAutoTrackScrollDepth(),
+                'form_tracking' => $this->clientAutoTrackFormTracking(),
+                'error_tracking' => $this->clientAutoTrackErrorTracking(),
+                'link_tracking' => $this->clientAutoTrackLinkTracking(),
+                'session_tracking' => $this->clientAutoTrackSessionTracking(),
+            ],
+        ];
+    }
+}

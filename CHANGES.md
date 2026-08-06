@@ -2,6 +2,17 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.13.0] - 2025-08-06
+
+### Added
+- **AnalyticsConfig** — Type-safe, single-entry-point config accessor with 60+ typed methods (no raw array access)
+- **AnalyticsEventNameRule** — Laravel validation rule for analytics event names (format, catalog, strict whitelist modes)
+- **EventTransformer** — Centralized cross-provider event format conversion (GA4 ↔ Meta, SaaS → PostHog)
+- **AnalyticsRateLimiter** — Per-client rate limiting using Laravel's RateLimiter (client ID/IP based)
+- **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation (X-ZB-Signature + X-Hub-Signature-256)
+- **AnalyticsDashboardCommand** (`zb:analytics:dashboard`) — Export dashboard data as structured JSON/table
+- 70+ new tests covering all Support layer classes
+
 ## [2.12.0] - 2025-08-06
 
 ### Added

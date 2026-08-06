@@ -152,6 +152,7 @@ Done. That's it.
 - `zb:analytics:export` — Export event catalog as JSON, CSV, or Markdown for documentation
 - `zb:analytics:revenue-report` — Revenue analytics configuration overview with dry-run preview
 - `zb:analytics:health` — Comprehensive health diagnostic with warnings, recommendations, JSON output (`--json`)
+- `zb:analytics:dashboard` — Export dashboard data as structured JSON/table (`--include-metrics`, `--include-health`, `--pretty`)
 
 ### Blade Integration
 - `@analyticsHead` — GA4/GTM/Meta/Plausible/PostHog head script tags
@@ -166,8 +167,13 @@ Done. That's it.
 - **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
+- **AnalyticsConfig** — Type-safe config accessor with 60+ typed methods (no raw array access)
+- **EventTransformer** — Centralized GA4 ↔ Meta ↔ PostHog event format conversion
+- **AnalyticsEventNameRule** — Laravel validation rule for analytics event names
+- **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
+- **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 90+ tests
+- **Pest PHP** — 100+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -253,6 +259,13 @@ src/
 │   ├── AnalyticsExportCommand.php   # Export catalog as JSON/CSV/Markdown
 │   ├── RevenueReportCommand.php      # Revenue analytics report
 │   └── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
+│   └── AnalyticsDashboardCommand.php # Dashboard data export (JSON/table)
+├── Support/
+│   ├── AnalyticsConfig.php              # Type-safe config accessor (60+ methods)
+│   ├── AnalyticsEventNameRule.php       # Laravel validation rule for event names
+│   ├── EventTransformer.php             # Cross-provider event format conversion
+│   ├── AnalyticsRateLimiter.php         # Per-client rate limiting
+│   └── WebhookSignatureValidator.php    # HMAC-SHA256 webhook signature validation
 ├── Blade/Directives/
 │   └── AnalyticsDirectives.php      # @analyticsHead, @analyticsBody
 ├── Facades/
