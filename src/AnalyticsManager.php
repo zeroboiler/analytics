@@ -20,6 +20,7 @@ use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 use ZeroBoiler\Analytics\Trackers\WebhookTracker;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
+use ZeroBoiler\Analytics\EventInterceptorRegistry;
 
 /**
  * Central analytics manager — dispatches events to all configured trackers.
@@ -52,6 +53,8 @@ class AnalyticsManager
     private bool $debugMode;
 
     private bool $logEvents;
+
+    private EventInterceptorRegistry $interceptors;
 
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
@@ -134,6 +137,9 @@ class AnalyticsManager
 
         // Metrics tracking
         $this->metrics = new AnalyticsMetrics($config);
+
+        // Event interceptor registry
+        $this->interceptors = new EventInterceptorRegistry;
     }
 
     /**
@@ -202,6 +208,15 @@ class AnalyticsManager
      */
     private function dispatchToTrackers(AnalyticsEvent $event): void
     {
+        // Run before-interceptors
+        $processed = $this->interceptors->runBefore($event);
+
+        if ($processed === null) {
+            return;
+        }
+
+        $event = $processed;
+
         // Debug mode: log but never send
         if ($this->debugMode) {
             if ($this->logEvents) {
@@ -212,6 +227,8 @@ class AnalyticsManager
                     'user_id' => $event->userId,
                 ]);
             }
+
+            $this->interceptors->runAfter($event, true);
 
             return;
         }
@@ -224,13 +241,16 @@ class AnalyticsManager
             if (! empty($rules)) {
                 $bus->route($event);
 
+                $this->interceptors->runAfter($event, true);
+
                 return;
             }
         } catch (\Throwable) {
             // DataBus not available — fall through to standard dispatch
         }
 
-        $this->directDispatch($event);
+        $success = $this->directDispatch($event);
+        $this->interceptors->runAfter($event, $success);
     }
 
     /**
@@ -238,13 +258,18 @@ class AnalyticsManager
      *
      * Use this when you want to ensure the event goes to all providers
      * regardless of any routing rules configured in the DataBus.
+     *
+     * @return bool True if dispatch succeeded to at least one provider
      */
-    public function directDispatch(AnalyticsEvent $event): void
+    public function directDispatch(AnalyticsEvent $event): bool
     {
+        $dispatched = false;
+
         if ($this->ga4->isEnabled()) {
             try {
                 $this->ga4->track($event);
                 $this->metrics->recordDispatch('ga4');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('ga4', $e->getMessage());
             }
@@ -254,6 +279,7 @@ class AnalyticsManager
             try {
                 $this->gtm->track($event);
                 $this->metrics->recordDispatch('gtm');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('gtm', $e->getMessage());
             }
@@ -263,6 +289,7 @@ class AnalyticsManager
             try {
                 $this->meta->track($event);
                 $this->metrics->recordDispatch('meta');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('meta', $e->getMessage());
             }
@@ -272,6 +299,7 @@ class AnalyticsManager
             try {
                 $this->plausible->track($event);
                 $this->metrics->recordDispatch('plausible');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('plausible', $e->getMessage());
             }
@@ -281,6 +309,7 @@ class AnalyticsManager
             try {
                 $this->posthog->track($event);
                 $this->metrics->recordDispatch('posthog');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('posthog', $e->getMessage());
             }
@@ -290,10 +319,13 @@ class AnalyticsManager
             try {
                 $this->webhook->track($event);
                 $this->metrics->recordDispatch('webhook');
+                $dispatched = true;
             } catch (\Throwable $e) {
                 $this->metrics->recordFailure('webhook', $e->getMessage());
             }
         }
+
+        return $dispatched;
     }
 
     /**
@@ -1114,7 +1146,7 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.20.0';
+        return '2.22.0';
     }
 
     /**
@@ -1161,5 +1193,95 @@ class AnalyticsManager
                 'id' => $this->webhook->isEnabled() ? $this->webhook->getWebhookUrl() : null,
             ],
         ];
+    }
+
+    /**
+     * Register a before-dispatch interceptor.
+     *
+     * Interceptors receive the AnalyticsEvent before dispatch.
+     * Return the event to continue, or null to cancel.
+     *
+     * @param  callable(AnalyticsEvent): AnalyticsEvent|null  $interceptor
+     */
+    public function interceptBefore(callable $interceptor): void
+    {
+        $this->interceptors->before($interceptor);
+    }
+
+    /**
+     * Register an after-dispatch interceptor.
+     *
+     * Interceptors receive the AnalyticsEvent and a success flag after dispatch.
+     *
+     * @param  callable(AnalyticsEvent, bool): void  $interceptor
+     */
+    public function interceptAfter(callable $interceptor): void
+    {
+        $this->interceptors->after($interceptor);
+    }
+
+    /**
+     * Get the event interceptor registry.
+     */
+    public function interceptors(): EventInterceptorRegistry
+    {
+        return $this->interceptors;
+    }
+
+    /**
+     * Get the analytics profile for a user.
+     *
+     * Returns the full profile array from AnalyticsProfileService.
+     *
+     * @param  string  $userId
+     * @return array{event_counts: array<string, int>, total_events: int, total_value: float, first_seen: string|null, last_seen: string|null, funnel_steps: array<string, bool>, engagement_score: float, plan: string|null, traits: array<string, mixed>}
+     */
+    public function getProfile(string $userId): array
+    {
+        try {
+            $profile = app(\ZeroBoiler\Analytics\Services\AnalyticsProfileService::class);
+
+            return $profile->getProfile($userId);
+        } catch (\Throwable) {
+            return [
+                'event_counts' => [],
+                'total_events' => 0,
+                'total_value' => 0.0,
+                'first_seen' => null,
+                'last_seen' => null,
+                'funnel_steps' => [],
+                'engagement_score' => 0.0,
+                'plan' => null,
+                'traits' => [],
+            ];
+        }
+    }
+
+    /**
+     * Get a user profile summary for API responses.
+     *
+     * @param  string  $userId
+     * @return array{user_id: string, total_events: int, lifetime_value: float, first_seen: string|null, last_seen: string|null, engagement_score: float, plan: string|null, event_types: int, funnel_steps_completed: int, traits: array<string, mixed>}
+     */
+    public function getProfileSummary(string $userId): array
+    {
+        try {
+            $profile = app(\ZeroBoiler\Analytics\Services\AnalyticsProfileService::class);
+
+            return $profile->getProfileSummary($userId);
+        } catch (\Throwable) {
+            return [
+                'user_id' => $userId,
+                'total_events' => 0,
+                'lifetime_value' => 0.0,
+                'first_seen' => null,
+                'last_seen' => null,
+                'engagement_score' => 0.0,
+                'plan' => null,
+                'event_types' => 0,
+                'funnel_steps_completed' => 0,
+                'traits' => [],
+            ];
+        }
     }
 }

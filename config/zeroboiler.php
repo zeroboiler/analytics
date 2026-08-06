@@ -452,6 +452,39 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Attribution Tracking (First-Touch / Multi-Touch)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, UTM parameters from incoming requests are captured and
+        | persisted as first-touch and multi-touch attribution data.
+        | First-touch attribution is stored for 30 days by default.
+        | Touch history keeps the most recent 20 touchpoints.
+        |
+        */
+        'attribution' => [
+            'enabled' => env('ANALYTICS_ATTRIBUTION_ENABLED', true),
+            'first_touch_ttl' => (int) env('ANALYTICS_ATTRIBUTION_FIRST_TOUCH_TTL', 2592000), // 30 days
+            'touch_history_ttl' => (int) env('ANALYTICS_ATTRIBUTION_TOUCH_HISTORY_TTL', 2592000), // 30 days
+            'max_touch_history' => (int) env('ANALYTICS_ATTRIBUTION_MAX_HISTORY', 20),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Profile Aggregation
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, per-user analytics profiles are built from tracked events.
+        | Profiles include lifetime value, event counts, engagement scores,
+        | funnel completion, and user traits.
+        |
+        */
+        'profile' => [
+            'enabled' => env('ANALYTICS_PROFILE_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_PROFILE_TTL', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Funnel Tracking
         |-------------------------------------------------------------------------- 
         |

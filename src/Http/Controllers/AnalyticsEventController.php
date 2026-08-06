@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\EventStreamService;
 use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\AnalyticsProfileService;
+use ZeroBoiler\Analytics\Services\GdprErasureService;
 
 /**
  * API controller for frontend event tracking.
@@ -47,12 +49,18 @@ final class AnalyticsEventController extends Controller
 
     private ?ExportService $exportService;
 
+    private ?AnalyticsProfileService $profileService;
+
+    private ?GdprErasureService $gdprErasureService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      * @param  EventValidationService|null  $validator  Optional event validator (injected when available)
      * @param  EventStreamService|null  $streamService  Optional event stream service
      * @param  ExportService|null  $exportService  Optional export service
+     * @param  AnalyticsProfileService|null  $profileService  Optional profile service
+     * @param  GdprErasureService|null  $gdprErasureService  Optional GDPR erasure service
      */
     public function __construct(
         AnalyticsManager $manager,
@@ -60,6 +68,8 @@ final class AnalyticsEventController extends Controller
         ?EventValidationService $validator = null,
         ?EventStreamService $streamService = null,
         ?ExportService $exportService = null,
+        ?AnalyticsProfileService $profileService = null,
+        ?GdprErasureService $gdprErasureService = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -67,6 +77,8 @@ final class AnalyticsEventController extends Controller
         $this->validator = $validator;
         $this->streamService = $streamService;
         $this->exportService = $exportService;
+        $this->profileService = $profileService;
+        $this->gdprErasureService = $gdprErasureService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool} $pipelineConfig */
@@ -326,7 +338,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.20.0',
+            'version' => '2.22.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -412,7 +424,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.20.0',
+            'version' => '2.22.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -672,6 +684,84 @@ final class AnalyticsEventController extends Controller
             'status' => 'ok',
             'tracking_allowed' => $allowed,
             'consent' => $this->manager->getConsent()->toArray(),
+        ]);
+    }
+
+    /**
+     * Get the analytics profile for the authenticated user.
+     *
+     * GET /api/analytics/profile
+     *
+     * Returns aggregated profile data: event counts, lifetime value,
+     * engagement score, funnel completion, plan, and traits.
+     */
+    public function profile(Request $request): JsonResponse
+    {
+        if ($this->profileService === null) {
+            return response()->json(['error' => 'Profile service not available'], 503);
+        }
+
+        $user = $request->user();
+
+        if ($user === null) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = $user->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        if ($userIdStr === null || $userIdStr === '') {
+            return response()->json(['error' => 'Invalid user ID'], 400);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'profile' => $this->profileService->getProfileSummary($userIdStr),
+        ]);
+    }
+
+    /**
+     * Erase all analytics data for the authenticated user (GDPR right to be forgotten).
+     *
+     * DELETE /api/analytics/data
+     *
+     * Deletes: analytics profile, attribution data, tracking preferences.
+     * Also triggers identity reset across providers.
+     */
+    public function eraseData(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = $user->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        if ($userIdStr === null || $userIdStr === '') {
+            return response()->json(['error' => 'Invalid user ID'], 400);
+        }
+
+        $clientId = $this->extractClientId($request);
+
+        if ($this->gdprErasureService !== null) {
+            $result = $this->gdprErasureService->eraseUser($userIdStr, $clientId);
+        } else {
+            $result = [
+                'profile_deleted' => false,
+                'attribution_deleted' => false,
+                'preferences_deleted' => false,
+            ];
+        }
+
+        // Reset identity on all providers
+        $this->manager->resetIdentity();
+
+        return response()->json([
+            'status' => 'ok',
+            'erased' => $result,
+            'identity_reset' => true,
         ]);
     }
 }

@@ -2,6 +2,27 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.22.0] - 2026-08-06
+
+### Added
+- **AnalyticsProfileService** — Per-user analytics profile aggregation stored in cache. Tracks event counts, lifetime value (LTV), first/last seen timestamps, funnel completion, engagement score (0–100), current plan, and user traits. Engagement score is calculated from event frequency (log scale), diversity, revenue activity, and funnel steps.
+- **AttributionService** — First-touch and multi-touch UTM attribution tracking. Captures UTM parameters from requests, persists first-touch attribution (immutable after first visit), and maintains a rolling touch history (max 20 touchpoints). Provides attribution summary with source/medium/campaign aggregation and chronological journey.
+- **EventInterceptorRegistry** — Global before/after event hooks. Register interceptors to modify, filter, or observe events before/after dispatch. Before-interceptors can cancel dispatch by returning null. After-interceptors receive a success flag and are exception-safe.
+- **GdprErasureService** — GDPR "right to be forgotten" orchestration. Deletes analytics profile, attribution data, and tracking preferences in a single call. Designed to complement AnalyticsManager::resetIdentity() for complete provider-side erasure.
+- **AnalyticsManager enhancements** — `interceptBefore()`, `interceptAfter()`, `interceptors()`, `getProfile()`, `getProfileSummary()` convenience methods. `directDispatch()` now returns `bool` (true if at least one provider succeeded).
+- **New API endpoints** — `GET /api/analytics/profile` (authenticated, returns user profile summary), `DELETE /api/analytics/data` (authenticated, erases all user analytics data for GDPR compliance).
+- **New config sections** — `attribution` (first-touch TTL, touch history TTL, max history, enabled toggle), `profile` (TTL, enabled toggle).
+- **4 new service bindings** in AnalyticsServiceProvider: AnalyticsProfileService, AttributionService, GdprErasureService.
+- **Facade proxy methods** — `interceptBefore()`, `interceptAfter()`, `interceptors()`, `getProfile()`, `getProfileSummary()`.
+- **V22ProfileAttributionInterceptorTest** — 50+ new test cases covering EventInterceptorRegistry (7 tests), AnalyticsProfileService (13 tests), AttributionService (11 tests), GdprErasureService (6 tests), manager integration (7 tests), UtmAttribution (5 tests), config expansion (4 tests), service provider registration (2 tests).
+
+### Changed
+- Version bump to 2.22.0
+- `directDispatch()` return type changed from `void` to `bool` — tracks whether at least one provider accepted the event
+- Facade `@method` annotations updated with new return types for `directDispatch` and new methods
+- Health/catalog endpoint version strings updated to 2.22.0
+- JS client version string updated to 2.22.0
+
 ## [2.20.0] - 2026-08-06
 
 ### Added

@@ -56,6 +56,9 @@ use ZeroBoiler\Analytics\Services\EventDeduplicationService;
 use ZeroBoiler\Analytics\Services\DeviceContextService;
 use ZeroBoiler\Analytics\Services\IpAnonymizationService;
 use ZeroBoiler\Analytics\Services\SaasFunnelService;
+use ZeroBoiler\Analytics\Services\AnalyticsProfileService;
+use ZeroBoiler\Analytics\Services\AttributionService;
+use ZeroBoiler\Analytics\Services\GdprErasureService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -465,6 +468,46 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new SaasFunnelService($manager, $queue, $config);
         });
+
+        // Analytics profile aggregation service
+        $this->app->singleton(AnalyticsProfileService::class, function (Application $app): AnalyticsProfileService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $profileConfig = $config->get('zeroboiler.analytics.profile', []);
+            /** @var array{enabled?: bool, ttl?: int} $profileConfig */
+
+            return new AnalyticsProfileService(
+                $manager,
+                $cache,
+                isset($profileConfig['ttl']) ? (int) $profileConfig['ttl'] : null,
+            );
+        });
+
+        // Attribution tracking service (first-touch / multi-touch UTM)
+        $this->app->singleton(AttributionService::class, function (Application $app): AttributionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AttributionService($cache, $config);
+        });
+
+        // GDPR erasure service
+        $this->app->singleton(GdprErasureService::class, function (Application $app): GdprErasureService {
+            /** @var AnalyticsProfileService $profileService */
+            $profileService = $app->make(AnalyticsProfileService::class);
+            /** @var AttributionService $attributionService */
+            $attributionService = $app->make(AttributionService::class);
+            /** @var TrackingPreferenceService $preferenceService */
+            $preferenceService = $app->make(TrackingPreferenceService::class);
+
+            return new GdprErasureService($profileService, $attributionService, $preferenceService);
+        });
     }
 
     /**
@@ -591,6 +634,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/opt-out', [$controller, 'optOut']);
                 Route::post('analytics/opt-in', [$controller, 'optIn']);
                 Route::get('analytics/preference', [$controller, 'preference']);
+                Route::get('analytics/profile', [$controller, 'profile']);
+                Route::delete('analytics/data', [$controller, 'eraseData']);
             });
     }
 }
