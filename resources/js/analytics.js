@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.15.0
+ * @version 2.16.0
  */
 
 let trackingId = null;
@@ -1810,7 +1810,7 @@ export async function setUserProperties(properties, userId = null) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({
@@ -1871,7 +1871,7 @@ export async function identifyWithTraits(traits = {}) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify(body),
@@ -1908,7 +1908,7 @@ export async function trackServerPageView(options = {}) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({
@@ -1919,5 +1919,111 @@ export async function trackServerPageView(options = {}) {
         });
     } catch {
         // Silent fail
+    }
+}
+
+// ─── Tracking Preference (GDPR Do-Not-Track) ──────────────────────────
+
+/**
+ * Opt the authenticated user out of all tracking.
+ *
+ * Persists the opt-out preference server-side. Even if consent is granted,
+ * no events will be dispatched for this user after opting out.
+ * Also suppresses the current anonymous client ID.
+ *
+ * @returns {Promise<boolean>} True if opt-out was successful
+ *
+ * @example
+ * await optOutTracking();
+ * // All tracking is now disabled for this user
+ */
+export async function optOutTracking() {
+    if (!initialized) return false;
+
+    try {
+        const response = await fetch('/api/analytics/opt-out', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            // Stop all client-side tracking immediately
+            initialized = false;
+            return true;
+        }
+
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Opt the authenticated user in to tracking.
+ *
+ * Overrides any previous opt-out preference and re-enables tracking.
+ *
+ * @returns {Promise<boolean>} True if opt-in was successful
+ *
+ * @example
+ * await optInTracking();
+ * // Tracking is re-enabled for this user
+ */
+export async function optInTracking() {
+    if (trackingId === null) return false;
+
+    try {
+        const response = await fetch('/api/analytics/opt-in', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            return true;
+        }
+
+        return false;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Get the current tracking preference for the authenticated user.
+ *
+ * @returns {Promise<object|null>} Preference state or null on failure
+ *
+ * @example
+ * const pref = await getTrackingPreference();
+ * if (pref) {
+ *     console.log('Tracking allowed:', pref.tracking_allowed);
+ * }
+ */
+export async function getTrackingPreference() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch('/api/analytics/preference', {
+            headers: {
+                Accept: 'application/json',
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
     }
 }

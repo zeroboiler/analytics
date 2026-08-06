@@ -51,6 +51,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
+use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -413,6 +414,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsConfig($config);
         });
+
+        // Tracking preference service for per-user GDPR opt-out
+        $this->app->singleton(TrackingPreferenceService::class, function (Application $app): TrackingPreferenceService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $trackingConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.tracking_preference', []);
+            /** @var array{ttl?: int} $trackingConfig */
+
+            return new TrackingPreferenceService(
+                $cache,
+                isset($trackingConfig['ttl']) ? (int) $trackingConfig['ttl'] : null,
+            );
+        });
     }
 
     /**
@@ -536,6 +551,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/identify', [$controller, 'identify']);
                 Route::post('analytics/pageview', [$controller, 'pageview']);
                 Route::post('analytics/consent', [$controller, 'updateConsent']);
+                Route::post('analytics/opt-out', [$controller, 'optOut']);
+                Route::post('analytics/opt-in', [$controller, 'optIn']);
+                Route::get('analytics/preference', [$controller, 'preference']);
             });
     }
 }

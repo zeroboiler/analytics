@@ -118,6 +118,54 @@ final class EventCatalog
     }
 
     /**
+     * Get all PostHog-compatible event names across all categories.
+     *
+     * Maps SaaS events to PostHog conventions ($signup, $identify, etc.)
+     * and passes through all other event names as-is.
+     *
+     * @return list<string>
+     */
+    public static function allPosthogNames(): array
+    {
+        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
+        $names = [];
+
+        foreach (self::names() as $name) {
+            $names[] = $posthogMap[$name] ?? $name;
+        }
+
+        return array_values(array_unique($names));
+    }
+
+    /**
+     * Get all Plausible-compatible event names across all categories.
+     *
+     * Filters out events not supported by Plausible (scroll_depth, click,
+     * session events, form events) and maps page_view → pageview.
+     *
+     * @return list<string>
+     */
+    public static function allPlausibleNames(): array
+    {
+        $plausibleMap = \ZeroBoiler\Analytics\Support\EventTransformer::toPlausibleEventMap();
+        $names = [];
+
+        foreach (self::names() as $name) {
+            if (isset($plausibleMap[$name])) {
+                if ($plausibleMap[$name] !== null) {
+                    $names[] = $plausibleMap[$name];
+                }
+                // null = not supported, skip
+            } else {
+                // Not explicitly mapped = supported as custom event
+                $names[] = $name;
+            }
+        }
+
+        return array_values(array_unique($names));
+    }
+
+    /**
      * Search events by name pattern (partial match).
      *
      * @return list<EventEntry>
@@ -138,15 +186,39 @@ final class EventCatalog
     /**
      * Get events grouped by provider name.
      *
-     * Returns arrays keyed by provider name (ga4, meta) with deduplicated event names.
+     * Returns arrays keyed by provider name with deduplicated event names.
+     * Includes all supported providers: ga4, meta, posthog, plausible.
      *
-     * @return array{ga4: list<string>, meta: list<string>}
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>}
      */
     public static function byProvider(): array
     {
+        $plausibleMap = \ZeroBoiler\Analytics\Support\EventTransformer::toPlausibleEventMap();
+        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
+
+        $plausibleNames = [];
+        $posthogNames = [];
+
+        foreach (self::all() as $name => $entry) {
+            if (isset($plausibleMap[$name]) && $plausibleMap[$name] !== null) {
+                $plausibleNames[] = $plausibleMap[$name];
+            } elseif (! isset($plausibleMap[$name])) {
+                // Events not explicitly mapped are supported as custom Plausible events
+                $plausibleNames[] = $name;
+            }
+
+            if (isset($posthogMap[$name])) {
+                $posthogNames[] = $posthogMap[$name];
+            } else {
+                $posthogNames[] = $name;
+            }
+        }
+
         return [
             'ga4' => self::allGa4Names(),
             'meta' => self::allMetaNames(),
+            'posthog' => array_values(array_unique($posthogNames)),
+            'plausible' => array_values(array_unique($plausibleNames)),
         ];
     }
 

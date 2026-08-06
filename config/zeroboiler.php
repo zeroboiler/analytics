@@ -402,5 +402,21 @@ return [
             'track_fcp' => env('ANALYTICS_PERFORMANCE_FCP', false),
             'send_to_server' => env('ANALYTICS_PERFORMANCE_SERVER', true),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Tracking Preferences (Per-User Opt-Out)
+        |-------------------------------------------------------------------------- 
+        |
+        | Per-user tracking preferences persisted in cache. Unlike consent signals
+        | (which control cookie/storage permissions), tracking preferences suppress
+        | all event dispatch, even when consent is granted.
+        |
+        | Use Analytics::optOut($userId) to persist user preferences.
+        |
+        */
+        'tracking_preference' => [
+            'ttl' => (int) env('ANALYTICS_TRACKING_PREF_TTL', 604800), // 7 days (seconds)
+        ],
     ],
 ];

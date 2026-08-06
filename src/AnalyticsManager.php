@@ -1014,11 +1014,107 @@ class AnalyticsManager
     }
 
     /**
+     * Check if tracking is allowed for a given identity.
+     *
+     * Combines tracking preference checks (per-user opt-out) with consent state.
+     * Returns true if both consent is granted and the user has not opted out.
+     *
+     * @param  string|null  $userId  Authenticated user ID
+     * @param  string|null  $clientId  Client tracking ID
+     */
+    public function isTrackingAllowed(?string $userId = null, ?string $clientId = null): bool
+    {
+        // Check tracking preferences if service is available
+        try {
+            $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
+
+            if (! $preferences->shouldTrack($userId, $clientId)) {
+                return false;
+            }
+        } catch (\Throwable) {
+            // TrackingPreferenceService not available — continue with consent check only
+        }
+
+        // Check consent state
+        $consent = $this->getConsent();
+
+        return $consent->hasAnalyticsConsent();
+    }
+
+    /**
+     * Opt a user out of all tracking (GDPR do-not-track).
+     *
+     * Persists the opt-out preference via TrackingPreferenceService.
+     * This goes beyond consent — even if consent is granted, the user's
+     * events will not be dispatched after opting out.
+     */
+    public function optOut(string $userId): void
+    {
+        try {
+            $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
+            $preferences->optOut($userId);
+        } catch (\Throwable $e) {
+            Log::warning('ZeroBoiler Analytics: failed to persist opt-out', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Opt a user in to tracking (override previous opt-out).
+     */
+    public function optIn(string $userId): void
+    {
+        try {
+            $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
+            $preferences->optIn($userId);
+        } catch (\Throwable $e) {
+            Log::warning('ZeroBoiler Analytics: failed to persist opt-in', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Suppress tracking for an anonymous client ID.
+     *
+     * Use before authentication when a user declines tracking.
+     * The preference is transferred to the user ID after login/registration.
+     */
+    public function suppressClient(string $clientId): void
+    {
+        try {
+            $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
+            $preferences->suppressClient($clientId);
+        } catch (\Throwable) {
+            // Silent fail
+        }
+    }
+
+    /**
+     * Transfer client suppression to user ID (called on login/signup).
+     *
+     * @return bool True if the client was suppressed and the user was opted out
+     */
+    public function transferClientToUser(string $clientId, string $userId): bool
+    {
+        try {
+            $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
+
+            return $preferences->transferClientToUser($clientId, $userId);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
      * Get the package version.
      */
     public function version(): string
     {
-        return '2.15.0';
+        return '2.16.0';
     }
 
     /**

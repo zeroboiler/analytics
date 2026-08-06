@@ -2,6 +2,27 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.16.0] - 2026-08-06
+
+### Added
+- **TrackingPreferenceService** — Per-user GDPR opt-out/opt-in with persistent cache storage (7-day TTL)
+- **AnalyticsManager::optOut()** / **optIn()** — Persist user tracking preferences (beyond consent)
+- **AnalyticsManager::isTrackingAllowed()** — Combined preference + consent check for tracking decisions
+- **AnalyticsManager::suppressClient()** — Suppress anonymous client tracking before authentication
+- **AnalyticsManager::transferClientToUser()** — Transfer client suppression to authenticated user on login
+- **POST /api/analytics/opt-out** — API endpoint for per-user tracking opt-out
+- **POST /api/analytics/opt-in** — API endpoint for per-user tracking opt-in
+- **GET /api/analytics/preference** — Check tracking preference status (combined consent + opt-out)
+- **EventCatalog::allPosthogNames()** — PostHog-compatible event names ($signup, $identify, etc.)
+- **EventCatalog::allPlausibleNames()** — Plausible-compatible event names (filtered, pageview mapping)
+- **EventCatalog::byProvider()** expanded — Now includes `posthog` and `plausible` provider keys
+- **Config: `tracking_preference`** section — Cache TTL configuration for tracking preferences
+- **JS client: `optOutTracking()`** — Client-side opt-out with immediate tracking stop
+- **JS client: `optInTracking()`** — Client-side opt-in to restore tracking
+- **JS client: `getTrackingPreference()`** — Fetch current preference state from server
+- Fixed broken template literals in JS client (`***` → backticks)
+- 20+ new tests covering TrackingPreferenceService and EventCatalog provider expansion
+
 ## [2.15.0] - 2026-08-06
 
 ### Added

@@ -326,7 +326,7 @@ class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.15.0',
+            'version' => '2.16.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -412,7 +412,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.15.0',
+            'version' => '2.16.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -580,5 +580,98 @@ class AnalyticsEventController extends Controller
         $result = $this->validator->validate($event);
 
         return $result['event'];
+    }
+
+    /**
+     * Opt the authenticated user out of all tracking.
+     *
+     * POST /api/analytics/opt-out
+     *
+     * Persists the opt-out preference in cache. Even if consent is granted,
+     * no events will be dispatched for this user after opting out.
+     * Use POST /api/analytics/opt-in to reverse.
+     */
+    public function optOut(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = $user->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        if ($userIdStr === null || $userIdStr === '') {
+            return response()->json(['error' => 'Invalid user ID'], 400);
+        }
+
+        $this->manager->optOut($userIdStr);
+
+        // Also suppress the current client ID
+        $clientId = $this->extractClientId($request);
+        if ($clientId !== null) {
+            $this->manager->suppressClient($clientId);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'tracking' => false,
+            'message' => 'Tracking disabled for this user.',
+        ]);
+    }
+
+    /**
+     * Opt the authenticated user in to tracking.
+     *
+     * POST /api/analytics/opt-in
+     *
+     * Overrides any previous opt-out preference.
+     */
+    public function optIn(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = $user->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        if ($userIdStr === null || $userIdStr === '') {
+            return response()->json(['error' => 'Invalid user ID'], 400);
+        }
+
+        $this->manager->optIn($userIdStr);
+
+        return response()->json([
+            'status' => 'ok',
+            'tracking' => true,
+            'message' => 'Tracking enabled for this user.',
+        ]);
+    }
+
+    /**
+     * Get the tracking preference status for the authenticated user.
+     *
+     * GET /api/analytics/preference
+     *
+     * Returns whether tracking is currently allowed based on
+     * both consent state and per-user tracking preferences.
+     */
+    public function preference(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $userId = $user !== null ? (is_int($user->getKey()) || is_string($user->getKey()) ? (string) $user->getKey() : null) : null;
+        $clientId = $this->extractClientId($request);
+
+        $allowed = $this->manager->isTrackingAllowed($userId, $clientId);
+
+        return response()->json([
+            'status' => 'ok',
+            'tracking_allowed' => $allowed,
+            'consent' => $this->manager->getConsent()->toArray(),
+        ]);
     }
 }
