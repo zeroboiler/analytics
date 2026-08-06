@@ -1,49 +1,209 @@
 # ZeroBoiler Analytics
 
-Industry-standard SaaS analytics for Laravel — complete event tracking across GA4, GTM, Meta Pixel, Plausible, and PostHog.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Laravel 11+](https://img.shields.io/badge/Laravel-11%2B-red.svg)](https://laravel.com)
+[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-8892BF.svg)](https://www.php.net)
 
-## Features
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, and GDPR consent.
 
-- **Multi-Provider Tracking** — GA4 (Measurement Protocol + client), GTM (dataLayer + ecommerce), Meta Pixel (CAPI + client), Plausible, PostHog
-- **Event Catalog** — Typed event classes for E-commerce, SaaS lifecycle, Engagement, and Custom events (32 total)
-- **Event Schema Registry** — Centralized schema definitions for 30+ events with typed parameters, validation, and provider-specific name mappings
-- **Middleware Stack** — Priority-ordered, composable middleware system (consent gate, context attachment, schema validation, timestamp, logging)
-- **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
-- **Event Pipeline** — Middleware chain for filtering, enriching, and transforming events before dispatch (UTM, user context, consent, timestamps)
-- **Revenue Analytics** — MRR, ARR, one-time, add-on, upgrade, downgrade, and churn revenue tracking service
-- **UTM Campaign Attribution** — Auto-capture UTM params (server-side + client-side), attach to all events for marketing attribution
-- **Server-Side Auto-Tracking** — Automatically tracks Laravel auth events (login, register, logout) and custom app events (subscriptions, trials, features)
-- **Inertia.js Integration** — Middleware injects analytics config into page props for Svelte/Vue/React
-- **API Endpoints** — Server-side endpoints for frontend event tracking (track, batch, identify, consent, health)
-- **JS Client Library** — ES module for Svelte/Inertia with auto page view, screen view, scroll depth, form tracking, error tracking, A/B test exposure, notification tracking, performance monitoring, and batch queue
-- **Async Queue Dispatch** — Queue analytics events to background workers (configurable), with `trackAsync()` facade shortcut
-- **User Identity Linking** — Cross-device identification via client ID ↔ user ID association
-- **E-commerce Helpers** — High-level service for view item, cart, checkout, purchase, refund with GA4 + Meta format conversion
-- **SaaS Analytics Service** — Convenience methods for SaaS lifecycle: sign-up, login, trial, subscription, plan changes, cancellation, feature usage
-- **Session Tracker** — Session start/end, page counts, duration tracking, conversion funnel monitoring
-- **Event Validation** — Event name validation, parameter sanitization, and deduplication
-- **Consent Mode v2** — Full GDPR compliance with granular consent signals
-- **Blade Directives** — `@analyticsHead`, `@analyticsBody` for traditional Laravel apps
-- **Admin Commands** — `zb:analytics:overview` and `zb:analytics:test`
-- **User Properties & Alias** — `setUserProperties()` for user traits (PostHog $set, GA4 user props), `alias()` for identity merging (anonymous → authenticated)
-- **Auto Link Tracking** — Optional automatic outbound/internal link click tracking via JS client, configurable from Inertia props
-- **Server-Side Page View API** — `POST /api/analytics/pageview` endpoint for ad-blocker-resistant page views
-- **Enriched Identify** — `POST /api/analytics/identify` now accepts user traits alongside client ID
-- **Debug Mode** — Development-friendly logging without dispatching to providers, runtime toggle via `setDebug()`
-- **Server-Side Event Validation** — Auto-validation and sanitization on API endpoints, deduplication, strict whitelist mode
-- **Event Catalog** — Static catalogs (`EcommerceEvents`, `SaaSEvents`, `EngagementEvents`) for event lookup, validation, and cross-provider name mapping
-- **GDPR Identity Reset** — `resetIdentity()` for right-to-be-forgotten across GA4 and PostHog
-
-## Installation
+## Quick Start
 
 ```bash
 composer require zeroboiler/analytics
+php artisan vendor:publish --tag=zeroboiler-analytics-config
 ```
 
-Publish the configuration:
+```env
+ANALYTICS_GA4_ENABLED=true
+ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+ANALYTICS_GA4_API_SECRET=your_secret
+```
 
-```bash
-php artisan vendor:publish --tag=zeroboiler-analytics-config
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+Analytics::track('button_click', ['element' => 'buy_now']);
+Analytics::purchase('TXN-12345', 99.99, [['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2]]);
+```
+
+```javascript
+// Svelte/Inertia
+import { init, trackEvent, trackPageView } from '../resources/js/analytics';
+
+init(page.props);
+await trackEvent('tutorial_completed', { duration_seconds: 300 });
+```
+
+Done. That's it.
+
+## Features
+
+### Multi-Provider Tracking
+- **GA4** — Measurement Protocol (server-side) + gtag.js (client-side), debug/validation endpoint
+- **GTM** — dataLayer push + ecommerce events
+- **Meta Pixel** — Conversions API (CAPI/server) + fbq.js (client)
+- **Plausible Analytics** — Privacy-focused server-side tracking
+- **PostHog** — Product analytics with $set, $create_alias, $reset
+- All trackers implement `TrackerInterface` for easy extension
+
+### Event System
+- **32 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
+- **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
+- **EventSchemaRegistry** — 30+ event schemas with typed parameters, validation, and custom schema registration
+- **CustomEvent** — Arbitrary event name + params for one-off tracking
+
+### Event Processing
+- **Middleware Stack** — Priority-ordered, composable middleware (consent gate, context attachment, schema validation, timestamp, logging)
+- **Event Pipeline** — Lightweight pipe chain for UTM enrichment, user context, consent filtering, and timestamp enrichment
+- **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
+- **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
+
+### SaaS Analytics
+- **SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue
+- **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
+- **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
+- **Server-Side Auto-Tracking** — Config-driven mapping of Laravel auth events and custom app events to analytics events
+- **Session & Funnel Tracker** — Session start/end, page counts, duration, and conversion funnel step tracking
+
+### E-commerce
+- **8 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund
+- **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
+- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping (JS + PHP)
+
+### Identity & GDPR
+- **User Identity Linking** — Client ID ↔ User ID association for cross-device identification
+- **Identity Alias** — Merge anonymous → authenticated profiles (PostHog $create_alias compatible)
+- **User Properties** — Set user traits across all providers (PostHog $set, GA4 user properties)
+- **GDPR Identity Reset** — `resetIdentity()` for right-to-be-forgotten compliance
+- **Consent Mode v2** — Full granular consent (analytics_storage, ad_storage, ad_user_data, ad_personalization, functionality_storage, security_storage)
+
+### Inertia.js Integration
+- **HandleInertiaAnalytics Middleware** — Injects analytics config + server-generated tracking ID into page props
+- **Client ID Cookie** — Auto-generated UUID stored in httpOnly cookie for server/client matching
+- **Auto-Track Links** — Configurable outbound/internal link click tracking exposed via Inertia props
+
+### API Endpoints
+- `POST /api/analytics/events` — Track single event (auth:sanctum, rate-limited)
+- `POST /api/analytics/batch` — Track up to 25 events in one request
+- `POST /api/analytics/identify` — Link client ID ↔ user ID + optional traits
+- `POST /api/analytics/pageview` — Server-side page view (ad-blocker resistant)
+- `POST /api/analytics/consent` — Update consent signals
+- `GET /api/analytics/health` — Health check (public, no auth)
+
+### JS Client Library (`resources/js/analytics.js`)
+- **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
+- **Event Tracking** — `trackEvent()` with auto-batch queue (5s / 25 events) + immediate mode
+- **Page View** — Client-side GA4/Meta/Plausible/PostHog push + server-side dispatch
+- **E-commerce** — `trackEcommerce()` with automatic GA4 ↔ Meta format conversion
+- **Screen View & A/B Test** — SPA navigation and experiment exposure tracking
+- **Scroll Depth** — Fires at 25%, 50%, 75%, 90% thresholds (once per page view)
+- **Form Tracking** — Auto-captures `form_start` and `form_submit` via event delegation
+- **Error Tracking** — Captures `window.error` + `unhandledrejection` with configurable ignore patterns
+- **Performance Tracking** — Web Vitals integration (LCP, CLS, INP) + Performance API timing
+- **Link Tracking** — Auto-track outbound/internal link clicks with custom prefix
+- **UTM Capture** — Auto-captures UTM params on init, persists across navigations, enriches all events
+- **Identity** — `identify()`, `alias()`, `identifyWithTraits()`, `setUserProperties()`, `trackServerPageView()`
+- **Cleanup** — All auto-trackers return cleanup functions for Svelte `onMount` compatibility
+
+### Async Queue Dispatch
+- Configurable queue connection and queue name
+- `QueuedAnalyticsDispatcher` for background event processing
+- `trackAsync()` facade shortcut with automatic sync fallback on failure
+
+### Admin Commands
+- `zb:analytics:overview` — Shows enabled providers, consent state, auto-track config, queue settings, identity config, ecommerce settings
+- `zb:analytics:test` — Sends test event to all providers, supports `--validate` (GA4 debug) and `--event=` (custom name)
+
+### Blade Integration
+- `@analyticsHead` — GA4/GTM/Meta/Plausible/PostHog head script tags
+- `@analyticsBody` — GTM noscript + Meta body script tags
+- `InjectAnalyticsScripts` middleware for auto-injection
+
+### Developer Experience
+- **Debug Mode** — `ANALYTICS_DEBUG_ENABLED=true` logs events without dispatching, runtime toggle via `setDebug()`
+- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()` and 20+ more methods
+- **Config-Driven** — 30+ environment variables, sensible defaults, zero-required-config to start
+- **PHPStan 9** — Level max, full type coverage
+- **Pest PHP** — 35+ tests
+- **Pint** — Laravel coding style
+- **Rector** — Automated code quality
+
+## Architecture
+
+```
+src/
+├── AnalyticsManager.php              # Core manager — dispatches to all 6 trackers
+├── AnalyticsServiceProvider.php       # Laravel service provider (registers everything)
+├── Context/
+│   └── EventContextBuilder.php        # Auto-collect request context (user, UTM, session, device)
+├── DTO/
+│   ├── AnalyticsEvent.php            # Immutable event DTO (name, params, clientId, userId)
+│   └── ConsentState.php              # GDPR consent state (6 granular signals)
+├── Events/
+│   ├── Ecommerce/                    # 8 e-commerce event classes + EcommerceEvents catalog
+│   ├── SaaS/                         # 11 SaaS lifecycle event classes + SaaSEvents catalog
+│   ├── Engagement/                   # 13 engagement event classes + EngagementEvents catalog
+│   ├── CustomEvent.php               # Generic custom event
+│   └── EventCatalog.php              # Unified catalog (32 events, cross-provider mappings)
+├── Middleware/
+│   ├── AnalyticsMiddlewareInterface.php   # Middleware contract
+│   ├── AnalyticsMiddlewareStack.php       # Priority-ordered middleware stack
+│   ├── ConsentGateMiddleware.php          # Consent-based event filtering
+│   ├── ContextAttachmentMiddleware.php    # Auto-attach context to events
+│   ├── SchemaValidationMiddleware.php     # Schema-aware event validation
+│   ├── TimestampMiddleware.php            # Auto-add timestamps
+│   └── LoggingMiddleware.php              # Debug event logging
+├── Schema/
+│   ├── EventSchema.php             # Event parameter schema definition
+│   ├── EventParam.php              # Parameter type & constraints
+│   └── EventSchemaRegistry.php    # Central schema registry (30+ events)
+├── Pipeline/
+│   ├── EventPipeline.php            # Middleware pipeline for event processing
+│   ├── UtmEnricher.php              # UTM campaign parameter enrichment
+│   ├── UserContextEnricher.php      # User context enrichment
+│   ├── ConsentFilter.php            # Consent-based event filtering
+│   └── TimestampEnricher.php        # Timestamp & session enrichment
+├── Trackers/
+│   ├── GA4Tracker.php               # GA4 Measurement Protocol + debug endpoint
+│   ├── GTMTracker.php               # GTM dataLayer push
+│   ├── MetaPixelTracker.php         # Meta Pixel CAPI
+│   ├── PlausibleTracker.php         # Plausible Analytics
+│   ├── PosthogTracker.php           # PostHog ($capture, $set, $create_alias, $reset)
+│   ├── TrackerInterface.php         # Common tracker contract
+│   └── TrackerHelpers.php           # Shared consent helpers
+├── Services/
+│   ├── GoogleAnalyticsService.php        # GA4 convenience wrapper
+│   ├── GoogleTagManagerService.php      # GTM convenience wrapper
+│   ├── MetaPixelService.php             # Meta convenience wrapper
+│   ├── EcommerceAnalyticsService.php     # Full e-commerce flow methods
+│   ├── SaaSAnalyticsService.php         # SaaS lifecycle convenience methods
+│   ├── RevenueAnalyticsService.php      # Revenue tracking (MRR, ARR, churn)
+│   └── EventValidationService.php      # Event validation & deduplication
+├── Tracking/
+│   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
+│   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
+│   └── SessionTracker.php          # Session, funnel, and conversion tracking
+├── Queue/
+│   └── QueuedAnalyticsDispatcher.php   # Async queue dispatch (configurable)
+├── Http/
+│   ├── Controllers/AnalyticsEventController.php  # 6 API endpoints + event pipeline
+│   └── Middleware/InjectAnalyticsScripts.php       # Auto-inject analytics scripts
+├── Inertia/
+│   └── HandleInertiaAnalytics.php   # Inertia page prop injection + tracking ID cookie
+├── Console/Commands/
+│   ├── AnalyticsOverviewCommand.php  # Config overview
+│   └── AnalyticsTestCommand.php     # Test event dispatch
+├── Blade/Directives/
+│   └── AnalyticsDirectives.php      # @analyticsHead, @analyticsBody
+├── Facades/
+│   └── Analytics.php               # Facade (20+ methods)
+resources/
+└── js/
+    └── analytics.js                 # ES module client library (~1200 LOC)
+config/
+└── zeroboiler.php                   # 30+ config options across 12 sections
+routes/
+└── analytics.php                    # API route definitions
 ```
 
 ## Configuration
@@ -53,69 +213,68 @@ All settings are in `config/zeroboiler.php` under the `analytics` key.
 ### Environment Variables
 
 ```env
-# GA4
+# ── Providers ──────────────────────────────────────────────────────
 ANALYTICS_GA4_ENABLED=false
 ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 ANALYTICS_GA4_API_SECRET=your_secret
 
-# GTM
 ANALYTICS_GTM_ENABLED=false
 ANALYTICS_GTM_CONTAINER_ID=GTM-XXXXXXX
 
-# Meta Pixel
 ANALYTICS_META_PIXEL_ENABLED=false
 ANALYTICS_META_PIXEL_ID=123456789
 ANALYTICS_META_PIXEL_ACCESS_TOKEN=your_token
 
-# Plausible (optional)
 ANALYTICS_PLAUSIBLE_ENABLED=false
 ANALYTICS_PLAUSIBLE_DOMAIN=example.com
 ANALYTICS_PLAUSIBLE_API_KEY=your_key
 
-# PostHog (optional)
 ANALYTICS_POSTHOG_ENABLED=false
 ANALYTICS_POSTHOG_API_KEY=your_key
 ANALYTICS_POSTHOG_HOST=https://eu.posthog.com
+ANALYTICS_POSTHOG_PROJECT_ID=
 
-# Consent
+# ── Consent (GDPR) ─────────────────────────────────────────────
 ANALYTICS_CONSENT_DEFAULT=granted
 
-# Auto-Track
+# ── Server-Side Auto-Tracking ────────────────────────────────────
 ANALYTICS_AUTO_TRACK_ENABLED=true
 
-# Queue
+# ── Queue (Async Dispatch) ─────────────────────────────────────────
 ANALYTICS_QUEUE_ENABLED=true
 ANALYTICS_QUEUE=analytics
 ANALYTICS_QUEUE_CONNECTION=
 
-# API
+# ── API Endpoints ─────────────────────────────────────────────────
 ANALYTICS_API_ENABLED=true
 ANALYTICS_API_THROTTLE=60
 
-# Identity
+# ── Identity Tracking ────────────────────────────────────────────
 ANALYTICS_IDENTITY_COOKIE=zb_analytics_id
 ANALYTICS_IDENTITY_COOKIE_TTL=525600
+ANALYTICS_IDENTITY_COOKIE_SECURE=true
+ANALYTICS_IDENTITY_COOKIE_SAMESITE=Lax
 
-# E-commerce
+# ── E-commerce ────────────────────────────────────────────────────
 ANALYTICS_ECOMMERCE_CURRENCY=USD
 ANALYTICS_ECOMMERCE_BRAND=
 
-# Auto-Track Links
+# ── Auto-Track Links ──────────────────────────────────────────────
 ANALYTICS_TRACK_LINKS_ENABLED=false
 ANALYTICS_TRACK_LINKS_EXTERNAL=true
 ANALYTICS_TRACK_LINKS_INTERNAL=false
 ANALYTICS_TRACK_LINKS_PREFIX=outbound
 
-# Debug
+# ── Debug Mode ───────────────────────────────────────────────────
 ANALYTICS_DEBUG_ENABLED=false
 ANALYTICS_DEBUG_LOG_EVENTS=false
 
-# Event Validation
+# ── Event Validation ──────────────────────────────────────────────
 ANALYTICS_VALIDATION_STRICT=false
 ANALYTICS_VALIDATION_MAX_NAME_LENGTH=100
 ANALYTICS_VALIDATION_DEDUP_WINDOW=10
 
-# Event Pipeline
+# ── Event Pipeline ────────────────────────────────────────────────
 ANALYTICS_PIPELINE_AUTO_UTM=true
 ANALYTICS_PIPELINE_AUTO_TIMESTAMP=false
 ```
@@ -142,86 +301,46 @@ Analytics::purchase('TXN-12345', 99.99, [
 // Identify a user (cross-device linking)
 Analytics::identify('42', 'client-uuid', ['email_hash' => hash('sha256', 'user@example.com'), 'plan' => 'pro']);
 
-// Screen view tracking (multi-page / SPA navigation)
+// Screen view (SPA navigation)
 Analytics::screenView('Dashboard', 'main');
-Analytics::screenView('Settings', 'modal', ['tab' => 'billing']);
 
 // A/B test exposure
-Analytics::abTestExposure('pricing_redesign_v2', 'variant_a', ['experiment_name' => 'Pricing Redesign']);
+Analytics::abTestExposure('pricing_redesign_v2', 'variant_a');
 
 // Notification tracking
 Analytics::notification('email', 'sent', 'welcome');
 Analytics::notification('push', 'opened', 'weekly_digest');
-Analytics::notification('sms', 'delivered', 'otp_verification');
 
 // Async event dispatch (queued)
 Analytics::trackAsync('background_job', ['job_id' => '12345']);
-```
-
-### Screen View & A/B Test Tracking
-
-```php
-use ZeroBoiler\Analytics\Events\Engagement\{ScreenViewEvent, AbTestExposureEvent, NotificationEvent};
-
-// Typed screen view events (SPA navigation)
-Analytics::trackEvent(new ScreenViewEvent('Dashboard'));
-Analytics::trackEvent(new ScreenViewEvent('Settings', 'modal', ['tab' => 'profile']));
-
-// A/B test exposure
-Analytics::trackEvent(new AbTestExposureEvent('cta_color_test', 'control'));
-Analytics::trackEvent(new AbTestExposureEvent(
-    'pricing_redesign_v2',
-    'variant_a',
-    ['experiment_name' => 'Pricing Page Redesign'],
-));
-
-// Notification events
-Analytics::trackEvent(new NotificationEvent('email', 'sent', 'welcome_email'));
-Analytics::trackEvent(new NotificationEvent('push', 'clicked', 'daily_reminder'));
-Analytics::trackEvent(new NotificationEvent('in_app', 'dismissed', 'upgrade_cta'));
-Analytics::trackEvent(new NotificationEvent('sms', 'failed', 'otp_verification'));
 ```
 
 ### E-commerce Tracking
 
 ```php
 use ZeroBoiler\Analytics\Facades\Analytics;
-
-// Quick purchase tracking
-Analytics::purchase('TXN-12345', 99.99, [
-    ['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2],
-], ['currency' => 'USD', 'coupon' => 'WELCOME20']);
-
-// Full e-commerce flow
 use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
 
-$ecommerce = app(EcommerceAnalyticsService::class);
+// Quick purchase
+Analytics::purchase('TXN-12345', 99.99, [
+    ['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2],
+]);
 
+// Full e-commerce flow
+$ecommerce = app(EcommerceAnalyticsService::class);
 $ecommerce->viewItem(['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99]);
 $ecommerce->addToCart(['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 1]);
 $ecommerce->viewCart([['item_id' => 'SKU-001', 'price' => 49.99]], 49.99);
 $ecommerce->beginCheckout([['item_id' => 'SKU-001', 'price' => 49.99]], 49.99, ['coupon' => 'SAVE10']);
 $ecommerce->addPaymentInfo('credit_card');
 $ecommerce->purchase('TXN-12345', 49.99, [['item_id' => 'SKU-001', 'price' => 49.99, 'quantity' => 1]]);
+$ecommerce->refund('TXN-12345', 49.99);
 ```
 
 ### SaaS Lifecycle Events
 
 ```php
 use ZeroBoiler\Analytics\Facades\Analytics;
-use ZeroBoiler\Analytics\Events\SaaS\{SignUpEvent, TrialStartEvent, SubscriptionEvent};
-
-Analytics::trackEvent(new SignUpEvent(method: 'github'));
-Analytics::trackEvent(new TrialStartEvent(plan: 'pro', trialDays: 14));
-Analytics::trackEvent(new SubscriptionEvent(plan: 'pro', value: 29.99, currency: 'USD'));
-Analytics::trackEvent(new PlanUpgradeEvent(fromPlan: 'starter', toPlan: 'pro'));
-Analytics::trackEvent(new CancellationEvent(plan: 'pro', reason: 'too_expensive'));
-Analytics::trackEvent(new FeatureUsedEvent(feature: 'export', usageCount: 5));
-```
-
-### SaaS Analytics Service (Convenience)
-
-```php
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 
 $saas = app(SaaSAnalyticsService::class);
@@ -231,153 +350,36 @@ $saas->trackLogin('sanctum');
 $saas->trackTrialStart('pro', 14);
 $saas->trackSubscription('business', 99.99, 'EUR');
 $saas->trackPlanUpgrade('starter', 'pro');
+$saas->trackPlanDowngrade('pro', 'starter');
 $saas->trackCancellation('pro', 'too_expensive');
 $saas->trackFeatureUsed('export', 5);
 $saas->trackCustomEvent('onboarding_complete', ['step_count' => 5]);
 ```
 
-### Revenue Analytics Service
+### Revenue Analytics
 
 ```php
 use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 
 $revenue = app(RevenueAnalyticsService::class);
 
-// Track MRR / ARR
-$revenue->trackMRR(5000.00, 120);             // amount, subscriber count
+$revenue->trackMRR(5000.00, 120);              // $5,000 MRR, 120 subscribers
 $revenue->trackARR(60000.00, 120, 'EUR');      // custom currency
-
-// One-time and add-on revenue
 $revenue->trackOneTime(49.99, 'setup fee');
 $revenue->trackAddon(15.00, 'extra_storage', 'pro');
-
-// Plan changes
 $revenue->trackUpgradeRevenue(29.99, 9.99, 'starter', 'pro');
 $revenue->trackDowngradeRevenue(9.99, 29.99, 'pro', 'starter');
 $revenue->trackChurnRevenue(29.99, 'pro', 'too_expensive');
-
-// Custom revenue events
 $revenue->trackCustom(75.00, 'expansion', 'enterprise', ['team_size' => 10]);
-```
-
-### Revenue & Campaign Events
-
-```php
-use ZeroBoiler\Analytics\Events\SaaS\RevenueEvent;
-use ZeroBoiler\Analytics\Events\Engagement\CampaignAttributionEvent;
-
-// Revenue event for billing/metrics tracking
-Analytics::trackEvent(new RevenueEvent(
-    amount: 29.99,
-    currency: 'USD',
-    revenueType: 'mrr',
-    planName: 'pro',
-));
-
-// Campaign attribution from UTM parameters
-Analytics::trackEvent(new CampaignAttributionEvent(
-    source: 'google',
-    medium: 'cpc',
-    campaign: 'spring_sale',
-    term: 'analytics tool',
-    landingPage: 'https://example.com/pricing',
-));
-```
-
-### Event Pipeline
-
-Process events through a middleware pipeline before dispatch:
-
-```php
-use ZeroBoiler\Analytics\Pipeline\EventPipeline;
-use ZeroBoiler\Analytics\Pipeline\{ConsentFilter, UtmEnricher, UserContextEnricher, TimestampEnricher};
-
-$pipeline = new EventPipeline;
-
-// Drop events when analytics consent is denied
-$pipeline->pipe(new ConsentFilter($consentGranted));
-
-// Auto-attach UTM params from request
-$pipeline->pipe(new UtmEnricher($request->query->all()));
-
-// Attach authenticated user context
-$pipeline->pipe(new UserContextEnricher(['user_id' => '42', 'user_plan' => 'pro']));
-
-// Add timestamp and session ID
-$pipeline->pipe(new TimestampEnricher($sessionId));
-
-// Process event — returns null if filtered out
-$processed = $pipeline->process($event);
-
-if ($processed !== null) {
-    Analytics::trackEvent($processed);
-}
-```
-
-Or use the pre-configured pipeline with sensible defaults:
-
-```php
-$pipeline = EventPipeline::withDefaults($request->query->all(), true, $sessionId);
-$result = $pipeline->process($event);
-```
-
-### Session Tracking
-
-```php
-use ZeroBoiler\Analytics\Tracking\SessionTracker;
-
-$session = app(SessionTracker::class);
-
-// Start a session
-$session->startSession($sessionId, ['source' => 'email_campaign']);
-
-// Track pages within the session
-$session->trackSessionPageView($sessionId, ['page' => '/pricing']);
-
-// Track conversion funnels
-$session->trackFunnelStep('signup', 'landing', 1);
-$session->trackFunnelStep('signup', 'form', 2);
-$session->trackFunnelStep('signup', 'confirm', 3);
-$session->trackFunnelComplete('signup', 3);
-
-// Track abandonment
-$session->trackFunnelAbandon('purchase', 'checkout', 4);
-
-// End session
-$session->endSession($sessionId); // Tracks duration + page count
-```
-
-### Event Validation
-
-```php
-use ZeroBoiler\Analytics\Services\EventValidationService;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
-$validator = app(EventValidationService::class);
-
-$result = $validator->validate(new AnalyticsEvent(
-    name: 'page_view',
-    params: ['key' => 'value'],
-));
-
-if ($result['valid']) {
-    Analytics::trackEvent($result['event']);
-} else {
-    foreach ($result['errors'] as $error) {
-        Log::warning("Analytics validation: {$error}");
-    }
-}
-
-// Enable strict mode via config to only allow whitelisted events
 ```
 
 ### Engagement Events
 
 ```php
-use ZeroBoiler\Analytics\Facades\Analytics;
 use ZeroBoiler\Analytics\Events\Engagement\{
     PageViewEvent, ScrollDepthEvent, ClickEvent, FormStartEvent,
-    FormSubmitEvent, SearchEvent, ShareEvent, ErrorEvent, TimeOnPageEvent
+    FormSubmitEvent, SearchEvent, ShareEvent, ErrorEvent, TimeOnPageEvent,
+    ScreenViewEvent, AbTestExposureEvent, NotificationEvent, CampaignAttributionEvent,
 };
 
 Analytics::trackEvent(new PageViewEvent('Pricing', 'https://example.com/pricing'));
@@ -385,23 +387,13 @@ Analytics::trackEvent(new ScrollDepthEvent(percent: 75, page: '/blog/article-1')
 Analytics::trackEvent(new SearchEvent(query: 'analytics laravel', results: 42));
 Analytics::trackEvent(new FormSubmitEvent(formName: 'contact', formId: 'form-123'));
 Analytics::trackEvent(new ErrorEvent(code: 404, message: 'Page not found', url: '/missing'));
-```
-
-### Custom Events
-
-```php
-use ZeroBoiler\Analytics\Facades\Analytics;
-use ZeroBoiler\Analytics\Events\CustomEvent;
-
-Analytics::trackEvent(new CustomEvent('tutorial_completed', [
-    'tutorial_id' => 'getting-started',
-    'duration_seconds' => 300,
-]));
+Analytics::trackEvent(new ScreenViewEvent('Dashboard'));
+Analytics::trackEvent(new AbTestExposureEvent('cta_color_test', 'control'));
+Analytics::trackEvent(new NotificationEvent('email', 'sent', 'welcome_email'));
+Analytics::trackEvent(new CampaignAttributionEvent(source: 'google', medium: 'cpc', campaign: 'spring_sale'));
 ```
 
 ### Event Catalog
-
-Static catalogs provide a central registry for looking up event names, classes, and cross-provider mappings:
 
 ```php
 use ZeroBoiler\Analytics\Events\EventCatalog;
@@ -417,80 +409,98 @@ EventCatalog::classFor('purchase'); // PurchaseEvent::class
 
 // Grouped by category
 $byCategory = EventCatalog::byCategory();
-// ['ecommerce' => [...], 'saas' => [...], 'engagement' => [...]]
-
-// Per-category catalogs
-EcommerceEvents::names();   // ['view_item', 'add_to_cart', ...]
-SaaSEvents::names();        // ['sign_up', 'login', 'subscribe', ...]
-EngagementEvents::names();  // ['page_view', 'scroll_depth', 'click', ...]
 
 // Cross-provider mappings
 $event = EcommerceEvents::get('purchase');
-$event['ga4'];  // 'purchase'
-$event['meta']; // 'Purchase'
+$event['ga4'];   // 'purchase'
+$event['meta'];  // 'Purchase'
 $event['class']; // PurchaseEvent::class
 
-// All GA4 names (deduplicated)
+// All GA4 / Meta names (deduplicated)
 EventCatalog::allGa4Names();
-// All Meta Pixel names
 EventCatalog::allMetaNames();
 ```
 
-### GDPR Identity Reset
+### Event Pipeline
 
 ```php
-use ZeroBoiler\Analytics\Facades\Analytics;
+use ZeroBoiler\Analytics\Pipeline\EventPipeline;
+use ZeroBoiler\Analytics\Pipeline\{ConsentFilter, UtmEnricher, TimestampEnricher};
 
-// When a user requests account deletion or data erasure:
-Analytics::resetIdentity();
+$pipeline = new EventPipeline;
+$pipeline->pipe(new ConsentFilter($consentGranted));
+$pipeline->pipe(new UtmEnricher($request->query->all()));
+$pipeline->pipe(new TimestampEnricher($sessionId));
 
-// This sends:
-// - GA4: clears cached user ID
-// - PostHog: sends $reset event to disassociate future events
+$processed = $pipeline->process($event);
+if ($processed !== null) {
+    Analytics::trackEvent($processed);
+}
+
+// Or use pre-configured defaults:
+$pipeline = EventPipeline::withDefaults($context);
 ```
 
-### User Properties & Identity Alias
+### Event Context Builder
+
+```php
+use ZeroBoiler\Analytics\Context\EventContextBuilder;
+
+$context = (new EventContextBuilder($request))
+    ->withUserIdentity()
+    ->withClientId()
+    ->withSession()
+    ->withUTM()
+    ->withPage()
+    ->withDevice()
+    ->withCustom(['app_version' => '1.0.0'])
+    ->build();
+```
+
+### Session Tracking
+
+```php
+use ZeroBoiler\Analytics\Tracking\SessionTracker;
+
+$session = app(SessionTracker::class);
+
+$session->startSession($sessionId, ['source' => 'email_campaign']);
+$session->trackSessionPageView($sessionId, ['page' => '/pricing']);
+$session->trackFunnelStep('signup', 'landing', 1);
+$session->trackFunnelStep('signup', 'form', 2);
+$session->trackFunnelStep('signup', 'confirm', 3);
+$session->trackFunnelComplete('signup', 3);
+$session->trackFunnelAbandon('purchase', 'checkout', 4);
+$session->endSession($sessionId);
+```
+
+### User Identity & GDPR
 
 ```php
 use ZeroBoiler\Analytics\Facades\Analytics;
+use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 
-// Set user traits (propagates to PostHog $set, GA4 user properties)
-Analytics::setUserProperties(['name' => 'Jane', 'plan' => 'pro', 'company' => 'Acme']);
+// Identity linking
+$identity = app(UserIdentityTracker::class);
+$identity->onLogin($user, $request);
+$identity->onRegister($user, $request);
+$identity->identify($userId, $clientId);
 
-// With explicit user ID
-Analytics::setUserProperties(['email_hash' => hash('sha256', 'jane@example.com')], '42');
+// User properties
+Analytics::setUserProperties(['name' => 'Jane', 'plan' => 'pro'], '42');
 
-// Alias: merge anonymous identity with authenticated user
-// Call after signup to merge pre-signup activity with the new user profile
+// Identity alias (anonymous → authenticated)
 Analytics::alias('anonymous-client-uuid', 'user-42');
-```
 
-#### JS Client
-
-```javascript
-import { setUserProperties, alias, identifyWithTraits, trackServerPageView } from '../resources/js/analytics';
-
-// Set user properties from frontend
-await setUserProperties({ name: 'Jane', plan: 'pro' });
-
-// Alias anonymous → authenticated (call after signup)
-await alias(trackingId, newUserId);
-
-// Identify with traits in one call
-await identifyWithTraits({ name: 'Jane', plan: 'pro' });
-
-// Server-side page view (bypasses ad blockers)
-await trackServerPageView({ title: 'Pricing', location: '/pricing' });
+// GDPR right to be forgotten
+Analytics::resetIdentity();
 ```
 
 ### Consent Management
 
 ```php
 use ZeroBoiler\Analytics\Facades\Analytics;
-
-// Apply consent state
-Analytics::setConsent(ConsentState::granted());
-Analytics::denyConsent();
+use ZeroBoiler\Analytics\DTO\ConsentState;
 
 // Granular consent
 $state = Analytics::getConsent()->with([
@@ -498,72 +508,100 @@ $state = Analytics::getConsent()->with([
     'ad_storage' => 'denied',
 ]);
 Analytics::setConsent($state);
+
+// Shortcuts
+Analytics::grantConsent();
+Analytics::denyConsent();
 ```
 
-### Queue (Async Dispatch)
+### Event Validation
 
 ```php
-use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
+use ZeroBoiler\Analytics\Services\EventValidationService;
 
-$queue = app(QueuedAnalyticsDispatcher::class);
+$validator = app(EventValidationService::class);
+$result = $validator->validate(new AnalyticsEvent(name: 'page_view', params: ['key' => 'value']));
 
-// Queue a single event
-$queue->dispatch(new AnalyticsEvent('async_event', ['key' => 'value']));
-
-// Queue multiple events as a batch
-$queue->dispatchBatch([
-    new AnalyticsEvent('event_1', ['key' => 'value1']),
-    new AnalyticsEvent('event_2', ['key' => 'value2']),
-]);
+if ($result['valid']) {
+    Analytics::trackEvent($result['event']);
+}
 ```
 
-### Server-Side Auto-Tracking
-
-The `ServerSideTracker` automatically listens for Laravel auth events:
+### Event Schema Registry
 
 ```php
-// These are tracked automatically:
-// - Illuminate\Auth\Events\Login → LoginEvent
-// - Illuminate\Auth\Events\Registered → SignUpEvent
-// - Illuminate\Auth\Events\Logout → LogoutEvent
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+use ZeroBoiler\Analytics\Schema\EventSchema;
+use ZeroBoiler\Analytics\Schema\EventParam;
 
-// Custom events are configured in config:
-// 'auto_track' => [
-//     'events' => [
-//         'subscription.created' => true,
-//         'trial.started' => true,
-//     ],
-// ],
+$registry = app(EventSchemaRegistry::class);
+
+// Validate against schema
+$result = $registry->validate('purchase', ['transaction_id' => 'TXN-123', 'value' => 99.99]);
+
+// Register custom schemas
+$registry->register(new EventSchema(
+    name: 'onboarding_complete',
+    category: 'custom',
+    description: 'User completed onboarding flow',
+    requiredParams: ['steps_completed' => new EventParam(type: 'int', min: 1)],
+    optionalParams: ['duration_seconds' => new EventParam(type: 'int')],
+));
 ```
 
-### User Identity
+### Middleware Stack
 
 ```php
-use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
+use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
+use ZeroBoiler\Analytics\Middleware\{ConsentGateMiddleware, ContextAttachmentMiddleware, SchemaValidationMiddleware};
 
-$identity = app(UserIdentityTracker::class);
+$stack = new AnalyticsMiddlewareStack;
+$stack->add(new ConsentGateMiddleware($consentGranted));
+$stack->add(new ContextAttachmentMiddleware(['app_version' => '1.0.0']));
+$stack->add(new SchemaValidationMiddleware(app(EventSchemaRegistry::class)));
 
-// On login
-$identity->onLogin($user, $request);
+$processed = $stack->process($event);
+if ($processed !== null) {
+    Analytics::trackEvent($processed);
+}
 
-// On register
-$identity->onRegister($user, $request);
+// Pre-configured default stack
+$stack = AnalyticsMiddlewareStack::createDefault(analyticsGranted: true, context: ['source' => 'web']);
+```
 
-// Manual identify
-$identity->identify($userId, $clientId);
+### Debug Mode
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+Analytics::setDebug(true);
+Analytics::isDebug();           // true
+Analytics::shouldLogEvents();   // true if ANALYTICS_DEBUG_LOG_EVENTS=true
 ```
 
 ## Inertia.js Integration
 
-### Server-Side (Middleware)
-
-Add the `analytics.inertia` middleware to your web routes:
+### Server-Side
 
 ```php
 // routes/web.php
 Route::middleware(['web', 'analytics.inertia'])->group(function () {
-    // Your Inertia routes
+    // Inertia routes
 });
+```
+
+The middleware injects `zbAnalytics` into every Inertia response:
+
+```json
+{
+  "enabled": true,
+  "trackingId": "uuid-from-cookie",
+  "userId": "42",
+  "consent": { "analytics_storage": "granted", "..." },
+  "ga4MeasurementId": "G-XXXXX",
+  "metaPixelId": "123456789",
+  "trackLinks": { "enabled": false, "trackExternal": true, "trackInternal": false }
+}
 ```
 
 ### Client-Side (Svelte)
@@ -571,28 +609,25 @@ Route::middleware(['web', 'analytics.inertia'])->group(function () {
 ```javascript
 import { page } from '@inertiajs/svelte';
 import {
-    init,
-    destroy,
-    trackPageView,
-    trackScreenView,
-    trackEvent,
-    trackEcommerce,
-    trackAbTestExposure,
-    identify,
-    updateConsent,
-    initScrollDepth,
-    initInertiaPageViewTracker,
-    initFormTracking,
-    initErrorTracking,
-    flushQueue,
+    init, destroy,
+    trackEvent, trackPageView, trackScreenView,
+    trackEcommerce, trackAbTestExposure,
+    identify, alias, identifyWithTraits, setUserProperties,
+    updateConsent, trackServerPageView,
+    initScrollDepth, initInertiaPageViewTracker,
+    initFormTracking, initErrorTracking,
+    initLinkTracking, trackPerformance,
+    flushQueue, getTrackingId, isInitialized,
+    captureUTM, getUTMParams, clearUTMParams,
+    pushToDataLayer, trackTiming,
 } from '../resources/js/analytics';
 
-// Initialize on app boot
+// Initialize
 $: if (page.props.zbAnalytics) {
     init(page.props);
 }
 
-// Setup tracking on mount
+// Setup tracking
 onMount(() => {
     const cleanupScroll = initScrollDepth();
     const cleanupInertia = initInertiaPageViewTracker();
@@ -611,123 +646,7 @@ onMount(() => {
 });
 ```
 
-## JS Client Library
-
-### Event Tracking
-
-```javascript
-import { trackEvent, flushQueue } from '../resources/js/analytics';
-
-// Events are batched automatically (flushed every 5 seconds or 25 events)
-await trackEvent('button_click', { element: 'buy_now' });
-
-// Force immediate flush
-await flushQueue();
-
-// Immediate (non-batched) dispatch
-await trackEvent('purchase', { value: 99.99 }, { immediate: true });
-```
-
-### E-commerce
-
-```javascript
-import { trackEcommerce } from '../resources/js/analytics';
-
-await trackEcommerce('purchase', {
-    transaction_id: 'TXN-12345',
-    value: 99.99,
-    currency: 'USD',
-    items: [{ item_id: 'SKU-001', item_name: 'Widget', price: 49.99, quantity: 2 }],
-});
-```
-
-### Screen View & A/B Test Tracking (JS)
-
-```javascript
-import { trackScreenView, trackAbTestExposure } from '../resources/js/analytics';
-
-// Track screen views in SPAs
-await trackScreenView('Dashboard', { screenClass: 'main' });
-await trackScreenView('Settings', { params: { tab: 'billing' } });
-
-// Track A/B test exposures
-await trackAbTestExposure('pricing_redesign_v2', 'variant_a', { experiment_name: 'Pricing Redesign' });
-```
-
-### Auto Form Tracking
-
-```html
-<form data-analytics-form="contact" ...>
-```
-
-```javascript
-import { initFormTracking } from '../resources/js/analytics';
-const cleanup = initFormTracking(); // Tracks form_start + form_submit
-```
-
-### Auto Error Tracking
-
-```javascript
-import { initErrorTracking } from '../resources/js/analytics';
-
-const cleanup = initErrorTracking({
-    trackErrors: true,
-    trackRejections: true,
-    ignorePatterns: ['ResizeObserver', 'Non-Error promise rejection'],
-});
-```
-
-### Performance Tracking
-
-```javascript
-import { trackPerformance } from '../resources/js/analytics';
-
-// With web-vitals library:
-import { onLCP, onCLS, onINP } from 'web-vitals';
-onLCP(metric => trackPerformance('LCP', metric.value));
-onCLS(metric => trackPerformance('CLS', metric.value));
-onINP(metric => trackPerformance('INP', metric.value));
-```
-
-### Auto Link Tracking
-
-```javascript
-import { initLinkTracking } from '../resources/js/analytics';
-
-// Track outbound link clicks (default)
-const cleanup = initLinkTracking({ trackExternal: true, trackInternal: false });
-
-// Track all link clicks
-const cleanup2 = initLinkTracking({ trackExternal: true, trackInternal: true });
-
-// Custom outbound event prefix
-const cleanup3 = initLinkTracking({ externalPrefix: 'affiliate' });
-```
-
-```html
-<!-- Custom link names via data attribute -->
-<a href="https://docs.example.com" data-analytics-link="docs_link">Documentation</a>
-```
-
-Or auto-initialize from Inertia props:
-
-```javascript
-// In your root Svelte component:
-$: if (page.props.zbAnalytics?.trackLinks?.enabled) {
-    initLinkTracking(page.props.zbAnalytics.trackLinks);
-}
-```
-
-### Server-Side Page View
-
-```javascript
-import { trackServerPageView } from '../resources/js/analytics';
-
-// Track page views via server API (bypasses client-side ad blockers)
-await trackServerPageView({ title: 'Pricing', location: '/pricing' });
-```
-
-## Blade Directives (Traditional Laravel)
+## Blade Integration (Traditional Laravel)
 
 ```blade
 <!DOCTYPE html>
@@ -737,109 +656,48 @@ await trackServerPageView({ title: 'Pricing', location: '/pricing' });
 </head>
 <body>
     @analyticsBody
-
     <!-- Your content -->
-
-    <script>
-        function trackClick(element) {
-            fetch('/api/analytics/events', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Analytics-Client-Id': getTrackingCookie(),
-                },
-                body: JSON.stringify({
-                    name: 'click',
-                    params: { element: element }
-                }),
-            });
-        }
-    </script>
 </body>
 </html>
 ```
 
-## API Endpoints
+Or auto-inject with middleware:
 
-All authenticated endpoints require `auth:sanctum` and are rate-limited (60 req/min).
+```php
+Route::middleware(['analytics.scripts'])->group(function () {
+    // Routes
+});
+```
+
+## API Reference
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/api/analytics/health` | No | Health check for monitoring |
-| POST | `/api/analytics/events` | Yes | Track a single event |
-| POST | `/api/analytics/batch` | Yes | Track up to 25 events |
-| POST | `/api/analytics/pageview` | Yes | Server-side page view (ad-blocker resistant) |
-| POST | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + optional traits |
-| POST | `/api/analytics/consent` | Yes | Update consent signals |
+| `GET` | `/api/analytics/health` | No | Health check (providers, consent, version) |
+| `POST` | `/api/analytics/events` | Yes | Track a single event |
+| `POST` | `/api/analytics/batch` | Yes | Track up to 25 events |
+| `POST` | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + traits |
+| `POST` | `/api/analytics/pageview` | Yes | Server-side page view |
+| `POST` | `/api/analytics/consent` | Yes | Update consent signals |
 
-### Health Check
+All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min).
+
+### Health Response
 
 ```json
-GET /api/analytics/health
-
-Response: {
-    "status": "ok",
-    "version": "1.8.0",
-    "providers": {
-        "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
-        "meta": { "status": "ok" }
-    },
-    "consent": { "analytics_storage": "granted", ... },
-    "timestamp": "2026-08-05T12:00:00Z"
+{
+  "status": "ok",
+  "version": "1.9.0",
+  "providers": {
+    "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
+    "meta": { "status": "ok" }
+  },
+  "consent": { "analytics_storage": "granted", "ad_storage": "granted", "..." },
+  "timestamp": "2026-08-06T12:00:00Z"
 }
 ```
 
-### Track Event
-
-```json
-POST /api/analytics/events
-Headers:
-  X-Analytics-Client-Id: <tracking-id>
-  Authorization: Bearer <token>
-
-Body: {
-    "name": "button_click",
-    "params": { "element": "buy_now", "page": "/products" }
-}
-```
-
-### Batch Events
-
-```json
-POST /api/analytics/batch
-
-Body: {
-    "events": [
-        { "name": "scroll_depth", "params": { "percent": 75 } },
-        { "name": "time_on_page", "params": { "seconds": 30 } }
-    ]
-}
-```
-
-## Admin Commands
-
-### Overview
-
-```bash
-php artisan zb:analytics:overview
-```
-
-Shows: enabled providers, consent state, auto-track config, queue settings, identity config, ecommerce settings.
-
-### Test
-
-```bash
-# Send a test event to all enabled providers
-php artisan zb:analytics:test
-
-# Use GA4 debug endpoint
-php artisan zb:analytics:test --validate
-
-# Custom event name
-php artisan zb:analytics:test --event=custom_test
-```
-
-## Event Catalog
+## Event Catalog Reference
 
 ### E-commerce Events
 
@@ -848,11 +706,11 @@ php artisan zb:analytics:test --event=custom_test
 | `ViewItemEvent` | view_item | ViewContent |
 | `AddToCartEvent` | add_to_cart | AddToCart |
 | `RemoveFromCartEvent` | remove_from_cart | — |
+| `ViewCartEvent` | view_cart | — |
 | `BeginCheckoutEvent` | begin_checkout | InitiateCheckout |
 | `AddPaymentInfoEvent` | add_payment_info | AddPaymentInfo |
 | `PurchaseEvent` | purchase | Purchase |
 | `RefundEvent` | refund | — |
-| `ViewCartEvent` | view_cart | — |
 
 ### SaaS Lifecycle Events
 
@@ -894,301 +752,133 @@ php artisan zb:analytics:test --event=custom_test
 |-------|-------------|
 | `CustomEvent` | Arbitrary event name + params |
 
-### Revenue Analytics
+## Server-Side Auto-Tracking
 
-```php
-use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
-
-$revenue = app(RevenueAnalyticsService::class);
-
-// Track MRR
-$revenue->trackMRR(5000.0, 42); // $5,000 MRR, 42 subscribers
-
-// Track ARR
-$revenue->trackARR(60000.0, 42);
-
-// Track one-time revenue
-$revenue->trackOneTime(149.99, 'consulting_fee');
-
-// Track add-on revenue
-$revenue->trackAddon(9.99, 'extra_storage', 'pro');
-
-// Track upgrade/downgrade revenue impact
-$revenue->trackUpgradeRevenue(99.99, 29.99, 'starter', 'pro');
-$revenue->trackDowngradeRevenue(29.99, 99.99, 'pro', 'starter');
-
-// Track churn revenue loss
-$revenue->trackChurnRevenue(29.99, 'pro', 'too_expensive');
-```
-
-### Event Pipeline
-
-```php
-use ZeroBoiler\Analytics\Pipeline\EventPipeline;
-use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
-use ZeroBoiler\Analytics\Pipeline\ConsentFilter;
-use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
-
-$pipeline = new EventPipeline;
-
-// Add UTM enrichment from request
-$pipeline->pipe(new UtmEnricher($request->only([
-    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-])));
-
-// Filter events when consent is denied
-$pipeline->pipe(new ConsentFilter(
-    $manager->getConsent()->hasAnalyticsConsent()
-));
-
-// Add timestamp and session context
-$pipeline->pipe(new TimestampEnricher($sessionId));
-
-// Process event through pipeline
-$result = $pipeline->process($event);
-if ($result !== null) {
-    $manager->trackEvent($result);
-}
-
-// Or use defaults (UTM + user context):
-$pipeline = EventPipeline::withDefaults($context);
-```
-
-UTM enrichment is automatically applied to all API events when `ANALYTICS_PIPELINE_AUTO_UTM=true`.
-
-### UTM Campaign Tracking (JS)
-
-```javascript
-import { captureUTM, getUTMParams, hasUTMParams, init } from '../resources/js/analytics';
-
-// UTM is auto-captured on init(), but you can also manually capture:
-const utm = captureUTM();
-
-if (hasUTMParams()) {
-    console.log('Campaign source:', utm.utm_source);
-    console.log('Campaign medium:', utm.utm_medium);
-}
-
-// UTM params are automatically attached to all tracked events
-await trackEvent('signup', { method: 'email' });
-// → params automatically include utm_source, utm_medium, etc.
-```
-
-## Architecture
+The `ServerSideTracker` automatically maps Laravel framework events to analytics events:
 
 ```
-src/
-├── AnalyticsManager.php          # Core manager — dispatches to all trackers
-├── AnalyticsServiceProvider.php   # Laravel service provider
-├── Context/
-│   └── EventContextBuilder.php   # Auto-collect request context (user, UTM, session, device)
-├── DTO/
-│   ├── AnalyticsEvent.php        # Immutable event DTO
-│   └── ConsentState.php          # GDPR consent state
-├── Events/
-│   ├── Ecommerce/                # 8 e-commerce event classes + EcommerceEvents catalog
-│   ├── SaaS/                     # 11 SaaS lifecycle event classes + SaaSEvents catalog
-│   ├── Engagement/               # 13 engagement event classes + EngagementEvents catalog
-│   ├── CustomEvent.php           # Generic custom event
-│   └── EventCatalog.php          # Unified catalog aggregating all categories
-├── Middleware/
-│   ├── AnalyticsMiddlewareInterface.php  # Middleware contract
-│   ├── AnalyticsMiddlewareStack.php     # Priority-ordered middleware stack
-│   ├── ConsentGateMiddleware.php        # Consent-based event filtering
-│   ├── ContextAttachmentMiddleware.php  # Auto-attach context to events
-│   ├── SchemaValidationMiddleware.php   # Schema-aware event validation
-│   ├── TimestampMiddleware.php          # Auto-add timestamps
-│   └── LoggingMiddleware.php             # Debug event logging
-├── Schema/
-│   ├── EventSchema.php          # Event parameter schema definition
-│   ├── EventParam.php           # Parameter type & constraints
-│   └── EventSchemaRegistry.php  # Central schema registry (30+ events)
-├── Pipeline/
-│   ├── EventPipeline.php         # Middleware pipeline for event processing
-│   ├── UtmEnricher.php           # UTM campaign parameter enrichment
-│   ├── UserContextEnricher.php   # User context enrichment
-│   ├── ConsentFilter.php         # Consent-based event filtering
-│   └── TimestampEnricher.php     # Timestamp & session enrichment
-├── Trackers/
-│   ├── GA4Tracker.php            # GA4 Measurement Protocol
-│   ├── GTMTracker.php            # GTM dataLayer
-│   ├── MetaPixelTracker.php      # Meta Pixel CAPI
-│   ├── PlausibleTracker.php      # Plausible Analytics
-│   ├── PosthogTracker.php        # PostHog Analytics
-│   ├── TrackerInterface.php      # Common tracker contract
-│   └── TrackerHelpers.php        # Shared consent helpers
-├── Services/
-│   ├── GoogleAnalyticsService.php
-│   ├── GoogleTagManagerService.php
-│   ├── MetaPixelService.php
-│   ├── EcommerceAnalyticsService.php  # E-commerce convenience methods
-│   ├── SaaSAnalyticsService.php      # SaaS lifecycle convenience methods
-│   ├── RevenueAnalyticsService.php    # Revenue tracking (MRR, ARR, churn)
-│   └── EventValidationService.php    # Event validation & deduplication
-├── Tracking/
-│   ├── ServerSideTracker.php     # Auto-track Laravel events
-│   ├── UserIdentityTracker.php   # User ↔ client linking
-│   └── SessionTracker.php        # Session & funnel tracking
-├── Queue/
-│   └── QueuedAnalyticsDispatcher.php  # Async queue dispatch
-├── Http/
-│   ├── Controllers/AnalyticsEventController.php  # API endpoints + pipeline
-│   └── Middleware/InjectAnalyticsScripts.php
-├── Inertia/
-│   └── HandleInertiaAnalytics.php  # Inertia prop injection
-├── Console/Commands/
-│   ├── AnalyticsOverviewCommand.php
-│   └── AnalyticsTestCommand.php
-├── Blade/Directives/
-│   └── AnalyticsDirectives.php
-├── Facades/
-│   └── Analytics.php
-resources/
-└── js/
-    └── analytics.js              # ES module client library (UTM, batch, form, error, perf)
-config/
-└── zeroboiler.php                # Configuration file
-routes/
-└── analytics.php                 # API route definitions
+Illuminate\Auth\Events\Login       → LoginEvent       (auth.login)
+Illuminate\Auth\Events\Registered   → SignUpEvent      (auth.register)
+Illuminate\Auth\Events\Logout      → LogoutEvent      (auth.logout)
+
+subscription.created    → SubscriptionEvent  (subscription.created)
+subscription.upgraded   → PlanUpgradeEvent    (subscription.upgraded)
+subscription.downgraded → PlanDowngradeEvent  (subscription.downgraded)
+subscription.cancelled  → CancellationEvent   (subscription.cancelled)
+trial.started           → TrialStartEvent     (trial.started)
+trial.ended             → TrialEndEvent       (trial.ended)
+feature.used            → FeatureUsedEvent    (feature.used)
 ```
 
-### Event Schema Registry
+Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Supports Eloquent model event listeners too.
 
-The `EventSchemaRegistry` provides a single source of truth for event definitions:
+## JS Client API Reference
 
-```php
-use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+### Core
 
-$registry = app(EventSchemaRegistry::class);
+| Function | Description |
+|----------|-------------|
+| `init(pageProps)` | Initialize from Inertia props |
+| `destroy()` | Cleanup listeners, timers, state |
+| `isInitialized()` | Check if analytics is active |
+| `getTrackingId()` | Get server-generated tracking UUID |
+| `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
+| `flushQueue()` | Flush batch queue immediately |
+| `trackPageView(title?, location?, referrer?)` | Client + server page view |
+| `trackScreenView(name, options?)` | SPA screen view |
 
-// Validate event params against schema
-$result = $registry->validate('purchase', [
-    'transaction_id' => 'TXN-123',
-    'value' => 99.99,
-]);
+### E-commerce
 
-if ($result['valid']) {
-    Analytics::trackEvent(new AnalyticsEvent('purchase', $result['sanitized']));
-}
+| Function | Description |
+|----------|-------------|
+| `trackEcommerce(name, data)` | Track with GA4 ↔ Meta conversion |
 
-// Register custom schemas
-$registry->register(new EventSchema(
-    name: 'onboarding_complete',
-    category: 'custom',
-    description: 'User completed onboarding flow',
-    requiredParams: [
-        'steps_completed' => new EventParam(type: 'int', min: 1),
-    ],
-    optionalParams: [
-        'duration_seconds' => new EventParam(type: 'int'),
-    ],
-));
+### Identity
 
-// Get events by category
-$ecommerceEvents = $registry->getEventsByCategory('ecommerce');
-$allSchemas = $registry->getSchemasByCategory();
-```
+| Function | Description |
+|----------|-------------|
+| `identify(userId?)` | Link tracking ID with user |
+| `alias(previousId, newId)` | Merge identities |
+| `identifyWithTraits(traits)` | Identify + set traits |
+| `setUserProperties(properties, userId?)` | Set user traits |
+| `updateConsent(signals)` | Update GDPR consent |
+| `trackServerPageView(options?)` | Server-side page view (ad-block resistant) |
 
-### Middleware Stack
+### Auto-Trackers (all return cleanup functions)
 
-The `AnalyticsMiddlewareStack` provides a composable, priority-ordered middleware system:
+| Function | Description |
+|----------|-------------|
+| `initScrollDepth()` | Scroll depth at 25/50/75/90% |
+| `initInertiaPageViewTracker()` | Auto page view on navigation |
+| `initFormTracking(options?)` | form_start + form_submit |
+| `initErrorTracking(options?)` | JS errors + unhandled rejections |
+| `initLinkTracking(options?)` | Outbound/internal link clicks |
 
-```php
-use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
-use ZeroBoiler\Analytics\Middleware\{ConsentGateMiddleware, ContextAttachmentMiddleware, SchemaValidationMiddleware};
+### UTM
 
-$stack = new AnalyticsMiddlewareStack;
+| Function | Description |
+|----------|-------------|
+| `captureUTM()` | Capture UTM from URL |
+| `getUTMParams()` | Get current UTM params |
+| `hasUTMParams()` | Check if UTM captured |
+| `clearUTMParams()` | Clear UTM state |
 
-// Add middleware (executed in priority order — lower number = first)
-$stack->add(new ConsentGateMiddleware(Analytics::getConsent()->hasAnalyticsConsent()));
-$stack->add(new ContextAttachmentMiddleware(['app_version' => '1.4.0']));
-$stack->add(new SchemaValidationMiddleware(app(EventSchemaRegistry::class)));
+### Performance
 
-// Process an event through the stack
-$processed = $stack->process($event);
-if ($processed !== null) {
-    Analytics::trackEvent($processed);
-}
+| Function | Description |
+|----------|-------------|
+| `trackPerformance(metric, value, params?)` | Web Vitals (LCP, CLS, INP) |
+| `trackTiming(name)` | Performance API timing |
+| `pushToDataLayer(data)` | GTM dataLayer push |
 
-// Or use the pre-configured default stack
-$stack = AnalyticsMiddlewareStack::createDefault(
-    analyticsGranted: true,
-    context: ['source' => 'web'],
-);
-```
+## Admin Commands
 
-### Event Context Builder
+```bash
+# Overview of all analytics configuration
+php artisan zb:analytics:overview
 
-The `EventContextBuilder` automatically collects server-side context:
+# Send test event to all providers
+php artisan zb:analytics:test
 
-```php
-use ZeroBoiler\Analytics\Context\EventContextBuilder;
+# Use GA4 debug/validate endpoint
+php artisan zb:analytics:test --validate
 
-$context = (new EventContextBuilder($request))
-    ->withUserIdentity()       // user_id, user_email_hash, user_plan
-    ->withClientId()           // from cookie or header
-    ->withSession()            // session_id
-    ->withUTM()                // utm_source, utm_medium, etc.
-    ->withPage()               // page_url, page_path
-    ->withDevice()             // ip, user_agent, locale
-    ->withCustom(['app_version' => '1.4.0'])
-    ->build();
-
-// Merge context into an event
-$enrichedEvent = new AnalyticsEvent(
-    name: 'page_view',
-    params: array_merge($event->params, $context),
-    clientId: $context['client_id'] ?? null,
-    userId: $context['user_id'] ?? null,
-);
-```
-
-### Debug Mode
-
-```php
-use ZeroBoiler\Analytics\Facades\Analytics;
-
-// Check if debug mode is active
-if (Analytics::isDebug()) {
-    // Events are logged but not dispatched
-}
-
-// Toggle debug mode at runtime
-Analytics::setDebug(true);
-
-// Check if event logging is enabled
-Analytics::shouldLogEvents(); // bool
-```
-
-When `ANALYTICS_DEBUG_ENABLED=true`, all events are intercepted and optionally logged
-instead of being dispatched to providers. Useful for development and staging environments.
-
-### Server-Side Event Validation
-
-Events received via the API endpoints are automatically validated and sanitized
-when `EventValidationService` is available (registered by the service provider):
-
-```php
-// Events are sanitized before dispatch:
-// - Control characters stripped from keys/values
-// - Event names validated against allowed patterns
-// - Duplicate detection within configurable time window
-// - Strict mode rejects non-whitelisted events
+# Custom event name
+php artisan zb:analytics:test --event=custom_test
 ```
 
 ## Testing
 
 ```bash
-# Run all tests
-composer test
-
-# Run with coverage
-composer test:ci
-
-# Full CI suite (Pint + PHPStan + Rector + Tests)
-composer ci
+composer test          # Run all Pest tests
+composer test:ci      # Run with coverage
+composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 ```
+
+## Changelog
+
+### v1.9.0 — Industry-Standard SaaS Analytics
+- README overhaul: Quick Start, full API reference, architecture diagram, JS client API table, changelog
+- MIT license, comprehensive documentation for production use
+- 32 typed events, 6 providers, 35+ tests, full type coverage
+
+### v1.8.0 — Identity & Alias
+- User properties (`setUserProperties`) and identity alias (`alias`)
+- Server-side page view API endpoint
+- Enhanced identify endpoint with user traits
+
+### v1.7.0 — Screen View, A/B Tests, Notifications
+- ScreenView, AbTestExposure, Notification events
+- `trackAsync()` facade shortcut
+- JS client extensions for screen view and A/B tracking
+
+### v1.6.0 — Purchase & Identify Convenience
+- `purchase()` and `identify()` convenience methods on AnalyticsManager
+- Facade proxy tests
+
+### v1.5.0 — Event Catalog & GDPR Reset
+- EventCatalog, GDPR identity reset, unified registry
 
 ## License
 
-Proprietary — ZeroBoiler
+MIT — see [LICENSE](LICENSE) for details.
