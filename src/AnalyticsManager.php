@@ -121,6 +121,49 @@ class AnalyticsManager
     }
 
     /**
+     * Track a purchase event with transaction details.
+     *
+     * Convenience method for quick e-commerce purchase tracking
+     * without needing the EcommerceAnalyticsService.
+     *
+     * @param  string  $transactionId  Unique transaction identifier
+     * @param  float  $value  Total revenue value
+     * @param  array<int, array<string, mixed>>  $items  Array of item objects
+     * @param  array<string, mixed>  $params  Additional parameters (currency, coupon, etc.)
+     */
+    public function purchase(string $transactionId, float $value, array $items = [], array $params = []): void
+    {
+        $this->track('purchase', array_merge([
+            'transaction_id' => $transactionId,
+            'value' => $value,
+            'currency' => $params['currency'] ?? 'USD',
+            'items' => $items,
+        ], $params));
+    }
+
+    /**
+     * Identify a user across all analytics providers.
+     *
+     * Links the user ID to the client tracking ID for cross-device identification.
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  string|null  $clientId  Client tracking ID (optional)
+     * @param  array<string, mixed>  $traits  Additional user traits (email_hash, name, plan, etc.)
+     */
+    public function identify(string $userId, ?string $clientId = null, array $traits = []): void
+    {
+        $params = array_merge([
+            'user_id' => $userId,
+        ], $traits);
+
+        if ($clientId !== null) {
+            $params['client_id'] = $clientId;
+        }
+
+        $this->track('identify', $params);
+    }
+
+    /**
      * Dispatch an event to all enabled trackers.
      */
     private function dispatchToTrackers(AnalyticsEvent $event): void

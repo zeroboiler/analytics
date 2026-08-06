@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 /**
  * @method static void track(string $eventName, array<string, mixed> $params = [])
  * @method static void trackEvent(AnalyticsEvent $event)
+ * @method static void purchase(string $transactionId, float $value, array<int, array<string, mixed>> $items = [], array<string, mixed> $params = [])
+ * @method static void identify(string $userId, ?string $clientId = null, array<string, mixed> $traits = [])
  * @method static string headScripts()
  * @method static string bodyScripts()
  * @method static void push(array<string, mixed> $data)

@@ -123,6 +123,14 @@ Analytics::track('button_click', ['element' => 'buy_now', 'page' => '/products']
 // Track using typed event
 use ZeroBoiler\Analytics\Events\Engagement\ClickEvent;
 Analytics::trackEvent(new ClickEvent(element: 'cta_button', page: '/pricing'));
+
+// Quick purchase tracking (convenience)
+Analytics::purchase('TXN-12345', 99.99, [
+    ['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2],
+], ['currency' => 'USD', 'coupon' => 'WELCOME20']);
+
+// Identify a user (cross-device linking)
+Analytics::identify('42', 'client-uuid', ['email_hash' => hash('sha256', 'user@example.com'), 'plan' => 'pro']);
 ```
 
 ### E-commerce Tracking
@@ -634,7 +642,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
