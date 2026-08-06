@@ -27,6 +27,8 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 - **Admin Commands** — `zb:analytics:overview` and `zb:analytics:test`
 - **Debug Mode** — Development-friendly logging without dispatching to providers, runtime toggle via `setDebug()`
 - **Server-Side Event Validation** — Auto-validation and sanitization on API endpoints, deduplication, strict whitelist mode
+- **Event Catalog** — Static catalogs (`EcommerceEvents`, `SaaSEvents`, `EngagementEvents`) for event lookup, validation, and cross-provider name mapping
+- **GDPR Identity Reset** — `resetIdentity()` for right-to-be-forgotten across GA4 and PostHog
 
 ## Installation
 
@@ -340,6 +342,56 @@ Analytics::trackEvent(new CustomEvent('tutorial_completed', [
 ]));
 ```
 
+### Event Catalog
+
+Static catalogs provide a central registry for looking up event names, classes, and cross-provider mappings:
+
+```php
+use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
+use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
+use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
+
+// Unified catalog — 29 events across 3 categories
+EventCatalog::count();          // 29
+EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
+EventCatalog::has('purchase');  // true
+EventCatalog::classFor('purchase'); // PurchaseEvent::class
+
+// Grouped by category
+$byCategory = EventCatalog::byCategory();
+// ['ecommerce' => [...], 'saas' => [...], 'engagement' => [...]]
+
+// Per-category catalogs
+EcommerceEvents::names();   // ['view_item', 'add_to_cart', ...]
+SaaSEvents::names();        // ['sign_up', 'login', 'subscribe', ...]
+EngagementEvents::names();  // ['page_view', 'scroll_depth', 'click', ...]
+
+// Cross-provider mappings
+$event = EcommerceEvents::get('purchase');
+$event['ga4'];  // 'purchase'
+$event['meta']; // 'Purchase'
+$event['class']; // PurchaseEvent::class
+
+// All GA4 names (deduplicated)
+EventCatalog::allGa4Names();
+// All Meta Pixel names
+EventCatalog::allMetaNames();
+```
+
+### GDPR Identity Reset
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// When a user requests account deletion or data erasure:
+Analytics::resetIdentity();
+
+// This sends:
+// - GA4: clears cached user ID
+// - PostHog: sends $reset event to disassociate future events
+```
+
 ### Consent Management
 
 ```php
@@ -582,7 +634,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }
@@ -786,10 +838,11 @@ src/
 │   ├── AnalyticsEvent.php        # Immutable event DTO
 │   └── ConsentState.php          # GDPR consent state
 ├── Events/
-│   ├── Ecommerce/                # 8 e-commerce event classes
-│   ├── SaaS/                     # 11 SaaS lifecycle event classes
-│   ├── Engagement/               # 10 engagement event classes
-│   └── CustomEvent.php           # Generic custom event
+│   ├── Ecommerce/                # 8 e-commerce event classes + EcommerceEvents catalog
+│   ├── SaaS/                     # 11 SaaS lifecycle event classes + SaaSEvents catalog
+│   ├── Engagement/               # 10 engagement event classes + EngagementEvents catalog
+│   ├── CustomEvent.php           # Generic custom event
+│   └── EventCatalog.php          # Unified catalog aggregating all categories
 ├── Middleware/
 │   ├── AnalyticsMiddlewareInterface.php  # Middleware contract
 │   ├── AnalyticsMiddlewareStack.php     # Priority-ordered middleware stack

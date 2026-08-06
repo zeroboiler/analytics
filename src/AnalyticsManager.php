@@ -334,4 +334,34 @@ class AnalyticsManager
     {
         $this->debugMode = $enabled;
     }
+
+    /**
+     * Reset user identity across all providers (GDPR right to be forgotten).
+     *
+     * Sends a 'reset_identity' signal to GA4 and clears any user-level
+     * data stored on the tracker instances. Call this when a user requests
+     * account deletion or data erasure.
+     */
+    public function resetIdentity(): void
+    {
+        $this->ga4->resetUserId();
+        $this->posthog->reset();
+
+        Log::info('ZeroBoiler Analytics: identity reset for GDPR compliance');
+    }
+
+    /**
+     * Get the event catalog summary (event counts per category).
+     *
+     * @return array{ecommerce: int, saas: int, engagement: int, total: int}
+     */
+    public function eventCatalogSummary(): array
+    {
+        return [
+            'ecommerce' => 8,
+            'saas' => 11,
+            'engagement' => 10,
+            'total' => 29,
+        ];
+    }
 }

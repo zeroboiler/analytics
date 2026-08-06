@@ -153,6 +153,8 @@ class AnalyticsOverviewCommand extends Command
             'Event validation & deduplication',
             'Debug mode',
             'Admin commands (test, overview)',
+            'Event Catalog (static catalogs + unified registry)',
+            'GDPR identity reset (GA4 + PostHog)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

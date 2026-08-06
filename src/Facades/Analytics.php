@@ -31,6 +31,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static bool isDebug()
  * @method static bool shouldLogEvents()
  * @method static void setDebug(bool $enabled)
+ * @method static void resetIdentity()
+ * @method static array{ecommerce: int, saas: int, engagement: int, total: int} eventCatalogSummary()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

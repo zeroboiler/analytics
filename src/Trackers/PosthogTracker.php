@@ -135,6 +135,31 @@ HTML;
     }
 
     /**
+     * Reset user identity (GDPR right to be forgotten).
+     *
+     * Sends a reset event to the PostHog API to disassociate
+     * future events from the current user.
+     */
+    public function reset(): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        try {
+            Http::post("{$this->host}/capture", [
+                'api_key' => $this->apiKey,
+                'event' => '$reset',
+                'properties' => [
+                    '$lib' => 'zeroboiler-analytics-server',
+                ],
+            ]);
+        } catch (\Throwable) {
+            // Silent fail — GDPR reset should not throw
+        }
+    }
+
+    /**
      * Generate a random distinct ID for anonymous events.
      */
     private function generateDistinctId(): string

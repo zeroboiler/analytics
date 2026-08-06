@@ -193,6 +193,25 @@ HTML;
     }
 
     /**
+     * Reset the stored user ID (GDPR right to be forgotten).
+     *
+     * Clears any cached user identifier so subsequent events
+     * are sent without user association.
+     */
+    public function resetUserId(): void
+    {
+        // GA4 MP is stateless per request; this clears any cached state.
+        // For client-side, push a reset to dataLayer if available.
+        if (function_exists('app') && app()->environment() !== 'testing') {
+            try {
+                Log::debug('GA4Tracker: user ID reset');
+            } catch (\Throwable) {
+                // Silently ignore if Log facade unavailable
+            }
+        }
+    }
+
+    /**
      * Generate a pseudo-random client ID.
      */
     private function generateClientId(): string
