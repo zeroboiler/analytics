@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.22.0
+ * @version 2.23.0
  */
 
 let trackingId = null;
@@ -2074,3 +2074,73 @@ export async function getTrackingPreference() {
  * // On destroy:
  * // cleanup?.();
  */
+
+// ─── Session Heartbeat ──────────────────────────────────────────────────
+
+let heartbeatTimer = null;
+let heartbeatIntervalSeconds = 60;
+
+/**
+ * Start a periodic session heartbeat.
+ *
+ * Tracks a `session_heartbeat` event at a configurable interval
+ * (default: 60 seconds) while the session is active. Useful for
+ * measuring actual time-on-site and detecting abandoned sessions.
+ *
+ * The heartbeat event includes session duration, event count since
+ * last heartbeat, and current page path.
+ *
+ * @param {number} [intervalSeconds=60] - Heartbeat interval in seconds
+ * @returns {function} Cleanup function to stop the heartbeat
+ *
+ * @example
+ * // Start heartbeat with 30-second interval
+ * const cleanupHeartbeat = initSessionHeartbeat(30);
+ *
+ * // On destroy:
+ * // cleanupHeartbeat?.();
+ */
+export function initSessionHeartbeat(intervalSeconds = 60) {
+    if (!initialized) return () => {};
+
+    stopSessionHeartbeat();
+
+    heartbeatIntervalSeconds = Math.max(10, Math.min(300, intervalSeconds));
+
+    heartbeatTimer = setInterval(() => {
+        if (!sessionState.active) return;
+
+        const duration = Math.round((Date.now() - (sessionState.startTime || Date.now())) / 1000);
+
+        trackEvent('session_heartbeat', {
+            session_id: sessionState.id,
+            duration_seconds: duration,
+            events_since_start: sessionState.eventCount,
+            page_views: sessionState.pageViewCount,
+            page_path: window.location.pathname,
+        }, { immediate: true });
+    }, heartbeatIntervalSeconds * 1000);
+
+    return () => {
+        stopSessionHeartbeat();
+    };
+}
+
+/**
+ * Stop the session heartbeat timer.
+ */
+export function stopSessionHeartbeat() {
+    if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+    }
+}
+
+/**
+ * Check if the session heartbeat is active.
+ *
+ * @returns {boolean}
+ */
+export function isHeartbeatActive() {
+    return heartbeatTimer !== null;
+}

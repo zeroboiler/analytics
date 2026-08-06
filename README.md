@@ -84,6 +84,8 @@ Done. That's it.
 - **Event Debounce** — Suppress rapid-fire events (scroll, resize) with configurable windows
 - **Session Analytics** — Session-level event recording, aggregation, summaries, and end-of-session dispatch
 - **Event Aggregation** — Real-time event counting with time-windowed rotation, top events ranking, and category grouping
+- **Event Metadata Enrichment** — Auto-attach session ID, page URL, referrer, and server timestamp to all API events (EventMetadataEnricher)
+- **Schema Pipeline Validation** — Optional schema-aware validation in the API pipeline with non-blocking warning flags (SchemaEnricher)
 
 ### SaaS Funnel Tracking
 - **5 Lifecycle Funnels** — Signup (5 steps), Trial (4 steps), Conversion (4 steps), Retention (4 steps), Expansion (4 steps)
@@ -135,6 +137,8 @@ Done. That's it.
 - `GET /api/analytics/stream` — Real-time event stream for dashboards
 - `GET /api/analytics/stream/stats` — Event stream statistics
 - `GET /api/analytics/export` — Export events (JSON, CSV, metrics, compliance)
+- `GET /api/analytics/stats` — Aggregated dashboard statistics (public, no auth)
+- `POST /api/analytics/webhook/inbound` — Receive events from external sources (HMAC-SHA256 verified)
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -189,7 +193,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests across 61 test files
+- **Pest PHP** — 150+ tests across 62 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -252,6 +256,8 @@ src/
 │   ├── RevenueAnalyticsService.php      # Revenue tracking (MRR, ARR, churn)
 │   ├── RevenueAttributionService.php    # Revenue attribution, LTV, cohort analysis
 │   ├── FunnelAnalyticsService.php       # Conversion funnel tracking
+│   ├── AnalyticsStatsService.php        # Dashboard aggregation (totals, top events, by-provider)
+│   ├── InboundWebhookService.php        # External event ingestion (Stripe, custom integrations)
 │   ├── EventValidationService.php      # Event validation & deduplication
 │   ├── SessionAnalyticsService.php     # Session-level event aggregation & summaries
 │   ├── EventAggregationService.php     # Real-time event counting & health diagnostics
@@ -384,9 +390,20 @@ ANALYTICS_REPLAY_BASE_DELAY=1.0
 ANALYTICS_REPLAY_MAX_DELAY=60.0
 ANALYTICS_REPLAY_JITTER=0.2
 
-# ── Metrics & Observability ──────────────────────────────────
+# ── Metrics & Observability ──────────────────────────
 ANALYTICS_METRICS_ENABLED=false
 ANALYTICS_METRICS_LOG_ON_FLUSH=false
+
+# ── Event Pipeline ───────────────────────────────────
+ANALYTICS_PIPELINE_AUTO_METADATA=true
+ANALYTICS_PIPELINE_SCHEMA_ENRICHMENT=false
+
+# ── Inbound Webhook ──────────────────────────────────
+ANALYTICS_INBOUND_WEBHOOK_ENABLED=false
+ANALYTICS_INBOUND_WEBHOOK_SECRET=
+ANALYTICS_INBOUND_WEBHOOK_REQUIRE_SIGNATURE=true
+ANALYTICS_INBOUND_WEBHOOK_MAX_PAYLOAD=65536
+ANALYTICS_INBOUND_WEBHOOK_MAX_EVENTS=50
 ```
 
 ## Usage
@@ -997,6 +1014,8 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | `GET` | `/api/analytics/stream` | No | Real-time event stream (cursor-based polling) |
 | `GET` | `/api/analytics/stream/stats` | No | Event stream statistics |
 | `GET` | `/api/analytics/export` | No | Export events (JSON, CSV, metrics, compliance) |
+| `GET` | `/api/analytics/stats` | No | Aggregated analytics statistics (dashboard data) |
+| `POST` | `/api/analytics/webhook/inbound` | No | Receive external events (signature-verified) |
 | `POST` | `/api/analytics/events` | Yes | Track a single event |
 | `POST` | `/api/analytics/batch` | Yes | Track up to 25 events |
 | `POST` | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + traits |
@@ -1013,7 +1032,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.19.0",
+  "version": "2.23.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -1158,6 +1177,9 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `initFormTracking(options?)` | form_start + form_submit |
 | `initErrorTracking(options?)` | JS errors + unhandled rejections |
 | `initLinkTracking(options?)` | Outbound/internal link clicks |
+| `initSessionHeartbeat(seconds?)` | Periodic session heartbeat (10–300s) |
+| `stopSessionHeartbeat()` | Stop the session heartbeat timer |
+| `isHeartbeatActive()` | Check if heartbeat is running |
 
 ### UTM
 
@@ -1269,6 +1291,22 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.22.x to v2.23.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- **AnalyticsStatsService** — Dashboard aggregation service for real-time event counts, top events, and per-provider stats
+- **InboundWebhookService** — Receive analytics events from external sources (Stripe, payment processors) via `POST /api/analytics/webhook/inbound`
+- **EventMetadataEnricher** — Automatic session ID, page URL, referrer, and timestamp enrichment on all API events
+- **SchemaEnricher** — Optional schema-aware validation in the event pipeline
+- **GET /api/analytics/stats** — Public dashboard statistics endpoint
+- **JS session heartbeat** — `initSessionHeartbeat()` for periodic session activity tracking
+- Pipeline config: `ANALYTICS_PIPELINE_AUTO_METADATA` (default: true), `ANALYTICS_PIPELINE_SCHEMA_ENRICHMENT` (default: false)
 
 ### From v2.18.x to v2.19.0
 No breaking changes. Update via:

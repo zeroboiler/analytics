@@ -59,6 +59,8 @@ use ZeroBoiler\Analytics\Services\SaasFunnelService;
 use ZeroBoiler\Analytics\Services\AnalyticsProfileService;
 use ZeroBoiler\Analytics\Services\AttributionService;
 use ZeroBoiler\Analytics\Services\GdprErasureService;
+use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
+use ZeroBoiler\Analytics\Services\InboundWebhookService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -497,6 +499,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AttributionService($cache, $config);
         });
 
+        // Analytics stats service for dashboard aggregations
+        $this->app->singleton(AnalyticsStatsService::class, function (Application $app): AnalyticsStatsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var EventAggregationService $aggregation */
+            $aggregation = $app->make(EventAggregationService::class);
+            /** @var EventReplayQueue $replayQueue */
+            $replayQueue = $app->make(EventReplayQueue::class);
+
+            return new AnalyticsStatsService($manager, $metrics, $aggregation, $replayQueue);
+        });
+
+        // Inbound webhook service for receiving external events
+        $this->app->singleton(InboundWebhookService::class, function (Application $app): InboundWebhookService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new InboundWebhookService($manager, $config);
+        });
+
         // GDPR erasure service
         $this->app->singleton(GdprErasureService::class, function (Application $app): GdprErasureService {
             /** @var AnalyticsProfileService $profileService */
@@ -611,7 +637,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         $controller = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class;
 
-        // Health + Catalog + Stream + Export endpoints — no auth required
+        // Health + Catalog + Stream + Export + Stats endpoints — no auth required
         Route::prefix('api')
             ->middleware(['throttle:120,1'])
             ->group(function () use ($controller): void {
@@ -620,6 +646,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/stream', [$controller, 'stream']);
                 Route::get('analytics/stream/stats', [$controller, 'streamStats']);
                 Route::get('analytics/export', [$controller, 'export']);
+                Route::get('analytics/stats', [$controller, 'stats']);
+                Route::post('analytics/webhook/inbound', [$controller, 'inboundWebhook']);
             });
 
         // Authenticated endpoints

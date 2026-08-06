@@ -275,6 +275,8 @@ return [
         'pipeline' => [
             'auto_utm' => env('ANALYTICS_PIPELINE_AUTO_UTM', true),
             'auto_timestamp' => env('ANALYTICS_PIPELINE_AUTO_TIMESTAMP', false),
+            'auto_metadata' => env('ANALYTICS_PIPELINE_AUTO_METADATA', true),
+            'schema_enrichment' => env('ANALYTICS_PIPELINE_SCHEMA_ENRICHMENT', false),
         ],
 
         /*
@@ -481,6 +483,24 @@ return [
         'profile' => [
             'enabled' => env('ANALYTICS_PROFILE_ENABLED', true),
             'ttl' => (int) env('ANALYTICS_PROFILE_TTL', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Inbound Webhook (External Event Ingestion)
+        |-------------------------------------------------------------------------- 
+        |
+        | Receive analytics events from external sources via a webhook endpoint.
+        | Supports HMAC-SHA256 signature verification for secure ingestion.
+        | Typical sources: Stripe webhooks, payment processors, partner integrations.
+        |
+        */
+        'inbound_webhook' => [
+            'enabled' => env('ANALYTICS_INBOUND_WEBHOOK_ENABLED', false),
+            'secret' => env('ANALYTICS_INBOUND_WEBHOOK_SECRET', ''),
+            'require_signature' => env('ANALYTICS_INBOUND_WEBHOOK_REQUIRE_SIGNATURE', true),
+            'max_payload_size' => (int) env('ANALYTICS_INBOUND_WEBHOOK_MAX_PAYLOAD', 65536), // 64KB
+            'max_events' => (int) env('ANALYTICS_INBOUND_WEBHOOK_MAX_EVENTS', 50),
         ],
 
         /*

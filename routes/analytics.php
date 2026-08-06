@@ -33,6 +33,12 @@ Route::prefix('analytics')->group(function () {
     // Export endpoint
     Route::get('export', [AnalyticsEventController::class, 'export']);
 
+    // Stats endpoint (public, for admin dashboards)
+    Route::get('stats', [AnalyticsEventController::class, 'stats']);
+
+    // Inbound webhook (public, signature-verified)
+    Route::post('webhook/inbound', [AnalyticsEventController::class, 'inboundWebhook']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);

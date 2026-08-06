@@ -16,12 +16,17 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
 use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
+use ZeroBoiler\Analytics\Pipeline\EventMetadataEnricher;
+use ZeroBoiler\Analytics\Pipeline\SchemaEnricher;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\EventStreamService;
 use ZeroBoiler\Analytics\Services\ExportService;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Services\AnalyticsProfileService;
 use ZeroBoiler\Analytics\Services\GdprErasureService;
+use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
+use ZeroBoiler\Analytics\Services\InboundWebhookService;
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * API controller for frontend event tracking.
@@ -41,6 +46,10 @@ final class AnalyticsEventController extends Controller
 
     private bool $autoTimestamp;
 
+    private bool $autoMetadata;
+
+    private bool $schemaEnrichment;
+
     private const MAX_BATCH_SIZE = 25;
 
     private const MAX_EVENT_NAME_LENGTH = 100;
@@ -53,6 +62,12 @@ final class AnalyticsEventController extends Controller
 
     private ?GdprErasureService $gdprErasureService;
 
+    private ?AnalyticsStatsService $statsService;
+
+    private ?InboundWebhookService $inboundWebhookService;
+
+    private ?EventSchemaRegistry $schemaRegistry;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -61,6 +76,9 @@ final class AnalyticsEventController extends Controller
      * @param  ExportService|null  $exportService  Optional export service
      * @param  AnalyticsProfileService|null  $profileService  Optional profile service
      * @param  GdprErasureService|null  $gdprErasureService  Optional GDPR erasure service
+     * @param  AnalyticsStatsService|null  $statsService  Optional stats service
+     * @param  InboundWebhookService|null  $inboundWebhookService  Optional inbound webhook service
+     * @param  EventSchemaRegistry|null  $schemaRegistry  Optional schema registry
      */
     public function __construct(
         AnalyticsManager $manager,
@@ -70,6 +88,9 @@ final class AnalyticsEventController extends Controller
         ?ExportService $exportService = null,
         ?AnalyticsProfileService $profileService = null,
         ?GdprErasureService $gdprErasureService = null,
+        ?AnalyticsStatsService $statsService = null,
+        ?InboundWebhookService $inboundWebhookService = null,
+        ?EventSchemaRegistry $schemaRegistry = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -79,15 +100,23 @@ final class AnalyticsEventController extends Controller
         $this->exportService = $exportService;
         $this->profileService = $profileService;
         $this->gdprErasureService = $gdprErasureService;
+        $this->statsService = $statsService;
+        $this->inboundWebhookService = $inboundWebhookService;
+        $this->schemaRegistry = $schemaRegistry;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
-        /** @var array{auto_utm?: bool, auto_timestamp?: bool} $pipelineConfig */
+        /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
         $this->autoUtm = (bool) ($pipelineConfig['auto_utm'] ?? true);
         $this->autoTimestamp = (bool) ($pipelineConfig['auto_timestamp'] ?? false);
+        $this->autoMetadata = (bool) ($pipelineConfig['auto_metadata'] ?? true);
+        $this->schemaEnrichment = (bool) ($pipelineConfig['schema_enrichment'] ?? false);
     }
 
     /**
      * Build the event pipeline for a request.
+     *
+     * Chains UTM enrichment, metadata enrichment, schema validation,
+     * and timestamp enrichment in the correct order.
      *
      * @param  Request  $request
      * @return EventPipeline
@@ -95,6 +124,11 @@ final class AnalyticsEventController extends Controller
     private function buildPipeline(Request $request): EventPipeline
     {
         $pipeline = new EventPipeline;
+
+        // Schema enrichment first (validates structure)
+        if ($this->schemaEnrichment && $this->schemaRegistry !== null) {
+            $pipeline->pipe(new SchemaEnricher($this->schemaRegistry, strict: false));
+        }
 
         if ($this->autoUtm) {
             $utmContext = array_filter($request->only([
@@ -105,7 +139,15 @@ final class AnalyticsEventController extends Controller
             }
         }
 
-        if ($this->autoTimestamp) {
+        // Metadata enrichment (session, page URL, referrer, timestamp)
+        if ($this->autoMetadata) {
+            $pipeline->pipe(new EventMetadataEnricher(
+                sessionId: $request->session()->getId(),
+                pageUrl: $request->fullUrl(),
+                referrer: $request->headers->get('referer'),
+                includeTimestamp: $this->autoTimestamp,
+            ));
+        } elseif ($this->autoTimestamp) {
             $pipeline->pipe(new TimestampEnricher);
         }
 
@@ -338,7 +380,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.22.0',
+            'version' => '2.23.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -424,7 +466,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.22.0',
+            'version' => '2.23.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -763,5 +805,70 @@ final class AnalyticsEventController extends Controller
             'erased' => $result,
             'identity_reset' => true,
         ]);
+    }
+
+    /**
+     * Get aggregated analytics statistics for dashboards.
+     *
+     * GET /api/analytics/stats
+     *
+     * Returns real-time event counts, top events, per-category breakdowns,
+     * per-provider dispatch/failure stats, and replay queue status.
+     * Useful for admin dashboards and monitoring integrations.
+     */
+    public function stats(): JsonResponse
+    {
+        if ($this->statsService === null) {
+            return response()->json(['error' => 'Stats service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.23.0',
+            'stats' => $this->statsService->summary(),
+        ]);
+    }
+
+    /**
+     * Receive inbound webhook events from external sources.
+     *
+     * POST /api/analytics/webhook/inbound
+     *
+     * Accepts events from external systems (Stripe, payment processors,
+     * custom integrations). Validates HMAC-SHA256 signature if configured.
+     *
+     * Body: { "event": "payment.completed", "params": { "amount": 99.99 } }
+     * Batch: { "events": [ { "event": "...", "params": {...} }, ... ] }
+     */
+    public function inboundWebhook(Request $request): JsonResponse
+    {
+        if ($this->inboundWebhookService === null) {
+            return response()->json(['error' => 'Inbound webhook not enabled'], 503);
+        }
+
+        $payload = $request->getContent();
+
+        // Extract signature from headers
+        $signature = $request->header('X-ZB-Signature')
+            ?? $request->header('X-Hub-Signature-256');
+
+        // Strip sha256= prefix for Meta-compatible signatures
+        if (is_string($signature) && str_starts_with($signature, 'sha256=')) {
+            $signature = substr($signature, 7);
+        }
+
+        $result = $this->inboundWebhookService->receive(
+            $payload,
+            is_string($signature) ? $signature : null,
+        );
+
+        $statusCode = match ($result['status']) {
+            'ok' => 200,
+            'partial' => 207,
+            'disabled' => 503,
+            default => 400,
+        };
+
+        return response()->json($result, $statusCode);
     }
 }

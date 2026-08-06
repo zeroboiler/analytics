@@ -2,6 +2,29 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.23.0] - 2026-08-06
+
+### Added
+- **AnalyticsStatsService** — Dashboard aggregation service combining real-time event counts from EventAggregationService with dispatch/failure counters from AnalyticsMetrics. Provides `summary()`, `byCategory()`, and `byProvider()` (with success rates) for admin dashboards and monitoring.
+- **InboundWebhookService** — Receive analytics events from external sources (Stripe webhooks, payment processors, partner integrations) via `POST /api/analytics/webhook/inbound`. Supports single events and batch payloads (up to 50 events). HMAC-SHA256 signature verification with configurable enforcement. Payload size limits (64KB default). All inbound events are tagged with `_source: webhook_inbound` for tracing.
+- **EventMetadataEnricher** — New pipeline filter that auto-attaches session ID, page URL, referrer, and ISO-8601 timestamp to all events passing through the API pipeline. Metadata keys are prefixed with `_` to avoid collision with user params. Existing params are never overwritten.
+- **SchemaEnricher** — New pipeline filter that validates events against the EventSchemaRegistry. Attaches `_schema_valid` flag and `_schema_errors` to event params. Non-blocking by default (attaches warning flags); supports strict mode that drops invalid events.
+- **GET /api/analytics/stats** — Public endpoint returning aggregated analytics statistics (total events, top events, per-category breakdowns, per-provider metrics, replay queue status). Powers admin dashboards without authentication.
+- **POST /api/analytics/webhook/inbound** — Public endpoint for receiving external analytics events with HMAC-SHA256 signature verification. Returns 200 (ok), 207 (partial), 400 (error), or 503 (disabled).
+- **Pipeline config expansion** — New `auto_metadata` (default: true) and `schema_enrichment` (default: false) pipeline settings for configuring the enhanced API pipeline.
+- **Inbound webhook config section** — `inbound_webhook` with 5 environment variables: `ANALYTICS_INBOUND_WEBHOOK_ENABLED`, `ANALYTICS_INBOUND_WEBHOOK_SECRET`, `ANALYTICS_INBOUND_WEBHOOK_REQUIRE_SIGNATURE`, `ANALYTICS_INBOUND_WEBHOOK_MAX_PAYLOAD`, `ANALYTICS_INBOUND_WEBHOOK_MAX_EVENTS`.
+- **JS session heartbeat** — `initSessionHeartbeat(intervalSeconds)`, `stopSessionHeartbeat()`, `isHeartbeatActive()` exports. Periodically tracks `session_heartbeat` events with session duration, event count, and page path. Configurable interval (10–300 seconds, default: 60).
+- **2 new service bindings** in AnalyticsServiceProvider: AnalyticsStatsService, InboundWebhookService.
+- **V23StatsInboundMetadataTest** — 40+ new test cases covering EventMetadataEnricher (5 tests), SchemaEnricher (5 tests), AnalyticsStatsService (4 tests), InboundWebhookService (13 tests), pipeline integration (4 tests), version consistency (3 tests), and config expansion (3 tests).
+
+### Changed
+- Version bump to 2.23.0
+- API controller constructor now accepts AnalyticsStatsService, InboundWebhookService, and EventSchemaRegistry as optional dependencies
+- `buildPipeline()` enhanced to chain SchemaEnricher → UtmEnricher → EventMetadataEnricher in the correct order
+- Health, catalog, and stats endpoint version strings updated to 2.23.0
+- JS client version string updated to 2.23.0
+- Inertia middleware version consistency maintained
+
 ## [2.22.0] - 2026-08-06
 
 ### Added
