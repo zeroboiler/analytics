@@ -118,7 +118,14 @@ Done. That's it.
 - `POST /api/analytics/identify` — Link client ID ↔ user ID + optional traits
 - `POST /api/analytics/pageview` — Server-side page view (ad-blocker resistant)
 - `POST /api/analytics/consent` — Update consent signals
+- `POST /api/analytics/opt-out` — Per-user tracking opt-out (GDPR)
+- `POST /api/analytics/opt-in` — Override previous opt-out preference
+- `GET /api/analytics/preference` — Check tracking preference status
 - `GET /api/analytics/health` — Health check (public, no auth)
+- `GET /api/analytics/catalog` — Full event catalog (public, no auth)
+- `GET /api/analytics/stream` — Real-time event stream for dashboards
+- `GET /api/analytics/stream/stats` — Event stream statistics
+- `GET /api/analytics/export` — Export events (JSON, CSV, metrics, compliance)
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -173,7 +180,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests
+- **Pest PHP** — 150+ tests across 61 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
