@@ -310,6 +310,24 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Replay Queue (Failed Event Retry)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, events that fail to dispatch are automatically retried
+        | with exponential backoff and jitter. Prevents data loss during
+        | transient provider outages.
+        |
+        */
+        'replay' => [
+            'enabled' => env('ANALYTICS_REPLAY_ENABLED', true),
+            'max_attempts' => (int) env('ANALYTICS_REPLAY_MAX_ATTEMPTS', 3),
+            'base_delay' => (float) env('ANALYTICS_REPLAY_BASE_DELAY', 1.0),
+            'max_delay' => (float) env('ANALYTICS_REPLAY_MAX_DELAY', 60.0),
+            'jitter' => (float) env('ANALYTICS_REPLAY_JITTER', 0.2),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Metrics & Observability
         |-------------------------------------------------------------------------- 
         |

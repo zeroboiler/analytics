@@ -39,6 +39,8 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
+use ZeroBoiler\Analytics\Queue\EventReplayQueue;
+use ZeroBoiler\Analytics\Services\CohortAnalyticsService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -254,6 +256,35 @@ class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{enabled?: bool} $queueConfig */
 
             return new AnalyticsDataBus(
+                $manager,
+                $queue,
+                (bool) ($queueConfig['enabled'] ?? true),
+            );
+        });
+
+        // Event replay queue for failed event retry with backoff
+        $this->app->singleton(EventReplayQueue::class, function (Application $app): EventReplayQueue {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventReplayQueue($manager, $manager->metrics(), $config);
+        });
+
+        // Cohort analytics service
+        $this->app->singleton(CohortAnalyticsService::class, function (Application $app): CohortAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+            /** @var array{enabled?: bool} $queueConfig */
+
+            return new CohortAnalyticsService(
                 $manager,
                 $queue,
                 (bool) ($queueConfig['enabled'] ?? true),

@@ -771,5 +771,86 @@ class EventSchemaRegistry
                 'page_location' => new EventParam(type: 'string', maxLength: 2000),
             ],
         );
+
+        // ── Cohort Analytics Schemas ───────────────────────────────────
+
+        $this->schemas['cohort_assigned'] = new EventSchema(
+            name: 'cohort_assigned',
+            category: 'saas',
+            description: 'Tracks assigning a user to a time-based cohort',
+            requiredParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+                'cohort_name' => new EventParam(type: 'string', maxLength: 50),
+            ],
+            optionalParams: [
+                'cohort_type' => new EventParam(type: 'string', maxLength: 20),
+            ],
+        );
+
+        $this->schemas['cohort_retention'] = new EventSchema(
+            name: 'cohort_retention',
+            category: 'saas',
+            description: 'Tracks a user returning within a cohort (retention)',
+            requiredParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+                'cohort_name' => new EventParam(type: 'string', maxLength: 50),
+                'retention_day' => new EventParam(type: 'int', min: 1),
+            ],
+            optionalParams: [
+                'retention_period' => new EventParam(type: 'string', maxLength: 10),
+            ],
+        );
+
+        $this->schemas['cohort_churn'] = new EventSchema(
+            name: 'cohort_churn',
+            category: 'saas',
+            description: 'Tracks a user dropping out of a cohort',
+            requiredParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+                'cohort_name' => new EventParam(type: 'string', maxLength: 50),
+            ],
+            optionalParams: [
+                'churn_day' => new EventParam(type: 'int', min: 1),
+                'churn_period' => new EventParam(type: 'string', maxLength: 10),
+                'churn_reason' => new EventParam(type: 'string', maxLength: 200),
+            ],
+        );
+
+        $this->schemas['cohort_conversion'] = new EventSchema(
+            name: 'cohort_conversion',
+            category: 'saas',
+            description: 'Tracks a cohort conversion (e.g. trial-to-paid)',
+            requiredParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+                'cohort_name' => new EventParam(type: 'string', maxLength: 50),
+                'conversion_type' => new EventParam(type: 'string', maxLength: 50),
+            ],
+        );
+
+        $this->schemas['cohort_migration'] = new EventSchema(
+            name: 'cohort_migration',
+            category: 'saas',
+            description: 'Tracks a user migrating between cohorts',
+            requiredParams: [
+                'user_id' => new EventParam(type: 'string', maxLength: 100),
+                'from_cohort' => new EventParam(type: 'string', maxLength: 50),
+                'to_cohort' => new EventParam(type: 'string', maxLength: 50),
+            ],
+        );
+
+        $this->schemas['cohort_engagement'] = new EventSchema(
+            name: 'cohort_engagement',
+            category: 'saas',
+            description: 'Tracks cohort engagement summary (active/total users)',
+            requiredParams: [
+                'cohort_name' => new EventParam(type: 'string', maxLength: 50),
+                'active_users' => new EventParam(type: 'int', min: 0),
+                'total_users' => new EventParam(type: 'int', min: 0),
+            ],
+            optionalParams: [
+                'engagement_rate' => new EventParam(type: 'float', min: 0, max: 100),
+                'period' => new EventParam(type: 'string', maxLength: 20),
+            ],
+        );
     }
 }

@@ -108,6 +108,19 @@ class AnalyticsOverviewCommand extends Command
         $connection = $queue['connection'] ?? 'default';
         $this->line('  Connection: '.$connection);
 
+        // Replay Queue
+        $this->newLine();
+        $this->line('<fg=cyan;options=bold>REPLAY QUEUE</>');
+        $this->line('─────────────────────────────');
+
+        $replay = $config['replay'] ?? [];
+        $replayEnabled = (bool) ($replay['enabled'] ?? true);
+        $this->line('  Enabled: '.($replayEnabled ? '✅' : '🚫'));
+        $this->line('  Max Attempts: '.($replay['max_attempts'] ?? 3));
+        $this->line('  Base Delay: '.($replay['base_delay'] ?? 1.0).'s');
+        $this->line('  Max Delay: '.($replay['max_delay'] ?? 60.0).'s');
+        $this->line('  Jitter: '.(($replay['jitter'] ?? 0.2) * 100).'%');
+
         // Identity
         $this->newLine();
         $this->line('<fg=cyan;options=bold>IDENTITY</>');
@@ -186,7 +199,7 @@ class AnalyticsOverviewCommand extends Command
             'Blade directives',
             'Auto-inject middleware',
             'Event catalog (ecommerce, SaaS, engagement, custom)',
-            'Event schema registry (30+ typed schemas)',
+            'Event schema registry (50+ typed schemas)',
             'Middleware stack (priority-ordered, composable)',
             'Event context builder (auto-collect request context)',
             'Server-side lifecycle tracker',
@@ -221,6 +234,10 @@ class AnalyticsOverviewCommand extends Command
             'Wishlist e-commerce event (GA4 + Meta)',
             'GET /api/analytics/catalog endpoint',
             'Revenue report command (zb:analytics:revenue-report)',
+            'Export catalog command (zb:analytics:export)',
+            'CohortAnalyticsService (retention, churn, conversion, migration)',
+            'Event replay queue (exponential backoff retry)',
+            'Health check (metrics, replay, catalog summary)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

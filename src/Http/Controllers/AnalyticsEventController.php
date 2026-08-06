@@ -311,7 +311,7 @@ class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.6.0',
+            'version' => '2.7.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -364,11 +364,39 @@ class AnalyticsEventController extends Controller
             $providers['webhook'] = ['status' => 'ok', 'url' => $this->manager->webhook()->getWebhookUrl()];
         }
 
+        // Include metrics summary if metrics are enabled
+        $metricsSummary = null;
+        try {
+            $metrics = $this->manager->metrics();
+            $metricsSummary = [
+                'dispatches' => $metrics->totalDispatched(),
+                'failures' => $metrics->totalFailed(),
+                'per_provider' => $metrics->summary(),
+            ];
+        } catch (\Throwable) {
+            // Metrics not available
+        }
+
+        // Include replay queue status if available
+        $replaySummary = null;
+        try {
+            $replay = app(\ZeroBoiler\Analytics\Queue\EventReplayQueue::class);
+            $replaySummary = $replay->summary();
+        } catch (\Throwable) {
+            // Replay queue not available
+        }
+
+        // Include event catalog summary
+        $catalogSummary = $this->manager->eventCatalogSummary();
+
         return response()->json([
             'status' => 'ok',
-            'version' => '2.6.0',
+            'version' => '2.7.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
+            'metrics' => $metricsSummary,
+            'replay' => $replaySummary,
+            'catalog' => $catalogSummary,
             'timestamp' => now()->toIso8601String(),
         ]);
     }

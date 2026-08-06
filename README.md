@@ -4,7 +4,7 @@
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, and GDPR consent.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
@@ -80,8 +80,9 @@ Done. That's it.
 - **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)
 
 ### SaaS Analytics
-- **SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue
+- **17 SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
+- **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
 - **RevenueAttributionService** — Revenue tracking with UTM attribution, MRR changes, LTV estimates, cohort revenue, and revenue breakdown by channel
 - **FunnelAnalyticsService** — Multi-step conversion funnel tracking with step tracking, abandonment detection, completion rate, and retry tracking
@@ -135,6 +136,12 @@ Done. That's it.
 - `QueuedAnalyticsDispatcher` for background event processing
 - `trackAsync()` facade shortcut with automatic sync fallback on failure
 
+### Event Replay Queue
+- Failed events automatically retried with exponential backoff + jitter
+- Configurable max attempts, base/max delay, and jitter percentage
+- `EventReplayQueue::summary()` for health checks and monitoring
+- Prevents analytics data loss during transient provider outages
+
 ### Admin Commands
 - `zb:analytics:overview` — Shows enabled providers, consent state, auto-track config, queue settings, identity config, ecommerce settings
 - `zb:analytics:test` — Sends test event to all providers, supports `--validate` (GA4 debug) and `--event=` (custom name)
@@ -155,7 +162,7 @@ Done. That's it.
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 55+ tests
+- **Pest PHP** — 65+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -176,7 +183,7 @@ src/
 │   └── UtmAttribution.php            # UTM campaign attribution DTO
 ├── Events/
 │   ├── Ecommerce/                    # 8 e-commerce event classes + EcommerceEvents catalog
-│   ├── SaaS/                         # 11 SaaS lifecycle event classes + SaaSEvents catalog
+│   ├── SaaS/                         # 11 lifecycle + 6 cohort event classes + SaaSEvents catalog
 │   ├── Engagement/                   # 13 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php               # Generic custom event
 │   └── EventCatalog.php              # Unified catalog (32 events, cross-provider mappings)
@@ -224,7 +231,8 @@ src/
 │   ├── AnonymousIdTracker.php     # Persistent UUID anonymous ID management + cookies
 │   └── SessionTracker.php          # Session, funnel, and conversion tracking
 ├── Queue/
-│   └── QueuedAnalyticsDispatcher.php   # Async queue dispatch (configurable)
+│   ├── QueuedAnalyticsDispatcher.php   # Async queue dispatch (configurable)
+│   └── EventReplayQueue.php             # Failed event retry with exponential backoff
 ├── Http/
 │   ├── Controllers/AnalyticsEventController.php  # 6 API endpoints + event pipeline
 │   └── Middleware/InjectAnalyticsScripts.php       # Auto-inject analytics scripts
@@ -329,6 +337,13 @@ ANALYTICS_SAMPLING_DETERMINISTIC=true
 # ── PII Sanitization ────────────────────────────────────────────
 ANALYTICS_PII_ENABLED=false
 ANALYTICS_PII_STRATEGY=hash
+
+# ── Event Replay Queue (Failed Event Retry) ───────────────────────
+ANALYTICS_REPLAY_ENABLED=true
+ANALYTICS_REPLAY_MAX_ATTEMPTS=3
+ANALYTICS_REPLAY_BASE_DELAY=1.0
+ANALYTICS_REPLAY_MAX_DELAY=60.0
+ANALYTICS_REPLAY_JITTER=0.2
 
 # ── Metrics & Observability ──────────────────────────────────
 ANALYTICS_METRICS_ENABLED=false
@@ -513,6 +528,45 @@ $funnel->getCurrentStep('checkout');      // ?string
 $funnel->getActiveFunnels();              // list<string>
 ```
 
+### Cohort Analytics
+
+```php
+use ZeroBoiler\Analytics\Services\CohortAnalyticsService;
+
+$cohorts = app(CohortAnalyticsService::class);
+
+// Assign user to a cohort (typically on signup)
+$cohortName = CohortAnalyticsService::generateCohortName('weekly');
+$cohorts->assignCohort((string) $user->id, $cohortName, 'signup', ['source' => 'google']);
+
+// Track retention (user returns after N days)
+$cohorts->trackRetention((string) $user->id, $cohortName, 7);  // d7 retention
+$cohorts->trackRetention((string) $user->id, $cohortName, 30); // d30 retention
+
+// Track churn (user cancelled/deactivated)
+$cohorts->trackChurn((string) $user->id, $cohortName, 15, 'too_expensive');
+
+// Track conversion (trial → paid)
+$cohorts->trackConversion((string) $user->id, $cohortName, 'trial_to_paid', ['plan' => 'pro']);
+
+// Track migration (user moved between cohorts)
+$cohorts->trackMigration((string) $user->id, '2026-W32', '2026-W33');
+
+// Engagement summary (periodic aggregation)
+$cohorts->trackEngagementSummary('2026-W32', 85, 120, 'weekly');
+// engagement_rate auto-calculated: 70.83%
+
+// Period classification helper
+CohortAnalyticsService::classifyPeriod(7);   // 'd7'
+CohortAnalyticsService::classifyPeriod(30);  // 'd30'
+CohortAnalyticsService::classifyPeriod(500); // 'd365+'
+
+// Generate cohort names
+CohortAnalyticsService::generateCohortName('weekly', '2026-08-06'); // '2026-W32'
+CohortAnalyticsService::generateCohortName('monthly', '2026-08-06'); // '2026-08'
+CohortAnalyticsService::generateCohortName('quarterly', '2026-01-15'); // 'Q1-2026'
+```
+
 ### Event Routing (Data Bus)
 
 ```php
@@ -575,8 +629,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 33 events across 3 categories
-EventCatalog::count();          // 33
+// Unified catalog — 39 events across 3 categories
+EventCatalog::count();          // 39
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -906,6 +960,12 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `CancellationEvent` | cancellation | — |
 | `FeatureUsedEvent` | feature_used | — |
 | `RevenueEvent` | revenue_tracked | Purchase (mapped) |
+| `CohortAssignedEvent` | cohort_assigned | — |
+| `CohortRetentionEvent` | cohort_retention | — |
+| `CohortChurnEvent` | cohort_churn | — |
+| `CohortConversionEvent` | cohort_conversion | — |
+| `CohortMigrationEvent` | cohort_migration | — |
+| `CohortEngagementEvent` | cohort_engagement | — |
 
 ### Engagement Events
 
@@ -1087,6 +1147,21 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 
 ## Upgrading
 
+### From v2.6.x to v2.7.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- `CohortAnalyticsService` — cohort assignment, retention, churn, conversion, migration, engagement tracking
+- `EventReplayQueue` — automatic failed event retry with exponential backoff
+- Health check now includes metrics, replay status, and catalog summary
+- 6 new cohort events in the SaaS catalog (total: 39 events)
+- 6 new event schemas in the registry (total: 50+)
+- New config section: `replay` with 5 environment variables
+
 ### From v2.0.x to v2.1.0
 No breaking changes. Update via:
 
@@ -1116,6 +1191,19 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v2.7.0 — Cohort Analytics, Event Replay Queue, Health Check Expansion
+- **CohortAnalyticsService** — Time-based cohort tracking with assignCohort, trackRetention, trackChurn, trackConversion, trackMigration, trackEngagementSummary
+- **EventReplayQueue** — Failed event retry with exponential backoff and jitter (configurable max attempts, base/max delay)
+- **6 cohort event schemas** — cohort_assigned, cohort_retention, cohort_churn, cohort_conversion, cohort_migration, cohort_engagement registered in EventSchemaRegistry
+- **17 SaaS events** (was 11) — 6 cohort events added to SaaS catalog, total events now 39
+- **Health check expansion** — Now includes metrics summary, replay queue status, and event catalog summary
+- **Config** — New `replay` section with 5 environment variables (ANALYTICS_REPLAY_ENABLED, etc.)
+- **Service Provider** — CohortAnalyticsService and EventReplayQueue registered as singletons
+- **Cohort name generation** — Static helper for weekly, monthly, quarterly, daily cohort naming
+- **Period classification** — Automatic retention day → period bucket (d1, d7, d14, d30, d60, d90, d180, d365)
+- **Tests** — 50+ new test cases covering cohort service, replay queue, catalog integration, schema validation, and version consistency
+- **Version consistency** — composer.json, AnalyticsManager, health endpoint, catalog endpoint all aligned to v2.7.0
 
 ### v2.6.0 — Wishlist Convenience, Schema Expansion, Catalog Export
 - **`Analytics::wishlist()`** — Convenience method for wishlist tracking with automatic Meta `AddToWishlist` formatting

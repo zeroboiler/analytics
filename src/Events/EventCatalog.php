@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
  * Unified event catalog aggregating all event categories.
  *
  * Provides a single entry point for looking up event names, classes,
- * and provider mappings across Ecommerce, SaaS, and Engagement categories.
+ * and provider mappings across Ecommerce, SaaS (including cohort), and Engagement categories.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, category: string}
  */
