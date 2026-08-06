@@ -48,6 +48,7 @@ use ZeroBoiler\Analytics\Services\AnomalyDetectionService;
 use ZeroBoiler\Analytics\Services\EventStreamService;
 use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
+use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -387,6 +388,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $stream = $app->make(EventStreamService::class);
 
             return new ExportService($manager, $metrics, $stream);
+        });
+
+        // Analytics health service for programmatic health checks
+        $this->app->singleton(AnalyticsHealthService::class, function (Application $app): AnalyticsHealthService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var EventReplayQueue $replayQueue */
+            $replayQueue = $app->make(EventReplayQueue::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsHealthService($manager, $metrics, $replayQueue, $config);
         });
     }
 

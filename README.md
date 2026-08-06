@@ -78,6 +78,7 @@ Done. That's it.
 - **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
 - **PII Sanitization** — Auto-scrub Personally Identifiable Information from events (hash, remove, or mask strategies)
 - **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)
+- **Event Debounce** — Suppress rapid-fire events (scroll, resize) with configurable windows
 - **Session Analytics** — Session-level event recording, aggregation, summaries, and end-of-session dispatch
 - **Event Aggregation** — Real-time event counting with time-windowed rotation, top events ranking, and category grouping
 
@@ -89,6 +90,7 @@ Done. That's it.
 - **RevenueAttributionService** — Revenue tracking with UTM attribution, MRR changes, LTV estimates, cohort revenue, and revenue breakdown by channel
 - **FunnelAnalyticsService** — Multi-step conversion funnel tracking with step tracking, abandonment detection, completion rate, and retry tracking
 - **Server-Side Auto-Tracking** — Config-driven mapping of Laravel auth events and custom app events to analytics events
+- **AnalyticsHealthService** — Programmatic health-check with structured report, warnings, and recommendations
 - **Session & Funnel Tracker** — Session start/end, page counts, duration, and conversion funnel step tracking
 - **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
 
@@ -158,14 +160,14 @@ Done. That's it.
 
 ### Developer Experience
 - **Debug Mode** — `ANALYTICS_DEBUG_ENABLED=true` logs events without dispatching, runtime toggle via `setDebug()`
-- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, `Analytics::metrics()`, and 25+ more methods
+- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::trackError()`, `Analytics::mrr()`, and 30+ more methods
 - **Config-Driven** — 35+ environment variables, sensible defaults, zero-required-config to start
 - **Metrics & Observability** — Per-provider dispatch/failure counters for monitoring and debugging
 - **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 65+ tests
+- **Pest PHP** — 90+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -206,6 +208,7 @@ src/
 ├── Pipeline/
 │   ├── EventPipeline.php            # Middleware pipeline for event processing
 │   ├── SamplingFilter.php           # Probabilistic event sampling
+│   ├── EventDebounceFilter.php      # Debounce rapid-fire events (scroll, resize)
 │   ├── UtmEnricher.php              # UTM campaign parameter enrichment
 │   ├── UserContextEnricher.php      # User context enrichment
 │   ├── ConsentFilter.php            # Consent-based event filtering
@@ -230,6 +233,7 @@ src/
 │   ├── EventValidationService.php      # Event validation & deduplication
 │   ├── SessionAnalyticsService.php     # Session-level event aggregation & summaries
 │   ├── EventAggregationService.php     # Real-time event counting & health diagnostics
+│   ├── AnalyticsHealthService.php      # Programmatic health-check (report, isHealthy)
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
 │   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
@@ -402,6 +406,12 @@ Analytics::notification('push', 'opened', 'weekly_digest');
 
 // Async event dispatch (queued)
 Analytics::trackAsync('background_job', ['job_id' => '12345']);
+
+// Server-side error tracking
+Analytics::trackError('Undefined variable: user', '/app/Http/Controllers/UserController.php', 42);
+
+// MRR tracking (SaaS shortcut)
+Analytics::mrr(5000.00, 120, ['plan' => 'business']);
 ```
 
 ### E-commerce Tracking
@@ -675,6 +685,26 @@ if ($processed !== null) {
 $pipeline = EventPipeline::withDefaults($context);
 ```
 
+### Event Debounce (High-Frequency Events)
+
+```php
+use ZeroBoiler\Analytics\Pipeline\EventDebounceFilter;
+
+$debounce = new EventDebounceFilter(1000); // 1 second window
+
+// Suppress rapid-fire scroll events
+$result = $debounce->process($event);
+if ($result !== null) {
+    Analytics::trackEvent($result);
+}
+
+// Flush held events on page navigation
+$flushed = $debounce->flush();
+foreach ($flushed as $event) {
+    Analytics::trackEvent($event);
+}
+```
+
 ### Event Context Builder
 
 ```php
@@ -811,6 +841,22 @@ use ZeroBoiler\Analytics\Facades\Analytics;
 Analytics::setDebug(true);
 Analytics::isDebug();           // true
 Analytics::shouldLogEvents();   // true if ANALYTICS_DEBUG_LOG_EVENTS=true
+```
+
+### Health Check (Programmatic)
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
+
+$health = app(AnalyticsHealthService::class);
+
+$report = $health->report();
+// $report['status'] — 'healthy', 'warning', or 'error'
+// $report['providers'], $report['warnings'], $report['recommendations']
+
+$health->isHealthy();            // bool
+$health->getWarnings();          // list<string>
+$health->getRecommendations();  // list<string>
 ```
 
 ## Inertia.js Integration
@@ -1162,6 +1208,20 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 
 ## Upgrading
 
+### From v2.11.x to v2.12.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- `AnalyticsHealthService` — Programmatic health-check service (`isHealthy()`, `getWarnings()`, `getRecommendations()`)
+- `EventDebounceFilter` — Debounce rapid-fire events in the pipeline
+- `Analytics::trackError()` — Server-side error tracking convenience
+- `Analytics::mrr()` — MRR revenue shortcut
+- Bug fix: `SaaSAnalyticsService::trackPlanDowngrade()` no longer double-tracks
+
 ### From v2.7.x to v2.8.0
 No breaking changes. Update via:
 
@@ -1219,6 +1279,16 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v2.12.0 — AnalyticsHealthService, EventDebounceFilter, Quality Improvements
+- **AnalyticsHealthService** — Programmatic health-check service with structured report (status, providers, consent, queue, replay, metrics, catalog, validation, sampling, PII, debug, warnings, recommendations). `isHealthy()`, `getWarnings()`, `getRecommendations()` methods. Registered as singleton in ServiceProvider.
+- **EventDebounceFilter** — Pipeline filter to suppress rapid-fire events (scroll depth, resize). Configurable debounce window, per-event-name tracking, `flush()`, `reset()`, `setTestNow()` for testing.
+- **`Analytics::trackError()`** — Server-side JS error convenience method (message, source, line, params).
+- **`Analytics::mrr()`** — Shortcut for SaaS MRR revenue tracking (amount, subscriber count).
+- **Facade proxy** — `trackError()` and `mrr()` added to Analytics facade docblock.
+- **Bug fix** — `SaaSAnalyticsService::trackPlanDowngrade()` no longer double-tracks (was dispatching both typed event and generic event).
+- **Version consistency** — composer.json, AnalyticsManager, and JS client all aligned to v2.12.0.
+- **Tests** — 25+ new test cases: version consistency, debounce filter, health service, plan downgrade fix, facade coverage, catalog validation.
 
 ### v2.8.0 — Session Analytics, Event Aggregation, Health Diagnostic
 

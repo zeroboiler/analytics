@@ -151,11 +151,6 @@ class SaaSAnalyticsService
             fromPlan: $fromPlan,
             toPlan: $toPlan,
         ));
-
-        $this->manager->track('plan_downgrade', array_merge([
-            'from_plan' => $fromPlan,
-            'to_plan' => $toPlan,
-        ], $params));
     }
 
     /**

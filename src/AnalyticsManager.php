@@ -907,11 +907,51 @@ class AnalyticsManager
     }
 
     /**
+     * Track a JS/client error event (server-side convenience).
+     *
+     * Useful for logging errors that were captured client-side but need
+     * server-side persistence or dispatch to non-client providers.
+     *
+     * @param  string  $message  Error message
+     * @param  string|null  $source  Error source (file/URL)
+     * @param  int|null  $line  Line number
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackError(string $message, ?string $source = null, ?int $line = null, array $params = []): void
+    {
+        $this->track('error', array_filter(array_merge([
+            'error_message' => $message,
+            'error_source' => $source,
+            'error_line' => $line,
+        ], $params)));
+    }
+
+    /**
+     * Track an MRR (Monthly Recurring Revenue) event.
+     *
+     * Shortcut for the most common SaaS revenue tracking scenario.
+     * For advanced revenue tracking (ARR, one-time, add-on, etc.), use
+     * RevenueAnalyticsService directly.
+     *
+     * @param  float  $amount  MRR amount
+     * @param  int  $subscribers  Current subscriber count
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function mrr(float $amount, int $subscribers = 0, array $params = []): void
+    {
+        $this->track('revenue_tracked', array_merge([
+            'amount' => $amount,
+            'revenue_type' => 'mrr',
+            'subscriber_count' => $subscribers,
+        ], $params));
+    }
+
+    /**
      * Get the package version.
      */
     public function version(): string
     {
-        return '2.9.0';
+        return '2.12.0';
     }
 
     /**

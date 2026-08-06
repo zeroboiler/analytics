@@ -57,6 +57,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static bool eventExists(string $eventName)
  * @method static string|null eventCategory(string $eventName)
  * @method static int totalEventCount()
+ * @method static void trackError(string $message, string|null $source = null, int|null $line = null, array<string, mixed> $params = [])
+ * @method static void mrr(float $amount, int $subscribers = 0, array<string, mixed> $params = [])
  * @method static string version()
  * @method static array<string, array{enabled: bool, id?: string}> providerSummary()
  * @method static \ZeroBoiler\Analytics\AnalyticsMetrics metrics()
