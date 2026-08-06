@@ -3,8 +3,21 @@
     "description": "Industry-standard SaaS analytics for Laravel — GA4, GTM, Meta Pixel, Plausible, PostHog",
     "type": "library",
     "license": "MIT",
-    "version": "2.13.0",
-    "minimum-stability": "dev",
+    "keywords": [
+        "analytics",
+        "ga4",
+        "gtm",
+        "meta-pixel",
+        "plausible",
+        "posthog",
+        "tracking",
+        "events",
+        "gdpr",
+        "consent",
+        "ecommerce"
+    ],
+    "version": "2.14.0",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
         "php": "^8.5",
@@ -42,6 +55,7 @@
         }
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
@@ -64,15 +78,15 @@
     "repositories": [
         {
             "type": "path",
-            "url": "/tmp/response"
+            "url": "../response"
         },
         {
             "type": "path",
-            "url": "/tmp/dto"
+            "url": "../dto"
         },
         {
             "type": "path",
-            "url": "/tmp/value-objects"
+            "url": "../value-objects"
         }
     ]
 }

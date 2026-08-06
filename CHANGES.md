@@ -2,6 +2,15 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.14.0] - 2026-08-06
+
+### Fixed
+- **minimum-stability** changed from `dev` to `stable` for production readiness
+- **Repository paths** fixed from `/tmp/*` to relative `../response`, `../dto`, `../value-objects`
+- Added `sort-packages: true` to composer config
+- Added `keywords` to composer.json for better discoverability
+- Version bump to 2.14.0
+
 ## [2.13.0] - 2025-08-06
 
 ### Added
