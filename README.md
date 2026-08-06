@@ -127,7 +127,7 @@ Done. That's it.
 - **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::logout()`, and 25+ more methods
 - **Config-Driven** — 30+ environment variables, sensible defaults, zero-required-config to start
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 40+ tests
+- **Pest PHP** — 50+ tests
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -815,7 +815,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -1044,7 +1044,16 @@ composer ci  # Pint + PHPStan + Rector + Tests
 
 ## Changelog
 
-### v2.1.0 — E-commerce Convenience + Test Suite Expansion
+### v2.3.0 — DataBus Integration, Test Suite Expansion, v2.3.0 hardening
+- **DataBus-aware dispatch** — AnalyticsManager now routes events through DataBus when routing rules are configured, falling back to direct dispatch when no rules exist
+- **directDispatch()** — New public method to bypass DataBus and send events to all providers directly
+- **Facade proxy** — `directDispatch()` added to Analytics facade
+- **Overview command enhanced** — Event catalog stats (per-category event lists, totals), provider summary with IDs
+- **Tests** — 50+ new test cases across 4 new files (DataBus, FunnelAnalyticsService, RevenueAttributionService, DataBus Integration)
+- **Version consistency** — composer.json, AnalyticsManager, health endpoint all aligned to v2.3.0
+- **Features list** — DataBus routing and directDispatch added to registered features overview
+
+### v2.2.0 — Funnel Analytics, Revenue Attribution, AnalyticsDataBus
 - **trackEcommerce()** — Cross-provider e-commerce event dispatch (GA4 + Meta Pixel auto-formatting)
 - **Facade proxy** — `trackEcommerce()` added to Analytics facade
 - **EventCatalog::search()** — Partial name match search across all event categories

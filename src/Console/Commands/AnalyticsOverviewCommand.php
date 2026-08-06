@@ -137,6 +137,38 @@ class AnalyticsOverviewCommand extends Command
 
         // Available features
         $this->newLine();
+        $this->line('<fg=cyan;options=bold>EVENT CATALOG</>');
+        $this->line('─────────────────────────────');
+
+        $catalogSummary = \ZeroBoiler\Analytics\Events\EventCatalog::byCategory();
+        foreach ($catalogSummary as $category => $events) {
+            $count = count($events);
+            $names = array_map(fn (array $e): string => $e['name'], $events);
+            $this->line("  <fg=green>{$count}</> {$category}");
+            foreach (array_chunk($names, 5) as $chunk) {
+                $this->line('    '.implode(', ', $chunk));
+            }
+        }
+        $this->line('  <fg=green;options=bold>'.\ZeroBoiler\Analytics\Events\EventCatalog::count().'</> total events');
+
+        // Provider summary
+        $this->newLine();
+        $this->line('<fg=cyan;options=bold>PROVIDER SUMMARY</>');
+        $this->line('─────────────────────────────');
+
+        try {
+            $providerSummary = \ZeroBoiler\Analytics\Facades\Analytics::providerSummary();
+            foreach ($providerSummary as $name => $info) {
+                $status = $info['enabled'] ? '<fg=green>● enabled</>' : '<fg=yellow>○ disabled</>';
+                $detail = $info['id'] ?? '—';
+                $this->line("  {$status}  {$name}: {$detail}");
+            }
+        } catch (\Throwable) {
+            $this->line('  <fg=yellow>(unavailable — run within Laravel app context)</>');
+        }
+
+        // Registered features
+        $this->newLine();
         $this->line('<fg=cyan;options=bold>REGISTERED FEATURES</>');
         $this->line('─────────────────────────────');
         $features = [
@@ -177,6 +209,8 @@ class AnalyticsOverviewCommand extends Command
             'Admin commands (test, overview)',
             'Event Catalog (static catalogs + unified registry)',
             'GDPR identity reset (GA4 + PostHog)',
+            'Analytics DataBus (conditional event routing)',
+            'directDispatch() — bypass DataBus routing',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

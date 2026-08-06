@@ -194,6 +194,31 @@ class AnalyticsManager
             return;
         }
 
+        // If DataBus is available and has rules, route through it
+        try {
+            $bus = app(\ZeroBoiler\Analytics\Bus\AnalyticsDataBus::class);
+            $rules = $bus->getRules();
+
+            if (! empty($rules)) {
+                $bus->route($event);
+
+                return;
+            }
+        } catch (\Throwable) {
+            // DataBus not available — fall through to standard dispatch
+        }
+
+        $this->directDispatch($event);
+    }
+
+    /**
+     * Dispatch an event directly to all enabled trackers (bypasses DataBus).
+     *
+     * Use this when you want to ensure the event goes to all providers
+     * regardless of any routing rules configured in the DataBus.
+     */
+    public function directDispatch(AnalyticsEvent $event): void
+    {
         if ($this->ga4->isEnabled()) {
             $this->ga4->track($event);
         }
@@ -790,7 +815,7 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.2.0';
+        return '2.3.0';
     }
 
     /**

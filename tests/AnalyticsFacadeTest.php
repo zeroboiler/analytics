@@ -212,4 +212,15 @@ describe('Analytics Facade', function () {
             expect($summary['ecommerce'])->toBe(8);
         });
     });
+
+    describe('directDispatch proxy', function () {
+        it('proxies directDispatch() to the manager', function () {
+            $event = new AnalyticsEvent('critical_event', ['key' => 'value']);
+            $this->manager->shouldReceive('directDispatch')
+                ->once()
+                ->with($event);
+
+            Analytics::directDispatch($event);
+        });
+    });
 });
