@@ -34,7 +34,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void trialEnd(string $outcome, string|null $planName = null, array<string, mixed> $params = [])
  * @method static void planDowngrade(string $fromPlan, string $toPlan, array<string, mixed> $params = [])
  * @method static void wishlist(array<string, mixed> $item, array<string, mixed> $params = [])
- * @method static void directDispatch(AnalyticsEvent $event)
+ * @method static bool directDispatch(AnalyticsEvent $event)
  * @method static array{content_ids: list<string>, contents: array<int, array<string, mixed>>, num_items: int} formatEcommerceForMeta(array<int, array<string, mixed>> $items)
  * @method static string headScripts()
  * @method static string bodyScripts()

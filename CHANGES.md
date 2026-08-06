@@ -2,6 +2,23 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.27.0] - 2026-08-06
+
+### Added
+- **AnalyticsConfig expansion** — 25+ new typed config accessors: dedup, GDPR, attribution, profile, funnels, alerts, inbound webhook, pipeline (auto_metadata, schema_enrichment). Summary expanded to 22 config sections (from 14).
+- **Alert + Funnel API routes** — `POST /api/analytics/alerts/evaluate`, `GET /api/analytics/alerts`, `GET /api/analytics/funnels`, `POST /api/analytics/funnels/compare`, `GET /api/analytics/funnels/drop-off`, `GET /api/analytics/funnels/chart` now registered in ServiceProvider (previously only in routes file).
+- **JS client `getVersion()`** — Programmatic version export for diagnostics and API compatibility checks.
+- **V27ConfigRoutesVersionConsistencyTest** — 35+ new test cases covering version string consistency (manager, facade, composer, JS), config accessor completeness (all new sections), route registration completeness (23 public + authenticated routes), controller version strings (3 endpoints), accessor return types (bool/int/string/array), event catalog integrity, and service provider binding verification.
+
+### Fixed
+- **Facade `directDispatch` return type** — Corrected from `void` to `bool` matching AnalyticsManager::directDispatch() actual return type.
+- **Controller version strings** — `catalog()`, `health()`, and `stats()` endpoints updated from stale `2.24.0` to `2.27.0`.
+- **JS client JSDoc version** — Updated from `2.26.0` to `2.27.0`.
+
+### Changed
+- Version bump to 2.27.0
+- AnalyticsConfig summary() now returns 22 sections (was 14) — includes dedup, gdpr, attribution, profile, funnels, alerts, inbound_webhook, stream
+
 ## [2.23.0] - 2026-08-06
 
 ### Added

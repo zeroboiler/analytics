@@ -680,6 +680,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/export', [$controller, 'export']);
                 Route::get('analytics/stats', [$controller, 'stats']);
                 Route::post('analytics/webhook/inbound', [$controller, 'inboundWebhook']);
+                Route::post('analytics/alerts/evaluate', [$controller, 'evaluateAlerts']);
+                Route::get('analytics/alerts', [$controller, 'alerts']);
+                Route::get('analytics/funnels', [$controller, 'funnelData']);
+                Route::post('analytics/funnels/compare', [$controller, 'funnelCompare']);
+                Route::get('analytics/funnels/drop-off', [$controller, 'funnelDropOff']);
+                Route::get('analytics/funnels/chart', [$controller, 'funnelChart']);
             });
 
         // Authenticated endpoints

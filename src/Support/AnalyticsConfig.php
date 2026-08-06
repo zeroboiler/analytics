@@ -565,6 +565,147 @@ final class AnalyticsConfig
         return (int) $this->get('tracking_preference.ttl', 604800);
     }
 
+    // ── Dedup ────────────────────────────────────────────────────────────
+
+    public function dedupEnabled(): bool
+    {
+        return (bool) $this->get('dedup.enabled', true);
+    }
+
+    // ── GDPR ──────────────────────────────────────────────────────────────
+
+    public function gdprAnonymizeIp(): bool
+    {
+        return (bool) $this->get('gdpr.anonymize_ip', false);
+    }
+
+    public function gdprIpMaskV4(): int
+    {
+        return (int) $this->get('gdpr.ip_mask_v4', 2);
+    }
+
+    public function gdprIpMaskV6(): int
+    {
+        return (int) $this->get('gdpr.ip_mask_v6', 48);
+    }
+
+    // ── Attribution ────────────────────────────────────────────────────
+
+    public function attributionEnabled(): bool
+    {
+        return (bool) $this->get('attribution.enabled', true);
+    }
+
+    public function attributionFirstTouchTtl(): int
+    {
+        return (int) $this->get('attribution.first_touch_ttl', 2592000);
+    }
+
+    public function attributionTouchHistoryTtl(): int
+    {
+        return (int) $this->get('attribution.touch_history_ttl', 2592000);
+    }
+
+    public function attributionMaxTouchHistory(): int
+    {
+        return (int) $this->get('attribution.max_touch_history', 20);
+    }
+
+    // ── Profile ─────────────────────────────────────────────────────────
+
+    public function profileEnabled(): bool
+    {
+        return (bool) $this->get('profile.enabled', true);
+    }
+
+    public function profileTtl(): int
+    {
+        return (int) $this->get('profile.ttl', 86400);
+    }
+
+    // ── Funnels ─────────────────────────────────────────────────────────
+
+    public function funnelsEnabled(): bool
+    {
+        return (bool) $this->get('funnels.enabled', true);
+    }
+
+    public function funnelsCacheEnabled(): bool
+    {
+        return (bool) $this->get('funnels.cache_enabled', true);
+    }
+
+    public function funnelsCacheTtl(): int
+    {
+        return (int) $this->get('funnels.cache_ttl', 300);
+    }
+
+    // ── Alerts ─────────────────────────────────────────────────────────
+
+    public function alertsEnabled(): bool
+    {
+        return (bool) $this->get('alerts.enabled', true);
+    }
+
+    public function alertsCooldown(): int
+    {
+        return (int) $this->get('alerts.cooldown', 300);
+    }
+
+    public function alertsMaxHistory(): int
+    {
+        return (int) $this->get('alerts.max_history', 200);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function alertsRules(): array
+    {
+        $rules = $this->get('alerts.rules', []);
+
+        return is_array($rules) ? $rules : [];
+    }
+
+    // ── Inbound Webhook ────────────────────────────────────────────────
+
+    public function inboundWebhookEnabled(): bool
+    {
+        return (bool) $this->get('inbound_webhook.enabled', false);
+    }
+
+    public function inboundWebhookSecret(): string
+    {
+        return (string) $this->get('inbound_webhook.secret', '');
+    }
+
+    public function inboundWebhookRequireSignature(): bool
+    {
+        return (bool) $this->get('inbound_webhook.require_signature', true);
+    }
+
+    public function inboundWebhookMaxPayloadSize(): int
+    {
+        return (int) $this->get('inbound_webhook.max_payload_size', 65536);
+    }
+
+    public function inboundWebhookMaxEvents(): int
+    {
+        return (int) $this->get('inbound_webhook.max_events', 50);
+    }
+
+    // ── Pipeline (extended) ─────────────────────────────────────────────
+
+    public function pipelineAutoMetadata(): bool
+    {
+        return (bool) $this->get('pipeline.auto_metadata', true);
+    }
+
+    public function pipelineSchemaEnrichment(): bool
+    {
+        return (bool) $this->get('pipeline.schema_enrichment', false);
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -676,6 +817,39 @@ final class AnalyticsConfig
             ],
             'tracking_preference' => [
                 'ttl' => $this->trackingPreferenceTtl(),
+            ],
+            'dedup' => [
+                'enabled' => $this->dedupEnabled(),
+            ],
+            'gdpr' => [
+                'anonymize_ip' => $this->gdprAnonymizeIp(),
+                'ip_mask_v4' => $this->gdprIpMaskV4(),
+                'ip_mask_v6' => $this->gdprIpMaskV6(),
+            ],
+            'attribution' => [
+                'enabled' => $this->attributionEnabled(),
+                'first_touch_ttl' => $this->attributionFirstTouchTtl(),
+                'max_touch_history' => $this->attributionMaxTouchHistory(),
+            ],
+            'profile' => [
+                'enabled' => $this->profileEnabled(),
+                'ttl' => $this->profileTtl(),
+            ],
+            'funnels' => [
+                'enabled' => $this->funnelsEnabled(),
+                'cache_enabled' => $this->funnelsCacheEnabled(),
+            ],
+            'alerts' => [
+                'enabled' => $this->alertsEnabled(),
+                'cooldown' => $this->alertsCooldown(),
+                'rules_count' => count($this->alertsRules()),
+            ],
+            'inbound_webhook' => [
+                'enabled' => $this->inboundWebhookEnabled(),
+                'require_signature' => $this->inboundWebhookRequireSignature(),
+            ],
+            'stream' => [
+                'buffer_size' => $this->streamBufferSize(),
             ],
         ];
     }

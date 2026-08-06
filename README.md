@@ -139,6 +139,12 @@ Done. That's it.
 - `GET /api/analytics/export` — Export events (JSON, CSV, metrics, compliance)
 - `GET /api/analytics/stats` — Aggregated dashboard statistics (public, no auth)
 - `POST /api/analytics/webhook/inbound` — Receive events from external sources (HMAC-SHA256 verified)
+- `GET /api/analytics/alerts` — Alert rules summary and recent alert history
+- `POST /api/analytics/alerts/evaluate` — Evaluate all alert rules against current metrics
+- `GET /api/analytics/funnels` — Funnel visualization data (per-step conversion rates, drop-off)
+- `POST /api/analytics/funnels/compare` — Side-by-side funnel comparison
+- `GET /api/analytics/funnels/drop-off` — Step-by-step drop-off analysis
+- `GET /api/analytics/funnels/chart` — Chart.js/Recharts-compatible funnel data
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -187,13 +193,13 @@ Done. That's it.
 - **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
-- **AnalyticsConfig** — Type-safe config accessor with 60+ typed methods (no raw array access)
+- **AnalyticsConfig** — Type-safe config accessor with 90+ typed methods (no raw array access)
 - **EventTransformer** — Centralized GA4 ↔ Meta ↔ PostHog event format conversion
 - **AnalyticsEventNameRule** — Laravel validation rule for analytics event names
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests across 69 test files
+- **Pest PHP** — 150+ tests across 70 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -283,7 +289,7 @@ src/
 │   └── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
 │   └── AnalyticsDashboardCommand.php # Dashboard data export (JSON/table)
 ├── Support/
-│   ├── AnalyticsConfig.php              # Type-safe config accessor (60+ methods)
+│   ├── AnalyticsConfig.php              # Type-safe config accessor (90+ methods)
 │   ├── AnalyticsEventNameRule.php       # Laravel validation rule for event names
 │   ├── EventTransformer.php             # Cross-provider event format conversion
 │   ├── AnalyticsRateLimiter.php         # Per-client rate limiting
@@ -296,7 +302,7 @@ resources/
 └── js/
     └── analytics.js                 # ES module client library (~1200 LOC)
 config/
-└── zeroboiler.php                   # 30+ config options across 12 sections
+└── zeroboiler.php                   # 30+ config options across 22 sections
 routes/
 └── analytics.php                    # API route definitions
 ```
