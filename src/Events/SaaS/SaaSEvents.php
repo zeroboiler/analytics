@@ -98,40 +98,40 @@ final class SaaSEvents
                 'ga4' => 'revenue_tracked',
                 'meta' => 'Purchase',
             ],
-            // Cohort analytics events
+            // Cohort analytics events (typed classes)
             'cohort_assigned' => [
                 'name' => 'cohort_assigned',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortAssignedEvent::class,
                 'ga4' => 'cohort_assigned',
                 'meta' => null,
             ],
             'cohort_retention' => [
                 'name' => 'cohort_retention',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortRetentionEvent::class,
                 'ga4' => 'cohort_retention',
                 'meta' => null,
             ],
             'cohort_churn' => [
                 'name' => 'cohort_churn',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortChurnEvent::class,
                 'ga4' => 'cohort_churn',
                 'meta' => null,
             ],
             'cohort_conversion' => [
                 'name' => 'cohort_conversion',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortConversionEvent::class,
                 'ga4' => 'cohort_conversion',
                 'meta' => null,
             ],
             'cohort_migration' => [
                 'name' => 'cohort_migration',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortMigrationEvent::class,
                 'ga4' => 'cohort_migration',
                 'meta' => null,
             ],
             'cohort_engagement' => [
                 'name' => 'cohort_engagement',
-                'class' => \ZeroBoiler\Analytics\Events\CustomEvent::class,
+                'class' => CohortEngagementEvent::class,
                 'ga4' => 'cohort_engagement',
                 'meta' => null,
             ],

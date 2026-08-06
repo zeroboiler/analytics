@@ -84,6 +84,7 @@ Done. That's it.
 
 ### SaaS Analytics
 - **17 SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 49 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
@@ -983,12 +984,19 @@ Route::middleware(['analytics.scripts'])->group(function () {
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `GET` | `/api/analytics/health` | No | Health check (providers, consent, version) |
+| `GET` | `/api/analytics/health` | No | Health check (providers, consent, metrics, replay, version) |
+| `GET` | `/api/analytics/catalog` | No | Full event catalog (49 events, categories, provider mappings) |
+| `GET` | `/api/analytics/stream` | No | Real-time event stream (cursor-based polling) |
+| `GET` | `/api/analytics/stream/stats` | No | Event stream statistics |
+| `GET` | `/api/analytics/export` | No | Export events (JSON, CSV, metrics, compliance) |
 | `POST` | `/api/analytics/events` | Yes | Track a single event |
 | `POST` | `/api/analytics/batch` | Yes | Track up to 25 events |
 | `POST` | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + traits |
-| `POST` | `/api/analytics/pageview` | Yes | Server-side page view |
+| `POST` | `/api/analytics/pageview` | Yes | Server-side page view (ad-blocker resistant) |
 | `POST` | `/api/analytics/consent` | Yes | Update consent signals |
+| `POST` | `/api/analytics/opt-out` | Yes | Per-user tracking opt-out (GDPR) |
+| `POST` | `/api/analytics/opt-in` | Yes | Override previous opt-out preference |
+| `GET` | `/api/analytics/preference` | Yes | Check tracking preference status |
 
 All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min).
 
@@ -997,7 +1005,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.3.0",
+  "version": "2.19.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -1204,6 +1212,15 @@ php artisan zb:analytics:health --json
 
 # Health diagnostic without recommendations
 php artisan zb:analytics:health --no-recommendations
+
+# Dashboard data export (structured JSON)
+php artisan zb:analytics:dashboard
+
+# Dashboard with metrics and health included
+php artisan zb:analytics:dashboard --include-metrics --include-health
+
+# Pretty-printed dashboard output
+php artisan zb:analytics:dashboard --pretty
 ```
 
 ## Testing
@@ -1244,6 +1261,20 @@ composer ci           # Full CI (Pint + PHPStan 9 + Rector + Tests)
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.18.x to v2.19.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent replace generic CustomEvent references
+- All 49 events now have dedicated typed classes (previously 6 cohort events used CustomEvent)
+- JS client: removed duplicate `initAll()` export — consolidated to single canonical implementation with full session tracking and config-driven settings
+- README API reference expanded with all 13 endpoints documented
+- Dashboard command documentation added to README
 
 ### From v2.11.x to v2.12.0
 No breaking changes. Update via:

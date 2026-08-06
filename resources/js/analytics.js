@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.18.0
+ * @version 2.19.0
  */
 
 let trackingId = null;
@@ -2039,13 +2039,16 @@ export async function getTrackingPreference() {
 }
 
 // ─── initAll: One-Call Setup ─────────────────────────────────────────────
+// The initAll function is defined above (line ~1430) with full session tracking
+// and Inertia config-driven settings. This is the canonical implementation.
+// The JSDoc below is preserved for reference.
 
 /**
  * Initialize analytics AND set up all auto-trackers in one call.
  *
  * Designed for Svelte/Inertia onMount — a single import and call gets you
  * page views, scroll depth, form tracking, error tracking, link tracking,
- * and session tracking with one cleanup function.
+ * session tracking, and Web Vitals with one cleanup function.
  *
  * @param {object} pageProps - Inertia page props containing `zbAnalytics`
  * @param {object} [options] - Tracker configuration
@@ -2071,71 +2074,3 @@ export async function getTrackingPreference() {
  * // On destroy:
  * // cleanup?.();
  */
-export function initAll(pageProps, options = {}) {
-    const {
-        pageViews = true,
-        scrollDepth = true,
-        formTracking = true,
-        errorTracking = true,
-        linkTracking = false,
-        errorIgnorePatterns = ['ResizeObserver', 'Non-Error promise rejection', 'Script error'],
-        sessionTracking = true,
-        performanceTracking = false,
-    } = options;
-
-    // Initialize core analytics
-    init(pageProps);
-
-    if (!initialized) return () => {};
-
-    const cleanups = [];
-
-    // Session start
-    if (sessionTracking) {
-        trackEvent('session_start', {
-            session_id: generateUUID(),
-            page_path: typeof window !== 'undefined' ? window.location.pathname : null,
-            source: 'auto',
-        }, { immediate: true });
-    }
-
-    // Inertia page view tracking
-    if (pageViews) {
-        cleanups.push(initInertiaPageViewTracker());
-    }
-
-    // Scroll depth tracking
-    if (scrollDepth) {
-        cleanups.push(initScrollDepth());
-    }
-
-    // Form interaction tracking
-    if (formTracking) {
-        cleanups.push(initFormTracking());
-    }
-
-    // JS error tracking
-    if (errorTracking) {
-        cleanups.push(initErrorTracking({
-            ignorePatterns: errorIgnorePatterns,
-        }));
-    }
-
-    // Link click tracking
-    if (linkTracking) {
-        cleanups.push(initLinkTracking());
-    }
-
-    // Web Vitals tracking
-    if (performanceTracking) {
-        cleanups.push(initWebVitals());
-    }
-
-    // Return combined cleanup function
-    return () => {
-        for (const cleanup of cleanups) {
-            cleanup?.();
-        }
-        destroy();
-    };
-}

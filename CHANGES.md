@@ -2,6 +2,19 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.19.0] - 2026-08-06
+
+### Added
+- **6 Dedicated Cohort Typed Event Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent with typed constructors replacing generic CustomEvent references
+- **All 49 events now have typed classes** — Previously 6 cohort events used CustomEvent; now every event in the catalog has a dedicated typed class with enforced parameters
+- **V219CohortTypedClassesTest** — 30+ new test cases covering all 6 cohort event constructors, parameter validation, engagement rate calculation, null/empty filtering, catalog integration (typed class verification, no CustomEvent, readonly final, subclass check), and unified catalog cross-validation
+
+### Changed
+- **SaaSEvents catalog** — All 6 cohort event entries now reference dedicated typed classes instead of CustomEvent
+- **JS client** — Removed duplicate `initAll()` export at EOF; consolidated to single canonical implementation with full session tracking, config-driven Inertia settings, and proper cleanup
+- **README** — Added "6 Dedicated Cohort Typed Classes" to SaaS Analytics features, expanded API Reference table to all 13 endpoints, added `zb:analytics:dashboard` command documentation, added v2.19.0 upgrade guide, updated Health Response version to 2.19.0
+- Version bump to 2.19.0 — complete typed event coverage across the entire 49-event feature matrix
+
 ## [2.18.0] - 2026-08-06
 
 ### Added
