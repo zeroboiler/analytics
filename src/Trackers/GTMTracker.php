@@ -10,7 +10,7 @@ namespace ZeroBoiler\Analytics\Trackers;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
-class GTMTracker implements TrackerInterface
+final class GTMTracker implements TrackerInterface
 {
     private string $containerId;
 

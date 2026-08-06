@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  * - Server-generated tracking ID (cookie-stored for client/server matching)
  * - Authenticated user ID (when available)
  */
-class HandleInertiaAnalytics implements HttpMiddlewareContract
+final class HandleInertiaAnalytics implements HttpMiddlewareContract
 {
     private AnalyticsManager $manager;
 

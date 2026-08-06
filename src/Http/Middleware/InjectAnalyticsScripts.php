@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  *
  * Register as route middleware: `analytics.scripts`
  */
-class InjectAnalyticsScripts implements HttpMiddlewareContract
+final class InjectAnalyticsScripts implements HttpMiddlewareContract
 {
     public function __construct(
         protected AnalyticsManager $analytics,

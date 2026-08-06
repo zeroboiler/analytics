@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * revenue-related events, and provides a diagnostic summary for verifying
  * that revenue analytics is properly configured.
  */
-class RevenueReportCommand extends Command
+final class RevenueReportCommand extends Command
 {
     protected $signature = 'zb:analytics:revenue-report
         {--dry-run : Simulate a revenue event without dispatching}

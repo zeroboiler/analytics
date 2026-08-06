@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  * cross-provider mappings. Useful for generating client-side type definitions,
  * API documentation, or data dictionary exports.
  */
-class AnalyticsExportCommand extends Command
+final class AnalyticsExportCommand extends Command
 {
     protected $signature = 'zb:analytics:export
         {--format=json : Export format (json, csv, markdown)}

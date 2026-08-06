@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Receives events from the JS client library and dispatches them
  * through the analytics pipeline to all configured providers.
  */
-class AnalyticsEventController extends Controller
+final class AnalyticsEventController extends Controller
 {
     private AnalyticsManager $manager;
 

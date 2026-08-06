@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Useful for verifying that API keys, measurement IDs, and access tokens
  * are correctly configured.Validates the response from each provider.
  */
-class AnalyticsTestCommand extends Command
+final class AnalyticsTestCommand extends Command
 {
     protected $signature = 'zb:analytics:test
         {--event=test_event : Custom event name to send}

@@ -15,7 +15,7 @@ use Illuminate\Console\Command;
  * Shows which providers are enabled, consent state, config values,
  * and registered event types — useful for debugging and monitoring.
  */
-class AnalyticsOverviewCommand extends Command
+final class AnalyticsOverviewCommand extends Command
 {
     protected $signature = 'zb:analytics:overview';
 

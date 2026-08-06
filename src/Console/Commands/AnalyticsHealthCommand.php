@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\Queue\EventReplayQueue;
  * PII sanitization, metrics, and provides actionable warnings and
  * recommendations. Use for monitoring, CI checks, and debugging.
  */
-class AnalyticsHealthCommand extends Command
+final class AnalyticsHealthCommand extends Command
 {
     protected $signature = 'zb:analytics:health
         {--json : Output as JSON}
