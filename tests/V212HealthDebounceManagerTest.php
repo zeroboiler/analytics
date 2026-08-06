@@ -88,15 +88,14 @@ describe('EventDebounceFilter', function (): void {
         $filter->setTestNow(0);
 
         $event1 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 25]);
-        $event2 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 50]);
 
-        // First event at t=0 should pass
-        $filter->setTestNow(0);
+        // First event at t=0 should pass (no prior dispatch)
         $result1 = $filter->process($event1);
         expect($result1)->not->BeNull();
 
         // Second event at t=500 (within 1000ms window) should be suppressed
         $filter->setTestNow(500);
+        $event2 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 50]);
         $result2 = $filter->process($event2);
         expect($result2)->toBeNull();
         expect($filter->isPending('scroll_depth'))->toBeTrue();
@@ -129,21 +128,23 @@ describe('EventDebounceFilter', function (): void {
         $filter = new EventDebounceFilter(1000);
         $filter->setTestNow(0);
 
+        // First dispatch of 'a' at t=0 (passes)
         $event1 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 50]);
-        $event2 = new AnalyticsEvent(name: 'time_on_page', params: ['seconds' => 10]);
-
         $filter->process($event1);
+
+        // Suppressed at t=500
+        $filter->setTestNow(500);
+        $event2 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 75]);
         $filter->process($event2);
 
-        $filter->setTestNow(500);
-        $event3 = new AnalyticsEvent(name: 'scroll_depth', params: ['percent' => 75]);
-        $filter->process($event3);
+        // 'time_on_page' has no prior dispatch, so it passes immediately (not pending)
+        $filter->process(new AnalyticsEvent(name: 'time_on_page', params: ['seconds' => 10]));
 
         $flushed = $filter->flush();
 
-        expect($flushed)->toHaveCount(2);
-        expect($flushed[0]->params['percent'])->toBe(75); // Latest scroll event
-        expect($flushed[1]->params['seconds'])->toBe(10); // time_on_page
+        // Only 'scroll_depth' was pending (suppressed)
+        expect($flushed)->toHaveCount(1);
+        expect($flushed[0]->params['percent'])->toBe(75);
         expect($filter->pendingCount())->toBe(0);
     });
 

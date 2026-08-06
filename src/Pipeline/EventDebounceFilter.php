@@ -72,8 +72,8 @@ final class EventDebounceFilter
         // Store as the latest pending event for this name
         $this->pending[$name] = $event;
 
-        $lastDispatch = $this->lastDispatch[$name] ?? 0;
-        $elapsed = $now - $lastDispatch;
+        $lastDispatch = $this->lastDispatch[$name] ?? null;
+        $elapsed = ($lastDispatch !== null) ? ($now - $lastDispatch) : PHP_INT_MAX;
 
         if ($elapsed >= $this->debounceMs) {
             // Debounce window expired — dispatch the latest pending event
