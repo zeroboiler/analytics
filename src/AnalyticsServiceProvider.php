@@ -55,7 +55,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  */
-class AnalyticsServiceProvider extends ServiceProvider
+final class AnalyticsServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
