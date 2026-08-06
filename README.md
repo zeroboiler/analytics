@@ -76,11 +76,19 @@ Done. That's it.
 - **Event Pipeline** — Lightweight pipe chain for UTM enrichment, user context, consent filtering, and timestamp enrichment
 - **Event Context Builder** — Auto-collects user identity, client ID, session, UTM, page, and device context from the request
 - **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
+- **Event Deduplication** — Cache-based SHA-256 fingerprint deduplication with configurable window (EventDeduplicationService)
+- **Device Context** — Zero-dependency User-Agent parsing for browser, OS, device type, and brand detection (DeviceContextService)
+- **IP Anonymization** — GDPR-compliant IPv4/IPv6 masking with configurable granularity (IpAnonymizationService)
 - **PII Sanitization** — Auto-scrub Personally Identifiable Information from events (hash, remove, or mask strategies)
 - **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)
 - **Event Debounce** — Suppress rapid-fire events (scroll, resize) with configurable windows
 - **Session Analytics** — Session-level event recording, aggregation, summaries, and end-of-session dispatch
 - **Event Aggregation** — Real-time event counting with time-windowed rotation, top events ranking, and category grouping
+
+### SaaS Funnel Tracking
+- **5 Lifecycle Funnels** — Signup (5 steps), Trial (4 steps), Conversion (4 steps), Retention (4 steps), Expansion (4 steps)
+- **SaasFunnelService** — High-level API for tracking complete user funnels with funnel metadata on every event
+- **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
 - **17 SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)

@@ -52,6 +52,10 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
+use ZeroBoiler\Analytics\Services\EventDeduplicationService;
+use ZeroBoiler\Analytics\Services\DeviceContextService;
+use ZeroBoiler\Analytics\Services\IpAnonymizationService;
+use ZeroBoiler\Analytics\Services\SaasFunnelService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -427,6 +431,39 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $cache,
                 isset($trackingConfig['ttl']) ? (int) $trackingConfig['ttl'] : null,
             );
+        });
+
+        // Event deduplication service (cache-based fingerprint tracking)
+        $this->app->singleton(EventDeduplicationService::class, function (Application $app): EventDeduplicationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            return new EventDeduplicationService($config, $cache);
+        });
+
+        // Device context service (User-Agent parsing)
+        $this->app->singleton(DeviceContextService::class);
+
+        // IP anonymization service (GDPR compliance)
+        $this->app->singleton(IpAnonymizationService::class, function (Application $app): IpAnonymizationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new IpAnonymizationService($config);
+        });
+
+        // SaaS lifecycle funnel service
+        $this->app->singleton(SaasFunnelService::class, function (Application $app): SaasFunnelService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaasFunnelService($manager, $queue, $config);
         });
     }
 

@@ -2,6 +2,23 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.20.0] - 2026-08-06
+
+### Added
+- **EventDeduplicationService** — Cache-based event deduplication using SHA-256 fingerprints (name + client ID + user ID + params hash). Configurable dedup window (default: 10s) and max recent events (default: 500). Can be disabled globally via `ANALYTICS_DEDUP_ENABLED`.
+- **DeviceContextService** — Zero-dependency User-Agent parser with browser, browser version, OS, OS version, device type (mobile/tablet/desktop/bot/unknown), and device brand detection. Supports Chrome, Firefox, Safari, Edge, Opera, Brave, Vivaldi, Arc, Samsung Browser, UCBrowser, Lynx, and IE.
+- **IpAnonymizationService** — GDPR-compliant IP masking for IPv4 (configurable octet preservation) and IPv6 (configurable bit preservation). Supports `::ffff:` mapped addresses. Controlled via `zeroboiler.analytics.gdpr` config section.
+- **SaasFunnelService** — Complete SaaS lifecycle funnel tracking across 5 funnels: Signup (5 steps), Trial (4 steps), Conversion (4 steps), Retention (4 steps), Expansion (4 steps). Each step produces a `funnel_{name}_{step}` event with funnel metadata for downstream funnel analytics.
+- **New config sections** — `dedup` (event deduplication toggle), `gdpr` (IP anonymization settings), `funnels` (funnel tracking toggle)
+- **4 new service bindings** in AnalyticsServiceProvider: EventDeduplicationService, DeviceContextService, IpAnonymizationService, SaasFunnelService
+- **30+ new test cases** in V20DedupDeviceIpFunnelTest covering all new services
+
+### Changed
+- Version bump to 2.20.0
+- Facade proxy methods: added isTrackingAllowed(), optOut(), optIn(), suppressClient(), transferClientToUser()
+- Health/catalog endpoint version strings updated to 2.20.0
+- JS client version string updated to 2.20.0
+
 ## [2.19.0] - 2026-08-06
 
 ### Added

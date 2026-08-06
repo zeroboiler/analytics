@@ -418,5 +418,49 @@ return [
         'tracking_preference' => [
             'ttl' => (int) env('ANALYTICS_TRACKING_PREF_TTL', 604800), // 7 days (seconds)
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Deduplication
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, events with the same fingerprint (name + client ID + user ID +
+        | params hash) are deduplicated within a configurable time window. Uses the
+        | application cache driver to track recent event fingerprints.
+        |
+        */
+        'dedup' => [
+            'enabled' => env('ANALYTICS_DEDUP_ENABLED', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | GDPR Compliance
+        |-------------------------------------------------------------------------- 
+        |
+        | IP anonymization for analytics events. When enabled, the last octets of IPv4
+        | and the last bits of IPv6 addresses are masked before inclusion in events.
+        | ip_mask_v4: number of octets to preserve (2 = keep first 2, e.g. 192.168.0.0)
+        | ip_mask_v6: number of bits to preserve (48 = keep first 3 groups)
+        |
+        */
+        'gdpr' => [
+            'anonymize_ip' => env('ANALYTICS_GDPR_ANONYMIZE_IP', false),
+            'ip_mask_v4' => (int) env('ANALYTICS_GDPR_IP_MASK_V4', 2),
+            'ip_mask_v6' => (int) env('ANALYTICS_GDPR_IP_MASK_V6', 48),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Funnel Tracking
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, SaasFunnelService tracks complete user lifecycle funnels
+        | (signup, trial, conversion, retention, expansion) with funnel-named events.
+        |
+        */
+        'funnels' => [
+            'enabled' => env('ANALYTICS_FUNNELS_ENABLED', true),
+        ],
     ],
 ];
