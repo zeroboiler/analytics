@@ -109,6 +109,22 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Auto-Track Links (Client-Side)
+        |--------------------------------------------------------------------------
+        |
+        | Configure automatic link click tracking in the JS client.
+        | When enabled, the Inertia middleware exposes these settings to the frontend.
+        |
+        */
+        'track_links' => [
+            'enabled' => env('ANALYTICS_TRACK_LINKS_ENABLED', false),
+            'track_external' => env('ANALYTICS_TRACK_LINKS_EXTERNAL', true),
+            'track_internal' => env('ANALYTICS_TRACK_LINKS_INTERNAL', false),
+            'external_prefix' => env('ANALYTICS_TRACK_LINKS_PREFIX', 'outbound'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | API (Frontend Event Tracking)
         |--------------------------------------------------------------------------
         |

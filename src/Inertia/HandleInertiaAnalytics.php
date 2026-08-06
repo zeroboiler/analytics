@@ -79,6 +79,16 @@ class HandleInertiaAnalytics
             $analyticsProps['posthogHost'] = $this->manager->posthog()->getHost();
         }
 
+        // Auto-track links configuration
+        $trackLinks = $this->config->get('zeroboiler.analytics.track_links', []);
+        /** @var array{enabled?: bool, track_external?: bool, track_internal?: bool, external_prefix?: string} $trackLinks */
+        $analyticsProps['trackLinks'] = [
+            'enabled' => (bool) ($trackLinks['enabled'] ?? false),
+            'trackExternal' => (bool) ($trackLinks['track_external'] ?? true),
+            'trackInternal' => (bool) ($trackLinks['track_internal'] ?? false),
+            'externalPrefix' => (string) ($trackLinks['external_prefix'] ?? 'outbound'),
+        ];
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

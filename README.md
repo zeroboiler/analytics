@@ -25,6 +25,10 @@ Industry-standard SaaS analytics for Laravel — complete event tracking across 
 - **Consent Mode v2** — Full GDPR compliance with granular consent signals
 - **Blade Directives** — `@analyticsHead`, `@analyticsBody` for traditional Laravel apps
 - **Admin Commands** — `zb:analytics:overview` and `zb:analytics:test`
+- **User Properties & Alias** — `setUserProperties()` for user traits (PostHog $set, GA4 user props), `alias()` for identity merging (anonymous → authenticated)
+- **Auto Link Tracking** — Optional automatic outbound/internal link click tracking via JS client, configurable from Inertia props
+- **Server-Side Page View API** — `POST /api/analytics/pageview` endpoint for ad-blocker-resistant page views
+- **Enriched Identify** — `POST /api/analytics/identify` now accepts user traits alongside client ID
 - **Debug Mode** — Development-friendly logging without dispatching to providers, runtime toggle via `setDebug()`
 - **Server-Side Event Validation** — Auto-validation and sanitization on API endpoints, deduplication, strict whitelist mode
 - **Event Catalog** — Static catalogs (`EcommerceEvents`, `SaaSEvents`, `EngagementEvents`) for event lookup, validation, and cross-provider name mapping
@@ -95,6 +99,12 @@ ANALYTICS_IDENTITY_COOKIE_TTL=525600
 # E-commerce
 ANALYTICS_ECOMMERCE_CURRENCY=USD
 ANALYTICS_ECOMMERCE_BRAND=
+
+# Auto-Track Links
+ANALYTICS_TRACK_LINKS_ENABLED=false
+ANALYTICS_TRACK_LINKS_EXTERNAL=true
+ANALYTICS_TRACK_LINKS_INTERNAL=false
+ANALYTICS_TRACK_LINKS_PREFIX=outbound
 
 # Debug
 ANALYTICS_DEBUG_ENABLED=false
@@ -439,6 +449,40 @@ Analytics::resetIdentity();
 // - PostHog: sends $reset event to disassociate future events
 ```
 
+### User Properties & Identity Alias
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// Set user traits (propagates to PostHog $set, GA4 user properties)
+Analytics::setUserProperties(['name' => 'Jane', 'plan' => 'pro', 'company' => 'Acme']);
+
+// With explicit user ID
+Analytics::setUserProperties(['email_hash' => hash('sha256', 'jane@example.com')], '42');
+
+// Alias: merge anonymous identity with authenticated user
+// Call after signup to merge pre-signup activity with the new user profile
+Analytics::alias('anonymous-client-uuid', 'user-42');
+```
+
+#### JS Client
+
+```javascript
+import { setUserProperties, alias, identifyWithTraits, trackServerPageView } from '../resources/js/analytics';
+
+// Set user properties from frontend
+await setUserProperties({ name: 'Jane', plan: 'pro' });
+
+// Alias anonymous → authenticated (call after signup)
+await alias(trackingId, newUserId);
+
+// Identify with traits in one call
+await identifyWithTraits({ name: 'Jane', plan: 'pro' });
+
+// Server-side page view (bypasses ad blockers)
+await trackServerPageView({ title: 'Pricing', location: '/pricing' });
+```
+
 ### Consent Management
 
 ```php
@@ -645,6 +689,44 @@ onCLS(metric => trackPerformance('CLS', metric.value));
 onINP(metric => trackPerformance('INP', metric.value));
 ```
 
+### Auto Link Tracking
+
+```javascript
+import { initLinkTracking } from '../resources/js/analytics';
+
+// Track outbound link clicks (default)
+const cleanup = initLinkTracking({ trackExternal: true, trackInternal: false });
+
+// Track all link clicks
+const cleanup2 = initLinkTracking({ trackExternal: true, trackInternal: true });
+
+// Custom outbound event prefix
+const cleanup3 = initLinkTracking({ externalPrefix: 'affiliate' });
+```
+
+```html
+<!-- Custom link names via data attribute -->
+<a href="https://docs.example.com" data-analytics-link="docs_link">Documentation</a>
+```
+
+Or auto-initialize from Inertia props:
+
+```javascript
+// In your root Svelte component:
+$: if (page.props.zbAnalytics?.trackLinks?.enabled) {
+    initLinkTracking(page.props.zbAnalytics.trackLinks);
+}
+```
+
+### Server-Side Page View
+
+```javascript
+import { trackServerPageView } from '../resources/js/analytics';
+
+// Track page views via server API (bypasses client-side ad blockers)
+await trackServerPageView({ title: 'Pricing', location: '/pricing' });
+```
+
 ## Blade Directives (Traditional Laravel)
 
 ```blade
@@ -686,7 +768,8 @@ All authenticated endpoints require `auth:sanctum` and are rate-limited (60 req/
 | GET | `/api/analytics/health` | No | Health check for monitoring |
 | POST | `/api/analytics/events` | Yes | Track a single event |
 | POST | `/api/analytics/batch` | Yes | Track up to 25 events |
-| POST | `/api/analytics/identify` | Yes | Link client ID ↔ user ID |
+| POST | `/api/analytics/pageview` | Yes | Server-side page view (ad-blocker resistant) |
+| POST | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + optional traits |
 | POST | `/api/analytics/consent` | Yes | Update consent signals |
 
 ### Health Check
@@ -696,7 +779,7 @@ GET /api/analytics/health
 
 Response: {
     "status": "ok",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "providers": {
         "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
         "meta": { "status": "ok" }

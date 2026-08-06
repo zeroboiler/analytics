@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler\Analytics
- * @version 1.7.0
+ * @version 1.8.0
  */
 
 let trackingId = null;
@@ -1008,4 +1008,198 @@ export function clearUTMParams() {
  */
 export function hasUTMParams() {
     return Object.keys(utmParams).length > 0;
+}
+
+// ─── Link Click Tracking ─────────────────────────────────────────────
+
+/**
+ * Initialize automatic link click tracking.
+ *
+ * Tracks clicks on `<a>` tags with meaningful context (URL, text, link type).
+ * Supports data-analytics-link attribute for custom link names.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {boolean} [options.trackExternal=true] - Track external (cross-origin) links
+ * @param {boolean} [options.trackInternal=false] - Track internal (same-origin) links
+ * @param {string} [options.externalPrefix='outbound'] - Prefix for external link events
+ * @returns {function} Cleanup function to remove listeners
+ *
+ * @example
+ * const cleanup = initLinkTracking({ trackExternal: true, trackInternal: false });
+ *
+ * // In HTML:
+ * // <a href="https://docs.example.com" data-analytics-link="docs_link">Documentation</a>
+ */
+export function initLinkTracking(options = {}) {
+    if (!initialized) return () => {};
+
+    const {
+        trackExternal = true,
+        trackInternal = false,
+        externalPrefix = 'outbound',
+    } = options;
+
+    function onClick(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+
+        const href = link.getAttribute('href') || '';
+        const isExternal = href.startsWith('http') && !href.includes(window.location.hostname);
+
+        if (isExternal && !trackExternal) return;
+        if (!isExternal && !trackInternal) return;
+
+        const linkName = link.dataset.analyticsLink || link.textContent?.trim()?.slice(0, 100) || href;
+
+        trackEvent(isExternal ? `${externalPrefix}_click` : 'internal_click', {
+            link_name: linkName,
+            link_url: href.slice(0, 2048),
+            link_type: isExternal ? 'external' : 'internal',
+            link_text: link.textContent?.trim()?.slice(0, 200) || null,
+            page_location: window.location.href,
+        });
+    }
+
+    document.addEventListener('click', onClick, true);
+
+    return () => document.removeEventListener('click', onClick, true);
+}
+
+// ─── User Properties & Alias ─────────────────────────────────────────
+
+/**
+ * Set user properties / traits on the authenticated user.
+ *
+ * Sends user traits (name, email, plan, etc.) to the server which
+ * propagates them to all analytics providers (PostHog $set, GA4 user properties).
+ *
+ * @param {object} properties - User traits
+ * @param {string|null} [userId] - Optional user ID override
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await setUserProperties({ name: 'John', email: 'john@example.com', plan: 'pro' });
+ */
+export async function setUserProperties(properties, userId = null) {
+    if (!initialized) return;
+
+    try {
+        const body = { properties };
+        if (userId) body.user_id = userId;
+
+        await fetch('/api/analytics/events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'set_user_properties',
+                params: body,
+            }),
+        });
+    } catch {
+        // Silent fail
+    }
+}
+
+/**
+ * Alias one identity to another (merge anonymous → authenticated).
+ *
+ * Call this after signup to merge the anonymous session profile
+ * with the newly authenticated user profile.
+ *
+ * @param {string} previousId - Previous identifier (e.g. anonymous tracking ID)
+ * @param {string} newId - New identifier (e.g. authenticated user ID)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await alias(trackingId, authenticatedUserId);
+ */
+export async function alias(previousId, newId) {
+    if (!initialized) return;
+
+    await trackEvent('alias', {
+        previous_id: previousId,
+        new_id: newId,
+    }, { immediate: true });
+}
+
+/**
+ * Identify the current user and optionally set user traits.
+ *
+ * Convenience wrapper that calls /api/analytics/identify with
+ * client ID and optional user traits for enriched profiles.
+ *
+ * @param {object} [traits] - User traits to set alongside identification
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await identifyWithTraits({ name: 'John', plan: 'pro' });
+ */
+export async function identifyWithTraits(traits = {}) {
+    if (!initialized) return;
+
+    try {
+        const body = { client_id: trackingId };
+        if (Object.keys(traits).length > 0) {
+            body.traits = traits;
+        }
+
+        await fetch('/api/analytics/identify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+    } catch {
+        // Silent fail
+    }
+}
+
+// ─── Server-Side Page View ────────────────────────────────────────────
+
+/**
+ * Track a page view via the server-side API endpoint.
+ *
+ * Unlike trackPageView() which pushes to client-side providers,
+ * this sends the page view to the server for server-side processing
+ * (useful when client-side scripts are blocked by ad blockers).
+ *
+ * @param {object} [options] - Page view options
+ * @param {string} [options.title] - Page title
+ * @param {string} [options.location] - Page URL
+ * @param {string} [options.referrer] - Referrer URL
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackServerPageView({ title: 'Pricing', location: '/pricing' });
+ */
+export async function trackServerPageView(options = {}) {
+    if (!initialized) return;
+
+    try {
+        await fetch('/api/analytics/pageview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                title: options.title || null,
+                location: options.location || window.location.href,
+                referrer: options.referrer || document.referrer,
+            }),
+        });
+    } catch {
+        // Silent fail
+    }
 }

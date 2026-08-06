@@ -267,6 +267,7 @@ class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/events', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'track']);
                 Route::post('analytics/batch', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'batch']);
                 Route::post('analytics/identify', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'identify']);
+                Route::post('analytics/pageview', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'pageview']);
                 Route::post('analytics/consent', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'updateConsent']);
             });
     }

@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void abTestExposure(string $experimentId, string $variantId, array<string, mixed> $params = [])
  * @method static void notification(string $channel, string $action, ?string $notificationType = null, array<string, mixed> $params = [])
  * @method static void trackAsync(string $eventName, array<string, mixed> $params = [])
+ * @method static void setUserProperties(array<string, mixed> $properties, string|null $userId = null)
+ * @method static void alias(string $previousId, string $newId)
  * @method static string headScripts()
  * @method static string bodyScripts()
  * @method static void push(array<string, mixed> $data)

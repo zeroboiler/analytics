@@ -183,15 +183,19 @@ class AnalyticsEventController extends Controller
      *
      * POST /api/analytics/identify
      *
-     * Body: { "client_id": "uuid-..." }
+     * Body: { "client_id": "uuid-...", "traits": { "name": "John", "plan": "pro" } }
      */
     public function identify(Request $request): JsonResponse
     {
         $request->validate([
             'client_id' => 'required|string',
+            'traits' => 'array',
+            'traits.*' => 'mixed',
         ]);
 
         $clientId = is_string($request->input('client_id')) ? $request->input('client_id') : null;
+        $traits = $request->input('traits', []);
+        $traits = is_array($traits) ? $traits : [];
         $user = $request->user();
 
         if ($user === null) {
@@ -204,15 +208,64 @@ class AnalyticsEventController extends Controller
         // Send identify event to all providers
         $event = new AnalyticsEvent(
             name: 'identify',
-            params: [
+            params: array_merge([
                 'user_id' => $userIdStr,
                 'client_id' => $clientId,
-            ],
+            ], $traits),
             clientId: $clientId,
             userId: $userIdStr,
         );
 
         $this->manager->trackEvent($event);
+
+        // If traits are provided, also set user properties
+        if (! empty($traits)) {
+            $this->manager->setUserProperties($traits, $userIdStr);
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Track a page view from the server side.
+     *
+     * POST /api/analytics/pageview
+     *
+     * Body: { "title": "Pricing", "location": "/pricing", "referrer": "https://google.com" }
+     */
+    public function pageview(Request $request): JsonResponse
+    {
+        $request->validate([
+            'title' => 'string',
+            'location' => 'string',
+            'referrer' => 'string',
+        ]);
+
+        $clientId = $this->extractClientId($request);
+        $userId = $request->user()?->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        $event = new AnalyticsEvent(
+            name: 'page_view',
+            params: array_filter([
+                'page_title' => $request->input('title'),
+                'page_location' => $request->input('location'),
+                'page_referrer' => $request->input('referrer'),
+            ]),
+            clientId: $clientId,
+            userId: $userIdStr,
+        );
+
+        $event = $this->validateEvent($event);
+
+        $pipeline = $this->buildPipeline($request);
+        $processed = $pipeline->process($event);
+
+        if ($processed === null) {
+            return response()->json(['status' => 'filtered']);
+        }
+
+        $this->manager->trackEvent($processed);
 
         return response()->json(['status' => 'ok']);
     }
@@ -275,7 +328,7 @@ class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '1.7.0',
+            'version' => '1.8.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'timestamp' => now()->toIso8601String(),

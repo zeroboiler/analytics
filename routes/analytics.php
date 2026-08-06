@@ -24,5 +24,6 @@ Route::prefix('analytics')->group(function () {
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);
     Route::post('identify', [AnalyticsEventController::class, 'identify']);
+    Route::post('pageview', [AnalyticsEventController::class, 'pageview']);
     Route::post('consent', [AnalyticsEventController::class, 'updateConsent']);
 });

@@ -122,6 +122,18 @@ class AnalyticsOverviewCommand extends Command
         $this->line('  Currency: '.($ecommerce['currency'] ?? 'USD'));
         $this->line('  Brand: '.($ecommerce['brand'] ?? '(none)'));
 
+        // Track Links
+        $this->newLine();
+        $this->line('<fg=cyan;options=bold>AUTO-TRACK LINKS</>');
+        $this->line('─────────────────────────────');
+
+        $trackLinks = $config['track_links'] ?? [];
+        $linksEnabled = (bool) ($trackLinks['enabled'] ?? false);
+        $this->line('  Enabled: '.($linksEnabled ? '✅' : '🚫'));
+        $this->line('  External: '.(($trackLinks['track_external'] ?? true) ? '✅' : '🚫'));
+        $this->line('  Internal: '.(($trackLinks['track_internal'] ?? false) ? '✅' : '🚫'));
+        $this->line('  Prefix: '.($trackLinks['external_prefix'] ?? 'outbound'));
+
         // Available features
         $this->newLine();
         $this->line('<fg=cyan;options=bold>REGISTERED FEATURES</>');
@@ -141,7 +153,7 @@ class AnalyticsOverviewCommand extends Command
             'Event context builder (auto-collect request context)',
             'Server-side lifecycle tracker',
             'Inertia middleware (prop injection)',
-            'API endpoints (track, batch, identify, consent, health)',
+            'API endpoints (track, batch, identify, pageview, consent, health)',
             'JS client library (Svelte/Inertia)',
             'JS batch queue + auto flush',
             'JS screen view tracking (SPA navigation)',
@@ -150,6 +162,9 @@ class AnalyticsOverviewCommand extends Command
             'JS auto form tracking',
             'JS auto error tracking',
             'JS performance / Web Vitals tracking',
+            'JS auto link click tracking',
+            'JS user properties + identity alias',
+            'JS server-side page view (ad-blocker resistant)',
             'Queued async dispatch + trackAsync() facade',
             'User identity tracking',
             'Session & funnel tracking',

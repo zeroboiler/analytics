@@ -484,6 +484,44 @@ class AnalyticsManager
     }
 
     /**
+     * Set user properties / traits on all providers.
+     *
+     * Sends a $set or $set_once event to PostHog and equivalent user
+     * property updates to other providers. Use after signup or profile update.
+     *
+     * @param  array<string, mixed>  $properties  User traits (name, email, plan, company, etc.)
+     * @param  string|null  $userId  Optional user ID (defaults to null for provider-resolved)
+     */
+    public function setUserProperties(array $properties, ?string $userId = null): void
+    {
+        $params = $properties;
+
+        if ($userId !== null) {
+            $params['user_id'] = $userId;
+        }
+
+        $this->track('set_user_properties', $params);
+    }
+
+    /**
+     * Alias one user identity to another (merge identities).
+     *
+     * Common in analytics when a user signs up and you need to merge
+     * their anonymous (client ID) profile with their authenticated profile.
+     * Used by PostHog ($create_alias), Mixpanel (alias), and similar.
+     *
+     * @param  string  $previousId  The previous identifier (e.g. client ID or anonymous ID)
+     * @param  string  $newId  The new identifier (e.g. authenticated user ID)
+     */
+    public function alias(string $previousId, string $newId): void
+    {
+        $this->track('alias', [
+            'previous_id' => $previousId,
+            'new_id' => $newId,
+        ]);
+    }
+
+    /**
      * Get the event catalog summary (event counts per category).
      *
      * Dynamically computes counts from the category catalogs
