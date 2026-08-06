@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Pipeline\UtmEnricher;
 use ZeroBoiler\Analytics\Pipeline\TimestampEnricher;
 use ZeroBoiler\Analytics\Services\EventValidationService;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * API controller for frontend event tracking.
@@ -298,6 +299,39 @@ class AnalyticsEventController extends Controller
     }
 
     /**
+     * Get the event catalog for client-side reference.
+     *
+     * GET /api/analytics/catalog
+     *
+     * Returns all registered event names grouped by category with
+     * cross-provider mappings. No authentication required.
+     * Useful for client-side event name validation and auto-complete.
+     */
+    public function catalog(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.4.0',
+            'total' => EventCatalog::count(),
+            'categories' => [
+                'ecommerce' => [
+                    'count' => \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents::count(),
+                    'events' => \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents::all(),
+                ],
+                'saas' => [
+                    'count' => \ZeroBoiler\Analytics\Events\SaaS\SaaSEvents::count(),
+                    'events' => \ZeroBoiler\Analytics\Events\SaaS\SaaSEvents::all(),
+                ],
+                'engagement' => [
+                    'count' => \ZeroBoiler\Analytics\Events\Engagement\EngagementEvents::count(),
+                    'events' => \ZeroBoiler\Analytics\Events\Engagement\EngagementEvents::all(),
+                ],
+            ],
+            'names' => EventCatalog::names(),
+        ]);
+    }
+
+    /**
      * Health check endpoint for monitoring and load balancers.
      *
      * GET /api/analytics/health
@@ -326,9 +360,13 @@ class AnalyticsEventController extends Controller
             $providers['posthog'] = ['status' => 'ok', 'host' => $this->manager->posthog()->getHost()];
         }
 
+        if ($this->manager->webhook()->isEnabled()) {
+            $providers['webhook'] = ['status' => 'ok', 'url' => $this->manager->webhook()->getWebhookUrl()];
+        }
+
         return response()->json([
             'status' => 'ok',
-            'version' => '2.3.0',
+            'version' => '2.4.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'timestamp' => now()->toIso8601String(),

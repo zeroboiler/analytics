@@ -30,7 +30,7 @@ class AnalyticsDataBus
     private array $rules = [];
 
     /** @var list<string> */
-    private array $defaultProviders = ['ga4', 'gtm', 'meta', 'plausible', 'posthog'];
+    private array $defaultProviders = ['ga4', 'gtm', 'meta', 'plausible', 'posthog', 'webhook'];
 
     private AnalyticsManager $manager;
 
@@ -278,6 +278,7 @@ class AnalyticsDataBus
             'meta' => $this->manager->meta(),
             'plausible' => $this->manager->plausible(),
             'posthog' => $this->manager->posthog(),
+            'webhook' => $this->manager->webhook(),
             default => null,
         };
     }
@@ -293,6 +294,7 @@ class AnalyticsDataBus
             'meta' => $this->manager->meta()->isEnabled(),
             'plausible' => $this->manager->plausible()->isEnabled(),
             'posthog' => $this->manager->posthog()->isEnabled(),
+            'webhook' => $this->manager->webhook()->isEnabled(),
             default => false,
         };
     }

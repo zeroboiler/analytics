@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.3.0
+ * @version 2.4.0
  */
 
 let trackingId = null;
@@ -494,6 +494,58 @@ function mapToMetaParams(name, data) {
 }
 
 /**
+ * Track a wishlist event (add to wishlist).
+ *
+ * Maps to GA4 'add_to_wishlist' and Meta 'AddToWishlist'.
+ *
+ * @param {object} item - Item data
+ * @param {string} item.item_id - Item ID/SKU
+ * @param {string} [item.item_name] - Item name
+ * @param {string} [item.item_category] - Item category
+ * @param {number} [item.price] - Item price
+ * @param {string} [item.currency] - Currency code
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackWishlist({
+ *     item_id: 'SKU-001',
+ *     item_name: 'Widget',
+ *     item_category: 'Gadgets',
+ *     price: 49.99,
+ * });
+ */
+export async function trackWishlist(item) {
+    if (!initialized) return;
+
+    const params = {
+        item_id: item.item_id,
+        item_name: item.item_name || null,
+        item_category: item.item_category || null,
+        price: item.price || null,
+        currency: item.currency || 'USD',
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'add_to_wishlist', params);
+    }
+
+    // Push to Meta Pixel
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'AddToWishlist', {
+            content_ids: [item.item_id],
+            content_name: item.item_name,
+            content_type: 'product',
+            currency: item.currency || 'USD',
+            value: item.price || 0,
+        });
+    }
+
+    // Server-side dispatch
+    await trackEvent('add_to_wishlist', params, { immediate: true });
+}
+
+/**
  * Identify a user (link client ↔ user identity).
  *
  * Call this after login/register to associate the client tracking ID
@@ -862,6 +914,67 @@ export function pushToDataLayer(data) {
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(data);
+}
+
+// ─── Event Catalog ───────────────────────────────────────────────────
+
+let cachedCatalog = null;
+
+/**
+ * Fetch the event catalog from the server.
+ *
+ * Returns the full event catalog with names, categories, and
+ * cross-provider mappings. Results are cached for the session.
+ *
+ * @param {object} [options] - Fetch options
+ * @param {boolean} [options.forceRefresh=false] - Bypass cache
+ * @returns {Promise<object|null>} Catalog data or null on failure
+ *
+ * @example
+ * const catalog = await fetchEventCatalog();
+ * if (catalog) {
+ *     console.log('Available events:', catalog.names);
+ * }
+ */
+export async function fetchEventCatalog(options = {}) {
+    if (!initialized) return null;
+
+    if (!options.forceRefresh && cachedCatalog) {
+        return cachedCatalog;
+    }
+
+    try {
+        const baseUrl = config?.apiBase || '/api/analytics';
+        const response = await fetch(`${baseUrl}/catalog`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        cachedCatalog = await response.json();
+
+        return cachedCatalog;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get the cached event catalog (without fetching).
+ *
+ * @returns {object|null} Cached catalog or null
+ */
+export function getCachedCatalog() {
+    return cachedCatalog;
+}
+
+/**
+ * Clear the cached event catalog.
+ */
+export function clearCatalogCache() {
+    cachedCatalog = null;
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────

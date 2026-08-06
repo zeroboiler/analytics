@@ -195,6 +195,41 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Webhook Tracker (Custom HTTP Backend)
+        |--------------------------------------------------------------------------
+        |
+        | Send analytics events to a custom HTTP endpoint via POST requests.
+        | Supports HMAC-SHA256 payload signing for verification.
+        | Ideal for forwarding events to internal data warehouses or custom dashboards.
+        |
+        */
+        'webhook' => [
+            'enabled' => env('ANALYTICS_WEBHOOK_ENABLED', false),
+            'url' => env('ANALYTICS_WEBHOOK_URL', ''),
+            'secret' => env('ANALYTICS_WEBHOOK_SECRET', ''),
+            'timeout' => (int) env('ANALYTICS_WEBHOOK_TIMEOUT', 5),
+            'retries' => (int) env('ANALYTICS_WEBHOOK_RETRIES', 1),
+            'sign' => env('ANALYTICS_WEBHOOK_SIGN', false),
+            'headers' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Audit Logging
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, every dispatched event is logged to the 'daily' log channel
+        | with structured context (event name, client_id, user_id, params, timestamp).
+        | Useful for compliance, debugging, and building custom analytics dashboards.
+        |
+        */
+        'audit_log' => [
+            'enabled' => env('ANALYTICS_AUDIT_LOG_ENABLED', false),
+            'priority' => (int) env('ANALYTICS_AUDIT_LOG_PRIORITY', 100),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Debug Mode
         |--------------------------------------------------------------------------
         |

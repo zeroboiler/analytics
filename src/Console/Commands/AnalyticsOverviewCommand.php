@@ -54,6 +54,11 @@ class AnalyticsOverviewCommand extends Command
                 $this->line('    API Key: '.((($c['api_key'] ?? '') !== '') ? substr($c['api_key'], 0, 8).'...' : '—'));
                 $this->line('    Host: '.($c['host'] ?? '—'));
             },
+            'webhook' => function (array $c): void {
+                $this->line('    URL: '.($c['url'] ?? '—'));
+                $this->line('    Timeout: '.($c['timeout'] ?? 5).'s');
+                $this->line('    Sign Payloads: '.(($c['sign'] ?? false) ? '✅' : '🚫'));
+            },
         ];
 
         foreach (array_keys($providerDetails) as $provider) {
@@ -211,6 +216,11 @@ class AnalyticsOverviewCommand extends Command
             'GDPR identity reset (GA4 + PostHog)',
             'Analytics DataBus (conditional event routing)',
             'directDispatch() — bypass DataBus routing',
+            'Webhook tracker (generic HTTP backend with HMAC signing)',
+            'Audit log middleware (event audit trail)',
+            'Wishlist e-commerce event (GA4 + Meta)',
+            'GET /api/analytics/catalog endpoint',
+            'Revenue report command (zb:analytics:revenue-report)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

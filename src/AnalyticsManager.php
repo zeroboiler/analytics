@@ -18,11 +18,12 @@ use ZeroBoiler\Analytics\Trackers\GTMTracker;
 use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
 use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;
+use ZeroBoiler\Analytics\Trackers\WebhookTracker;
 
 /**
  * Central analytics manager — dispatches events to all configured trackers.
  *
- * Manages GA4, GTM, Meta Pixel, Plausible, and PostHog tracker instances.
+ * Manages GA4, GTM, Meta Pixel, Plausible, PostHog, and Webhook tracker instances.
  * Provides convenience methods for common events (purchase, identify, screenView),
  * consent management, debug mode, GDPR identity reset, and async dispatch.
  *
@@ -42,6 +43,8 @@ class AnalyticsManager
     protected PlausibleTracker $plausible;
 
     protected PosthogTracker $posthog;
+
+    protected WebhookTracker $webhook;
 
     private bool $debugMode;
 
@@ -99,6 +102,19 @@ class AnalyticsManager
             host: $posthogConfig['host'] ?? 'https://eu.posthog.com',
             projectId: $posthogConfig['project_id'] ?? '',
             enabled: $posthogConfig['enabled'] ?? false,
+        );
+
+        // Optional: Webhook Tracker
+        $webhookConfig = $config->get('zeroboiler.analytics.webhook', []);
+        /** @var array{enabled?: bool, url?: string, secret?: string, timeout?: int, retries?: int, sign?: bool, headers?: array<string, string>} $webhookConfig */
+        $this->webhook = new WebhookTracker(
+            webhookUrl: $webhookConfig['url'] ?? '',
+            secret: $webhookConfig['secret'] ?? '',
+            enabled: $webhookConfig['enabled'] ?? false,
+            timeout: (int) ($webhookConfig['timeout'] ?? 5),
+            retries: (int) ($webhookConfig['retries'] ?? 1),
+            headers: $webhookConfig['headers'] ?? [],
+            signPayloads: (bool) ($webhookConfig['sign'] ?? false),
         );
 
         // Apply default consent state from config (GDPR-safe defaults)
@@ -238,6 +254,10 @@ class AnalyticsManager
         if ($this->posthog->isEnabled()) {
             $this->posthog->track($event);
         }
+
+        if ($this->webhook->isEnabled()) {
+            $this->webhook->track($event);
+        }
     }
 
     /**
@@ -341,9 +361,17 @@ class AnalyticsManager
     }
 
     /**
+     * Get the Webhook tracker instance (optional).
+     */
+    public function webhook(): WebhookTracker
+    {
+        return $this->webhook;
+    }
+
+    /**
      * Set consent state across all trackers.
      *
-     * Propagates the given ConsentState to GA4, GTM, and Meta Pixel trackers.
+     * Propagates the given ConsentState to GA4, GTM, Meta Pixel, Plausible, PostHog, and Webhook trackers.
      * Use this when the user grants or denies consent (e.g. via a cookie banner).
      */
     public function setConsent(ConsentState $state): void
@@ -353,6 +381,7 @@ class AnalyticsManager
         $this->meta->setConsent($state);
         $this->plausible->setConsent($state);
         $this->posthog->setConsent($state);
+        $this->webhook->setConsent($state);
     }
 
     /**
@@ -815,7 +844,7 @@ class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.3.0';
+        return '2.4.0';
     }
 
     /**
@@ -845,6 +874,10 @@ class AnalyticsManager
             'posthog' => [
                 'enabled' => $this->posthog->isEnabled(),
                 'id' => $this->posthog->isEnabled() ? $this->posthog->getHost() : null,
+            ],
+            'webhook' => [
+                'enabled' => $this->webhook->isEnabled(),
+                'id' => $this->webhook->isEnabled() ? $this->webhook->getWebhookUrl() : null,
             ],
         ];
     }

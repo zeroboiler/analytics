@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Events\Ecommerce\RefundEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\RemoveFromCartEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\ViewCartEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\ViewItemEvent;
+use ZeroBoiler\Analytics\Events\Ecommerce\WishlistEvent;
 
 /**
  * High-level ecommerce analytics service.
@@ -165,6 +166,22 @@ class EcommerceAnalyticsService
             refundValue: $refundValue,
             currency: $this->defaultCurrency,
             items: $items !== null ? $this->formatItems($items) : [],
+        ));
+    }
+
+    /**
+     * Track an add-to-wishlist action.
+     *
+     * @param  array<string, mixed>  $item
+     */
+    public function addToWishlist(array $item): void
+    {
+        $this->manager->trackEvent(new WishlistEvent(
+            itemId: $item['item_id'],
+            itemName: $item['item_name'] ?? '',
+            itemCategory: $item['item_category'] ?? '',
+            price: $item['price'] ?? null,
+            currency: $item['currency'] ?? $this->defaultCurrency,
         ));
     }
 

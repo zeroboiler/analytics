@@ -80,6 +80,12 @@ final class EcommerceEvents
                 'ga4' => 'refund',
                 'meta' => null,
             ],
+            'add_to_wishlist' => [
+                'name' => 'add_to_wishlist',
+                'class' => WishlistEvent::class,
+                'ga4' => 'add_to_wishlist',
+                'meta' => 'AddToWishlist',
+            ],
         ];
 
         return self::$catalog;

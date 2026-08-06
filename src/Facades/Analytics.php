@@ -43,6 +43,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static MetaPixelTracker meta()
  * @method static PlausibleTracker plausible()
  * @method static PosthogTracker posthog()
+ * @method static \ZeroBoiler\Analytics\Trackers\WebhookTracker webhook()
  * @method static void setConsent(ConsentState $state)
  * @method static void grantConsent()
  * @method static void denyConsent()

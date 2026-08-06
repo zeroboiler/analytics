@@ -14,6 +14,7 @@ use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
+use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
@@ -231,6 +232,7 @@ class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                RevenueReportCommand::class,
             ]);
         }
 
@@ -311,22 +313,25 @@ class AnalyticsServiceProvider extends ServiceProvider
             return;
         }
 
-        // Health endpoint — no auth required
+        $controller = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class;
+
+        // Health + Catalog endpoints — no auth required
         Route::prefix('api')
             ->middleware(['throttle:120,1'])
-            ->group(function (): void {
-                Route::get('analytics/health', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'health']);
+            ->group(function () use ($controller): void {
+                Route::get('analytics/health', [$controller, 'health']);
+                Route::get('analytics/catalog', [$controller, 'catalog']);
             });
 
         // Authenticated endpoints
         Route::prefix('api')
             ->middleware(['auth:sanctum', 'throttle:60,1'])
-            ->group(function (): void {
-                Route::post('analytics/events', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'track']);
-                Route::post('analytics/batch', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'batch']);
-                Route::post('analytics/identify', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'identify']);
-                Route::post('analytics/pageview', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'pageview']);
-                Route::post('analytics/consent', [\ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::class, 'updateConsent']);
+            ->group(function () use ($controller): void {
+                Route::post('analytics/events', [$controller, 'track']);
+                Route::post('analytics/batch', [$controller, 'batch']);
+                Route::post('analytics/identify', [$controller, 'identify']);
+                Route::post('analytics/pageview', [$controller, 'pageview']);
+                Route::post('analytics/consent', [$controller, 'updateConsent']);
             });
     }
 }
