@@ -45,7 +45,7 @@ final class EventDeduplicationService
      * @param  ConfigRepository|null  $config  Optional config for testing
      * @param  CacheRepository|null  $cache  Optional cache for testing
      */
-    public function __construct(?ConfigRepository $config = null, ?CacheRepository $cache = null)
+    public function __construct(?ConfigRepository $config = null, ?CacheRepository $cache = null): void
     {
         if ($config !== null) {
             $validationConfig = $config->get('zeroboiler.analytics.validation', []);
