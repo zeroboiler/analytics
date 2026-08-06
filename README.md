@@ -108,7 +108,7 @@ Done. That's it.
 ### E-commerce
 - **12 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
-- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping (JS + PHP)
+- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 48 events (JS + PHP)
 - **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
 
 ### Identity & GDPR
@@ -193,7 +193,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests across 62 test files
+- **Pest PHP** — 150+ tests across 69 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -1032,7 +1032,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.23.0",
+  "version": "2.26.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "meta": { "status": "ok" }
@@ -1050,62 +1050,62 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 |-------|----------|----------------|
 | `ViewItemEvent` | view_item | ViewContent |
 | `AddToCartEvent` | add_to_cart | AddToCart |
-| `RemoveFromCartEvent` | remove_from_cart | — |
-| `ViewCartEvent` | view_cart | — |
+| `RemoveFromCartEvent` | remove_from_cart | RemoveFromCart |
+| `ViewCartEvent` | view_cart | ViewCart |
 | `BeginCheckoutEvent` | begin_checkout | InitiateCheckout |
 | `AddPaymentInfoEvent` | add_payment_info | AddPaymentInfo |
 | `PurchaseEvent` | purchase | Purchase |
-| `RefundEvent` | refund | — |
+| `RefundEvent` | refund | Refund |
 | `WishlistEvent` | add_to_wishlist | AddToWishlist |
-| `SelectItemEvent` | select_item | — |
-| `SelectPromotionEvent` | select_promotion | — |
-| `ViewPromotionEvent` | view_promotion | — |
+| `SelectItemEvent` | select_item | ViewItem |
+| `SelectPromotionEvent` | select_promotion | ViewContent |
+| `ViewPromotionEvent` | view_promotion | ViewContent |
 
 ### SaaS Lifecycle Events
 
 | Class | Event Name | Meta Equivalent |
 |-------|-----------|-----------------|
 | `SignUpEvent` | sign_up | CompleteRegistration |
-| `LoginEvent` | login | — |
-| `LogoutEvent` | logout | — |
+| `LoginEvent` | login | Login |
+| `LogoutEvent` | logout | Logout |
 | `TrialStartEvent` | start_trial | StartTrial |
-| `TrialEndEvent` | end_trial | — |
+| `TrialEndEvent` | end_trial | TrialEnded |
 | `SubscriptionEvent` | subscribe | Subscribe |
-| `PlanUpgradeEvent` | plan_upgrade | — |
-| `PlanDowngradeEvent` | plan_downgrade | — |
-| `CancellationEvent` | cancellation | — |
-| `FeatureUsedEvent` | feature_used | — |
+| `PlanUpgradeEvent` | plan_upgrade | PlanUpgrade |
+| `PlanDowngradeEvent` | plan_downgrade | PlanDowngrade |
+| `CancellationEvent` | cancellation | CancelSubscription |
+| `FeatureUsedEvent` | feature_used | FeatureUsed |
 | `RevenueEvent` | revenue_tracked | Purchase (mapped) |
-| `CohortAssignedEvent` | cohort_assigned | — |
-| `CohortRetentionEvent` | cohort_retention | — |
-| `CohortChurnEvent` | cohort_churn | — |
-| `CohortConversionEvent` | cohort_conversion | — |
-| `CohortMigrationEvent` | cohort_migration | — |
-| `CohortEngagementEvent` | cohort_engagement | — |
+| `CohortAssignedEvent` | cohort_assigned | CohortAssigned |
+| `CohortRetentionEvent` | cohort_retention | CohortRetention |
+| `CohortChurnEvent` | cohort_churn | CohortChurn |
+| `CohortConversionEvent` | cohort_conversion | CohortConversion |
+| `CohortMigrationEvent` | cohort_migration | CohortMigration |
+| `CohortEngagementEvent` | cohort_engagement | CohortEngagement |
 
 ### Engagement Events
 
 | Class | Event Name | Meta Equivalent |
 |-------|-----------|----------------|
 | `PageViewEvent` | page_view | PageView |
-| `ScrollDepthEvent` | scroll_depth | — |
-| `ClickEvent` | click | — |
-| `FormStartEvent` | form_start | — |
+| `ScrollDepthEvent` | scroll_depth | ScrollDepth |
+| `ClickEvent` | click | Click |
+| `FormStartEvent` | form_start | Lead |
 | `FormSubmitEvent` | form_submit | Lead |
 | `SearchEvent` | search | Search |
 | `ShareEvent` | share | Share |
-| `ErrorEvent` | error | — |
-| `TimeOnPageEvent` | time_on_page | — |
-| `CampaignAttributionEvent` | campaign_attribution | — |
-| `ScreenViewEvent` | screen_view | — |
-| `AbTestExposureEvent` | ab_test_exposure | — |
-| `NotificationEvent` | notification | — |
-| `WebVitalsEvent` | web_vitals | — |
-| `JSErrorEvent` | js_error | — |
-| `TimingEvent` | timing | — |
-| `SessionStartEvent` | session_start | — |
-| `SessionEndEvent` | session_end | — |
-| `OutboundClickEvent` | outbound_click | — |
+| `ErrorEvent` | error | Error |
+| `TimeOnPageEvent` | time_on_page | TimeOnPage |
+| `CampaignAttributionEvent` | campaign_attribution | CampaignAttribution |
+| `ScreenViewEvent` | screen_view | ViewContent |
+| `AbTestExposureEvent` | ab_test_exposure | ABTestExposure |
+| `NotificationEvent` | notification | Notification |
+| `WebVitalsEvent` | web_vitals | WebVitals |
+| `JSErrorEvent` | js_error | Error |
+| `TimingEvent` | timing | Timing |
+| `SessionStartEvent` | session_start | SessionStart |
+| `SessionEndEvent` | session_end | SessionEnd |
+| `OutboundClickEvent` | outbound_click | OutboundClick |
 
 ### Generic
 
@@ -1304,6 +1304,43 @@ This validates strict types, `final` modifiers, interface implementations, reado
 
 ## Upgrading
 
+### From v2.25.x to v2.26.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- **Complete Meta Pixel mapping coverage** — All 48 events now have Meta Pixel equivalents (was 24/48). Enables full cross-provider dispatch for ecommerce, SaaS, and engagement events.
+- **EventCatalog::getCategory()** — Category lookup by event name: `'ecommerce'|'saas'|'engagement'|null`
+- **EventTransformer synced** — `ga4ToMetaEventMap()` maps all 12 ecommerce events
+
+### From v2.24.x to v2.25.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- All leaf classes now marked `final` (100% coverage)
+- ProductionReadinessTest with 40+ structural checks
+- `:void` constructor return types on all leaf services
+
+### From v2.23.x to v2.24.0
+No breaking changes. Update via:
+
+```bash
+composer update zeroboiler/analytics
+```
+
+New features available:
+- **EventAlertRulesService** — Config-driven threshold/rate alert rules with cooldown and severity
+- **FunnelDataBuilderService** — API-ready funnel visualization data with conversion rates, drop-off analysis
+- **6 new API endpoints** — alerts (GET/POST), funnels (4 endpoints)
+- **Config expansion** — `alerts` section with rule types, conditions, cooldown
+
 ### From v2.22.x to v2.23.0
 No breaking changes. Update via:
 
@@ -1319,75 +1356,6 @@ New features available:
 - **GET /api/analytics/stats** — Public dashboard statistics endpoint
 - **JS session heartbeat** — `initSessionHeartbeat()` for periodic session activity tracking
 - Pipeline config: `ANALYTICS_PIPELINE_AUTO_METADATA` (default: true), `ANALYTICS_PIPELINE_SCHEMA_ENRICHMENT` (default: false)
-
-### From v2.18.x to v2.19.0
-No breaking changes. Update via:
-
-```bash
-composer update zeroboiler/analytics
-```
-
-New features available:
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent replace generic CustomEvent references
-- All 49 events now have dedicated typed classes (previously 6 cohort events used CustomEvent)
-- JS client: removed duplicate `initAll()` export — consolidated to single canonical implementation with full session tracking and config-driven settings
-- README API reference expanded with all 13 endpoints documented
-- Dashboard command documentation added to README
-
-### From v2.11.x to v2.12.0
-No breaking changes. Update via:
-
-```bash
-composer update zeroboiler/analytics
-```
-
-New features available:
-- `AnalyticsHealthService` — Programmatic health-check service (`isHealthy()`, `getWarnings()`, `getRecommendations()`)
-- `EventDebounceFilter` — Debounce rapid-fire events in the pipeline
-- `Analytics::trackError()` — Server-side error tracking convenience
-- `Analytics::mrr()` — MRR revenue shortcut
-- Bug fix: `SaaSAnalyticsService::trackPlanDowngrade()` no longer double-tracks
-
-### From v2.7.x to v2.8.0
-No breaking changes. Update via:
-
-```bash
-composer update zeroboiler/analytics
-```
-
-New features available:
-- `SessionAnalyticsService` — session-level event recording, summaries, and end-of-session dispatch
-- `EventAggregationService` — real-time event counting with top events and category grouping
-- `zb:analytics:health` command — comprehensive health diagnostic with warnings and recommendations
-- Health report (JSON or console) checking all providers, queue, replay, consent, validation, sampling, PII
-
-### From v2.6.x to v2.7.0
-No breaking changes. Update via:
-
-```bash
-composer update zeroboiler/analytics
-```
-
-New features available:
-- `CohortAnalyticsService` — cohort assignment, retention, churn, conversion, migration, engagement tracking
-- `EventReplayQueue` — automatic failed event retry with exponential backoff
-- Health check now includes metrics, replay status, and catalog summary
-- 6 new cohort events in the SaaS catalog (total: 39 events)
-- 6 new event schemas in the registry (total: 50+)
-- New config section: `replay` with 5 environment variables
-
-### From v2.0.x to v2.1.0
-No breaking changes. Update via:
-
-```bash
-composer update zeroboiler/analytics
-```
-
-New features available:
-- `Analytics::trackEcommerce('purchase', $data)` — auto-formats for GA4 + Meta
-- `EventCatalog::search('cart')` — find events by partial name
-- `EventCatalog::byProvider()` — group events by provider
-- New config option: `ANALYTICS_ECOMMERCE_TAX_BEHAVIOR`
 
 ### From v1.x to v2.0.0
 - Requires PHP 8.5+ and Laravel 13+
@@ -1405,6 +1373,41 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v2.26.0 — Complete Meta Pixel Mapping Coverage, EventCatalog::getCategory()
+
+- **All 48 events now have Meta Pixel equivalents** — Previously 25 of 48 events had `null` Meta mappings. All ecommerce (12), SaaS (17), and engagement (19) events now have proper Meta Pixel event names for cross-provider dispatch.
+- **Meta mapping examples** — `remove_from_cart` → `RemoveFromCart`, `view_cart` → `ViewCart`, `refund` → `Refund`, `select_item` → `ViewItem`, `plan_upgrade` → `PlanUpgrade`, `cancellation` → `CancelSubscription`, `scroll_depth` → `ScrollDepth`, `click` → `Click`, `form_start` → `Lead`, `share` → `Share`, `error` → `Error`, plus cohort events (`CohortAssigned`, `CohortRetention`, etc.)
+- **EventTransformer synced** — `ga4ToMetaEventMap()` now maps all 12 ecommerce events (was 6 null → 6 mapped)
+- **EventCatalog::getCategory()** — New method returning `'ecommerce'|'saas'|'engagement'|null` for any event name. Used by DataBus routing, event processing, and admin commands.
+- **Version consistency** — composer.json, AnalyticsManager, and JS client all aligned to v2.26.0
+- **Tests** — 15+ new test cases covering Meta mapping coverage, EventCatalog::getCategory(), and transformer consistency
+
+### v2.25.0 — Mark all leaf classes final, ProductionReadinessTest with 40+ structural checks
+
+- **All 24 remaining leaf classes marked `final`** — 100% final coverage across all source files
+- **`:void` constructor return types** added to all constructors missing them (55/55 structural checks)
+- **ProductionReadinessTest** — 40+ structural assertions: strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, no TODO/FIXME markers
+- **Version consistency** — composer.json, AnalyticsManager, and JS client all aligned to v2.25.0
+
+### v2.24.0 — EventAlertRulesService, FunnelDataBuilderService, Expanded API
+
+- **EventAlertRulesService** — Config-driven threshold/rate alert rules with cooldown, severity, multi-channel dispatch
+- **FunnelDataBuilderService** — API-ready funnel visualization data with conversion rates, drop-off analysis, chart format, time-series, funnel comparison
+- **6 new API endpoints** — alerts (GET/POST), funnels (4 endpoints: data, compare, drop-off, chart)
+- **Config expansion** — `alerts` section with rule types (count, rate, total, error_rate), conditions, cooldown, severity
+- **30+ new tests** — Alert rules evaluation, cooldown tracking, funnel data builder, API endpoints
+- **Version consistency** — All aligned to v2.24.0
+
+### v2.23.0 — AnalyticsStatsService, InboundWebhookService, Session Heartbeat
+
+- **AnalyticsStatsService** — Dashboard aggregation service for real-time event counts, top events, and per-provider stats
+- **InboundWebhookService** — Receive analytics events from external sources (Stripe, payment processors) via `POST /api/analytics/webhook/inbound`
+- **EventMetadataEnricher** — Automatic session ID, page URL, referrer, and timestamp enrichment on all API events
+- **SchemaEnricher** — Optional schema-aware validation in the event pipeline
+- **GET /api/analytics/stats** — Public dashboard statistics endpoint
+- **JS session heartbeat** — `initSessionHeartbeat()` for periodic session activity tracking
+- Pipeline config: `ANALYTICS_PIPELINE_AUTO_METADATA` (default: true), `ANALYTICS_PIPELINE_SCHEMA_ENRICHMENT` (default: false)
 
 ### v2.12.0 — AnalyticsHealthService, EventDebounceFilter, Quality Improvements
 - **AnalyticsHealthService** — Programmatic health-check service with structured report (status, providers, consent, queue, replay, metrics, catalog, validation, sampling, PII, debug, warnings, recommendations). `isHealthy()`, `getWarnings()`, `getRecommendations()` methods. Registered as singleton in ServiceProvider.

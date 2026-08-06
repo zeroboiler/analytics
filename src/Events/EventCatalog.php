@@ -80,6 +80,28 @@ final class EventCatalog
     }
 
     /**
+     * Get the category name for a given event name.
+     *
+     * @return 'ecommerce'|'saas'|'engagement'|null
+     */
+    public static function getCategory(string $name): ?string
+    {
+        if (EcommerceEvents::has($name)) {
+            return 'ecommerce';
+        }
+
+        if (SaaSEvents::has($name)) {
+            return 'saas';
+        }
+
+        if (EngagementEvents::has($name)) {
+            return 'engagement';
+        }
+
+        return null;
+    }
+
+    /**
      * Get the total number of events across all categories.
      */
     public static function count(): int

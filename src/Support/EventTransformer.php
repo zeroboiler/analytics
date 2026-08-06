@@ -30,16 +30,16 @@ final class EventTransformer
         return [
             'view_item' => 'ViewContent',
             'add_to_cart' => 'AddToCart',
-            'remove_from_cart' => null,
-            'view_cart' => null,
+            'remove_from_cart' => 'RemoveFromCart',
+            'view_cart' => 'ViewCart',
             'begin_checkout' => 'InitiateCheckout',
             'add_payment_info' => 'AddPaymentInfo',
             'purchase' => 'Purchase',
-            'refund' => null,
+            'refund' => 'Refund',
             'add_to_wishlist' => 'AddToWishlist',
-            'select_item' => null,
-            'select_promotion' => null,
-            'view_promotion' => null,
+            'select_item' => 'ViewItem',
+            'select_promotion' => 'ViewContent',
+            'view_promotion' => 'ViewContent',
         ];
     }
 

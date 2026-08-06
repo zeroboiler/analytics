@@ -48,13 +48,13 @@ final class EcommerceEvents
                 'name' => 'remove_from_cart',
                 'class' => RemoveFromCartEvent::class,
                 'ga4' => 'remove_from_cart',
-                'meta' => null,
+                'meta' => 'RemoveFromCart',
             ],
             'view_cart' => [
                 'name' => 'view_cart',
                 'class' => ViewCartEvent::class,
                 'ga4' => 'view_cart',
-                'meta' => null,
+                'meta' => 'ViewCart',
             ],
             'begin_checkout' => [
                 'name' => 'begin_checkout',
@@ -78,7 +78,7 @@ final class EcommerceEvents
                 'name' => 'refund',
                 'class' => RefundEvent::class,
                 'ga4' => 'refund',
-                'meta' => null,
+                'meta' => 'Refund',
             ],
             'add_to_wishlist' => [
                 'name' => 'add_to_wishlist',
@@ -90,19 +90,19 @@ final class EcommerceEvents
                 'name' => 'select_item',
                 'class' => SelectItemEvent::class,
                 'ga4' => 'select_item',
-                'meta' => null,
+                'meta' => 'ViewItem',
             ],
             'select_promotion' => [
                 'name' => 'select_promotion',
                 'class' => SelectPromotionEvent::class,
                 'ga4' => 'select_promotion',
-                'meta' => null,
+                'meta' => 'ViewContent',
             ],
             'view_promotion' => [
                 'name' => 'view_promotion',
                 'class' => ViewPromotionEvent::class,
                 'ga4' => 'view_promotion',
-                'meta' => null,
+                'meta' => 'ViewContent',
             ],
         ];
 
