@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.54.0
+ * @version 2.56.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -565,3 +565,18 @@ export function isForwardingEnabled(): boolean;
 
 /** Get the list of configured forwarder names */
 export function getForwarderNames(): string[];
+
+/** Signal that the user has granted consent (replays pre-queued events) */
+export function consentGranted(): void;
+
+/** Signal that the user has denied consent (discards pre-queued events) */
+export function consentDenied(): void;
+
+/** Get the current consent resolution state */
+export function getConsentState(): boolean | null;
+
+/** Get the count of events currently queued before consent */
+export function getConsentPreQueueCount(): number;
+
+/** Clear the consent state (reset to pending/unresolved) */
+export function resetConsentState(): void;

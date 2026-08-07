@@ -90,6 +90,8 @@ use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
+use ZeroBoiler\Analytics\Services\EventEnvelopeService;
+use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -865,6 +867,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new SaaSHealthScoreService($cache, $config, $kpiTracker);
         });
+
+        // Event envelope service — context-rich event building from HTTP requests
+        $this->app->singleton(EventEnvelopeService::class, function (Application $app): EventEnvelopeService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventEnvelopeService(
+                $cache,
+                $config,
+                $app->make(DeviceContextService::class),
+                $app->make(GeolocationEnricher::class),
+                $app->make(ReferrerTrackingService::class),
+                $app->make(AttributionService::class),
+                $app->make(TrackingPreferenceService::class),
+                $app->make(ConsentLogService::class),
+            );
+        });
+
+        // Consent-aware pipeline filter — granular purpose-based event filtering
+        $this->app->singleton(ConsentAwareFilter::class, function (Application $app): ConsentAwareFilter {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $consentPurposeConfig = $config->get('zeroboiler.analytics.consent_purposes', []);
+            /** @var array{enabled?: bool, strict?: bool} $consentPurposeConfig */
+
+            return new ConsentAwareFilter(
+                enabled: (bool) ($consentPurposeConfig['enabled'] ?? false),
+                consentLogService: $app->make(ConsentLogService::class),
+            );
+        });
     }
 
     /**
@@ -1062,6 +1096,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/attribution/{identifier}/touchpoints', [$controller, 'attributionTouchpoints']);
                 Route::get('analytics/attribution/{identifier}/first-touch', [$controller, 'attributionFirstTouch']);
                 Route::get('analytics/attribution/{identifier}/last-touch', [$controller, 'attributionLastTouch']);
+
+                // Consent purpose endpoints
+                Route::get('analytics/consent/purposes', [$controller, 'consentPurposes']);
+                Route::get('analytics/consent/envelope-info', [$controller, 'envelopeInfo']);
             });
 
         // Authenticated endpoints
@@ -1082,6 +1120,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/attribution/record', [$controller, 'attributionRecord']);
                 Route::delete('analytics/attribution/{identifier}', [$controller, 'attributionClear']);
                 Route::post('analytics/forwarding/reset-stats', [$controller, 'forwardingResetStats']);
+                Route::get('analytics/consent/history', [$controller, 'consentHistory']);
             });
     }
 }

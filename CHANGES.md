@@ -4,6 +4,30 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.56.0] - 2026-08-07
+
+### Added
+- **EventContextEvent DTO** — Fully-qualified analytics event with rich context envelope. Wraps a base AnalyticsEvent with session, device, geolocation, identity, UTM attribution, referrer, and consent context. Supports `fromEvent()` shorthand, `toArray()` serialization, `flattenedParams()` for provider dispatch (underscore-prefixed keys), `hasContext()` and `hasFullIdentity()` checks.
+- **EventEnvelopeService** — Builds context-rich event envelopes from HTTP requests. Auto-enriches events with session, device (User-Agent parsing), geolocation (header strategy), identity (user_id/client_id from auth + cookie), UTM params, referrer, consent state, and metadata. Config-driven section toggles via `zeroboiler.analytics.envelope`. Supports `build()` (from request) and `buildFromEvent()` (server-side/queue) methods.
+- **ConsentAwareFilter** — Granular consent-aware pipeline filter. Evaluates each event against consent purposes (analytics, functional, marketing, necessary) before dispatch. Events mapped to purposes via configurable rules — page_view→analytics, purchase→analytics+functional, error→necessary. Supports per-user granular consent via ConsentLogService, global ConsentState fallback, purpose→signal mapping (purposeToSignalMap), `isPermitted()` check for client-side gating, and custom purpose mapping overrides.
+- **JS client consent-aware pre-queue** — Buffers events fired before consent resolution. `consentGranted()` replays queued events, `consentDenied()` discards them. Max 50 events buffered with LRU eviction. New exports: `consentGranted()`, `consentDenied()`, `getConsentState()`, `getConsentPreQueueCount()`, `resetConsentState()`.
+- **3 new API endpoints** — `GET /api/analytics/consent/purposes` (purpose definitions + event→purpose mapping), `GET /api/analytics/consent/envelope-info` (envelope service status + active sections), `GET /api/analytics/consent/history` (authenticated, per-user consent change audit trail).
+- **2 new config sections** — `envelope` (9 toggles for context section enrichment), `consent_purposes` (enabled + strict mode for granular consent filtering).
+- **2 new service bindings** in AnalyticsServiceProvider: EventEnvelopeService (with 7 optional service dependencies), ConsentAwareFilter (with ConsentLogService).
+- **V56EventEnvelopeConsentPreQueueTest** — 45+ test cases covering EventContextEvent DTO (7 tests: construction, fromEvent, toArray, flattenedParams, hasContext, hasFullIdentity), EventEnvelopeService (5 tests: build, disabled, activeSections, summary), ConsentAwareFilter (15 tests: disabled, necessary, identify, denied/granted analytics, denied functional, granted ecommerce, denied marketing, fail-open, purposeToSignalMap, getRequiredPurposes, isPermitted, setPurposeMapping, getPurposeMap, per-user consent lookup), config integrity (2 tests), version consistency (5 tests), route registration, filesystem integrity (strict types, docblocks, final classes), JS client consent exports, TypeScript definitions.
+
+### Changed
+- Version bump to 2.56.0
+- AnalyticsManager::version() returns '2.56.0' (was '2.55.0')
+- Composer version updated to 2.56.0
+- JS client version string updated to 2.56.0 (was 2.54.0)
+- TypeScript definitions version updated to 2.56.0 (was 2.54.0)
+- EventSourceTagger::_version updated to 2.56.0 (was 2.52.0)
+- All 13 controller endpoint version strings updated to 2.56.0
+- Total source files: 194 (was 191)
+- Total test files: 95 (was 93)
+- Total config sections: 48+ (was 46+)
+
 ## [2.50.0] - 2026-08-07
 
 ### Added

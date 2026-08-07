@@ -1150,5 +1150,51 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Envelope (Context-Rich Event Building)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, EventEnvelopeService automatically enriches dispatched
+        | events with session, device, geolocation, identity, UTM, referrer,
+        | consent, and metadata context from the current HTTP request.
+        |
+        | Toggle individual context sections on/off to control overhead.
+        | Produces EventContextEvent DTOs with flattened params for providers.
+        |
+        */
+        'envelope' => [
+            'enabled' => env('ANALYTICS_ENVELOPE_ENABLED', true),
+            'session' => env('ANALYTICS_ENVELOPE_SESSION', true),
+            'device' => env('ANALYTICS_ENVELOPE_DEVICE', true),
+            'geo' => env('ANALYTICS_ENVELOPE_GEO', false),
+            'identity' => env('ANALYTICS_ENVELOPE_IDENTITY', true),
+            'utm' => env('ANALYTICS_ENVELOPE_UTM', true),
+            'referrer' => env('ANALYTICS_ENVELOPE_REFERRER', true),
+            'consent' => env('ANALYTICS_ENVELOPE_CONSENT', true),
+            'metadata' => env('ANALYTICS_ENVELOPE_METADATA', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Consent-Aware Pipeline (Granular Purpose Filtering)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the ConsentAwareFilter evaluates each event against
+        | granular consent purposes before dispatch. Events are mapped to
+        | required purposes (analytics, functional, marketing, necessary).
+        |
+        | Only events whose required purposes are all granted are dispatched.
+        | Events requiring only 'necessary' are always dispatched.
+        |
+        | 'strict' mode drops events when consent state is unknown.
+        | 'fail_open' mode (default) allows events when consent is unresolved.
+        |
+        */
+        'consent_purposes' => [
+            'enabled' => env('ANALYTICS_CONSENT_PURPOSES_ENABLED', false),
+            'strict' => env('ANALYTICS_CONSENT_PURPOSES_STRICT', false),
+        ],
+
     ],
 ];

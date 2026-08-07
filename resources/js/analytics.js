@@ -6,13 +6,14 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.54.0
+ * @version 2.56.0
  */
 
 let trackingId = null;
 let config = null;
 let initialized = false;
 let apiBaseUrl = '/api/analytics';
+let consentResolved = null; // null = not yet resolved, true = granted, false = denied
 
 // ─── Batch Queue ─────────────────────────────────────────────────────
 
@@ -2534,6 +2535,114 @@ export function exceedsPayloadBudget(name, params = {}) {
     return estimatePayloadSize(name, params) > (config?.performanceBudget?.max_payload_bytes || 8192);
 }
 
+// ─── Consent-Aware Pre-Queue ─────────────────────────────────────
+
+/**
+ * Pre-queue for events fired before consent is resolved.
+ *
+ * When consent has not yet been resolved (user hasn't interacted with
+ * the cookie banner), events are buffered in this queue. When consent
+ * is granted, the queue is replayed. When denied, the queue is discarded.
+ *
+ * This prevents data loss for early-page events (page_view, scroll)
+ * while ensuring GDPR compliance for events dispatched before consent.
+ *
+ * @type {Array<{name: string, params: object, options?: object}>}
+ */
+const consentPreQueue = [];
+const MAX_CONSENT_PRE_QUEUE = 50;
+
+/**
+ * Queue an event before consent is resolved.
+ *
+ * Events are buffered until consentGranted() or consentDenied() is called.
+ * Max 50 events are buffered; excess events are silently dropped.
+ *
+ * @param {string} name - Event name
+ * @param {object} params - Event parameters
+ * @param {object} [options] - Track options (immediate, consent_skip)
+ */
+function queueBeforeConsent(name, params, options = {}) {
+    if (consentPreQueue.length >= MAX_CONSENT_PRE_QUEUE) {
+        consentPreQueue.shift(); // Drop oldest
+    }
+    consentPreQueue.push({ name, params, options });
+}
+
+/**
+ * Replay all queued events after consent is granted.
+ *
+ * Each queued event is dispatched through the normal trackEvent pipeline.
+ * The pre-queue is cleared after replay.
+ */
+function replayConsentPreQueue() {
+    const events = [...consentPreQueue];
+    consentPreQueue.length = 0;
+
+    for (const { name, params, options } of events) {
+        trackEvent(name, params, { ...options, consent_skip: true });
+    }
+}
+
+/**
+ * Discard all queued events after consent is denied.
+ *
+ * Events are silently dropped without being dispatched.
+ */
+function discardConsentPreQueue() {
+    consentPreQueue.length = 0;
+}
+
+/**
+ * Signal that the user has granted consent.
+ *
+ * Replays all events that were queued before consent resolution.
+ * Sets the internal consent state so future events dispatch normally.
+ */
+export function consentGranted() {
+    consentResolved = true;
+    replayConsentPreQueue();
+}
+
+/**
+ * Signal that the user has denied consent.
+ *
+ * Discards all queued events and sets the internal consent state
+ * so future events are silently dropped until consentGranted().
+ */
+export function consentDenied() {
+    consentResolved = false;
+    discardConsentPreQueue();
+}
+
+/**
+ * Get the current consent resolution state.
+ *
+ * @returns {boolean|null} true = granted, false = denied, null = pending
+ */
+export function getConsentState() {
+    return consentResolved;
+}
+
+/**
+ * Get the count of events currently queued before consent.
+ *
+ * @returns {number}
+ */
+export function getConsentPreQueueCount() {
+    return consentPreQueue.length;
+}
+
+/**
+ * Clear the consent state (reset to pending/unresolved).
+ *
+ * Useful when the user opens the consent banner again
+ * or when navigating to a new session.
+ */
+export function resetConsentState() {
+    consentResolved = null;
+}
+
 // ─── Forwarding Config ─────────────────────────────────────────────
 
 /**
@@ -2563,5 +2672,5 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.54.0')
  */
 export function _getInternalVersion() {
-    return '2.54.0';
+    return '2.56.0';
 }

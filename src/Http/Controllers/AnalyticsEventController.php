@@ -2487,7 +2487,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'series' => $series,
             'granularity' => $granularity,
             'limit' => $limit,
@@ -2514,7 +2514,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'series' => $series,
             'granularity' => $granularity,
             'summary' => $this->bucketsService->summary($series, $granularity, $last),
@@ -2540,7 +2540,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'series_a' => $seriesA,
             'series_b' => $seriesB,
             'granularity' => $granularity,
@@ -2564,7 +2564,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'series' => $this->bucketsService->seriesList(),
             'granularities' => EventBucketsService::availableGranularities(),
         ]);
@@ -2594,7 +2594,7 @@ final class AnalyticsEventController extends Controller
         if ($cached !== null) {
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.55.0',
+                'version' => '2.56.0',
                 'source' => 'cached',
                 ...$cached,
             ]);
@@ -2602,7 +2602,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2624,7 +2624,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2648,7 +2648,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'limit' => $limit,
             'history' => $this->healthScoreService->history($limit),
         ]);
@@ -2683,7 +2683,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'journey' => $journey,
             'page_flow' => $this->journeyService->getPageFlow($journeyId),
         ]);
@@ -2705,7 +2705,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'stats' => $this->journeyService->getStats(),
         ]);
     }
@@ -2729,7 +2729,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'patterns' => $this->journeyService->mostCommonPatterns($steps, $limit),
         ]);
     }
@@ -2752,7 +2752,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'drop_offs' => $this->journeyService->dropOffPoints($limit),
         ]);
     }
@@ -2783,7 +2783,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'pattern' => $pattern,
             'matches' => $this->journeyService->findMatchingJourneys($pattern, $limit),
             'count' => count($this->journeyService->findMatchingJourneys($pattern, $limit)),
@@ -2816,8 +2816,101 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.55.0',
+            'version' => '2.56.0',
             'funnel' => $this->journeyService->funnelConversion($steps),
+        ]);
+    }
+
+    /**
+     * Get available consent purposes and event→purpose mapping.
+     *
+     * GET /api/analytics/consent/purposes
+     */
+    public function consentPurposes(Request $request): JsonResponse
+    {
+        try {
+            $consentLog = app(\ZeroBoiler\Analytics\Services\ConsentLogService::class);
+            $consentFilter = app(\ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Consent services not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.56.0',
+            'purposes' => $consentLog->availablePurposes(),
+            'purpose_map' => $consentFilter->getPurposeMap(),
+            'purpose_to_signal' => \ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::purposeToSignalMap(),
+            'default_state' => $consentLog->defaultConsentState(),
+        ]);
+    }
+
+    /**
+     * Get envelope service info and active context sections.
+     *
+     * GET /api/analytics/consent/envelope-info
+     */
+    public function envelopeInfo(Request $request): JsonResponse
+    {
+        try {
+            $envelopeService = app(\ZeroBoiler\Analytics\Services\EventEnvelopeService::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Envelope service not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.56.0',
+            'enabled' => $envelopeService->isEnabled(),
+            'active_sections' => $envelopeService->activeSections(),
+            'summary' => $envelopeService->summary(),
+        ]);
+    }
+
+    /**
+     * Get consent history for the authenticated user.
+     *
+     * GET /api/analytics/consent/history
+     */
+    public function consentHistory(Request $request): JsonResponse
+    {
+        try {
+            $consentLog = app(\ZeroBoiler\Analytics\Services\ConsentLogService::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Consent service not available',
+            ], 503);
+        }
+
+        $userId = $request->user()?->id;
+
+        if ($userId === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Authenticated user required',
+            ], 401);
+        }
+
+        $identifier = (string) $userId;
+        $limit = min((int) $request->query('limit', 50), 500);
+
+        $history = $consentLog->getHistory($identifier);
+        $history = array_slice($history, -$limit);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.56.0',
+            'identifier' => $identifier,
+            'current' => $consentLog->getCurrentConsent($identifier),
+            'history' => $history,
+            'count' => count($history),
         ]);
     }
 }
