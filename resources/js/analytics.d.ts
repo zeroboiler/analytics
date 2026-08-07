@@ -5,10 +5,17 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.57.0
+ * @version 2.58.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
+
+/** Single consent purpose configuration */
+export interface ConsentPurpose {
+    label: string;
+    required: boolean;
+    default: boolean;
+}
 
 /** Analytics configuration passed via Inertia page props */
 export interface ZbAnalyticsConfig {
@@ -28,6 +35,7 @@ export interface ZbAnalyticsConfig {
     device: DeviceContext;
     autoTrack: AutoTrackConfig;
     performance: PerformanceConfig;
+    consentPurposes?: Record<string, ConsentPurpose>;
 }
 
 /** Consent signals (GDPR Consent Mode v2) */
@@ -580,3 +588,17 @@ export function getConsentPreQueueCount(): number;
 
 /** Clear the consent state (reset to pending/unresolved) */
 export function resetConsentState(): void;
+
+// ─── Consent Purposes (GDPR Granular) ────────────────────────────────
+
+/** Get the consent purposes configuration from the server */
+export function getConsentPurposes(): Record<string, ConsentPurpose>;
+
+/** Get a flat list of consent purpose keys */
+export function getConsentPurposeKeys(): string[];
+
+/** Get consent purposes that the user can toggle (non-required) */
+export function getOptionalConsentPurposes(): Record<string, { label: string; default: boolean }>;
+
+/** Build consent signals from granular purpose grants/denials */
+export function buildConsentSignals(grants: Record<string, boolean>): Record<string, 'granted' | 'denied'>;

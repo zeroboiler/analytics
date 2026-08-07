@@ -4,6 +4,17 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.58.0] - 2026-08-07
+
+### Added
+- **JS Consent Purposes API** — Four new client-side functions for GDPR consent banner integration: `getConsentPurposes()`, `getConsentPurposeKeys()`, `getOptionalConsentPurposes()`, and `buildConsentSignals()`. These read the `consentPurposes` Inertia prop (injected by `HandleInertiaAnalytics`) and provide a purpose → Consent Mode v2 signal mapper with automatic `necessary` grant enforcement.
+- **TypeScript ConsentPurpose type** — New `ConsentPurpose` interface with `label`, `required`, `default` fields. Added to `ZbAnalyticsConfig.consentPurposes` and all 4 new function declarations.
+- **V58VersionConsistencyConsentPurposesTest** — 35+ test cases.
+
+### Changed
+- **Version unification to 2.58.0** — All 75+ version strings (AnalyticsManager, AnalyticsEventController 65 instances, 6 service files, JS client, TypeScript, composer.json) unified. Eliminated stale 2.52.0, 2.54.0, 2.57.0 references.
+- Total test files: 100 (was 99)
+
 ## [2.57.0] - 2026-08-07
 
 ### Added

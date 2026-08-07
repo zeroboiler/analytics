@@ -232,7 +232,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 200+ tests across 96+ test files
+- **Pest PHP** — 200+ tests across 100+ test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 

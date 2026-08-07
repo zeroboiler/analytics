@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.57.0
+ * @version 2.58.0
  */
 
 let trackingId = null;
@@ -139,10 +139,10 @@ export function isInitialized() {
  *
  * Useful for diagnostics, debugging, and API compatibility checks.
  *
- * @returns {string} Semantic version (e.g. '2.54.0')
+ * @returns {string} Semantic version (e.g. '2.58.0')
  */
 export function getVersion() {
-    return '2.54.0';
+    return '2.58.0';
 }
 
 /**
@@ -2643,6 +2643,120 @@ export function resetConsentState() {
     consentResolved = null;
 }
 
+// ─── Consent Purposes (GDPR Granular) ────────────────────────────────
+
+/**
+ * Get the consent purposes configuration from the server.
+ *
+ * Returns the granular GDPR consent purposes exposed via Inertia props.
+ * Each purpose has a label, required flag, and default value.
+ * 'necessary' is always required and cannot be denied.
+ *
+ * @returns {Object<string, {label: string, required: boolean, default: boolean}>}
+ *
+ * @example
+ * const purposes = getConsentPurposes();
+ * // {
+ * //   necessary: { label: 'Necessary', required: true, default: true },
+ * //   analytics: { label: 'Analytics', required: false, default: true },
+ * //   marketing: { label: 'Marketing', required: false, default: false },
+ * //   functional: { label: 'Functional', required: false, default: true },
+ * // }
+ */
+export function getConsentPurposes() {
+    return config?.consentPurposes || {};
+}
+
+/**
+ * Get a flat list of consent purpose keys.
+ *
+ * @returns {string[]} Array of purpose keys (e.g. ['necessary', 'analytics', 'marketing', 'functional'])
+ */
+export function getConsentPurposeKeys() {
+    return Object.keys(getConsentPurposes());
+}
+
+/**
+ * Get consent purposes that the user can toggle (non-required).
+ *
+ * Useful for building consent banners — only non-required purposes
+ * should show toggle switches.
+ *
+ * @returns {Object<string, {label: string, default: boolean}>}
+ */
+export function getOptionalConsentPurposes() {
+    const purposes = getConsentPurposes();
+    const optional = {};
+    for (const [key, val] of Object.entries(purposes)) {
+        if (!val.required) {
+            optional[key] = { label: val.label, default: val.default };
+        }
+    }
+    return optional;
+}
+
+/**
+ * Build a consent signals object from purpose grants/denials.
+ *
+ * Maps granular purpose keys to Consent Mode v2 signals.
+ * Automatically includes 'necessary' as granted.
+ *
+ * @param {Object<string, boolean>} grants - Purpose key → granted/denied
+ * @returns {Object<string, 'granted'|'denied'>} Consent Mode signals
+ *
+ * @example
+ * const signals = buildConsentSignals({
+ *     analytics: true,
+ *     marketing: false,
+ *     functional: true,
+ * });
+ * // { analytics_storage: 'granted', ad_storage: 'denied', ... }
+ */
+export function buildConsentSignals(grants) {
+    const purposes = getConsentPurposes();
+    const mapping = {
+        necessary: 'security_storage',
+        analytics: 'analytics_storage',
+        marketing: 'ad_storage',
+        functional: 'functionality_storage',
+        // Additional mappings for future purposes
+        performance: 'functionality_storage',
+        personalization: 'ad_personalization',
+    };
+
+    const signals = {};
+
+    // Always grant required purposes
+    for (const [key, purpose] of Object.entries(purposes)) {
+        if (purpose.required) {
+            const signal = mapping[key] || 'security_storage';
+            signals[signal] = 'granted';
+        }
+    }
+
+    // Map user grants to signals
+    for (const [key, granted] of Object.entries(grants)) {
+        const signal = mapping[key];
+        if (signal) {
+            signals[signal] = granted ? 'granted' : 'denied';
+        }
+    }
+
+    // Ensure all 6 Consent Mode v2 signals are present
+    const allSignals = [
+        'analytics_storage', 'ad_storage', 'ad_user_data',
+        'ad_personalization', 'functionality_storage', 'security_storage',
+    ];
+    for (const signal of allSignals) {
+        if (!(signal in signals)) {
+            // Default denied for unspecified signals
+            signals[signal] = 'denied';
+        }
+    }
+
+    return signals;
+}
+
 // ─── Forwarding Config ─────────────────────────────────────────────
 
 /**
@@ -2669,8 +2783,8 @@ export function getForwarderNames() {
 /**
  * Get the library version string.
  *
- * @returns {string} Semantic version (e.g. '2.54.0')
+ * @returns {string} Semantic version (e.g. '2.58.0')
  */
 export function _getInternalVersion() {
-    return '2.57.0';
+    return '2.58.0';
 }
