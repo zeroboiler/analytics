@@ -31,6 +31,9 @@ use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
+use ZeroBoiler\Analytics\Services\EventSourceTagger;
+use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
 
 /**
  * API controller for frontend event tracking.
@@ -80,6 +83,12 @@ final class AnalyticsEventController extends Controller
 
     private ?EventCorrelationService $correlationService;
 
+    private ?AnalyticsConfigValidator $configValidator;
+
+    private ?EventSourceTagger $sourceTagger;
+
+    private ?ReferrerTrackingService $referrerTrackingService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -95,6 +104,9 @@ final class AnalyticsEventController extends Controller
      * @param  FunnelDataBuilderService|null  $funnelDataBuilderService  Optional funnel data builder service
      * @param  LifecycleEventMapper|null  $lifecycleMapper  Optional lifecycle event mapper service
      * @param  EventCorrelationService|null  $correlationService  Optional event correlation service
+     * @param  AnalyticsConfigValidator|null  $configValidator  Optional config validator service
+     * @param  EventSourceTagger|null  $sourceTagger  Optional event source tagger service
+     * @param  ReferrerTrackingService|null  $referrerTrackingService  Optional referrer tracking service
      */
     public function __construct(
         AnalyticsManager $manager,
@@ -111,6 +123,9 @@ final class AnalyticsEventController extends Controller
         ?FunnelDataBuilderService $funnelDataBuilderService = null,
         ?LifecycleEventMapper $lifecycleMapper = null,
         ?EventCorrelationService $correlationService = null,
+        ?AnalyticsConfigValidator $configValidator = null,
+        ?EventSourceTagger $sourceTagger = null,
+        ?ReferrerTrackingService $referrerTrackingService = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -127,6 +142,9 @@ final class AnalyticsEventController extends Controller
         $this->funnelDataBuilderService = $funnelDataBuilderService;
         $this->lifecycleMapper = $lifecycleMapper;
         $this->correlationService = $correlationService;
+        $this->configValidator = $configValidator;
+        $this->sourceTagger = $sourceTagger;
+        $this->referrerTrackingService = $referrerTrackingService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -404,7 +422,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -490,7 +508,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -848,7 +866,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1079,7 +1097,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
         ]);
@@ -1106,7 +1124,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'min_length' => $minLength,
             'count' => count($patterns),
             'patterns' => $patterns,
@@ -1132,7 +1150,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'count' => count($this->correlationService->topTransitions($limit)),
             'transitions' => $this->correlationService->topTransitions($limit),
         ]);
@@ -1164,7 +1182,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'after' => $afterEvent,
             'count' => count($predictions),
             'predictions' => $predictions,
@@ -1188,8 +1206,100 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.28.0',
+            'version' => '2.29.0',
             'summary' => $this->correlationService->summary(),
+        ]);
+    }
+
+    /**
+     * Validate the analytics configuration.
+     *
+     * GET /api/analytics/config/validate
+     *
+     * Returns a comprehensive validation result for all analytics config
+     * sections including provider credentials, cross-dependencies,
+     * and best-practice warnings. Useful for admin dashboards and CI checks.
+     */
+    public function validateConfig(): JsonResponse
+    {
+        if ($this->configValidator === null) {
+            return response()->json(['error' => 'Config validator not available'], 503);
+        }
+
+        $result = $this->configValidator->result();
+
+        return response()->json([
+            'status' => $result['valid'] ? 'ok' : 'errors',
+            'version' => '2.29.0',
+            'valid' => $result['valid'],
+            'errors' => $result['errors'],
+            'warnings' => $result['warnings'],
+            'issues' => $result['issues'],
+        ]);
+    }
+
+    /**
+     * Parse device context from User-Agent header.
+     *
+     * GET /api/analytics/device
+     *
+     * Returns parsed device context (browser, OS, device type, brand)
+     * from the request's User-Agent header. Useful for client-side
+     * enrichment when the server has already parsed the UA.
+     */
+    public function deviceContext(Request $request): JsonResponse
+    {
+        $ua = $request->userAgent();
+
+        if ($ua === '' || $ua === null) {
+            return response()->json([
+                'status' => 'ok',
+                'device' => null,
+                'user_agent' => null,
+            ]);
+        }
+
+        try {
+            $deviceService = app(\ZeroBoiler\Analytics\Services\DeviceContextService::class);
+            $context = $deviceService->parse($ua);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.29.0',
+                'device' => $context,
+            ]);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'ok',
+                'device' => null,
+                'user_agent' => $ua,
+            ]);
+        }
+    }
+
+    /**
+     * Get referrer tracking information from the current request.
+     *
+     * GET /api/analytics/referrer
+     *
+     * Returns the parsed referrer data including source categorization,
+     * UTM parameters, social network detection, and search engine detection.
+     * Useful for debugging conversion attribution in admin interfaces.
+     */
+    public function referrerInfo(Request $request): JsonResponse
+    {
+        if ($this->referrerTrackingService === null) {
+            return response()->json(['error' => 'Referrer tracking service not available'], 503);
+        }
+
+        $referrer = $this->referrerTrackingService->extractReferrer($request);
+        $utm = $this->referrerTrackingService->extractUtm($request);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.29.0',
+            'referrer' => $referrer,
+            'utm' => $utm,
         ]);
     }
 }

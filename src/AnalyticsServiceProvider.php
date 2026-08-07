@@ -65,6 +65,9 @@ use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
+use ZeroBoiler\Analytics\Services\EventSourceTagger;
+use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -601,6 +604,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 (bool) ($correlationConfig['cache_enabled'] ?? true),
             );
         });
+
+        // Analytics config validator for boot-time validation
+        $this->app->singleton(AnalyticsConfigValidator::class, function (Application $app): AnalyticsConfigValidator {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsConfigValidator($config);
+        });
+
+        // Event source tagger for automatic source metadata
+        $this->app->singleton(EventSourceTagger::class);
+
+        // Referrer tracking service for conversion attribution
+        $this->app->singleton(ReferrerTrackingService::class);
     }
 
     /**
@@ -656,6 +673,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $router->aliasMiddleware(
                 'analytics.inertia',
                 HandleInertiaAnalytics::class,
+            );
+            $router->aliasMiddleware(
+                'analytics.referrer',
+                \ZeroBoiler\Analytics\Middleware\AnalyticsReferrerMiddleware::class,
             );
         }
     }
@@ -730,6 +751,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/correlation/transitions', [$controller, 'correlationTransitions']);
                 Route::get('analytics/correlation/predict', [$controller, 'correlationPredict']);
                 Route::get('analytics/correlation/summary', [$controller, 'correlationSummary']);
+
+                // Config validation, device context, referrer endpoints
+                Route::get('analytics/config/validate', [$controller, 'validateConfig']);
+                Route::get('analytics/device', [$controller, 'deviceContext']);
+                Route::get('analytics/referrer', [$controller, 'referrerInfo']);
             });
 
         // Authenticated endpoints

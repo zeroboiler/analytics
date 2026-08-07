@@ -765,6 +765,47 @@ final class AnalyticsConfig
         return (int) $this->get('correlation.max_journeys_per_user', 100);
     }
 
+    // ── Data Retention ──────────────────────────────────────────────
+
+    public function retentionEnabled(): bool
+    {
+        return (bool) $this->get('retention.enabled', false);
+    }
+
+    public function retentionDays(): int
+    {
+        return (int) $this->get('retention.days', 90);
+    }
+
+    public function retentionArchiveAction(): string
+    {
+        return (string) $this->get('retention.archive_action', 'delete');
+    }
+
+    // ── Source Tagging ──────────────────────────────────────────────
+
+    public function sourceTaggingEnabled(): bool
+    {
+        return (bool) $this->get('source_tagging.enabled', true);
+    }
+
+    public function sourceTaggingVersion(): bool
+    {
+        return (bool) $this->get('source_tagging.tag_version', true);
+    }
+
+    // ── Boot Validation ─────────────────────────────────────────────
+
+    public function validationBootEnabled(): bool
+    {
+        return (bool) $this->get('validation_boot.enabled', false);
+    }
+
+    public function validationBootLogLevel(): string
+    {
+        return (string) $this->get('validation_boot.log_level', 'warning');
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -920,6 +961,19 @@ final class AnalyticsConfig
             ],
             'stream' => [
                 'buffer_size' => $this->streamBufferSize(),
+            ],
+            'retention' => [
+                'enabled' => $this->retentionEnabled(),
+                'days' => $this->retentionDays(),
+                'archive_action' => $this->retentionArchiveAction(),
+            ],
+            'source_tagging' => [
+                'enabled' => $this->sourceTaggingEnabled(),
+                'tag_version' => $this->sourceTaggingVersion(),
+            ],
+            'validation_boot' => [
+                'enabled' => $this->validationBootEnabled(),
+                'log_level' => $this->validationBootLogLevel(),
             ],
         ];
     }

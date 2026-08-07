@@ -636,5 +636,54 @@ return [
             'max_pattern_length' => (int) env('ANALYTICS_CORRELATION_MAX_PATTERN_LENGTH', 5),
             'max_journeys_per_user' => (int) env('ANALYTICS_CORRELATION_MAX_JOURNEYS', 100),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Retention
+        |-------------------------------------------------------------------------- 
+        |
+        | Configure event data retention policies. When enabled, the package
+        | exposes retention metadata so downstream storage layers (database,
+        | data warehouse) can automatically purge old analytics events.
+        |
+        | The retention_days value controls how long event data is considered
+        | "active". Events older than this should be archived or deleted.
+        |
+        */
+        'retention' => [
+            'enabled' => env('ANALYTICS_RETENTION_ENABLED', false),
+            'days' => (int) env('ANALYTICS_RETENTION_DAYS', 90), // 90 days default
+            'archive_action' => env('ANALYTICS_RETENTION_ARCHIVE', 'delete'), // delete, archive, anonymize
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Source Tagging
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, all dispatched events are automatically tagged with
+        | metadata about their origin (_source, _timestamp, _version).
+        | Source tagging is lightweight and recommended for all SaaS deployments.
+        |
+        */
+        'source_tagging' => [
+            'enabled' => env('ANALYTICS_SOURCE_TAGGING_ENABLED', true),
+            'tag_version' => env('ANALYTICS_SOURCE_TAGGING_VERSION', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Config Validation
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the AnalyticsConfigValidator runs on every boot and
+        | logs warnings/errors for misconfigured providers. Recommended for
+        | development and staging environments.
+        |
+        */
+        'validation_boot' => [
+            'enabled' => env('ANALYTICS_VALIDATION_BOOT_ENABLED', false),
+            'log_level' => env('ANALYTICS_VALIDATION_BOOT_LOG_LEVEL', 'warning'), // error, warning, info
+        ],
     ],
 ];

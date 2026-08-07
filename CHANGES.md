@@ -4,12 +4,27 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+### Added
+- **AnalyticsConfigValidator** — Validates analytics config structure on boot. Checks provider credentials (GA4 measurement_id format, GTM container_id prefix, Meta Pixel ID, Plausible domain, PostHog API key, webhook URL HTTPS), cross-dependencies, sampling rate range, retention days, consent defaults, and best-practice warnings. Returns structured results with error/warning/info levels for admin dashboards.
+- **EventSourceTagger** — Automatic event source metadata tagging. Tags all dispatched events with `_source` (api, server, cron, webhook_inbound, lifecycle, batch, test), `_timestamp`, and `_version`. Provides typed tagging methods: `tagAsApi()`, `tagAsServer()`, `tagAsCron()`, `tagAsWebhook()`, `tagAsLifecycle()`, `tagAsBatch()`. Immutable — returns new AnalyticsEvent instances.
+- **ReferrerTrackingService** — Comprehensive referrer tracking for conversion attribution. Detects social networks (Facebook, Instagram, Twitter/X, LinkedIn, YouTube, TikTok, Reddit, Pinterest, Snapchat, WhatsApp, Threads, Mastodon), search engines (Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex, Ecosia), email providers, and generic referrals. Parses UTM parameters, guesses UTM medium from source, builds tracked URLs, and normalizes referrer URLs.
+- **AnalyticsReferrerMiddleware** — HTTP middleware that automatically captures referrer context and attaches it to all analytics events dispatched during the request lifecycle. Stores referrer data and UTM params as request attributes. Registered as `analytics.referrer` middleware alias.
+- **3 new API endpoints** — `GET /api/analytics/config/validate` (config validation result), `GET /api/analytics/device` (User-Agent parsing via DeviceContextService), `GET /api/analytics/referrer` (referrer source categorization and UTM extraction).
+- **3 new config sections** — `retention` (enabled, days, archive_action), `source_tagging` (enabled, tag_version), `validation_boot` (enabled, log_level).
+- **8 new AnalyticsConfig accessors** — retentionEnabled(), retentionDays(), retentionArchiveAction(), sourceTaggingEnabled(), sourceTaggingVersion(), validationBootEnabled(), validationBootLogLevel(). Summary expanded to 27 sections (was 24).
+- **3 new service bindings** in AnalyticsServiceProvider: AnalyticsConfigValidator, EventSourceTagger, ReferrerTrackingService.
+- **V29ConfigValidationSourceReferrerTest** — 50+ new test cases covering AnalyticsConfigValidator (12 tests: empty config, GA4/GTM/Meta/Webhook missing credentials, format warnings, sampling range, retention days, consent defaults, queue info, isValid, errors, warnings), EventSourceTagger (14 tests: tagging, all source types, invalid source fallback, extraction, isTagged, validSources, immutability), ReferrerTrackingService (15 tests: UTM extraction, direct traffic, UTM priority, social detection, search engine detection, generic referral, URL normalization, isSocial/isSearchEngine helpers, buildTrackedUrl, www stripping), config expansion (6 tests: new accessors, summary sections, count), version consistency (4 tests: version string, catalog count, categories, uniqueness).
+
 ### Changed
-- **README API Reference** — Expanded to 25 public + 8 authenticated endpoints (was 16 total). Added lifecycle, correlation, alerts, and funnel endpoints. Split into Public/Authenticated sections.
-- **README Health Response** — Updated example to v2.28.0 with all 6 providers (GA4, GTM, Meta, Plausible, PostHog, Webhook), queue, metrics, and replay fields.
-- **README JS Client API** — Added missing exports: `destroyAll()`, `getVersion()`, `trackSelectItem()`, `trackPromotionView()`, `trackPromotionClick()`, `initSessionTracking()`, `initWebVitals()`, `recordSessionEvent()`, `recordSessionPageView()`, `getSessionState()`, `fetchEventCatalog()`, `getCachedCatalog()`, `clearCatalogCache()`, `optOutTracking()`, `optInTracking()`, `getTrackingPreference()`. Added Event Catalog and GDPR Tracking Preferences sections.
-- **README Features** — Added session tracking, session heartbeat, event catalog client, GDPR preferences, and GTM DataLayer to JS client features list. Updated Web Vitals to include TTFB and FCP. Updated test file count to 72.
-- **README Features** — Added lifecycle and correlation API endpoints to the API endpoints feature list.
+- Version bump to 2.29.0
+- AnalyticsManager::version() returns '2.29.0' (was '2.28.0')
+- Controller version strings updated to 2.29.0 on all endpoints
+- Composer version updated to 2.29.0
+- JS client version string updated to 2.29.0
+- Total service count: 38+ services registered in ServiceProvider
+- Total API endpoints: 31 public + 10 authenticated
+- Total config sections: 38 (was 35)
+- AnalyticsReferrerMiddleware registered as `analytics.referrer` middleware alias
 
 ## [2.28.0] - 2026-08-06
 
