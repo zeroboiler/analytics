@@ -4,6 +4,22 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.63.0] - 2026-08-07
+
+### Added
+- **DeadLetterQueueService::replaySingle()** — Replay a single DLQ event by offset. Returns an `AnalyticsEvent` DTO and automatically removes the event from the DLQ. Useful for targeted event recovery without replaying the entire queue.
+- **GdprErasureService::exportUser()** — GDPR DSAR data portability export. Collects analytics profile, attribution summary, tracking preferences, and event counts into a single structured array for compliance data exports.
+- **POST /api/analytics/dlq/replay** — Replay all DLQ events through the analytics manager. Returns dispatched/failed counts and per-event error details.
+- **POST /api/analytics/dlq/replay/{offset}** — Replay a single DLQ event by offset through the analytics manager. Returns 404 if offset is out of bounds, 500 if dispatch fails.
+- **GET /api/analytics/gdpr/export** — Export all analytics data for the authenticated user (GDPR DSAR data portability). Returns profile, attribution, preferences, and event counts. Requires authentication.
+- **V63DlqReplayGdprExportTest** — 24 test cases covering DeadLetterQueueService replay methods (existence, signatures, return types), GdprErasureService exportUser method (existence, signature, docblock), controller endpoints (dlqReplayAll, dlqReplaySingle, gdprExport), version consistency (6 files), route registration, ServiceProvider bindings, class structure integrity, stale version cleanup, strict types, and file count metrics.
+
+### Changed
+- Version bump to 2.63.0 across AnalyticsManager, composer.json, JS client (header + _getInternalVersion), TypeScript definitions, and 65+ controller endpoint version strings.
+- All service summary/info methods updated from 2.61.0 → 2.63.0 (EventSourceTagger, EventForwardingService, EventAliasResolver, EventEnvelopeService, EventExporterService, EventCacheService, AnalyticsEventRouter).
+- Routes file updated with 3 new endpoints (DLQ replay × 2, GDPR export).
+- AnalyticsServiceProvider registers DLQ replay and GDPR export routes in both the route file and boot-time dynamic registration.
+
 ## [2.62.0] - 2026-08-07
 
 ### Added

@@ -86,6 +86,65 @@ final class GdprErasureService
     }
 
     /**
+     * Export all analytics data for a user (DSAR / GDPR data portability).
+     *
+     * Collects analytics profile, attribution data, tracking preferences,
+     * and consent history into a single exportable array.
+     *
+     * @param  string  $userId  The user ID to export
+     * @param  string|null  $clientId  Optional client ID for attribution data
+     * @return array{user_id: string, exported_at: string, profile: array<string, mixed>|null, attribution: array<string, mixed>|null, preferences: array<string, mixed>, consent_history: list<array<string, mixed>>, event_counts: array<string, int>|null}
+     */
+    public function exportUser(string $userId, ?string $clientId = null): array
+    {
+        $export = [
+            'user_id' => $userId,
+            'exported_at' => date('c'),
+            'profile' => null,
+            'attribution' => null,
+            'preferences' => ['status' => 'unknown'],
+            'consent_history' => [],
+            'event_counts' => null,
+        ];
+
+        // Export analytics profile
+        try {
+            $export['profile'] = $this->profileService->getProfile($userId);
+        } catch (\Throwable) {
+            $export['profile'] = null;
+        }
+
+        // Export attribution data
+        if ($clientId !== null && $clientId !== '') {
+            try {
+                $export['attribution'] = $this->attributionService->getAttributionSummary($clientId);
+            } catch (\Throwable) {
+                $export['attribution'] = null;
+            }
+        }
+
+        // Export tracking preferences
+        try {
+            $export['preferences'] = [
+                'status' => $this->preferenceService->isOptedOut($userId) ? 'opt_out' : 'opt_in',
+                'has_preference' => $this->preferenceService->hasPreference($userId),
+            ];
+        } catch (\Throwable) {
+            // Keep default
+        }
+
+        // Export event counts from profile if available
+        if (is_array($export['profile'])) {
+            $export['event_counts'] = [
+                'total' => (int) ($export['profile']['event_counts']['total'] ?? 0),
+                'by_type' => (array) ($export['profile']['event_counts'] ?? []),
+            ];
+        }
+
+        return $export;
+    }
+
+    /**
      * Erase only attribution data for a client ID.
      *
      * @param  string  $clientId

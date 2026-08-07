@@ -204,6 +204,37 @@ final class DeadLetterQueueService
     }
 
     /**
+     * Replay a single DLQ event by offset — returns it as an AnalyticsEvent and removes it.
+     *
+     * Does NOT automatically re-dispatch; the caller should handle
+     * re-dispatch with appropriate error handling.
+     *
+     * @param  int  $offset  Zero-based offset in the DLQ
+     * @return AnalyticsEvent|null The replayed event, or null if not found
+     */
+    public function replaySingle(int $offset): ?AnalyticsEvent
+    {
+        $entries = $this->all();
+
+        if (! isset($entries[$offset])) {
+            return null;
+        }
+
+        $entry = $entries[$offset];
+        $event = new AnalyticsEvent(
+            name: $entry['event']['name'],
+            params: $entry['event']['params'],
+            clientId: $entry['event']['clientId'],
+            userId: $entry['event']['userId'],
+        );
+
+        // Remove the replayed event
+        $this->remove($offset);
+
+        return $event;
+    }
+
+    /**
      * Replay all DLQ events — returns them as AnalyticsEvent objects.
      *
      * Does NOT automatically re-dispatch; the caller should handle

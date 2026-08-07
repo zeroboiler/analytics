@@ -56,6 +56,8 @@ Route::prefix('analytics')->group(function () {
     Route::get('dlq/summary', [AnalyticsEventController::class, 'dlqSummary']);
     Route::delete('dlq', [AnalyticsEventController::class, 'dlqClear']);
     Route::delete('dlq/{offset}', [AnalyticsEventController::class, 'dlqRemove']);
+    Route::post('dlq/replay', [AnalyticsEventController::class, 'dlqReplayAll']);
+    Route::post('dlq/replay/{offset}', [AnalyticsEventController::class, 'dlqReplaySingle']);
 
     // Real-time aggregation
     Route::get('realtime', [AnalyticsEventController::class, 'realtimeSnapshot']);
@@ -110,6 +112,9 @@ Route::prefix('analytics')->group(function () {
 
     // GDPR data erasure (authenticated)
     Route::delete('data', [AnalyticsEventController::class, 'eraseData']);
+
+    // GDPR data export / DSAR (authenticated)
+    Route::get('gdpr/export', [AnalyticsEventController::class, 'gdprExport']);
 
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);

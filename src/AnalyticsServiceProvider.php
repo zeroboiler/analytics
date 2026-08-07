@@ -1114,6 +1114,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::delete('analytics/dlq', [$controller, 'dlqClear']);
                 Route::delete('analytics/dlq/{offset}', [$controller, 'dlqRemove']);
                 Route::get('analytics/dlq/summary', [$controller, 'dlqSummary']);
+                Route::post('analytics/dlq/replay', [$controller, 'dlqReplayAll']);
+                Route::post('analytics/dlq/replay/{offset}', [$controller, 'dlqReplaySingle']);
 
                 // Real-time aggregation endpoints
                 Route::get('analytics/realtime', [$controller, 'realtimeSnapshot']);
@@ -1179,6 +1181,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/preference', [$controller, 'preference']);
                 Route::get('analytics/profile', [$controller, 'profile']);
                 Route::delete('analytics/data', [$controller, 'eraseData']);
+                Route::get('analytics/gdpr/export', [$controller, 'gdprExport']);
                 Route::post('analytics/tenant/config', [$controller, 'updateTenantConfig']);
                 Route::post('analytics/attribution/record', [$controller, 'attributionRecord']);
                 Route::delete('analytics/attribution/{identifier}', [$controller, 'attributionClear']);
