@@ -88,6 +88,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('report/trending', [AnalyticsEventController::class, 'reportTrending']);
     Route::get('report/provider-stats', [AnalyticsEventController::class, 'reportProviderStats']);
 
+    // Event taxonomy (public, for admin dashboards)
+    Route::get('taxonomy', [AnalyticsEventController::class, 'taxonomySummary']);
+    Route::get('taxonomy/definitions', [AnalyticsEventController::class, 'taxonomyDefinitions']);
+    Route::get('taxonomy/grouped', [AnalyticsEventController::class, 'taxonomyGrouped']);
+    Route::get('taxonomy/{tag}', [AnalyticsEventController::class, 'taxonomyTag']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);

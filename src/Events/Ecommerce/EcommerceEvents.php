@@ -13,7 +13,7 @@ namespace ZeroBoiler\Analytics\Events\Ecommerce;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
  */
 final class EcommerceEvents
 {
@@ -37,72 +37,96 @@ final class EcommerceEvents
                 'class' => ViewItemEvent::class,
                 'ga4' => 'view_item',
                 'meta' => 'ViewContent',
+                'posthog' => '$view_item',
+                'plausible' => null,
             ],
             'add_to_cart' => [
                 'name' => 'add_to_cart',
                 'class' => AddToCartEvent::class,
                 'ga4' => 'add_to_cart',
                 'meta' => 'AddToCart',
+                'posthog' => 'add_to_cart',
+                'plausible' => 'add_to_cart',
             ],
             'remove_from_cart' => [
                 'name' => 'remove_from_cart',
                 'class' => RemoveFromCartEvent::class,
                 'ga4' => 'remove_from_cart',
                 'meta' => 'RemoveFromCart',
+                'posthog' => 'remove_from_cart',
+                'plausible' => null,
             ],
             'view_cart' => [
                 'name' => 'view_cart',
                 'class' => ViewCartEvent::class,
                 'ga4' => 'view_cart',
                 'meta' => 'ViewCart',
+                'posthog' => 'view_cart',
+                'plausible' => null,
             ],
             'begin_checkout' => [
                 'name' => 'begin_checkout',
                 'class' => BeginCheckoutEvent::class,
                 'ga4' => 'begin_checkout',
                 'meta' => 'InitiateCheckout',
+                'posthog' => 'begin_checkout',
+                'plausible' => 'begin_checkout',
             ],
             'add_payment_info' => [
                 'name' => 'add_payment_info',
                 'class' => AddPaymentInfoEvent::class,
                 'ga4' => 'add_payment_info',
                 'meta' => 'AddPaymentInfo',
+                'posthog' => 'add_payment_info',
+                'plausible' => null,
             ],
             'purchase' => [
                 'name' => 'purchase',
                 'class' => PurchaseEvent::class,
                 'ga4' => 'purchase',
                 'meta' => 'Purchase',
+                'posthog' => 'purchase',
+                'plausible' => 'purchase',
             ],
             'refund' => [
                 'name' => 'refund',
                 'class' => RefundEvent::class,
                 'ga4' => 'refund',
                 'meta' => 'Refund',
+                'posthog' => 'refund',
+                'plausible' => 'refund',
             ],
             'add_to_wishlist' => [
                 'name' => 'add_to_wishlist',
                 'class' => WishlistEvent::class,
                 'ga4' => 'add_to_wishlist',
                 'meta' => 'AddToWishlist',
+                'posthog' => 'add_to_wishlist',
+                'plausible' => null,
             ],
             'select_item' => [
                 'name' => 'select_item',
                 'class' => SelectItemEvent::class,
                 'ga4' => 'select_item',
                 'meta' => 'ViewItem',
+                'posthog' => 'select_item',
+                'plausible' => null,
             ],
             'select_promotion' => [
                 'name' => 'select_promotion',
                 'class' => SelectPromotionEvent::class,
                 'ga4' => 'select_promotion',
                 'meta' => 'ViewContent',
+                'posthog' => 'select_promotion',
+                'plausible' => null,
             ],
             'view_promotion' => [
                 'name' => 'view_promotion',
                 'class' => ViewPromotionEvent::class,
                 'ga4' => 'view_promotion',
                 'meta' => 'ViewContent',
+                'posthog' => 'view_promotion',
+                'plausible' => null,
             ],
         ];
 
@@ -200,5 +224,37 @@ final class EcommerceEvents
     public static function category(): string
     {
         return 'ecommerce';
+    }
+
+    /**
+     * Get all PostHog event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function posthogNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['posthog'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Plausible event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function plausibleNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['plausible'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
     }
 }

@@ -4,8 +4,18 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+### Added
+- **EventTaxonomyService** — Tag-based event classification service with 22 semantic tags (revenue, conversion, engagement, error, lifecycle, funnel, cohort, session, billing, ecommerce, saas, traffic, performance, b2b, account, churn, retention, operational, experiment, viral, content, attribution). Supports custom tag overrides and disabled tags via config. Provides `tagsFor()`, `hasTag()`, `eventsWithTag()`, `eventsWithAnyTag()`, `eventsWithAllTags()`, `revenueEvents()`, `conversionEvents()`, `errorEvents()`, `funnelEvents()`, `tagDefinitions()`, `eventsGroupedByTag()`, `summary()`.
+- **Catalog provider enrichment** — All 65 catalog entries now include native `posthog` and `plausible` fields. EcommerceEvents, SaaSEvents, and EngagementEvents each expose `posthogNames()` and `plausibleNames()` methods.
+- **EventCatalog native provider methods** — `allPosthogNames()`, `allPlausibleNames()`, `allPosthogMappings()`, `allPlausibleMappings()`, `posthogNameFor()`, `plausibleNameFor()` now read from catalog entries instead of relying on EventTransformer.
+- **Taxonomy API endpoints** — `GET /api/analytics/taxonomy` (summary), `GET /api/analytics/taxonomy/definitions`, `GET /api/analytics/taxonomy/grouped`, `GET /api/analytics/taxonomy/{tag}`
+- **AnalyticsConfig expansion** — `taxonomyEnabled()`, `taxonomyCustomTags()`, `taxonomyDisabledTags()` accessors
+- **V52TaxonomyCatalogProviderTest** — 40+ test cases covering catalog provider fields, native provider methods, EventTaxonomyService (tags, classification, filtering, OR/AND logic, custom overrides, disabled tags, runtime mutations), version consistency
+
 ### Changed
-- Removed unused `dto` and `value-objects` path repositories from `composer.json`
+- Version bump to 2.52.0 across all files (composer.json, AnalyticsManager, controllers, services, JS client, TypeScript definitions)
+- EventCatalog::allPosthogNames() and allPlausibleNames() now use native catalog fields instead of EventTransformer maps
+- EventCatalog::byProvider() simplified to use native catalog methods
 
 ## [2.51.0] - 2026-08-07
 

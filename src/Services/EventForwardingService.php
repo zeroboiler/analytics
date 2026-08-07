@@ -391,7 +391,7 @@ final class EventForwardingService
             'properties' => $event->params,
             'timestamp' => date('c'),
             'context' => [
-                'library' => ['name' => 'zeroboiler-analytics', 'version' => '2.50.0'],
+                'library' => ['name' => 'zeroboiler-analytics', 'version' => '2.52.0'],
             ],
         ];
     }
@@ -439,7 +439,7 @@ final class EventForwardingService
                     'user_id' => $event->userId ?? null,
                     'device_id' => $event->clientId ?? null,
                     'time' => (int) (microtime(true) * 1000),
-                    'library' => 'zeroboiler-analytics/2.50.0',
+                    'library' => 'zeroboiler-analytics/2.52.0',
                 ],
             ],
         ];
@@ -460,7 +460,7 @@ final class EventForwardingService
             'user_id' => $event->userId,
             'timestamp' => date('c'),
             'source' => 'zeroboiler-analytics',
-            'version' => '2.50.0',
+            'version' => '2.52.0',
         ];
     }
 

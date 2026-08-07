@@ -140,82 +140,37 @@ final class EventCatalog
     }
 
     /**
-     * Get all PostHog-compatible event names across all categories.
+     * Get all PostHog event names across all categories from catalog entries.
      *
-     * Maps SaaS events to PostHog conventions ($signup, $identify, etc.)
-     * and passes through all other event names as-is.
+     * Uses the native `posthog` field in each catalog entry rather than
+     * relying on EventTransformer maps.
      *
      * @return list<string>
      */
     public static function allPosthogNames(): array
     {
-        return array_values(array_unique(
-            array_map(
-                fn (string $name): string => self::posthogNameFor($name),
-                self::names(),
-            ),
-        ));
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::posthogNames(),
+            SaaSEvents::posthogNames(),
+            EngagementEvents::posthogNames(),
+        ))));
     }
 
     /**
-     * Get the complete event → PostHog mapping table.
+     * Get all Plausible event names across all categories from catalog entries.
      *
-     * Returns an associative array mapping every catalog event name to its
-     * PostHog equivalent. Useful for documentation, debugging, and
-     * building custom PostHog event dispatchers.
-     *
-     * @return array<string, string>
-     */
-    public static function allPosthogMappings(): array
-    {
-        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
-        $mappings = [];
-
-        foreach (self::names() as $name) {
-            $mappings[$name] = $posthogMap[$name] ?? $name;
-        }
-
-        return $mappings;
-    }
-
-    /**
-     * Get the PostHog event name for a given catalog event name.
-     *
-     * @return string PostHog event name (may include $ prefix for reserved events)
-     */
-    public static function posthogNameFor(string $name): string
-    {
-        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
-
-        return $posthogMap[$name] ?? $name;
-    }
-
-    /**
-     * Get all Plausible-compatible event names across all categories.
-     *
-     * Filters out events not supported by Plausible (scroll_depth, click,
-     * session events, form events) and maps page_view → pageview.
+     * Uses the native `plausible` field in each catalog entry.
+     * Events with null plausible mapping are filtered out.
      *
      * @return list<string>
      */
     public static function allPlausibleNames(): array
     {
-        $plausibleMap = \ZeroBoiler\Analytics\Support\EventTransformer::toPlausibleEventMap();
-        $names = [];
-
-        foreach (self::names() as $name) {
-            if (isset($plausibleMap[$name])) {
-                if ($plausibleMap[$name] !== null) {
-                    $names[] = $plausibleMap[$name];
-                }
-                // null = not supported, skip
-            } else {
-                // Not explicitly mapped = supported as custom event
-                $names[] = $name;
-            }
-        }
-
-        return array_values(array_unique($names));
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::plausibleNames(),
+            SaaSEvents::plausibleNames(),
+            EngagementEvents::plausibleNames(),
+        ))));
     }
 
     /**
@@ -242,36 +197,18 @@ final class EventCatalog
      * Returns arrays keyed by provider name with deduplicated event names.
      * Includes all supported providers: ga4, meta, posthog, plausible.
      *
+     * Now uses native catalog fields (posthog, plausible) rather than
+     * EventTransformer maps.
+     *
      * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>}
      */
     public static function byProvider(): array
     {
-        $plausibleMap = \ZeroBoiler\Analytics\Support\EventTransformer::toPlausibleEventMap();
-        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
-
-        $plausibleNames = [];
-        $posthogNames = [];
-
-        foreach (self::all() as $name => $entry) {
-            if (isset($plausibleMap[$name]) && $plausibleMap[$name] !== null) {
-                $plausibleNames[] = $plausibleMap[$name];
-            } elseif (! isset($plausibleMap[$name])) {
-                // Events not explicitly mapped are supported as custom Plausible events
-                $plausibleNames[] = $name;
-            }
-
-            if (isset($posthogMap[$name])) {
-                $posthogNames[] = $posthogMap[$name];
-            } else {
-                $posthogNames[] = $name;
-            }
-        }
-
         return [
             'ga4' => self::allGa4Names(),
             'meta' => self::allMetaNames(),
-            'posthog' => array_values(array_unique($posthogNames)),
-            'plausible' => array_values(array_unique($plausibleNames)),
+            'posthog' => self::allPosthogNames(),
+            'plausible' => self::allPlausibleNames(),
         ];
     }
 
@@ -380,5 +317,64 @@ final class EventCatalog
             fn (array $entry): array => array_merge($entry, ['category' => $category]),
             $events,
         );
+    }
+
+    /**
+     * Get the complete event → PostHog mapping table from catalog entries.
+     *
+     * Returns an associative array mapping every catalog event name to its
+     * PostHog equivalent as defined in the native `posthog` field.
+     *
+     * @return array<string, string>
+     */
+    public static function allPosthogMappings(): array
+    {
+        $mappings = [];
+
+        foreach (self::all() as $name => $entry) {
+            $mappings[$name] = $entry['posthog'] ?? $name;
+        }
+
+        return $mappings;
+    }
+
+    /**
+     * Get the PostHog event name for a given catalog event name.
+     *
+     * @return string PostHog event name (may include $ prefix for reserved events)
+     */
+    public static function posthogNameFor(string $name): string
+    {
+        $entry = self::get($name);
+
+        return $entry['posthog'] ?? $name;
+    }
+
+    /**
+     * Get the Plausible event name for a given catalog event name.
+     *
+     * @return string|null Plausible event name or null if not supported
+     */
+    public static function plausibleNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['plausible'] ?? null;
+    }
+
+    /**
+     * Get the complete event → Plausible mapping table from catalog entries.
+     *
+     * @return array<string, string|null>
+     */
+    public static function allPlausibleMappings(): array
+    {
+        $mappings = [];
+
+        foreach (self::all() as $name => $entry) {
+            $mappings[$name] = $entry['plausible'] ?? null;
+        }
+
+        return $mappings;
     }
 }

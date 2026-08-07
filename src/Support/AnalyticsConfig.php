@@ -1510,6 +1510,11 @@ final class AnalyticsConfig
                 'memory_ttl' => $this->eventCacheMemoryTtl(),
                 'cache_ttl' => $this->eventCacheTtl(),
             ],
+            'taxonomy' => [
+                'enabled' => $this->taxonomyEnabled(),
+                'custom_tags_count' => count($this->taxonomyCustomTags()),
+                'disabled_tags_count' => count($this->taxonomyDisabledTags()),
+            ],
         ];
     }
 
@@ -1547,6 +1552,42 @@ final class AnalyticsConfig
         $aliases = $this->get('aliases', []);
 
         return $aliases;
+    }
+
+    // ── Taxonomy ────────────────────────────────────────────────────
+
+    /**
+     * Check if event taxonomy is enabled.
+     */
+    public function taxonomyEnabled(): bool
+    {
+        return (bool) $this->get('taxonomy.enabled', true);
+    }
+
+    /**
+     * Get custom tag overrides from config.
+     *
+     * @return array<string, list<string>>
+     */
+    public function taxonomyCustomTags(): array
+    {
+        /** @var array<string, list<string>> $tags */
+        $tags = $this->get('taxonomy.custom_tags', []);
+
+        return is_array($tags) ? $tags : [];
+    }
+
+    /**
+     * Get disabled taxonomy tags from config.
+     *
+     * @return list<string>
+     */
+    public function taxonomyDisabledTags(): array
+    {
+        /** @var list<string> $tags */
+        $tags = $this->get('taxonomy.disabled_tags', []);
+
+        return is_array($tags) ? $tags : [];
     }
 
     // ── Event Cache ────────────────────────────────────────────────────
