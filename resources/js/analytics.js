@@ -2943,7 +2943,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.63.0';
+    return '2.64.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
