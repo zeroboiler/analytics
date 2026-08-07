@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.50.0';
+        return '2.51.0';
     }
 
     /**
@@ -1355,6 +1355,71 @@ final class AnalyticsManager
     public function interceptors(): EventInterceptorRegistry
     {
         return $this->interceptors;
+    }
+
+    /**
+     * Get a quick report summary of analytics activity.
+     *
+     * Returns dispatch counts, success rate, and top event from the metrics instance.
+     * Useful for admin dashboards and health checks.
+     *
+     * @return array{events: int, dispatched: int, failed: int, success_rate: float, top_event: string|null}
+     */
+    public function reportSummary(): array
+    {
+        $totalDispatched = $this->metrics->totalDispatched();
+        $totalFailed = $this->metrics->totalFailed();
+        $total = $totalDispatched + $totalFailed;
+
+        return [
+            'events' => $total,
+            'dispatched' => $totalDispatched,
+            'failed' => $totalFailed,
+            'success_rate' => $total > 0 ? round(($totalDispatched / $total) * 100, 2) : 100.0,
+            'top_event' => $this->metricsTopProvider(),
+        ];
+    }
+
+    /**
+     * Get the top provider by dispatch count.
+     */
+    private function metricsTopProvider(): ?string
+    {
+        $byProvider = $this->metrics->dispatchedByProvider();
+        if (empty($byProvider)) {
+            return null;
+        }
+
+        arsort($byProvider);
+
+        return array_key_first($byProvider);
+    }
+
+    /**
+     * Get the dead letter queue summary.
+     *
+     * Returns DLQ statistics from the DeadLetterQueueService.
+     * Useful for monitoring failed event recovery.
+     *
+     * @return array{enabled: bool, strategy: string, total: int, buffered: int, max_size: int, storage_path: string, utilization: float}
+     */
+    public function dlqSummary(): array
+    {
+        try {
+            $dlq = app(\ZeroBoiler\Analytics\Services\DeadLetterQueueService::class);
+
+            return $dlq->summary();
+        } catch (\Throwable) {
+            return [
+                'enabled' => false,
+                'strategy' => 'null',
+                'total' => 0,
+                'buffered' => 0,
+                'max_size' => 0,
+                'storage_path' => '',
+                'utilization' => 0.0,
+            ];
+        }
     }
 
     /**

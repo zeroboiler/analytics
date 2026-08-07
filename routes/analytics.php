@@ -32,6 +32,8 @@ Route::prefix('analytics')->group(function () {
 
     // Export endpoint
     Route::get('export', [AnalyticsEventController::class, 'export']);
+    Route::get('export/mappings', [AnalyticsEventController::class, 'exportMappings']);
+    Route::get('export/catalog.csv', [AnalyticsEventController::class, 'exportCatalogCsv']);
 
     // Stats endpoint (public, for admin dashboards)
     Route::get('stats', [AnalyticsEventController::class, 'stats']);

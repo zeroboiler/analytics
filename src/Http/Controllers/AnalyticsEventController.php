@@ -48,6 +48,7 @@ use ZeroBoiler\Analytics\Services\UtmAggregationService;
 use ZeroBoiler\Analytics\Services\EventForwardingService;
 use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
+use ZeroBoiler\Analytics\Services\EventExporterService;
 
 /**
  * API controller for frontend event tracking.
@@ -490,9 +491,11 @@ final class AnalyticsEventController extends Controller
      */
     public function catalog(): JsonResponse
     {
+        $exporter = $this->resolveExporterService();
+
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -509,6 +512,7 @@ final class AnalyticsEventController extends Controller
                 ],
             ],
             'names' => EventCatalog::names(),
+            'summary' => $exporter !== null ? $exporter->summary() : null,
         ]);
     }
 
@@ -578,7 +582,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -729,6 +733,65 @@ final class AnalyticsEventController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Resolve EventExporterService lazily from the container.
+     */
+    private function resolveExporterService(): ?EventExporterService
+    {
+        try {
+            return app(EventExporterService::class);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * Export provider mapping table for documentation and debugging.
+     *
+     * GET /api/analytics/export/mappings
+     *
+     * Returns all event-to-provider name mappings (GA4, Meta, PostHog, Plausible).
+     */
+    public function exportMappings(): JsonResponse
+    {
+        $exporter = $this->resolveExporterService();
+
+        if ($exporter === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'EventExporterService not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.51.0',
+            'mappings' => $exporter->exportProviderMappings(),
+        ]);
+    }
+
+    /**
+     * Export event catalog as CSV download.
+     *
+     * GET /api/analytics/export/catalog.csv
+     */
+    public function exportCatalogCsv(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $exporter = $this->resolveExporterService();
+
+        $csv = $exporter !== null
+            ? $exporter->exportCatalogCsv()
+            : '';
+
+        return response()->streamDownload(
+            static function () use ($csv): void {
+                echo $csv;
+            },
+            'event-catalog-' . date('Y-m-d') . '.csv',
+            ['Content-Type' => 'text/csv'],
+        );
     }
 
     /**
@@ -936,7 +999,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1167,7 +1230,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
         ]);
@@ -1194,7 +1257,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'min_length' => $minLength,
             'count' => count($patterns),
             'patterns' => $patterns,
@@ -1220,7 +1283,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'count' => count($this->correlationService->topTransitions($limit)),
             'transitions' => $this->correlationService->topTransitions($limit),
         ]);
@@ -1252,7 +1315,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'after' => $afterEvent,
             'count' => count($predictions),
             'predictions' => $predictions,
@@ -1276,7 +1339,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'summary' => $this->correlationService->summary(),
         ]);
     }
@@ -1300,7 +1363,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => $result['valid'] ? 'ok' : 'errors',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'valid' => $result['valid'],
             'errors' => $result['errors'],
             'warnings' => $result['warnings'],
@@ -1335,7 +1398,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.50.0',
+                'version' => '2.51.0',
                 'device' => $context,
             ]);
         } catch (\Throwable) {
@@ -1367,7 +1430,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'referrer' => $referrer,
             'utm' => $utm,
         ]);
@@ -1389,7 +1452,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'broadcast' => [
                 'enabled' => $this->broadcasterService->isEnabled(),
                 'channel_prefix' => $this->broadcasterService->getChannelPrefix(),
@@ -1420,7 +1483,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'tenant_id' => $tenantId,
             'isolation' => $this->tenantService->summary(),
             'rate_limit' => $tenantId !== null
@@ -1487,7 +1550,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'retention' => $this->retentionService->summary(),
         ]);
     }
@@ -1511,7 +1574,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'gate' => $this->gateService->summary($userId),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
             'features' => AnalyticsGateService::getFeatureDefinitions(),
@@ -1527,7 +1590,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'features' => AnalyticsGateService::getFeatureDefinitions(),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
         ]);
@@ -1553,7 +1616,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'report' => $this->reportingService->report($period),
         ]);
     }
@@ -1733,7 +1796,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'realtime' => $this->realtimeService->snapshot(),
         ]);
     }
@@ -1779,7 +1842,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'experiment' => $results,
         ]);
     }
@@ -1876,7 +1939,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -1900,7 +1963,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -1918,7 +1981,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'comparison' => $this->snapshotService->dailyComparison(),
         ]);
     }
@@ -1941,7 +2004,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'kpi' => $this->kpiTracker->summary(),
         ]);
     }
@@ -1982,7 +2045,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'sources' => $this->utmAggregation->topSources($limit),
         ]);
     }
@@ -2002,7 +2065,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'campaigns' => $this->utmAggregation->topCampaigns($limit),
         ]);
     }
@@ -2020,7 +2083,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'breakdown' => $this->utmAggregation->sourceMediumBreakdown(),
         ]);
     }
@@ -2040,7 +2103,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'enabled' => $this->forwardingService->isEnabled(),
             'forwarders' => $this->forwardingService->forwarderNames(),
             'details' => array_map(
@@ -2066,7 +2129,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'stats' => $this->forwardingService->stats(),
         ]);
     }
@@ -2086,7 +2149,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             ...$result,
         ]);
     }
@@ -2106,7 +2169,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'message' => 'Forwarding statistics reset',
         ]);
     }
@@ -2126,7 +2189,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'config' => $this->performanceBudgetService->getConfig(),
         ]);
     }
@@ -2156,7 +2219,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'payload_size' => $this->performanceBudgetService->getPayloadSize($event),
             ...$validation,
         ]);
@@ -2177,7 +2240,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'attribution' => $this->attributionService->getAttribution($identifier),
         ]);
     }
@@ -2195,7 +2258,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'touchpoints' => $this->attributionService->getTouchpoints($identifier),
         ]);
     }
@@ -2213,7 +2276,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'first_touch' => $this->attributionService->getFirstTouch($identifier),
         ]);
     }
@@ -2231,7 +2294,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'last_touch' => $this->attributionService->getLastTouch($identifier),
         ]);
     }
@@ -2265,7 +2328,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'message' => 'Touchpoint recorded',
             'attribution' => $this->attributionService->getAttribution($identifier),
         ]);
@@ -2286,7 +2349,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.50.0',
+            'version' => '2.51.0',
             'message' => 'Attribution data cleared',
         ]);
     }

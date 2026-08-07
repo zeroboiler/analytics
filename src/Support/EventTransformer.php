@@ -156,8 +156,7 @@ final class EventTransformer
             'cohort_conversion' => 'cohort_conversion',
             'cohort_migration' => 'cohort_migration',
             'cohort_engagement' => 'cohort_engagement',
-            'invite_sent' => 'invite_sent',
-            'integration_connected' => 'integration_connected',
+            // Engagement (PostHog reserved)
             'page_view' => '$pageview',
             'session_start' => '$session_start',
             'screen_view' => '$screenview',
@@ -165,6 +164,7 @@ final class EventTransformer
             'error' => '$error',
             'form_submit' => 'form_submitted',
             'search' => '$search',
+            'js_error' => '$exception',
             // Account lifecycle events
             'account_activated' => 'account_activated',
             'account_deactivated' => 'account_deactivated',
@@ -183,6 +183,11 @@ final class EventTransformer
             'payment_method_added' => 'payment_method_added',
             'invoice_generated' => 'invoice_generated',
             'credit_applied' => 'credit_applied',
+            // Additional SaaS events
+            'invite_sent' => 'invite_sent',
+            'integration_connected' => 'integration_connected',
+            'integration_failed' => 'integration_failed',
+            'feature_limit_reached' => 'feature_limit_reached',
         ];
     }
 
@@ -192,20 +197,81 @@ final class EventTransformer
      * Map event names to Plausible-compatible custom event names.
      *
      * Plausible uses pageview by default for navigation. Custom events
-     * are sent as-is but page_view events are mapped to 'pageview'.
+     * are sent as-is but some events are not supported or need renaming.
+     * Null = not supported by Plausible (event will be skipped).
      *
      * @return array<string, string|null>
      */
     public static function toPlausibleEventMap(): array
     {
         return [
+            // Navigation
             'page_view' => 'pageview',
-            'scroll_depth' => null,  // Not supported by Plausible
-            'click' => null,        // Not supported by Plausible
+            'screen_view' => null,           // Use pageview instead
+
+            // Engagement (not natively tracked by Plausible)
+            'scroll_depth' => null,
+            'click' => null,
+            'outbound_click' => null,
             'session_start' => null,
             'session_end' => null,
+            'session_heartbeat' => null,
+            'time_on_page' => null,
+            'timing' => null,
+
+            // Forms (not natively tracked)
             'form_start' => null,
             'form_submit' => null,
+
+            // Performance (not applicable)
+            'web_vitals' => null,
+            'js_error' => null,
+            'error' => null,
+
+            // SaaS events — supported as custom events in Plausible
+            'sign_up' => 'signup',
+            'login' => 'login',
+            'logout' => 'logout',
+            'start_trial' => 'trial_start',
+            'end_trial' => 'trial_end',
+            'subscribe' => 'subscription',
+            'subscription_renewal' => 'subscription_renewal',
+            'plan_upgrade' => 'plan_upgrade',
+            'plan_downgrade' => 'plan_downgrade',
+            'cancellation' => 'cancellation',
+            'feature_used' => 'feature_used',
+            'revenue_tracked' => 'revenue',
+
+            // E-commerce — all supported as custom events
+            'view_item' => null,             // Tracked via pageview
+            'add_to_cart' => 'add_to_cart',
+            'remove_from_cart' => null,
+            'view_cart' => null,
+            'begin_checkout' => 'begin_checkout',
+            'add_payment_info' => null,
+            'purchase' => 'purchase',
+            'refund' => 'refund',
+            'add_to_wishlist' => null,
+            'select_item' => null,
+            'select_promotion' => null,
+            'view_promotion' => null,
+
+            // Cohort events
+            'cohort_assigned' => null,
+            'cohort_retention' => null,
+            'cohort_churn' => null,
+            'cohort_conversion' => null,
+            'cohort_migration' => null,
+            'cohort_engagement' => null,
+
+            // Content engagement — supported
+            'search' => 'search',
+            'share' => 'share',
+            'file_download' => 'file_download',
+            'video_play' => 'video_play',
+            'notification' => null,
+            'campaign_attribution' => null,
+            'ab_test_exposure' => null,
         ];
     }
 

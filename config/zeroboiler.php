@@ -125,7 +125,7 @@ return [
         */
         'identity' => [
             'cookie_name' => env('ANALYTICS_IDENTITY_COOKIE', 'zb_analytics_id'),
-            'cookie_ttl' => env('ANALYTICS_IDENTITY_COOKIE_TTL', 525600), // 365 days (minutes)
+            'cookie_ttl' => (int) env('ANALYTICS_IDENTITY_COOKIE_TTL', 525600), // 365 days (minutes),
             'cookie_secure' => env('ANALYTICS_IDENTITY_COOKIE_SECURE', true),
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
         ],
