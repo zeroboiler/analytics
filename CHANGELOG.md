@@ -2,6 +2,51 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.45.0] - 2026-08-07
+
+### Fixed
+- **Version consistency**: Updated all 41 controller endpoints, EventSourceTagger, EventForwardingService (Segment payload), JS client, TypeScript definitions, AnalyticsManager, and composer.json from 2.43.0/2.44.0 → 2.45.0
+- Eliminated stale 2.43.0 version references that persisted through v2.44.0
+
+### Added
+- `V45ConfigCoverageVersionIntegrityTest` — comprehensive test suite validating all 60+ AnalyticsConfig accessors, summary() completeness (55+ sections), version consistency across 6 file types, CHANGELOG integrity, PHP 8.5 return type compliance, and class immutability
+- Full accessor coverage tests for GA4, GTM, Meta Pixel, Plausible, PostHog, Webhook, Pipeline, Lifecycle, GDPR, Identity, API, Auto-Track, E-commerce, Revenue, Track Links, Queue config sections
+
+### Changed
+- Version consistency bump to 2.45.0 across all PHP source, JS client, TS definitions, and test files
+- Updated V43 and V44 test version assertions to match 2.45.0
+
+## [2.44.0] - 2026-08-07
+
+### Added
+- `AnalyticsConfig` expansion with 8 new attribute accessors: `attributionModel()`, `attributionSessionWindowDays()`, `attributionCacheTtl()`, `attributionFirstTouchTtl()`, `attributionTouchHistoryTtl()`, `attributionMaxTouchHistory()`, `referralEnabled()`, `referralParamName()`, `referralTtl()`, `referralTrackConversions()`
+- Attribution config section with first-touch/multi-touch model, session window, and touch history TTL
+- Referral tracking config section with configurable param name and conversion tracking
+- `V44ConfigIntegrityTest` — config integrity, AnalyticsConfig expansion, attribution fix validation
+
+### Fixed
+- Attribution model and referral config accessors now have proper type-safe return declarations
+
+## [2.43.0] - 2026-08-07
+
+### Added
+- `EventForwardingService` — forward analytics events to external platforms (Segment, Mixpanel, Amplitude, custom webhooks) with configurable timeout, retries, and rate limiting
+- `PerformanceBudgetService` — enforce limits on event payload size, rate per session, and daily quotas with configurable max payload bytes, max params count, and per-user/per-day caps
+- `AnalyticsConfig` expanded with forwarding and performance budget accessors
+- `V43ForwardingBudgetAttributionTest` — comprehensive tests for forwarding, budget, and attribution features
+
+## [2.42.0] - 2026-08-07
+
+### Added
+- Event forwarding config section (`forwarding`) with per-forwarder enable/disable, timeout, retries, and rate limiting
+- Performance budget config section (`performance_budget`) with payload size, param count, session, and daily limits
+- UTM attribution service and config expansion
+- 68 events comprehensive README update with GDPR consent purposes documentation
+- `V42SaaSStarterFinalTest` — comprehensive production readiness test suite
+
+### Changed
+- Version consistency bump to 2.42.0 across all controller endpoints and service files
+
 ## [2.41.0] - 2026-08-07
 
 ### Added
