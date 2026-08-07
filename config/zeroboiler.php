@@ -126,6 +126,21 @@ return [
             'currency' => env('ANALYTICS_ECOMMERCE_CURRENCY', 'USD'),
             'brand' => env('ANALYTICS_ECOMMERCE_BRAND', ''),
             'tax_behavior' => env('ANALYTICS_ECOMMERCE_TAX_BEHAVIOR', 'inclusive'), // inclusive, exclusive, not_specified
+            'shipping_default' => (float) env('ANALYTICS_ECOMMERCE_SHIPPING_DEFAULT', 0.0),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Revenue Defaults
+        |--------------------------------------------------------------------------
+        |
+        | Default settings for SaaS revenue tracking events.
+        | Used by RevenueAnalyticsService when no override is provided.
+        |
+        */
+        'revenue' => [
+            'currency' => env('ANALYTICS_REVENUE_CURRENCY', 'USD'),
+            'billing_cycle_default' => env('ANALYTICS_REVENUE_BILLING_CYCLE', 'monthly'),
         ],
 
         /*

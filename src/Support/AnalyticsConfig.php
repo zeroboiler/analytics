@@ -218,6 +218,23 @@ final class AnalyticsConfig
         return (string) $this->get('ecommerce.tax_behavior', 'inclusive');
     }
 
+    public function ecommerceShippingDefault(): float
+    {
+        return (float) $this->get('ecommerce.shipping_default', 0.0);
+    }
+
+    // ── Revenue ─────────────────────────────────────────────────────────
+
+    public function revenueCurrency(): string
+    {
+        return (string) $this->get('revenue.currency', 'USD');
+    }
+
+    public function revenueBillingCycleDefault(): string
+    {
+        return (string) $this->get('revenue.billing_cycle_default', 'monthly');
+    }
+
     // ── Track Links ──────────────────────────────────────────────────────
 
     public function trackLinksEnabled(): bool

@@ -2,6 +2,17 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.40.0] - 2026-08-07
+
+### Added
+- `subscription.renewal` auto-track mapping in `ServerSideTracker`
+- `ecommerce.shipping_default` config option for default shipping value in e-commerce events
+- `revenue` config section (`currency`, `billing_cycle_default`) for SaaS revenue tracking defaults
+- `AnalyticsConfig::ecommerceShippingDefault()`, `revenueCurrency()`, `revenueBillingCycleDefault()` accessors
+
+### Changed
+- Version consistency bump to 2.40.0 across all 26 controller endpoints, AnalyticsManager, JS client, TS definitions, EventSourceTagger, and 17 test files
+
 ## [2.39.0] - 2026-08-07
 
 ### Fixed
