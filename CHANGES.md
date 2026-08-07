@@ -4,6 +4,26 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+### Changed
+- Version bump to 2.34.0
+- AnalyticsManager::version() returns '2.34.0' (was '2.33.0')
+- Controller version strings updated to 2.34.0 on all endpoints (7 occurrences)
+- Composer version updated to 2.34.0
+- JS client version string updated to 2.34.0 (was 2.32.0)
+- **README documentation audit** — All event counts, API endpoint references, version strings, source file counts, and test file counts aligned with actual codebase
+  - Event count: 52 (12 ecom + 19 SaaS + 21 engagement), was incorrectly stated as 49 in multiple locations
+  - SaaS events: 19 (11 lifecycle + InviteSent + IntegrationConnected + 6 cohort), was 17
+  - Engagement events: 21, was 20
+  - Source files: 166+, was 143+
+  - Test files: 80+, was 72
+  - Health response version example: 2.33.0, was 2.28.0
+  - JS getVersion() example: 2.33.0, was 2.28.0
+- **API Reference expanded** — 25 missing endpoints documented (DLQ 4, realtime 2, AB tests 4, snapshots 3, KPI 2, UTM 3, reporting 5, broadcast, tenant, retention, gate/definitions, preference, opt-in/out, tenant/config)
+- **Event Catalog Reference updated** — FileDownloadEvent, VideoPlayEvent added to Engagement table; InviteSentEvent, IntegrationConnectedEvent added to SaaS table
+- **Changelog entries added** — v2.27 through v2.33 entries added to README Changelog section
+- **Enterprise Features section** — New feature category documenting v2.30+ capabilities (multi-tenant, broadcast, retention, feature gate, geolocation, referral, reporting, DLQ, realtime, AB tests, snapshots, KPI, UTM, event correlation, config validator, source tagger)
+- **Upgrading section** — v2.34.0 entry added
+
 ### Added
 - **InviteSentEvent** — Typed event class for tracking team/collaborator/referral invitations. Tracks invite type (team_member, collaborator, referral, billing_contact), assigned role, and inviter user ID. Maps to GA4 `invite_sent` and Meta `InviteSent`.
 - **IntegrationConnectedEvent** — Typed event class for tracking external integration connections (Slack, GitHub, Stripe, etc.). Tracks integration name and connecting user. Maps to GA4 `integration_connected` and Meta `IntegrationConnected`.

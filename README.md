@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **49 typed event classes** across 3 categories (E-commerce, SaaS, Engagement)
+- **52 typed event classes** across 3 categories (E-commerce 12, SaaS 19, Engagement 21)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -93,8 +93,8 @@ Done. That's it.
 - **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
-- **17 SaaS Lifecycle Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 49 events now have typed classes)
+- **19 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement)
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 52 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
@@ -108,7 +108,7 @@ Done. That's it.
 ### E-commerce
 - **12 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
-- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 48 events (JS + PHP)
+- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 52 events (JS + PHP)
 - **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
 
 ### Identity & GDPR
@@ -209,9 +209,28 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests across 72 test files
+- **Pest PHP** — 150+ tests across 80+ test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
+
+### Enterprise Features (v2.30+)
+- **Multi-Tenant Isolation** — Per-tenant analytics data with automatic tenant ID resolution (user attribute, header, subdomain, session), per-tenant config overrides, per-tenant rate limiting
+- **Event Broadcasting** — Real-time event broadcast via Laravel Echo/Pusher for live dashboards
+- **Data Retention Policy** — GDPR-compliant per-category retention (engagement 30d, SaaS 90d, ecommerce 365d) with auto-expiry
+- **Feature Gate** — Plan-based analytics access control (Free/Starter/Pro/Enterprise tiers) with 12 gated features and per-user overrides
+- **Geolocation Enrichment** — IP-based geolocation enrichment in event pipeline
+- **Referral Tracking** — Referral code tracking with TTL and conversion tracking
+- **Event Reporting** — Structured report generation for compliance and audit (JSON, CSV, metrics)
+- **Dead Letter Queue** — Failed event recovery with DLQ management API
+- **Real-Time Aggregation** — Time-windowed real-time event counting and top events
+- **A/B Test Analytics** — Experiment tracking with exposure, conversion, and result analysis
+- **Analytics Snapshots** — Daily/hourly snapshots with day-over-day comparison
+- **SaaS KPI Tracker** — MRR, churn rate, trial conversion, ARPU, and LTV tracking
+- **UTM Aggregation** — Source/campaign breakdown and top UTM analytics
+- **SaasKpiTracker** — Comprehensive SaaS metrics tracking with KPI history
+- **Event Correlation** — Pattern detection, transition analysis, and next-event prediction
+- **Config Validator** — AnalyticsConfigValidator for runtime config integrity checks
+- **Event Source Tagger** — Source identification (server, client, api, webhook) on events
 
 ## Architecture
 
@@ -230,10 +249,10 @@ src/
 │   └── UtmAttribution.php            # UTM campaign attribution DTO
 ├── Events/
 │   ├── Ecommerce/                    # 12 e-commerce event classes + EcommerceEvents catalog
-│   ├── SaaS/                         # 11 lifecycle + 6 cohort event classes + SaaSEvents catalog
-│   ├── Engagement/                   # 20 engagement event classes + EngagementEvents catalog
+│   ├── SaaS/                         # 19 SaaS event classes + SaaSEvents catalog
+│   ├── Engagement/                   # 21 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php               # Generic custom event
-│   └── EventCatalog.php              # Unified catalog (49 events, cross-provider mappings)
+│   └── EventCatalog.php              # Unified catalog (52 events, cross-provider mappings)
 ├── Middleware/
 │   ├── AnalyticsMiddlewareInterface.php   # Middleware contract
 │   ├── AnalyticsMiddlewareStack.php       # Priority-ordered middleware stack
@@ -709,8 +728,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 49 events across 3 categories
-EventCatalog::count();          // 49
+// Unified catalog — 52 events across 3 categories
+EventCatalog::count();          // 52
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -1028,7 +1047,7 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/analytics/health` | Health check (providers, consent, queue, metrics, replay, version) |
-| `GET` | `/api/analytics/catalog` | Full event catalog (49 events, categories, provider mappings) |
+| `GET` | `/api/analytics/catalog` | Full event catalog (52 events, categories, provider mappings) |
 | `GET` | `/api/analytics/stats` | Aggregated dashboard statistics (totals, top events, by-provider) |
 | `GET` | `/api/analytics/stream` | Real-time event stream (cursor-based polling) |
 | `GET` | `/api/analytics/stream/stats` | Event stream statistics |
@@ -1045,6 +1064,30 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | `GET` | `/api/analytics/correlation/transitions` | Top event transitions |
 | `GET` | `/api/analytics/correlation/predict` | Next-event prediction |
 | `GET` | `/api/analytics/correlation/summary` | Correlation analysis summary |
+| `GET` | `/api/analytics/broadcast` | Broadcast channel configuration info |
+| `GET` | `/api/analytics/tenant` | Multi-tenant isolation status + rate limits |
+| `GET` | `/api/analytics/retention` | Data retention policy summary |
+| `GET` | `/api/analytics/gate` | Feature gate status for current user |
+| `GET` | `/api/analytics/gate/definitions` | Feature + plan tier definitions (for client-side) |
+| `GET` | `/api/analytics/dlq` | Dead letter queue (failed events list) |
+| `GET` | `/api/analytics/dlq/summary` | Dead letter queue summary |
+| `DELETE` | `/api/analytics/dlq` | Clear all dead letter queue entries |
+| `GET` | `/api/analytics/realtime` | Real-time event aggregation snapshot |
+| `GET` | `/api/analytics/realtime/top-events` | Real-time top events ranking |
+| `GET` | `/api/analytics/ab-tests/{experimentId}` | A/B test results for an experiment |
+| `GET` | `/api/analytics/snapshots/daily` | Daily analytics snapshot |
+| `GET` | `/api/analytics/snapshots/hourly` | Hourly analytics snapshot |
+| `GET` | `/api/analytics/snapshots/comparison` | Day-over-day comparison |
+| `GET` | `/api/analytics/kpi` | SaaS KPI summary (MRR, churn, trial conversion) |
+| `GET` | `/api/analytics/kpi/mrr-history` | MRR history over time |
+| `GET` | `/api/analytics/utm/sources` | Top UTM sources |
+| `GET` | `/api/analytics/utm/campaigns` | Top UTM campaigns |
+| `GET` | `/api/analytics/utm/breakdown` | UTM parameter breakdown |
+| `GET` | `/api/analytics/report` | Full analytics report |
+| `GET` | `/api/analytics/report/summary` | Report summary |
+| `GET` | `/api/analytics/report/top-events` | Report top events |
+| `GET` | `/api/analytics/report/trending` | Trending events |
+| `GET` | `/api/analytics/report/provider-stats` | Provider-specific stats |
 
 ### Authenticated Endpoints
 
@@ -1058,6 +1101,10 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | `POST` | `/api/analytics/opt-out` | Per-user tracking opt-out (GDPR) |
 | `POST` | `/api/analytics/opt-in` | Override previous opt-out preference |
 | `GET` | `/api/analytics/preference` | Check tracking preference status |
+| `POST` | `/api/analytics/tenant/config` | Update per-tenant analytics config |
+| `POST` | `/api/analytics/ab-tests/{experimentId}/exposure` | Record A/B test exposure |
+| `POST` | `/api/analytics/ab-tests/{experimentId}/conversion` | Record A/B test conversion |
+| `DELETE` | `/api/analytics/ab-tests/{experimentId}` | Delete A/B test data |
 
 All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min).
 
@@ -1066,7 +1113,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.28.0",
+  "version": "2.33.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "gtm": { "status": "ok", "container_id": "GTM-XXXXXXX" },
@@ -1116,6 +1163,8 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `CancellationEvent` | cancellation | CancelSubscription |
 | `FeatureUsedEvent` | feature_used | FeatureUsed |
 | `RevenueEvent` | revenue_tracked | Purchase (mapped) |
+| `InviteSentEvent` | invite_sent | InviteSent |
+| `IntegrationConnectedEvent` | integration_connected | IntegrationConnected |
 | `CohortAssignedEvent` | cohort_assigned | CohortAssigned |
 | `CohortRetentionEvent` | cohort_retention | CohortRetention |
 | `CohortChurnEvent` | cohort_churn | CohortChurn |
@@ -1146,6 +1195,8 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `SessionStartEvent` | session_start | SessionStart |
 | `SessionEndEvent` | session_end | SessionEnd |
 | `OutboundClickEvent` | outbound_click | OutboundClick |
+| `FileDownloadEvent` | file_download | FileDownload |
+| `VideoPlayEvent` | video_play | VideoPlay |
 
 ### Generic
 
@@ -1184,7 +1235,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `destroy()` | Cleanup listeners, timers, state |
 | `destroyAll()` | Cleanup all auto-initialized trackers + destroy |
 | `isInitialized()` | Check if analytics is active |
-| `getVersion()` | Get library version string (e.g. '2.28.0') |
+| `getVersion()` | Get library version string (e.g. '2.33.0') |
 | `getTrackingId()` | Get server-generated tracking UUID |
 | `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
@@ -1342,7 +1393,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 143+ source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 166+ source files.
 
 ## Troubleshooting
 
@@ -1374,6 +1425,20 @@ This validates strict types, `final` modifiers, interface implementations, reado
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.33.x to v2.34.0
+No breaking changes. Documentation-only release.
+
+```bash
+composer update zeroboiler/analytics
+```
+
+Changes:
+- **README documentation update** — All event counts, API endpoint references, version strings, and source file counts aligned with actual codebase (52 events, 166 source files, 80+ test files, 50+ API endpoints)
+- **Missing API endpoints documented** — DLQ, realtime, AB tests, snapshots, KPI, UTM aggregation, reporting, broadcast, tenant, retention, gate, preference, opt-in/out
+- **Missing changelog entries** — v2.27 through v2.33 changelogs added to README
+- **Enterprise features section** — New feature category documenting v2.30+ capabilities
+- **Event catalog tables** — FileDownloadEvent, VideoPlayEvent, InviteSentEvent, IntegrationConnectedEvent added
 
 ### From v2.25.x to v2.26.0
 No breaking changes. Update via:
@@ -1445,9 +1510,66 @@ composer ci  # Pint + PHPStan + Rector + Tests
 
 ## Changelog
 
+### v2.33.0 — RealTimeAggregation, ABTestAnalytics, Snapshots, KPI, UTM, Geolocation
+
+- **RealTimeAggregationService** — Time-windowed real-time event counting, top events, per-category breakdowns
+- **ABTestAnalyticsService** — A/B experiment tracking with exposure, conversion recording, variant analysis, statistical significance
+- **AnalyticsSnapshotService** — Daily/hourly analytics snapshots with day-over-day comparison
+- **SaasKpiTracker** — Comprehensive SaaS KPI tracking (MRR, churn rate, trial conversion, ARPU, LTV) with history
+- **UtmAggregationService** — UTM source/campaign aggregation and top breakdown analytics
+- **GeolocationEnricher** — IP-based geolocation enrichment in event pipeline
+- **17 new API endpoints** — Real-time (2), AB tests (4), snapshots (3), KPI (2), UTM (3), reporting (5)
+- **7 new config sections** — real_time, ab_test, snapshots, kpi, utm_aggregation, geolocation, reporting
+- **35+ new tests**
+
+### v2.32.0 — EventReportingService, DeadLetterQueue, EcommerceFormatConverter
+
+- **EventReportingService** — Structured analytics report generation (summary, top events, trending, provider stats)
+- **DeadLetterQueueService** — Failed event recovery with management API (list, summary, clear, remove)
+- **EcommerceFormatConverter** — GA4 ↔ Meta item format conversion helper
+- **9 new API endpoints** — DLQ (4), reporting (5)
+- **3 new config sections** — reporting, dead_letter_queue, ecommerce_format
+
+### v2.31.0 — 4 New Typed Events, EventCatalog Validation, Referral Tracking
+
+- **InviteSentEvent** — Team/collaborator/referral invitation tracking
+- **IntegrationConnectedEvent** — External integration connection tracking (Slack, GitHub, Stripe)
+- **FileDownloadEvent** — File/document download tracking
+- **VideoPlayEvent** — Video content interaction tracking
+- **EventCatalog::validate()** — Full catalog integrity validation (required keys, class existence, duplicates)
+- **Referral tracking config** — Referral code capture with TTL and conversion tracking
+- **Total events: 52** (12 ecom + 19 SaaS + 21 engagement)
+
+### v2.30.0 — Enterprise Features
+
+- **EventBroadcasterService** — Real-time event broadcasting via Laravel Echo for live dashboards
+- **TenantIsolationService** — Multi-tenant analytics data isolation with automatic tenant ID resolution
+- **DataRetentionPolicyService** — GDPR-compliant per-category data retention with auto-expiry
+- **AnalyticsGateService** — Plan-based feature gating (Free/Starter/Pro/Enterprise) with 12 features
+- **7 new API endpoints** — broadcast, tenant (3), retention, gate (2)
+
+### v2.29.0 — Config Validator, Event Source Tagger, Referrer Tracking
+
+- **AnalyticsConfigValidator** — Runtime config integrity validation with warnings
+- **EventSourceTagger** — Source identification (server, client, api, webhook) on all events
+- **AnalyticsReferrerMiddleware** — Automatic referrer tracking middleware
+
+### v2.28.0 — Lifecycle Event Mapper, Event Correlation
+
+- **LifecycleEventMapper** — Config-driven 15-event lifecycle mapping from Laravel events to analytics events
+- **EventCorrelationService** — Pattern detection, event transition analysis, next-event prediction, conversion rate tracking
+- **5 new API endpoints** — lifecycle, correlation (4)
+
+### v2.27.0 — AnalyticsConfig Expansion, Alert/Funnel Routes
+
+- **AnalyticsConfig expansion** — 25+ new typed accessors, 22 config sections
+- **Alert + funnel routes** registered in ServiceProvider
+- **Facade directDispatch** return type fix (void → bool)
+- **7 new API routes**, **V27 test suite** (35+ cases)
+
 ### v2.26.0 — Complete Meta Pixel Mapping Coverage, EventCatalog::getCategory()
 
-- **All 48 events now have Meta Pixel equivalents** — Previously 25 of 48 events had `null` Meta mappings. All ecommerce (12), SaaS (17), and engagement (19) events now have proper Meta Pixel event names for cross-provider dispatch.
+- **All events now have Meta Pixel equivalents** — Previously some events had `null` Meta mappings. All ecommerce (12), SaaS (19), and engagement (21) events now have proper Meta Pixel event names for cross-provider dispatch.
 - **Meta mapping examples** — `remove_from_cart` → `RemoveFromCart`, `view_cart` → `ViewCart`, `refund` → `Refund`, `select_item` → `ViewItem`, `plan_upgrade` → `PlanUpgrade`, `cancellation` → `CancelSubscription`, `scroll_depth` → `ScrollDepth`, `click` → `Click`, `form_start` → `Lead`, `share` → `Share`, `error` → `Error`, plus cohort events (`CohortAssigned`, `CohortRetention`, etc.)
 - **EventTransformer synced** — `ga4ToMetaEventMap()` now maps all 12 ecommerce events (was 6 null → 6 mapped)
 - **EventCatalog::getCategory()** — New method returning `'ecommerce'|'saas'|'engagement'|null` for any event name. Used by DataBus routing, event processing, and admin commands.
@@ -1506,7 +1628,7 @@ composer ci  # Pint + PHPStan + Rector + Tests
 - **CohortAnalyticsService** — Time-based cohort tracking with assignCohort, trackRetention, trackChurn, trackConversion, trackMigration, trackEngagementSummary
 - **EventReplayQueue** — Failed event retry with exponential backoff and jitter (configurable max attempts, base/max delay)
 - **6 cohort event schemas** — cohort_assigned, cohort_retention, cohort_churn, cohort_conversion, cohort_migration, cohort_engagement registered in EventSchemaRegistry
-- **17 SaaS events** (was 11) — 6 cohort events added to SaaS catalog, total events now 39
+- **19 SaaS events** (was 11) — 6 cohort + InviteSent + IntegrationConnected events added to SaaS catalog, total events now 52
 - **Health check expansion** — Now includes metrics summary, replay queue status, and event catalog summary
 - **Config** — New `replay` section with 5 environment variables (ANALYTICS_REPLAY_ENABLED, etc.)
 - **Service Provider** — CohortAnalyticsService and EventReplayQueue registered as singletons
