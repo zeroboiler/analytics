@@ -10,19 +10,21 @@ namespace ZeroBoiler\Analytics\DTO;
 /**
  * Immutable DTO representing an analytics event to be tracked.
  */
-readonly class AnalyticsEvent
+final readonly class AnalyticsEvent
 {
     /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')
      * @param  array<string, mixed>  $params  Event parameters
      * @param  string|null  $clientId  GA4 client ID (optional, generated if null)
      * @param  string|null  $userId  Authenticated user ID (optional)
+     * @param  \DateTimeImmutable|null  $timestamp  Event timestamp (optional, defaults to now)
      */
     public function __construct(
         public string $name,
         public array $params = [],
         public ?string $clientId = null,
         public ?string $userId = null,
+        public ?\DateTimeImmutable $timestamp = null,
     ): void {}
 
     /**
@@ -52,6 +54,7 @@ readonly class AnalyticsEvent
             'params' => $this->params,
             'client_id' => $this->clientId,
             'user_id' => $this->userId,
+            'timestamp' => $this->timestamp?->getTimestamp(),
         ];
     }
 }

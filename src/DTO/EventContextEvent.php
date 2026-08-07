@@ -43,7 +43,7 @@ final readonly class EventContextEvent
         public array $referrer = [],
         public array $consent = [],
         public array $metadata = [],
-    ) {}
+    ): void {}
 
     /**
      * Create from a base AnalyticsEvent with optional context arrays.

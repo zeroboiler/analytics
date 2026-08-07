@@ -2,6 +2,18 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.60.0] - 2026-08-07
+
+### Fixed
+- Added missing `timestamp` property to `AnalyticsEvent` DTO (nullable `DateTimeImmutable`), resolving undefined property access in `EventContextEvent::toArray()`.
+- Added missing `:void` return type to `EventContextEvent` constructor.
+- Marked `AnalyticsEvent` as `final readonly` for production immutability guarantee.
+
+### Added
+- Added `CONTRIBUTING.md` with architecture overview and code standards.
+
+## [2.59.0] - 2026-08-07
+
 ## [2.58.2] - 2026-08-07
 
 ### Fixed
