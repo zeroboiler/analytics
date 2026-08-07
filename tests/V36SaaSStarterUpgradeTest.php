@@ -326,7 +326,7 @@ describe('V36 SaaS Starter Upgrade', function (): void {
     // ── Version Consistency ────────────────────────────────────────
 
     describe('version consistency', function (): void {
-        test('manager version is 2.31.0', function (): void {
+        test('manager version is 2.35.0', function (): void {
             $manager = new AnalyticsManager($this->config);
             expect($manager->version())->toBe('2.35.0');
         });
