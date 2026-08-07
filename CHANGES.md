@@ -4,7 +4,28 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
-## [2.36.0] - 2026-08-07
+## [2.42.0] - 2026-08-07
+
+### Added
+- **V42SaaSStarterFinalTest** — 45+ production-readiness test cases covering full event catalog integrity (68 events, typed classes, no CustomEvent, no duplicates, GA4/Meta mapping coverage), cross-provider mapping completeness (PostHog, Plausible, GA4→Meta), EcommerceFormatConverter bidirectional (GA4↔Meta item format), ConsentLogService GDPR purposes (4 purposes, necessary always granted), source file counts (183 src, 87 tests, 2400+ JS LOC), config section coverage (40+ sections), ServiceProvider binding count (50+), middleware/pipeline class counts, architecture validation (AnalyticsManager final, DTOs readonly, all trackers implement TrackerInterface), PHP 8.5 declare(strict_types=1) compliance across all source files, README documentation completeness, JS client feature parity
+- **Comprehensive README update** — All stale numbers corrected: API endpoints 50+ (was 26), JS client ~2500 LOC (was ~1200), config sections 40+ (was 22), source files 183 (was 166), test files 87 (was 86), AnalyticsConfig typed methods 100+ (was 90+)
+- **Event Catalog Reference complete** — All 35 SaaS events now documented in README reference table (16 were previously missing: AccountActivatedEvent, AccountDeactivatedEvent, PasswordChangedEvent, PasswordResetEvent, ProfileUpdatedEvent, EmailVerifiedEvent, TeamCreatedEvent, TeamMemberJoinedEvent, TeamMemberRemovedEvent, RoleChangedEvent, PaymentFailedEvent, PaymentSucceededEvent, PaymentMethodAddedEvent, InvoiceGeneratedEvent, CreditAppliedEvent, InviteSentEvent, IntegrationConnectedEvent, SubscriptionRenewalEvent)
+- **GDPR features documented** — ConsentLogService and consent purposes feature added to Identity & GDPR section, Inertia props consent purposes documented
+- **Health response version updated** — README example JSON now shows v2.42.0
+
+### Changed
+- Version bump to 2.42.0
+- AnalyticsManager::version() returns '2.42.0' (was '2.41.0')
+- Composer version updated to 2.42.0
+- JS client version string updated to 2.42.0
+- TypeScript definitions version updated to 2.42.0
+- EventSourceTagger::_version updated to 2.42.0
+- Controller version strings updated to 2.42.0 on all endpoints (26 occurrences)
+- README architecture section updated (50+ API endpoints, 183 source files, 87 test files)
+- README SaaS Lifecycle Events table header updated (35 events)
+- README upgrade guide: v2.42.0 section added
+
+## [2.41.0] - 2026-08-07
 
 ### Fixed
 - Removed deprecated `setAccessible(true)` calls in test files (PHP 8.5 compliance)

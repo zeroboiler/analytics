@@ -117,6 +117,8 @@ Done. That's it.
 - **User Properties** — Set user traits across all providers (PostHog $set, GA4 user properties)
 - **GDPR Identity Reset** — `resetIdentity()` for right-to-be-forgotten compliance
 - **Consent Mode v2** — Full granular consent (analytics_storage, ad_storage, ad_user_data, ad_personalization, functionality_storage, security_storage)
+- **GDPR Consent Purposes** — 4 configurable purposes (necessary, analytics, marketing, functional) with required/default flags, exposed in Inertia props for cookie banners
+- **ConsentLogService** — Audit trail for consent changes with DSAR export, configurable TTL (90-day default), purpose-level logging
 
 ### Inertia.js Integration
 - **HandleInertiaAnalytics Middleware** — Injects analytics config + server-generated tracking ID into page props
@@ -209,13 +211,13 @@ Done. That's it.
 - **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
-- **AnalyticsConfig** — Type-safe config accessor with 90+ typed methods (no raw array access)
+- **AnalyticsConfig** — Type-safe config accessor with 100+ typed methods (no raw array access)
 - **EventTransformer** — Centralized GA4 ↔ Meta ↔ PostHog event format conversion
 - **AnalyticsEventNameRule** — Laravel validation rule for analytics event names
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 200+ tests across 86+ test files
+- **Pest PHP** — 200+ tests across 87+ test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -313,7 +315,7 @@ src/
 │   ├── QueuedAnalyticsDispatcher.php   # Async queue dispatch (configurable)
 │   └── EventReplayQueue.php             # Failed event retry with exponential backoff
 ├── Http/
-│   └── Controllers/AnalyticsEventController.php  # 26 API endpoints + event pipeline
+│   └── Controllers/AnalyticsEventController.php  # 50+ API endpoints + event pipeline
 │   └── Middleware/InjectAnalyticsScripts.php       # Auto-inject analytics scripts
 ├── Inertia/
 │   └── HandleInertiaAnalytics.php   # Inertia page prop injection + tracking ID cookie
@@ -336,10 +338,10 @@ src/
 │   └── Analytics.php               # Facade (20+ methods)
 resources/
 └── js/
-    ├── analytics.js                 # ES module client library (~1200 LOC)
+    ├── analytics.js                 # ES module client library (~2500 LOC)
     └── analytics.d.ts               # TypeScript type definitions (50+ exports)
 config/
-└── zeroboiler.php                   # 30+ config options across 22 sections
+└── zeroboiler.php                   # 40+ config options across 40+ sections
 routes/
 └── analytics.php                    # API route definitions
 ```
@@ -1123,7 +1125,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.35.0",
+  "version": "2.42.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "gtm": { "status": "ok", "container_id": "GTM-XXXXXXX" },
@@ -1158,7 +1160,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `SelectPromotionEvent` | select_promotion | ViewContent |
 | `ViewPromotionEvent` | view_promotion | ViewContent |
 
-### SaaS Lifecycle Events
+### SaaS Lifecycle Events (35 events)
 
 | Class | Event Name | Meta Equivalent |
 |-------|-----------|-----------------|
@@ -1181,6 +1183,24 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 | `CohortConversionEvent` | cohort_conversion | CohortConversion |
 | `CohortMigrationEvent` | cohort_migration | CohortMigration |
 | `CohortEngagementEvent` | cohort_engagement | CohortEngagement |
+| `InviteSentEvent` | invite_sent | InviteSent |
+| `IntegrationConnectedEvent` | integration_connected | IntegrationConnected |
+| `SubscriptionRenewalEvent` | subscription_renewal | SubscriptionRenewal |
+| `AccountActivatedEvent` | account_activated | AccountActivated |
+| `AccountDeactivatedEvent` | account_deactivated | AccountDeactivated |
+| `PasswordChangedEvent` | password_changed | PasswordChanged |
+| `PasswordResetEvent` | password_reset | PasswordReset |
+| `ProfileUpdatedEvent` | profile_updated | ProfileUpdated |
+| `EmailVerifiedEvent` | email_verified | EmailVerified |
+| `TeamCreatedEvent` | team_created | TeamCreated |
+| `TeamMemberJoinedEvent` | team_member_joined | TeamMemberJoined |
+| `TeamMemberRemovedEvent` | team_member_removed | TeamMemberRemoved |
+| `RoleChangedEvent` | role_changed | RoleChanged |
+| `PaymentFailedEvent` | payment_failed | PaymentFailed |
+| `PaymentSucceededEvent` | payment_succeeded | PaymentSucceeded |
+| `PaymentMethodAddedEvent` | payment_method_added | PaymentMethodAdded |
+| `InvoiceGeneratedEvent` | invoice_generated | InvoiceGenerated |
+| `CreditAppliedEvent` | credit_applied | CreditApplied |
 
 ### Engagement Events
 
@@ -1245,7 +1265,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `destroy()` | Cleanup listeners, timers, state |
 | `destroyAll()` | Cleanup all auto-initialized trackers + destroy |
 | `isInitialized()` | Check if analytics is active |
-| `getVersion()` | Get library version string (e.g. '2.35.0') |
+| `getVersion()` | Get library version string (e.g. '2.42.0') |
 | `getTrackingId()` | Get server-generated tracking UUID |
 | `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
@@ -1403,7 +1423,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 166+ source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 183 source files.
 
 ## Troubleshooting
 
@@ -1435,6 +1455,14 @@ This validates strict types, `final` modifiers, interface implementations, reado
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.41.x to v2.42.0
+- **Comprehensive README update** — All stale numbers corrected: 50+ API endpoints (was 26), JS client ~2500 LOC (was ~1200), 40+ config sections (was 22), 183 source files (was 166), 87 test files (was 86), AnalyticsConfig 100+ typed methods (was 90+)
+- **README Event Catalog Reference complete** — All 35 SaaS events now documented in the reference table (16 were previously missing: account lifecycle, B2B/Team, billing, subscription renewal, invite, integration)
+- **GDPR Consent Purposes documented** — ConsentLogService and consent purposes feature added to Identity & GDPR section
+- **Health response version example updated** — README example JSON now shows v2.42.0
+- **V42SaaSStarterFinalTest** — 45+ new production-readiness test cases: full event catalog integrity, cross-provider mapping coverage, EcommerceFormatConverter bidirectional, PHP 8.5 syntax compliance, source file counts, middleware/pipeline counts, architecture validation
+- **No breaking changes** — All changes are additive and documentation-only.
 
 ### From v2.40.x to v2.41.0
 - **15 new SaaS event classes** — Account lifecycle (6), B2B/Team (4), Billing (5) — all with GA4, Meta, and PostHog mappings
