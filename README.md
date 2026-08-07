@@ -145,6 +145,11 @@ Done. That's it.
 - `POST /api/analytics/funnels/compare` — Side-by-side funnel comparison
 - `GET /api/analytics/funnels/drop-off` — Step-by-step drop-off analysis
 - `GET /api/analytics/funnels/chart` — Chart.js/Recharts-compatible funnel data
+- `GET /api/analytics/lifecycle` — Lifecycle event mapping configuration
+- `GET /api/analytics/correlation/patterns` — Frequent event patterns
+- `GET /api/analytics/correlation/transitions` — Top event transitions
+- `GET /api/analytics/correlation/predict` — Next-event prediction
+- `GET /api/analytics/correlation/summary` — Correlation analysis summary
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -155,10 +160,15 @@ Done. That's it.
 - **Scroll Depth** — Fires at 25%, 50%, 75%, 90% thresholds (once per page view)
 - **Form Tracking** — Auto-captures `form_start` and `form_submit` via event delegation
 - **Error Tracking** — Captures `window.error` + `unhandledrejection` with configurable ignore patterns
-- **Performance Tracking** — Web Vitals integration (LCP, CLS, INP) + Performance API timing
+- **Performance Tracking** — Web Vitals integration (LCP, CLS, INP, TTFB, FCP) + Performance API timing
 - **Link Tracking** — Auto-track outbound/internal link clicks with custom prefix
+- **Session Tracking** — Session start/end with idle timeout, visibility change, beforeUnload
+- **Session Heartbeat** — Periodic session activity ping (10–300s configurable)
 - **UTM Capture** — Auto-captures UTM params on init, persists across navigations, enriches all events
 - **Identity** — `identify()`, `alias()`, `identifyWithTraits()`, `setUserProperties()`, `trackServerPageView()`
+- **Event Catalog** — `fetchEventCatalog()` to fetch server-side event catalog (cached)
+- **GDPR Preferences** — `optOutTracking()`, `optInTracking()`, `getTrackingPreference()`
+- **GTM DataLayer** — `pushToDataLayer()` for custom GTM data pushes
 - **Cleanup** — All auto-trackers return cleanup functions for Svelte `onMount` compatibility
 
 ### Async Queue Dispatch
@@ -199,7 +209,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 150+ tests across 70 test files
+- **Pest PHP** — 150+ tests across 72 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -1013,23 +1023,41 @@ Route::middleware(['analytics.scripts'])->group(function () {
 
 ## API Reference
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `GET` | `/api/analytics/health` | No | Health check (providers, consent, metrics, replay, version) |
-| `GET` | `/api/analytics/catalog` | No | Full event catalog (49 events, categories, provider mappings) |
-| `GET` | `/api/analytics/stream` | No | Real-time event stream (cursor-based polling) |
-| `GET` | `/api/analytics/stream/stats` | No | Event stream statistics |
-| `GET` | `/api/analytics/export` | No | Export events (JSON, CSV, metrics, compliance) |
-| `GET` | `/api/analytics/stats` | No | Aggregated analytics statistics (dashboard data) |
-| `POST` | `/api/analytics/webhook/inbound` | No | Receive external events (signature-verified) |
-| `POST` | `/api/analytics/events` | Yes | Track a single event |
-| `POST` | `/api/analytics/batch` | Yes | Track up to 25 events |
-| `POST` | `/api/analytics/identify` | Yes | Link client ID ↔ user ID + traits |
-| `POST` | `/api/analytics/pageview` | Yes | Server-side page view (ad-blocker resistant) |
-| `POST` | `/api/analytics/consent` | Yes | Update consent signals |
-| `POST` | `/api/analytics/opt-out` | Yes | Per-user tracking opt-out (GDPR) |
-| `POST` | `/api/analytics/opt-in` | Yes | Override previous opt-out preference |
-| `GET` | `/api/analytics/preference` | Yes | Check tracking preference status |
+### Public Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/analytics/health` | Health check (providers, consent, queue, metrics, replay, version) |
+| `GET` | `/api/analytics/catalog` | Full event catalog (49 events, categories, provider mappings) |
+| `GET` | `/api/analytics/stats` | Aggregated dashboard statistics (totals, top events, by-provider) |
+| `GET` | `/api/analytics/stream` | Real-time event stream (cursor-based polling) |
+| `GET` | `/api/analytics/stream/stats` | Event stream statistics |
+| `GET` | `/api/analytics/export` | Export events (JSON, CSV, metrics, compliance) |
+| `POST` | `/api/analytics/webhook/inbound` | Receive external events (HMAC-SHA256 verified) |
+| `GET` | `/api/analytics/alerts` | Alert rules summary and recent alert history |
+| `POST` | `/api/analytics/alerts/evaluate` | Evaluate all alert rules against current metrics |
+| `GET` | `/api/analytics/funnels` | Funnel visualization data (conversion rates) |
+| `POST` | `/api/analytics/funnels/compare` | Side-by-side funnel comparison |
+| `GET` | `/api/analytics/funnels/drop-off` | Step-by-step drop-off analysis |
+| `GET` | `/api/analytics/funnels/chart` | Chart.js/Recharts-compatible funnel data |
+| `GET` | `/api/analytics/lifecycle` | Lifecycle event mapping configuration |
+| `GET` | `/api/analytics/correlation/patterns` | Frequent event patterns |
+| `GET` | `/api/analytics/correlation/transitions` | Top event transitions |
+| `GET` | `/api/analytics/correlation/predict` | Next-event prediction |
+| `GET` | `/api/analytics/correlation/summary` | Correlation analysis summary |
+
+### Authenticated Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/analytics/events` | Track a single event |
+| `POST` | `/api/analytics/batch` | Track up to 25 events |
+| `POST` | `/api/analytics/identify` | Link client ID ↔ user ID + traits |
+| `POST` | `/api/analytics/pageview` | Server-side page view (ad-blocker resistant) |
+| `POST` | `/api/analytics/consent` | Update consent signals |
+| `POST` | `/api/analytics/opt-out` | Per-user tracking opt-out (GDPR) |
+| `POST` | `/api/analytics/opt-in` | Override previous opt-out preference |
+| `GET` | `/api/analytics/preference` | Check tracking preference status |
 
 All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min).
 
@@ -1038,13 +1066,19 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.26.0",
+  "version": "2.28.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
-    "meta": { "status": "ok" }
+    "gtm": { "status": "ok", "container_id": "GTM-XXXXXXX" },
+    "meta": { "status": "ok" },
+    "plausible": { "status": "ok" },
+    "posthog": { "status": "ok" }
   },
   "consent": { "analytics_storage": "granted", "ad_storage": "granted", "..." },
-  "timestamp": "2026-08-06T12:00:00Z"
+  "queue": { "enabled": true, "queue": "analytics" },
+  "metrics": { "total_dispatched": 1234, "total_failed": 2 },
+  "replay": { "enabled": true, "pending": 0 },
+  "timestamp": "2026-08-07T12:00:00Z"
 }
 ```
 
@@ -1148,7 +1182,9 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `init(pageProps)` | Initialize from Inertia props |
 | `initAll(pageProps, options?)` | Initialize + all auto-trackers (one-call setup) |
 | `destroy()` | Cleanup listeners, timers, state |
+| `destroyAll()` | Cleanup all auto-initialized trackers + destroy |
 | `isInitialized()` | Check if analytics is active |
+| `getVersion()` | Get library version string (e.g. '2.28.0') |
 | `getTrackingId()` | Get server-generated tracking UUID |
 | `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
@@ -1162,6 +1198,9 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 |----------|-------------|
 | `trackEcommerce(name, data)` | Track with GA4 ↔ Meta conversion |
 | `trackWishlist(item)` | Wishlist add with GA4 + Meta |
+| `trackSelectItem(items, listId?, listName?)` | Product selection from list |
+| `trackPromotionView(promotion)` | Promotion impression |
+| `trackPromotionClick(promotion)` | Promotion click |
 
 ### Identity
 
@@ -1178,14 +1217,24 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 
 | Function | Description |
 |----------|-------------|
-| `initScrollDepth()` | Scroll depth at 25/50/75/90% |
+| `initSessionTracking(options?)` | Session start/end tracking with idle timeout |
 | `initInertiaPageViewTracker()` | Auto page view on navigation |
+| `initScrollDepth()` | Scroll depth at 25/50/75/90% |
 | `initFormTracking(options?)` | form_start + form_submit |
 | `initErrorTracking(options?)` | JS errors + unhandled rejections |
 | `initLinkTracking(options?)` | Outbound/internal link clicks |
+| `initWebVitals(options?)` | Core Web Vitals (LCP, INP, CLS, TTFB, FCP) |
 | `initSessionHeartbeat(seconds?)` | Periodic session heartbeat (10–300s, tracks `session_heartbeat` events) |
 | `stopSessionHeartbeat()` | Stop the session heartbeat timer |
 | `isHeartbeatActive()` | Check if heartbeat is running |
+
+### Session Helpers
+
+| Function | Description |
+|----------|-------------|
+| `recordSessionEvent()` | Increment session event counter |
+| `recordSessionPageView()` | Increment session page view counter |
+| `getSessionState()` | Get current session state (debug) |
 
 ### UTM
 
@@ -1195,6 +1244,22 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `getUTMParams()` | Get current UTM params |
 | `hasUTMParams()` | Check if UTM captured |
 | `clearUTMParams()` | Clear UTM state |
+
+### Event Catalog
+
+| Function | Description |
+|----------|-------------|
+| `fetchEventCatalog(options?)` | Fetch event catalog from server (cached) |
+| `getCachedCatalog()` | Get cached catalog without fetching |
+| `clearCatalogCache()` | Clear the cached catalog |
+
+### GDPR Tracking Preferences
+
+| Function | Description |
+|----------|-------------|
+| `optOutTracking()` | Per-user tracking opt-out (disables all tracking) |
+| `optInTracking()` | Override previous opt-out preference |
+| `getTrackingPreference()` | Check current tracking preference |
 
 ### Performance
 

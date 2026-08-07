@@ -2,6 +2,15 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- **README API Reference** — Expanded to 25 public + 8 authenticated endpoints (was 16 total). Added lifecycle, correlation, alerts, and funnel endpoints. Split into Public/Authenticated sections.
+- **README Health Response** — Updated example to v2.28.0 with all 6 providers (GA4, GTM, Meta, Plausible, PostHog, Webhook), queue, metrics, and replay fields.
+- **README JS Client API** — Added missing exports: `destroyAll()`, `getVersion()`, `trackSelectItem()`, `trackPromotionView()`, `trackPromotionClick()`, `initSessionTracking()`, `initWebVitals()`, `recordSessionEvent()`, `recordSessionPageView()`, `getSessionState()`, `fetchEventCatalog()`, `getCachedCatalog()`, `clearCatalogCache()`, `optOutTracking()`, `optInTracking()`, `getTrackingPreference()`. Added Event Catalog and GDPR Tracking Preferences sections.
+- **README Features** — Added session tracking, session heartbeat, event catalog client, GDPR preferences, and GTM DataLayer to JS client features list. Updated Web Vitals to include TTFB and FCP. Updated test file count to 72.
+- **README Features** — Added lifecycle and correlation API endpoints to the API endpoints feature list.
+
 ## [2.28.0] - 2026-08-06
 
 ### Added
