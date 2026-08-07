@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.35.0
+ * @version 2.38.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -132,6 +132,12 @@ export interface LinkTrackingOptions {
     externalPrefix?: string;
 }
 
+/** Options for initFileDownloadTracking() */
+export interface FileDownloadTrackingOptions {
+    extensions?: string[];
+    trackAll?: boolean;
+}
+
 /** Options for initWebVitals() */
 export interface WebVitalsOptions {
     enabled?: boolean;
@@ -219,6 +225,49 @@ export interface ServerPageViewOptions {
     title?: string;
     location?: string;
     referrer?: string;
+}
+
+/** Search tracking options */
+export interface SearchOptions {
+    resultCount?: number;
+    category?: string;
+    params?: Record<string, unknown>;
+}
+
+/** Share tracking params */
+export interface ShareParams {
+    [key: string]: unknown;
+}
+
+/** File download data */
+export interface FileDownloadData {
+    url: string;
+    name?: string;
+    extension?: string;
+    size?: number;
+}
+
+/** Video play data */
+export interface VideoPlayData {
+    title: string;
+    url?: string;
+    duration?: number;
+    percent?: number;
+    provider?: string;
+}
+
+/** Outbound click options */
+export interface OutboundClickOptions {
+    linkText?: string;
+    linkId?: string;
+    section?: string;
+    params?: Record<string, unknown>;
+}
+
+/** Tracking preference state */
+export interface TrackingPreference {
+    tracking_allowed: boolean;
+    opted_out_at?: string;
 }
 
 // ─── Session State ─────────────────────────────────────────────────────────
@@ -317,6 +366,57 @@ export function trackPromotionView(promotion?: PromotionData): Promise<void>;
 /** Track a promotion click/selection */
 export function trackPromotionClick(promotion?: PromotionData): Promise<void>;
 
+/** Track a search event */
+export function trackSearch(
+    searchTerm: string,
+    options?: SearchOptions,
+): Promise<void>;
+
+/** Track a content share event */
+export function trackShare(
+    method: string,
+    contentType: string,
+    contentId?: string | null,
+    params?: ShareParams,
+): Promise<void>;
+
+/** Track a file download event */
+export function trackFileDownload(
+    file: FileDownloadData,
+    params?: Record<string, unknown>,
+): Promise<void>;
+
+/** Initialize automatic file download tracking */
+export function initFileDownloadTracking(
+    options?: FileDownloadTrackingOptions,
+): () => void;
+
+/** Track a video play event */
+export function trackVideoPlay(
+    video: VideoPlayData,
+    params?: Record<string, unknown>,
+): Promise<void>;
+
+/** Track a notification interaction event */
+export function trackNotification(
+    type: string,
+    action: string,
+    notificationId?: string | null,
+    params?: Record<string, unknown>,
+): Promise<void>;
+
+/** Track a SaaS lifecycle event from the client */
+export function trackSaaSEvent(
+    event: string,
+    params?: Record<string, unknown>,
+): Promise<void>;
+
+/** Track an outbound click event */
+export function trackOutboundClick(
+    url: string,
+    options?: OutboundClickOptions,
+): Promise<void>;
+
 /** Identify a user (link client ↔ user identity) */
 export function identify(userId?: string | null): Promise<void>;
 
@@ -406,6 +506,9 @@ export function optOutTracking(): Promise<boolean>;
 /** Opt the authenticated user in to tracking */
 export function optInTracking(): Promise<boolean>;
 
+/** Get the current tracking preference for the authenticated user */
+export function getTrackingPreference(): Promise<TrackingPreference | null>;
+
 /** Capture UTM parameters from the current URL */
 export function captureUTM(): Record<string, string>;
 
@@ -420,3 +523,14 @@ export function hasUTMParams(): boolean;
 
 /** Initialize automatic link click tracking */
 export function initLinkTracking(options?: LinkTrackingOptions): () => void;
+
+/** Initialize session heartbeat tracking */
+export function initSessionHeartbeat(
+    intervalSeconds?: number,
+): () => void;
+
+/** Stop the session heartbeat timer */
+export function stopSessionHeartbeat(): void;
+
+/** Check if the session heartbeat is active */
+export function isHeartbeatActive(): boolean;

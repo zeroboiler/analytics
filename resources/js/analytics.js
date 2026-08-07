@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.37.0
+ * @version 2.38.0
  */
 
 let trackingId = null;
@@ -141,7 +141,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.29.0')
  */
 export function getVersion() {
-    return '2.37.0';
+    return '2.38.0';
 }
 
 /**
@@ -1830,6 +1830,313 @@ export function initLinkTracking(options = {}) {
     document.addEventListener('click', onClick, true);
 
     return () => document.removeEventListener('click', onClick, true);
+}
+
+// ─── Search Tracking ────────────────────────────────────────────────
+
+/**
+ * Track a search event.
+ *
+ * @param {string} searchTerm - The search query string
+ * @param {object} [options] - Additional options
+ * @param {number} [options.resultCount] - Number of results returned
+ * @param {string} [options.category] - Search category (e.g. 'products', 'docs', 'blog')
+ * @param {object} [options.params] - Additional params
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSearch('analytics dashboard', { resultCount: 12, category: 'products' });
+ */
+export async function trackSearch(searchTerm, options = {}) {
+    if (!initialized) return;
+
+    const params = {
+        search_term: searchTerm.slice(0, 500),
+        results_count: options.resultCount || null,
+        search_category: options.category || null,
+        ...options.params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'search', params);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$search', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('search', params, { immediate: true });
+}
+
+// ─── Share Tracking ──────────────────────────────────────────────────
+
+/**
+ * Track a content share event.
+ *
+ * @param {string} method - Share method (e.g. 'twitter', 'facebook', 'linkedin', 'email', 'copy')
+ * @param {string} contentType - Content type being shared (e.g. 'article', 'product', 'page')
+ * @param {string} [contentId] - Optional content identifier
+ * @param {object} [params] - Additional params
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackShare('twitter', 'article', 'post-123');
+ * await trackShare('copy', 'page', '/pricing');
+ */
+export async function trackShare(method, contentType, contentId = null, params = {}) {
+    if (!initialized) return;
+
+    const shareParams = {
+        method,
+        content_type: contentType,
+        content_id: contentId || null,
+        item_id: contentId || null,
+        ...params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'share', shareParams);
+    }
+
+    // Push to Meta Pixel
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('trackCustom', 'Share', shareParams);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$share', shareParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('share', shareParams, { immediate: true });
+}
+
+// ─── File Download Tracking ─────────────────────────────────────────
+
+/**
+ * Track a file download event.
+ *
+ * @param {object} file - File information
+ * @param {string} file.url - File URL
+ * @param {string} [file.name] - File name
+ * @param {string} [file.extension] - File extension (e.g. 'pdf', 'zip')
+ * @param {string} [file.size] - File size in bytes
+ * @param {object} [params] - Additional params
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackFileDownload({ url: '/docs/manual.pdf', name: 'manual.pdf', extension: 'pdf', size: 2048576 });
+ */
+export async function trackFileDownload(file, params = {}) {
+    if (!initialized) return;
+
+    const fileParams = {
+        file_url: file.url || '',
+        file_name: file.name || null,
+        file_extension: (file.extension || file.url?.split('.').pop() || '').toLowerCase(),
+        file_size: file.size || null,
+        link_url: file.url || '',
+        ...params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'file_download', fileParams);
+    }
+
+    // Push to Meta Pixel
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('trackCustom', 'FileDownload', fileParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('file_download', fileParams, { immediate: true });
+}
+
+/**
+ * Initialize automatic file download tracking.
+ *
+ * Intercepts clicks on links to common file types (PDF, ZIP, DOC, XLS, etc.)
+ * and automatically tracks them as file_download events.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {string[]} [options.extensions] - File extensions to track (default: common document types)
+ * @param {boolean} [options.trackAll] - Track all downloads (not just listed extensions)
+ * @returns {function} Cleanup function to remove listeners
+ *
+ * @example
+ * const cleanup = initFileDownloadTracking({ extensions: ['pdf', 'zip', 'csv'] });
+ */
+export function initFileDownloadTracking(options = {}) {
+    if (!initialized) return () => {};
+
+    const defaultExtensions = ['pdf', 'zip', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'csv', 'txt', 'png', 'jpg', 'svg', 'mp4', 'mp3'];
+    const extensions = options.extensions || defaultExtensions;
+    const trackAll = options.trackAll || false;
+
+    function onClick(e) {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+
+        const href = link.getAttribute('href') || '';
+        if (!href) return;
+
+        // Check extension
+        const extMatch = href.split('?')[0].split('#')[0].split('.').pop()?.toLowerCase();
+
+        if (extMatch && (trackAll || extensions.includes(extMatch))) {
+            trackFileDownload({
+                url: href.slice(0, 2048),
+                name: href.split('/').pop() || null,
+                extension: extMatch,
+            }, {
+                link_text: link.textContent?.trim()?.slice(0, 200) || null,
+            });
+        }
+    }
+
+    document.addEventListener('click', onClick, true);
+
+    return () => document.removeEventListener('click', onClick, true);
+}
+
+// ─── Video Play Tracking ────────────────────────────────────────────
+
+/**
+ * Track a video play event.
+ *
+ * @param {object} video - Video information
+ * @param {string} video.title - Video title
+ * @param {string} [video.url] - Video URL
+ * @param {number} [video.duration] - Total video duration in seconds
+ * @param {number} [video.percent] - Current playback percentage (0-100)
+ * @param {string} [video.provider] - Video provider (e.g. 'youtube', 'vimeo', 'html5')
+ * @param {object} [params] - Additional params
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackVideoPlay({ title: 'Product Demo', url: '/videos/demo.mp4', duration: 120, percent: 0, provider: 'html5' });
+ */
+export async function trackVideoPlay(video, params = {}) {
+    if (!initialized) return;
+
+    const videoParams = {
+        video_title: video.title || '',
+        video_url: video.url || null,
+        video_duration: video.duration || null,
+        video_percent: video.percent != null ? video.percent : 0,
+        video_provider: video.provider || 'html5',
+        ...params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'video_play', videoParams);
+    }
+
+    // Push to Meta Pixel
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('trackCustom', 'VideoPlay', videoParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('video_play', videoParams, { immediate: true });
+}
+
+// ─── Notification Tracking ──────────────────────────────────────────
+
+/**
+ * Track a notification interaction event.
+ *
+ * @param {string} type - Notification type (e.g. 'push', 'in_app', 'email', 'sms')
+ * @param {string} action - User action (e.g. 'received', 'clicked', 'dismissed', 'opened')
+ * @param {string} [notificationId] - Notification identifier
+ * @param {object} [params] - Additional params
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackNotification('push', 'clicked', 'notif-123', { campaign: 'weekly_digest' });
+ */
+export async function trackNotification(type, action, notificationId = null, params = {}) {
+    if (!initialized) return;
+
+    const notifParams = {
+        notification_type: type,
+        notification_action: action,
+        notification_id: notificationId || null,
+        ...params,
+    };
+
+    // Server-side dispatch
+    await trackEvent('notification', notifParams, { immediate: true });
+}
+
+// ─── SaaS Lifecycle Tracking (Client-Side) ──────────────────────────
+
+/**
+ * Track a SaaS lifecycle event from the client.
+ *
+ * Convenience wrapper for common SaaS events with standard parameter formatting.
+ * Use after server-side actions complete (e.g. trial signup, plan change)
+ * to capture client-side context (UTM, device info, session data).
+ *
+ * @param {string} event - SaaS event name
+ * @param {object} [params] - Event parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSaaSEvent('start_trial', { plan_name: 'Pro', trial_days: 14 });
+ * await trackSaaSEvent('plan_upgrade', { from_plan: 'Starter', to_plan: 'Pro' });
+ * await trackSaaSEvent('feature_used', { feature_name: 'export_csv' });
+ * await trackSaaSEvent('cancellation', { reason: 'too_expensive', plan_name: 'Pro' });
+ */
+export async function trackSaaSEvent(event, params = {}) {
+    if (!initialized) return;
+
+    // SaaS events are always dispatched immediately (important lifecycle events)
+    await trackEvent(event, params, { immediate: true });
+}
+
+// ─── Outbound Click Tracking ─────────────────────────────────────────
+
+/**
+ * Track an outbound click event with full context.
+ *
+ * @param {string} url - Destination URL
+ * @param {object} [options] - Additional options
+ * @param {string} [options.linkText] - Link text content
+ * @param {string} [options.linkId] - Link element ID
+ * @param {string} [options.section] - Page section where the link appears
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackOutboundClick('https://docs.example.com', { linkText: 'Documentation', section: 'navbar' });
+ */
+export async function trackOutboundClick(url, options = {}) {
+    if (!initialized) return;
+
+    const params = {
+        link_url: url.slice(0, 2048),
+        link_text: options.linkText || null,
+        link_id: options.linkId || null,
+        link_type: 'external',
+        page_location: window.location.href,
+        section: options.section || null,
+        ...options.params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'outbound_click', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('outbound_click', params, { immediate: true });
 }
 
 // ─── User Properties & Alias ─────────────────────────────────────────

@@ -74,7 +74,7 @@ beforeEach(function (): void {
     ]);
 });
 
-// ── v2.37.0 New Features Test ──────────────────────────────────────────
+// ── v2.38.0 New Features Test ──────────────────────────────────────────
 
 describe('V37 Config Expansion + PostHog Mapping + New Event', function (): void {
     // ── SubscriptionRenewalEvent ────────────────────────────────────
@@ -329,16 +329,16 @@ describe('V37 Config Expansion + PostHog Mapping + New Event', function (): void
 
     // ── Version consistency ──────────────────────────────────────
 
-    test('version is 2.37.0 across all sources', function (): void {
+    test('version is 2.38.0 across all sources', function (): void {
         $manager = new AnalyticsManager($this->config);
 
-        expect($manager->version())->toBe('2.37.0');
+        expect($manager->version())->toBe('2.38.0');
 
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.37.0');
+        expect($composer['version'])->toBe('2.38.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'2.37.0'");
-        expect($js)->toContain('@version 2.37.0');
+        expect($js)->toContain("'2.38.0'");
+        expect($js)->toContain('@version 2.38.0');
     });
 });
