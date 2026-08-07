@@ -33,7 +33,7 @@ final class SessionTracker
     public function __construct(
         QueuedAnalyticsDispatcher $queue,
         AnalyticsManager $manager,
-    ) {
+    ): void {
         $this->queue = $queue;
         $this->manager = $manager;
     }

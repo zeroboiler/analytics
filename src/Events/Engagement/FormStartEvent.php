@@ -26,7 +26,7 @@ final readonly class FormStartEvent extends AnalyticsEvent
         string $formName = '',
         string $formId = '',
         string $formDestination = '',
-    ) {
+    ): void {
         parent::__construct('form_start', array_filter([
             'form_id' => $formId,
             'form_name' => $formName,

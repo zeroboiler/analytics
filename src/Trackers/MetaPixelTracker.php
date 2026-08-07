@@ -49,7 +49,7 @@ final class MetaPixelTracker implements TrackerInterface
         'Subscribe',
     ];
 
-    public function __construct(string $pixelId, string $accessToken, bool $enabled = false)
+    public function __construct(string $pixelId, string $accessToken, bool $enabled = false): void
     {
         $this->pixelId = $pixelId;
         $this->accessToken = $accessToken;

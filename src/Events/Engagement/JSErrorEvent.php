@@ -38,7 +38,7 @@ final readonly class JSErrorEvent extends AnalyticsEvent
         ?string $errorType = null,
         ?string $pagePath = null,
         ?bool $fatal = null,
-    ) {
+    ): void {
         parent::__construct('js_error', array_filter([
             'error_message' => $message,
             'error_source' => $source,

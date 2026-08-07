@@ -30,7 +30,7 @@ final readonly class BeginCheckoutEvent extends AnalyticsEvent
         string $currency = 'USD',
         ?int $itemCount = null,
         ?string $coupon = null,
-    ) {
+    ): void {
         parent::__construct('begin_checkout', array_filter([
             'currency' => $currency,
             'value' => $value,

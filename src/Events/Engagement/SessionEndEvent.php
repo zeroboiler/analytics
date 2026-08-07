@@ -36,7 +36,7 @@ final readonly class SessionEndEvent extends AnalyticsEvent
         ?int $pageViewCount = null,
         ?string $exitPage = null,
         ?string $endReason = null,
-    ) {
+    ): void {
         parent::__construct('session_end', array_filter([
             'session_id' => $sessionId,
             'duration_seconds' => $durationSeconds,

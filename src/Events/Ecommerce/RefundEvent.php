@@ -30,7 +30,7 @@ final readonly class RefundEvent extends AnalyticsEvent
         string $currency = 'USD',
         array $items = [],
         ?string $reason = null,
-    ) {
+    ): void {
         parent::__construct('refund', array_filter([
             'transaction_id' => $transactionId,
             'value' => $refundValue,

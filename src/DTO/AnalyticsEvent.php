@@ -23,7 +23,7 @@ readonly class AnalyticsEvent
         public array $params = [],
         public ?string $clientId = null,
         public ?string $userId = null,
-    ) {}
+    ): void {}
 
     /**
      * Create an AnalyticsEvent from an array.

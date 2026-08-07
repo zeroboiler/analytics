@@ -42,7 +42,7 @@ final class SessionAnalyticsService
         QueuedAnalyticsDispatcher $queue,
         bool $async = true,
         int $maxSessions = 10000,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->queue = $queue;
         $this->async = $async;

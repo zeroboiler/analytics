@@ -27,7 +27,7 @@ final class GA4Tracker implements TrackerInterface
 
     use TrackerHelpers;
 
-    public function __construct(string $measurementId, string $apiSecret, bool $enabled = false)
+    public function __construct(string $measurementId, string $apiSecret, bool $enabled = false): void
     {
         $this->measurementId = $measurementId;
         $this->apiSecret = $apiSecret;

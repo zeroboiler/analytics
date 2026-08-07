@@ -35,7 +35,7 @@ final class PosthogTracker implements TrackerInterface
         string $host = 'https://eu.posthog.com',
         string $projectId = '',
         bool $enabled = false,
-    ) {
+    ): void {
         $this->apiKey = $apiKey;
         $this->host = rtrim($host, '/');
         $this->projectId = $projectId;

@@ -35,7 +35,7 @@ final class GdprErasureService
         AnalyticsProfileService $profileService,
         AttributionService $attributionService,
         TrackingPreferenceService $preferenceService,
-    ) {
+    ): void {
         $this->profileService = $profileService;
         $this->attributionService = $attributionService;
         $this->preferenceService = $preferenceService;

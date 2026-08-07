@@ -32,7 +32,7 @@ final readonly class SubscriptionEvent extends AnalyticsEvent
         ?string $billingCycle = null,
         ?string $transactionId = null,
         ?bool $isRenewal = null,
-    ) {
+    ): void {
         parent::__construct('subscribe', array_filter([
             'plan_name' => $planName,
             'value' => $value,

@@ -29,7 +29,7 @@ final class UserIdentityTracker
     public function __construct(
         QueuedAnalyticsDispatcher $queue,
         string $cookieName = 'zb_analytics_id',
-    ) {
+    ): void {
         $this->queue = $queue;
         $this->cookieName = $cookieName;
     }

@@ -32,7 +32,7 @@ final readonly class SelectPromotionEvent extends AnalyticsEvent
         ?string $creativeName = null,
         ?string $creativeSlot = null,
         ?string $locationId = null,
-    ) {
+    ): void {
         parent::__construct('select_promotion', array_filter([
             'promotion_id' => $promotionId,
             'promotion_name' => $promotionName,

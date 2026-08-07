@@ -21,7 +21,7 @@ final class GTMTracker implements TrackerInterface
 
     use TrackerHelpers;
 
-    public function __construct(string $containerId, bool $enabled = false)
+    public function __construct(string $containerId, bool $enabled = false): void
     {
         $this->containerId = $containerId;
         $this->enabled = $enabled;

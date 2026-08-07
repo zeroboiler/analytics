@@ -70,7 +70,7 @@ final class EventBroadcasterService
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly ?Broadcaster $broadcaster = null,
-    ) {
+    ): void {
         $broadcastConfig = $config->get('zeroboiler.analytics.broadcast', []);
         /** @var array{enabled?: bool, filter_events?: list<string>, filter_categories?: list<string>, channel_prefix?: string, private_channels?: bool, value_threshold?: float|null, include_params?: bool, max_payload_size?: int} $broadcastConfig */
 

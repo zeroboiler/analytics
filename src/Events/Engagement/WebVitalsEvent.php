@@ -33,7 +33,7 @@ final readonly class WebVitalsEvent extends AnalyticsEvent
         ?string $rating = null,
         ?string $pagePath = null,
         ?string $navigationType = null,
-    ) {
+    ): void {
         parent::__construct('web_vitals', array_filter([
             'metric_name' => $metricName,
             'metric_value' => round($value, 2),

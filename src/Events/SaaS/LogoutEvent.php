@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final readonly class LogoutEvent extends AnalyticsEvent
 {
-    public function __construct()
+    public function __construct(): void
     {
         parent::__construct('logout');
     }

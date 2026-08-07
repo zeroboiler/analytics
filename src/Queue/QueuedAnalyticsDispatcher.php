@@ -30,7 +30,7 @@ final class QueuedAnalyticsDispatcher
 
     private ?string $connection;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
     {
         $this->manager = $manager;
 

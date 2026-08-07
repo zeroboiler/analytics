@@ -41,7 +41,7 @@ final class CohortAnalyticsService
         AnalyticsManager $manager,
         QueuedAnalyticsDispatcher $queue,
         bool $useAsync = true,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->queue = $queue;
         $this->useAsync = $useAsync;

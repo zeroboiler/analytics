@@ -21,7 +21,7 @@ final readonly class TimestampEnricher
 {
     private ?string $sessionId;
 
-    public function __construct(?string $sessionId = null)
+    public function __construct(?string $sessionId = null): void
     {
         $this->sessionId = $sessionId;
     }

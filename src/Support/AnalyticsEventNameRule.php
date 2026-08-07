@@ -31,7 +31,7 @@ final class AnalyticsEventNameRule implements Rule
         private readonly bool $checkCatalog = false,
         private readonly bool $strict = false,
         private readonly array $whitelist = [],
-    ) {}
+    ): void {}
 
     /**
      * Determine if the validation rule passes.

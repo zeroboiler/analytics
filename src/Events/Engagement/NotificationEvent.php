@@ -29,7 +29,7 @@ final class NotificationEvent extends AnalyticsEvent
         string $action,
         ?string $notificationType = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'notification',
             params: array_filter([

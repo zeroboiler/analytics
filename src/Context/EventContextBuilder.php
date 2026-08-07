@@ -38,7 +38,7 @@ final class EventContextBuilder
      * @param  Request|null  $request  Current HTTP request (null for CLI/queue context)
      * @param  string|null  $cookieName  Analytics client ID cookie name
      */
-    public function __construct(?Request $request = null, ?string $cookieName = null)
+    public function __construct(?Request $request = null, ?string $cookieName = null): void
     {
         $this->request = $request;
         $this->cookieName = $cookieName ?? 'zb_analytics_id';

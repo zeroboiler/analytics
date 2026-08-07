@@ -34,7 +34,7 @@ final readonly class ViewItemEvent extends AnalyticsEvent
         ?string $itemCategory = null,
         ?string $itemVariant = null,
         ?string $itemBrand = null,
-    ) {
+    ): void {
         parent::__construct('view_item', array_filter([
             'currency' => $currency,
             'value' => $price,

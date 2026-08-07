@@ -54,7 +54,7 @@ final class EventAggregationService
         EventReplayQueue $replayQueue,
         ConfigRepository $config,
         int $windowSize = 0,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->replayQueue = $replayQueue;

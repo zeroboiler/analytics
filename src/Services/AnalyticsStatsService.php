@@ -43,7 +43,7 @@ final class AnalyticsStatsService
         AnalyticsMetrics $metrics,
         EventAggregationService $aggregation,
         EventReplayQueue $replayQueue,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->aggregation = $aggregation;

@@ -27,7 +27,7 @@ final class AbTestExposureEvent extends AnalyticsEvent
         string $experimentId,
         string $variantId,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'ab_test_exposure',
             params: array_merge([

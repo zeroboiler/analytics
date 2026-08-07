@@ -31,7 +31,7 @@ final readonly class TimingEvent extends AnalyticsEvent
         int $durationMs,
         ?string $category = null,
         ?string $pagePath = null,
-    ) {
+    ): void {
         parent::__construct('timing', array_filter([
             'timing_name' => $timingName,
             'timing_duration_ms' => $durationMs,

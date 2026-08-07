@@ -36,7 +36,7 @@ final class SamplingFilter
         float $sampleRate = 1.0,
         bool $deterministic = true,
         ?string $salt = null,
-    ) {
+    ): void {
         $this->sampleRate = max(0.0, min(1.0, $sampleRate));
         $this->deterministic = $deterministic;
         $this->salt = $salt;

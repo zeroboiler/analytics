@@ -26,7 +26,7 @@ final readonly class ScrollDepthEvent extends AnalyticsEvent
         int $percent,
         string $pagePath = '',
         ?string $pageTitle = null,
-    ) {
+    ): void {
         parent::__construct('scroll_depth', array_filter([
             'percent' => $percent,
             'page_path' => $pagePath,

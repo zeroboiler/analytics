@@ -20,7 +20,7 @@ final readonly class SignUpEvent extends AnalyticsEvent
     /**
      * @param  string|null  $method  Registration method (e.g. 'email', 'google', 'github')
      */
-    public function __construct(?string $method = null)
+    public function __construct(?string $method = null): void
     {
         parent::__construct('sign_up', array_filter([
             'method' => $method,

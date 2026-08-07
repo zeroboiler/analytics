@@ -35,7 +35,7 @@ final class PlausibleTracker implements TrackerInterface
         string $apiKey = '',
         string $baseUrl = 'https://plausible.io/api/event',
         bool $enabled = false,
-    ) {
+    ): void {
         $this->domain = $domain;
         $this->apiKey = $apiKey;
         $this->baseUrl = $baseUrl;

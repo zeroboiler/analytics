@@ -175,7 +175,7 @@ final class AnalyticsGateService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {
+    ): void {
         $gateConfig = $config->get('zeroboiler.analytics.gate', []);
         /** @var array{enabled?: bool, default_plan?: string, plan_attribute?: string, features?: array<string, bool>, tenants?: array<string, array<string, bool>>, cache_prefix?: string, cache_ttl?: int} $gateConfig */
 

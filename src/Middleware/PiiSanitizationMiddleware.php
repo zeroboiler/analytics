@@ -71,7 +71,7 @@ final class PiiSanitizationMiddleware implements AnalyticsMiddlewareInterface
         ?array $piiPatterns = null,
         string $strategy = self::STRATEGY_HASH,
         int $priority = 50,
-    ) {
+    ): void {
         $this->piiFields = $piiFields ?? self::DEFAULT_PII_FIELDS;
         $this->piiPatterns = $piiPatterns ?? self::DEFAULT_PII_PATTERNS;
         $this->strategy = $strategy;

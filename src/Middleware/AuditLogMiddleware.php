@@ -31,7 +31,7 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
      * @param  bool  $enabled  Whether audit logging is active
      * @param  int  $priority  Middleware execution priority (lower = earlier)
      */
-    public function __construct(bool $enabled = false, int $priority = 100)
+    public function __construct(bool $enabled = false, int $priority = 100): void
     {
         $this->enabled = $enabled;
         $this->priority = $priority;

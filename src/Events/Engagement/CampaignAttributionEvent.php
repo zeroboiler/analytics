@@ -34,7 +34,7 @@ final readonly class CampaignAttributionEvent extends AnalyticsEvent
         ?string $term = null,
         ?string $content = null,
         ?string $landingPage = null,
-    ) {
+    ): void {
         parent::__construct('campaign_attribution', array_filter([
             'utm_source' => $source,
             'utm_medium' => $medium,

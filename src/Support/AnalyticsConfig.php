@@ -26,7 +26,7 @@ final class AnalyticsConfig
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ) {}
+    ): void {}
 
     /**
      * Get a raw config value from the analytics section.

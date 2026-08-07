@@ -36,7 +36,7 @@ final readonly class PurchaseEvent extends AnalyticsEvent
         ?string $affiliation = null,
         ?float $tax = null,
         ?float $shipping = null,
-    ) {
+    ): void {
         parent::__construct('purchase', array_filter([
             'transaction_id' => $transactionId,
             'value' => $value,

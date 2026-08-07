@@ -26,7 +26,7 @@ final readonly class ShareEvent extends AnalyticsEvent
         string $method = '',
         string $contentType = '',
         ?string $itemId = null,
-    ) {
+    ): void {
         parent::__construct('share', array_filter([
             'method' => $method,
             'content_type' => $contentType,

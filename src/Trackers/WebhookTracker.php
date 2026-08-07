@@ -58,7 +58,7 @@ final class WebhookTracker implements TrackerInterface
         int $retries = 1,
         array $headers = [],
         bool $signPayloads = false,
-    ) {
+    ): void {
         $this->webhookUrl = $webhookUrl;
         $this->secret = $secret;
         $this->enabled = $enabled;

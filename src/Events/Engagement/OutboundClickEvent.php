@@ -31,7 +31,7 @@ final readonly class OutboundClickEvent extends AnalyticsEvent
         string $linkText = '',
         ?string $linkName = null,
         ?string $pagePath = null,
-    ) {
+    ): void {
         parent::__construct('outbound_click', array_filter([
             'link_url' => $linkUrl,
             'link_text' => $linkText,

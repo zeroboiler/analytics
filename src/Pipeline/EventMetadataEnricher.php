@@ -38,7 +38,7 @@ final class EventMetadataEnricher
         ?string $referrer = null,
         bool $includeTimestamp = true,
         array $extra = [],
-    ) {
+    ): void {
         $this->metadata = array_merge(array_filter([
             '_session_id' => $sessionId,
             '_page_url' => $pageUrl,

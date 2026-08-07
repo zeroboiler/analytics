@@ -21,7 +21,7 @@ final readonly class FeatureUsedEvent extends AnalyticsEvent
      * @param  string  $featureName  Feature identifier (e.g. 'export_csv', 'api_keys', 'webhooks')
      * @param  array<string, mixed>  $metadata  Additional context about the feature usage
      */
-    public function __construct(string $featureName, array $metadata = [])
+    public function __construct(string $featureName, array $metadata = []): void
     {
         parent::__construct('feature_used', array_filter([
             'feature_name' => $featureName,

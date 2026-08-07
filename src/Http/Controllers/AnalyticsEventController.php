@@ -142,7 +142,7 @@ final class AnalyticsEventController extends Controller
         ?TenantIsolationService $tenantService = null,
         ?DataRetentionPolicyService $retentionService = null,
         ?AnalyticsGateService $gateService = null,
-    ) {
+    ): void {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';

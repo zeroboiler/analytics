@@ -41,7 +41,7 @@ final class TrackingPreferenceService
      * @param  CacheRepository  $cache  Cache repository (file, redis, database, etc.)
      * @param  int|null  $ttl  Cache TTL in seconds (default: 7 days)
      */
-    public function __construct(CacheRepository $cache, ?int $ttl = null)
+    public function __construct(CacheRepository $cache, ?int $ttl = null): void
     {
         $this->cache = $cache;
         $this->ttl = $ttl ?? self::DEFAULT_TTL;

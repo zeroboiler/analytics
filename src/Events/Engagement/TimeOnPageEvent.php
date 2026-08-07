@@ -26,7 +26,7 @@ final readonly class TimeOnPageEvent extends AnalyticsEvent
         int $seconds,
         string $pagePath = '',
         ?string $pageTitle = null,
-    ) {
+    ): void {
         parent::__construct('time_on_page', array_filter([
             'engagement_time_msec' => $seconds * 1000,
             'seconds' => $seconds,

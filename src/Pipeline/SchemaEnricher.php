@@ -31,7 +31,7 @@ final class SchemaEnricher
      * @param  EventSchemaRegistry  $registry  Schema registry instance
      * @param  bool  $strict  If true, drop events with schema violations; if false, attach warning flag
      */
-    public function __construct(EventSchemaRegistry $registry, bool $strict = false)
+    public function __construct(EventSchemaRegistry $registry, bool $strict = false): void
     {
         $this->registry = $registry;
         $this->strict = $strict;

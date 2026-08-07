@@ -21,7 +21,7 @@ final readonly class TrialEndEvent extends AnalyticsEvent
      * @param  string  $outcome  'converted' or 'expired'
      * @param  string|null  $planName  Trial plan name
      */
-    public function __construct(string $outcome, ?string $planName = null)
+    public function __construct(string $outcome, ?string $planName = null): void
     {
         parent::__construct('trial_end', array_filter([
             'outcome' => $outcome,

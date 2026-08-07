@@ -51,7 +51,7 @@ final class EventStreamService
         AnalyticsManager $manager,
         AnalyticsMetrics $metrics,
         int $bufferSize = 1000,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->bufferSize = $bufferSize;

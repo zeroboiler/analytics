@@ -46,7 +46,7 @@ final readonly class UtmAttribution
         public ?string $timestamp = null,
         public ?string $referrer = null,
         public ?string $landingPage = null,
-    ) {}
+    ): void {}
 
     /**
      * Create UtmAttribution from a request parameter array.

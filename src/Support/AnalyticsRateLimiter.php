@@ -26,7 +26,7 @@ final class AnalyticsRateLimiter
     public function __construct(
         private readonly int $maxAttempts = 120,
         private readonly int $decaySeconds = 60,
-    ) {}
+    ): void {}
 
     /**
      * Attempt to process an event. Returns true if within rate limit.

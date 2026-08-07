@@ -67,7 +67,7 @@ final class EventAlertRulesService
         QueuedAnalyticsDispatcher $queue,
         CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->queue = $queue;

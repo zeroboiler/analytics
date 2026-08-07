@@ -50,7 +50,7 @@ final class FunnelDataBuilderService
         AnalyticsMetrics $metrics,
         CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->cache = $cache;

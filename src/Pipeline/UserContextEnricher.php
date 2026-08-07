@@ -24,7 +24,7 @@ final readonly class UserContextEnricher
      * @param  array<string, mixed>  $context  User context data
      *     Typical keys: user_id, user_email, user_name, user_plan, user_role, user_created_at
      */
-    public function __construct(array $context = [])
+    public function __construct(array $context = []): void
     {
         $this->context = $context;
     }

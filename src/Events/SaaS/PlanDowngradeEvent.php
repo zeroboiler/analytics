@@ -21,7 +21,7 @@ final readonly class PlanDowngradeEvent extends AnalyticsEvent
      * @param  string  $fromPlan  Current plan name
      * @param  string  $toPlan  New (lower) plan name
      */
-    public function __construct(string $fromPlan, string $toPlan)
+    public function __construct(string $fromPlan, string $toPlan): void
     {
         parent::__construct('plan_downgrade', [
             'from_plan' => $fromPlan,

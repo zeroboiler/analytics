@@ -83,7 +83,7 @@ final class ServerSideTracker
 
     private bool $enabled;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
     {
         $this->manager = $manager;
 

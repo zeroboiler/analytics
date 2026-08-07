@@ -40,7 +40,7 @@ final class ExportService
         AnalyticsManager $manager,
         AnalyticsMetrics $metrics,
         EventStreamService $stream,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->stream = $stream;
