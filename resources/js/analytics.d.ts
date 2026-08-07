@@ -616,3 +616,96 @@ export function getAllJourneys(): Promise<{ journeys: object; progress: object }
 
 /** Reset progress for a specific journey */
 export function resetJourneyProgress(journey: string): Promise<boolean>;
+
+// ─── Svelte Tracker (Zero-Config Component) ────────────────────────
+
+/** Options for initSvelteTracker */
+export interface SvelteTrackerOptions {
+    /** Auto-track page views on Inertia navigation (default: true) */
+    trackPageViews?: boolean;
+    /** Enable all auto-trackers: scroll, form, error, session (default: false) */
+    enableAllAutoTrackers?: boolean;
+}
+
+/**
+ * Initialize analytics with auto-page-view tracking for Svelte/Inertia.
+ * Returns a cleanup function for Svelte's `onMount()`.
+ */
+export function initSvelteTracker(pageProps: object, options?: SvelteTrackerOptions): () => void;
+
+// ─── Paid Ad Click Tracking ────────────────────────────────────────
+
+/** Ad click parameters */
+export interface AdClickParams {
+    platform: string;
+    campaignId: string;
+    adGroupId: string;
+    creativeId: string;
+    placement?: string;
+    keyword?: string;
+    cost?: number;
+}
+
+/** Track a paid advertisement click */
+export function trackAdClick(params: AdClickParams): Promise<boolean>;
+
+// ─── Content Engagement Tracking ───────────────────────────────────
+
+/** Content engagement parameters */
+export interface ContentEngagementParams {
+    contentType: string;
+    contentId: string;
+    title?: string;
+    author?: string;
+    category?: string;
+    engagementPercent?: number;
+    timeSpentSeconds?: number;
+    completed?: boolean;
+}
+
+/** Track content engagement (article reading, video watching, etc.) */
+export function trackContentEngagement(params: ContentEngagementParams): Promise<boolean>;
+
+// ─── Onboarding Step Tracking ──────────────────────────────────────
+
+/** Onboarding step parameters */
+export interface OnboardingStepParams {
+    stepName: string;
+    stepIndex: number;
+    totalSteps: number;
+    method?: string;
+    completed?: boolean;
+    durationSeconds?: number;
+    skippedReason?: string;
+}
+
+/** Track a SaaS onboarding step for product activation funnel analysis */
+export function trackOnboardingStep(params: OnboardingStepParams): Promise<boolean>;
+
+// ─── Feature Impression Tracking ──────────────────────────────────
+
+/** Feature impression parameters */
+export interface FeatureImpressionParams {
+    featureName: string;
+    location: string;
+    source?: string;
+    variant?: string;
+    context?: string;
+}
+
+/** Track when a user sees a feature, UI element, or upgrade prompt */
+export function trackFeatureImpression(params: FeatureImpressionParams): Promise<boolean>;
+
+// ─── Checkout Step Tracking ───────────────────────────────────────
+
+/** Checkout step parameters */
+export interface CheckoutStepParams {
+    stepIndex: number;
+    stepName?: string;
+    paymentMethod?: string;
+    orderTotal?: number;
+    currency?: string;
+}
+
+/** Track an e-commerce checkout step for funnel analysis */
+export function trackCheckoutStep(params: CheckoutStepParams): Promise<boolean>;

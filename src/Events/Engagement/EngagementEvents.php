@@ -204,6 +204,33 @@ final class EngagementEvents
                 'posthog' => 'video_play',
                 'plausible' => 'video_play',
             ],
+            // Paid advertising events
+            'ad_click' => [
+                'name' => 'ad_click',
+                'class' => AdClickEvent::class,
+                'ga4' => 'ad_click',
+                'meta' => 'AdClick',
+                'posthog' => 'ad_click',
+                'plausible' => null,
+            ],
+            // Content consumption events
+            'content_engagement' => [
+                'name' => 'content_engagement',
+                'class' => ContentEngagementEvent::class,
+                'ga4' => 'content_engagement',
+                'meta' => 'ContentEngagement',
+                'posthog' => 'content_engagement',
+                'plausible' => null,
+            ],
+            // SaaS onboarding funnel events
+            'onboarding_step' => [
+                'name' => 'onboarding_step',
+                'class' => OnboardingStepEvent::class,
+                'ga4' => 'onboarding_step',
+                'meta' => 'OnboardingStep',
+                'posthog' => 'onboarding_step',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

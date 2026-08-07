@@ -39,7 +39,7 @@ final class EventExporterService
     {
         $byCategory = EventCatalog::byCategory();
         $result = [
-            'version' => '2.59.0',
+            'version' => '2.61.0',
             'total' => EventCatalog::count(),
             'categories' => [],
         ];

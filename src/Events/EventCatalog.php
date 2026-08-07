@@ -377,4 +377,70 @@ final class EventCatalog
 
         return $mappings;
     }
+
+    /**
+     * Search events by provider event name (reverse lookup).
+     *
+     * Given a GA4/Meta/PostHog/Plausible event name, find all catalog
+     * events that map to it. Useful for incoming webhook normalization.
+     *
+     * @param  string  $providerName  'ga4'|'meta'|'posthog'|'plausible'
+     * @param  string  $providerEventName  The provider-specific event name
+     * @return list<EventEntry>
+     */
+    public static function searchByProvider(string $providerName, string $providerEventName): array
+    {
+        $results = [];
+
+        foreach (self::all() as $entry) {
+            $mapped = $entry[$providerName] ?? null;
+
+            if ($mapped !== null && $mapped === $providerEventName) {
+                $results[] = $entry;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get a summary of the event catalog with counts and breakdown.
+     *
+     * @return array{total: int, ecommerce: int, saas: int, engagement: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int}
+     */
+    public static function summary(): array
+    {
+        $all = self::all();
+
+        $withGa4 = 0;
+        $withMeta = 0;
+        $withPosthog = 0;
+        $withPlausible = 0;
+
+        foreach ($all as $entry) {
+            if (isset($entry['ga4'])) {
+                $withGa4++;
+            }
+            if (isset($entry['meta']) && $entry['meta'] !== null) {
+                $withMeta++;
+            }
+            if (isset($entry['posthog']) && $entry['posthog'] !== null) {
+                $withPosthog++;
+            }
+            if (isset($entry['plausible']) && $entry['plausible'] !== null) {
+                $withPlausible++;
+            }
+        }
+
+        return [
+            'total' => count($all),
+            'ecommerce' => EcommerceEvents::count(),
+            'saas' => SaaSEvents::count(),
+            'engagement' => EngagementEvents::count(),
+            'with_ga4' => $withGa4,
+            'with_meta' => $withMeta,
+            'with_posthog' => $withPosthog,
+            'with_plausible' => $withPlausible,
+        ];
+    }
 }

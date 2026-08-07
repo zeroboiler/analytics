@@ -1289,5 +1289,22 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Provider Telemetry (Self-Monitoring)
+        |-------------------------------------------------------------------------- 
+        |
+        | Periodically verify provider connectivity and record probe results
+        | for dashboard exposure. Designed to be called by a scheduled command
+        | or health-check middleware. Results are cached to avoid hammering
+        | providers on every request.
+        |
+        */
+        'telemetry' => [
+            'enabled' => env('ANALYTICS_TELEMETRY_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_TELEMETRY_CACHE_TTL', 300), // 5 minutes
+            'cache_prefix' => env('ANALYTICS_TELEMETRY_CACHE_PREFIX', 'zb_analytics_telemetry'),
+        ],
+
     ],
 ];

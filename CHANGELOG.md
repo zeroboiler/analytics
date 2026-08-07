@@ -2,6 +2,25 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.61.0] - 2026-08-07
+
+### Added
+- **6 new typed event classes** — AdClickEvent (paid ad clicks with platform/campaign/creative tracking), ContentEngagementEvent (article/video/document depth tracking), OnboardingStepEvent (SaaS product activation funnel), CheckoutStepEvent (multi-step e-commerce checkout funnel), ImpressionEvent (feature discovery and A/B test exposure), WorkspaceCreatedEvent (multi-tenant workspace creation). Total catalog now 76 events (13 ecommerce + 39 SaaS + 24 engagement).
+- **AnalyticsTelemetryService** — Self-monitoring provider connectivity probes with cached results. Sends lightweight HTTP checks to GA4 debug endpoint, PostHog API, Plausible, and webhook URLs. Config-driven via `zeroboiler.analytics.telemetry`. Registered as singleton in ServiceProvider.
+- **EventCatalog::searchByProvider()** — Reverse-lookup events by provider event name. Given a GA4/Meta/PostHog/Plausible event name, find all catalog events that map to it. Useful for incoming webhook normalization.
+- **EventCatalog::summary()** — Structured summary of the event catalog with per-category and per-provider coverage counts.
+- **JS `initSvelteTracker()`** — Zero-config Svelte/Inertia wrapper that calls `init()` + sets up auto page view tracking with `inertia:navigate` listener. Returns cleanup function for Svelte `onMount()`. Supports `enableAllAutoTrackers` option.
+- **6 new JS client functions** — `trackAdClick()`, `trackContentEngagement()`, `trackOnboardingStep()`, `trackFeatureImpression()`, `trackCheckoutStep()` — all with destructured params and snake_case conversion.
+- **TypeScript definitions** — Full IntelliSense for all new JS functions: `SvelteTrackerOptions`, `AdClickParams`, `ContentEngagementParams`, `OnboardingStepParams`, `FeatureImpressionParams`, `CheckoutStepParams` interfaces.
+- **Telemetry config section** — New `zeroboiler.analytics.telemetry` with `enabled`, `cache_ttl`, `cache_prefix` env vars.
+- **10 new AnalyticsConfig accessors** — `telemetryEnabled()`, `telemetryCacheTtl()`, `telemetryCachePrefix()`, `anonymizationEnabled()`, `scheduledReportEnabled()`, `scheduledReportOutputPath()`, `journeysEnabled()`, `journeysCacheTtl()`.
+- **V61EventCatalogExpansionTelemetryTest** — 45+ test cases covering all 6 new event constructors, catalog integration (76 events), category counts, provider mappings, PHP 8.5 compliance (final readonly), version consistency (6 files), and filesystem integrity.
+
+### Changed
+- **Version unification to 2.61.0** — All version strings across AnalyticsManager, composer.json, JS client (v2.61.0), TypeScript definitions, 50+ controller endpoints, AnalyticsEventRouter, EventSourceTagger, EventForwardingService, EventAliasResolver, EventCacheService, EventEnvelopeService, EventExporterService.
+- Total source files: 210 (was 203)
+- Total test files: 103 (was 102)
+
 ## [2.60.0] - 2026-08-07
 
 ### Fixed

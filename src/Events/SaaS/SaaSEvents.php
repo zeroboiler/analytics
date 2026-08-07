@@ -333,6 +333,24 @@ final class SaaSEvents
                 'posthog' => 'integration_failed',
                 'plausible' => null,
             ],
+            // Feature discovery & exposure
+            'feature_impression' => [
+                'name' => 'feature_impression',
+                'class' => ImpressionEvent::class,
+                'ga4' => 'feature_impression',
+                'meta' => 'FeatureImpression',
+                'posthog' => 'feature_impression',
+                'plausible' => null,
+            ],
+            // Multi-tenant workspace creation
+            'workspace_created' => [
+                'name' => 'workspace_created',
+                'class' => WorkspaceCreatedEvent::class,
+                'ga4' => 'workspace_created',
+                'meta' => 'WorkspaceCreated',
+                'posthog' => 'workspace_created',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

@@ -1631,4 +1631,68 @@ final class AnalyticsConfig
     {
         return (string) $this->get('event_cache.prefix', 'zb_analytics_');
     }
+
+    /**
+     * Check if provider telemetry is enabled.
+     */
+    public function telemetryEnabled(): bool
+    {
+        return (bool) $this->get('telemetry.enabled', false);
+    }
+
+    /**
+     * Get telemetry cache TTL in seconds.
+     */
+    public function telemetryCacheTtl(): int
+    {
+        return (int) $this->get('telemetry.cache_ttl', 300);
+    }
+
+    /**
+     * Get telemetry cache key prefix.
+     */
+    public function telemetryCachePrefix(): string
+    {
+        return (string) $this->get('telemetry.cache_prefix', 'zb_analytics_telemetry');
+    }
+
+    /**
+     * Check if anonymization is enabled.
+     */
+    public function anonymizationEnabled(): bool
+    {
+        return (bool) $this->get('anonymization.enabled', false);
+    }
+
+    /**
+     * Get scheduled reports enabled state.
+     */
+    public function scheduledReportEnabled(): bool
+    {
+        return (bool) $this->get('scheduled_reports.enabled', false);
+    }
+
+    /**
+     * Get scheduled reports output path.
+     */
+    public function scheduledReportOutputPath(): string
+    {
+        return (string) $this->get('scheduled_reports.output_path', storage_path('analytics/reports'));
+    }
+
+    /**
+     * Get journey tracking enabled state.
+     */
+    public function journeysEnabled(): bool
+    {
+        return (bool) $this->get('journeys.enabled', false);
+    }
+
+    /**
+     * Get journey tracking cache TTL in seconds.
+     */
+    public function journeysCacheTtl(): int
+    {
+        return (int) $this->get('journeys.cache_ttl', 86400);
+    }
 }

@@ -95,6 +95,7 @@ use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
 use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
+use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -921,6 +922,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 enabled: (bool) ($consentPurposeConfig['enabled'] ?? false),
                 consentLogService: $app->make(ConsentLogService::class),
             );
+        });
+
+        // Provider telemetry service — self-monitoring connectivity probes
+        $this->app->singleton(AnalyticsTelemetryService::class, function (Application $app): AnalyticsTelemetryService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsTelemetryService($manager, $cache, $config);
         });
     }
 

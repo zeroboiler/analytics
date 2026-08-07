@@ -128,6 +128,14 @@ final class EcommerceEvents
                 'posthog' => 'view_promotion',
                 'plausible' => null,
             ],
+            'checkout_step' => [
+                'name' => 'checkout_step',
+                'class' => CheckoutStepEvent::class,
+                'ga4' => 'checkout_step',
+                'meta' => 'CheckoutStep',
+                'posthog' => 'checkout_step',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

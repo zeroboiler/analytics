@@ -2914,8 +2914,218 @@ export function getForwarderNames() {
 /**
  * Get the library version string.
  *
- * @returns {string} Semantic version (e.g. '2.59.0')
+ * @returns {string} Semantic version (e.g. '2.61.0')
  */
 export function _getInternalVersion() {
-    return '2.59.0';
+    return '2.61.0';
+}
+
+// ─── Svelte Tracker (Zero-Config Component) ────────────────────────
+
+/**
+ * Initialize analytics with auto-page-view tracking for Svelte/Inertia.
+ *
+ * A zero-config wrapper that calls `init()` and sets up automatic
+ * page view tracking on Inertia navigation events. Returns a cleanup
+ * function suitable for Svelte's `onMount()`.
+ *
+ * @param {object} pageProps - Inertia page props containing `zbAnalytics`
+ * @param {object} [options] - Tracking options
+ * @param {boolean} [options.trackPageViews=true] - Auto-track page views on navigation
+ * @param {boolean} [options.enableAllAutoTrackers=false] - Also enable scroll, form, error, session tracking
+ * @returns {Function} Cleanup function for Svelte `onMount`
+ *
+ * @example
+ * // Svelte component:
+ * import { onMount } from 'svelte';
+ * import { page } from '@inertiajs/svelte';
+ * import { initSvelteTracker } from '../resources/js/analytics';
+ *
+ * let cleanup;
+ * $: if (page.props.zbAnalytics) {
+ *     onMount(() => {
+ *         cleanup = initSvelteTracker(page.props);
+ *     });
+ * }
+ * // Cleanup on destroy is handled automatically by the returned function
+ */
+export function initSvelteTracker(pageProps, options = {}) {
+    const { trackPageViews = true, enableAllAutoTrackers = false } = options;
+
+    init(pageProps);
+
+    const cleanupFns = [];
+
+    if (trackPageViews) {
+        // Track initial page view
+        trackPageView();
+
+        // Listen for Inertia `page` event (SPA navigation)
+        const unsubPage = window.addEventListener?.('inertia:navigate', () => {
+            // Small delay to let Inertia resolve the new page
+            setTimeout(() => trackPageView(), 50);
+        });
+        cleanupFns.push(() => {
+            if (typeof unsubPage === 'function') unsubPage();
+        });
+    }
+
+    if (enableAllAutoTrackers) {
+        cleanupFns.push(initScrollDepthTracker());
+        cleanupFns.push(initFormTracker());
+        cleanupFns.push(initErrorTracker());
+        cleanupFns.push(initSessionTracker());
+    }
+
+    // Unified cleanup function
+    return function cleanup() {
+        cleanupFns.forEach((fn) => {
+            if (typeof fn === 'function') fn();
+        });
+        destroy();
+    };
+}
+
+// ─── Paid Ad Click Tracking ────────────────────────────────────────
+
+/**
+ * Track a paid advertisement click.
+ *
+ * @param {object} params - Ad click parameters
+ * @param {string} params.platform - Ad platform (google, meta, tiktok, linkedin, twitter)
+ * @param {string} params.campaignId - Campaign identifier
+ * @param {string} params.adGroupId - Ad group identifier
+ * @param {string} params.creativeId - Creative/copy identifier
+ * @param {string} [params.placement] - Ad placement position
+ * @param {string} [params.keyword] - Matched keyword
+ * @param {number} [params.cost] - Cost-per-click
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackAdClick({ platform: 'google', campaignId: 'camp-001', adGroupId: 'grp-002', creativeId: 'crt-003' });
+ */
+export async function trackAdClick({ platform, campaignId, adGroupId, creativeId, placement, keyword, cost }) {
+    return trackEvent('ad_click', {
+        platform,
+        campaign_id: campaignId,
+        ad_group_id: adGroupId,
+        creative_id: creativeId,
+        ...(placement != null ? { placement } : {}),
+        ...(keyword != null ? { keyword } : {}),
+        ...(cost != null ? { cost } : {}),
+    });
+}
+
+// ─── Content Engagement Tracking ───────────────────────────────────
+
+/**
+ * Track content engagement (article reading, video watching, etc.)
+ *
+ * @param {object} params - Content engagement parameters
+ * @param {string} params.contentType - Type (article, video, document, podcast)
+ * @param {string} params.contentId - Content identifier or slug
+ * @param {string} [params.title] - Content title
+ * @param {string} [params.author] - Content author
+ * @param {string} [params.category] - Content category
+ * @param {number} [params.engagementPercent] - Engagement depth 0-100
+ * @param {number} [params.timeSpentSeconds] - Time spent in seconds
+ * @param {boolean} [params.completed] - Whether user reached the end
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackContentEngagement({ contentType: 'article', contentId: 'blog-123', engagementPercent: 75, timeSpentSeconds: 180 });
+ */
+export async function trackContentEngagement({ contentType, contentId, title, author, category, engagementPercent, timeSpentSeconds, completed }) {
+    return trackEvent('content_engagement', {
+        content_type: contentType,
+        content_id: contentId,
+        ...(title != null ? { title } : {}),
+        ...(author != null ? { author } : {}),
+        ...(category != null ? { category } : {}),
+        ...(engagementPercent != null ? { engagement_percent: engagementPercent } : {}),
+        ...(timeSpentSeconds != null ? { time_spent_seconds: timeSpentSeconds } : {}),
+        ...(completed != null ? { completed } : {}),
+    });
+}
+
+// ─── Onboarding Step Tracking ──────────────────────────────────────
+
+/**
+ * Track a SaaS onboarding step for product activation funnel analysis.
+ *
+ * @param {object} params - Onboarding step parameters
+ * @param {string} params.stepName - Step name (e.g. "profile_setup")
+ * @param {number} params.stepIndex - Zero-based step order
+ * @param {number} params.totalSteps - Total number of steps
+ * @param {string} [params.method] - Entry method (invite, organic, paid)
+ * @param {boolean} [params.completed] - Whether step was completed
+ * @param {number} [params.durationSeconds] - Time to complete this step
+ * @param {string} [params.skippedReason] - Reason for skipping
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackOnboardingStep({ stepName: 'profile_setup', stepIndex: 0, totalSteps: 5, completed: true, durationSeconds: 45 });
+ */
+export async function trackOnboardingStep({ stepName, stepIndex, totalSteps, method, completed, durationSeconds, skippedReason }) {
+    return trackEvent('onboarding_step', {
+        step_name: stepName,
+        step_index: stepIndex,
+        total_steps: totalSteps,
+        ...(method != null ? { method } : {}),
+        ...(completed != null ? { completed } : {}),
+        ...(durationSeconds != null ? { duration_seconds: durationSeconds } : {}),
+        ...(skippedReason != null ? { skipped_reason: skippedReason } : {}),
+    });
+}
+
+// ─── Feature Impression Tracking ──────────────────────────────────
+
+/**
+ * Track when a user sees a feature, UI element, or upgrade prompt.
+ *
+ * @param {object} params - Feature impression parameters
+ * @param {string} params.featureName - Feature or element name
+ * @param {string} params.location - Where it appeared (dashboard, sidebar, modal, banner)
+ * @param {string} [params.source] - Trigger source (auto, navigation, recommendation)
+ * @param {string} [params.variant] - A/B test variant identifier
+ * @param {string} [params.context] - Additional context (page URL, section name)
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackFeatureImpression({ featureName: 'export_csv', location: 'dashboard', source: 'auto' });
+ */
+export async function trackFeatureImpression({ featureName, location, source, variant, context }) {
+    return trackEvent('feature_impression', {
+        feature_name: featureName,
+        location,
+        ...(source != null ? { source } : {}),
+        ...(variant != null ? { variant } : {}),
+        ...(context != null ? { context } : {}),
+    });
+}
+
+// ─── Checkout Step Tracking ───────────────────────────────────────
+
+/**
+ * Track an e-commerce checkout step for funnel analysis.
+ *
+ * @param {object} params - Checkout step parameters
+ * @param {number} params.stepIndex - One-based checkout step number
+ * @param {string} [params.stepName] - Step name
+ * @param {string} [params.paymentMethod] - Payment method type
+ * @param {number} [params.orderTotal] - Running order total
+ * @param {string} [params.currency] - ISO 4217 currency code
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackCheckoutStep({ stepIndex: 1, stepName: 'shipping', orderTotal: 49.99, currency: 'USD' });
+ */
+export async function trackCheckoutStep({ stepIndex, stepName, paymentMethod, orderTotal, currency }) {
+    return trackEvent('checkout_step', {
+        step_index: stepIndex,
+        ...(stepName != null ? { step_name: stepName } : {}),
+        ...(paymentMethod != null ? { payment_method: paymentMethod } : {}),
+        ...(orderTotal != null ? { order_total: orderTotal } : {}),
+        ...(currency != null ? { currency } : {}),
+    });
 }
