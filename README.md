@@ -1125,7 +1125,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.42.0",
+  "version": "2.44.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "gtm": { "status": "ok", "container_id": "GTM-XXXXXXX" },
@@ -1265,7 +1265,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `destroy()` | Cleanup listeners, timers, state |
 | `destroyAll()` | Cleanup all auto-initialized trackers + destroy |
 | `isInitialized()` | Check if analytics is active |
-| `getVersion()` | Get library version string (e.g. '2.42.0') |
+| `getVersion()` | Get library version string (e.g. '2.44.0') |
 | `getTrackingId()` | Get server-generated tracking UUID |
 | `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
@@ -1456,7 +1456,16 @@ This validates strict types, `final` modifiers, interface implementations, reado
 
 ## Upgrading
 
-### From v2.41.x to v2.42.0
+### From v2.43.x to v2.44.0
+- **Config fix — duplicate `attribution` key merged** — The `attribution` config section was defined twice in `config/zeroboiler.php`, causing the first definition's keys (`first_touch_ttl`, `touch_history_ttl`, `max_touch_history`) to be silently overwritten by the second definition (`model`, `session_window_days`, `cache_ttl`). Both sets of keys are now merged into a single `attribution` section, fixing silent data loss for AttributionService and UTMAttributionService.
+- **AnalyticsConfig — 3 new attribution accessors** — `attributionModel()`, `attributionSessionWindowDays()`, `attributionCacheTtl()` added to the type-safe config wrapper, matching the merged config keys.
+- **AnalyticsConfig — 15 new accessors (performance budget + forwarding)** — `performanceBudgetEnabled()`, `performanceBudgetMaxPayloadBytes()`, `performanceBudgetMaxParamsCount()`, `performanceBudgetMaxEventsPerSession()`, `performanceBudgetMaxEventsPerUserPerDay()`, `performanceBudgetMaxEventsPerPageView()`, `performanceBudgetMaxParamValueLength()`, `performanceBudgetDropOversized()`, `performanceBudgetWarnOnly()`, `forwardingEnabled()`, `forwardingTimeout()`, `forwardingRetries()`, `forwardingRateLimitPerMinute()`, `forwardingForwarders()` added.
+- **AnalyticsConfig — duplicate keys removed from toSummaryArray()** — `broadcast` and `retention_policy` were defined twice in the summary array; duplicates removed, `performance_budget` and `forwarding` sections added.
+- **AnalyticsConfig — attribution summary expanded** — Now includes `model` and `session_window_days` fields.
+- **Tests** — V44ConfigIntegrityTest with 30+ cases validating config merge, accessor coverage, summary array uniqueness, and no duplicate keys.
+- **No breaking changes** — All changes are additive and bugfix.
+
+### From v2.42.x to v2.43.0
 - **Comprehensive README update** — All stale numbers corrected: 50+ API endpoints (was 26), JS client ~2500 LOC (was ~1200), 40+ config sections (was 22), 183 source files (was 166), 87 test files (was 86), AnalyticsConfig 100+ typed methods (was 90+)
 - **README Event Catalog Reference complete** — All 35 SaaS events now documented in the reference table (16 were previously missing: account lifecycle, B2B/Team, billing, subscription renewal, invite, integration)
 - **GDPR Consent Purposes documented** — ConsentLogService and consent purposes feature added to Identity & GDPR section
@@ -1559,6 +1568,33 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v2.44.0 — Config Integrity, AnalyticsConfig Expansion, Attribution Fix
+
+- **Config fix — duplicate `attribution` key merged** — `attribution` was defined twice in `config/zeroboiler.php`. The second definition silently overwrote the first, causing `first_touch_ttl`, `touch_history_ttl`, `max_touch_history` to be lost. Both sets of keys now merged into a single unified section.
+- **AnalyticsConfig — 18 new typed accessors** — 3 attribution (`attributionModel`, `attributionSessionWindowDays`, `attributionCacheTtl`) + 9 performance budget + 5 forwarding + 1 forwarding forwarders config.
+- **AnalyticsConfig toSummaryArray() — duplicate keys removed** — `broadcast` and `retention_policy` were listed twice in the summary array. Duplicates removed, `performance_budget` and `forwarding` sections added. Attribution summary expanded with `model` and `session_window_days`.
+- **Tests** — V44ConfigIntegrityTest with 30+ assertions.
+- **Version consistency** — composer.json, AnalyticsManager, JS client, TypeScript definitions all aligned to v2.44.0.
+
+### v2.43.0 — Event Forwarding, Performance Budget, UTM Attribution
+
+- **EventForwardingService** — Multi-platform event forwarding to Segment, Mixpanel, Amplitude, and custom HTTP endpoints with rate limiting, retries, and per-forwarder config.
+- **PerformanceBudgetService** — Event payload size, rate, and quota enforcement with configurable limits per session, user, and page view.
+- **UTMAttributionService** — First-touch, last-touch, and multi-touch UTM attribution with configurable session window and model selection.
+- **Config expansion** — `forwarding` section (4 env vars), `performance_budget` section (9 env vars), unified `attribution` section.
+- **AnalyticsConfig** — Accessor coverage for forwarding and performance budget.
+- **Tests** — V43 test suite (forwarding, budget, attribution, event count validation).
+- **Version consistency** — All aligned to v2.43.0.
+
+### v2.42.0 — SaaS starter final
+
+- **15 new SaaS event classes** — Account lifecycle (6), B2B/Team (4), Billing (5)
+- **ConsentLogService** — GDPR consent audit trail with DSAR export
+- **Consent purposes config** — 4 configurable purposes for frontend cookie banners
+- **Inertia consent props** — `consentPurposes` exposed in page props
+- **SaaS event count** — 37 events (total catalog: 70 events)
+- **Version consistency** — All aligned to v2.42.0
 
 ### v2.33.0 — RealTimeAggregation, ABTestAnalytics, Snapshots, KPI, UTM, Geolocation
 

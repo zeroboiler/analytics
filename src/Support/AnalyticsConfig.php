@@ -635,6 +635,21 @@ final class AnalyticsConfig
         return (bool) $this->get('attribution.enabled', true);
     }
 
+    public function attributionModel(): string
+    {
+        return (string) $this->get('attribution.model', 'last_touch');
+    }
+
+    public function attributionSessionWindowDays(): int
+    {
+        return (int) $this->get('attribution.session_window_days', 30);
+    }
+
+    public function attributionCacheTtl(): int
+    {
+        return (int) $this->get('attribution.cache_ttl', 86400);
+    }
+
     public function attributionFirstTouchTtl(): int
     {
         return (int) $this->get('attribution.first_touch_ttl', 2592000);
@@ -1154,6 +1169,86 @@ final class AnalyticsConfig
         return (int) $this->get('ab_tests.cache_ttl', 604800);
     }
 
+    // ── Performance Budget ────────────────────────────────────────────
+
+    public function performanceBudgetEnabled(): bool
+    {
+        return (bool) $this->get('performance_budget.enabled', false);
+    }
+
+    public function performanceBudgetMaxPayloadBytes(): int
+    {
+        return (int) $this->get('performance_budget.max_payload_bytes', 8192);
+    }
+
+    public function performanceBudgetMaxParamsCount(): int
+    {
+        return (int) $this->get('performance_budget.max_params_count', 25);
+    }
+
+    public function performanceBudgetMaxEventsPerSession(): int
+    {
+        return (int) $this->get('performance_budget.max_events_per_session', 100);
+    }
+
+    public function performanceBudgetMaxEventsPerUserPerDay(): int
+    {
+        return (int) $this->get('performance_budget.max_events_per_user_per_day', 500);
+    }
+
+    public function performanceBudgetMaxEventsPerPageView(): int
+    {
+        return (int) $this->get('performance_budget.max_events_per_page_view', 50);
+    }
+
+    public function performanceBudgetMaxParamValueLength(): int
+    {
+        return (int) $this->get('performance_budget.max_param_value_length', 500);
+    }
+
+    public function performanceBudgetDropOversized(): bool
+    {
+        return (bool) $this->get('performance_budget.drop_oversized', true);
+    }
+
+    public function performanceBudgetWarnOnly(): bool
+    {
+        return (bool) $this->get('performance_budget.warn_only', false);
+    }
+
+    // ── Event Forwarding ────────────────────────────────────────────
+
+    public function forwardingEnabled(): bool
+    {
+        return (bool) $this->get('forwarding.enabled', false);
+    }
+
+    public function forwardingTimeout(): int
+    {
+        return (int) $this->get('forwarding.timeout', 5);
+    }
+
+    public function forwardingRetries(): int
+    {
+        return (int) $this->get('forwarding.retries', 1);
+    }
+
+    public function forwardingRateLimitPerMinute(): int
+    {
+        return (int) $this->get('forwarding.rate_limit_per_minute', 1000);
+    }
+
+    /**
+     * @return array<string, array{enabled: bool, type: string}>
+     */
+    public function forwardingForwarders(): array
+    {
+        $forwarders = $this->get('forwarding.forwarders', []);
+        assert(is_array($forwarders));
+
+        return $forwarders;
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -1279,6 +1374,8 @@ final class AnalyticsConfig
             ],
             'attribution' => [
                 'enabled' => $this->attributionEnabled(),
+                'model' => $this->attributionModel(),
+                'session_window_days' => $this->attributionSessionWindowDays(),
                 'first_touch_ttl' => $this->attributionFirstTouchTtl(),
                 'max_touch_history' => $this->attributionMaxTouchHistory(),
             ],
@@ -1330,6 +1427,8 @@ final class AnalyticsConfig
                 'enabled' => $this->broadcastEnabled(),
                 'channel_prefix' => $this->broadcastChannelPrefix(),
                 'private_channels' => $this->broadcastPrivateChannels(),
+                'alert_channel' => $this->broadcastAlertChannel(),
+                'metrics_channel' => $this->broadcastMetricsChannel(),
             ],
             'tenant' => [
                 'enabled' => $this->tenantEnabled(),
@@ -1341,6 +1440,9 @@ final class AnalyticsConfig
                 'enabled' => $this->retentionPolicyEnabled(),
                 'auto_expire' => $this->retentionPolicyAutoExpire(),
                 'pii_categories' => $this->retentionPolicyPiiCategories(),
+                'engagement_days' => $this->retentionPolicyEngagementDays(),
+                'saas_days' => $this->retentionPolicySaasDays(),
+                'ecommerce_days' => $this->retentionPolicyEcommerceDays(),
             ],
             'gate' => [
                 'enabled' => $this->gateEnabled(),
@@ -1352,21 +1454,6 @@ final class AnalyticsConfig
                 'param_name' => $this->referralParamName(),
                 'ttl' => $this->referralTtl(),
                 'track_conversions' => $this->referralTrackConversions(),
-            ],
-            'broadcast' => [
-                'enabled' => $this->broadcastEnabled(),
-                'channel_prefix' => $this->broadcastChannelPrefix(),
-                'private_channels' => $this->broadcastPrivateChannels(),
-                'alert_channel' => $this->broadcastAlertChannel(),
-                'metrics_channel' => $this->broadcastMetricsChannel(),
-            ],
-            'retention_policy' => [
-                'enabled' => $this->retentionPolicyEnabled(),
-                'auto_expire' => $this->retentionPolicyAutoExpire(),
-                'pii_categories' => $this->retentionPolicyPiiCategories(),
-                'engagement_days' => $this->retentionPolicyEngagementDays(),
-                'saas_days' => $this->retentionPolicySaasDays(),
-                'ecommerce_days' => $this->retentionPolicyEcommerceDays(),
             ],
             'dead_letter_queue' => [
                 'enabled' => $this->deadLetterQueueEnabled(),
@@ -1397,6 +1484,18 @@ final class AnalyticsConfig
             ],
             'ab_tests' => [
                 'enabled' => $this->abTestsEnabled(),
+            ],
+            'performance_budget' => [
+                'enabled' => $this->performanceBudgetEnabled(),
+                'max_payload_bytes' => $this->performanceBudgetMaxPayloadBytes(),
+                'drop_oversized' => $this->performanceBudgetDropOversized(),
+                'warn_only' => $this->performanceBudgetWarnOnly(),
+            ],
+            'forwarding' => [
+                'enabled' => $this->forwardingEnabled(),
+                'timeout' => $this->forwardingTimeout(),
+                'retries' => $this->forwardingRetries(),
+                'forwarders_count' => count($this->forwardingForwarders()),
             ],
         ];
     }

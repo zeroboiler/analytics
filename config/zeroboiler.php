@@ -497,6 +497,9 @@ return [
         */
         'attribution' => [
             'enabled' => env('ANALYTICS_ATTRIBUTION_ENABLED', true),
+            'model' => env('ANALYTICS_ATTRIBUTION_MODEL', 'last_touch'), // first_touch, last_touch, multi_touch
+            'session_window_days' => (int) env('ANALYTICS_ATTRIBUTION_WINDOW', 30),
+            'cache_ttl' => (int) env('ANALYTICS_ATTRIBUTION_CACHE_TTL', 86400),
             'first_touch_ttl' => (int) env('ANALYTICS_ATTRIBUTION_FIRST_TOUCH_TTL', 2592000), // 30 days
             'touch_history_ttl' => (int) env('ANALYTICS_ATTRIBUTION_TOUCH_HISTORY_TTL', 2592000), // 30 days
             'max_touch_history' => (int) env('ANALYTICS_ATTRIBUTION_MAX_HISTORY', 20),
@@ -999,19 +1002,5 @@ return [
             'warn_only' => env('ANALYTICS_PERF_WARN_ONLY', false),
         ],
 
-        /*
-        |--------------------------------------------------------------------------
-        | UTM Attribution Models
-        |--------------------------------------------------------------------------
-        |
-        | Configure UTM attribution strategy: first_touch, last_touch, or multi_touch.
-        | Multi-touch uses linear credit across all touchpoints within the session window.
-        |
-        */
-        'attribution' => [
-            'model' => env('ANALYTICS_ATTRIBUTION_MODEL', 'last_touch'),
-            'session_window_days' => (int) env('ANALYTICS_ATTRIBUTION_WINDOW', 30),
-            'cache_ttl' => (int) env('ANALYTICS_ATTRIBUTION_CACHE_TTL', 86400),
-        ],
     ],
 ];
