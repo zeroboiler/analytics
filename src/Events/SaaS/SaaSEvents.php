@@ -147,6 +147,12 @@ final class SaaSEvents
                 'ga4' => 'integration_connected',
                 'meta' => 'IntegrationConnected',
             ],
+            'subscription_renewal' => [
+                'name' => 'subscription_renewal',
+                'class' => SubscriptionRenewalEvent::class,
+                'ga4' => 'subscription_renewal',
+                'meta' => 'SubscriptionRenewal',
+            ],
         ];
 
         return self::$catalog;

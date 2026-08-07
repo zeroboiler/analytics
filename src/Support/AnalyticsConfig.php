@@ -944,6 +944,177 @@ final class AnalyticsConfig
         return (int) $this->get('retention_policy.ecommerce_days', 365);
     }
 
+    // ── Dead Letter Queue ────────────────────────────────────────────
+
+    public function deadLetterQueueEnabled(): bool
+    {
+        return (bool) $this->get('dead_letter_queue.enabled', true);
+    }
+
+    public function deadLetterQueueStrategy(): string
+    {
+        return (string) $this->get('dead_letter_queue.strategy', 'file');
+    }
+
+    public function deadLetterQueueStoragePath(): string
+    {
+        return (string) $this->get('dead_letter_queue.storage_path', '');
+    }
+
+    public function deadLetterQueueMaxSize(): int
+    {
+        return (int) $this->get('dead_letter_queue.max_size', 10000);
+    }
+
+    public function deadLetterQueueBufferSize(): int
+    {
+        return (int) $this->get('dead_letter_queue.buffer_size', 50);
+    }
+
+    // ── Real-Time Aggregation ────────────────────────────────────────
+
+    public function realtimeEnabled(): bool
+    {
+        return (bool) $this->get('realtime.enabled', true);
+    }
+
+    public function realtimeWindowSeconds(): int
+    {
+        return (int) $this->get('realtime.window_seconds', 120);
+    }
+
+    public function realtimeTopEventsLimit(): int
+    {
+        return (int) $this->get('realtime.top_events_limit', 20);
+    }
+
+    // ── Analytics Snapshots ──────────────────────────────────────────
+
+    public function snapshotsEnabled(): bool
+    {
+        return (bool) $this->get('snapshots.enabled', true);
+    }
+
+    public function snapshotsDailyTtl(): int
+    {
+        return (int) $this->get('snapshots.daily_ttl', 7776000);
+    }
+
+    public function snapshotsHourlyTtl(): int
+    {
+        return (int) $this->get('snapshots.hourly_ttl', 604800);
+    }
+
+    public function snapshotsMaxDaily(): int
+    {
+        return (int) $this->get('snapshots.max_daily', 90);
+    }
+
+    public function snapshotsMaxHourly(): int
+    {
+        return (int) $this->get('snapshots.max_hourly', 168);
+    }
+
+    // ── SaaS KPI ─────────────────────────────────────────────────────
+
+    public function saasKpiEnabled(): bool
+    {
+        return (bool) $this->get('saas_kpi.enabled', true);
+    }
+
+    public function saasKpiCacheTtl(): int
+    {
+        return (int) $this->get('saas_kpi.cache_ttl', 2592000);
+    }
+
+    // ── UTM Aggregation ───────────────────────────────────────────────
+
+    public function utmAggregationEnabled(): bool
+    {
+        return (bool) $this->get('utm_aggregation.enabled', true);
+    }
+
+    public function utmAggregationCacheTtl(): int
+    {
+        return (int) $this->get('utm_aggregation.cache_ttl', 2592000);
+    }
+
+    public function utmAggregationMaxCombinations(): int
+    {
+        return (int) $this->get('utm_aggregation.max_combinations', 5000);
+    }
+
+    // ── Geolocation ─────────────────────────────────────────────────
+
+    public function geolocationEnabled(): bool
+    {
+        return (bool) $this->get('geolocation.enabled', false);
+    }
+
+    public function geolocationStrategy(): string
+    {
+        return (string) $this->get('geolocation.strategy', 'header');
+    }
+
+    public function geolocationCountryHeader(): string
+    {
+        return (string) $this->get('geolocation.country_header', 'CF-IPCountry');
+    }
+
+    public function geolocationRegionHeader(): string
+    {
+        return (string) $this->get('geolocation.region_header', '');
+    }
+
+    public function geolocationCityHeader(): string
+    {
+        return (string) $this->get('geolocation.city_header', '');
+    }
+
+    // ── Reporting ────────────────────────────────────────────────────
+
+    public function reportingEnabled(): bool
+    {
+        return (bool) $this->get('reporting.enabled', true);
+    }
+
+    public function reportingCacheTtl(): int
+    {
+        return (int) $this->get('reporting.cache_ttl', 300);
+    }
+
+    public function reportingTrendingWindow(): int
+    {
+        return (int) $this->get('reporting.trending_window', 3600);
+    }
+
+    public function reportingTopEventsLimit(): int
+    {
+        return (int) $this->get('reporting.top_events_limit', 20);
+    }
+
+    public function reportingTrendingLimit(): int
+    {
+        return (int) $this->get('reporting.trending_limit', 10);
+    }
+
+    // ── A/B Tests ─────────────────────────────────────────────────────
+
+    public function abTestsEnabled(): bool
+    {
+        return (bool) $this->get('ab_tests.enabled', true);
+    }
+
+    public function abTestsConfidenceThreshold(): float
+    {
+        return (float) $this->get('ab_tests.confidence_threshold', 0.95);
+    }
+
+    public function abTestsCacheTtl(): int
+    {
+        return (int) $this->get('ab_tests.cache_ttl', 604800);
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -1154,6 +1325,36 @@ final class AnalyticsConfig
                 'engagement_days' => $this->retentionPolicyEngagementDays(),
                 'saas_days' => $this->retentionPolicySaasDays(),
                 'ecommerce_days' => $this->retentionPolicyEcommerceDays(),
+            ],
+            'dead_letter_queue' => [
+                'enabled' => $this->deadLetterQueueEnabled(),
+                'strategy' => $this->deadLetterQueueStrategy(),
+                'max_size' => $this->deadLetterQueueMaxSize(),
+            ],
+            'realtime' => [
+                'enabled' => $this->realtimeEnabled(),
+                'window_seconds' => $this->realtimeWindowSeconds(),
+            ],
+            'snapshots' => [
+                'enabled' => $this->snapshotsEnabled(),
+                'max_daily' => $this->snapshotsMaxDaily(),
+                'max_hourly' => $this->snapshotsMaxHourly(),
+            ],
+            'saas_kpi' => [
+                'enabled' => $this->saasKpiEnabled(),
+            ],
+            'utm_aggregation' => [
+                'enabled' => $this->utmAggregationEnabled(),
+            ],
+            'geolocation' => [
+                'enabled' => $this->geolocationEnabled(),
+                'strategy' => $this->geolocationStrategy(),
+            ],
+            'reporting' => [
+                'enabled' => $this->reportingEnabled(),
+            ],
+            'ab_tests' => [
+                'enabled' => $this->abTestsEnabled(),
             ],
         ];
     }

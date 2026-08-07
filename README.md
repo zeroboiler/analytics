@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **52 typed event classes** across 3 categories (E-commerce 12, SaaS 19, Engagement 21)
+- **53 typed event classes** across 3 categories (E-commerce 12, SaaS 20, Engagement 21)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking

@@ -302,7 +302,7 @@ describe('EventSourceTagger', function (): void {
         expect($tagged->name)->toBe('purchase');
         expect($tagged->params['_source'])->toBe('api');
         expect($tagged->params['_timestamp'])->toBeString();
-        expect($tagged->params['_version'])->toBe('2.35.0');
+        expect($tagged->params['_version'])->toBe('2.37.0');
         expect($tagged->params['value'])->toBe(99.99);
     });
 
@@ -637,12 +637,12 @@ describe('v2.29 config expansion', function (): void {
         expect($summary['validation_boot']['log_level'])->toBe('warning');
     });
 
-    test('summary total section count is 38', function (): void {
+    test('summary total section count is 50', function (): void {
         $this->config->shouldReceive('get')->andReturnNull();
 
         $config = new AnalyticsConfig($this->config);
 
-        expect(count($config->summary()))->toBe(38);
+        expect(count($config->summary()))->toBe(50);
     });
 });
 
@@ -653,11 +653,11 @@ describe('v2.29 version consistency', function (): void {
         $this->config->shouldReceive('get')->andReturnFalse();
         $manager = new AnalyticsManager($this->config);
 
-        expect($manager->version())->toBe('2.35.0');
+        expect($manager->version())->toBe('2.37.0');
     });
 
-    test('event catalog count is unchanged (52)', function (): void {
-        expect(EventCatalog::count())->toBe(52);
+    test('event catalog count is 53 (after subscription_renewal)', function (): void {
+        expect(EventCatalog::count())->toBe(53);
     });
 
     test('event catalog categories are intact', function (): void {

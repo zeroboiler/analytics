@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.35.0
+ * @version 2.37.0
  */
 
 let trackingId = null;
@@ -141,7 +141,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.29.0')
  */
 export function getVersion() {
-    return '2.35.0';
+    return '2.37.0';
 }
 
 /**

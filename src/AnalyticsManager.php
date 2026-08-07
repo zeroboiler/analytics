@@ -1200,6 +1200,33 @@ final class AnalyticsManager
     }
 
     /**
+     * Track a subscription renewal event.
+     *
+     * Convenience method for tracking recurring subscription renewals.
+     * Includes plan name, amount, currency, and billing cycle metadata.
+     *
+     * @param  string|null  $planName  Current plan name
+     * @param  float|null  $amount  Renewal amount
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  string|null  $billingCycle  'monthly', 'yearly', 'custom'
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function subscriptionRenewal(
+        ?string $planName = null,
+        ?float $amount = null,
+        string $currency = 'USD',
+        ?string $billingCycle = null,
+        array $params = [],
+    ): void {
+        $this->track('subscription_renewal', array_filter(array_merge([
+            'plan_name' => $planName,
+            'amount' => $amount,
+            'currency' => $currency,
+            'billing_cycle' => $billingCycle,
+        ], $params)));
+    }
+
+    /**
      * Validate the integrity of the event catalog.
      *
      * @return array{valid: bool, errors: list<string>, warnings: list<string>}
@@ -1214,7 +1241,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.35.0';
+        return '2.37.0';
     }
 
     /**
