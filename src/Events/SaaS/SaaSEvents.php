@@ -246,6 +246,19 @@ final class SaaSEvents
                 'ga4' => 'credit_applied',
                 'meta' => 'CreditApplied',
             ],
+            // Operational events
+            'feature_limit_reached' => [
+                'name' => 'feature_limit_reached',
+                'class' => FeatureLimitReachedEvent::class,
+                'ga4' => 'feature_limit_reached',
+                'meta' => 'FeatureLimitReached',
+            ],
+            'integration_failed' => [
+                'name' => 'integration_failed',
+                'class' => IntegrationFailedEvent::class,
+                'ga4' => 'integration_failed',
+                'meta' => 'IntegrationFailed',
+            ],
         ];
 
         return self::$catalog;

@@ -24,12 +24,12 @@ beforeEach(function (): void {
 describe('v2.42.0 Full System Validation', function (): void {
     // ── Event Catalog Completeness ───────────────────────────────
 
-    test('total event count is exactly 68', function (): void {
-        expect(EventCatalog::count())->toBe(68);
+    test('total event count is exactly 70', function (): void {
+        expect(EventCatalog::count())->toBe(70);
     });
 
-    test('SaaS catalog has 35 events', function (): void {
-        expect(SaaSEvents::count())->toBe(35);
+    test('SaaS catalog has 37 events', function (): void {
+        expect(SaaSEvents::count())->toBe(37);
     });
 
     test('Ecommerce catalog has 12 events', function (): void {
@@ -40,7 +40,7 @@ describe('v2.42.0 Full System Validation', function (): void {
         expect(EngagementEvents::count())->toBe(21);
     });
 
-    test('all 68 events have typed classes', function (): void {
+    test('all 70 events have typed classes', function (): void {
         $all = EventCatalog::all();
         foreach ($all as $name => $entry) {
             expect(isset($entry['class']))->toBeTrue("Event '{$name}' has no class");
@@ -49,7 +49,7 @@ describe('v2.42.0 Full System Validation', function (): void {
         }
     });
 
-    test('all 68 events have GA4 mappings', function (): void {
+    test('all 70 events have GA4 mappings', function (): void {
         $all = EventCatalog::all();
         foreach ($all as $name => $entry) {
             expect(isset($entry['ga4']) && $entry['ga4'] !== '')->toBeTrue(
@@ -58,7 +58,7 @@ describe('v2.42.0 Full System Validation', function (): void {
         }
     });
 
-    test('all 68 events have Meta mappings', function (): void {
+    test('all 70 events have Meta mappings', function (): void {
         $all = EventCatalog::all();
         foreach ($all as $name => $entry) {
             expect($entry['meta'] !== null)->toBeTrue(
@@ -172,7 +172,7 @@ describe('v2.42.0 Full System Validation', function (): void {
 
     // ── Source File Counts ────────────────────────────────────────
 
-    test('183 PHP source files in src/', function (): void {
+    test('188 PHP source files in src/', function (): void {
         $files = glob(__DIR__ . '/../src/**/*.php', GLOB_BRACE);
         // Glob with GLOB_BRACE may not work on all systems; use find as fallback
         $count = 0;
@@ -187,7 +187,7 @@ describe('v2.42.0 Full System Validation', function (): void {
         expect($count)->toBeGreaterThanOrEqual(180);
     });
 
-    test('86 PHP test files in tests/', function (): void {
+    test('88 PHP test files in tests/', function (): void {
         $count = 0;
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator(__DIR__ . '/../tests', RecursiveDirectoryIterator::SKIP_DOTS),
@@ -214,10 +214,10 @@ describe('v2.42.0 Full System Validation', function (): void {
 
     // ── Config File Completeness ─────────────────────────────────
 
-    test('config file has 40+ sections', function (): void {
+    test('config file has 53+ sections', function (): void {
         $configArray = require __DIR__ . '/../config/zeroboiler.php';
         $sections = array_keys($configArray['analytics'] ?? []);
-        expect(count($sections))->toBeGreaterThanOrEqual(40);
+        expect(count($sections))->toBeGreaterThanOrEqual(53);
     });
 
     test('config has GDPR consent purposes section', function (): void {
@@ -429,7 +429,7 @@ describe('v2.42.0 Full System Validation', function (): void {
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                // EventSourceTagger and AnalyticsManager should have 2.42.0
+                // EventSourceTagger and AnalyticsManager should have 2.43.0
                 if ($file->getFilename() !== 'EventSourceTagger.php' && $file->getFilename() !== 'AnalyticsManager.php') {
                     // Other source files shouldn't have hardcoded version strings
                     // (controller is tested separately)

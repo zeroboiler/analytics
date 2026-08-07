@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **68 typed event classes** across 3 categories (E-commerce 12, SaaS 35, Engagement 21)
+- **70 typed event classes** across 3 categories (E-commerce 12, SaaS 37, Engagement 21)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -94,7 +94,7 @@ Done. That's it.
 
 ### SaaS Analytics
 - **35 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, Subscription, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied)
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 68 events now have typed classes)
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 70 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
@@ -108,7 +108,7 @@ Done. That's it.
 ### E-commerce
 - **12 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
-- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 68 events (JS + PHP)
+- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 70 events (JS + PHP)
 - **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
 
 ### Identity & GDPR
@@ -260,7 +260,7 @@ src/
 │   ├── SaaS/                         # 35 SaaS event classes + SaaSEvents catalog
 │   ├── Engagement/                   # 21 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php               # Generic custom event
-│   └── EventCatalog.php              # Unified catalog (68 events, cross-provider mappings)
+│   └── EventCatalog.php              # Unified catalog (70 events, cross-provider mappings)
 ├── Middleware/
 │   ├── AnalyticsMiddlewareInterface.php   # Middleware contract
 │   ├── AnalyticsMiddlewareStack.php       # Priority-ordered middleware stack
@@ -740,8 +740,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 68 events across 3 categories
-EventCatalog::count();          // 68
+// Unified catalog — 70 events across 3 categories
+EventCatalog::count();          // 70
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -1059,7 +1059,7 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/analytics/health` | Health check (providers, consent, queue, metrics, replay, version) |
-| `GET` | `/api/analytics/catalog` | Full event catalog (68 events, categories, provider mappings) |
+| `GET` | `/api/analytics/catalog` | Full event catalog (70 events, categories, provider mappings) |
 | `GET` | `/api/analytics/stats` | Aggregated dashboard statistics (totals, top events, by-provider) |
 | `GET` | `/api/analytics/stream` | Real-time event stream (cursor-based polling) |
 | `GET` | `/api/analytics/stream/stats` | Event stream statistics |
@@ -1469,7 +1469,7 @@ This validates strict types, `final` modifiers, interface implementations, reado
 - **ConsentLogService** — New granular GDPR consent logging service with audit trail and DSAR export
 - **Consent purposes config** — New `consent.purposes` section in `config/zeroboiler.php` for frontend consent banners
 - **Inertia consent props** — `consentPurposes` now automatically exposed in Inertia page props
-- **SaaS event count** — 20 → 35 events (total catalog: 52 → 68 events)
+- **SaaS event count** — 20 → 37 events (total catalog: 52 → 70 events)
 - **No breaking changes** — All changes are additive.
 
 ### From v2.34.x to v2.35.0
@@ -1484,7 +1484,7 @@ composer update zeroboiler/analytics
 ```
 
 Changes:
-- **README documentation update** — All event counts, API endpoint references, version strings, and source file counts aligned with actual codebase (68 events, 183 source files, 86 test files, 50+ API endpoints)
+- **README documentation update** — All event counts, API endpoint references, version strings, and source file counts aligned with actual codebase (70 events, 185 source files, 87 test files, 75+ API endpoints)
 - **Missing API endpoints documented** — DLQ, realtime, AB tests, snapshots, KPI, UTM aggregation, reporting, broadcast, tenant, retention, gate, preference, opt-in/out
 - **Missing changelog entries** — v2.27 through v2.33 changelogs added to README
 - **Enterprise features section** — New feature category documenting v2.30+ capabilities
@@ -1588,7 +1588,7 @@ composer ci  # Pint + PHPStan + Rector + Tests
 - **VideoPlayEvent** — Video content interaction tracking
 - **EventCatalog::validate()** — Full catalog integrity validation (required keys, class existence, duplicates)
 - **Referral tracking config** — Referral code capture with TTL and conversion tracking
-- **Total events: 68** (12 ecom + 35 SaaS + 21 engagement)
+- **Total events: 70** (12 ecom + 37 SaaS + 21 engagement)
 
 ### v2.30.0 — Enterprise Features
 
@@ -1678,7 +1678,7 @@ composer ci  # Pint + PHPStan + Rector + Tests
 - **CohortAnalyticsService** — Time-based cohort tracking with assignCohort, trackRetention, trackChurn, trackConversion, trackMigration, trackEngagementSummary
 - **EventReplayQueue** — Failed event retry with exponential backoff and jitter (configurable max attempts, base/max delay)
 - **6 cohort event schemas** — cohort_assigned, cohort_retention, cohort_churn, cohort_conversion, cohort_migration, cohort_engagement registered in EventSchemaRegistry
-- **35 SaaS events** (was 20) — Account lifecycle (6), B2B/Team (4), Billing (5), + SubscriptionRenewal added to SaaS catalog, total events now 68
+- **37 SaaS events** (was 20) — Account lifecycle (6), B2B/Team (4), Billing (5), + SubscriptionRenewal added to SaaS catalog, total events now 70
 - **Health check expansion** — Now includes metrics summary, replay queue status, and event catalog summary
 - **Config** — New `replay` section with 5 environment variables (ANALYTICS_REPLAY_ENABLED, etc.)
 - **Service Provider** — CohortAnalyticsService and EventReplayQueue registered as singletons

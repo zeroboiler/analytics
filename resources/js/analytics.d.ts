@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.42.0
+ * @version 2.43.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -77,6 +77,19 @@ export interface PerformanceConfig {
     trackTTFB: boolean;
     trackFCP: boolean;
     sendToServer: boolean;
+}
+
+/** Performance budget configuration */
+export interface PerformanceBudgetConfig {
+    enabled: boolean;
+    max_payload_bytes: number;
+    max_params_count: number;
+    max_events_per_session: number;
+    max_events_per_user_per_day: number;
+    max_events_per_page_view: number;
+    max_param_value_length: number;
+    drop_oversized: boolean;
+    warn_only: boolean;
 }
 
 /** Event tracking options */
@@ -534,3 +547,21 @@ export function stopSessionHeartbeat(): void;
 
 /** Check if the session heartbeat is active */
 export function isHeartbeatActive(): boolean;
+
+/** Check if the analytics library has performance budget constraints */
+export function hasPerformanceBudget(): boolean;
+
+/** Get the configured performance budget limits */
+export function getPerformanceBudget(): PerformanceBudgetConfig | null;
+
+/** Estimate the payload size of an event in bytes */
+export function estimatePayloadSize(name: string, params?: Record<string, unknown>): number;
+
+/** Check if an event would exceed the configured payload budget */
+export function exceedsPayloadBudget(name: string, params?: Record<string, unknown>): boolean;
+
+/** Check if event forwarding is configured */
+export function isForwardingEnabled(): boolean;
+
+/** Get the list of configured forwarder names */
+export function getForwarderNames(): string[];

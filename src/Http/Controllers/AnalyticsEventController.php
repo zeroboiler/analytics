@@ -45,6 +45,9 @@ use ZeroBoiler\Analytics\Services\ABTestAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
 use ZeroBoiler\Analytics\Services\SaasKpiTracker;
 use ZeroBoiler\Analytics\Services\UtmAggregationService;
+use ZeroBoiler\Analytics\Services\EventForwardingService;
+use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
+use ZeroBoiler\Analytics\Services\UTMAttributionService;
 
 /**
  * API controller for frontend event tracking.
@@ -122,6 +125,12 @@ final class AnalyticsEventController extends Controller
 
     private ?UtmAggregationService $utmAggregation;
 
+    private ?EventForwardingService $forwardingService;
+
+    private ?PerformanceBudgetService $performanceBudgetService;
+
+    private ?UTMAttributionService $attributionService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -170,6 +179,9 @@ final class AnalyticsEventController extends Controller
         ?AnalyticsSnapshotService $snapshotService = null,
         ?SaasKpiTracker $kpiTracker = null,
         ?UtmAggregationService $utmAggregation = null,
+        ?EventForwardingService $forwardingService = null,
+        ?PerformanceBudgetService $performanceBudgetService = null,
+        ?UTMAttributionService $attributionService = null,
     ): void {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -200,6 +212,9 @@ final class AnalyticsEventController extends Controller
         $this->snapshotService = $snapshotService;
         $this->kpiTracker = $kpiTracker;
         $this->utmAggregation = $utmAggregation;
+        $this->forwardingService = $forwardingService;
+        $this->performanceBudgetService = $performanceBudgetService;
+        $this->attributionService = $attributionService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -477,7 +492,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -563,7 +578,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -921,7 +936,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1152,7 +1167,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
         ]);
@@ -1179,7 +1194,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'min_length' => $minLength,
             'count' => count($patterns),
             'patterns' => $patterns,
@@ -1205,7 +1220,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'count' => count($this->correlationService->topTransitions($limit)),
             'transitions' => $this->correlationService->topTransitions($limit),
         ]);
@@ -1237,7 +1252,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'after' => $afterEvent,
             'count' => count($predictions),
             'predictions' => $predictions,
@@ -1261,7 +1276,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'summary' => $this->correlationService->summary(),
         ]);
     }
@@ -1285,7 +1300,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => $result['valid'] ? 'ok' : 'errors',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'valid' => $result['valid'],
             'errors' => $result['errors'],
             'warnings' => $result['warnings'],
@@ -1320,7 +1335,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.42.0',
+                'version' => '2.43.0',
                 'device' => $context,
             ]);
         } catch (\Throwable) {
@@ -1352,7 +1367,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'referrer' => $referrer,
             'utm' => $utm,
         ]);
@@ -1374,7 +1389,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'broadcast' => [
                 'enabled' => $this->broadcasterService->isEnabled(),
                 'channel_prefix' => $this->broadcasterService->getChannelPrefix(),
@@ -1405,7 +1420,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'tenant_id' => $tenantId,
             'isolation' => $this->tenantService->summary(),
             'rate_limit' => $tenantId !== null
@@ -1472,7 +1487,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'retention' => $this->retentionService->summary(),
         ]);
     }
@@ -1496,7 +1511,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'gate' => $this->gateService->summary($userId),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
             'features' => AnalyticsGateService::getFeatureDefinitions(),
@@ -1512,7 +1527,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'features' => AnalyticsGateService::getFeatureDefinitions(),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
         ]);
@@ -1538,7 +1553,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'report' => $this->reportingService->report($period),
         ]);
     }
@@ -1718,7 +1733,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'realtime' => $this->realtimeService->snapshot(),
         ]);
     }
@@ -1764,7 +1779,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'experiment' => $results,
         ]);
     }
@@ -1861,7 +1876,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -1885,7 +1900,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -1903,7 +1918,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'comparison' => $this->snapshotService->dailyComparison(),
         ]);
     }
@@ -1926,7 +1941,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'kpi' => $this->kpiTracker->summary(),
         ]);
     }
@@ -1967,7 +1982,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'sources' => $this->utmAggregation->topSources($limit),
         ]);
     }
@@ -1987,7 +2002,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'campaigns' => $this->utmAggregation->topCampaigns($limit),
         ]);
     }
@@ -2005,8 +2020,274 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.42.0',
+            'version' => '2.43.0',
             'breakdown' => $this->utmAggregation->sourceMediumBreakdown(),
+        ]);
+    }
+
+    // ── Event Forwarding Endpoints ──────────────────────────────────
+
+    /**
+     * Get forwarding configuration and forwarder status.
+     *
+     * GET /api/analytics/forwarding
+     */
+    public function forwardingInfo(): JsonResponse
+    {
+        if ($this->forwardingService === null) {
+            return response()->json(['error' => 'Forwarding service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'enabled' => $this->forwardingService->isEnabled(),
+            'forwarders' => $this->forwardingService->forwarderNames(),
+            'details' => array_map(
+                fn (string $name): ?array => $this->forwardingService?->getForwarderConfig($name),
+                array_combine(
+                    $this->forwardingService->forwarderNames(),
+                    $this->forwardingService->forwarderNames(),
+                ),
+            ),
+        ]);
+    }
+
+    /**
+     * Get forwarding statistics.
+     *
+     * GET /api/analytics/forwarding/stats
+     */
+    public function forwardingStats(): JsonResponse
+    {
+        if ($this->forwardingService === null) {
+            return response()->json(['error' => 'Forwarding service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'stats' => $this->forwardingService->stats(),
+        ]);
+    }
+
+    /**
+     * Test a specific forwarder connection.
+     *
+     * POST /api/analytics/forwarding/test/{forwarder}
+     */
+    public function forwardingTest(string $forwarder): JsonResponse
+    {
+        if ($this->forwardingService === null) {
+            return response()->json(['error' => 'Forwarding service not available'], 503);
+        }
+
+        $result = $this->forwardingService->testForwarder($forwarder);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            ...$result,
+        ]);
+    }
+
+    /**
+     * Reset forwarding statistics.
+     *
+     * POST /api/analytics/forwarding/reset-stats
+     */
+    public function forwardingResetStats(): JsonResponse
+    {
+        if ($this->forwardingService === null) {
+            return response()->json(['error' => 'Forwarding service not available'], 503);
+        }
+
+        $this->forwardingService->resetStats();
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'message' => 'Forwarding statistics reset',
+        ]);
+    }
+
+    // ── Performance Budget Endpoints ───────────────────────────────
+
+    /**
+     * Get performance budget configuration.
+     *
+     * GET /api/analytics/performance-budget
+     */
+    public function performanceBudgetInfo(): JsonResponse
+    {
+        if ($this->performanceBudgetService === null) {
+            return response()->json(['error' => 'Performance budget service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'config' => $this->performanceBudgetService->getConfig(),
+        ]);
+    }
+
+    /**
+     * Validate an event against the performance budget.
+     *
+     * POST /api/analytics/performance-budget/validate
+     *
+     * Body: { "name": "event_name", "params": { ... } }
+     */
+    public function performanceBudgetValidate(Request $request): JsonResponse
+    {
+        if ($this->performanceBudgetService === null) {
+            return response()->json(['error' => 'Performance budget service not available'], 503);
+        }
+
+        $name = $request->input('name', '');
+        $params = $request->input('params', []);
+
+        $event = new AnalyticsEvent(
+            name: is_string($name) ? $name : '',
+            params: is_array($params) ? $params : [],
+        );
+
+        $validation = $this->performanceBudgetService->validate($event);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'payload_size' => $this->performanceBudgetService->getPayloadSize($event),
+            ...$validation,
+        ]);
+    }
+
+    // ── UTM Attribution Endpoints ───────────────────────────────────
+
+    /**
+     * Get UTM attribution for an identifier.
+     *
+     * GET /api/analytics/attribution/{identifier}
+     */
+    public function attributionInfo(string $identifier): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'attribution' => $this->attributionService->getAttribution($identifier),
+        ]);
+    }
+
+    /**
+     * Get all touchpoints for an identifier.
+     *
+     * GET /api/analytics/attribution/{identifier}/touchpoints
+     */
+    public function attributionTouchpoints(string $identifier): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'touchpoints' => $this->attributionService->getTouchpoints($identifier),
+        ]);
+    }
+
+    /**
+     * Get first-touch attribution for an identifier.
+     *
+     * GET /api/analytics/attribution/{identifier}/first-touch
+     */
+    public function attributionFirstTouch(string $identifier): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'first_touch' => $this->attributionService->getFirstTouch($identifier),
+        ]);
+    }
+
+    /**
+     * Get last-touch attribution for an identifier.
+     *
+     * GET /api/analytics/attribution/{identifier}/last-touch
+     */
+    public function attributionLastTouch(string $identifier): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'last_touch' => $this->attributionService->getLastTouch($identifier),
+        ]);
+    }
+
+    /**
+     * Record a UTM attribution touchpoint.
+     *
+     * POST /api/analytics/attribution/record
+     *
+     * Body: { "identifier": "...", "utm_params": {...}, "context": {...} }
+     */
+    public function attributionRecord(Request $request): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        $identifier = $request->input('identifier', '');
+        $utmParams = $request->input('utm_params', []);
+        $context = $request->input('context', []);
+
+        if (! is_string($identifier) || $identifier === '') {
+            return response()->json(['error' => 'identifier is required'], 422);
+        }
+
+        $this->attributionService->recordTouchpoint(
+            $identifier,
+            is_array($utmParams) ? $utmParams : [],
+            is_array($context) ? $context : [],
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'message' => 'Touchpoint recorded',
+            'attribution' => $this->attributionService->getAttribution($identifier),
+        ]);
+    }
+
+    /**
+     * Clear attribution data for an identifier.
+     *
+     * DELETE /api/analytics/attribution/{identifier}
+     */
+    public function attributionClear(string $identifier): JsonResponse
+    {
+        if ($this->attributionService === null) {
+            return response()->json(['error' => 'Attribution service not available'], 503);
+        }
+
+        $this->attributionService->clearAttribution($identifier);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.43.0',
+            'message' => 'Attribution data cleared',
         ]);
     }
 }

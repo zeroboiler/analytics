@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.42.0
+ * @version 2.43.0
  */
 
 let trackingId = null;
@@ -138,10 +138,10 @@ export function isInitialized() {
  *
  * Useful for diagnostics, debugging, and API compatibility checks.
  *
- * @returns {string} Semantic version (e.g. '2.42.0')
+ * @returns {string} Semantic version (e.g. '2.43.0')
  */
 export function getVersion() {
-    return '2.42.0';
+    return '2.43.0';
 }
 
 /**
@@ -2489,4 +2489,79 @@ export function stopSessionHeartbeat() {
  */
 export function isHeartbeatActive() {
     return heartbeatTimer !== null;
+}
+
+// ─── Performance Budget ────────────────────────────────────────────
+
+/**
+ * Check if the analytics library has performance budget constraints.
+ *
+ * @returns {boolean}
+ */
+export function hasPerformanceBudget() {
+    return initialized && config?.performanceBudget?.enabled === true;
+}
+
+/**
+ * Get the configured performance budget limits.
+ *
+ * @returns {object|null} Performance budget config or null if not configured
+ */
+export function getPerformanceBudget() {
+    return config?.performanceBudget || null;
+}
+
+/**
+ * Estimate the payload size of an event in bytes.
+ *
+ * @param {string} name - Event name
+ * @param {object} params - Event parameters
+ * @returns {number} Approximate payload size in bytes
+ */
+export function estimatePayloadSize(name, params = {}) {
+    return new Blob([JSON.stringify({ name, params })]).size;
+}
+
+/**
+ * Check if an event would exceed the configured payload budget.
+ *
+ * @param {string} name - Event name
+ * @param {object} params - Event parameters
+ * @returns {boolean} True if the event exceeds the budget
+ */
+export function exceedsPayloadBudget(name, params = {}) {
+    if (!hasPerformanceBudget()) return false;
+    return estimatePayloadSize(name, params) > (config?.performanceBudget?.max_payload_bytes || 8192);
+}
+
+// ─── Forwarding Config ─────────────────────────────────────────────
+
+/**
+ * Check if event forwarding is configured.
+ *
+ * @returns {boolean}
+ */
+export function isForwardingEnabled() {
+    return initialized && config?.forwarding?.enabled === true;
+}
+
+/**
+ * Get the list of configured forwarder names.
+ *
+ * @returns {string[]} Array of forwarder names
+ */
+export function getForwarderNames() {
+    if (!isForwardingEnabled()) return [];
+    return Object.keys(config?.forwarding?.forwarders || {});
+}
+
+// ─── Version ───────────────────────────────────────────────────────
+
+/**
+ * Get the library version string.
+ *
+ * @returns {string} Semantic version (e.g. '2.43.0')
+ */
+export function _getInternalVersion() {
+    return '2.43.0';
 }

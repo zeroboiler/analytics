@@ -936,5 +936,82 @@ return [
             'region_header' => env('ANALYTICS_GEO_REGION_HEADER', ''),
             'city_header' => env('ANALYTICS_GEO_CITY_HEADER', ''),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Forwarding (External Platforms)
+        |--------------------------------------------------------------------------
+        |
+        | Forward analytics events to external platforms like Segment, Mixpanel,
+        | Amplitude, or custom webhooks. Each forwarder has independent config,
+        | enable/disable toggle, and retry strategy.
+        |
+        */
+        'forwarding' => [
+            'enabled' => env('ANALYTICS_FORWARDING_ENABLED', false),
+            'timeout' => (int) env('ANALYTICS_FORWARDING_TIMEOUT', 5),
+            'retries' => (int) env('ANALYTICS_FORWARDING_RETRIES', 1),
+            'rate_limit_per_minute' => (int) env('ANALYTICS_FORWARDING_RATE_LIMIT', 1000),
+            'forwarders' => [
+                // 'segment' => [
+                //     'enabled' => true,
+                //     'type' => 'segment',
+                //     'write_key' => env('ANALYTICS_SEGMENT_WRITE_KEY', ''),
+                // ],
+                // 'mixpanel' => [
+                //     'enabled' => true,
+                //     'type' => 'mixpanel',
+                //     'token' => env('ANALYTICS_MIXPANEL_TOKEN', ''),
+                // ],
+                // 'amplitude' => [
+                //     'enabled' => true,
+                //     'type' => 'amplitude',
+                //     'api_key' => env('ANALYTICS_AMPLITUDE_API_KEY', ''),
+                // ],
+                // 'data_warehouse' => [
+                //     'enabled' => true,
+                //     'type' => 'custom',
+                //     'url' => env('ANALYTICS_CUSTOM_FORWARDER_URL', ''),
+                //     'headers' => ['Authorization' => 'Bearer ' . env('ANALYTICS_CUSTOM_FORWARDER_TOKEN', '')],
+                // ],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Performance Budget
+        |--------------------------------------------------------------------------
+        |
+        | Enforce limits on event payload size, rate per session, and daily quotas.
+        | Helps prevent analytics from impacting application performance or
+        | incurring excessive costs with external providers.
+        |
+        */
+        'performance_budget' => [
+            'enabled' => env('ANALYTICS_PERF_BUDGET_ENABLED', false),
+            'max_payload_bytes' => (int) env('ANALYTICS_PERF_MAX_PAYLOAD', 8192),
+            'max_params_count' => (int) env('ANALYTICS_PERF_MAX_PARAMS', 25),
+            'max_events_per_session' => (int) env('ANALYTICS_PERF_MAX_SESSION', 100),
+            'max_events_per_user_per_day' => (int) env('ANALYTICS_PERF_MAX_USER_DAY', 500),
+            'max_events_per_page_view' => (int) env('ANALYTICS_PERF_MAX_PAGE_VIEW', 50),
+            'max_param_value_length' => (int) env('ANALYTICS_PERF_MAX_VALUE_LEN', 500),
+            'drop_oversized' => env('ANALYTICS_PERF_DROP_OVERSIZED', true),
+            'warn_only' => env('ANALYTICS_PERF_WARN_ONLY', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | UTM Attribution Models
+        |--------------------------------------------------------------------------
+        |
+        | Configure UTM attribution strategy: first_touch, last_touch, or multi_touch.
+        | Multi-touch uses linear credit across all touchpoints within the session window.
+        |
+        */
+        'attribution' => [
+            'model' => env('ANALYTICS_ATTRIBUTION_MODEL', 'last_touch'),
+            'session_window_days' => (int) env('ANALYTICS_ATTRIBUTION_WINDOW', 30),
+            'cache_ttl' => (int) env('ANALYTICS_ATTRIBUTION_CACHE_TTL', 86400),
+        ],
     ],
 ];

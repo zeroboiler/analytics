@@ -81,6 +81,9 @@ use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
 use ZeroBoiler\Analytics\Services\SaasKpiTracker;
 use ZeroBoiler\Analytics\Services\UtmAggregationService;
 use ZeroBoiler\Analytics\Services\ConsentLogService;
+use ZeroBoiler\Analytics\Services\EventForwardingService;
+use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
+use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 
 /**
@@ -779,6 +782,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 enabled: (bool) ($geoConfig['enabled'] ?? true),
             );
         });
+
+        // Event forwarding service for external platforms (Segment, Mixpanel, Amplitude, custom)
+        $this->app->singleton(EventForwardingService::class, function (Application $app): EventForwardingService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventForwardingService($cache, $config);
+        });
+
+        // Performance budget service for analytics payload and rate management
+        $this->app->singleton(PerformanceBudgetService::class, function (Application $app): PerformanceBudgetService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PerformanceBudgetService($config);
+        });
+
+        // UTM attribution service with first-touch, last-touch, and multi-touch models
+        $this->app->singleton(UTMAttributionService::class, function (Application $app): UTMAttributionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new UTMAttributionService($cache, $config);
+        });
     }
 
     /**
@@ -961,6 +992,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/utm/sources', [$controller, 'utmTopSources']);
                 Route::get('analytics/utm/campaigns', [$controller, 'utmTopCampaigns']);
                 Route::get('analytics/utm/breakdown', [$controller, 'utmBreakdown']);
+
+                // Event forwarding endpoints
+                Route::get('analytics/forwarding', [$controller, 'forwardingInfo']);
+                Route::get('analytics/forwarding/stats', [$controller, 'forwardingStats']);
+                Route::post('analytics/forwarding/test/{forwarder}', [$controller, 'forwardingTest']);
+
+                // Performance budget endpoints
+                Route::get('analytics/performance-budget', [$controller, 'performanceBudgetInfo']);
+                Route::post('analytics/performance-budget/validate', [$controller, 'performanceBudgetValidate']);
+
+                // UTM attribution endpoints
+                Route::get('analytics/attribution/{identifier}', [$controller, 'attributionInfo']);
+                Route::get('analytics/attribution/{identifier}/touchpoints', [$controller, 'attributionTouchpoints']);
+                Route::get('analytics/attribution/{identifier}/first-touch', [$controller, 'attributionFirstTouch']);
+                Route::get('analytics/attribution/{identifier}/last-touch', [$controller, 'attributionLastTouch']);
             });
 
         // Authenticated endpoints
@@ -978,6 +1024,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/profile', [$controller, 'profile']);
                 Route::delete('analytics/data', [$controller, 'eraseData']);
                 Route::post('analytics/tenant/config', [$controller, 'updateTenantConfig']);
+                Route::post('analytics/attribution/record', [$controller, 'attributionRecord']);
+                Route::delete('analytics/attribution/{identifier}', [$controller, 'attributionClear']);
+                Route::post('analytics/forwarding/reset-stats', [$controller, 'forwardingResetStats']);
             });
     }
 }
