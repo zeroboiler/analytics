@@ -34,6 +34,10 @@ use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
 use ZeroBoiler\Analytics\Services\EventSourceTagger;
 use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
+use ZeroBoiler\Analytics\Services\EventBroadcasterService;
+use ZeroBoiler\Analytics\Services\TenantIsolationService;
+use ZeroBoiler\Analytics\Services\DataRetentionPolicyService;
+use ZeroBoiler\Analytics\Services\AnalyticsGateService;
 
 /**
  * API controller for frontend event tracking.
@@ -89,6 +93,14 @@ final class AnalyticsEventController extends Controller
 
     private ?ReferrerTrackingService $referrerTrackingService;
 
+    private ?EventBroadcasterService $broadcasterService;
+
+    private ?TenantIsolationService $tenantService;
+
+    private ?DataRetentionPolicyService $retentionService;
+
+    private ?AnalyticsGateService $gateService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -126,6 +138,10 @@ final class AnalyticsEventController extends Controller
         ?AnalyticsConfigValidator $configValidator = null,
         ?EventSourceTagger $sourceTagger = null,
         ?ReferrerTrackingService $referrerTrackingService = null,
+        ?EventBroadcasterService $broadcasterService = null,
+        ?TenantIsolationService $tenantService = null,
+        ?DataRetentionPolicyService $retentionService = null,
+        ?AnalyticsGateService $gateService = null,
     ) {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -145,6 +161,10 @@ final class AnalyticsEventController extends Controller
         $this->configValidator = $configValidator;
         $this->sourceTagger = $sourceTagger;
         $this->referrerTrackingService = $referrerTrackingService;
+        $this->broadcasterService = $broadcasterService;
+        $this->tenantService = $tenantService;
+        $this->retentionService = $retentionService;
+        $this->gateService = $gateService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -422,7 +442,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -508,7 +528,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -866,7 +886,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1097,7 +1117,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
         ]);
@@ -1124,7 +1144,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'min_length' => $minLength,
             'count' => count($patterns),
             'patterns' => $patterns,
@@ -1150,7 +1170,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'count' => count($this->correlationService->topTransitions($limit)),
             'transitions' => $this->correlationService->topTransitions($limit),
         ]);
@@ -1182,7 +1202,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'after' => $afterEvent,
             'count' => count($predictions),
             'predictions' => $predictions,
@@ -1206,7 +1226,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'summary' => $this->correlationService->summary(),
         ]);
     }
@@ -1230,7 +1250,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => $result['valid'] ? 'ok' : 'errors',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'valid' => $result['valid'],
             'errors' => $result['errors'],
             'warnings' => $result['warnings'],
@@ -1265,7 +1285,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.29.0',
+                'version' => '2.30.0',
                 'device' => $context,
             ]);
         } catch (\Throwable) {
@@ -1297,9 +1317,169 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.29.0',
+            'version' => '2.30.0',
             'referrer' => $referrer,
             'utm' => $utm,
+        ]);
+    }
+
+    /**
+     * Get the analytics broadcast configuration and channel info.
+     *
+     * GET /api/analytics/broadcast
+     *
+     * Returns the broadcast channel prefix, enabled status, and
+     * available channels for frontend WebSocket integration.
+     */
+    public function broadcastInfo(): JsonResponse
+    {
+        if ($this->broadcasterService === null) {
+            return response()->json(['error' => 'Broadcast service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.30.0',
+            'broadcast' => [
+                'enabled' => $this->broadcasterService->isEnabled(),
+                'channel_prefix' => $this->broadcasterService->getChannelPrefix(),
+                'channels' => [
+                    'events' => $this->broadcasterService->channelName('events'),
+                    'alerts' => $this->broadcasterService->channelName('alerts'),
+                    'metrics' => $this->broadcasterService->channelName('metrics'),
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Get tenant isolation status and rate limit info.
+     *
+     * GET /api/analytics/tenant
+     *
+     * Returns the current tenant ID, isolation status, per-tenant config,
+     * and rate limit information. Useful for multi-tenant admin dashboards.
+     */
+    public function tenantInfo(Request $request): JsonResponse
+    {
+        if ($this->tenantService === null) {
+            return response()->json(['error' => 'Tenant isolation not available'], 503);
+        }
+
+        $tenantId = $this->tenantService->resolveTenantId();
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.30.0',
+            'tenant_id' => $tenantId,
+            'isolation' => $this->tenantService->summary(),
+            'rate_limit' => $tenantId !== null
+                ? $this->tenantService->getRateLimitStatus($tenantId)
+                : null,
+            'config' => $tenantId !== null
+                ? $this->tenantService->getTenantConfig($tenantId)
+                : null,
+        ]);
+    }
+
+    /**
+     * Update per-tenant analytics configuration.
+     *
+     * POST /api/analytics/tenant/config
+     *
+     * Body: { "disabled_events": ["error"], "analytics_enabled": true }
+     */
+    public function updateTenantConfig(Request $request): JsonResponse
+    {
+        if ($this->tenantService === null) {
+            return response()->json(['error' => 'Tenant isolation not available'], 503);
+        }
+
+        $tenantId = $this->tenantService->resolveTenantId();
+
+        if ($tenantId === null || $tenantId === '') {
+            return response()->json(['error' => 'No tenant resolved from request'], 400);
+        }
+
+        $request->validate([
+            'disabled_events' => 'array',
+            'disabled_events.*' => 'string',
+            'analytics_enabled' => 'boolean',
+        ]);
+
+        $overrides = $request->only(['disabled_events', 'analytics_enabled']);
+
+        if (! empty($overrides)) {
+            $this->tenantService->setTenantConfig($tenantId, $overrides);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'tenant_id' => $tenantId,
+            'config' => $this->tenantService->getTenantConfig($tenantId),
+        ]);
+    }
+
+    /**
+     * Get data retention policy summary.
+     *
+     * GET /api/analytics/retention
+     *
+     * Returns retention periods per category, PII categories,
+     * auto-expire status, and tracked event counts.
+     * Useful for GDPR compliance dashboards.
+     */
+    public function retentionInfo(): JsonResponse
+    {
+        if ($this->retentionService === null) {
+            return response()->json(['error' => 'Retention service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.30.0',
+            'retention' => $this->retentionService->summary(),
+        ]);
+    }
+
+    /**
+     * Get analytics feature gate status.
+     *
+     * GET /api/analytics/gate
+     *
+     * Returns available features, plan tier, and per-feature access status.
+     * Enables frontend feature-flagging of analytics UI components.
+     */
+    public function gateInfo(Request $request): JsonResponse
+    {
+        if ($this->gateService === null) {
+            return response()->json(['error' => 'Analytics gate not available'], 503);
+        }
+
+        $user = $request->user();
+        $userId = $user !== null ? (is_int($user->getKey()) || is_string($user->getKey()) ? (string) $user->getKey() : null) : null;
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.30.0',
+            'gate' => $this->gateService->summary($userId),
+            'plan_tiers' => AnalyticsGateService::getPlanTiers(),
+            'features' => AnalyticsGateService::getFeatureDefinitions(),
+        ]);
+    }
+
+    /**
+     * Get feature definitions and plan tiers for client-side feature flagging.
+     *
+     * GET /api/analytics/gate/definitions
+     */
+    public function gateDefinitions(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.30.0',
+            'features' => AnalyticsGateService::getFeatureDefinitions(),
+            'plan_tiers' => AnalyticsGateService::getPlanTiers(),
         ]);
     }
 }

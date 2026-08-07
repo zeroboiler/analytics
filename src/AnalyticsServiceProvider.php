@@ -68,6 +68,10 @@ use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
 use ZeroBoiler\Analytics\Services\EventSourceTagger;
 use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
+use ZeroBoiler\Analytics\Services\EventBroadcasterService;
+use ZeroBoiler\Analytics\Services\TenantIsolationService;
+use ZeroBoiler\Analytics\Services\DataRetentionPolicyService;
+use ZeroBoiler\Analytics\Services\AnalyticsGateService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -618,6 +622,44 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Referrer tracking service for conversion attribution
         $this->app->singleton(ReferrerTrackingService::class);
+
+        // Event broadcaster for real-time analytics via Laravel Echo
+        $this->app->singleton(EventBroadcasterService::class, function (Application $app): EventBroadcasterService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventBroadcasterService($config);
+        });
+
+        // Tenant isolation service for multi-tenant SaaS analytics
+        $this->app->singleton(TenantIsolationService::class, function (Application $app): TenantIsolationService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new TenantIsolationService($cache, $config);
+        });
+
+        // Data retention policy service for GDPR compliance
+        $this->app->singleton(DataRetentionPolicyService::class, function (Application $app): DataRetentionPolicyService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DataRetentionPolicyService($cache, $config);
+        });
+
+        // Analytics gate service for per-plan feature access control
+        $this->app->singleton(AnalyticsGateService::class, function (Application $app): AnalyticsGateService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsGateService($cache, $config);
+        });
     }
 
     /**
@@ -756,6 +798,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/config/validate', [$controller, 'validateConfig']);
                 Route::get('analytics/device', [$controller, 'deviceContext']);
                 Route::get('analytics/referrer', [$controller, 'referrerInfo']);
+
+                // Broadcast, tenant, retention, gate endpoints
+                Route::get('analytics/broadcast', [$controller, 'broadcastInfo']);
+                Route::get('analytics/tenant', [$controller, 'tenantInfo']);
+                Route::get('analytics/retention', [$controller, 'retentionInfo']);
+                Route::get('analytics/gate', [$controller, 'gateInfo']);
+                Route::get('analytics/gate/definitions', [$controller, 'gateDefinitions']);
             });
 
         // Authenticated endpoints
@@ -772,6 +821,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/preference', [$controller, 'preference']);
                 Route::get('analytics/profile', [$controller, 'profile']);
                 Route::delete('analytics/data', [$controller, 'eraseData']);
+                Route::post('analytics/tenant/config', [$controller, 'updateTenantConfig']);
             });
     }
 }

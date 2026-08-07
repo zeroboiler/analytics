@@ -5,26 +5,25 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 ## [Unreleased]
 
 ### Added
-- **AnalyticsConfigValidator** — Validates analytics config structure on boot. Checks provider credentials (GA4 measurement_id format, GTM container_id prefix, Meta Pixel ID, Plausible domain, PostHog API key, webhook URL HTTPS), cross-dependencies, sampling rate range, retention days, consent defaults, and best-practice warnings. Returns structured results with error/warning/info levels for admin dashboards.
-- **EventSourceTagger** — Automatic event source metadata tagging. Tags all dispatched events with `_source` (api, server, cron, webhook_inbound, lifecycle, batch, test), `_timestamp`, and `_version`. Provides typed tagging methods: `tagAsApi()`, `tagAsServer()`, `tagAsCron()`, `tagAsWebhook()`, `tagAsLifecycle()`, `tagAsBatch()`. Immutable — returns new AnalyticsEvent instances.
-- **ReferrerTrackingService** — Comprehensive referrer tracking for conversion attribution. Detects social networks (Facebook, Instagram, Twitter/X, LinkedIn, YouTube, TikTok, Reddit, Pinterest, Snapchat, WhatsApp, Threads, Mastodon), search engines (Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex, Ecosia), email providers, and generic referrals. Parses UTM parameters, guesses UTM medium from source, builds tracked URLs, and normalizes referrer URLs.
-- **AnalyticsReferrerMiddleware** — HTTP middleware that automatically captures referrer context and attaches it to all analytics events dispatched during the request lifecycle. Stores referrer data and UTM params as request attributes. Registered as `analytics.referrer` middleware alias.
-- **3 new API endpoints** — `GET /api/analytics/config/validate` (config validation result), `GET /api/analytics/device` (User-Agent parsing via DeviceContextService), `GET /api/analytics/referrer` (referrer source categorization and UTM extraction).
-- **3 new config sections** — `retention` (enabled, days, archive_action), `source_tagging` (enabled, tag_version), `validation_boot` (enabled, log_level).
-- **8 new AnalyticsConfig accessors** — retentionEnabled(), retentionDays(), retentionArchiveAction(), sourceTaggingEnabled(), sourceTaggingVersion(), validationBootEnabled(), validationBootLogLevel(). Summary expanded to 27 sections (was 24).
-- **3 new service bindings** in AnalyticsServiceProvider: AnalyticsConfigValidator, EventSourceTagger, ReferrerTrackingService.
-- **V29ConfigValidationSourceReferrerTest** — 50+ new test cases covering AnalyticsConfigValidator (12 tests: empty config, GA4/GTM/Meta/Webhook missing credentials, format warnings, sampling range, retention days, consent defaults, queue info, isValid, errors, warnings), EventSourceTagger (14 tests: tagging, all source types, invalid source fallback, extraction, isTagged, validSources, immutability), ReferrerTrackingService (15 tests: UTM extraction, direct traffic, UTM priority, social detection, search engine detection, generic referral, URL normalization, isSocial/isSearchEngine helpers, buildTrackedUrl, www stripping), config expansion (6 tests: new accessors, summary sections, count), version consistency (4 tests: version string, catalog count, categories, uniqueness).
+- **EventBroadcasterService** — Real-time analytics event broadcasting via Laravel Echo/Broadcasting. Supports selective event broadcasting (filter by name, category, value threshold), channel-based routing (global, category, specific event), private and public channels, alert broadcasts for high-priority events, metrics snapshots to dashboard channels. Config-driven via `zeroboiler.analytics.broadcast`.
+- **TenantIsolationService** — Multi-tenant analytics data isolation for B2B SaaS. Automatic tenant ID resolution from authenticated user attribute, request header (X-Tenant-ID), subdomain, or session. Per-tenant config overrides (disabled events, analytics enabled toggle), per-tenant rate limiting (events per hour), tenant context propagation to all events. Config-driven via `zeroboiler.analytics.tenant`.
+- **DataRetentionPolicyService** — GDPR-compliant data retention management. Per-category retention periods (engagement: 30d, SaaS: 90d, ecommerce: 365d), PII category tracking, automatic event expiry checking, configurable auto-expire, retention clamping (1 day min, 10 year max), retention recording and summary reporting. Config-driven via `zeroboiler.analytics.retention`.
+- **AnalyticsGateService** — Feature-flag-style analytics access control for tiered SaaS plans. 12 features (events, pageviews, ecommerce, cohorts, funnels, predictions, export, broadcast, alerts, profile, attribution, multi_tenant) with dependency enforcement. 4 plan tiers (Free, Starter, Pro, Enterprise) with per-feature enablement. Per-user and per-tenant overrides with cache-backed resolution. Plan auto-detection from user model attribute. Config-driven via `zeroboiler.analytics.gate`.
+- **7 new API endpoints** — `GET /api/analytics/broadcast` (broadcast channel info), `GET /api/analytics/tenant` (tenant isolation status + rate limit), `POST /api/analytics/tenant/config` (per-tenant config update, auth), `GET /api/analytics/retention` (retention policy summary), `GET /api/analytics/gate` (feature gate status for current user), `GET /api/analytics/gate/definitions` (feature + plan tier definitions for client-side).
+- **15 new AnalyticsConfig accessors** — broadcastEnabled(), broadcastChannelPrefix(), broadcastPrivateChannels(), broadcastValueThreshold(), tenantEnabled(), tenantResolutionStrategy(), tenantHeader(), tenantEventsPerHour(), retentionPolicyEnabled(), retentionPolicyAutoExpire(), retentionPolicyPiiCategories(), gateEnabled(), gateDefaultPlan(), gatePlanAttribute(). Summary expanded to 31 sections (was 27).
+- **4 new service bindings** in AnalyticsServiceProvider: EventBroadcasterService, TenantIsolationService, DataRetentionPolicyService, AnalyticsGateService.
+- **V30EnterpriseFeaturesTest** — 50+ new test cases covering EventBroadcasterService (6 tests: disabled default, enabled config, no broadcast when disabled, value threshold filter, critical events always broadcast, channel naming), TenantIsolationService (7 tests: disabled default, enabled config, event enrichment passthrough, set/get config, reset config, shouldTrack with disabled events, blocks disabled events), DataRetentionPolicyService (8 tests: disabled default, allows all when disabled, enabled with defaults, expiry date, period clamping, PII category, summary, record event), AnalyticsGateService (13 tests: disabled default, enabled with default plan, global override, pro plan features, enterprise plan features, unknown feature, event-by-category, available features, feature definitions, plan tiers, user override, summary), integration checks (5 tests: all services final, strict types, files exist, provider bindings, routes registered, config accessors).
 
 ### Changed
-- Version bump to 2.29.0
-- AnalyticsManager::version() returns '2.29.0' (was '2.28.0')
-- Controller version strings updated to 2.29.0 on all endpoints
-- Composer version updated to 2.29.0
-- JS client version string updated to 2.29.0
-- Total service count: 38+ services registered in ServiceProvider
-- Total API endpoints: 31 public + 10 authenticated
-- Total config sections: 38 (was 35)
-- AnalyticsReferrerMiddleware registered as `analytics.referrer` middleware alias
+- Version bump to 2.30.0
+- AnalyticsManager::version() returns '2.30.0' (was '2.29.0')
+- Controller version strings updated to 2.30.0 on all endpoints
+- Composer version updated to 2.30.0
+- JS client version string updated to 2.30.0
+- Total service count: 42+ services registered in ServiceProvider (was 38+)
+- Total API endpoints: 37 public + 11 authenticated (was 31 + 10)
+- Total config sections: 31 (was 27)
+- Total PHP source files: 153 (was 149)
 
 ## [2.28.0] - 2026-08-06
 

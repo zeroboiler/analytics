@@ -806,6 +806,93 @@ final class AnalyticsConfig
         return (string) $this->get('validation_boot.log_level', 'warning');
     }
 
+    // ── Broadcast ────────────────────────────────────────────────────
+
+    public function broadcastEnabled(): bool
+    {
+        return (bool) $this->get('broadcast.enabled', false);
+    }
+
+    public function broadcastChannelPrefix(): string
+    {
+        return (string) $this->get('broadcast.channel_prefix', 'analytics');
+    }
+
+    public function broadcastPrivateChannels(): bool
+    {
+        return (bool) $this->get('broadcast.private_channels', true);
+    }
+
+    public function broadcastValueThreshold(): ?float
+    {
+        $threshold = $this->get('broadcast.value_threshold');
+
+        return is_numeric($threshold) ? (float) $threshold : null;
+    }
+
+    // ── Tenant Isolation ────────────────────────────────────────────
+
+    public function tenantEnabled(): bool
+    {
+        return (bool) $this->get('tenant.enabled', false);
+    }
+
+    public function tenantResolutionStrategy(): string
+    {
+        return (string) $this->get('tenant.resolution_strategy', 'user_attribute');
+    }
+
+    public function tenantHeader(): string
+    {
+        return (string) $this->get('tenant.tenant_header', 'X-Tenant-ID');
+    }
+
+    public function tenantEventsPerHour(): ?int
+    {
+        $limit = $this->get('tenant.events_per_hour');
+
+        return is_int($limit) ? $limit : null;
+    }
+
+    // ── Retention Policy ─────────────────────────────────────────────
+
+    public function retentionPolicyEnabled(): bool
+    {
+        return (bool) $this->get('retention.enabled', false);
+    }
+
+    public function retentionPolicyAutoExpire(): bool
+    {
+        return (bool) $this->get('retention.auto_expire', false);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function retentionPolicyPiiCategories(): array
+    {
+        $categories = $this->get('retention.pii_categories', ['pii']);
+
+        return is_array($categories) ? $categories : ['pii'];
+    }
+
+    // ── Analytics Gate ────────────────────────────────────────────────
+
+    public function gateEnabled(): bool
+    {
+        return (bool) $this->get('gate.enabled', false);
+    }
+
+    public function gateDefaultPlan(): string
+    {
+        return (string) $this->get('gate.default_plan', 'free');
+    }
+
+    public function gatePlanAttribute(): string
+    {
+        return (string) $this->get('gate.plan_attribute', 'plan');
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -974,6 +1061,27 @@ final class AnalyticsConfig
             'validation_boot' => [
                 'enabled' => $this->validationBootEnabled(),
                 'log_level' => $this->validationBootLogLevel(),
+            ],
+            'broadcast' => [
+                'enabled' => $this->broadcastEnabled(),
+                'channel_prefix' => $this->broadcastChannelPrefix(),
+                'private_channels' => $this->broadcastPrivateChannels(),
+            ],
+            'tenant' => [
+                'enabled' => $this->tenantEnabled(),
+                'strategy' => $this->tenantResolutionStrategy(),
+                'header' => $this->tenantHeader(),
+                'rate_limit' => $this->tenantEventsPerHour(),
+            ],
+            'retention_policy' => [
+                'enabled' => $this->retentionPolicyEnabled(),
+                'auto_expire' => $this->retentionPolicyAutoExpire(),
+                'pii_categories' => $this->retentionPolicyPiiCategories(),
+            ],
+            'gate' => [
+                'enabled' => $this->gateEnabled(),
+                'default_plan' => $this->gateDefaultPlan(),
+                'plan_attribute' => $this->gatePlanAttribute(),
             ],
         ];
     }
