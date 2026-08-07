@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.58.0
+ * @version 2.59.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -602,3 +602,17 @@ export function getOptionalConsentPurposes(): Record<string, { label: string; de
 
 /** Build consent signals from granular purpose grants/denials */
 export function buildConsentSignals(grants: Record<string, boolean>): Record<string, 'granted' | 'denied'>;
+
+// ─── SaaS Journey Milestone Tracking ──────────────────────────────────
+
+/** Record a milestone hit in a SaaS journey */
+export function trackJourneyMilestone(journey: string, milestone: string, params?: object): Promise<object | null>;
+
+/** Get progress for a specific journey */
+export function getJourneyProgress(journey: string): Promise<object | null>;
+
+/** Get all registered journeys and their progress */
+export function getAllJourneys(): Promise<{ journeys: object; progress: object } | null>;
+
+/** Reset progress for a specific journey */
+export function resetJourneyProgress(journey: string): Promise<boolean>;

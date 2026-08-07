@@ -53,6 +53,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsScheduledReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
+use ZeroBoiler\Analytics\Services\SaaSJourneyService;
+use ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService;
 use ZeroBoiler\Analytics\Services\EventDeduplicationService;
 use ZeroBoiler\Analytics\Services\DeviceContextService;
 use ZeroBoiler\Analytics\Services\IpAnonymizationService;
@@ -577,6 +579,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $preferenceService = $app->make(TrackingPreferenceService::class);
 
             return new GdprErasureService($profileService, $attributionService, $preferenceService);
+        });
+
+        // SaaS Journey Milestone tracking service
+        $this->app->singleton(SaaSJourneyService::class, function (Application $app): SaaSJourneyService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSJourneyService($manager, $cache, $config);
+        });
+
+        // Analytics data anonymization service (GDPR PII masking)
+        $this->app->singleton(AnalyticsAnonymizationService::class, function (Application $app): AnalyticsAnonymizationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsAnonymizationService($config);
         });
 
         // Event alert rules service for threshold-based alerting
@@ -1129,6 +1151,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::delete('analytics/attribution/{identifier}', [$controller, 'attributionClear']);
                 Route::post('analytics/forwarding/reset-stats', [$controller, 'forwardingResetStats']);
                 Route::get('analytics/consent/history', [$controller, 'consentHistory']);
+
+                // SaaS Journey Milestone tracking
+                Route::post('analytics/journeys/{journey}/milestone', [$controller, 'journeyHitMilestone']);
+                Route::get('analytics/journeys/{journey}/progress', [$controller, 'journeyGetProgress']);
+                Route::get('analytics/journeys', [$controller, 'journeyListAll']);
+                Route::delete('analytics/journeys/{journey}', [$controller, 'journeyResetProgress']);
             });
     }
 }

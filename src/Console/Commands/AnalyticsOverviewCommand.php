@@ -243,6 +243,8 @@ final class AnalyticsOverviewCommand extends Command
             'Health diagnostic command (zb:analytics:health)',
             'TypeScript type definitions (analytics.d.ts)',
             'JS sendBeacon unload flush (prevent data loss on navigation)',
+            'SaaS Journey Milestone tracker (multi-step journey completion)',
+            'Analytics data anonymization service (HMAC-SHA256 + masking)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

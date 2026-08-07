@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.58.0
+ * @version 2.59.0
  */
 
 let trackingId = null;
@@ -139,10 +139,10 @@ export function isInitialized() {
  *
  * Useful for diagnostics, debugging, and API compatibility checks.
  *
- * @returns {string} Semantic version (e.g. '2.58.0')
+ * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.58.0';
+    return '2.59.0';
 }
 
 /**
@@ -2757,6 +2757,137 @@ export function buildConsentSignals(grants) {
     return signals;
 }
 
+// ─── SaaS Journey Milestone Tracking ──────────────────────────────────
+
+/**
+ * Record a milestone hit in a SaaS journey.
+ *
+ * Tracks progression through configurable multi-step journeys (e.g.,
+ * signup → trial → subscription). When all milestones in a journey
+ * are completed, a `journey_completed` event is dispatched server-side
+ * with full timing metadata.
+ *
+ * @param {string} journey - Journey name (e.g., 'acquisition', 'trial')
+ * @param {string} milestone - Milestone identifier (e.g., 'signup_confirm')
+ * @param {object} [params] - Additional event parameters
+ * @returns {Promise<object|null>} Journey progress after hit, or null on failure
+ *
+ * @example
+ * await trackJourneyMilestone('acquisition', 'signup_confirm', { plan: 'pro' });
+ * await trackJourneyMilestone('trial', 'trial_start', { trial_days: 14 });
+ */
+export async function trackJourneyMilestone(journey, milestone, params = {}) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/journeys/${encodeURIComponent(journey)}/milestone`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ milestone, params }),
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get progress for a specific journey.
+ *
+ * @param {string} journey - Journey name
+ * @returns {Promise<object|null>} Journey progress or null on failure
+ *
+ * @example
+ * const progress = await getJourneyProgress('trial');
+ * // { journey: 'trial', completed: false, completed_milestones: ['trial_start'], ... }
+ */
+export async function getJourneyProgress(journey) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/journeys/${encodeURIComponent(journey)}/progress`, {
+            headers: {
+                Accept: 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+            },
+        });
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+        return data.progress || null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get all registered journeys and their progress for the current client.
+ *
+ * @returns {Promise<{journeys: object, progress: object}|null>}
+ *
+ * @example
+ * const result = await getAllJourneys();
+ * // result.journeys = { acquisition: { label: 'Acquisition Funnel', milestones: [...] }, ... }
+ * // result.progress = { acquisition: { completed: true, progress_percent: 100 }, ... }
+ */
+export async function getAllJourneys() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/journeys`, {
+            headers: {
+                Accept: 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Reset progress for a specific journey.
+ *
+ * @param {string} journey - Journey name
+ * @returns {Promise<boolean>} True if reset was successful
+ *
+ * @example
+ * await resetJourneyProgress('acquisition');
+ */
+export async function resetJourneyProgress(journey) {
+    if (!initialized) return false;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/journeys/${encodeURIComponent(journey)}`, {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+            },
+        });
+
+        return response.ok;
+    } catch {
+        return false;
+    }
+}
+
 // ─── Forwarding Config ─────────────────────────────────────────────
 
 /**
@@ -2783,8 +2914,8 @@ export function getForwarderNames() {
 /**
  * Get the library version string.
  *
- * @returns {string} Semantic version (e.g. '2.58.0')
+ * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function _getInternalVersion() {
-    return '2.58.0';
+    return '2.59.0';
 }

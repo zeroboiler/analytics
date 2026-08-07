@@ -1217,5 +1217,77 @@ return [
             'archive_days' => (int) env('ANALYTICS_SCHEDULED_REPORTS_ARCHIVE_DAYS', 90),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | SaaS Journey Milestones
+        |-------------------------------------------------------------------------- 
+        |
+        | Track user progression through configurable multi-step journeys.
+        | Each journey has named milestones. When all are completed, a
+        | `journey_completed` event is dispatched with timing metadata.
+        |
+        | Add custom journeys in 'definitions'. Built-in journeys:
+        | - acquisition (landing → signup → confirm)
+        | - trial (trial_start → trial_active → checkout)
+        | - expansion (upgrade_eligible → upgrade_select → checkout)
+        | - activation (signup → first_feature → first_return → profile)
+        |
+        */
+        'journeys' => [
+            'enabled' => env('ANALYTICS_JOURNEYS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_JOURNEYS_CACHE_TTL', 2592000), // 30 days
+            'definitions' => [
+                // Custom journeys override/extend the built-in defaults:
+                // 'onboarding' => [
+                //     'label' => 'Onboarding Flow',
+                //     'milestones' => ['welcome_view', 'profile_setup', 'team_invite', 'first_action'],
+                //     'completed_event' => 'journey_onboarding_completed',
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Anonymization (GDPR PII Masking)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, event parameters matching configured field patterns
+        | are anonymized before dispatch. Uses HMAC-SHA256 for deterministic
+        | ID anonymization and prefix masking for general values.
+        |
+        | Strategies:
+        | - Email: mask local part, preserve domain (joh***@example.com)
+        | - Phone: mask middle digits (123****89)
+        | - IP: zero last octet (192.168.1.0)
+        | - UUID: deterministic HMAC replacement
+        | - General: prefix + asterisk masking
+        |
+        */
+        'anonymization' => [
+            'enabled' => env('ANALYTICS_ANONYMIZATION_ENABLED', false),
+            'salt' => env('ANALYTICS_ANONYMIZATION_SALT', 'zb_anon_salt'),
+            'global_fields' => [
+                'email',
+                'phone',
+                'ip_address',
+                'user_agent',
+                'full_name',
+                'first_name',
+                'last_name',
+                'address',
+                'credit_card',
+            ],
+            'event_rules' => [
+                // Per-event field rules (merged with global):
+                // 'sign_up' => ['email', 'name'],
+                // 'login' => ['ip_address'],
+            ],
+            'category_rules' => [
+                // Per-category field rules (merged with global):
+                // 'saas' => ['email', 'name'],
+                // 'ecommerce' => ['credit_card', 'billing_address'],
+            ],
+        ],
+
     ],
 ];

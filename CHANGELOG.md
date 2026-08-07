@@ -15,6 +15,13 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+### Added
+- **SaaS Journey Milestone Tracker** — Multi-step journey tracking service (`SaaSJourneyService`) with configurable journeys (acquisition, trial, expansion, activation). Records milestone hits via cache persistence, dispatches step events on each milestone and completion events with full timing metadata (duration, step-level timings). Registered as singleton in ServiceProvider. 4 API endpoints: `POST /api/analytics/journeys/{name}/milestone`, `GET /api/analytics/journeys/{name}/progress`, `GET /api/analytics/journeys`, `DELETE /api/analytics/journeys/{name}`.
+- **JS Journey Client** — 4 new exported functions: `trackJourneyMilestone()`, `getJourneyProgress()`, `getAllJourneys()`, `resetJourneyProgress()`. Full TypeScript definitions in `analytics.d.ts`.
+- **Analytics Data Anonymization Service** — GDPR-compliant PII masking (`AnalyticsAnonymizationService`) with HMAC-SHA256 deterministic ID anonymization, type-aware field value masking (email, phone, IP, UUID, general string). Config-driven field rules: global fields, per-event rules (`event_rules`), per-category rules (`category_rules`). Supports wildcard field matching (`user_*`, `*_email`). Includes `auditTrail()` for compliance auditing. Registered as singleton in ServiceProvider.
+- **Config expansion** — New `journeys` section (enabled, cache_ttl, definitions) and `anonymization` section (enabled, salt, global_fields, event_rules, category_rules) in `config/zeroboiler.php`.
+- **Tests** — `SaaSJourneyServiceTest` (12 test cases: milestone recording, journey completion, idempotency, invalid inputs, progress tracking, reset, registration, disabled state, all-progress) and `AnalyticsAnonymizationServiceTest` (17 test cases: ID anonymization, value masking, type-aware anonymization, param anonymization, event/category rules, audit trail, disabled state, salt sensitivity).
+
 ## [2.58.0] - 2026-08-07
 
 ### Added
