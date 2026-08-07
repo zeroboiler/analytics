@@ -79,14 +79,6 @@
         {
             "type": "path",
             "url": "../response"
-        },
-        {
-            "type": "path",
-            "url": "../dto"
-        },
-        {
-            "type": "path",
-            "url": "../value-objects"
         }
     ]
 }

@@ -4,7 +4,10 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
-## [2.47.0] - 2026-08-07
+### Changed
+- Removed unused `dto` and `value-objects` path repositories from `composer.json`
+
+## [2.51.0] - 2026-08-07
 
 ### Added
 - **AnalyticsEventRouter** — Config-driven event routing service that filters which providers receive specific events. Supports exact match, prefix wildcard (`add_to_*`), suffix wildcard (`*_click`), and catch-all (`*`) patterns. Events matching a rule are dispatched only to the listed providers. Unmatched events fall through to all enabled providers.
