@@ -2,6 +2,21 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.65.0] - 2026-08-07
+
+### Added
+- **Plausible ecommerce format conversion** — `EcommerceFormatConverter` now supports GA4 → Plausible conversion for purchase, refund, add_to_cart, and begin_checkout events. Plausible custom events use flat string props. New methods: `ga4ToPlausiblePurchase()`, `ga4ToPlausibleRefund()`, `ga4ToPlausibleAddToCart()`, `ga4ToPlausibleBeginCheckout()`, `buildPlausiblePurchase()`. Completes 6-provider ecommerce format support.
+- **EventClassificationService** — Classifies events into four revenue impact tiers: critical (revenue transactions), monetization (conversion funnel), engagement (product usage), operational (auth/infra). Provides `classify()`, `isRevenueImpacting()`, `isDroppable()`, `classifyBatch()`, `getEventsInTier()`, `tierToPriorityMap()`, `getDispatchPriority()`. Custom overrides supported.
+- **SubscriptionMetricsCalculator** — Pure calculation service for SaaS business metrics: MRR, ARR, churn rate, revenue churn, net revenue retention (NRR), ARPU/ARPPU, customer lifetime value (CLV), CLV:CAC ratio, runway, and month-over-month growth. All stateless with typed return arrays. Includes `dashboardSummary()` for single-call dashboard computation.
+- **JS SaaS revenue tracking helpers** — 4 new client-side functions: `trackSubscriptionEvent()` (7 subscription actions), `trackTrialEvent()` (4 trial states), `trackRevenueEvent()` (4 billing event types), `trackPlanChange()` (auto-detects upgrade/downgrade). Full TypeScript definitions with interfaces.
+- **TypeScript definitions** — New interfaces: `SubscriptionAction`, `SubscriptionEventParams`, `TrialState`, `TrialEventParams`, `RevenueEventType`, `RevenueEventParams`, `PlanChangeParams`.
+- **V65PlausibleClassificationMetricsTest** — 65+ test cases covering Plausible ecommerce conversion (8 tests), EventClassificationService (20 tests), and SubscriptionMetricsCalculator (20+ tests).
+
+### Changed
+- **Version unification to 2.65.0** — All version strings across AnalyticsManager, composer.json, JS client, TypeScript definitions, controller endpoints, and service classes.
+- Total source files: 212 (was 210)
+- Total test files: 108 (was 107)
+
 ## [2.61.0] - 2026-08-07
 
 ### Added

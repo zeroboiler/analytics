@@ -246,6 +246,10 @@ final class AnalyticsOverviewCommand extends Command
             'SaaS Journey Milestone tracker (multi-step journey completion)',
             'Analytics data anonymization service (HMAC-SHA256 + masking)',
             'Event priority gate (critical/normal/low/background with rate limits)',
+            'Event classification service (revenue impact tier: critical/monetization/engagement/operational)',
+            'Plausible ecommerce format conversion (GA4 → Plausible purchase/refund/add_to_cart/checkout)',
+            'Subscription metrics calculator (MRR, ARR, churn, NRR, CLV, ARPU, runway, MoM growth)',
+            'JS SaaS revenue tracking (trackSubscriptionEvent, trackTrialEvent, trackRevenueEvent, trackPlanChange)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

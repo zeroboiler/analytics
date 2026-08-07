@@ -957,7 +957,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new DataMinimizationService($config);
         });
 
-        // Event priority gate service (v2.64.0)
+        // Event priority gate service (v2.65.0)
         $this->app->singleton(EventPriorityGate::class, function (Application $app): EventPriorityGate {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.64.0
+ * @version 2.65.0
  */
 
 let trackingId = null;
@@ -277,7 +277,7 @@ export async function trackEvent(name, params = {}, options = {}) {
     }
 }
 
-// ─── Priority-Aware Tracking (v2.64.0) ─────────────────────────────
+// ─── Priority-Aware Tracking (v2.65.0) ─────────────────────────────
 
 /**
  * Track an event with an explicit priority override.
@@ -2943,7 +2943,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.64.0';
+    return '2.65.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -3153,5 +3153,155 @@ export async function trackCheckoutStep({ stepIndex, stepName, paymentMethod, or
         ...(paymentMethod != null ? { payment_method: paymentMethod } : {}),
         ...(orderTotal != null ? { order_total: orderTotal } : {}),
         ...(currency != null ? { currency } : {}),
+    });
+}
+
+// ─── SaaS Subscription & Revenue Tracking ──────────────────────────
+
+/**
+ * Track a SaaS subscription lifecycle event.
+ *
+ * Unified helper for all subscription-related events: created, renewed,
+ * upgraded, downgraded, cancelled, trial_start, trial_end.
+ *
+ * @param {object} params - Subscription event parameters
+ * @param {'created'|'renewed'|'upgraded'|'downgraded'|'cancelled'|'trial_start'|'trial_end'} params.action - Subscription action
+ * @param {string} [params.planName] - Plan name (e.g., "Pro", "Enterprise")
+ * @param {number} [params.planPrice] - Plan price per billing cycle
+ * @param {string} [params.billingCycle] - Billing cycle (monthly, yearly, lifetime)
+ * @param {string} [params.currency] - ISO 4217 currency code (default from config)
+ * @param {string} [params.reason] - Cancellation/downgrade reason
+ * @param {object} [params.meta] - Additional metadata
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * // New subscription
+ * await trackSubscriptionEvent({ action: 'created', planName: 'Pro', planPrice: 29, billingCycle: 'monthly' });
+ *
+ * // Cancellation with reason
+ * await trackSubscriptionEvent({ action: 'cancelled', planName: 'Pro', reason: 'too_expensive' });
+ */
+export async function trackSubscriptionEvent({ action, planName, planPrice, billingCycle, currency, reason, meta }) {
+    const eventMap = {
+        created: 'subscribe',
+        renewed: 'subscription_renewal',
+        upgraded: 'plan_upgrade',
+        downgraded: 'plan_downgrade',
+        cancelled: 'cancellation',
+        trial_start: 'start_trial',
+        trial_end: 'trial_end',
+    };
+
+    const eventName = eventMap[action] || 'subscription';
+
+    return trackEvent(eventName, {
+        plan_name: planName || null,
+        plan_price: planPrice || null,
+        billing_cycle: billingCycle || null,
+        currency: currency || null,
+        reason: reason || null,
+        action,
+        ...meta,
+    });
+}
+
+/**
+ * Track a trial lifecycle event.
+ *
+ * Convenience wrapper around trackSubscriptionEvent for trial-specific events.
+ * Automatically sets the action based on trial state.
+ *
+ * @param {object} params - Trial event parameters
+ * @param {'start'|'active'|'converted'|'expired'} params.state - Trial state
+ * @param {string} [params.planName] - Plan being trialed
+ * @param {number} [params.trialDays] - Trial duration in days
+ * @param {number} [params.daysUsed] - Days used so far
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackTrialEvent({ state: 'start', planName: 'Pro', trialDays: 14 });
+ * await trackTrialEvent({ state: 'converted', planName: 'Pro', daysUsed: 7 });
+ */
+export async function trackTrialEvent({ state, planName, trialDays, daysUsed }) {
+    return trackEvent(state === 'start' ? 'start_trial' : 'trial_end', {
+        plan_name: planName || null,
+        trial_days: trialDays || null,
+        days_used: daysUsed || null,
+        trial_state: state,
+        outcome: state === 'converted' ? 'converted' : state,
+    });
+}
+
+/**
+ * Track a revenue event for SaaS billing.
+ *
+ * Use this for payment success/failure, invoice generation, credit applications,
+ * and any financial transaction that doesn't fit purchase/refund.
+ *
+ * @param {object} params - Revenue event parameters
+ * @param {'payment_succeeded'|'payment_failed'|'invoice'|'credit'} params.type - Revenue event type
+ * @param {number} [params.amount] - Transaction amount
+ * @param {string} [params.currency] - ISO 4217 currency code
+ * @param {string} [params.planName] - Related plan name
+ * @param {string} [params.invoiceId] - Invoice ID
+ * @param {string} [params.paymentMethod] - Payment method (stripe, paypal, etc.)
+ * @param {string} [params.failureReason] - Reason for payment failure
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackRevenueEvent({ type: 'payment_succeeded', amount: 29.00, currency: 'USD', planName: 'Pro' });
+ * await trackRevenueEvent({ type: 'payment_failed', amount: 29.00, failureReason: 'card_expired' });
+ */
+export async function trackRevenueEvent({ type, amount, currency, planName, invoiceId, paymentMethod, failureReason }) {
+    const eventMap = {
+        payment_succeeded: 'payment_succeeded',
+        payment_failed: 'payment_failed',
+        invoice: 'invoice_generated',
+        credit: 'credit_applied',
+    };
+
+    const eventName = eventMap[type] || 'revenue_tracked';
+
+    return trackEvent(eventName, {
+        amount: amount || null,
+        currency: currency || null,
+        plan_name: planName || null,
+        invoice_id: invoiceId || null,
+        payment_method: paymentMethod || null,
+        failure_reason: failureReason || null,
+        revenue_type: type,
+    });
+}
+
+/**
+ * Track a plan change event (upgrade or downgrade).
+ *
+ * Automatically calculates the price difference and direction.
+ *
+ * @param {object} params - Plan change parameters
+ * @param {string} params.fromPlan - Previous plan name
+ * @param {string} params.toPlan - New plan name
+ * @param {number} [params.fromPrice] - Previous plan price
+ * @param {number} [params.toPrice] - New plan price
+ * @param {string} [params.currency] - Currency code
+ * @param {string} [params.reason] - Change reason
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackPlanChange({ fromPlan: 'Starter', toPlan: 'Pro', fromPrice: 9, toPrice: 29, currency: 'USD' });
+ */
+export async function trackPlanChange({ fromPlan, toPlan, fromPrice, toPrice, currency, reason }) {
+    const direction = (toPrice || 0) > (fromPrice || 0) ? 'upgrade' : 'downgrade';
+    const priceDiff = ((toPrice || 0) - (fromPrice || 0));
+
+    return trackEvent(direction === 'upgrade' ? 'plan_upgrade' : 'plan_downgrade', {
+        from_plan: fromPlan,
+        to_plan: toPlan,
+        from_price: fromPrice || null,
+        to_price: toPrice || null,
+        price_difference: priceDiff,
+        currency: currency || null,
+        reason: reason || null,
+        direction,
     });
 }

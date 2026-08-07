@@ -579,4 +579,134 @@ final class EcommerceFormatConverter
             $items,
         );
     }
+
+    // ── GA4 → Plausible Conversion ────────────────────────────────────
+
+    /**
+     * Convert GA4 purchase event params to Plausible custom event properties.
+     *
+     * Plausible custom events accept a flat `props` object with string values.
+     * Revenue is serialized as a string for Plausible compatibility.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{event_name: string, props: array<string, string>}
+     */
+    public static function ga4ToPlausiblePurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $itemNames = array_map(
+            fn (array $item): string => (string) ($item['item_name'] ?? $item['item_id'] ?? 'unknown'),
+            $items,
+        );
+
+        return [
+            'event_name' => 'purchase',
+            'props' => array_filter([
+                'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+                'revenue' => (string) round((float) ($ga4Params['value'] ?? 0), 2),
+                'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                'coupon' => (string) ($ga4Params['coupon'] ?? ''),
+                'items' => implode(', ', $itemNames),
+                'item_count' => (string) count($items),
+                'tax' => (string) round((float) ($ga4Params['tax'] ?? 0), 2),
+                'shipping' => (string) round((float) ($ga4Params['shipping'] ?? 0), 2),
+            ], fn (string $v): bool => $v !== ''),
+        ];
+    }
+
+    /**
+     * Convert GA4 refund event params to Plausible custom event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{event_name: string, props: array<string, string>}
+     */
+    public static function ga4ToPlausibleRefund(array $ga4Params): array
+    {
+        return [
+            'event_name' => 'refund',
+            'props' => array_filter([
+                'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+                'refund_value' => (string) round((float) ($ga4Params['value'] ?? 0), 2),
+                'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            ], fn (string $v): bool => $v !== ''),
+        ];
+    }
+
+    /**
+     * Convert GA4 add_to_cart event params to Plausible custom event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{event_name: string, props: array<string, string>}
+     */
+    public static function ga4ToPlausibleAddToCart(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $firstItem = $items[0] ?? [];
+
+        return [
+            'event_name' => 'add_to_cart',
+            'props' => array_filter([
+                'item_name' => (string) ($firstItem['item_name'] ?? $firstItem['item_id'] ?? ''),
+                'item_id' => (string) ($firstItem['item_id'] ?? ''),
+                'value' => (string) round((float) ($ga4Params['value'] ?? 0), 2),
+                'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            ], fn (string $v): bool => $v !== ''),
+        ];
+    }
+
+    /**
+     * Convert GA4 begin_checkout event params to Plausible custom event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{event_name: string, props: array<string, string>}
+     */
+    public static function ga4ToPlausibleBeginCheckout(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $itemNames = array_map(
+            fn (array $item): string => (string) ($item['item_name'] ?? $item['item_id'] ?? ''),
+            $items,
+        );
+
+        return [
+            'event_name' => 'begin_checkout',
+            'props' => array_filter([
+                'value' => (string) round((float) ($ga4Params['value'] ?? 0), 2),
+                'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                'coupon' => (string) ($ga4Params['coupon'] ?? ''),
+                'items' => implode(', ', $itemNames),
+                'item_count' => (string) count($items),
+            ], fn (string $v): bool => $v !== ''),
+        ];
+    }
+
+    /**
+     * Build a Plausible-formatted purchase event from GA4-style items.
+     *
+     * @param  string  $transactionId  Transaction ID
+     * @param  float  $value  Revenue
+     * @param  string  $currency  Currency code
+     * @param  array<int, array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}>  $items  Line items
+     * @param  array{coupon?: string, tax?: float, shipping?: float}  $options  Optional params
+     * @return AnalyticsEvent  Plausible-optimized event
+     */
+    public static function buildPlausiblePurchase(
+        string $transactionId,
+        float $value,
+        string $currency,
+        array $items,
+        array $options = [],
+    ): AnalyticsEvent {
+        $plausible = self::ga4ToPlausiblePurchase(
+            array_merge(self::buildGa4Purchase($transactionId, $value, $currency, $items), $options),
+        );
+
+        return new AnalyticsEvent(
+            name: $plausible['event_name'],
+            params: $plausible['props'],
+        );
+    }
 }

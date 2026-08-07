@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.64.0
+ * @version 2.65.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -710,7 +710,70 @@ export interface CheckoutStepParams {
 /** Track an e-commerce checkout step for funnel analysis */
 export function trackCheckoutStep(params: CheckoutStepParams): Promise<boolean>;
 
-// ─── Event Priority (v2.64.0) ──────────────────────────────────────
+// ─── SaaS Subscription & Revenue Tracking (v2.65.0) ────────────────
+
+/** Subscription action types */
+export type SubscriptionAction = 'created' | 'renewed' | 'upgraded' | 'downgraded' | 'cancelled' | 'trial_start' | 'trial_end';
+
+/** Subscription event parameters */
+export interface SubscriptionEventParams {
+    action: SubscriptionAction;
+    planName?: string;
+    planPrice?: number;
+    billingCycle?: string;
+    currency?: string;
+    reason?: string;
+    meta?: Record<string, unknown>;
+}
+
+/** Track a SaaS subscription lifecycle event */
+export function trackSubscriptionEvent(params: SubscriptionEventParams): Promise<boolean>;
+
+/** Trial state types */
+export type TrialState = 'start' | 'active' | 'converted' | 'expired';
+
+/** Trial event parameters */
+export interface TrialEventParams {
+    state: TrialState;
+    planName?: string;
+    trialDays?: number;
+    daysUsed?: number;
+}
+
+/** Track a trial lifecycle event */
+export function trackTrialEvent(params: TrialEventParams): Promise<boolean>;
+
+/** Revenue event types */
+export type RevenueEventType = 'payment_succeeded' | 'payment_failed' | 'invoice' | 'credit';
+
+/** Revenue event parameters */
+export interface RevenueEventParams {
+    type: RevenueEventType;
+    amount?: number;
+    currency?: string;
+    planName?: string;
+    invoiceId?: string;
+    paymentMethod?: string;
+    failureReason?: string;
+}
+
+/** Track a revenue event for SaaS billing */
+export function trackRevenueEvent(params: RevenueEventParams): Promise<boolean>;
+
+/** Plan change parameters */
+export interface PlanChangeParams {
+    fromPlan: string;
+    toPlan: string;
+    fromPrice?: number;
+    toPrice?: number;
+    currency?: string;
+    reason?: string;
+}
+
+/** Track a plan change event (upgrade or downgrade) */
+export function trackPlanChange(params: PlanChangeParams): Promise<boolean>;
+
+// ─── Event Priority (v2.65.0) ──────────────────────────────────────
 
 /** Event priority levels for SaaS analytics gate */
 export type EventPriority = 'critical' | 'normal' | 'low' | 'background';
