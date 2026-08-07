@@ -55,6 +55,30 @@ Route::prefix('analytics')->group(function () {
     Route::delete('dlq', [AnalyticsEventController::class, 'dlqClear']);
     Route::delete('dlq/{offset}', [AnalyticsEventController::class, 'dlqRemove']);
 
+    // Real-time aggregation
+    Route::get('realtime', [AnalyticsEventController::class, 'realtimeSnapshot']);
+    Route::get('realtime/top-events', [AnalyticsEventController::class, 'realtimeTopEvents']);
+
+    // A/B test analytics
+    Route::get('ab-tests/{experimentId}', [AnalyticsEventController::class, 'abTestResults']);
+    Route::post('ab-tests/{experimentId}/exposure', [AnalyticsEventController::class, 'abTestRecordExposure']);
+    Route::post('ab-tests/{experimentId}/conversion', [AnalyticsEventController::class, 'abTestRecordConversion']);
+    Route::delete('ab-tests/{experimentId}', [AnalyticsEventController::class, 'abTestDelete']);
+
+    // Analytics snapshots
+    Route::get('snapshots/daily', [AnalyticsEventController::class, 'dailySnapshot']);
+    Route::get('snapshots/hourly', [AnalyticsEventController::class, 'hourlySnapshot']);
+    Route::get('snapshots/comparison', [AnalyticsEventController::class, 'dailyComparison']);
+
+    // SaaS KPI
+    Route::get('kpi', [AnalyticsEventController::class, 'saasKpiSummary']);
+    Route::get('kpi/mrr-history', [AnalyticsEventController::class, 'saasKpiMrrHistory']);
+
+    // UTM aggregation
+    Route::get('utm/sources', [AnalyticsEventController::class, 'utmTopSources']);
+    Route::get('utm/campaigns', [AnalyticsEventController::class, 'utmTopCampaigns']);
+    Route::get('utm/breakdown', [AnalyticsEventController::class, 'utmBreakdown']);
+
     // Reporting (public, for admin dashboards)
     Route::get('report', [AnalyticsEventController::class, 'report']);
     Route::get('report/summary', [AnalyticsEventController::class, 'reportSummary']);

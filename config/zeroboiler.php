@@ -808,5 +808,101 @@ return [
             'max_size' => (int) env('ANALYTICS_DLQ_MAX_SIZE', 10000),
             'buffer_size' => (int) env('ANALYTICS_DLQ_BUFFER_SIZE', 50),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Real-Time Aggregation (Live Dashboard Data)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, maintains rolling event counters for live dashboards.
+        | Uses the cache driver for cross-process state sharing.
+        | Requires Redis or Memcached for multi-server deployments.
+        |
+        */
+        'realtime' => [
+            'enabled' => env('ANALYTICS_REALTIME_ENABLED', true),
+            'window_seconds' => (int) env('ANALYTICS_REALTIME_WINDOW', 120),
+            'top_events_limit' => (int) env('ANALYTICS_REALTIME_TOP_EVENTS', 20),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | A/B Test Analytics
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks A/B test exposures and conversions per variant.
+        | Computes statistical significance using two-proportion z-test.
+        | Experiments are stored in the Laravel cache.
+        |
+        */
+        'ab_tests' => [
+            'enabled' => env('ANALYTICS_AB_TESTS_ENABLED', true),
+            'confidence_threshold' => (float) env('ANALYTICS_AB_TESTS_CONFIDENCE', 0.95),
+            'cache_ttl' => (int) env('ANALYTICS_AB_TESTS_CACHE_TTL', 604800),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Analytics Snapshots (Trend Comparisons)
+        |-------------------------------------------------------------------------- 
+        |
+        | Periodic point-in-time captures of analytics metrics for trend analysis.
+        | Supports daily and hourly snapshots with configurable retention.
+        |
+        */
+        'snapshots' => [
+            'enabled' => env('ANALYTICS_SNAPSHOTS_ENABLED', true),
+            'daily_ttl' => (int) env('ANALYTICS_SNAPSHOTS_DAILY_TTL', 7776000),
+            'hourly_ttl' => (int) env('ANALYTICS_SNAPSHOTS_HOURLY_TTL', 604800),
+            'max_daily' => (int) env('ANALYTICS_SNAPSHOTS_MAX_DAILY', 90),
+            'max_hourly' => (int) env('ANALYTICS_SNAPSHOTS_MAX_HOURLY', 168),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | SaaS KPI Tracking
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks and aggregates SaaS-specific business metrics:
+        | MRR, ARR, churn rate, trial conversion, CLV, ARPU.
+        | Data is stored in the Laravel cache.
+        |
+        */
+        'saas_kpi' => [
+            'enabled' => env('ANALYTICS_SAAS_KPI_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_SAAS_KPI_CACHE_TTL', 2592000),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | UTM Aggregation (Marketing Attribution)
+        |-------------------------------------------------------------------------- 
+        |
+        | Aggregates events by UTM source, medium, and campaign.
+        | Provides marketing attribution insights with conversion tracking.
+        |
+        */
+        'utm_aggregation' => [
+            'enabled' => env('ANALYTICS_UTM_AGG_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_UTM_AGG_CACHE_TTL', 2592000),
+            'max_combinations' => (int) env('ANALYTICS_UTM_AGG_MAX_COMBOS', 5000),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Geolocation Enrichment
+        |-------------------------------------------------------------------------- 
+        |
+        | Enriches events with country/region/city based on client IP.
+        | Supports three strategies: header, ip2country, maxmind.
+        |
+        */
+        'geolocation' => [
+            'enabled' => env('ANALYTICS_GEO_ENABLED', false),
+            'strategy' => env('ANALYTICS_GEO_STRATEGY', 'header'),
+            'country_header' => env('ANALYTICS_GEO_COUNTRY_HEADER', 'CF-IPCountry'),
+            'region_header' => env('ANALYTICS_GEO_REGION_HEADER', ''),
+            'city_header' => env('ANALYTICS_GEO_CITY_HEADER', ''),
+        ],
     ],
 ];

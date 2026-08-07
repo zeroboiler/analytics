@@ -75,6 +75,12 @@ use ZeroBoiler\Analytics\Services\AnalyticsGateService;
 use ZeroBoiler\Analytics\Services\EventReportingService;
 use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
 use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
+use ZeroBoiler\Analytics\Services\RealTimeAggregationService;
+use ZeroBoiler\Analytics\Services\ABTestAnalyticsService;
+use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
+use ZeroBoiler\Analytics\Services\SaasKpiTracker;
+use ZeroBoiler\Analytics\Services\UtmAggregationService;
+use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -686,6 +692,80 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // E-commerce format converter (stateless, bind as shared)
         $this->app->singleton(EcommerceFormatConverter::class);
+
+        // Real-time aggregation service for live dashboards
+        $this->app->singleton(RealTimeAggregationService::class, function (Application $app): RealTimeAggregationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new RealTimeAggregationService($manager->metrics(), $cache, $config);
+        });
+
+        // A/B test analytics service
+        $this->app->singleton(ABTestAnalyticsService::class, function (Application $app): ABTestAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ABTestAnalyticsService($manager, $cache, $config);
+        });
+
+        // Analytics snapshot service for trend comparisons
+        $this->app->singleton(AnalyticsSnapshotService::class, function (Application $app): AnalyticsSnapshotService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsSnapshotService($manager->metrics(), $cache, $config);
+        });
+
+        // SaaS KPI tracker for business metrics
+        $this->app->singleton(SaasKpiTracker::class, function (Application $app): SaasKpiTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaasKpiTracker($manager, $cache, $config);
+        });
+
+        // UTM aggregation service for marketing attribution
+        $this->app->singleton(UtmAggregationService::class, function (Application $app): UtmAggregationService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new UtmAggregationService($cache, $config);
+        });
+
+        // Geolocation enricher (pipeline stage, stateful with IP cache)
+        $this->app->bind(GeolocationEnricher::class, function (Application $app): GeolocationEnricher {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $geoConfig = $config->get('zeroboiler.analytics.geolocation', []);
+            /** @var array{enabled?: bool, strategy?: string, country_header?: string, region_header?: string, city_header?: string} $geoConfig */
+
+            return new GeolocationEnricher(
+                strategy: (string) ($geoConfig['strategy'] ?? 'header'),
+                countryHeader: (string) ($geoConfig['country_header'] ?? 'CF-IPCountry'),
+                regionHeader: (string) ($geoConfig['region_header'] ?? ''),
+                cityHeader: (string) ($geoConfig['city_header'] ?? ''),
+                enabled: (bool) ($geoConfig['enabled'] ?? true),
+            );
+        });
     }
 
     /**
@@ -844,6 +924,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::delete('analytics/dlq', [$controller, 'dlqClear']);
                 Route::delete('analytics/dlq/{offset}', [$controller, 'dlqRemove']);
                 Route::get('analytics/dlq/summary', [$controller, 'dlqSummary']);
+
+                // Real-time aggregation endpoints
+                Route::get('analytics/realtime', [$controller, 'realtimeSnapshot']);
+                Route::get('analytics/realtime/top-events', [$controller, 'realtimeTopEvents']);
+
+                // A/B test analytics endpoints
+                Route::get('analytics/ab-tests/{experimentId}', [$controller, 'abTestResults']);
+                Route::post('analytics/ab-tests/{experimentId}/exposure', [$controller, 'abTestRecordExposure']);
+                Route::post('analytics/ab-tests/{experimentId}/conversion', [$controller, 'abTestRecordConversion']);
+                Route::delete('analytics/ab-tests/{experimentId}', [$controller, 'abTestDelete']);
+
+                // Snapshot endpoints
+                Route::get('analytics/snapshots/daily', [$controller, 'dailySnapshot']);
+                Route::get('analytics/snapshots/hourly', [$controller, 'hourlySnapshot']);
+                Route::get('analytics/snapshots/comparison', [$controller, 'dailyComparison']);
+
+                // SaaS KPI endpoints
+                Route::get('analytics/kpi', [$controller, 'saasKpiSummary']);
+                Route::get('analytics/kpi/mrr-history', [$controller, 'saasKpiMrrHistory']);
+
+                // UTM aggregation endpoints
+                Route::get('analytics/utm/sources', [$controller, 'utmTopSources']);
+                Route::get('analytics/utm/campaigns', [$controller, 'utmTopCampaigns']);
+                Route::get('analytics/utm/breakdown', [$controller, 'utmBreakdown']);
             });
 
         // Authenticated endpoints

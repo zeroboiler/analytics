@@ -40,6 +40,11 @@ use ZeroBoiler\Analytics\Services\DataRetentionPolicyService;
 use ZeroBoiler\Analytics\Services\AnalyticsGateService;
 use ZeroBoiler\Analytics\Services\EventReportingService;
 use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
+use ZeroBoiler\Analytics\Services\RealTimeAggregationService;
+use ZeroBoiler\Analytics\Services\ABTestAnalyticsService;
+use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
+use ZeroBoiler\Analytics\Services\SaasKpiTracker;
+use ZeroBoiler\Analytics\Services\UtmAggregationService;
 
 /**
  * API controller for frontend event tracking.
@@ -107,6 +112,16 @@ final class AnalyticsEventController extends Controller
 
     private ?DeadLetterQueueService $dlqService;
 
+    private ?RealTimeAggregationService $realtimeService;
+
+    private ?ABTestAnalyticsService $abTestService;
+
+    private ?AnalyticsSnapshotService $snapshotService;
+
+    private ?SaasKpiTracker $kpiTracker;
+
+    private ?UtmAggregationService $utmAggregation;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -150,6 +165,11 @@ final class AnalyticsEventController extends Controller
         ?AnalyticsGateService $gateService = null,
         ?EventReportingService $reportingService = null,
         ?DeadLetterQueueService $dlqService = null,
+        ?RealTimeAggregationService $realtimeService = null,
+        ?ABTestAnalyticsService $abTestService = null,
+        ?AnalyticsSnapshotService $snapshotService = null,
+        ?SaasKpiTracker $kpiTracker = null,
+        ?UtmAggregationService $utmAggregation = null,
     ): void {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -175,6 +195,11 @@ final class AnalyticsEventController extends Controller
         $this->gateService = $gateService;
         $this->reportingService = $reportingService;
         $this->dlqService = $dlqService;
+        $this->realtimeService = $realtimeService;
+        $this->abTestService = $abTestService;
+        $this->snapshotService = $snapshotService;
+        $this->kpiTracker = $kpiTracker;
+        $this->utmAggregation = $utmAggregation;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -1672,6 +1697,316 @@ final class AnalyticsEventController extends Controller
         return response()->json([
             'status' => 'ok',
             'dlq' => $this->dlqService->summary(),
+        ]);
+    }
+
+    // ── Real-Time Aggregation Endpoints ────────────────────────────────
+
+    /**
+     * Get real-time analytics snapshot.
+     *
+     * GET /api/analytics/realtime
+     *
+     * Returns live event counters, unique user count, per-provider rates,
+     * and events-per-second for the current rolling window.
+     */
+    public function realtimeSnapshot(): JsonResponse
+    {
+        if ($this->realtimeService === null) {
+            return response()->json(['error' => 'Real-time aggregation not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'realtime' => $this->realtimeService->snapshot(),
+        ]);
+    }
+
+    /**
+     * Get top events by real-time count.
+     *
+     * GET /api/analytics/realtime/top-events?limit=10
+     */
+    public function realtimeTopEvents(Request $request): JsonResponse
+    {
+        if ($this->realtimeService === null) {
+            return response()->json(['error' => 'Real-time aggregation not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 10), 50);
+
+        return response()->json([
+            'status' => 'ok',
+            'top_events' => $this->realtimeService->topEvents($limit),
+            'events_per_second' => $this->realtimeService->eventsPerSecond(),
+        ]);
+    }
+
+    // ── A/B Test Analytics Endpoints ───────────────────────────────────
+
+    /**
+     * Get A/B test results with statistical significance.
+     *
+     * GET /api/analytics/ab-tests/{experimentId}
+     */
+    public function abTestResults(string $experimentId): JsonResponse
+    {
+        if ($this->abTestService === null) {
+            return response()->json(['error' => 'A/B test analytics not available'], 503);
+        }
+
+        $results = $this->abTestService->getResults($experimentId);
+
+        if ($results === null) {
+            return response()->json(['error' => 'Experiment not found'], 404);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'experiment' => $results,
+        ]);
+    }
+
+    /**
+     * Record an A/B test exposure.
+     *
+     * POST /api/analytics/ab-tests/{experimentId}/exposure
+     *
+     * Body: { "variant_id": "variant_b", "user_id": "optional" }
+     */
+    public function abTestRecordExposure(Request $request, string $experimentId): JsonResponse
+    {
+        if ($this->abTestService === null) {
+            return response()->json(['error' => 'A/B test analytics not available'], 503);
+        }
+
+        $request->validate([
+            'variant_id' => 'required|string',
+            'user_id' => 'string',
+        ]);
+
+        $this->abTestService->trackExposure(
+            $experimentId,
+            $request->input('variant_id'),
+            ['user_id' => $request->input('user_id')],
+        );
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Record an A/B test conversion.
+     *
+     * POST /api/analytics/ab-tests/{experimentId}/conversion
+     *
+     * Body: { "variant_id": "variant_b" }
+     */
+    public function abTestRecordConversion(Request $request, string $experimentId): JsonResponse
+    {
+        if ($this->abTestService === null) {
+            return response()->json(['error' => 'A/B test analytics not available'], 503);
+        }
+
+        $request->validate([
+            'variant_id' => 'required|string',
+        ]);
+
+        $this->abTestService->trackConversion(
+            $experimentId,
+            $request->input('variant_id'),
+        );
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Delete an A/B test experiment.
+     *
+     * DELETE /api/analytics/ab-tests/{experimentId}
+     */
+    public function abTestDelete(string $experimentId): JsonResponse
+    {
+        if ($this->abTestService === null) {
+            return response()->json(['error' => 'A/B test analytics not available'], 503);
+        }
+
+        $deleted = $this->abTestService->deleteExperiment($experimentId);
+
+        return response()->json([
+            'status' => $deleted ? 'ok' : 'not_found',
+            'deleted' => $deleted,
+        ], $deleted ? 200 : 404);
+    }
+
+    // ── Snapshot Endpoints ────────────────────────────────────────────
+
+    /**
+     * Get the latest daily snapshot.
+     *
+     * GET /api/analytics/snapshots/daily
+     */
+    public function dailySnapshot(Request $request): JsonResponse
+    {
+        if ($this->snapshotService === null) {
+            return response()->json(['error' => 'Snapshot service not available'], 503);
+        }
+
+        $date = $request->query('date');
+
+        $snapshot = (is_string($date) && $date !== '')
+            ? $this->snapshotService->getDailySnapshot($date)
+            : $this->snapshotService->latestDaily();
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'snapshot' => $snapshot,
+        ]);
+    }
+
+    /**
+     * Get the latest hourly snapshot.
+     *
+     * GET /api/analytics/snapshots/hourly
+     */
+    public function hourlySnapshot(Request $request): JsonResponse
+    {
+        if ($this->snapshotService === null) {
+            return response()->json(['error' => 'Snapshot service not available'], 503);
+        }
+
+        $hour = $request->query('hour');
+
+        $snapshot = (is_string($hour) && $hour !== '')
+            ? $this->snapshotService->getHourlySnapshot($hour)
+            : $this->snapshotService->latestHourly();
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'snapshot' => $snapshot,
+        ]);
+    }
+
+    /**
+     * Get daily comparison (today vs yesterday).
+     *
+     * GET /api/analytics/snapshots/comparison
+     */
+    public function dailyComparison(): JsonResponse
+    {
+        if ($this->snapshotService === null) {
+            return response()->json(['error' => 'Snapshot service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'comparison' => $this->snapshotService->dailyComparison(),
+        ]);
+    }
+
+    // ── SaaS KPI Endpoints ───────────────────────────────────────────
+
+    /**
+     * Get SaaS KPI summary.
+     *
+     * GET /api/analytics/kpi
+     *
+     * Returns MRR, ARR, churn rate, trial conversion, CLV, ARPU,
+     * plan distribution, and MRR history.
+     */
+    public function saasKpiSummary(): JsonResponse
+    {
+        if ($this->kpiTracker === null) {
+            return response()->json(['error' => 'SaaS KPI tracker not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'kpi' => $this->kpiTracker->summary(),
+        ]);
+    }
+
+    /**
+     * Get MRR history for trend visualization.
+     *
+     * GET /api/analytics/kpi/mrr-history?limit=30
+     */
+    public function saasKpiMrrHistory(Request $request): JsonResponse
+    {
+        if ($this->kpiTracker === null) {
+            return response()->json(['error' => 'SaaS KPI tracker not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 30), 365);
+
+        return response()->json([
+            'status' => 'ok',
+            'mrr_history' => $this->kpiTracker->getMrrHistory($limit),
+        ]);
+    }
+
+    // ── UTM Aggregation Endpoints ────────────────────────────────────
+
+    /**
+     * Get top UTM sources by event count.
+     *
+     * GET /api/analytics/utm/sources?limit=20
+     */
+    public function utmTopSources(Request $request): JsonResponse
+    {
+        if ($this->utmAggregation === null) {
+            return response()->json(['error' => 'UTM aggregation not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'sources' => $this->utmAggregation->topSources($limit),
+        ]);
+    }
+
+    /**
+     * Get top UTM campaigns by event count.
+     *
+     * GET /api/analytics/utm/campaigns?limit=20
+     */
+    public function utmTopCampaigns(Request $request): JsonResponse
+    {
+        if ($this->utmAggregation === null) {
+            return response()->json(['error' => 'UTM aggregation not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'campaigns' => $this->utmAggregation->topCampaigns($limit),
+        ]);
+    }
+
+    /**
+     * Get UTM source/medium breakdown.
+     *
+     * GET /api/analytics/utm/breakdown
+     */
+    public function utmBreakdown(): JsonResponse
+    {
+        if ($this->utmAggregation === null) {
+            return response()->json(['error' => 'UTM aggregation not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.33.0',
+            'breakdown' => $this->utmAggregation->sourceMediumBreakdown(),
         ]);
     }
 }
