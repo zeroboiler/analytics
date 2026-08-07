@@ -2,10 +2,16 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
-## [2.58.1] - 2026-08-07
+## [2.58.2] - 2026-08-07
 
 ### Fixed
 - Added missing `:void` return type to 72 constructor declarations across services, events, middleware, pipeline, and tracking components for PHP 8.5 strict compliance.
+- Fixed duplicate `:void` declarations from initial automated fix.
+
+## [2.58.1] - 2026-08-07
+
+### Fixed
+- Added missing `:void` return type to 72 constructor declarations.
 
 ## [Unreleased]
 
