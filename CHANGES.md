@@ -15,7 +15,7 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 - **Facade proxy methods** — 5 new `@method` annotations for inviteSent, integrationConnected, fileDownload, videoPlay, validateCatalog.
 - **AnalyticsConfig accessors** — `referralEnabled()`, `referralParamName()`, `referralTtl()`, `referralTrackConversions()`, `broadcastAlertChannel()`, `broadcastMetricsChannel()`, `retentionPolicyEngagementDays()`, `retentionPolicySaasDays()`, `retentionPolicyEcommerceDays()`. Summary expanded to 36 sections (was 31).
 - **Config expansion** — 5 new config sections: `referral` (referral code tracking with TTL and conversion tracking), `broadcast` (extended with alert/metrics channel names), `tenant` (multi-tenant isolation with resolution strategy and header), `retention_policy` (per-category retention days: engagement 30d, SaaS 90d, ecommerce 365d), `gate` (plan-based feature access with global/user overrides).
-- **V36SaaSStarterUpgradeTest** — 50+ new test cases covering all 4 new event classes (construction, readonly final, inheritance), catalog expansion (SaaS 19, Engagement 22, total 53), EventCatalog::requiredKeys() and ::validate(), AnalyticsManager convenience methods, version consistency (2.31.0), AnalyticsConfig new accessors, cross-provider mappings, file existence.
+- **V36SaaSStarterUpgradeTest** — 50+ new test cases covering all 4 new event classes (construction, readonly final, inheritance), catalog expansion (SaaS 19, Engagement 21, total 52), EventCatalog::requiredKeys() and ::validate(), AnalyticsManager convenience methods, version consistency (2.31.0), AnalyticsConfig new accessors, cross-provider mappings, file existence.
 
 ### Changed
 - Version bump to 2.31.0
@@ -23,7 +23,7 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 - Controller version strings updated to 2.31.0 on all endpoints
 - Composer version updated to 2.31.0
 - JS client version string updated to 2.31.0
-- Total event count: 53 (was 49) — 12 e-commerce + 19 SaaS + 22 engagement
+- Total event count: 52 (was 49) — 12 e-commerce + 19 SaaS + 21 engagement
 - Total config sections: 36 (was 31)
 - AnalyticsConfig summary() now includes referral, broadcast (extended), retention_policy (extended) sections
 - **TenantIsolationService** — Multi-tenant analytics data isolation for B2B SaaS. Automatic tenant ID resolution from authenticated user attribute, request header (X-Tenant-ID), subdomain, or session. Per-tenant config overrides (disabled events, analytics enabled toggle), per-tenant rate limiting (events per hour), tenant context propagation to all events. Config-driven via `zeroboiler.analytics.tenant`.

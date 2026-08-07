@@ -175,8 +175,8 @@ describe('V36 SaaS Starter Upgrade', function (): void {
     });
 
     describe('EngagementEvents catalog expansion', function (): void {
-        test('now has 22 events (was 20)', function (): void {
-            expect(EngagementEvents::count())->toBe(22);
+        test('now has 21 events (was 19)', function (): void {
+            expect(EngagementEvents::count())->toBe(21);
         });
 
         test('file_download exists in catalog', function (): void {
@@ -205,15 +205,15 @@ describe('V36 SaaS Starter Upgrade', function (): void {
     });
 
     describe('EventCatalog unified total', function (): void {
-        test('total event count is now 53', function (): void {
-            expect(EventCatalog::count())->toBe(53);
+        test('total event count is now 52', function (): void {
+            expect(EventCatalog::count())->toBe(52);
         });
 
-        test('breakdown: 12 ecommerce + 19 saas + 22 engagement', function (): void {
+        test('breakdown: 12 ecommerce + 19 saas + 21 engagement', function (): void {
             $summary = EventCatalog::byCategory();
             expect(count($summary['ecommerce']))->toBe(12);
             expect(count($summary['saas']))->toBe(19);
-            expect(count($summary['engagement']))->toBe(22);
+            expect(count($summary['engagement']))->toBe(21);
         });
     });
 
@@ -336,8 +336,8 @@ describe('V36 SaaS Starter Upgrade', function (): void {
             $summary = $manager->eventCatalogSummary();
             expect($summary['ecommerce'])->toBe(12);
             expect($summary['saas'])->toBe(19);
-            expect($summary['engagement'])->toBe(22);
-            expect($summary['total'])->toBe(53);
+            expect($summary['engagement'])->toBe(21);
+            expect($summary['total'])->toBe(52);
         });
 
         test('totalEventCount matches catalog count', function (): void {
