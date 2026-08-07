@@ -83,6 +83,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static \ZeroBoiler\Analytics\AnalyticsMetrics metrics()
  * @method static array{events: int, dispatched: int, failed: int, success_rate: float, top_event: string|null} reportSummary()
  * @method static array{enabled: bool, strategy: string, total: int, buffered: int, max_size: int, storage_path: string, utilization: float} dlqSummary()
+ * @method static string resolveEventName(string $name)
+ * @method static void trackWithAlias(string $name, array<string, mixed> $params = [])
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

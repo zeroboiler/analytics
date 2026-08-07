@@ -4,6 +4,33 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.49.0] - 2026-08-07
+
+### Added
+- **EventAliasResolver** — Maps 100+ common event name aliases/abbreviations to canonical catalog names. Supports CamelCase→snake_case (AddToCart→add_to_cart), abbreviations (signup→sign_up, addtocart→add_to_cart, pageview→page_view), PostHog convention stripping ($signup→sign_up), Plausible variants, custom config aliases. Runtime add/remove alias management, batch resolution, reverse lookup (getAliasesFor). Config-driven via `zeroboiler.analytics.aliases`.
+- **EventCacheService** — High-performance L1 (in-memory) + L2 (Laravel cache) layered event lookup cache. Caches catalog entries, event names, total counts, GA4↔Meta format conversions. LRU eviction policy, configurable TTL, warmUp() for pre-loading, flush/flushMemory, detailed stats (hits, misses, hit_rate). Config-driven via `zeroboiler.analytics.event_cache`.
+- **AnalyticsManager::resolveEventName()** — Convenience method for alias resolution via the Facade
+- **AnalyticsManager::trackWithAlias()** — Track events using potentially aliased names (resolves then dispatches)
+- **Facade proxy methods** — `resolveEventName()`, `trackWithAlias()` added to Analytics facade
+- **6 new AnalyticsConfig accessors** — aliases(), eventCacheEnabled(), eventCacheMemoryMaxItems(), eventCacheMemoryTtl(), eventCacheTtl(), eventCachePrefix()
+- **2 new config sections** — `aliases` (custom event name mappings), `event_cache` (L1/L2 cache configuration with env vars)
+- **V49EventAliasResolverCacheTest** — 50+ test cases covering EventAliasResolver (resolution, alias management, batch, config, PostHog, CamelCase), EventCacheService (memory cache, L2, warmUp, flush, stats, ecommerce caching, resolve-and-get), version consistency, config integrity, architecture validation
+
+### Changed
+- Version bump to 2.49.0
+- AnalyticsManager::version() returns '2.49.0'
+- Composer version updated to 2.49.0
+- JS client version string updated to 2.49.0
+- TypeScript definitions version updated to 2.49.0
+- All 38+ controller endpoint version strings updated to 2.49.0
+- EventSourceTagger::_version updated to 2.49.0
+- EventForwardingService version strings updated to 2.49.0
+- AnalyticsEventRouter version string updated to 2.49.0
+- All version consistency tests updated to 2.49.0
+- Total source files: 191 (was 189)
+- Total test files: 93 (was 92)
+- Total config sections: 44+ (was 42+)
+
 ## [2.42.0] - 2026-08-07
 
 ### Added

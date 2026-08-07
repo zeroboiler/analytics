@@ -1501,6 +1501,15 @@ final class AnalyticsConfig
                 'enabled' => $this->routingEnabled(),
                 'rule_count' => count($this->routingRules()),
             ],
+            'aliases' => [
+                'count' => count($this->aliases()),
+            ],
+            'event_cache' => [
+                'enabled' => $this->eventCacheEnabled(),
+                'memory_max_items' => $this->eventCacheMemoryMaxItems(),
+                'memory_ttl' => $this->eventCacheMemoryTtl(),
+                'cache_ttl' => $this->eventCacheTtl(),
+            ],
         ];
     }
 
@@ -1523,5 +1532,62 @@ final class AnalyticsConfig
         $rules = $this->get('routing.rules', []);
 
         return $rules;
+    }
+
+    // ── Event Aliases ──────────────────────────────────────────────────
+
+    /**
+     * Get custom event aliases from config.
+     *
+     * @return array<string, string>
+     */
+    public function aliases(): array
+    {
+        /** @var array<string, string> $aliases */
+        $aliases = $this->get('aliases', []);
+
+        return $aliases;
+    }
+
+    // ── Event Cache ────────────────────────────────────────────────────
+
+    /**
+     * Check if event cache is enabled.
+     */
+    public function eventCacheEnabled(): bool
+    {
+        return (bool) $this->get('event_cache.enabled', true);
+    }
+
+    /**
+     * Get max items for L1 memory cache.
+     */
+    public function eventCacheMemoryMaxItems(): int
+    {
+        return (int) $this->get('event_cache.memory_max_items', 500);
+    }
+
+    /**
+     * Get L1 memory cache TTL in seconds.
+     */
+    public function eventCacheMemoryTtl(): int
+    {
+        return (int) $this->get('event_cache.memory_ttl', 300);
+    }
+
+    /**
+     * Get L2 cache store TTL in seconds.
+     */
+    public function eventCacheTtl(): int
+    {
+        return (int) $this->get('event_cache.cache_ttl', 3600);
+    }
+
+    /**
+     * Get event cache key prefix.
+     */
+    public function eventCachePrefix(): string
+    {
+        return (string) $this->get('event_cache.prefix', 'zb_analytics_');
     }
 }

@@ -1072,5 +1072,44 @@ return [
             ],
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Event Aliases
+        |--------------------------------------------------------------------------
+        |
+        | Map common event name aliases and abbreviations to canonical event names.
+        | The EventAliasResolver uses these plus built-in defaults to normalize
+        | event names from different sources (JS client, webhooks, integrations).
+        |
+        | Example:
+        |   'aliases' => [
+        |       'my_custom_event' => 'sign_up',
+        |       'app:install' => 'feature_used',
+        |   ],
+        |
+        */
+        'aliases' => [
+            // 'signup' => 'sign_up',    // Already included in defaults
+            // 'my_alias' => 'page_view', // Custom alias
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Cache
+        |--------------------------------------------------------------------------
+        |
+        | High-performance event lookup caching. Uses in-memory L1 cache
+        | (per-request) with optional L2 Laravel cache store (cross-request).
+        | Eliminates repeated catalog lookups in batch processing and event replay.
+        |
+        */
+        'event_cache' => [
+            'enabled' => env('ANALYTICS_EVENT_CACHE_ENABLED', true),
+            'memory_max_items' => (int) env('ANALYTICS_EVENT_CACHE_MEMORY_MAX', 500),
+            'memory_ttl' => (int) env('ANALYTICS_EVENT_CACHE_MEMORY_TTL', 300),
+            'cache_ttl' => (int) env('ANALYTICS_EVENT_CACHE_TTL', 3600),
+            'prefix' => env('ANALYTICS_EVENT_CACHE_PREFIX', 'zb_analytics_'),
+        ],
+
     ],
 ];

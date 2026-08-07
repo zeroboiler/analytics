@@ -205,19 +205,21 @@ Done. That's it.
 
 ### Developer Experience
 - **Debug Mode** — `ANALYTICS_DEBUG_ENABLED=true` logs events without dispatching, runtime toggle via `setDebug()`
-- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::trackError()`, `Analytics::mrr()`, and 30+ more methods
+- **Facade** — `Analytics::track()`, `Analytics::purchase()`, `Analytics::identify()`, `Analytics::pageView()`, `Analytics::trackError()`, `Analytics::mrr()`, `Analytics::resolveEventName()`, `Analytics::trackWithAlias()`, and 30+ more methods
 - **Config-Driven** — 35+ environment variables, sensible defaults, zero-required-config to start
 - **Metrics & Observability** — Per-provider dispatch/failure counters for monitoring and debugging
 - **PII Sanitization** — Auto-hash, remove, or mask sensitive data before dispatch
 - **Event Sampling** — Control analytics volume with configurable sample rates
 - **Anonymous ID Tracking** — Persistent UUID-based client identifiers with cookie management
-- **AnalyticsConfig** — Type-safe config accessor with 100+ typed methods (no raw array access)
+- **AnalyticsConfig** — Type-safe config accessor with 110+ typed methods (no raw array access)
 - **EventTransformer** — Centralized GA4 ↔ Meta ↔ PostHog event format conversion
+- **EventAliasResolver** — 100+ built-in event name aliases (signup→sign_up, addtocart→add_to_cart, CamelCase→snake_case) with custom config aliases
+- **EventCacheService** — L1 memory + L2 Laravel cache for high-performance event lookups and format conversions
 - **AnalyticsEventNameRule** — Laravel validation rule for analytics event names
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 200+ tests across 87+ test files
+- **Pest PHP** — 200+ tests across 93+ test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
@@ -306,6 +308,8 @@ src/
 │   ├── EventAggregationService.php     # Real-time event counting & health diagnostics
 │   ├── AnalyticsHealthService.php      # Programmatic health-check (report, isHealthy)
 │   ├── ConsentLogService.php          # GDPR consent audit trail & DSAR export
+│   ├── EventAliasResolver.php         # Event name alias resolution (100+ built-in aliases)
+│   ├── EventCacheService.php          # L1 memory + L2 cache for event lookups
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
 │   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
@@ -327,9 +331,10 @@ src/
 │   └── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
 │   └── AnalyticsDashboardCommand.php # Dashboard data export (JSON/table)
 ├── Support/
-│   ├── AnalyticsConfig.php              # Type-safe config accessor (90+ methods)
+│   ├── AnalyticsConfig.php              # Type-safe config accessor (110+ methods)
 │   ├── AnalyticsEventNameRule.php       # Laravel validation rule for event names
 │   ├── EventTransformer.php             # Cross-provider event format conversion
+│   ├── EcommerceFormatConverter.php     # GA4 ↔ Meta item format bidirectional conversion
 │   ├── AnalyticsRateLimiter.php         # Per-client rate limiting
 │   └── WebhookSignatureValidator.php    # HMAC-SHA256 webhook signature validation
 ├── Blade/Directives/
@@ -341,7 +346,7 @@ resources/
     ├── analytics.js                 # ES module client library (~2500 LOC)
     └── analytics.d.ts               # TypeScript type definitions (50+ exports)
 config/
-└── zeroboiler.php                   # 40+ config options across 45+ sections
+└── zeroboiler.php                   # 40+ config options across 47+ sections
 routes/
 └── analytics.php                    # API route definitions
 ```

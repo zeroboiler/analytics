@@ -86,6 +86,8 @@ use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
+use ZeroBoiler\Analytics\Services\EventAliasResolver;
+use ZeroBoiler\Analytics\Services\EventCacheService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -820,6 +822,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsEventRouter($manager, $config);
+        });
+
+        // Event alias resolver — normalizes event name variations to canonical names
+        $this->app->singleton(EventAliasResolver::class, function (Application $app): EventAliasResolver {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventAliasResolver($config);
+        });
+
+        // Event cache service — L1 memory + L2 Laravel cache for high-performance lookups
+        $this->app->singleton(EventCacheService::class, function (Application $app): EventCacheService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCacheService($cache, $config);
         });
     }
 

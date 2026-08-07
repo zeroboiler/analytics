@@ -1237,11 +1237,45 @@ final class AnalyticsManager
     }
 
     /**
+     * Resolve a potentially aliased event name to its canonical form.
+     *
+     * Uses EventAliasResolver to normalize event names from different
+     * sources (JS client, webhooks, integrations) to canonical catalog names.
+     *
+     * @param  string  $name  The event name to resolve
+     * @return string The canonical event name
+     */
+    public function resolveEventName(string $name): string
+    {
+        $resolver = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\EventAliasResolver::class);
+
+        return $resolver->resolve($name);
+    }
+
+    /**
+     * Track an event using a potentially aliased name.
+     *
+     * Resolves the event name to its canonical form, then dispatches
+     * to all enabled providers. Useful when receiving events from
+     * external sources that may use non-canonical event names.
+     *
+     * @param  string  $name  The event name (alias or canonical)
+     * @param  array<string, mixed>  $params
+     */
+    public function trackWithAlias(string $name, array $params = []): void
+    {
+        $canonical = $this->resolveEventName($name);
+        $event = new AnalyticsEvent(name: $canonical, params: $params);
+
+        $this->trackEvent($event);
+    }
+
+    /**
      * Get the package version.
      */
     public function version(): string
     {
-        return '2.47.0';
+        return '2.49.0';
     }
 
     /**
