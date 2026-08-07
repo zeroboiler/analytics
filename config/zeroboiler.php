@@ -618,21 +618,60 @@ return [
             'enabled' => env('ANALYTICS_LIFECYCLE_ENABLED', true),
             'override_defaults' => env('ANALYTICS_LIFECYCLE_OVERRIDE_DEFAULTS', false),
             'events' => [
+                // ── Authentication ───────────────────────────────
                 'auth.login' => true,
                 'auth.register' => true,
                 'auth.logout' => false,
+
+                // ── Subscription ──────────────────────────────
                 'subscription.created' => true,
                 'subscription.upgraded' => true,
                 'subscription.downgraded' => true,
                 'subscription.cancelled' => true,
+                'subscription.renewal' => true,
+
+                // ── Trial ───────────────────────────────────────
                 'trial.started' => true,
                 'trial.ended' => false,
+
+                // ── Feature Usage ───────────────────────────────
                 'feature.used' => false,
+                'feature.limit_reached' => true,
+
+                // ── E-commerce ──────────────────────────────────
                 'order.completed' => true,
                 'order.refunded' => true,
+
+                // ── Engagement ──────────────────────────────────
                 'form.submitted' => false,
                 'search.performed' => false,
                 'error.occurred' => false,
+
+                // ── Account Lifecycle ───────────────────────────
+                'account.activated' => true,
+                'account.deactivated' => true,
+                'account.email_verified' => true,
+                'account.password_changed' => false,
+                'account.password_reset' => true,
+                'account.profile_updated' => false,
+
+                // ── B2B / Team ──────────────────────────────────
+                'team.created' => true,
+                'team.member_joined' => true,
+                'team.member_removed' => true,
+                'team.role_changed' => true,
+                'team.invite_sent' => true,
+
+                // ── Billing ─────────────────────────────────────
+                'billing.payment_succeeded' => true,
+                'billing.payment_failed' => true,
+                'billing.payment_method_added' => false,
+                'billing.invoice_generated' => false,
+                'billing.credit_applied' => false,
+
+                // ── Integrations ─────────────────────────────────
+                'integration.connected' => true,
+                'integration.failed' => true,
             ],
             /*
             | Custom event mappings (merged with or override defaults).

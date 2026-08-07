@@ -2,6 +2,24 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.46.0] - 2026-08-07
+
+### Added
+- **LifecycleEventMapper expansion**: 20 new event mappings across 4 new categories (account lifecycle, B2B/team, billing, integrations), bringing total from 15 to 35 default mappings
+- Account lifecycle events: `account.activated`, `account.deactivated`, `account.email_verified`, `account.password_changed`, `account.password_reset`, `account.profile_updated`
+- B2B / Team lifecycle events: `team.created`, `team.member_joined`, `team.member_removed`, `team.role_changed`, `team.invite_sent`
+- Billing lifecycle events: `billing.payment_succeeded`, `billing.payment_failed`, `billing.payment_method_added`, `billing.invoice_generated`, `billing.credit_applied`
+- Integration lifecycle events: `integration.connected`, `integration.failed`
+- Subscription renewal mapping: `subscription.renewal`
+- Feature limit reached mapping: `feature.limit_reached`
+- Param extractors for all new events with correct constructor argument mapping (team events, payment events, integration events, role changes, invites)
+- `V46ComprehensiveLifecycleTest` — 15 tests validating all 35 mappings, 12 category coverage, config toggles per category, registration volume, and target class validity
+- Lifecycle config toggles for all 20 new event keys in `config/zeroboiler.php`
+
+### Changed
+- Lifecycle config `events` array reorganized with category comments for discoverability
+- Param extractors now use match expressions for per-class constructor mapping instead of reflection-only fallbacks
+
 ## [2.45.0] - 2026-08-07
 
 ### Fixed

@@ -13,14 +13,34 @@ use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\SaaS\AccountActivatedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\AccountDeactivatedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\CancellationEvent;
+use ZeroBoiler\Analytics\Events\SaaS\CreditAppliedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\EmailVerifiedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\FeatureLimitReachedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\FeatureUsedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\IntegrationConnectedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\IntegrationFailedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\InviteSentEvent;
+use ZeroBoiler\Analytics\Events\SaaS\InvoiceGeneratedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\LoginEvent;
 use ZeroBoiler\Analytics\Events\SaaS\LogoutEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PasswordChangedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PasswordResetEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PaymentFailedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PaymentMethodAddedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PaymentSucceededEvent;
 use ZeroBoiler\Analytics\Events\SaaS\PlanDowngradeEvent;
 use ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent;
+use ZeroBoiler\Analytics\Events\SaaS\ProfileUpdatedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\RoleChangedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SignUpEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SubscriptionEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SubscriptionRenewalEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TeamCreatedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TeamMemberJoinedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TeamMemberRemovedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ErrorEvent;
@@ -36,7 +56,7 @@ use ZeroBoiler\Analytics\Events\Ecommerce\RefundEvent;
  * model events, custom dispatched events) to ZeroBoiler analytics events.
  * Supports parameter extraction, conditional mapping, and priority ordering.
  *
- * Configuration is read from `zeroboiler.analytics.lifecycle_map`.
+ * Configuration is read from `zeroboiler.analytics.lifecycle`.
  *
  * @see \ZeroBoiler\Analytics\Tracking\ServerSideTracker
  */
@@ -45,24 +65,27 @@ final class LifecycleEventMapper
     /**
      * Built-in lifecycle mapping templates for common SaaS patterns.
      *
+     * Covers authentication, subscription, trial, feature usage, e-commerce,
+     * engagement, account lifecycle, B2B/team, billing, and operational events.
+     *
      * @var array<string, array{source: string, target: class-string<AnalyticsEvent>, params_extractor?: string, condition?: string, priority?: int}>
      */
     private const DEFAULT_MAPPINGS = [
         // ── Authentication Lifecycle ───────────────────────────────
         'auth.login' => [
-            'source' => 'Illuminate\\Auth\\Events\\Login',
+            'source' => 'Illuminate\Auth\Events\Login',
             'target' => LoginEvent::class,
             'params_extractor' => 'extractAuthParams',
             'priority' => 100,
         ],
         'auth.register' => [
-            'source' => 'Illuminate\\Auth\\Events\\Registered',
+            'source' => 'Illuminate\Auth\Events\Registered',
             'target' => SignUpEvent::class,
             'params_extractor' => 'extractRegisterParams',
             'priority' => 100,
         ],
         'auth.logout' => [
-            'source' => 'Illuminate\\Auth\\Events\\Logout',
+            'source' => 'Illuminate\Auth\Events\Logout',
             'target' => LogoutEvent::class,
             'params_extractor' => 'extractLogoutParams',
             'priority' => 50,
@@ -93,6 +116,12 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractCancellationParams',
             'priority' => 90,
         ],
+        'subscription.renewal' => [
+            'source' => 'subscription.renewal',
+            'target' => SubscriptionRenewalEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 85,
+        ],
 
         // ── Trial Lifecycle ─────────────────────────────────────────
         'trial.started' => [
@@ -113,6 +142,12 @@ final class LifecycleEventMapper
             'source' => 'feature.used',
             'target' => FeatureUsedEvent::class,
             'params_extractor' => 'extractFeatureParams',
+            'priority' => 80,
+        ],
+        'feature.limit_reached' => [
+            'source' => 'feature.limit_reached',
+            'target' => FeatureLimitReachedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
             'priority' => 80,
         ],
 
@@ -147,6 +182,122 @@ final class LifecycleEventMapper
             'source' => 'error.occurred',
             'target' => ErrorEvent::class,
             'params_extractor' => 'extractErrorParams',
+            'priority' => 60,
+        ],
+
+        // ── Account Lifecycle ──────────────────────────────────────
+        'account.activated' => [
+            'source' => 'account.activated',
+            'target' => AccountActivatedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 80,
+        ],
+        'account.deactivated' => [
+            'source' => 'account.deactivated',
+            'target' => AccountDeactivatedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 80,
+        ],
+        'account.email_verified' => [
+            'source' => 'account.email_verified',
+            'target' => EmailVerifiedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 75,
+        ],
+        'account.password_changed' => [
+            'source' => 'account.password_changed',
+            'target' => PasswordChangedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
+        'account.password_reset' => [
+            'source' => 'account.password_reset',
+            'target' => PasswordResetEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
+        'account.profile_updated' => [
+            'source' => 'account.profile_updated',
+            'target' => ProfileUpdatedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 60,
+        ],
+
+        // ── B2B / Team Lifecycle ───────────────────────────────────
+        'team.created' => [
+            'source' => 'team.created',
+            'target' => TeamCreatedEvent::class,
+            'params_extractor' => 'extractTeamParams',
+            'priority' => 85,
+        ],
+        'team.member_joined' => [
+            'source' => 'team.member_joined',
+            'target' => TeamMemberJoinedEvent::class,
+            'params_extractor' => 'extractTeamParams',
+            'priority' => 80,
+        ],
+        'team.member_removed' => [
+            'source' => 'team.member_removed',
+            'target' => TeamMemberRemovedEvent::class,
+            'params_extractor' => 'extractTeamParams',
+            'priority' => 80,
+        ],
+        'team.role_changed' => [
+            'source' => 'team.role_changed',
+            'target' => RoleChangedEvent::class,
+            'params_extractor' => 'extractRoleChangeParams',
+            'priority' => 75,
+        ],
+        'team.invite_sent' => [
+            'source' => 'team.invite_sent',
+            'target' => InviteSentEvent::class,
+            'params_extractor' => 'extractInviteParams',
+            'priority' => 70,
+        ],
+
+        // ── Billing Lifecycle ──────────────────────────────────────
+        'billing.payment_succeeded' => [
+            'source' => 'billing.payment_succeeded',
+            'target' => PaymentSucceededEvent::class,
+            'params_extractor' => 'extractPaymentParams',
+            'priority' => 90,
+        ],
+        'billing.payment_failed' => [
+            'source' => 'billing.payment_failed',
+            'target' => PaymentFailedEvent::class,
+            'params_extractor' => 'extractPaymentParams',
+            'priority' => 90,
+        ],
+        'billing.payment_method_added' => [
+            'source' => 'billing.payment_method_added',
+            'target' => PaymentMethodAddedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
+        'billing.invoice_generated' => [
+            'source' => 'billing.invoice_generated',
+            'target' => InvoiceGeneratedEvent::class,
+            'params_extractor' => 'extractPaymentParams',
+            'priority' => 70,
+        ],
+        'billing.credit_applied' => [
+            'source' => 'billing.credit_applied',
+            'target' => CreditAppliedEvent::class,
+            'params_extractor' => 'extractPaymentParams',
+            'priority' => 70,
+        ],
+
+        // ── Integration Lifecycle ──────────────────────────────────
+        'integration.connected' => [
+            'source' => 'integration.connected',
+            'target' => IntegrationConnectedEvent::class,
+            'params_extractor' => 'extractIntegrationParams',
+            'priority' => 75,
+        ],
+        'integration.failed' => [
+            'source' => 'integration.failed',
+            'target' => IntegrationFailedEvent::class,
+            'params_extractor' => 'extractIntegrationParams',
             'priority' => 60,
         ],
     ];
@@ -608,6 +759,218 @@ final class LifecycleEventMapper
             source: (string) ($params['source'] ?? ''),
             severity: (string) ($params['severity'] ?? 'error'),
         );
+    }
+
+    /**
+     * Extract simple user_id-based params for account lifecycle events.
+     *
+     * Uses reflection-based construction because these event constructors
+     * vary widely and user_id is typically passed via metadata:
+     * - AccountActivatedEvent(method, metadata)
+     * - AccountDeactivatedEvent(reason, permanent, metadata)
+     * - EmailVerifiedEvent(method, metadata)
+     * - PasswordChangedEvent(method, metadata)
+     * - PasswordResetEvent(method, success, metadata)
+     * - ProfileUpdatedEvent(fields, metadata)
+     * - PaymentMethodAddedEvent(paymentMethod, brand, isDefault, metadata)
+     * - FeatureLimitReachedEvent(featureName, limitType, currentUsage, maxLimit, metadata)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractSimpleUserIdParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+        $userId = (string) ($params['user_id'] ?? $params['userId'] ?? '');
+
+        // Use constructWithReflection which gracefully handles mismatched params
+        return $this->constructWithReflection($class, array_merge($params, [
+            'metadata' => array_filter(array_merge($params['metadata'] ?? [], [
+                'user_id' => $userId,
+            ])),
+        ]));
+    }
+
+    /**
+     * Extract params from team events (created, member_joined, member_removed).
+     *
+     * Uses reflection-based construction because team event constructors vary:
+     * - TeamCreatedEvent(teamName, memberCount, plan, metadata)
+     * - TeamMemberJoinedEvent(role, inviteMethod, metadata)
+     * - TeamMemberRemovedEvent(role, reason, metadata)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractTeamParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        // Map payload keys to the constructor parameter names for each event
+        $mapped = match ($class) {
+            TeamCreatedEvent::class => [
+                'teamName' => (string) ($params['team_name'] ?? $params['teamName'] ?? ''),
+                'memberCount' => isset($params['member_count']) ? (int) $params['member_count'] : null,
+                'plan' => (string) ($params['plan'] ?? ''),
+            ],
+            TeamMemberJoinedEvent::class => [
+                'role' => (string) ($params['role'] ?? ''),
+                'inviteMethod' => (string) ($params['invite_method'] ?? $params['inviteMethod'] ?? ''),
+            ],
+            TeamMemberRemovedEvent::class => [
+                'role' => (string) ($params['role'] ?? ''),
+                'reason' => (string) ($params['reason'] ?? ''),
+            ],
+            default => $params,
+        };
+
+        // Attach user_id as metadata when not a direct constructor param
+        if (! empty($params['user_id'] ?? $params['userId'])) {
+            $mapped['metadata'] = array_merge($mapped['metadata'] ?? [], [
+                'user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'team_id' => (string) ($params['team_id'] ?? $params['teamId'] ?? ''),
+            ]);
+        }
+
+        return $this->constructWithParams($class, $mapped);
+    }
+
+    /**
+     * Extract params from role change events.
+     *
+     * RoleChangedEvent constructor: (fromRole, toRole, changedBy, metadata)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractRoleChangeParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+        $userId = (string) ($params['user_id'] ?? $params['userId'] ?? '');
+
+        return new RoleChangedEvent(
+            fromRole: (string) ($params['previous_role'] ?? $params['from_role'] ?? ''),
+            toRole: (string) ($params['new_role'] ?? $params['to_role'] ?? ''),
+            changedBy: (string) ($params['changed_by'] ?? $params['changedBy'] ?? ''),
+            metadata: array_filter(['user_id' => $userId]),
+        );
+    }
+
+    /**
+     * Extract params from invite events.
+     *
+     * InviteSentEvent constructor: (inviteType, role, userId, extra)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractInviteParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        return new InviteSentEvent(
+            inviteType: (string) ($params['invite_type'] ?? $params['inviteType'] ?? 'team_member'),
+            role: (string) ($params['role'] ?? null),
+            userId: (string) ($params['user_id'] ?? $params['userId'] ?? null),
+            extra: array_filter([
+                'team_id' => (string) ($params['team_id'] ?? $params['teamId'] ?? ''),
+                'invitee_email' => (string) ($params['invitee_email'] ?? $params['inviteeEmail'] ?? ''),
+            ]),
+        );
+    }
+
+    /**
+     * Extract params from billing/payment events.
+     *
+     * Event constructors vary:
+     * - PaymentSucceededEvent(amount, currency, paymentMethod, invoiceId, metadata)
+     * - PaymentFailedEvent(reason, amount, currency, paymentMethod, metadata)
+     * - InvoiceGeneratedEvent(invoiceId, amount, currency, status, metadata)
+     * - CreditAppliedEvent(amount, currency, reason, source, metadata)
+     * - SubscriptionRenewalEvent(planName, amount, currency, billingCycle, params)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractPaymentParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        $mapped = match ($class) {
+            PaymentSucceededEvent::class => [
+                'amount' => (float) ($params['amount'] ?? 0.0),
+                'currency' => (string) ($params['currency'] ?? 'USD'),
+                'paymentMethod' => (string) ($params['payment_method'] ?? $params['paymentMethod'] ?? ''),
+                'invoiceId' => (string) ($params['invoice_id'] ?? $params['invoiceId'] ?? ''),
+                'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            PaymentFailedEvent::class => [
+                'reason' => (string) ($params['reason'] ?? ''),
+                'amount' => (float) ($params['amount'] ?? 0.0),
+                'currency' => (string) ($params['currency'] ?? 'USD'),
+                'paymentMethod' => (string) ($params['payment_method'] ?? $params['paymentMethod'] ?? ''),
+                'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            InvoiceGeneratedEvent::class => [
+                'invoiceId' => (string) ($params['invoice_id'] ?? $params['invoiceId'] ?? ''),
+                'amount' => (float) ($params['amount'] ?? 0.0),
+                'currency' => (string) ($params['currency'] ?? 'USD'),
+                'status' => (string) ($params['status'] ?? ''),
+                'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            CreditAppliedEvent::class => [
+                'amount' => (float) ($params['amount'] ?? 0.0),
+                'currency' => (string) ($params['currency'] ?? 'USD'),
+                'reason' => (string) ($params['reason'] ?? ''),
+                'source' => (string) ($params['source'] ?? ''),
+                'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            SubscriptionRenewalEvent::class => [
+                'planName' => (string) ($params['plan_name'] ?? $params['planName'] ?? ''),
+                'amount' => (float) ($params['amount'] ?? 0.0),
+                'currency' => (string) ($params['currency'] ?? 'USD'),
+                'billingCycle' => (string) ($params['billing_cycle'] ?? $params['billingCycle'] ?? ''),
+                'params' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            default => $params,
+        };
+
+        return $this->constructWithParams($class, $mapped);
+    }
+
+    /**
+     * Extract params from integration events.
+     *
+     * Event constructors vary:
+     * - IntegrationConnectedEvent(integrationName, userId, extra)
+     * - IntegrationFailedEvent(integrationName, errorType, errorMessage, isRetryable, metadata)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractIntegrationParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        $mapped = match ($class) {
+            IntegrationConnectedEvent::class => [
+                'integrationName' => (string) ($params['integration_name'] ?? $params['integrationName'] ?? $params['provider'] ?? ''),
+                'userId' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'extra' => array_filter([
+                    'provider' => (string) ($params['provider'] ?? ''),
+                ]),
+            ],
+            IntegrationFailedEvent::class => [
+                'integrationName' => (string) ($params['integration_name'] ?? $params['integrationName'] ?? $params['provider'] ?? ''),
+                'errorType' => (string) ($params['error_type'] ?? $params['errorType'] ?? 'unknown'),
+                'errorMessage' => (string) ($params['error_message'] ?? $params['errorMessage'] ?? ''),
+                'isRetryable' => (bool) ($params['is_retryable'] ?? $params['isRetryable'] ?? false),
+                'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            default => $params,
+        };
+
+        return $this->constructWithParams($class, $mapped);
     }
 
     /**
