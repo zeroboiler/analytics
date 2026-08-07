@@ -5,7 +5,27 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 ## [Unreleased]
 
 ### Added
-- **EventBroadcasterService** — Real-time analytics event broadcasting via Laravel Echo/Broadcasting. Supports selective event broadcasting (filter by name, category, value threshold), channel-based routing (global, category, specific event), private and public channels, alert broadcasts for high-priority events, metrics snapshots to dashboard channels. Config-driven via `zeroboiler.analytics.broadcast`.
+- **InviteSentEvent** — Typed event class for tracking team/collaborator/referral invitations. Tracks invite type (team_member, collaborator, referral, billing_contact), assigned role, and inviter user ID. Maps to GA4 `invite_sent` and Meta `InviteSent`.
+- **IntegrationConnectedEvent** — Typed event class for tracking external integration connections (Slack, GitHub, Stripe, etc.). Tracks integration name and connecting user. Maps to GA4 `integration_connected` and Meta `IntegrationConnected`.
+- **FileDownloadEvent** — Typed engagement event for tracking file/document downloads. Tracks file name, type (extension/MIME), and optional file size. Maps to GA4 `file_download` and Meta `FileDownload`. Useful for whitepaper downloads, invoice PDFs, and CSV exports.
+- **VideoPlayEvent** — Typed engagement event for tracking video content interactions. Tracks video title, hosting provider (YouTube, Vimeo, Wistia), and duration. Maps to GA4 `video_play` and Meta `VideoPlay`. Useful for onboarding tutorials and product demos.
+- **EventCatalog::requiredKeys()** — Returns the required keys (name, class, ga4, category) that every event entry must have.
+- **EventCatalog::validate()** — Validates integrity of the entire event catalog. Checks required keys, class existence, AnalyticsEvent inheritance, duplicate names, and name-key consistency. Returns `{valid, errors, warnings}`.
+- **AnalyticsManager convenience methods** — `inviteSent()`, `integrationConnected()`, `fileDownload()`, `videoPlay()`, `validateCatalog()`.
+- **Facade proxy methods** — 5 new `@method` annotations for inviteSent, integrationConnected, fileDownload, videoPlay, validateCatalog.
+- **AnalyticsConfig accessors** — `referralEnabled()`, `referralParamName()`, `referralTtl()`, `referralTrackConversions()`, `broadcastAlertChannel()`, `broadcastMetricsChannel()`, `retentionPolicyEngagementDays()`, `retentionPolicySaasDays()`, `retentionPolicyEcommerceDays()`. Summary expanded to 36 sections (was 31).
+- **Config expansion** — 5 new config sections: `referral` (referral code tracking with TTL and conversion tracking), `broadcast` (extended with alert/metrics channel names), `tenant` (multi-tenant isolation with resolution strategy and header), `retention_policy` (per-category retention days: engagement 30d, SaaS 90d, ecommerce 365d), `gate` (plan-based feature access with global/user overrides).
+- **V36SaaSStarterUpgradeTest** — 50+ new test cases covering all 4 new event classes (construction, readonly final, inheritance), catalog expansion (SaaS 19, Engagement 22, total 53), EventCatalog::requiredKeys() and ::validate(), AnalyticsManager convenience methods, version consistency (2.31.0), AnalyticsConfig new accessors, cross-provider mappings, file existence.
+
+### Changed
+- Version bump to 2.31.0
+- AnalyticsManager::version() returns '2.31.0' (was '2.30.0')
+- Controller version strings updated to 2.31.0 on all endpoints
+- Composer version updated to 2.31.0
+- JS client version string updated to 2.31.0
+- Total event count: 53 (was 49) — 12 e-commerce + 19 SaaS + 22 engagement
+- Total config sections: 36 (was 31)
+- AnalyticsConfig summary() now includes referral, broadcast (extended), retention_policy (extended) sections
 - **TenantIsolationService** — Multi-tenant analytics data isolation for B2B SaaS. Automatic tenant ID resolution from authenticated user attribute, request header (X-Tenant-ID), subdomain, or session. Per-tenant config overrides (disabled events, analytics enabled toggle), per-tenant rate limiting (events per hour), tenant context propagation to all events. Config-driven via `zeroboiler.analytics.tenant`.
 - **DataRetentionPolicyService** — GDPR-compliant data retention management. Per-category retention periods (engagement: 30d, SaaS: 90d, ecommerce: 365d), PII category tracking, automatic event expiry checking, configurable auto-expire, retention clamping (1 day min, 10 year max), retention recording and summary reporting. Config-driven via `zeroboiler.analytics.retention`.
 - **AnalyticsGateService** — Feature-flag-style analytics access control for tiered SaaS plans. 12 features (events, pageviews, ecommerce, cohorts, funnels, predictions, export, broadcast, alerts, profile, attribution, multi_tenant) with dependency enforcement. 4 plan tiers (Free, Starter, Pro, Enterprise) with per-feature enablement. Per-user and per-tenant overrides with cache-backed resolution. Plan auto-detection from user model attribute. Config-driven via `zeroboiler.analytics.gate`.

@@ -893,6 +893,57 @@ final class AnalyticsConfig
         return (string) $this->get('gate.plan_attribute', 'plan');
     }
 
+    // ── Referral Tracking ─────────────────────────────────────────
+
+    public function referralEnabled(): bool
+    {
+        return (bool) $this->get('referral.enabled', false);
+    }
+
+    public function referralParamName(): string
+    {
+        return (string) $this->get('referral.param_name', 'ref');
+    }
+
+    public function referralTtl(): int
+    {
+        return (int) $this->get('referral.ttl', 2592000);
+    }
+
+    public function referralTrackConversions(): bool
+    {
+        return (bool) $this->get('referral.track_conversions', true);
+    }
+
+    // ── Broadcast Channels ──────────────────────────────────────────
+
+    public function broadcastAlertChannel(): string
+    {
+        return (string) $this->get('broadcast.alert_channel', 'analytics.alerts');
+    }
+
+    public function broadcastMetricsChannel(): string
+    {
+        return (string) $this->get('broadcast.metrics_channel', 'analytics.metrics');
+    }
+
+    // ── Retention Policy (extended) ──────────────────────────────────
+
+    public function retentionPolicyEngagementDays(): int
+    {
+        return (int) $this->get('retention_policy.engagement_days', 30);
+    }
+
+    public function retentionPolicySaasDays(): int
+    {
+        return (int) $this->get('retention_policy.saas_days', 90);
+    }
+
+    public function retentionPolicyEcommerceDays(): int
+    {
+        return (int) $this->get('retention_policy.ecommerce_days', 365);
+    }
+
     // ── Convenience Summary ─────────────────────────────────────────────
 
     /**
@@ -1082,6 +1133,27 @@ final class AnalyticsConfig
                 'enabled' => $this->gateEnabled(),
                 'default_plan' => $this->gateDefaultPlan(),
                 'plan_attribute' => $this->gatePlanAttribute(),
+            ],
+            'referral' => [
+                'enabled' => $this->referralEnabled(),
+                'param_name' => $this->referralParamName(),
+                'ttl' => $this->referralTtl(),
+                'track_conversions' => $this->referralTrackConversions(),
+            ],
+            'broadcast' => [
+                'enabled' => $this->broadcastEnabled(),
+                'channel_prefix' => $this->broadcastChannelPrefix(),
+                'private_channels' => $this->broadcastPrivateChannels(),
+                'alert_channel' => $this->broadcastAlertChannel(),
+                'metrics_channel' => $this->broadcastMetricsChannel(),
+            ],
+            'retention_policy' => [
+                'enabled' => $this->retentionPolicyEnabled(),
+                'auto_expire' => $this->retentionPolicyAutoExpire(),
+                'pii_categories' => $this->retentionPolicyPiiCategories(),
+                'engagement_days' => $this->retentionPolicyEngagementDays(),
+                'saas_days' => $this->retentionPolicySaasDays(),
+                'ecommerce_days' => $this->retentionPolicyEcommerceDays(),
             ],
         ];
     }

@@ -685,5 +685,92 @@ return [
             'enabled' => env('ANALYTICS_VALIDATION_BOOT_ENABLED', false),
             'log_level' => env('ANALYTICS_VALIDATION_BOOT_LOG_LEVEL', 'warning'), // error, warning, info
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Referral Tracking
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, tracks referral codes and affiliate links in URLs.
+        | Automatically captures the 'ref' parameter from incoming requests
+        | and persists it for conversion attribution.
+        |
+        */
+        'referral' => [
+            'enabled' => env('ANALYTICS_REFERRAL_ENABLED', false),
+            'param_name' => env('ANALYTICS_REFERRAL_PARAM', 'ref'),
+            'ttl' => (int) env('ANALYTICS_REFERRAL_TTL', 2592000), // 30 days
+            'track_conversions' => env('ANALYTICS_REFERRAL_TRACK_CONVERSIONS', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Broadcast (Real-Time Event Broadcasting)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, analytics events are broadcast via Laravel Echo/Broadcasting
+        | for real-time dashboard updates. Supports selective broadcasting by
+        | event name, category, value threshold, and severity.
+        |
+        */
+        'broadcast' => [
+            'enabled' => env('ANALYTICS_BROADCAST_ENABLED', false),
+            'channel_prefix' => env('ANALYTICS_BROADCAST_PREFIX', 'analytics'),
+            'private_channels' => env('ANALYTICS_BROADCAST_PRIVATE', true),
+            'value_threshold' => (float) env('ANALYTICS_BROADCAST_VALUE_THRESHOLD', 0.0),
+            'alert_channel' => env('ANALYTICS_BROADCAST_ALERT_CHANNEL', 'analytics.alerts'),
+            'metrics_channel' => env('ANALYTICS_BROADCAST_METRICS_CHANNEL', 'analytics.metrics'),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Tenant Isolation (Multi-Tenant SaaS)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, isolates analytics data per tenant. Supports resolution
+        | from user attribute, request header, subdomain, or session.
+        |
+        */
+        'tenant' => [
+            'enabled' => env('ANALYTICS_TENANT_ENABLED', false),
+            'resolution_strategy' => env('ANALYTICS_TENANT_STRATEGY', 'user_attribute'),
+            'tenant_header' => env('ANALYTICS_TENANT_HEADER', 'X-Tenant-ID'),
+            'events_per_hour' => (int) env('ANALYTICS_TENANT_EVENTS_PER_HOUR', 10000),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Retention Policy (GDPR Data Retention)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, exposes retention metadata for downstream storage layers
+        | to automatically purge or anonymize old analytics events.
+        |
+        */
+        'retention_policy' => [
+            'enabled' => env('ANALYTICS_RETENTION_POLICY_ENABLED', false),
+            'auto_expire' => env('ANALYTICS_RETENTION_POLICY_AUTO_EXPIRE', false),
+            'pii_categories' => ['pii'],
+            'engagement_days' => (int) env('ANALYTICS_RETENTION_ENGAGEMENT_DAYS', 30),
+            'saas_days' => (int) env('ANALYTICS_RETENTION_SAAS_DAYS', 90),
+            'ecommerce_days' => (int) env('ANALYTICS_RETENTION_ECOMMERCE_DAYS', 365),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Feature Gate (Plan-Based Access Control)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, restricts analytics features based on the user's plan tier.
+        | Supports Free, Starter, Pro, and Enterprise tiers with 12 features.
+        |
+        */
+        'gate' => [
+            'enabled' => env('ANALYTICS_GATE_ENABLED', false),
+            'default_plan' => env('ANALYTICS_GATE_DEFAULT_PLAN', 'free'),
+            'plan_attribute' => env('ANALYTICS_GATE_PLAN_ATTRIBUTE', 'plan'),
+            'global_overrides' => [],
+            'user_overrides' => [],
+        ],
     ],
 ];

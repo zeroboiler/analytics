@@ -1142,11 +1142,79 @@ final class AnalyticsManager
     }
 
     /**
+     * Track an invite sent event (team member, collaborator, referral).
+     *
+     * @param  string  $inviteType  Type of invitation (e.g. 'team_member', 'collaborator', 'referral')
+     * @param  string|null  $role  Assigned role for the invitee
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function inviteSent(string $inviteType, ?string $role = null, array $params = []): void
+    {
+        $this->track('invite_sent', array_filter(array_merge([
+            'invite_type' => $inviteType,
+            'role' => $role,
+        ], $params)));
+    }
+
+    /**
+     * Track an external integration connection event.
+     *
+     * @param  string  $integrationName  Integration name (e.g. 'slack', 'github', 'stripe')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function integrationConnected(string $integrationName, array $params = []): void
+    {
+        $this->track('integration_connected', array_merge([
+            'integration_name' => $integrationName,
+        ], $params));
+    }
+
+    /**
+     * Track a file download event.
+     *
+     * @param  string  $fileName  Name of the downloaded file
+     * @param  string|null  $fileType  File extension or MIME type
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function fileDownload(string $fileName, ?string $fileType = null, array $params = []): void
+    {
+        $this->track('file_download', array_filter(array_merge([
+            'file_name' => $fileName,
+            'file_type' => $fileType,
+        ], $params)));
+    }
+
+    /**
+     * Track a video play event.
+     *
+     * @param  string  $videoTitle  Title or identifier of the video
+     * @param  string|null  $videoProvider  Hosting provider (e.g. 'youtube', 'vimeo', 'wistia')
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function videoPlay(string $videoTitle, ?string $videoProvider = null, array $params = []): void
+    {
+        $this->track('video_play', array_filter(array_merge([
+            'video_title' => $videoTitle,
+            'video_provider' => $videoProvider,
+        ], $params)));
+    }
+
+    /**
+     * Validate the integrity of the event catalog.
+     *
+     * @return array{valid: bool, errors: list<string>, warnings: list<string>}
+     */
+    public function validateCatalog(): array
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::validate();
+    }
+
+    /**
      * Get the package version.
      */
     public function version(): string
     {
-        return '2.30.0';
+        return '2.31.0';
     }
 
     /**

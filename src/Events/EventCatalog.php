@@ -273,6 +273,71 @@ final class EventCatalog
     }
 
     /**
+     * Get the required keys that every event entry must have.
+     *
+     * @return list<string>
+     */
+    public static function requiredKeys(): array
+    {
+        return ['name', 'class', 'ga4', 'category'];
+    }
+
+    /**
+     * Validate the integrity of the entire event catalog.
+     *
+     * Checks that every event entry has the required keys, that all
+     * event classes exist and extend AnalyticsEvent, and that there
+     * are no duplicate names across categories.
+     *
+     * @return array{valid: bool, errors: list<string>, warnings: list<string>}
+     */
+    public static function validate(): array
+    {
+        $errors = [];
+        $warnings = [];
+        $required = self::requiredKeys();
+        $allEvents = self::all();
+        $seenNames = [];
+
+        foreach ($allEvents as $name => $entry) {
+            // Check required keys
+            foreach ($required as $key) {
+                if (! array_key_exists($key, $entry)) {
+                    $errors[] = "Event '{$name}' is missing required key '{$key}'";
+                }
+            }
+
+            // Check class exists
+            $className = $entry['class'] ?? null;
+            if ($className !== null && ! class_exists($className)) {
+                $errors[] = "Event '{$name}' references non-existent class '{$className}'";
+            } elseif ($className !== null) {
+                $baseClass = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::class;
+                if (! is_a($className, $baseClass, true)) {
+                    $errors[] = "Event '{$name}' class '{$className}' does not extend AnalyticsEvent";
+                }
+            }
+
+            // Check for duplicates
+            if (in_array($name, $seenNames, true)) {
+                $errors[] = "Duplicate event name detected: '{$name}'";
+            }
+            $seenNames[] = $name;
+
+            // Check name matches key
+            if (($entry['name'] ?? null) !== $name) {
+                $warnings[] = "Event '{$name}' has mismatched name field: '{$entry['name']}'";
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
      * Annotate event entries with their category.
      *
      * @param  array<string, array{name: string, class: class-string, ga4: string, meta: string|null}>  $events

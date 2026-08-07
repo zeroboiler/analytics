@@ -149,6 +149,19 @@ final class EngagementEvents
                 'ga4' => 'outbound_click',
                 'meta' => 'OutboundClick',
             ],
+            // Content engagement events
+            'file_download' => [
+                'name' => 'file_download',
+                'class' => FileDownloadEvent::class,
+                'ga4' => 'file_download',
+                'meta' => 'FileDownload',
+            ],
+            'video_play' => [
+                'name' => 'video_play',
+                'class' => VideoPlayEvent::class,
+                'ga4' => 'video_play',
+                'meta' => 'VideoPlay',
+            ],
         ];
 
         return self::$catalog;

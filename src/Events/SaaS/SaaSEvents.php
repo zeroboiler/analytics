@@ -135,6 +135,18 @@ final class SaaSEvents
                 'ga4' => 'cohort_engagement',
                 'meta' => 'CohortEngagement',
             ],
+            'invite_sent' => [
+                'name' => 'invite_sent',
+                'class' => InviteSentEvent::class,
+                'ga4' => 'invite_sent',
+                'meta' => 'InviteSent',
+            ],
+            'integration_connected' => [
+                'name' => 'integration_connected',
+                'class' => IntegrationConnectedEvent::class,
+                'ga4' => 'integration_connected',
+                'meta' => 'IntegrationConnected',
+            ],
         ];
 
         return self::$catalog;
