@@ -160,4 +160,10 @@ Route::prefix('analytics')->group(function () {
     // Data Minimization / Privacy (v2.62.0)
     Route::get('privacy/minimization', [AnalyticsEventController::class, 'dataMinimizationStatus']);
     Route::post('privacy/minimization/preview', [AnalyticsEventController::class, 'dataMinimizationPreview']);
+
+    // SaaS Conversion Analytics (v2.66.0)
+    Route::get('conversion/summary', [AnalyticsEventController::class, 'conversionSummary']);
+    Route::get('conversion/funnel', [AnalyticsEventController::class, 'conversionFunnel']);
+    Route::get('conversion/activation/{userId}', [AnalyticsEventController::class, 'conversionActivationScore']);
+    Route::get('conversion/time-to-convert', [AnalyticsEventController::class, 'conversionTimeToConvert']);
 });

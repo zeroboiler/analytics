@@ -2,6 +2,20 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.66.0] - 2026-08-07
+
+### Added
+- SaaS Conversion Analytics service (trial conversion, activation scoring, win-back tracking, funnel analysis)
+- 3 new SaaS events: TrialConverted, SubscriptionResumed, MilestoneReached
+- EcommerceFormatConverter: GA4→Meta view_item, add_to_cart, begin_checkout, add_payment_info, add_to_wishlist
+- Universal ga4ToMetaAuto() converter for all e-commerce events
+- 4 conversion analytics API endpoints (summary, funnel, activation score, time-to-convert)
+- 5 JS client conversion tracking functions
+- 42 new test cases (V66SaaSConversionEcommerceTest)
+
+### Changed
+- Version 2.65.0 → 2.66.0 across all codebase files
+
 ## [2.65.0] - 2026-08-07
 
 ### Added

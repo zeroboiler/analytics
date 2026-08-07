@@ -99,6 +99,7 @@ use ZeroBoiler\Analytics\Services\DataMinimizationService;
 use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
 use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
 use ZeroBoiler\Analytics\Services\EventPriorityGate;
+use ZeroBoiler\Analytics\Services\SaaSConversionService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -957,7 +958,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new DataMinimizationService($config);
         });
 
-        // Event priority gate service (v2.65.0)
+        // Event priority gate service (v2.66.0)
         $this->app->singleton(EventPriorityGate::class, function (Application $app): EventPriorityGate {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -965,6 +966,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventPriorityGate($cache, $config);
+        });
+
+        // SaaS conversion analytics service (v2.66.0)
+        $this->app->singleton(SaaSConversionService::class, function (Application $app): SaaSConversionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSConversionService($manager, $cache, $config);
         });
     }
 

@@ -351,6 +351,31 @@ final class SaaSEvents
                 'posthog' => 'workspace_created',
                 'plausible' => null,
             ],
+            // Conversion & growth events (v2.66.0)
+            'trial_converted' => [
+                'name' => 'trial_converted',
+                'class' => TrialConvertedEvent::class,
+                'ga4' => 'trial_converted',
+                'meta' => 'Subscribe',
+                'posthog' => 'trial_converted',
+                'plausible' => 'conversion',
+            ],
+            'subscription_resumed' => [
+                'name' => 'subscription_resumed',
+                'class' => SubscriptionResumedEvent::class,
+                'ga4' => 'subscription_resumed',
+                'meta' => 'Subscribe',
+                'posthog' => 'subscription_resumed',
+                'plausible' => null,
+            ],
+            'milestone_reached' => [
+                'name' => 'milestone_reached',
+                'class' => MilestoneReachedEvent::class,
+                'ga4' => 'milestone_reached',
+                'meta' => 'MilestoneReached',
+                'posthog' => 'milestone_reached',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

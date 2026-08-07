@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.65.0
+ * @version 2.66.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -710,7 +710,7 @@ export interface CheckoutStepParams {
 /** Track an e-commerce checkout step for funnel analysis */
 export function trackCheckoutStep(params: CheckoutStepParams): Promise<boolean>;
 
-// ─── SaaS Subscription & Revenue Tracking (v2.65.0) ────────────────
+// ─── SaaS Subscription & Revenue Tracking (v2.66.0) ────────────────
 
 /** Subscription action types */
 export type SubscriptionAction = 'created' | 'renewed' | 'upgraded' | 'downgraded' | 'cancelled' | 'trial_start' | 'trial_end';
@@ -773,7 +773,7 @@ export interface PlanChangeParams {
 /** Track a plan change event (upgrade or downgrade) */
 export function trackPlanChange(params: PlanChangeParams): Promise<boolean>;
 
-// ─── Event Priority (v2.65.0) ──────────────────────────────────────
+// ─── Event Priority (v2.66.0) ──────────────────────────────────────
 
 /** Event priority levels for SaaS analytics gate */
 export type EventPriority = 'critical' | 'normal' | 'low' | 'background';

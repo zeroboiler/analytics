@@ -283,15 +283,15 @@ describe('PriorityAwareFilter', function (): void {
 });
 
 describe('Version consistency', function (): void {
-    test('version is 2.65.0 across key files', function (): void {
+    test('version is 2.66.0 across key files', function (): void {
         // Check that files exist and contain the version
         $composerJson = file_get_contents(__DIR__ . '/../composer.json');
         $managerPhp = file_get_contents(__DIR__ . '/../src/AnalyticsManager.php');
         $analyticsJs = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($composerJson)->toContain('2.65.0');
-        expect($managerPhp)->toContain('2.65.0');
-        expect($analyticsJs)->toContain('2.65.0');
+        expect($composerJson)->toContain('2.66.0');
+        expect($managerPhp)->toContain('2.66.0');
+        expect($analyticsJs)->toContain('2.66.0');
     });
 
     test('EventPriority file exists with correct namespace', function (): void {

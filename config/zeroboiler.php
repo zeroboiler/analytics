@@ -1355,6 +1355,35 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | SaaS Conversion Analytics
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks trial-to-paid conversion, activation milestones, time-to-conversion,
+        | and subscription win-back rates. Used by SaaSConversionService for funnel
+        | analysis, activation scoring, and cohort conversion metrics.
+        |
+        | Activation milestones are configurable — each milestone has a weight (0-1)
+        | that contributes to the user's 0-100 activation score. Customize based
+        | on your product's key activation moments.
+        |
+        */
+        'conversion_analytics' => [
+            'enabled' => env('ANALYTICS_CONVERSION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CONVERSION_CACHE_TTL', 86400), // 24 hours
+            'activation_milestones' => [
+                'first_login' => ['weight' => 0.10, 'category' => 'activation'],
+                'profile_completed' => ['weight' => 0.15, 'category' => 'activation'],
+                'first_feature_used' => ['weight' => 0.25, 'category' => 'activation'],
+                'team_created' => ['weight' => 0.10, 'category' => 'growth'],
+                'integration_connected' => ['weight' => 0.15, 'category' => 'activation'],
+                'invite_sent' => ['weight' => 0.10, 'category' => 'growth'],
+                'search_performed' => ['weight' => 0.05, 'category' => 'engagement'],
+                'three_day_retention' => ['weight' => 0.10, 'category' => 'retention'],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Delivery Confirmation (Client Feedback Loop)
         |-------------------------------------------------------------------------- 
         |

@@ -4,6 +4,22 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.66.0] - 2026-08-07
+
+### Added
+- **SaaSConversionService** — Trial-to-paid conversion tracking, activation scoring (weighted milestones, 0-100 score), time-to-conversion analysis with distribution buckets, subscription win-back rate, conversion funnel analysis (5 steps: trial_started → first_feature_used → profile_completed → checkout_started → converted_to_paid), per-plan conversion breakdown, and comprehensive summary endpoint. Config-driven via `conversion_analytics` section with 8 default activation milestones.
+- **3 New SaaS Event Classes** — `TrialConvertedEvent` (plan, trial_plan, trial_duration_days, conversion_source), `SubscriptionResumedEvent` (plan, previous_plan, days_since_cancellation, reactivation_source), `MilestoneReachedEvent` (milestone, category, value). All readonly final DTOs extending AnalyticsEvent.
+- **EcommerceFormatConverter GA4→Meta Expansion** — 7 new methods: `ga4ToMetaView()`, `ga4ToMetaAddToCart()`, `ga4ToMetaBeginCheckout()`, `ga4ToMetaAddPaymentInfo()`, `ga4ToMetaAuto()` universal converter supporting all 7 e-commerce events (view_item, add_to_cart, begin_checkout, add_payment_info, purchase, refund, add_to_wishlist). Automatic Meta event name selection and parameter formatting.
+- **4 Conversion API Endpoints** — `GET /api/analytics/conversion/summary` (full conversion analytics), `GET /api/analytics/conversion/funnel` (5-step funnel), `GET /api/analytics/conversion/activation/{userId}` (per-user activation score), `GET /api/analytics/conversion/time-to-convert` (TTC distribution with 7 time buckets).
+- **Config: `conversion_analytics`** — New config section with `enabled`, `cache_ttl`, and configurable `activation_milestones` (8 defaults with weight/category).
+- **5 JS Client Conversion Functions** — `trackTrialConversion()`, `trackSubscriptionResumed()`, `trackMilestone()`, `fetchConversionSummary()`, `fetchConversionFunnel()`. Full JSDoc with examples.
+- **V66SaaSConversionEcommerceTest** — 42 test cases covering 3 new event classes (structure, immutability, inheritance), SaaSEvents catalog entries, EventCatalog registration/validation, EcommerceFormatConverter new methods (7 individual + ga4ToMetaAuto for all 7 events + null for unknown), SaaSConversionService existence/methods/constructor, config section, routes, controller endpoints, ServiceProvider binding, version consistency, JS client functions, provider mapping coverage.
+
+### Changed
+- Version bump to 2.66.0 across AnalyticsManager, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, ServiceProvider, 7 service files, and all controller endpoint version strings.
+- SaaS event catalog expanded from 42 → 45 events (trial_converted, subscription_resumed, milestone_reached).
+- Total event catalog expanded from ~70 → ~73 events.
+
 ## [2.63.0] - 2026-08-07
 
 ### Added

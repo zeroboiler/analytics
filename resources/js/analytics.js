@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.65.0
+ * @version 2.66.0
  */
 
 let trackingId = null;
@@ -142,7 +142,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.59.0';
+    return '2.66.0';
 }
 
 /**
@@ -277,7 +277,7 @@ export async function trackEvent(name, params = {}, options = {}) {
     }
 }
 
-// ─── Priority-Aware Tracking (v2.65.0) ─────────────────────────────
+// ─── Priority-Aware Tracking (v2.66.0) ─────────────────────────────
 
 /**
  * Track an event with an explicit priority override.
@@ -808,6 +808,140 @@ export async function updateConsent(signals) {
         });
     } catch {
         // Silent fail
+    }
+}
+
+// ─── SaaS Conversion Tracking (v2.66.0) ──────────────────────────────
+
+/**
+ * Track a trial conversion event (trial → paid).
+ *
+ * @param {object} data - Conversion data
+ * @param {string} data.plan - Converted plan name
+ * @param {string} [data.trial_plan] - Trial plan name
+ * @param {number} [data.trial_duration_days] - Days in trial
+ * @param {string} [data.conversion_source] - Where conversion happened
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackTrialConversion({
+ *     plan: 'pro',
+ *     trial_plan: 'free_trial',
+ *     trial_duration_days: 14,
+ *     conversion_source: 'pricing_page',
+ * });
+ */
+export async function trackTrialConversion(data) {
+    if (!initialized) return;
+
+    await trackEvent('trial_converted', {
+        plan: data.plan,
+        trial_plan: data.trial_plan || null,
+        trial_duration_days: data.trial_duration_days || null,
+        conversion_source: data.conversion_source || null,
+    }, { immediate: true });
+}
+
+/**
+ * Track a subscription resume (win-back) event.
+ *
+ * @param {object} data - Resume data
+ * @param {string} data.plan - Resumed plan
+ * @param {string} [data.previous_plan] - Plan before cancellation
+ * @param {number} [data.days_since_cancellation] - Days between cancel and resume
+ * @param {string} [data.reactivation_source] - Win-back source
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSubscriptionResumed({
+ *     plan: 'pro',
+ *     previous_plan: 'pro',
+ *     days_since_cancellation: 45,
+ *     reactivation_source: 'win_back_email',
+ * });
+ */
+export async function trackSubscriptionResumed(data) {
+    if (!initialized) return;
+
+    await trackEvent('subscription_resumed', {
+        plan: data.plan,
+        previous_plan: data.previous_plan || null,
+        days_since_cancellation: data.days_since_cancellation || null,
+        reactivation_source: data.reactivation_source || null,
+    }, { immediate: true });
+}
+
+/**
+ * Track a product milestone reached event.
+ *
+ * Used for activation scoring — tracks key moments that predict
+ * trial-to-paid conversion.
+ *
+ * @param {string} milestone - Milestone identifier (e.g. 'first_project', 'login_100')
+ * @param {object} [options] - Additional options
+ * @param {string} [options.category] - Milestone category (activation, growth, engagement, retention)
+ * @param {number} [options.value] - Numeric value
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackMilestone('first_project', { category: 'activation' });
+ * await trackMilestone('login_100', { category: 'retention', value: 100 });
+ */
+export async function trackMilestone(milestone, options = {}) {
+    if (!initialized) return;
+
+    await trackEvent('milestone_reached', {
+        milestone,
+        milestone_category: options.category || null,
+        milestone_value: options.value || null,
+    });
+}
+
+/**
+ * Fetch SaaS conversion analytics summary from the server.
+ *
+ * @returns {Promise<object>} Conversion analytics data
+ *
+ * @example
+ * const analytics = await fetchConversionSummary();
+ * console.log(analytics.conversion.trial_conversion.rate);
+ */
+export async function fetchConversionSummary() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/conversion/summary`, {
+            headers: {
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch conversion funnel data from the server.
+ *
+ * @returns {Promise<object|null>} Funnel data
+ */
+export async function fetchConversionFunnel() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/conversion/funnel`, {
+            headers: {
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        return await response.json();
+    } catch {
+        return null;
     }
 }
 
@@ -2943,7 +3077,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.65.0';
+    return '2.66.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────

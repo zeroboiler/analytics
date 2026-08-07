@@ -580,6 +580,147 @@ final class EcommerceFormatConverter
         );
     }
 
+    // ── GA4 → Meta Pixel Item-Level Conversions (v2.66.0) ─────────
+
+    /**
+     * Convert GA4 view_item params to Meta Pixel ViewContent format.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{content_ids: list<string>, contents: array<int, array<string, mixed>>, content_name: string, content_type: string, value: float, currency: string}
+     */
+    public static function ga4ToMetaView(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $metaItems = self::ga4ToMetaContents($items);
+
+        return [
+            'content_ids' => $metaItems['content_ids'],
+            'contents' => $metaItems['contents'],
+            'content_name' => (string) ($ga4Params['content_name'] ?? ($items[0]['item_name'] ?? '')),
+            'content_type' => 'product',
+            'value' => $metaItems['value'],
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Convert GA4 add_to_cart params to Meta Pixel AddToCart format.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{content_ids: list<string>, contents: array<int, array<string, mixed>>, content_name: string, content_type: string, value: float, currency: string}
+     */
+    public static function ga4ToMetaAddToCart(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $metaItems = self::ga4ToMetaContents($items);
+
+        return [
+            'content_ids' => $metaItems['content_ids'],
+            'contents' => $metaItems['contents'],
+            'content_name' => (string) ($items[0]['item_name'] ?? ''),
+            'content_type' => 'product',
+            'value' => $metaItems['value'],
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Convert GA4 begin_checkout params to Meta Pixel InitiateCheckout format.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{content_ids: list<string>, contents: array<int, array<string, mixed>>, num_items: int, value: float, currency: string}
+     */
+    public static function ga4ToMetaBeginCheckout(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $metaItems = self::ga4ToMetaContents($items);
+
+        return [
+            'content_ids' => $metaItems['content_ids'],
+            'contents' => $metaItems['contents'],
+            'num_items' => $metaItems['num_items'],
+            'value' => (float) ($ga4Params['value'] ?? $metaItems['value']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Convert GA4 add_payment_info params to Meta Pixel AddPaymentInfo format.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{content_ids: list<string>, contents: array<int, array<string, mixed>>, content_type: string, value: float, currency: string}
+     */
+    public static function ga4ToMetaAddPaymentInfo(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $metaItems = self::ga4ToMetaContents($items);
+
+        return [
+            'content_ids' => $metaItems['content_ids'],
+            'contents' => $metaItems['contents'],
+            'content_type' => 'product',
+            'value' => $metaItems['value'],
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Universal GA4 → Meta converter for any e-commerce event.
+     *
+     * Automatically selects the correct Meta event name and formats
+     * parameters based on the GA4 event name.
+     *
+     * Supported events: view_item, add_to_cart, begin_checkout,
+     * add_payment_info, purchase, refund, add_to_wishlist.
+     *
+     * @param  string  $ga4EventName  GA4 event name
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{meta_event: string, meta_params: array<string, mixed>}|null  Meta event data, or null if not supported
+     */
+    public static function ga4ToMetaAuto(string $ga4EventName, array $ga4Params): ?array
+    {
+        return match ($ga4EventName) {
+            'view_item' => [
+                'meta_event' => 'ViewContent',
+                'meta_params' => self::ga4ToMetaView($ga4Params),
+            ],
+            'add_to_cart' => [
+                'meta_event' => 'AddToCart',
+                'meta_params' => self::ga4ToMetaAddToCart($ga4Params),
+            ],
+            'begin_checkout' => [
+                'meta_event' => 'InitiateCheckout',
+                'meta_params' => self::ga4ToMetaBeginCheckout($ga4Params),
+            ],
+            'add_payment_info' => [
+                'meta_event' => 'AddPaymentInfo',
+                'meta_params' => self::ga4ToMetaAddPaymentInfo($ga4Params),
+            ],
+            'purchase' => [
+                'meta_event' => 'Purchase',
+                'meta_params' => self::ga4ToMetaPurchase($ga4Params),
+            ],
+            'refund' => [
+                'meta_event' => 'Refund',
+                'meta_params' => self::ga4ToMetaRefund($ga4Params),
+            ],
+            'add_to_wishlist' => [
+                'meta_event' => 'AddToWishlist',
+                'meta_params' => [
+                    'content_type' => 'product',
+                    'content_ids' => [(string) (($ga4Params['items'][0]['item_id'] ?? ''))],
+                    'value' => (float) (($ga4Params['items'][0]['price'] ?? 0)),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                ],
+            ],
+            default => null,
+        };
+    }
+
     // ── GA4 → Plausible Conversion ────────────────────────────────────
 
     /**
