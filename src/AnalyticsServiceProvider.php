@@ -94,6 +94,8 @@ use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
+use ZeroBoiler\Analytics\Services\CampaignRoiService;
+use ZeroBoiler\Analytics\Services\DataMinimizationService;
 use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
 use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
 
@@ -935,6 +937,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsTelemetryService($manager, $cache, $config);
         });
+
+        // Campaign ROI analytics service (v2.62.0)
+        $this->app->singleton(CampaignRoiService::class, function (Application $app): CampaignRoiService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new CampaignRoiService($cache, $config);
+        });
+
+        // Data minimization service (v2.62.0)
+        $this->app->bind(DataMinimizationService::class, function (Application $app): DataMinimizationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DataMinimizationService($config);
+        });
     }
 
     /**
@@ -1170,6 +1190,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/journeys/{journey}/progress', [$controller, 'journeyGetProgress']);
                 Route::get('analytics/journeys', [$controller, 'journeyListAll']);
                 Route::delete('analytics/journeys/{journey}', [$controller, 'journeyResetProgress']);
+
+                // Provider Telemetry (v2.62.0)
+                Route::get('analytics/telemetry', [$controller, 'telemetry']);
+                Route::post('analytics/telemetry/probe', [$controller, 'telemetryProbe']);
+
+                // Campaign ROI (v2.62.0)
+                Route::get('analytics/campaigns/roi', [$controller, 'campaignRoiSummary']);
+                Route::get('analytics/campaigns/{campaign}/roi', [$controller, 'campaignRoi']);
+                Route::post('analytics/campaigns/spend', [$controller, 'campaignRegisterSpend']);
+
+                // Data Minimization / Privacy (v2.62.0)
+                Route::get('analytics/privacy/minimization', [$controller, 'dataMinimizationStatus']);
+                Route::post('analytics/privacy/minimization/preview', [$controller, 'dataMinimizationPreview']);
             });
     }
 }

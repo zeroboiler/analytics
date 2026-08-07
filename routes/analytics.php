@@ -136,4 +136,23 @@ Route::prefix('analytics')->group(function () {
     Route::get('journeys/search', [AnalyticsEventController::class, 'journeySearch']);
     Route::post('journeys/funnel', [AnalyticsEventController::class, 'journeyFunnel']);
     Route::get('journeys/{journeyId}', [AnalyticsEventController::class, 'journeyTimeline']);
+
+    // SaaS Journey Milestones (v2.62.0)
+    Route::post('journeys/milestones', [AnalyticsEventController::class, 'journeyRecordMilestone']);
+    Route::get('journeys/milestones/{journey}', [AnalyticsEventController::class, 'journeyGetProgress']);
+    Route::get('journeys/list', [AnalyticsEventController::class, 'journeyListAll']);
+    Route::delete('journeys/{journey}', [AnalyticsEventController::class, 'journeyResetProgress']);
+
+    // Provider Telemetry (v2.62.0)
+    Route::get('telemetry', [AnalyticsEventController::class, 'telemetry']);
+    Route::post('telemetry/probe', [AnalyticsEventController::class, 'telemetryProbe']);
+
+    // Campaign ROI (v2.62.0)
+    Route::get('campaigns/roi', [AnalyticsEventController::class, 'campaignRoiSummary']);
+    Route::get('campaigns/{campaign}/roi', [AnalyticsEventController::class, 'campaignRoi']);
+    Route::post('campaigns/spend', [AnalyticsEventController::class, 'campaignRegisterSpend']);
+
+    // Data Minimization / Privacy (v2.62.0)
+    Route::get('privacy/minimization', [AnalyticsEventController::class, 'dataMinimizationStatus']);
+    Route::post('privacy/minimization/preview', [AnalyticsEventController::class, 'dataMinimizationPreview']);
 });

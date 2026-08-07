@@ -3283,4 +3283,232 @@ final class AnalyticsEventController extends Controller
             ], 400);
         }
     }
+
+    // ── Provider Telemetry (v2.62.0) ───────────────────────────────────
+
+    /**
+     * Get provider telemetry probe results.
+     *
+     * GET /api/analytics/telemetry
+     *
+     * Returns cached connectivity probe results for all configured providers.
+     * Designed for admin dashboards and health monitoring.
+     */
+    public function telemetry(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsTelemetryService $telemetryService */
+            $telemetryService = app(\ZeroBoiler\Analytics\Services\AnalyticsTelemetryService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'enabled' => $telemetryService->isEnabled(),
+                'results' => $telemetryService->results(),
+                'summary' => $telemetryService->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Trigger a fresh telemetry probe for all providers.
+     *
+     * POST /api/analytics/telemetry/probe
+     *
+     * Runs connectivity checks against all enabled providers and returns
+     * fresh results. Useful for on-demand health verification.
+     */
+    public function telemetryProbe(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsTelemetryService $telemetryService */
+            $telemetryService = app(\ZeroBoiler\Analytics\Services\AnalyticsTelemetryService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'probes' => $telemetryService->probeAll(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    // ── Campaign ROI (v2.62.0) ────────────────────────────────────────
+
+    /**
+     * Get campaign ROI summary.
+     *
+     * GET /api/analytics/campaigns/roi
+     *
+     * Returns aggregate ROI metrics across all registered campaigns,
+     * broken down by marketing channel.
+     */
+    public function campaignRoiSummary(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\CampaignRoiService $roiService */
+            $roiService = app(\ZeroBoiler\Analytics\Services\CampaignRoiService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'enabled' => $roiService->isEnabled(),
+                'summary' => $roiService->summary(),
+                'top_campaigns' => $roiService->topCampaigns(10),
+                'by_channel' => $roiService->byChannel(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get ROI for a specific campaign.
+     *
+     * GET /api/analytics/campaigns/{campaign}/roi
+     */
+    public function campaignRoi(Request $request, string $campaign): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\CampaignRoiService $roiService */
+            $roiService = app(\ZeroBoiler\Analytics\Services\CampaignRoiService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'roi' => $roiService->roi($campaign),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Register campaign spend for ROI tracking.
+     *
+     * POST /api/analytics/campaigns/spend
+     *
+     * Body: { "campaign_id": "...", "spend": 100.00, "currency": "USD", "channel": "google", "impressions": 50000, "clicks": 1200 }
+     */
+    public function campaignRegisterSpend(Request $request): JsonResponse
+    {
+        $request->validate([
+            'campaign_id' => 'required|string',
+            'spend' => 'required|numeric|min:0',
+            'currency' => 'string|size:3',
+            'channel' => 'string',
+            'impressions' => 'integer|nullable',
+            'clicks' => 'integer|nullable',
+        ]);
+
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\CampaignRoiService $roiService */
+            $roiService = app(\ZeroBoiler\Analytics\Services\CampaignRoiService::class);
+
+            $roiService->registerSpend(
+                campaignId: $request->input('campaign_id'),
+                spend: (float) $request->input('spend'),
+                currency: $request->input('currency', 'USD'),
+                channel: $request->input('channel', 'unknown'),
+                impressions: $request->input('impressions') !== null ? (int) $request->input('impressions') : null,
+                clicks: $request->input('clicks') !== null ? (int) $request->input('clicks') : null,
+            );
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    // ── Data Minimization (v2.62.0) ───────────────────────────────────
+
+    /**
+     * Get data minimization configuration and status.
+     *
+     * GET /api/analytics/privacy/minimization
+     *
+     * Returns the current data minimization settings for GDPR compliance.
+     * Useful for admin dashboards and compliance audits.
+     */
+    public function dataMinimizationStatus(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataMinimizationService $dmService */
+            $dmService = app(\ZeroBoiler\Analytics\Services\DataMinimizationService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'summary' => $dmService->summary(),
+                'global_allowlist' => $dmService->getGlobalAllowlist(),
+                'strip_params' => $dmService->getStripParams(),
+                'event_allowlist_count' => count($dmService->getEventAllowlists()),
+                'category_allowlist_count' => count($dmService->getCategoryAllowlists()),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Preview data minimization for an event without actually modifying it.
+     *
+     * POST /api/analytics/privacy/minimization/preview
+     *
+     * Body: { "name": "sign_up", "params": { "email": "...", "name": "...", "user_agent": "..." } }
+     *
+     * Returns the list of parameters that would be stripped.
+     */
+    public function dataMinimizationPreview(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'params' => 'array',
+        ]);
+
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataMinimizationService $dmService */
+            $dmService = app(\ZeroBoiler\Analytics\Services\DataMinimizationService::class);
+
+            $event = new AnalyticsEvent(
+                name: $request->input('name'),
+                params: $request->input('params', []),
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.62.0',
+                'enabled' => $dmService->isEnabled(),
+                'stripped_params' => $dmService->previewStripped($event),
+                'original_param_count' => count($event->params),
+                'minimized_param_count' => count($event->params) - count($dmService->previewStripped($event)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
 }

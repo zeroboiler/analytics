@@ -1306,5 +1306,69 @@ return [
             'cache_prefix' => env('ANALYTICS_TELEMETRY_CACHE_PREFIX', 'zb_analytics_telemetry'),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Campaign ROI (Marketing Attribution)
+        |-------------------------------------------------------------------------- 
+        |
+        | Track marketing campaign spend and correlate with conversion events
+        | for ROI, ROAS, and CPA computation. Register spend data via the API
+        | or service, then query ROI metrics per-campaign or in aggregate.
+        |
+        | Integration: Pair with UTM tracking and RevenueAttributionService
+        | for end-to-end marketing attribution.
+        |
+        */
+        'campaign_roi' => [
+            'enabled' => env('ANALYTICS_CAMPAIGN_ROI_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_CAMPAIGN_ROI_CACHE_TTL', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Minimization (Privacy-First / GDPR Article 5(1)(c))
+        |-------------------------------------------------------------------------- 
+        |
+        | Enforces data minimization by stripping unnecessary parameters from
+        | events before dispatch. Unlike PII sanitization (which masks values),
+        | data minimization removes optional parameters entirely based on
+        | allowlists.
+        |
+        | Strategies:
+        | - Global allowlist: Only retain listed params for ALL events
+        | - Per-event allowlist: Override per specific event name
+        | - Per-category allowlist: Override per event category
+        | - Strip params: Always remove these regardless of allowlists
+        |
+        | When empty, no parameters are removed (allowlist = allow all).
+        | Internal params (prefixed with _) are always preserved.
+        |
+        */
+        'data_minimization' => [
+            'enabled' => env('ANALYTICS_DATA_MINIMIZATION_ENABLED', false),
+            'global_allowlist' => [],
+            'event_allowlists' => [],
+            'category_allowlists' => [],
+            'strip_params' => ['user_agent', 'ip_address', 'raw_query', 'full_page_url'],
+            'audit_log' => env('ANALYTICS_DATA_MINIMIZATION_AUDIT', false),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Delivery Confirmation (Client Feedback Loop)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the API includes a delivery confirmation token with
+        | each event response. The JS client can use this to verify reliable
+        | delivery and retry failed events. This enables an acknowledgment-
+        | based delivery guarantee for critical events (purchases, signups).
+        |
+        */
+        'delivery_confirmation' => [
+            'enabled' => env('ANALYTICS_DELIVERY_CONFIRMATION_ENABLED', false),
+            'critical_events' => ['purchase', 'sign_up', 'subscription', 'payment_succeeded'],
+            'token_ttl' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_TTL', 300), // 5 minutes
+        ],
+
     ],
 ];

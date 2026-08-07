@@ -1515,6 +1515,20 @@ final class AnalyticsConfig
                 'custom_tags_count' => count($this->taxonomyCustomTags()),
                 'disabled_tags_count' => count($this->taxonomyDisabledTags()),
             ],
+            'campaign_roi' => [
+                'enabled' => $this->campaignRoiEnabled(),
+                'cache_ttl' => $this->campaignRoiCacheTtl(),
+            ],
+            'data_minimization' => [
+                'enabled' => $this->dataMinimizationEnabled(),
+                'strip_params_count' => count($this->dataMinimizationStripParams()),
+                'audit_log' => $this->dataMinimizationAuditLog(),
+            ],
+            'delivery_confirmation' => [
+                'enabled' => $this->deliveryConfirmationEnabled(),
+                'critical_events_count' => count($this->deliveryConfirmationCriticalEvents()),
+                'token_ttl' => $this->deliveryConfirmationTokenTtl(),
+            ],
         ];
     }
 
@@ -1662,6 +1676,80 @@ final class AnalyticsConfig
     public function anonymizationEnabled(): bool
     {
         return (bool) $this->get('anonymization.enabled', false);
+    }
+
+    /**
+     * Check if campaign ROI tracking is enabled.
+     */
+    public function campaignRoiEnabled(): bool
+    {
+        return (bool) $this->get('campaign_roi.enabled', false);
+    }
+
+    /**
+     * Get campaign ROI cache TTL in seconds.
+     */
+    public function campaignRoiCacheTtl(): int
+    {
+        return (int) $this->get('campaign_roi.cache_ttl', 86400);
+    }
+
+    /**
+     * Check if data minimization is enabled.
+     */
+    public function dataMinimizationEnabled(): bool
+    {
+        return (bool) $this->get('data_minimization.enabled', false);
+    }
+
+    /**
+     * Get data minimization strip params list.
+     *
+     * @return list<string>
+     */
+    public function dataMinimizationStripParams(): array
+    {
+        /** @var list<string> $params */
+        $params = $this->get('data_minimization.strip_params', []);
+
+        return is_array($params) ? $params : [];
+    }
+
+    /**
+     * Check if data minimization audit logging is enabled.
+     */
+    public function dataMinimizationAuditLog(): bool
+    {
+        return (bool) $this->get('data_minimization.audit_log', false);
+    }
+
+    /**
+     * Check if event delivery confirmation is enabled.
+     */
+    public function deliveryConfirmationEnabled(): bool
+    {
+        return (bool) $this->get('delivery_confirmation.enabled', false);
+    }
+
+    /**
+     * Get delivery confirmation critical events list.
+     *
+     * @return list<string>
+     */
+    public function deliveryConfirmationCriticalEvents(): array
+    {
+        /** @var list<string> $events */
+        $events = $this->get('delivery_confirmation.critical_events', []);
+
+        return is_array($events) ? $events : [];
+    }
+
+    /**
+     * Get delivery confirmation token TTL in seconds.
+     */
+    public function deliveryConfirmationTokenTtl(): int
+    {
+        return (int) $this->get('delivery_confirmation.token_ttl', 300);
     }
 
     /**

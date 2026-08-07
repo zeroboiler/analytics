@@ -4,6 +4,24 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.62.0] - 2026-08-07
+
+### Added
+- **CampaignRoiService** — Marketing campaign ROI tracking with spend registration, conversion recording, ROI/ROAS/CPA computation, per-campaign and aggregate metrics, top campaign ranking, channel grouping, and campaign removal. Config-driven via `campaign_roi.enabled` and `campaign_roi.cache_ttl`. Singleton registration in ServiceProvider.
+- **DataMinimizationService** — Privacy-first data minimization engine (GDPR Article 5(1)(c) compliance). Enforces parameter stripping based on global allowlists, per-event allowlists, per-category allowlists, and mandatory strip lists. Internal params (prefixed with `_`) are always preserved. Includes `minimize()`, `previewStripped()`, `getGlobalAllowlist()`, `getStripParams()`, `getEventAllowlists()`, `getCategoryAllowlists()`, `summary()`, and audit logging toggle.
+- **Config: `campaign_roi`** — New config section with `enabled` and `cache_ttl` settings (default: 24h).
+- **Config: `data_minimization`** — New config section with `enabled`, `global_allowlist`, `event_allowlists`, `category_allowlists`, `strip_params` (defaults: user_agent, ip_address, raw_query, full_page_url), and `audit_log`.
+- **Config: `delivery_confirmation`** — New config section with `enabled`, `critical_events` (defaults: purchase, sign_up, subscription, payment_succeeded), and `token_ttl` (default: 300s).
+- **10 API endpoints** — Provider telemetry (GET/POST telemetry, POST telemetry/probe), Campaign ROI (GET campaigns/roi, GET campaigns/{id}/roi, POST campaigns/spend), Data Minimization (GET privacy/minimization, POST privacy/minimization/preview), SaaS Journey milestones (POST journeys/milestones, GET journeys/milestones/{journey}, GET journeys/list, DELETE journeys/{journey}).
+- **AnalyticsConfig accessors** — `campaignRoiEnabled()`, `campaignRoiCacheTtl()`, `dataMinimizationEnabled()`, `dataMinimizationStripParams()`, `dataMinimizationAuditLog()`, `deliveryConfirmationEnabled()`, `deliveryConfirmationCriticalEvents()`, `deliveryConfirmationTokenTtl()`.
+- **V62CampaignRoiDataMinimizationTest** — 30+ test cases covering CampaignRoiService (construction, spend registration, ROI computation, aggregation, sorting, channel grouping, removal), DataMinimizationService (construction, param stripping, internal param preservation, per-event allowlists, preview, summary, disabled passthrough), config accessors, version consistency, filesystem integrity, config file integrity, route registration, and ServiceProvider bindings.
+
+### Changed
+- Version bump to 2.62.0 across AnalyticsManager, composer.json, JS client (header + _getInternalVersion), TypeScript definitions.
+- Routes file updated with 10 new endpoints for telemetry, campaign ROI, data minimization, and journey milestones.
+- AnalyticsServiceProvider registers CampaignRoiService (singleton) and DataMinimizationService (bind).
+- AnalyticsConfig::summary() now includes campaign_roi, data_minimization, and delivery_confirmation sections.
+
 ## [2.58.0] - 2026-08-07
 
 ### Added
