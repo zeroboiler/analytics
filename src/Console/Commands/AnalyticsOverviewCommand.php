@@ -245,6 +245,7 @@ final class AnalyticsOverviewCommand extends Command
             'JS sendBeacon unload flush (prevent data loss on navigation)',
             'SaaS Journey Milestone tracker (multi-step journey completion)',
             'Analytics data anonymization service (HMAC-SHA256 + masking)',
+            'Event priority gate (critical/normal/low/background with rate limits)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

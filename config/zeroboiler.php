@@ -1370,5 +1370,41 @@ return [
             'token_ttl' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_TTL', 300), // 5 minutes
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Priority Gate
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, events are assigned priority levels (critical, normal, low,
+        | background) that determine dispatch behavior. Critical events (purchase,
+        | sign_up, subscription) always pass through; low-priority events
+        | (scroll_depth, outbound_click) are subject to rate limits and budget checks.
+        |
+        | Built-in priority overrides map known event names to levels. Custom
+        | overrides can be added via the 'overrides' key.
+        |
+        | Rate limits are per-priority (events per minute window).
+        | Budget threshold is a global cap on total dispatched events.
+        |
+        */
+        'priority' => [
+            'enabled' => env('ANALYTICS_PRIORITY_ENABLED', true),
+            'rate_limits' => [
+                'critical' => (int) env('ANALYTICS_PRIORITY_RATE_CRITICAL', 10000),
+                'normal' => (int) env('ANALYTICS_PRIORITY_RATE_NORMAL', 1000),
+                'low' => (int) env('ANALYTICS_PRIORITY_RATE_LOW', 200),
+                'background' => (int) env('ANALYTICS_PRIORITY_RATE_BACKGROUND', 50),
+            ],
+            'overrides' => [
+                // Custom event priority overrides:
+                // 'my_custom_event' => 'critical',
+                // 'debug_ping' => 'background',
+            ],
+            'cache_ttl' => (int) env('ANALYTICS_PRIORITY_CACHE_TTL', 60), // 1 minute window
+            'cache_prefix' => env('ANALYTICS_PRIORITY_CACHE_PREFIX', 'zb_priority_'),
+            'budget_aware' => env('ANALYTICS_PRIORITY_BUDGET_AWARE', true),
+            'budget_threshold' => (int) env('ANALYTICS_PRIORITY_BUDGET_THRESHOLD', 5000),
+        ],
+
     ],
 ];

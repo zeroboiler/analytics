@@ -1783,4 +1783,67 @@ final class AnalyticsConfig
     {
         return (int) $this->get('journeys.cache_ttl', 86400);
     }
+
+    // ── Event Priority Gate ──────────────────────────────────────────
+
+    /**
+     * Check if event priority gate is enabled.
+     */
+    public function priorityEnabled(): bool
+    {
+        return (bool) $this->get('priority.enabled', true);
+    }
+
+    /**
+     * Get priority rate limit for a given level.
+     */
+    public function priorityRateLimit(string $level): int
+    {
+        return (int) $this->get("priority.rate_limits.{$level}", 1000);
+    }
+
+    /**
+     * Get priority gate cache TTL in seconds.
+     */
+    public function priorityCacheTtl(): int
+    {
+        return (int) $this->get('priority.cache_ttl', 60);
+    }
+
+    /**
+     * Get priority gate cache prefix.
+     */
+    public function priorityCachePrefix(): string
+    {
+        return (string) $this->get('priority.cache_prefix', 'zb_priority_');
+    }
+
+    /**
+     * Check if budget-aware mode is enabled for priority gate.
+     */
+    public function priorityBudgetAware(): bool
+    {
+        return (bool) $this->get('priority.budget_aware', true);
+    }
+
+    /**
+     * Get priority gate budget threshold.
+     */
+    public function priorityBudgetThreshold(): int
+    {
+        return (int) $this->get('priority.budget_threshold', 5000);
+    }
+
+    /**
+     * Get custom priority overrides from config.
+     *
+     * @return array<string, string>
+     */
+    public function priorityOverrides(): array
+    {
+        /** @var array<string, string> $overrides */
+        $overrides = $this->get('priority.overrides', []);
+
+        return is_array($overrides) ? $overrides : [];
+    }
 }

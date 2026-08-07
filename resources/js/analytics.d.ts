@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.63.0
+ * @version 2.64.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -709,3 +709,23 @@ export interface CheckoutStepParams {
 
 /** Track an e-commerce checkout step for funnel analysis */
 export function trackCheckoutStep(params: CheckoutStepParams): Promise<boolean>;
+
+// ─── Event Priority (v2.64.0) ──────────────────────────────────────
+
+/** Event priority levels for SaaS analytics gate */
+export type EventPriority = 'critical' | 'normal' | 'low' | 'background';
+
+/** Priority-aware tracking options */
+export interface PriorityTrackOptions {
+    /** Override the default priority for this event */
+    priority?: EventPriority;
+    /** Skip the priority gate check entirely */
+    bypassGate?: boolean;
+}
+
+/** Track an event with priority override */
+export function trackEventWithPriority(
+    eventName: string,
+    params?: Record<string, unknown>,
+    priority?: EventPriority,
+): Promise<boolean>;

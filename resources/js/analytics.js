@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.63.0
+ * @version 2.64.0
  */
 
 let trackingId = null;
@@ -275,6 +275,32 @@ export async function trackEvent(name, params = {}, options = {}) {
     if (eventQueue.length >= MAX_QUEUE_SIZE) {
         await flushQueue();
     }
+}
+
+// ─── Priority-Aware Tracking (v2.64.0) ─────────────────────────────
+
+/**
+ * Track an event with an explicit priority override.
+ *
+ * Adds a `_priority` param to the event payload so the server-side
+ * EventPriorityGate can respect the client-specified priority.
+ *
+ * @param {string} name - Event name
+ * @param {Record<string, unknown>} [params={}] - Event parameters
+ * @param {'critical'|'normal'|'low'|'background'} [priority] - Priority level
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * // Send a critical revenue event
+ * await trackEventWithPriority('payment_completed', { amount: 99.99 }, 'critical');
+ */
+export async function trackEventWithPriority(name, params = {}, priority = 'normal') {
+    if (!initialized) return false;
+
+    const validPriorities = ['critical', 'normal', 'low', 'background'];
+    const safePriority = validPriorities.includes(priority) ? priority : 'normal';
+
+    return trackEvent(name, { ...params, _priority: safePriority }, { immediate: safePriority === 'critical' });
 }
 
 /**

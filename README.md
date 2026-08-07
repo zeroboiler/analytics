@@ -78,6 +78,7 @@ Done. That's it.
 - **Event Validation** — Name validation, parameter sanitization, deduplication, and strict whitelist mode
 - **Event Deduplication** — Cache-based SHA-256 fingerprint deduplication with configurable window (EventDeduplicationService)
 - **Device Context** — Zero-dependency User-Agent parsing for browser, OS, device type, and brand detection (DeviceContextService)
+- **Event Priority Gate** — Four-level priority system (critical/normal/low/background) with per-priority rate limits, budget thresholds, and 20+ built-in event-level overrides (EventPriorityGate, PriorityAwareFilter)
 - **IP Anonymization** — GDPR-compliant IPv4/IPv6 masking with configurable granularity (IpAnonymizationService)
 - **PII Sanitization** — Auto-scrub Personally Identifiable Information from events (hash, remove, or mask strategies)
 - **Event Sampling** — Probabilistic rate limiting for high-traffic apps (deterministic or random)

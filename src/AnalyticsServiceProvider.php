@@ -98,6 +98,7 @@ use ZeroBoiler\Analytics\Services\CampaignRoiService;
 use ZeroBoiler\Analytics\Services\DataMinimizationService;
 use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
 use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
+use ZeroBoiler\Analytics\Services\EventPriorityGate;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -954,6 +955,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new DataMinimizationService($config);
+        });
+
+        // Event priority gate service (v2.64.0)
+        $this->app->singleton(EventPriorityGate::class, function (Application $app): EventPriorityGate {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventPriorityGate($cache, $config);
         });
     }
 

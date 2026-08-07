@@ -47,13 +47,19 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 ## [Unreleased]
 
 ### Added
-- **SaaS Journey Milestone Tracker** — Multi-step journey tracking service (`SaaSJourneyService`) with configurable journeys (acquisition, trial, expansion, activation). Records milestone hits via cache persistence, dispatches step events on each milestone and completion events with full timing metadata (duration, step-level timings). Registered as singleton in ServiceProvider. 4 API endpoints: `POST /api/analytics/journeys/{name}/milestone`, `GET /api/analytics/journeys/{name}/progress`, `GET /api/analytics/journeys`, `DELETE /api/analytics/journeys/{name}`.
-- **JS Journey Client** — 4 new exported functions: `trackJourneyMilestone()`, `getJourneyProgress()`, `getAllJourneys()`, `resetJourneyProgress()`. Full TypeScript definitions in `analytics.d.ts`.
-- **Analytics Data Anonymization Service** — GDPR-compliant PII masking (`AnalyticsAnonymizationService`) with HMAC-SHA256 deterministic ID anonymization, type-aware field value masking (email, phone, IP, UUID, general string). Config-driven field rules: global fields, per-event rules (`event_rules`), per-category rules (`category_rules`). Supports wildcard field matching (`user_*`, `*_email`). Includes `auditTrail()` for compliance auditing. Registered as singleton in ServiceProvider.
-- **Config expansion** — New `journeys` section (enabled, cache_ttl, definitions) and `anonymization` section (enabled, salt, global_fields, event_rules, category_rules) in `config/zeroboiler.php`.
-- **Tests** — `SaaSJourneyServiceTest` (12 test cases: milestone recording, journey completion, idempotency, invalid inputs, progress tracking, reset, registration, disabled state, all-progress) and `AnalyticsAnonymizationServiceTest` (17 test cases: ID anonymization, value masking, type-aware anonymization, param anonymization, event/category rules, audit trail, disabled state, salt sensitivity).
+- **EventPriority enum** — Four-level event priority system (critical, normal, low, background) with weight-based comparison, filter bypass, sampling, budget, and deferrability flags. Critical events (purchase, sign_up, subscription) always bypass sampling and rate limits.
+- **EventPriorityGate service** — Config-driven priority gate that evaluates events before dispatch. Per-priority rate limits (events/minute window), global budget threshold, cache-backed counters. 20+ built-in priority overrides for known event names. Custom overrides via `zeroboiler.analytics.priority.overrides` config. Registered as singleton in ServiceProvider.
+- **PriorityAwareFilter** — EventPipeline-compatible filter that drops low-priority events when rate limits or budget thresholds are exceeded. Tracks dropped count for diagnostics.
+- **Priority config section** — New `zeroboiler.analytics.priority` with enabled toggle, per-level rate limits (env: ANALYTICS_PRIORITY_RATE_*), custom overrides, cache TTL/prefix, budget-aware mode, and budget threshold.
+- **7 AnalyticsConfig accessors** — `priorityEnabled()`, `priorityRateLimit()`, `priorityCacheTtl()`, `priorityCachePrefix()`, `priorityBudgetAware()`, `priorityBudgetThreshold()`, `priorityOverrides()`.
+- **JS `trackEventWithPriority()`** — Client-side function that attaches `_priority` param and sends critical events immediately. Validates priority values against allowed set.
+- **TypeScript definitions** — `EventPriority` type alias, `PriorityTrackOptions` interface, `trackEventWithPriority()` function signature.
+- **V64EventPriorityGateTest** — 35+ test cases covering EventPriority enum (weights, bypasses, sampling, fromString), EventPriorityGate (priority resolution, rate limiting, custom overrides, budget checks, diagnostics), PriorityAwareFilter (pass/drop, dropped count, delegation), version consistency (8 files), and PHP 8.5 compliance.
 
-## [2.58.0] - 2026-08-07
+### Changed
+- **Version unification to 2.64.0** — All version strings across AnalyticsManager, composer.json, JS client (v2.64.0), TypeScript definitions.
+
+## [2.61.0] - 2026-08-07
 
 ### Added
 - **JS Consent Purposes API** — Four new client-side functions for GDPR consent banner integration: `getConsentPurposes()`, `getConsentPurposeKeys()`, `getOptionalConsentPurposes()`, and `buildConsentSignals()`. These read the `consentPurposes` Inertia prop (injected by `HandleInertiaAnalytics`) and provide a purpose → Consent Mode v2 signal mapper. Supports 6 Consent Mode signals (`analytics_storage`, `ad_storage`, `ad_user_data`, `ad_personalization`, `functionality_storage`, `security_storage`) with automatic `necessary` grant enforcement and `denied` defaults for unspecified signals.
