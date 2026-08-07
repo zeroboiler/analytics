@@ -46,7 +46,7 @@ final class PerformanceBudgetService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $perfConfig = $config->get('zeroboiler.analytics.performance_budget', []);
         /** @var array{enabled?: bool, max_payload_bytes?: int, max_params_count?: int, max_events_per_session?: int, max_events_per_user_per_day?: int, max_events_per_page_view?: int, max_param_value_length?: int, drop_oversized?: bool, warn_only?: bool} $perfConfig */

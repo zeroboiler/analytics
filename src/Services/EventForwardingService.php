@@ -84,7 +84,7 @@ final class EventForwardingService
      * @param  CacheRepository  $cache  Cache repository for rate limiting and dedup
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config)
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
         $this->cache = $cache;
         $forwardingConfig = $config->get('zeroboiler.analytics.forwarding', []);
