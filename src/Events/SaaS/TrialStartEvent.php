@@ -22,7 +22,7 @@ final readonly class TrialStartEvent extends AnalyticsEvent
      * @param  int|null  $trialDays  Duration of the trial in days
      */
     public function __construct(?string $planName = null, ?int $trialDays = null): void
-: void {
+    {
         parent::__construct('start_trial', array_filter([
             'plan_name' => $planName,
             'trial_days' => $trialDays,

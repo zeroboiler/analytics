@@ -22,7 +22,7 @@ final readonly class EmailVerifiedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $method = null, array $metadata = []): void
-: void {
+    {
         parent::__construct('email_verified', array_filter([
             'method' => $method,
             ...$metadata,

@@ -58,7 +58,7 @@ final class AnalyticsEventRouter
      * @param  ConfigRepository  $config
      */
     public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-: void {
+    {
         $this->manager = $manager;
 
         $routingConfig = $config->get('zeroboiler.analytics.routing', []);

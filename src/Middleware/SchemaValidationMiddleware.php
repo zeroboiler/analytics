@@ -27,7 +27,7 @@ final readonly class SchemaValidationMiddleware implements AnalyticsMiddlewareIn
      * @param  bool  $strictMode  If true, drop invalid events; if false, sanitize and continue
      */
     public function __construct(EventSchemaRegistry $registry, bool $strictMode = false): void
-: void {
+    {
         $this->registry = $registry;
         $this->strictMode = $strictMode;
     }

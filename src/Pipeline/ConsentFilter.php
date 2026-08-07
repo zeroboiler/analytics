@@ -20,7 +20,7 @@ final readonly class ConsentFilter
     private bool $analyticsGranted;
 
     public function __construct(bool $analyticsGranted = true): void
-: void {
+    {
         $this->analyticsGranted = $analyticsGranted;
     }
 

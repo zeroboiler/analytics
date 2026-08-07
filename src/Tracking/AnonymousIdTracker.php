@@ -36,7 +36,7 @@ final class AnonymousIdTracker
      * @param  ConfigRepository  $config
      */
     public function __construct(ConfigRepository $config): void
-: void {
+    {
         $identityConfig = $config->get('zeroboiler.analytics.identity', []);
         /** @var array{cookie_name?: string, cookie_ttl?: int, cookie_secure?: bool, cookie_samesite?: string, cookie_prefix?: string} $identityConfig */
         $this->cookieName = $identityConfig['cookie_name'] ?? 'zb_analytics_id';

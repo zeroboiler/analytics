@@ -24,7 +24,7 @@ final readonly class ContextAttachmentMiddleware implements AnalyticsMiddlewareI
      * @param  array<string, mixed>  $context  Properties to attach to every event
      */
     public function __construct(array $context): void
-: void {
+    {
         $this->context = $context;
     }
 

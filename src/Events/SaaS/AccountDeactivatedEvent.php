@@ -23,7 +23,7 @@ final readonly class AccountDeactivatedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $reason = null, ?bool $permanent = null, array $metadata = []): void
-: void {
+    {
         parent::__construct('account_deactivated', array_filter([
             'reason' => $reason,
             'permanent' => $permanent,

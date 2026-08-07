@@ -22,7 +22,7 @@ final readonly class TrialEndEvent extends AnalyticsEvent
      * @param  string|null  $planName  Trial plan name
      */
     public function __construct(string $outcome, ?string $planName = null): void
-: void {
+    {
         parent::__construct('trial_end', array_filter([
             'outcome' => $outcome,
             'plan_name' => $planName,

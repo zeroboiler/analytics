@@ -22,7 +22,7 @@ final readonly class PasswordChangedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $method = null, array $metadata = []): void
-: void {
+    {
         parent::__construct('password_changed', array_filter([
             'method' => $method,
             ...$metadata,

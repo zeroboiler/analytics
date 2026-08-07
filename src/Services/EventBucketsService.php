@@ -57,7 +57,7 @@ final class EventBucketsService
      * @param  ConfigRepository  $config
      */
     public function __construct(CacheRepository $cache, ConfigRepository $config): void
-: void {
+    {
         $this->cache = $cache;
 
         $bucketConfig = $config->get('zeroboiler.analytics.event_buckets', []);

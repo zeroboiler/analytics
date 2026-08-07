@@ -39,7 +39,7 @@ final class EventContextBuilder
      * @param  string|null  $cookieName  Analytics client ID cookie name
      */
     public function __construct(?Request $request = null, ?string $cookieName = null): void
-: void {
+    {
         $this->request = $request;
         $this->cookieName = $cookieName ?? 'zb_analytics_id';
     }

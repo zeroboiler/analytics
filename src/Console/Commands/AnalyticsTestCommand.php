@@ -28,7 +28,7 @@ final class AnalyticsTestCommand extends Command
     private AnalyticsManager $manager;
 
     public function __construct(AnalyticsManager $manager): void
-: void {
+    {
         parent::__construct();
         $this->manager = $manager;
     }

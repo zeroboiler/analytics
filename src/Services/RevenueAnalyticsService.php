@@ -31,7 +31,7 @@ final class RevenueAnalyticsService
      * @param  string  $defaultCurrency  Default currency code (ISO 4217)
      */
     public function __construct(AnalyticsManager $manager, string $defaultCurrency = 'USD'): void
-: void {
+    {
         $this->manager = $manager;
         $this->defaultCurrency = $defaultCurrency;
     }

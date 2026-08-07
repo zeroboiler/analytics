@@ -41,7 +41,7 @@ final class EventAliasResolver
      * @param  ConfigRepository  $config
      */
     public function __construct(ConfigRepository $config): void
-: void {
+    {
         $this->loadDefaults();
         $this->loadCustomAliases($config);
     }

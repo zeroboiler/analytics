@@ -50,7 +50,7 @@ final class MetaPixelTracker implements TrackerInterface
     ];
 
     public function __construct(string $pixelId, string $accessToken, bool $enabled = false): void
-: void {
+    {
         $this->pixelId = $pixelId;
         $this->accessToken = $accessToken;
         $this->enabled = $enabled;

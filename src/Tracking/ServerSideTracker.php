@@ -85,7 +85,7 @@ final class ServerSideTracker
     private bool $enabled;
 
     public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-: void {
+    {
         $this->manager = $manager;
 
         $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);

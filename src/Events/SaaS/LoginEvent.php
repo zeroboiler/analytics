@@ -21,7 +21,7 @@ final readonly class LoginEvent extends AnalyticsEvent
      * @param  string|null  $method  Login method (e.g. 'email', 'google', 'github')
      */
     public function __construct(?string $method = null): void
-: void {
+    {
         parent::__construct('login', array_filter([
             'method' => $method,
         ]));

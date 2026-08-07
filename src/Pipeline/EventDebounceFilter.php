@@ -48,7 +48,7 @@ final class EventDebounceFilter
      * @param  int  $debounceMs  Minimum milliseconds between dispatches (default: 1000ms)
      */
     public function __construct(int $debounceMs = 1000): void
-: void {
+    {
         $this->debounceMs = $debounceMs;
     }
 

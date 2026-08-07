@@ -31,7 +31,7 @@ final class QueuedAnalyticsDispatcher
     private ?string $connection;
 
     public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-: void {
+    {
         $this->manager = $manager;
 
         $queueConfig = $config->get('zeroboiler.analytics.queue', []);

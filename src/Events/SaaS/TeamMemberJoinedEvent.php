@@ -23,7 +23,7 @@ final readonly class TeamMemberJoinedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $role = null, ?string $inviteMethod = null, array $metadata = []): void
-: void {
+    {
         parent::__construct('team_member_joined', array_filter([
             'role' => $role,
             'invite_method' => $inviteMethod,

@@ -22,7 +22,7 @@ final class GTMTracker implements TrackerInterface
     use TrackerHelpers;
 
     public function __construct(string $containerId, bool $enabled = false): void
-: void {
+    {
         $this->containerId = $containerId;
         $this->enabled = $enabled;
         $this->consent = ConsentState::granted();

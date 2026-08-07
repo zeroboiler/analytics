@@ -38,7 +38,7 @@ final class IpAnonymizationService
      * @param  ConfigRepository|null  $config  Optional config for testing
      */
     public function __construct(?ConfigRepository $config = null): void
-: void {
+    {
         if ($config !== null) {
             $gdprConfig = $config->get('zeroboiler.analytics.gdpr', []);
             /** @var array{anonymize_ip?: bool, ip_mask_v4?: int, ip_mask_v6?: int} $gdprConfig */
