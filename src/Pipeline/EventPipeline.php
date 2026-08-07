@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Pipeline;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Services\EventDeduplicationService;
+use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
 
 /**
  * Middleware pipeline for analytics event processing.
@@ -107,5 +109,45 @@ final class EventPipeline
             ->pipe(new UtmEnricher($context))
             ->pipe(new UserContextEnricher($context))
             ->pipe(new TimestampEnricher($sessionId));
+    }
+
+    /**
+     * Create a pipeline with full tracking-aware enrichers pre-configured.
+     *
+     * Extends the default pipeline with tracking preference filtering
+     * and event deduplication. Use this for API endpoints that accept
+     * events from authenticated or anonymous clients.
+     *
+     * @param  array<string, mixed>  $context  Request context (UTM params, user info, etc.)
+     * @param  bool  $analyticsGranted  Whether analytics consent is granted
+     * @param  string|null  $sessionId  Optional session identifier
+     * @param  \ZeroBoiler\Analytics\Services\TrackingPreferenceService|null  $preferenceService  Optional preference service
+     * @param  \ZeroBoiler\Analytics\Services\EventDeduplicationService|null  $deduplicationService  Optional dedup service
+     */
+    public static function withTrackingDefaults(
+        array $context = [],
+        bool $analyticsGranted = true,
+        ?string $sessionId = null,
+        ?TrackingPreferenceService $preferenceService = null,
+        ?EventDeduplicationService $deduplicationService = null,
+    ): self {
+        $pipeline = (new self)
+            ->pipe(new ConsentFilter($analyticsGranted))
+            ->pipe(new UtmEnricher($context))
+            ->pipe(new UserContextEnricher($context));
+
+        // Add tracking preference filter (drops events for opted-out users)
+        if ($preferenceService !== null) {
+            $pipeline->pipe(new TrackingPreferenceFilter($preferenceService));
+        }
+
+        // Add deduplication filter (drops duplicate events within window)
+        if ($deduplicationService !== null) {
+            $pipeline->pipe(new EventDeduplicationFilter($deduplicationService));
+        }
+
+        $pipeline->pipe(new TimestampEnricher($sessionId));
+
+        return $pipeline;
     }
 }

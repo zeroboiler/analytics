@@ -94,6 +94,17 @@ Route::prefix('analytics')->group(function () {
     Route::get('taxonomy/grouped', [AnalyticsEventController::class, 'taxonomyGrouped']);
     Route::get('taxonomy/{tag}', [AnalyticsEventController::class, 'taxonomyTag']);
 
+    // Tracking preference endpoints (authenticated)
+    Route::get('preference', [AnalyticsEventController::class, 'preference']);
+    Route::post('opt-out', [AnalyticsEventController::class, 'optOut']);
+    Route::post('opt-in', [AnalyticsEventController::class, 'optIn']);
+
+    // User profile endpoint (authenticated)
+    Route::get('profile', [AnalyticsEventController::class, 'profile']);
+
+    // GDPR data erasure (authenticated)
+    Route::delete('data', [AnalyticsEventController::class, 'eraseData']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);

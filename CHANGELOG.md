@@ -5,15 +5,15 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 ## [Unreleased]
 
 ### Added
-- **EventTaxonomyService** — Tag-based event classification service with 22 semantic tags (revenue, conversion, engagement, error, lifecycle, funnel, cohort, session, billing, ecommerce, saas, traffic, performance, b2b, account, churn, retention, operational, experiment, viral, content, attribution). Supports custom tag overrides and disabled tags via config. Provides `tagsFor()`, `hasTag()`, `eventsWithTag()`, `eventsWithAnyTag()`, `eventsWithAllTags()`, `revenueEvents()`, `conversionEvents()`, `errorEvents()`, `funnelEvents()`, `tagDefinitions()`, `eventsGroupedByTag()`, `summary()`.
-- **Catalog provider enrichment** — All 65 catalog entries now include native `posthog` and `plausible` fields. EcommerceEvents, SaaSEvents, and EngagementEvents each expose `posthogNames()` and `plausibleNames()` methods.
-- **EventCatalog native provider methods** — `allPosthogNames()`, `allPlausibleNames()`, `allPosthogMappings()`, `allPlausibleMappings()`, `posthogNameFor()`, `plausibleNameFor()` now read from catalog entries instead of relying on EventTransformer.
-- **Taxonomy API endpoints** — `GET /api/analytics/taxonomy` (summary), `GET /api/analytics/taxonomy/definitions`, `GET /api/analytics/taxonomy/grouped`, `GET /api/analytics/taxonomy/{tag}`
-- **AnalyticsConfig expansion** — `taxonomyEnabled()`, `taxonomyCustomTags()`, `taxonomyDisabledTags()` accessors
-- **V52TaxonomyCatalogProviderTest** — 40+ test cases covering catalog provider fields, native provider methods, EventTaxonomyService (tags, classification, filtering, OR/AND logic, custom overrides, disabled tags, runtime mutations), version consistency
+- **EventDeduplicationFilter** — Pipeline middleware that wraps EventDeduplicationService as an invokable pipeline stage. Drops duplicate events within the configurable deduplication window (default: 10s). Uses SHA-256 fingerprint of event name + client ID + user ID + params hash.
+- **TrackingPreferenceFilter** — Pipeline middleware that wraps TrackingPreferenceService as an invokable pipeline stage. Drops events for opted-out users and suppressed anonymous clients. Configurable client suppression check toggle.
+- **EventPipeline::withTrackingDefaults()** — Extended pipeline factory that pre-configures consent filtering, UTM enrichment, user context, tracking preference filtering, event deduplication, and timestamp enrichment. Designed for API endpoints handling authenticated and anonymous clients.
+- **Tracking preference routes** — `GET /api/analytics/preference`, `POST /api/analytics/opt-out`, `POST /api/analytics/opt-in` endpoints now registered in route file. Previously existed in controller but were missing from route registration.
+- **User profile and GDPR routes** — `GET /api/analytics/profile`, `DELETE /api/analytics/data` endpoints now registered. Provides per-user analytics profile and GDPR right-to-be-forgotten erasure.
+- **V53PipelineFiltersTrackingPreferenceTest** — 25+ test cases covering EventDeduplicationFilter (unique pass, duplicate drop, different-params passthrough), TrackingPreferenceFilter (opt-out drop, client suppression drop, skip suppression check), EventPipeline::withTrackingDefaults (count, full processing, opt-out drop), TrackingPreferenceService integration (shouldTrack, transferClientToUser, optOut/optIn/clearPreference), route file coverage, class existence, version consistency.
 
 ### Changed
-- Version bump to 2.52.0 across all files (composer.json, AnalyticsManager, controllers, services, JS client, TypeScript definitions)
+- Version bump to 2.53.0 across all files (composer.json, AnalyticsManager, controller, JS client, TypeScript definitions)
 - EventCatalog::allPosthogNames() and allPlausibleNames() now use native catalog fields instead of EventTransformer maps
 - EventCatalog::byProvider() simplified to use native catalog methods
 
