@@ -64,7 +64,7 @@ final class SaaSEvents
                 'posthog' => 'start_trial',
                 'plausible' => 'trial_start',
             ],
-            'end_trial' => [
+            'trial_end' => [
                 'name' => 'trial_end',
                 'class' => TrialEndEvent::class,
                 'ga4' => 'trial_end',

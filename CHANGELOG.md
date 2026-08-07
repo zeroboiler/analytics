@@ -4,18 +4,13 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
-### Added
-- **EventDeduplicationFilter** — Pipeline middleware that wraps EventDeduplicationService as an invokable pipeline stage. Drops duplicate events within the configurable deduplication window (default: 10s). Uses SHA-256 fingerprint of event name + client ID + user ID + params hash.
-- **TrackingPreferenceFilter** — Pipeline middleware that wraps TrackingPreferenceService as an invokable pipeline stage. Drops events for opted-out users and suppressed anonymous clients. Configurable client suppression check toggle.
-- **EventPipeline::withTrackingDefaults()** — Extended pipeline factory that pre-configures consent filtering, UTM enrichment, user context, tracking preference filtering, event deduplication, and timestamp enrichment. Designed for API endpoints handling authenticated and anonymous clients.
-- **Tracking preference routes** — `GET /api/analytics/preference`, `POST /api/analytics/opt-out`, `POST /api/analytics/opt-in` endpoints now registered in route file. Previously existed in controller but were missing from route registration.
-- **User profile and GDPR routes** — `GET /api/analytics/profile`, `DELETE /api/analytics/data` endpoints now registered. Provides per-user analytics profile and GDPR right-to-be-forgotten erasure.
-- **V53PipelineFiltersTrackingPreferenceTest** — 25+ test cases covering EventDeduplicationFilter (unique pass, duplicate drop, different-params passthrough), TrackingPreferenceFilter (opt-out drop, client suppression drop, skip suppression check), EventPipeline::withTrackingDefaults (count, full processing, opt-out drop), TrackingPreferenceService integration (shouldTrack, transferClientToUser, optOut/optIn/clearPreference), route file coverage, class existence, version consistency.
+## [2.54.0] - 2026-08-07
+
+### Fixed
+- **Event name consistency** — Renamed `end_trial` to `trial_end` across SaaSEvents catalog key, EventTransformer (PostHog + Plausible maps), EventTaxonomyService, EventSchemaRegistry, and test files. The catalog key now matches the canonical event name, eliminating a `validateCatalog()` warning about mismatched name fields.
 
 ### Changed
-- Version bump to 2.53.0 across all files (composer.json, AnalyticsManager, controller, JS client, TypeScript definitions)
-- EventCatalog::allPosthogNames() and allPlausibleNames() now use native catalog fields instead of EventTransformer maps
-- EventCatalog::byProvider() simplified to use native catalog methods
+- README test file count updated to 96+ (from 93+)
 
 ## [2.51.0] - 2026-08-07
 

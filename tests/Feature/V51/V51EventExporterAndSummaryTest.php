@@ -183,7 +183,7 @@ final class V51EventExporterAndSummaryTest extends TestCase
 
         // SaaS events that should have Plausible mappings
         $saasEvents = [
-            'sign_up', 'login', 'logout', 'start_trial', 'end_trial',
+            'sign_up', 'login', 'logout', 'start_trial', 'trial_end',
             'subscribe', 'plan_upgrade', 'plan_downgrade', 'cancellation',
             'feature_used', 'revenue_tracked',
         ];

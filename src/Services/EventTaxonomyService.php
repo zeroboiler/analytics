@@ -79,7 +79,7 @@ final class EventTaxonomyService
         // Lifecycle events
         'login' => ['lifecycle', 'saas'],
         'logout' => ['lifecycle', 'saas'],
-        'end_trial' => ['lifecycle', 'saas'],
+        'trial_end' => ['lifecycle', 'saas'],
         'plan_upgrade' => ['lifecycle', 'saas'],
         'plan_downgrade' => ['lifecycle', 'saas'],
         'cancellation' => ['lifecycle', 'saas', 'churn'],

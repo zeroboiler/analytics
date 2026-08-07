@@ -435,13 +435,13 @@ describe('V53 — Pipeline Filters + Tracking Preference Routes', function (): v
     });
 
     describe('Version consistency', function (): void {
-        test('composer.json version is 2.53.0', function (): void {
+        test('composer.json version is 2.54.0', function (): void {
             $composer = json_decode(
                 file_get_contents(__DIR__ . '/../composer.json'),
                 true,
             );
 
-            expect($composer['version'])->toBe('2.53.0');
+            expect($composer['version'])->toBe('2.54.0');
         });
     });
 });

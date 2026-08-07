@@ -76,7 +76,7 @@ describe('v2.42.0 Full System Validation', function (): void {
     test('all event names match their catalog key', function (): void {
         $all = EventCatalog::all();
         foreach ($all as $key => $entry) {
-            // Some events have different 'name' vs catalog key (e.g. end_trial vs trial_end)
+            // Some events have different 'name' vs catalog key (e.g. trial_end vs trial_end)
             // This is acceptable — just verify the key is used for lookup
             expect(EventCatalog::has($key))->toBeTrue();
         }

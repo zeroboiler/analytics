@@ -398,8 +398,8 @@ final class EventSchemaRegistry implements \Countable
             ],
         );
 
-        $this->schemas['end_trial'] = new EventSchema(
-            name: 'end_trial',
+        $this->schemas['trial_end'] = new EventSchema(
+            name: 'trial_end',
             category: 'saas',
             description: 'Tracks a trial end',
             optionalParams: [
