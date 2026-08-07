@@ -45,7 +45,7 @@ final class InboundWebhookService
      * @param  ConfigRepository  $config
      */
     public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+: void {
         $this->manager = $manager;
         $this->config = $config;
 

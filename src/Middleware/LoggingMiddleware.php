@@ -23,7 +23,7 @@ final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
      * @param  bool  $includeParams  Whether to include event params in the log
      */
     public function __construct(bool $includeParams = true): void
-    {
+: void {
         $this->includeParams = $includeParams;
     }
 

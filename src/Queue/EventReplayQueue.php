@@ -54,7 +54,7 @@ final class EventReplayQueue
      * @param  ConfigRepository  $config
      */
     public function __construct(AnalyticsManager $manager, AnalyticsMetrics $metrics, ConfigRepository $config): void
-    {
+: void {
         $this->manager = $manager;
         $this->metrics = $metrics;
 

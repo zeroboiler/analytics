@@ -22,7 +22,7 @@ final readonly class FeatureUsedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context about the feature usage
      */
     public function __construct(string $featureName, array $metadata = []): void
-    {
+: void {
         parent::__construct('feature_used', array_filter([
             'feature_name' => $featureName,
             ...$metadata,

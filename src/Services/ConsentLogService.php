@@ -45,7 +45,7 @@ final class ConsentLogService
      * @param  int  $ttl  Consent log retention period in seconds
      */
     public function __construct(CacheRepository $cache, int $ttl = 7776000): void
-    {
+: void {
         $this->cache = $cache;
         $this->ttl = $ttl;
     }

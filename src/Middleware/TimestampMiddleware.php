@@ -25,7 +25,7 @@ final readonly class TimestampMiddleware implements AnalyticsMiddlewareInterface
      * @param  string  $paramName  The param name to use for the timestamp
      */
     public function __construct(bool $overwrite = false, string $paramName = 'timestamp'): void
-    {
+: void {
         $this->overwrite = $overwrite;
         $this->paramName = $paramName;
     }

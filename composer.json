@@ -16,7 +16,7 @@
         "consent",
         "ecommerce"
     ],
-    "version": "2.58.0",
+    "version": "2.58.1",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {

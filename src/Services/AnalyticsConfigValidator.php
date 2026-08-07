@@ -32,7 +32,7 @@ final class AnalyticsConfigValidator
      * @param  ConfigRepository  $config
      */
     public function __construct(ConfigRepository $config): void
-    {
+: void {
         $this->config = $config;
     }
 

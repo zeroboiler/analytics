@@ -41,7 +41,7 @@ final class DeadLetterQueueService
     private int $bufferSize;
 
     public function __construct(ConfigRepository $config): void
-    {
+: void {
         $dlqConfig = $config->get('zeroboiler.analytics.dead_letter_queue', []);
         /** @var array{enabled?: bool, strategy?: string, storage_path?: string, max_size?: int, buffer_size?: int} $dlqConfig */
 

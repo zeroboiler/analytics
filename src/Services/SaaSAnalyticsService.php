@@ -31,7 +31,7 @@ final class SaaSAnalyticsService
     private AnalyticsManager $manager;
 
     public function __construct(AnalyticsManager $manager): void
-    {
+: void {
         $this->manager = $manager;
     }
 

@@ -30,7 +30,7 @@ final class EventDeduplicationFilter
      * @param  EventDeduplicationService  $deduplicationService  Cache-based event deduplication service
      */
     public function __construct(EventDeduplicationService $deduplicationService): void
-    {
+: void {
         $this->deduplicationService = $deduplicationService;
     }
 

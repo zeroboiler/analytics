@@ -23,7 +23,7 @@ final readonly class PasswordResetEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $method = null, ?bool $success = null, array $metadata = []): void
-    {
+: void {
         parent::__construct('password_reset', array_filter([
             'method' => $method,
             'success' => $success,

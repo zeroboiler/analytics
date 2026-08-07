@@ -43,7 +43,7 @@ final class AnalyticsMetrics
      * @param  ConfigRepository|null  $config  Optional config for testing
      */
     public function __construct(?ConfigRepository $config = null): void
-    {
+: void {
         if ($config !== null) {
             $metricsConfig = $config->get('zeroboiler.analytics.metrics', []);
             /** @var array{enabled?: bool, log_on_flush?: bool} $metricsConfig */

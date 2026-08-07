@@ -22,7 +22,7 @@ final readonly class AccountActivatedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $method = null, array $metadata = []): void
-    {
+: void {
         parent::__construct('account_activated', array_filter([
             'method' => $method,
             ...$metadata,

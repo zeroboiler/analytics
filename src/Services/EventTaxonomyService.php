@@ -158,7 +158,7 @@ final class EventTaxonomyService
      * @param  ConfigRepository  $config
      */
     public function __construct(ConfigRepository $config): void
-    {
+: void {
         $taxonomyConfig = $config->get('zeroboiler.analytics.taxonomy', []);
         /** @var array{enabled?: bool, custom_tags?: array<string, list<string>>, disabled_tags?: list<string>} $taxonomyConfig */
 

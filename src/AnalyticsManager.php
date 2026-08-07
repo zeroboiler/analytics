@@ -60,7 +60,7 @@ final class AnalyticsManager
      * @param  ConfigRepository|null  $config  Optional config repository for testing
      */
     public function __construct(?ConfigRepository $config = null): void
-    {
+: void {
         if ($config === null) {
             $container = $this->getContainer();
             $config = $container->make(ConfigRepository::class);

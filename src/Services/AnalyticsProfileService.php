@@ -44,7 +44,7 @@ final class AnalyticsProfileService
      * @param  int|null  $ttl  Profile cache TTL in seconds (default: 24h)
      */
     public function __construct(AnalyticsManager $manager, CacheRepository $cache, ?int $ttl = null): void
-    {
+: void {
         $this->manager = $manager;
         $this->cache = $cache;
         $this->ttl = $ttl ?? self::DEFAULT_TTL;

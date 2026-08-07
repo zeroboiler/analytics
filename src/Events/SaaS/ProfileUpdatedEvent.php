@@ -22,7 +22,7 @@ final readonly class ProfileUpdatedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(array $fields = [], array $metadata = []): void
-    {
+: void {
         parent::__construct('profile_updated', array_filter([
             'fields' => $fields,
             'fields_count' => count($fields),

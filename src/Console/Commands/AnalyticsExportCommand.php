@@ -33,7 +33,7 @@ final class AnalyticsExportCommand extends Command
     private EventSchemaRegistry $registry;
 
     public function __construct(AnalyticsManager $manager, EventSchemaRegistry $registry): void
-    {
+: void {
         parent::__construct();
         $this->manager = $manager;
         $this->registry = $registry;

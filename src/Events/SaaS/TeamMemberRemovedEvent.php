@@ -23,7 +23,7 @@ final readonly class TeamMemberRemovedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $role = null, ?string $reason = null, array $metadata = []): void
-    {
+: void {
         parent::__construct('team_member_removed', array_filter([
             'role' => $role,
             'reason' => $reason,

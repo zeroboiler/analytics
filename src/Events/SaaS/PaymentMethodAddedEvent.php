@@ -24,7 +24,7 @@ final readonly class PaymentMethodAddedEvent extends AnalyticsEvent
      * @param  array<string, mixed>  $metadata  Additional context
      */
     public function __construct(?string $paymentMethod = null, ?string $brand = null, ?bool $isDefault = null, array $metadata = []): void
-    {
+: void {
         parent::__construct('payment_method_added', array_filter([
             'payment_method' => $paymentMethod,
             'brand' => $brand,

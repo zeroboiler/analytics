@@ -23,7 +23,7 @@ final readonly class PlanUpgradeEvent extends AnalyticsEvent
      * @param  float|null  $priceDifference  Additional cost
      */
     public function __construct(string $fromPlan, string $toPlan, ?float $priceDifference = null): void
-    {
+: void {
         parent::__construct('plan_upgrade', array_filter([
             'from_plan' => $fromPlan,
             'to_plan' => $toPlan,

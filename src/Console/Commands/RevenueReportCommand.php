@@ -31,7 +31,7 @@ final class RevenueReportCommand extends Command
     private AnalyticsManager $manager;
 
     public function __construct(AnalyticsManager $manager): void
-    {
+: void {
         parent::__construct();
         $this->manager = $manager;
     }
