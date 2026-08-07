@@ -33,7 +33,7 @@ final class SubscriptionRenewalEvent extends AnalyticsEvent
         ?string $currency = null,
         ?string $billingCycle = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'subscription_renewal',
             params: array_filter(array_merge([

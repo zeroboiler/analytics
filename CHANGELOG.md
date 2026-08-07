@@ -1,0 +1,46 @@
+# Changelog
+
+All notable changes to the `zeroboiler/analytics` package will be documented in this file.
+
+## [2.39.0] - 2026-08-07
+
+### Fixed
+- Added missing `:void` return type to `SubscriptionRenewalEvent` constructor (PHP 8.5 compliance)
+
+## [2.38.0] - 2026-08-07
+
+### Added
+- JS client SaaS starter completeness (8 new convenience trackers, full TS parity)
+- Version consistency across all 26 controller endpoints + tests
+
+## [2.37.0] - 2026-08-07
+
+### Added
+- `subscription_renewal` event with full PostHog mapping
+- `AnalyticsConfig` expanded accessors (8 new sections)
+
+## [2.36.0] - 2026-08-07
+
+### Fixed
+- Removed deprecated `setAccessible(true)` calls in tests (PHP 8.5 compliance)
+
+## [2.35.0] - 2026-08-07
+
+### Added
+- TypeScript type definitions, `sendBeacon` unload flush
+
+## [1.0.0] - 2026-08-01
+
+### Added
+- Multi-provider analytics tracking (GA4, GTM, Meta Pixel, Plausible, PostHog)
+- Event pipeline with middleware (PII sanitization, consent gating, schema validation, deduplication)
+- SaaS event tracking (subscription, revenue, cohort, feature usage, invite, trial)
+- Ecommerce event tracking (purchase, add to cart, checkout, refund, wishlist, item views)
+- Engagement event tracking (page view, click, scroll, form, session, web vitals, errors)
+- Real-time aggregation, anomaly detection, funnel analytics
+- GDPR erasure, data retention policies, tenant isolation
+- Queue-based event replay and dead letter queue
+- Inertia.js integration, UTM attribution, revenue attribution
+- CLI commands for analytics testing, export, and revenue reporting
+- Config-driven architecture with `AnalyticsConfig`
+- PHP 8.5 attributes, readonly DTOs, final service classes
