@@ -49,6 +49,19 @@ Route::prefix('analytics')->group(function () {
     Route::get('funnels/drop-off', [AnalyticsEventController::class, 'funnelDropOff']);
     Route::get('funnels/chart', [AnalyticsEventController::class, 'funnelChart']);
 
+    // Dead letter queue (public, for admin dashboards)
+    Route::get('dlq', [AnalyticsEventController::class, 'dlqList']);
+    Route::get('dlq/summary', [AnalyticsEventController::class, 'dlqSummary']);
+    Route::delete('dlq', [AnalyticsEventController::class, 'dlqClear']);
+    Route::delete('dlq/{offset}', [AnalyticsEventController::class, 'dlqRemove']);
+
+    // Reporting (public, for admin dashboards)
+    Route::get('report', [AnalyticsEventController::class, 'report']);
+    Route::get('report/summary', [AnalyticsEventController::class, 'reportSummary']);
+    Route::get('report/top-events', [AnalyticsEventController::class, 'reportTopEvents']);
+    Route::get('report/trending', [AnalyticsEventController::class, 'reportTrending']);
+    Route::get('report/provider-stats', [AnalyticsEventController::class, 'reportProviderStats']);
+
     // Authenticated endpoints (require auth:sanctum middleware from route registration)
     Route::post('events', [AnalyticsEventController::class, 'track']);
     Route::post('batch', [AnalyticsEventController::class, 'batch']);

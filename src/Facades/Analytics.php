@@ -77,6 +77,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static string version()
  * @method static array<string, array{enabled: bool, id?: string}> providerSummary()
  * @method static \ZeroBoiler\Analytics\AnalyticsMetrics metrics()
+ * @method static array{events: int, dispatched: int, failed: int, success_rate: float, top_event: string|null} reportSummary()
+ * @method static array{enabled: bool, strategy: string, total: int, buffered: int, max_size: int, storage_path: string, utilization: float} dlqSummary()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

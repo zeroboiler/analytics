@@ -38,6 +38,8 @@ use ZeroBoiler\Analytics\Services\EventBroadcasterService;
 use ZeroBoiler\Analytics\Services\TenantIsolationService;
 use ZeroBoiler\Analytics\Services\DataRetentionPolicyService;
 use ZeroBoiler\Analytics\Services\AnalyticsGateService;
+use ZeroBoiler\Analytics\Services\EventReportingService;
+use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
 
 /**
  * API controller for frontend event tracking.
@@ -101,6 +103,10 @@ final class AnalyticsEventController extends Controller
 
     private ?AnalyticsGateService $gateService;
 
+    private ?EventReportingService $reportingService;
+
+    private ?DeadLetterQueueService $dlqService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -142,6 +148,8 @@ final class AnalyticsEventController extends Controller
         ?TenantIsolationService $tenantService = null,
         ?DataRetentionPolicyService $retentionService = null,
         ?AnalyticsGateService $gateService = null,
+        ?EventReportingService $reportingService = null,
+        ?DeadLetterQueueService $dlqService = null,
     ): void {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -165,6 +173,8 @@ final class AnalyticsEventController extends Controller
         $this->tenantService = $tenantService;
         $this->retentionService = $retentionService;
         $this->gateService = $gateService;
+        $this->reportingService = $reportingService;
+        $this->dlqService = $dlqService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -1480,6 +1490,188 @@ final class AnalyticsEventController extends Controller
             'version' => '2.30.0',
             'features' => AnalyticsGateService::getFeatureDefinitions(),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
+        ]);
+    }
+
+    // ── Reporting Endpoints ────────────────────────────────────────────
+
+    /**
+     * Generate a full analytics report.
+     *
+     * GET /api/analytics/report?period=daily
+     *
+     * Returns event counts, category breakdown, top events, trending events,
+     * provider dispatch stats, and event catalog summary.
+     */
+    public function report(Request $request): JsonResponse
+    {
+        if ($this->reportingService === null) {
+            return response()->json(['error' => 'Reporting service not available'], 503);
+        }
+
+        $period = $request->query('period', 'daily');
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.32.0',
+            'report' => $this->reportingService->report($period),
+        ]);
+    }
+
+    /**
+     * Get a quick analytics summary (single-line status).
+     *
+     * GET /api/analytics/report/summary
+     */
+    public function reportSummary(): JsonResponse
+    {
+        if ($this->reportingService === null) {
+            return response()->json(['error' => 'Reporting service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'summary' => $this->reportingService->quickSummary(),
+        ]);
+    }
+
+    /**
+     * Get top events by count.
+     *
+     * GET /api/analytics/report/top-events?limit=20
+     */
+    public function reportTopEvents(Request $request): JsonResponse
+    {
+        if ($this->reportingService === null) {
+            return response()->json(['error' => 'Reporting service not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'top_events' => $this->reportingService->topEvents($limit),
+        ]);
+    }
+
+    /**
+     * Get trending events (events with increasing dispatch rate).
+     *
+     * GET /api/analytics/report/trending?limit=10
+     */
+    public function reportTrending(Request $request): JsonResponse
+    {
+        if ($this->reportingService === null) {
+            return response()->json(['error' => 'Reporting service not available'], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 10), 50);
+
+        return response()->json([
+            'status' => 'ok',
+            'trending' => $this->reportingService->trendingEvents($limit),
+        ]);
+    }
+
+    /**
+     * Get per-provider dispatch statistics.
+     *
+     * GET /api/analytics/report/provider-stats
+     */
+    public function reportProviderStats(): JsonResponse
+    {
+        if ($this->reportingService === null) {
+            return response()->json(['error' => 'Reporting service not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'provider_stats' => $this->reportingService->providerStats(),
+        ]);
+    }
+
+    // ── Dead Letter Queue Endpoints ────────────────────────────────────
+
+    /**
+     * List all events in the dead letter queue.
+     *
+     * GET /api/analytics/dlq?event_name=purchase&limit=100
+     */
+    public function dlqList(Request $request): JsonResponse
+    {
+        if ($this->dlqService === null) {
+            return response()->json(['error' => 'DLQ not available'], 503);
+        }
+
+        $eventName = $request->query('event_name');
+        $limit = min((int) $request->query('limit', 100), 1000);
+
+        $events = (is_string($eventName) && $eventName !== '')
+            ? $this->dlqService->getByEventName($eventName)
+            : $this->dlqService->all();
+
+        return response()->json([
+            'status' => 'ok',
+            'count' => count($events),
+            'events' => array_slice($events, 0, $limit),
+        ]);
+    }
+
+    /**
+     * Clear all events from the dead letter queue.
+     *
+     * DELETE /api/analytics/dlq
+     */
+    public function dlqClear(): JsonResponse
+    {
+        if ($this->dlqService === null) {
+            return response()->json(['error' => 'DLQ not available'], 503);
+        }
+
+        $count = $this->dlqService->totalSize();
+        $this->dlqService->clear();
+
+        return response()->json([
+            'status' => 'ok',
+            'cleared' => $count,
+            'message' => "Cleared {$count} events from the dead letter queue.",
+        ]);
+    }
+
+    /**
+     * Remove a specific event from the DLQ by offset.
+     *
+     * DELETE /api/analytics/dlq/{offset}
+     */
+    public function dlqRemove(int $offset): JsonResponse
+    {
+        if ($this->dlqService === null) {
+            return response()->json(['error' => 'DLQ not available'], 503);
+        }
+
+        $removed = $this->dlqService->remove($offset);
+
+        return response()->json([
+            'status' => $removed ? 'ok' : 'not_found',
+            'removed' => $removed,
+            'offset' => $offset,
+        ], $removed ? 200 : 404);
+    }
+
+    /**
+     * Get dead letter queue summary.
+     *
+     * GET /api/analytics/dlq/summary
+     */
+    public function dlqSummary(): JsonResponse
+    {
+        if ($this->dlqService === null) {
+            return response()->json(['error' => 'DLQ not available'], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'dlq' => $this->dlqService->summary(),
         ]);
     }
 }

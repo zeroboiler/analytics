@@ -772,5 +772,41 @@ return [
             'global_overrides' => [],
             'user_overrides' => [],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Reporting (Periodic Analytics Summaries)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, generates daily/weekly/monthly analytics reports with
+        | event counts, category breakdowns, trending events, and provider stats.
+        | Reports are cached for configurable TTL.
+        |
+        */
+        'reporting' => [
+            'enabled' => env('ANALYTICS_REPORTING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_REPORTING_CACHE_TTL', 300),
+            'trending_window' => (int) env('ANALYTICS_REPORTING_TRENDING_WINDOW', 3600),
+            'top_events_limit' => (int) env('ANALYTICS_REPORTING_TOP_EVENTS_LIMIT', 20),
+            'trending_limit' => (int) env('ANALYTICS_REPORTING_TRENDING_LIMIT', 10),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Dead Letter Queue (Failed Event Persistence)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, permanently failed events (exhausted all retries) are
+        | stored persistently for inspection, manual replay, or archival.
+        | Supports file, log, or null storage strategies.
+        |
+        */
+        'dead_letter_queue' => [
+            'enabled' => env('ANALYTICS_DLQ_ENABLED', true),
+            'strategy' => env('ANALYTICS_DLQ_STRATEGY', 'file'),
+            'storage_path' => env('ANALYTICS_DLQ_STORAGE_PATH', storage_path('app/analytics/dlq.jsonl')),
+            'max_size' => (int) env('ANALYTICS_DLQ_MAX_SIZE', 10000),
+            'buffer_size' => (int) env('ANALYTICS_DLQ_BUFFER_SIZE', 50),
+        ],
     ],
 ];

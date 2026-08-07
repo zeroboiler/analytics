@@ -72,6 +72,9 @@ use ZeroBoiler\Analytics\Services\EventBroadcasterService;
 use ZeroBoiler\Analytics\Services\TenantIsolationService;
 use ZeroBoiler\Analytics\Services\DataRetentionPolicyService;
 use ZeroBoiler\Analytics\Services\AnalyticsGateService;
+use ZeroBoiler\Analytics\Services\EventReportingService;
+use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -660,6 +663,29 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsGateService($cache, $config);
         });
+
+        // Event reporting service for periodic analytics summaries
+        $this->app->singleton(EventReportingService::class, function (Application $app): EventReportingService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventReportingService($manager->metrics(), $cache, $config);
+        });
+
+        // Dead letter queue service for permanently failed events
+        $this->app->singleton(DeadLetterQueueService::class, function (Application $app): DeadLetterQueueService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DeadLetterQueueService($config);
+        });
+
+        // E-commerce format converter (stateless, bind as shared)
+        $this->app->singleton(EcommerceFormatConverter::class);
     }
 
     /**
@@ -805,6 +831,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/retention', [$controller, 'retentionInfo']);
                 Route::get('analytics/gate', [$controller, 'gateInfo']);
                 Route::get('analytics/gate/definitions', [$controller, 'gateDefinitions']);
+
+                // Reporting endpoints
+                Route::get('analytics/report', [$controller, 'report']);
+                Route::get('analytics/report/summary', [$controller, 'reportSummary']);
+                Route::get('analytics/report/top-events', [$controller, 'reportTopEvents']);
+                Route::get('analytics/report/trending', [$controller, 'reportTrending']);
+                Route::get('analytics/report/provider-stats', [$controller, 'reportProviderStats']);
+
+                // Dead letter queue endpoints
+                Route::get('analytics/dlq', [$controller, 'dlqList']);
+                Route::delete('analytics/dlq', [$controller, 'dlqClear']);
+                Route::delete('analytics/dlq/{offset}', [$controller, 'dlqRemove']);
+                Route::get('analytics/dlq/summary', [$controller, 'dlqSummary']);
             });
 
         // Authenticated endpoints
