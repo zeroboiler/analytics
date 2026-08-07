@@ -1497,6 +1497,31 @@ final class AnalyticsConfig
                 'retries' => $this->forwardingRetries(),
                 'forwarders_count' => count($this->forwardingForwarders()),
             ],
+            'routing' => [
+                'enabled' => $this->routingEnabled(),
+                'rule_count' => count($this->routingRules()),
+            ],
         ];
+    }
+
+    /**
+     * Check if event routing is enabled.
+     */
+    public function routingEnabled(): bool
+    {
+        return (bool) $this->get('routing.enabled', false);
+    }
+
+    /**
+     * Get configured routing rules.
+     *
+     * @return array<string, list<string>>
+     */
+    public function routingRules(): array
+    {
+        /** @var array<string, list<string>> $rules */
+        $rules = $this->get('routing.rules', []);
+
+        return $rules;
     }
 }

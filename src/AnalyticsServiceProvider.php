@@ -85,6 +85,7 @@ use ZeroBoiler\Analytics\Services\EventForwardingService;
 use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
+use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -809,6 +810,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new UTMAttributionService($cache, $config);
+        });
+
+        // Event router for provider-specific event routing
+        $this->app->singleton(AnalyticsEventRouter::class, function (Application $app): AnalyticsEventRouter {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsEventRouter($manager, $config);
         });
     }
 

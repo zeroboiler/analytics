@@ -1041,5 +1041,36 @@ return [
             'warn_only' => env('ANALYTICS_PERF_WARN_ONLY', false),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Routing (Provider-Specific Event Filtering)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, routes specific events to specific providers based on
+        | pattern matching rules. Events matching a pattern are dispatched only
+        | to the listed providers instead of all enabled providers.
+        |
+        | Patterns support exact match ("purchase"), prefix wildcard ("add_to_*"),
+        | suffix wildcard ("*_click"), and wildcard-only ("*").
+        |
+        | Supported provider names: ga4, gtm, meta, plausible, posthog, webhook
+        |
+        | Example:
+        |   'rules' => [
+        |       'purchase' => ['ga4', 'meta'],
+        |       'refund' => ['ga4', 'meta'],
+        |       'add_to_*' => ['ga4', 'meta', 'posthog'],
+        |       'page_view' => ['ga4', 'plausible', 'posthog'],
+        |   ],
+        |
+        */
+        'routing' => [
+            'enabled' => env('ANALYTICS_ROUTING_ENABLED', false),
+            'rules' => [
+                // 'purchase' => ['ga4', 'meta'],
+                // 'page_view' => ['ga4', 'plausible', 'posthog'],
+            ],
+        ],
+
     ],
 ];

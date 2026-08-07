@@ -341,7 +341,7 @@ resources/
     ├── analytics.js                 # ES module client library (~2500 LOC)
     └── analytics.d.ts               # TypeScript type definitions (50+ exports)
 config/
-└── zeroboiler.php                   # 40+ config options across 40+ sections
+└── zeroboiler.php                   # 40+ config options across 45+ sections
 routes/
 └── analytics.php                    # API route definitions
 ```
@@ -708,6 +708,42 @@ $bus->addRule(
 
 // Clear all rules
 $bus->clearRules();
+```
+
+### Event Routing (Provider Filtering)
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+$router = app(AnalyticsEventRouter::class);
+
+// Route purchase events only to GA4 and Meta
+$router->route(new AnalyticsEvent(name: 'purchase', params: [
+    'transaction_id' => 'TXN-001',
+    'value' => 99.99,
+]));
+// → dispatched only to GA4 + Meta (not Plausible, PostHog, etc.)
+
+// Check which providers would receive an event
+$providers = $router->matchProviders('add_to_cart');
+// → ['ga4', 'meta', 'posthog'] (if 'add_to_*' rule is configured)
+
+// Add runtime routing rule
+$router->addRule('page_view', ['ga4', 'plausible', 'posthog']);
+```
+
+Config-driven rules in `zeroboiler.php`:
+```php
+'routing' => [
+    'enabled' => true,
+    'rules' => [
+        'purchase' => ['ga4', 'meta'],
+        'refund' => ['ga4', 'meta'],
+        'add_to_*' => ['ga4', 'meta', 'posthog'],
+        'page_view' => ['ga4', 'plausible', 'posthog'],
+    ],
+],
 ```
 
 ### Engagement Events
@@ -1423,7 +1459,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 183 source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 189 source files.
 
 ## Troubleshooting
 

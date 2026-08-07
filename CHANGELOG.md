@@ -2,6 +2,28 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [Unreleased]
+
+## [2.47.0] - 2026-08-07
+
+### Added
+- **AnalyticsEventRouter** — Config-driven event routing service that filters which providers receive specific events. Supports exact match, prefix wildcard (`add_to_*`), suffix wildcard (`*_click`), and catch-all (`*`) patterns. Events matching a rule are dispatched only to the listed providers. Unmatched events fall through to all enabled providers.
+- **Config section `routing`** — New `zeroboiler.analytics.routing` config with `enabled` toggle and `rules` map. Supported provider names: `ga4`, `gtm`, `meta`, `plausible`, `posthog`, `webhook`.
+- **Facade proxy methods** — Added `selectItem()`, `selectPromotion()`, `viewPromotion()`, `subscriptionRenewal()` to `@method` annotations for full IDE auto-complete coverage
+- **AnalyticsConfig accessors** — `routingEnabled()`, `routingRules()` for type-safe routing config access
+- **V47EventRouterFacadeVersionTest** — 30+ test cases covering AnalyticsEventRouter (pattern matching, wildcard rules, runtime rule management, summary, fall-through dispatch), Facade proxy completeness, version consistency across all 9 files, config section coverage, source file counts, and class architecture validation
+
+### Changed
+- Version bump to 2.47.0
+- AnalyticsManager::version() returns '2.47.0'
+- Composer version updated to 2.47.0
+- JS client version string updated to 2.47.0 (5 occurrences)
+- TypeScript definitions version updated to 2.47.0
+- EventSourceTagger::_version updated to 2.47.0
+- Controller version strings updated to 2.47.0 (38 occurrences)
+- EventForwardingService version strings updated to 2.47.0 (3 occurrences)
+- All 51 version references now consistently 2.47.0 (previously 2.45.0 in manager/source tagger/forwarding/controller and 2.46.0 in composer)
+
 ## [2.46.0] - 2026-08-07
 
 ### Added
