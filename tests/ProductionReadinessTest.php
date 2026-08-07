@@ -72,6 +72,7 @@ use ZeroBoiler\Analytics\Services\SaasFunnelService;
 use ZeroBoiler\Analytics\Services\SessionAnalyticsService;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
 use ZeroBoiler\Analytics\Services\UserJourneyService;
+use ZeroBoiler\Analytics\Services\ConsentLogService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Support\AnalyticsRateLimiter;
 use ZeroBoiler\Analytics\Support\EventTransformer;
@@ -454,6 +455,7 @@ describe('Structural Checks', function () {
             SessionAnalyticsService::class,
             TrackingPreferenceService::class,
             UserJourneyService::class,
+            ConsentLogService::class,
         ];
 
         foreach ($services as $service) {

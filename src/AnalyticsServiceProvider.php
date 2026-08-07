@@ -80,6 +80,7 @@ use ZeroBoiler\Analytics\Services\ABTestAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
 use ZeroBoiler\Analytics\Services\SaasKpiTracker;
 use ZeroBoiler\Analytics\Services\UtmAggregationService;
+use ZeroBoiler\Analytics\Services\ConsentLogService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 
 /**
@@ -248,6 +249,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventSchemaRegistry::class);
         $this->app->bind(AnalyticsMiddlewareStack::class);
         $this->app->bind(EventContextBuilder::class);
+
+        // GDPR consent log service with configurable TTL
+        $this->app->singleton(ConsentLogService::class, function (Application $app): ConsentLogService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $logTtl = (int) $config->get('zeroboiler.analytics.consent.log_ttl', 7776000);
+
+            return new ConsentLogService(
+                cache: $app->make('cache'),
+                ttl: $logTtl,
+            );
+        });
 
         // Funnel analytics service
         $this->app->singleton(FunnelAnalyticsService::class, function (Application $app): FunnelAnalyticsService {

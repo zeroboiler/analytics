@@ -374,6 +374,8 @@ ANALYTICS_POSTHOG_PROJECT_ID=
 
 # ── Consent (GDPR) ─────────────────────────────────────────────
 ANALYTICS_CONSENT_DEFAULT=granted
+ANALYTICS_CONSENT_LOG_ENABLED=false
+ANALYTICS_CONSENT_LOG_TTL=7776000
 
 # ── Server-Side Auto-Tracking ────────────────────────────────────
 ANALYTICS_AUTO_TRACK_ENABLED=true
@@ -1433,6 +1435,14 @@ This validates strict types, `final` modifiers, interface implementations, reado
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### From v2.40.x to v2.41.0
+- **15 new SaaS event classes** — Account lifecycle (6), B2B/Team (4), Billing (5) — all with GA4, Meta, and PostHog mappings
+- **ConsentLogService** — New granular GDPR consent logging service with audit trail and DSAR export
+- **Consent purposes config** — New `consent.purposes` section in `config/zeroboiler.php` for frontend consent banners
+- **Inertia consent props** — `consentPurposes` now automatically exposed in Inertia page props
+- **SaaS event count** — 20 → 35 events (total catalog: 52 → 68 events)
+- **No breaking changes** — All changes are additive.
 
 ### From v2.34.x to v2.35.0
 - **JS client `getVersion()` fixed** — Was returning stale `'2.30.0'`, now correctly returns `'2.35.0'`
