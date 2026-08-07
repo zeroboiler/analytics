@@ -778,7 +778,7 @@ describe('v2.2 — AnalyticsManager new methods', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('2.34.0');
+        expect($manager->version())->toBe('2.35.0');
     });
 
     it('providerSummary returns enabled state for all providers', function () {

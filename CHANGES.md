@@ -4,45 +4,24 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+### Added
+- **TypeScript type definitions** — `resources/js/analytics.d.ts` with full IntelliSense/auto-complete support for all 50+ exported functions. Covers ZbAnalyticsConfig, ConsentSignals, TrackLinksConfig, DeviceContext, AutoTrackConfig, PerformanceConfig, AnalyticsEvent, EventCatalog, Ga4Item, EcommerceData, PromotionData, ScreenViewOptions, SessionState, and all exported function signatures. Extends `@inertiajs/core` PageProps interface with `zbAnalytics` property.
+- **`flushPendingOnUnload()`** — Uses `navigator.sendBeacon()` to reliably flush batched events on page unload/navigate-away. Prevents data loss when users close tabs or navigate during the 5-second flush interval. Automatically registered in `init()` and cleaned up in `destroy()`.
+- **AnalyticsOverviewCommand feature list updated** — Now includes all 40+ features including TypeScript types, sendBeacon unload flush, and event replay queue.
+- **V35TypeScriptClientUpgradeTest** — 30+ new test cases covering TypeScript type definitions file existence and content, JS client version consistency (2.35.0), sendBeacon unload flush implementation, version string alignment (manager, composer, JS, source tagger), event catalog integrity (52 events), all config sections, all PHP source files, test file count, and no stale version references.
+
 ### Changed
-- Version bump to 2.34.0
-- AnalyticsManager::version() returns '2.34.0' (was '2.33.0')
-- Controller version strings updated to 2.34.0 on all endpoints (7 occurrences)
-- Composer version updated to 2.34.0
-- JS client version string updated to 2.34.0 (was 2.32.0)
-- **README documentation audit** — All event counts, API endpoint references, version strings, source file counts, and test file counts aligned with actual codebase
-  - Event count: 52 (12 ecom + 19 SaaS + 21 engagement), was incorrectly stated as 49 in multiple locations
-  - SaaS events: 19 (11 lifecycle + InviteSent + IntegrationConnected + 6 cohort), was 17
-  - Engagement events: 21, was 20
-  - Source files: 166+, was 143+
-  - Test files: 80+, was 72
-  - Health response version example: 2.33.0, was 2.28.0
-  - JS getVersion() example: 2.33.0, was 2.28.0
-- **API Reference expanded** — 25 missing endpoints documented (DLQ 4, realtime 2, AB tests 4, snapshots 3, KPI 2, UTM 3, reporting 5, broadcast, tenant, retention, gate/definitions, preference, opt-in/out, tenant/config)
-- **Event Catalog Reference updated** — FileDownloadEvent, VideoPlayEvent added to Engagement table; InviteSentEvent, IntegrationConnectedEvent added to SaaS table
-- **Changelog entries added** — v2.27 through v2.33 entries added to README Changelog section
-- **Enterprise Features section** — New feature category documenting v2.30+ capabilities (multi-tenant, broadcast, retention, feature gate, geolocation, referral, reporting, DLQ, realtime, AB tests, snapshots, KPI, UTM, event correlation, config validator, source tagger)
-- **Upgrading section** — v2.34.0 entry added
+- Version bump to 2.35.0
+- AnalyticsManager::version() returns '2.35.0' (was '2.34.0')
+- Composer version updated to 2.35.0
+- JS client version string updated to 2.35.0 (was 2.30.0 — fixed stale version)
+- Controller version strings updated to 2.35.0 on all endpoints (29 occurrences)
+- EventSourceTagger::_version updated to 2.35.0
+- All test version assertions updated to 2.35.0 (27 occurrences across 15 test files)
+
+## [2.34.0] - 2026-08-07
 
 ### Added
-- **InviteSentEvent** — Typed event class for tracking team/collaborator/referral invitations. Tracks invite type (team_member, collaborator, referral, billing_contact), assigned role, and inviter user ID. Maps to GA4 `invite_sent` and Meta `InviteSent`.
-- **IntegrationConnectedEvent** — Typed event class for tracking external integration connections (Slack, GitHub, Stripe, etc.). Tracks integration name and connecting user. Maps to GA4 `integration_connected` and Meta `IntegrationConnected`.
-- **FileDownloadEvent** — Typed engagement event for tracking file/document downloads. Tracks file name, type (extension/MIME), and optional file size. Maps to GA4 `file_download` and Meta `FileDownload`. Useful for whitepaper downloads, invoice PDFs, and CSV exports.
-- **VideoPlayEvent** — Typed engagement event for tracking video content interactions. Tracks video title, hosting provider (YouTube, Vimeo, Wistia), and duration. Maps to GA4 `video_play` and Meta `VideoPlay`. Useful for onboarding tutorials and product demos.
-- **EventCatalog::requiredKeys()** — Returns the required keys (name, class, ga4, category) that every event entry must have.
-- **EventCatalog::validate()** — Validates integrity of the entire event catalog. Checks required keys, class existence, AnalyticsEvent inheritance, duplicate names, and name-key consistency. Returns `{valid, errors, warnings}`.
-- **AnalyticsManager convenience methods** — `inviteSent()`, `integrationConnected()`, `fileDownload()`, `videoPlay()`, `validateCatalog()`.
-- **Facade proxy methods** — 5 new `@method` annotations for inviteSent, integrationConnected, fileDownload, videoPlay, validateCatalog.
-- **AnalyticsConfig accessors** — `referralEnabled()`, `referralParamName()`, `referralTtl()`, `referralTrackConversions()`, `broadcastAlertChannel()`, `broadcastMetricsChannel()`, `retentionPolicyEngagementDays()`, `retentionPolicySaasDays()`, `retentionPolicyEcommerceDays()`. Summary expanded to 36 sections (was 31).
-- **Config expansion** — 5 new config sections: `referral` (referral code tracking with TTL and conversion tracking), `broadcast` (extended with alert/metrics channel names), `tenant` (multi-tenant isolation with resolution strategy and header), `retention_policy` (per-category retention days: engagement 30d, SaaS 90d, ecommerce 365d), `gate` (plan-based feature access with global/user overrides).
-- **V36SaaSStarterUpgradeTest** — 50+ new test cases covering all 4 new event classes (construction, readonly final, inheritance), catalog expansion (SaaS 19, Engagement 21, total 52), EventCatalog::requiredKeys() and ::validate(), AnalyticsManager convenience methods, version consistency (2.31.0), AnalyticsConfig new accessors, cross-provider mappings, file existence.
-
-### Changed
-- Version bump to 2.31.0
-- AnalyticsManager::version() returns '2.31.0' (was '2.30.0')
-- Controller version strings updated to 2.31.0 on all endpoints
-- Composer version updated to 2.31.0
-- JS client version string updated to 2.31.0
 - Total event count: 52 (was 49) — 12 e-commerce + 19 SaaS + 21 engagement
 - Total config sections: 36 (was 31)
 - AnalyticsConfig summary() now includes referral, broadcast (extended), retention_policy (extended) sections

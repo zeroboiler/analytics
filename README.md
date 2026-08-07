@@ -169,7 +169,13 @@ Done. That's it.
 - **Event Catalog** — `fetchEventCatalog()` to fetch server-side event catalog (cached)
 - **GDPR Preferences** — `optOutTracking()`, `optInTracking()`, `getTrackingPreference()`
 - **GTM DataLayer** — `pushToDataLayer()` for custom GTM data pushes
+- **Unload Flush** — `navigator.sendBeacon()` auto-flush on page unload prevents data loss
 - **Cleanup** — All auto-trackers return cleanup functions for Svelte `onMount` compatibility
+
+### TypeScript Type Definitions (`resources/js/analytics.d.ts`)
+- **Full IntelliSense** — All 50+ exported functions with typed parameters and return types
+- **Interface Definitions** — ZbAnalyticsConfig, ConsentSignals, AutoTrackConfig, PerformanceConfig, Ga4Item, EventCatalog, SessionState, and more
+- **Inertia Extension** — Extends `@inertiajs/core` PageProps with optional `zbAnalytics` property
 
 ### Async Queue Dispatch
 - Configurable queue connection and queue name
@@ -329,7 +335,8 @@ src/
 │   └── Analytics.php               # Facade (20+ methods)
 resources/
 └── js/
-    └── analytics.js                 # ES module client library (~1200 LOC)
+    ├── analytics.js                 # ES module client library (~1200 LOC)
+    └── analytics.d.ts               # TypeScript type definitions (50+ exports)
 config/
 └── zeroboiler.php                   # 30+ config options across 22 sections
 routes/
@@ -1113,7 +1120,7 @@ All authenticated endpoints use `auth:sanctum` + throttle middleware (60 req/min
 ```json
 {
   "status": "ok",
-  "version": "2.33.0",
+  "version": "2.35.0",
   "providers": {
     "ga4": { "status": "ok", "measurement_id": "G-XXXXX" },
     "gtm": { "status": "ok", "container_id": "GTM-XXXXXXX" },
@@ -1235,7 +1242,7 @@ Configurable per-event in `config/zeroboiler.php` under `auto_track.events`. Sup
 | `destroy()` | Cleanup listeners, timers, state |
 | `destroyAll()` | Cleanup all auto-initialized trackers + destroy |
 | `isInitialized()` | Check if analytics is active |
-| `getVersion()` | Get library version string (e.g. '2.33.0') |
+| `getVersion()` | Get library version string (e.g. '2.35.0') |
 | `getTrackingId()` | Get server-generated tracking UUID |
 | `getApiBaseUrl()` | Get configured API base URL |
 | `trackEvent(name, params, options?)` | Track event (auto-batched, `{immediate: true}` to bypass) |
@@ -1426,7 +1433,11 @@ This validates strict types, `final` modifiers, interface implementations, reado
 
 ## Upgrading
 
-### From v2.33.x to v2.34.0
+### From v2.34.x to v2.35.0
+- **JS client `getVersion()` fixed** — Was returning stale `'2.30.0'`, now correctly returns `'2.35.0'`
+- **`beforeunload` flush** — JS client now auto-flushes batched events via `navigator.sendBeacon()` on page unload (registered in `init()`, cleaned up in `destroy()`)
+- **TypeScript types** — New `resources/js/analytics.d.ts` file with full type definitions for all 50+ exports. Import or copy to your project for IDE auto-complete.
+- **No breaking changes** — All changes are additive.
 No breaking changes. Documentation-only release.
 
 ```bash

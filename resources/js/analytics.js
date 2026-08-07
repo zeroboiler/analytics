@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.34.0
+ * @version 2.35.0
  */
 
 let trackingId = null;
@@ -78,8 +78,35 @@ export function init(pageProps) {
     // Start batch flush timer
     startFlushTimer();
 
+    // Flush pending events on page unload (prevents data loss on navigation)
+    window.addEventListener('beforeunload', flushPendingOnUnload);
+
     // Auto-capture UTM parameters on init
     captureUTM();
+}
+
+/**
+ * Flush pending events on page unload using sendBeacon.
+ *
+ * Uses navigator.sendBeacon() for reliable delivery even during page unload.
+ * Falls back to synchronous fetch when sendBeacon is unavailable.
+ */
+function flushPendingOnUnload() {
+    if (eventQueue.length === 0) return;
+
+    const events = [...eventQueue];
+    eventQueue.length = 0;
+
+    const payload = JSON.stringify({ events });
+
+    // Use sendBeacon for reliable unload delivery
+    if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(
+            `${apiBaseUrl}/batch`,
+            blob,
+        );
+    }
 }
 
 /**
@@ -87,6 +114,7 @@ export function init(pageProps) {
  * Call this when your component unmounts or on app teardown.
  */
 export function destroy() {
+    window.removeEventListener('beforeunload', flushPendingOnUnload);
     if (flushTimer) {
         clearInterval(flushTimer);
         flushTimer = null;
@@ -113,7 +141,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.29.0')
  */
 export function getVersion() {
-    return '2.30.0';
+    return '2.35.0';
 }
 
 /**

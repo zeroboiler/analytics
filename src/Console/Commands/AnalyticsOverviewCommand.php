@@ -241,6 +241,8 @@ final class AnalyticsOverviewCommand extends Command
             'Session analytics service (session recording, summaries, end-of-session dispatch)',
             'Event aggregation service (real-time counting, top events, health diagnostics)',
             'Health diagnostic command (zb:analytics:health)',
+            'TypeScript type definitions (analytics.d.ts)',
+            'JS sendBeacon unload flush (prevent data loss on navigation)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");
