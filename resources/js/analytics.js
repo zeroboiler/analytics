@@ -138,7 +138,7 @@ export function isInitialized() {
  *
  * Useful for diagnostics, debugging, and API compatibility checks.
  *
- * @returns {string} Semantic version (e.g. '2.29.0')
+ * @returns {string} Semantic version (e.g. '2.38.0')
  */
 export function getVersion() {
     return '2.38.0';
