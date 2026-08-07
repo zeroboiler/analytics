@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.66.0
+ * @version 2.67.0
  */
 
 let trackingId = null;
@@ -84,6 +84,9 @@ export function init(pageProps) {
 
     // Auto-capture UTM parameters on init
     captureUTM();
+
+    // Persist first-touch UTM to cookie (cross-session attribution)
+    persistFirstTouchUTM(utmParams);
 }
 
 /**
@@ -142,7 +145,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.66.0';
+    return '2.67.0';
 }
 
 /**
@@ -3077,7 +3080,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.66.0';
+    return '2.67.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -3438,4 +3441,203 @@ export async function trackPlanChange({ fromPlan, toPlan, fromPrice, toPrice, cu
         reason: reason || null,
         direction,
     });
+}
+
+// ─── First-Touch UTM Cookie Persistence (v2.67.0) ───────────────────────
+
+/**
+ * Cookie name for first-touch attribution persistence.
+ * Persists across sessions (365-day TTL) unlike sessionStorage UTM capture.
+ */
+const FIRST_TOUCH_COOKIE = 'zb_first_touch_utm';
+const FIRST_TOUCH_TTL_DAYS = 365;
+
+/**
+ * Capture and persist first-touch UTM parameters in a long-lived cookie.
+ *
+ * Unlike captureUTM() which stores in sessionStorage (per-session),
+ * this function writes to a cookie that persists for 365 days. The first
+ * UTM parameters ever seen for this browser are preserved and never
+ * overwritten, enabling true first-touch attribution analysis.
+ *
+ * Called automatically during init() when UTM params are present.
+ * Safe to call multiple times — only persists on first encounter.
+ *
+ * @returns {object} First-touch UTM parameters (current or previously stored)
+ *
+ * @example
+ * // Called automatically during init(), or manually:
+ * const firstTouch = getFirstTouchUTM();
+ * if (firstTouch.utm_source) {
+ *     console.log('First acquired via:', firstTouch.utm_source);
+ * }
+ */
+export function getFirstTouchUTM() {
+    try {
+        const stored = getCookie(FIRST_TOUCH_COOKIE);
+        if (stored) {
+            try {
+                return JSON.parse(stored);
+            } catch {
+                return {};
+            }
+        }
+    } catch {
+        // Cookie access failed
+    }
+
+    return {};
+}
+
+/**
+ * Capture first-touch UTM and persist to cookie (internal).
+ * Called during init() when fresh UTM params are detected.
+ */
+function persistFirstTouchUTM(utm) {
+    if (typeof document === 'undefined') return;
+
+    // Only persist if we don't already have first-touch data
+    const existing = getFirstTouchUTM();
+    if (Object.keys(existing).length > 0) return;
+
+    // Only persist if there's actual UTM data
+    const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+    const firstTouch = {};
+    for (const key of keys) {
+        if (utm[key]) {
+            firstTouch[key] = utm[key];
+        }
+    }
+    firstTouch.first_touch_timestamp = new Date().toISOString();
+    firstTouch.first_touch_page = window.location.pathname + window.location.search;
+
+    if (Object.keys(firstTouch).length <= 2) return; // Only timestamp + page, no UTM
+
+    try {
+        const expires = new Date();
+        expires.setDate(expires.getDate() + FIRST_TOUCH_TTL_DAYS);
+        document.cookie = `${FIRST_TOUCH_COOKIE}=${encodeURIComponent(JSON.stringify(firstTouch))};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+    } catch {
+        // Cookie write failed
+    }
+}
+
+/**
+ * Get a cookie value by name.
+ * @param {string} name
+ * @returns {string|null}
+ */
+function getCookie(name) {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? decodeURIComponent(match[2]) : null;
+}
+
+/**
+ * Get the full attribution context (first-touch + last-touch UTM).
+ *
+ * Returns both the long-lived first-touch cookie data and the
+ * current session's UTM parameters for multi-touch attribution.
+ *
+ * @returns {object} { first_touch: object, last_touch: object }
+ *
+ * @example
+ * const attribution = getAttributionContext();
+ * await trackEvent('sign_up', {
+ *     ...attribution.first_touch,
+ *     ...attribution.last_touch,
+ *     attribution_model: 'first_touch',
+ * });
+ */
+export function getAttributionContext() {
+    return {
+        first_touch: getFirstTouchUTM(),
+        last_touch: utmParams,
+    };
+}
+
+/**
+ * Clear first-touch UTM cookie (for testing or GDPR erasure).
+ */
+export function clearFirstTouchUTM() {
+    try {
+        document.cookie = `${FIRST_TOUCH_COOKIE}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    } catch {
+        // Cookie deletion failed
+    }
+}
+
+// ─── Data Warehouse Export Helper (v2.67.0) ────────────────────────────
+
+/**
+ * Trigger a server-side data warehouse export.
+ *
+ * Requests the server to export analytics events to NDJSON or CSV
+ * for data warehouse ingestion (Snowflake, BigQuery, Redshift).
+ *
+ * @param {object} [options] - Export options
+ * @param {'ndjson'|'csv'} [options.format='ndjson'] - Output format
+ * @param {string} [options.category] - Filter by event category
+ * @param {string} [options.event] - Filter by event name
+ * @returns {Promise<object|null>} Export result { path, format, events, bytes }
+ *
+ * @example
+ * const result = await exportToDataWarehouse({ format: 'ndjson', category: 'saas' });
+ * console.log(`Exported ${result.events} events to ${result.path}`);
+ */
+export async function exportToDataWarehouse(options = {}) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        if (options.format) params.set('format', options.format);
+        if (options.category) params.set('category', options.category);
+        if (options.event) params.set('event', options.event);
+
+        const response = await fetch(`${apiBaseUrl}/export/warehouse?${params}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Dashboard Data Helper (v2.67.0) ──────────────────────────────────
+
+/**
+ * Fetch the analytics dashboard overview from the server.
+ *
+ * Returns a unified payload with provider status, event catalog summary,
+ * KPI metrics, health score, real-time stats, and active alerts.
+ *
+ * @returns {Promise<object|null>} Dashboard overview data
+ *
+ * @example
+ * const dashboard = await fetchDashboardOverview();
+ * console.log(dashboard.health_score.score);
+ * console.log(dashboard.kpi.mrr);
+ */
+export async function fetchDashboardOverview() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/dashboard`, {
+            headers: {
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                Accept: 'application/json',
+            },
+        });
+
+        return await response.json();
+    } catch {
+        return null;
+    }
 }

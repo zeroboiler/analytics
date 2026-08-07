@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.66.0
+ * @version 2.67.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -792,3 +792,82 @@ export function trackEventWithPriority(
     params?: Record<string, unknown>,
     priority?: EventPriority,
 ): Promise<boolean>;
+
+// ─── First-Touch UTM Attribution (v2.67.0) ──────────────────────────
+
+/** First-touch UTM parameters persisted in a cookie */
+export interface FirstTouchUTM {
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_term?: string;
+    utm_content?: string;
+    first_touch_timestamp?: string;
+    first_touch_page?: string;
+}
+
+/** Full attribution context (first-touch + last-touch) */
+export interface AttributionContext {
+    first_touch: FirstTouchUTM;
+    last_touch: Record<string, string>;
+}
+
+/** Get first-touch UTM parameters from cookie */
+export function getFirstTouchUTM(): FirstTouchUTM;
+
+/** Get full attribution context (first-touch + last-touch) */
+export function getAttributionContext(): AttributionContext;
+
+/** Clear first-touch UTM cookie */
+export function clearFirstTouchUTM(): void;
+
+// ─── Data Warehouse Export (v2.67.0) ─────────────────────────────────
+
+/** Data warehouse export options */
+export interface DataWarehouseExportOptions {
+    format?: 'ndjson' | 'csv';
+    category?: string;
+    event?: string;
+}
+
+/** Data warehouse export result */
+export interface DataWarehouseExportResult {
+    path: string;
+    format: string;
+    events: number;
+    bytes: number;
+}
+
+/** Trigger a server-side data warehouse export */
+export function exportToDataWarehouse(options?: DataWarehouseExportOptions): Promise<DataWarehouseExportResult | null>;
+
+// ─── Dashboard Overview (v2.67.0) ────────────────────────────────────
+
+/** Dashboard overview data */
+export interface DashboardOverview {
+    version: string;
+    providers: Record<string, boolean>;
+    catalog: {
+        total: number;
+        ecommerce: number;
+        saas: number;
+        engagement: number;
+        with_ga4: number;
+        with_meta: number;
+        with_posthog: number;
+        with_plausible: number;
+    };
+    kpi: Record<string, unknown> | null;
+    health_score: Record<string, unknown> | null;
+    realtime: Record<string, unknown> | null;
+    alerts: unknown[];
+    metrics: {
+        dispatched: number;
+        failed: number;
+        filtered: number;
+        providers: Record<string, unknown>;
+    };
+}
+
+/** Fetch the analytics dashboard overview from the server */
+export function fetchDashboardOverview(): Promise<DashboardOverview | null>;

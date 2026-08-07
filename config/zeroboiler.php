@@ -1435,5 +1435,51 @@ return [
             'budget_threshold' => (int) env('ANALYTICS_PRIORITY_BUDGET_THRESHOLD', 5000),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Warehouse Export (ETL)
+        |-------------------------------------------------------------------------- 
+        |
+        | Export analytics events to NDJSON or CSV format for ingestion by
+        | data warehouses (Snowflake, BigQuery, Redshift, Databricks).
+        | Supports configurable field selection, category/event filtering,
+        | and date range filtering.
+        |
+        | NDJSON (default): Newline-delimited JSON, one event per line.
+        | Compatible with BigQuery load jobs, Snowflake COPY INTO, and AWS Athena.
+        |
+        | CSV: Comma-separated with optional headers.
+        | Compatible with Redshift COPY, Snowflake, and traditional ETL tools.
+        |
+        */
+        'data_warehouse' => [
+            'enabled' => env('ANALYTICS_DATA_WAREHOUSE_ENABLED', false),
+            'format' => env('ANALYTICS_DATA_WAREHOUSE_FORMAT', 'ndjson'), // ndjson, csv
+            'output_path' => env('ANALYTICS_DATA_WAREHOUSE_PATH', storage_path('app/analytics/exports')),
+            'include_fields' => [], // Empty = include all fields
+            'include_headers' => env('ANALYTICS_DATA_WAREHOUSE_HEADERS', true),
+            'null_value' => env('ANALYTICS_DATA_WAREHOUSE_NULL_VALUE', ''),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Property Schema Validation
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, events dispatched through the API are validated against
+        | registered property schemas. Validates type, required, enum, format,
+        | and range constraints. Invalid events are rejected with descriptive errors.
+        |
+        | Built-in schemas cover core e-commerce, SaaS, and engagement events.
+        | Custom schemas can be added via EventPropertySchema::defineEventSchema().
+        |
+        */
+        'property_schema' => [
+            'enabled' => env('ANALYTICS_PROPERTY_SCHEMA_ENABLED', false),
+            'reject_invalid' => env('ANALYTICS_PROPERTY_SCHEMA_REJECT', true),
+            'log_violations' => env('ANALYTICS_PROPERTY_SCHEMA_LOG', true),
+            'register_builtins' => env('ANALYTICS_PROPERTY_SCHEMA_BUILTINS', true),
+        ],
+
     ],
 ];

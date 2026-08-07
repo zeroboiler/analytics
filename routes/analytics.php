@@ -166,4 +166,10 @@ Route::prefix('analytics')->group(function () {
     Route::get('conversion/funnel', [AnalyticsEventController::class, 'conversionFunnel']);
     Route::get('conversion/activation/{userId}', [AnalyticsEventController::class, 'conversionActivationScore']);
     Route::get('conversion/time-to-convert', [AnalyticsEventController::class, 'conversionTimeToConvert']);
+
+    // Data Warehouse Export (v2.67.0)
+    Route::post('export/warehouse', [AnalyticsEventController::class, 'exportWarehouse']);
+
+    // Dashboard Overview (v2.67.0)
+    Route::get('dashboard', [AnalyticsEventController::class, 'dashboardOverview']);
 });

@@ -79,6 +79,9 @@ use ZeroBoiler\Analytics\Services\EventReportingService;
 use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
 use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Services\RealTimeAggregationService;
+use ZeroBoiler\Analytics\Services\DataWarehouseExportService;
+use ZeroBoiler\Analytics\Schema\EventPropertySchema;
+use ZeroBoiler\Analytics\Services\AnalyticsDashboardDataProvider;
 use ZeroBoiler\Analytics\Services\ABTestAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsSnapshotService;
 use ZeroBoiler\Analytics\Services\SaasKpiTracker;
@@ -978,6 +981,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSConversionService($manager, $cache, $config);
+        });
+
+        // Data warehouse export service (v2.67.0)
+        $this->app->singleton(DataWarehouseExportService::class, function (Application $app): DataWarehouseExportService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DataWarehouseExportService($config);
+        });
+
+        // Event property schema validation service (v2.67.0)
+        $this->app->singleton(EventPropertySchema::class, function (Application $app): EventPropertySchema {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $schemaConfig = $config->get('zeroboiler.analytics.property_schema', []);
+            /** @var array{enabled?: bool, register_builtins?: bool} $schemaConfig */
+
+            $schema = new EventPropertySchema();
+
+            if ((bool) ($schemaConfig['register_builtins'] ?? true)) {
+                $schema->registerBuiltInSchemas();
+            }
+
+            return $schema;
+        });
+
+        // Analytics dashboard data provider (v2.67.0)
+        $this->app->singleton(AnalyticsDashboardDataProvider::class, function (Application $app): AnalyticsDashboardDataProvider {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new AnalyticsDashboardDataProvider($manager);
         });
     }
 

@@ -2,6 +2,24 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.67.0] - 2026-08-07
+
+### Added
+- **DataWarehouseExportService** — ETL export service for NDJSON and CSV formats. Supports filtering by category, event name, and date range. Compatible with Snowflake COPY INTO, BigQuery load jobs, Redshift COPY, and AWS Athena. Methods: `addEvent()`, `addEvents()`, `filterByCategory()`, `filterByEvent()`, `filterFrom()`, `filterTo()`, `exportToString()`, `exportToFile()`, `summary()`, `clear()`. Registered as singleton.
+- **EventPropertySchema** — Runtime type-safe property validation per event. Validates type (string/int/float/bool/array), required/optional, enum constraints, format (email/url/currency/uuid/iso_date), range (min/max). Built-in schemas for purchase, view_item, add_to_cart, sign_up, trial_start, subscription, plan_upgrade, cancellation, page_view, click, form_submit, search, error. Custom schema registration via `defineProperty()` and `defineGlobalRule()`.
+- **AnalyticsDashboardDataProvider** — Unified health dashboard aggregation. Returns provider status, event catalog summary, KPI metrics, health score, real-time stats, and active alerts in a single `overview()` call. Public-safe `publicOverview()` strips sensitive data.
+- **JS First-Touch UTM Cookie Persistence** — Cross-session attribution via 365-day cookie. Unlike `captureUTM()` (sessionStorage), `persistFirstTouchUTM()` writes to `zb_first_touch_utm` cookie. New exports: `getFirstTouchUTM()`, `getAttributionContext()`, `clearFirstTouchUTM()`. Auto-called during `init()`.
+- **JS Data Warehouse Export Helper** — `exportToDataWarehouse()` triggers server-side NDJSON/CSV export via `POST /api/analytics/export/warehouse`.
+- **JS Dashboard Helper** — `fetchDashboardOverview()` fetches unified dashboard data via `GET /api/analytics/dashboard`.
+- **TypeScript definitions** — New interfaces: `FirstTouchUTM`, `AttributionContext`, `DataWarehouseExportOptions`, `DataWarehouseExportResult`, `DashboardOverview`.
+- **Config sections** — `data_warehouse` (format, output_path, include_fields, include_headers, null_value) and `property_schema` (enabled, reject_invalid, log_violations, register_builtins).
+- **2 new API routes** — `POST /api/analytics/export/warehouse`, `GET /api/analytics/dashboard`.
+- **2 new controller endpoints** — `exportWarehouse()` with date range and category/event filtering, `dashboardOverview()` for unified dashboard data.
+- **V67DataWarehouseSchemaDashboardTest** — 35+ test cases covering DataWarehouseExportService (12), EventPropertySchema (16), AnalyticsDashboardDataProvider (6), and version consistency (2).
+
+### Changed
+- Version 2.66.0 → 2.67.0 across all codebase files (AnalyticsManager, composer.json, JS client, TS definitions, controller endpoints)
+
 ## [2.66.0] - 2026-08-07
 
 ### Added
