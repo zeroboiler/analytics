@@ -18,7 +18,6 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 beforeEach(function (): void {
     // Reset the static catalog cache between tests
     $ref = new ReflectionProperty(EngagementEvents::class, 'catalog');
-    $ref->setAccessible(true);
     $ref->setValue(null, []);
 });
 

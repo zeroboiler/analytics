@@ -15,17 +15,17 @@ beforeEach(function (): void {
     // Reset static catalogs for clean state
     $ref = new ReflectionClass(EcommerceEvents::class);
     $prop = $ref->getProperty('catalog');
-    $prop->setAccessible(true);
+    
     $prop->setValue(null);
 
     $ref = new ReflectionClass(SaaSEvents::class);
     $prop = $ref->getProperty('catalog');
-    $prop->setAccessible(true);
+    
     $prop->setValue(null);
 
     $ref = new ReflectionClass(EngagementEvents::class);
     $prop = $ref->getProperty('catalog');
-    $prop->setAccessible(true);
+    
     $prop->setValue(null);
 });
 

@@ -215,7 +215,6 @@ describe('v2.1 — AnalyticsEventController', function () {
 
             // Use reflection to access private method
             $method = new \ReflectionMethod($controller, 'validateEventName');
-            $method->setAccessible(true);
 
             $result = $method->invoke($controller, 'page_view');
             expect($result['valid'])->toBeTrue();
@@ -237,7 +236,6 @@ describe('v2.1 — AnalyticsEventController', function () {
             $controller = new AnalyticsEventController($manager, $config);
 
             $method = new \ReflectionMethod($controller, 'validateEventName');
-            $method->setAccessible(true);
 
             $result = $method->invoke($controller, 'PageView');
             expect($result['valid'])->toBeFalse();
@@ -259,7 +257,6 @@ describe('v2.1 — AnalyticsEventController', function () {
             $controller = new AnalyticsEventController($manager, $config);
 
             $method = new \ReflectionMethod($controller, 'validateEventName');
-            $method->setAccessible(true);
 
             $result = $method->invoke($controller, '123event');
             expect($result['valid'])->toBeFalse();

@@ -4,6 +4,11 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.36.0] - 2026-08-07
+
+### Fixed
+- Removed deprecated `setAccessible(true)` calls in test files (PHP 8.5 compliance)
+
 ### Added
 - **TypeScript type definitions** — `resources/js/analytics.d.ts` with full IntelliSense/auto-complete support for all 50+ exported functions. Covers ZbAnalyticsConfig, ConsentSignals, TrackLinksConfig, DeviceContext, AutoTrackConfig, PerformanceConfig, AnalyticsEvent, EventCatalog, Ga4Item, EcommerceData, PromotionData, ScreenViewOptions, SessionState, and all exported function signatures. Extends `@inertiajs/core` PageProps interface with `zbAnalytics` property.
 - **`flushPendingOnUnload()`** — Uses `navigator.sendBeacon()` to reliably flush batched events on page unload/navigate-away. Prevents data loss when users close tabs or navigate during the 5-second flush interval. Automatically registered in `init()` and cleaned up in `destroy()`.

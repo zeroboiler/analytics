@@ -76,7 +76,6 @@ describe('v2.1 — HandleInertiaAnalytics middleware', function () {
         // Use reflection to test private method
         $middleware = new HandleInertiaAnalytics($manager, $config);
         $method = new \ReflectionMethod($middleware, 'isAnyProviderEnabled');
-        $method->setAccessible(true);
 
         expect($method->invoke($middleware))->toBeTrue();
     });
@@ -107,7 +106,6 @@ describe('v2.1 — HandleInertiaAnalytics middleware', function () {
         $middleware = new HandleInertiaAnalytics($manager, $config);
 
         $method = new \ReflectionMethod($middleware, 'isAnyProviderEnabled');
-        $method->setAccessible(true);
 
         expect($method->invoke($middleware))->toBeFalse();
     });
@@ -134,7 +132,6 @@ describe('v2.1 — HandleInertiaAnalytics middleware', function () {
         $middleware = new HandleInertiaAnalytics($manager, $config);
 
         $method = new \ReflectionMethod($middleware, 'generateTrackingId');
-        $method->setAccessible(true);
 
         $id = $method->invoke($middleware);
 
