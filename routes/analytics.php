@@ -111,4 +111,23 @@ Route::prefix('analytics')->group(function () {
     Route::post('identify', [AnalyticsEventController::class, 'identify']);
     Route::post('pageview', [AnalyticsEventController::class, 'pageview']);
     Route::post('consent', [AnalyticsEventController::class, 'updateConsent']);
+
+    // Event Buckets (time-binned aggregation)
+    Route::get('buckets', [AnalyticsEventController::class, 'eventBucketList']);
+    Route::get('buckets/{series}', [AnalyticsEventController::class, 'eventBuckets']);
+    Route::get('buckets/{series}/summary', [AnalyticsEventController::class, 'eventBucketSummary']);
+    Route::get('buckets/{seriesA}/compare/{seriesB}', [AnalyticsEventController::class, 'eventBucketCompare']);
+
+    // SaaS Health Score
+    Route::get('health-score', [AnalyticsEventController::class, 'healthScore']);
+    Route::post('health-score/calculate', [AnalyticsEventController::class, 'healthScoreCalculate']);
+    Route::get('health-score/history', [AnalyticsEventController::class, 'healthScoreHistory']);
+
+    // User Journey Timeline
+    Route::get('journeys/stats', [AnalyticsEventController::class, 'journeyStats']);
+    Route::get('journeys/patterns', [AnalyticsEventController::class, 'journeyPatterns']);
+    Route::get('journeys/drop-offs', [AnalyticsEventController::class, 'journeyDropOffs']);
+    Route::get('journeys/search', [AnalyticsEventController::class, 'journeySearch']);
+    Route::post('journeys/funnel', [AnalyticsEventController::class, 'journeyFunnel']);
+    Route::get('journeys/{journeyId}', [AnalyticsEventController::class, 'journeyTimeline']);
 });

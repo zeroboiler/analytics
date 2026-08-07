@@ -1111,5 +1111,44 @@ return [
             'prefix' => env('ANALYTICS_EVENT_CACHE_PREFIX', 'zb_analytics_'),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Buckets (Time-Binned Aggregation)
+        |-------------------------------------------------------------------------- 
+        |
+        | Aggregates events into configurable time buckets (minute, hour, day, week,
+        | month) for chart rendering, trend analysis, and dashboard widgets.
+        | Each bucket tracks event counts, unique users/clients, values, and per-event
+        | breakdowns. Supports multiple concurrent series and cross-series comparison.
+        |
+        */
+        'event_buckets' => [
+            'enabled' => env('ANALYTICS_EVENT_BUCKETS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_EVENT_BUCKETS_CACHE_TTL', 86400),
+            'max_series' => (int) env('ANALYTICS_EVENT_BUCKETS_MAX_SERIES', 50),
+            'max_buckets_per_series' => (int) env('ANALYTICS_EVENT_BUCKETS_MAX_PER_SERIES', 1000),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | SaaS Health Score
+        |-------------------------------------------------------------------------- 
+        |
+        | Computes a composite health score (0-100) from multiple SaaS KPIs:
+        | engagement, revenue, conversion, and retention. Scores are graded A-F
+        | and tracked over time for trend visualization.
+        |
+        */
+        'health_score' => [
+            'enabled' => env('ANALYTICS_HEALTH_SCORE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_HEALTH_SCORE_CACHE_TTL', 86400),
+            'weights' => [
+                'engagement' => 0.25,
+                'revenue' => 0.30,
+                'conversion' => 0.25,
+                'retention' => 0.20,
+            ],
+        ],
+
     ],
 ];

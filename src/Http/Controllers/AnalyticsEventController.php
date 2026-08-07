@@ -50,6 +50,9 @@ use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Services\EventExporterService;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
+use ZeroBoiler\Analytics\Services\EventBucketsService;
+use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
+use ZeroBoiler\Analytics\Services\UserJourneyService;
 
 /**
  * API controller for frontend event tracking.
@@ -135,6 +138,12 @@ final class AnalyticsEventController extends Controller
 
     private ?EventTaxonomyService $taxonomyService;
 
+    private ?EventBucketsService $bucketsService;
+
+    private ?SaaSHealthScoreService $healthScoreService;
+
+    private ?UserJourneyService $journeyService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -187,6 +196,9 @@ final class AnalyticsEventController extends Controller
         ?PerformanceBudgetService $performanceBudgetService = null,
         ?UTMAttributionService $attributionService = null,
         ?EventTaxonomyService $taxonomyService = null,
+        ?EventBucketsService $bucketsService = null,
+        ?SaaSHealthScoreService $healthScoreService = null,
+        ?UserJourneyService $journeyService = null,
     ): void {
         $this->manager = $manager;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -221,6 +233,9 @@ final class AnalyticsEventController extends Controller
         $this->performanceBudgetService = $performanceBudgetService;
         $this->attributionService = $attributionService;
         $this->taxonomyService = $taxonomyService;
+        $this->bucketsService = $bucketsService;
+        $this->healthScoreService = $healthScoreService;
+        $this->journeyService = $journeyService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -2438,6 +2453,371 @@ final class AnalyticsEventController extends Controller
             'status' => 'ok',
             'version' => '2.54.0',
             'data' => $this->taxonomyService->eventsGroupedByTag(),
+        ]);
+    }
+
+    // ── Event Buckets (Time-Binned Aggregation) ───────────────────
+
+    /**
+     * Get time-binned event aggregation for a series.
+     *
+     * GET /api/analytics/buckets/{series}?granularity=hour&limit=24
+     *
+     * Returns event counts, unique users, and value totals binned by time.
+     */
+    public function eventBuckets(Request $request, string $series): JsonResponse
+    {
+        if ($this->bucketsService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Event buckets service not available',
+            ], 503);
+        }
+
+        $granularity = $request->query('granularity', 'hour');
+        $limit = min((int) $request->query('limit', 24), 1000);
+
+        $validGranularities = EventBucketsService::availableGranularities();
+        if (! in_array($granularity, $validGranularities, true)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid granularity. Use: ' . implode(', ', $validGranularities),
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'series' => $series,
+            'granularity' => $granularity,
+            'limit' => $limit,
+            'buckets' => $this->bucketsService->getBuckets($series, $granularity, $limit),
+        ]);
+    }
+
+    /**
+     * Get bucket series summary.
+     *
+     * GET /api/analytics/buckets/{series}/summary?granularity=hour&last=24
+     */
+    public function eventBucketSummary(Request $request, string $series): JsonResponse
+    {
+        if ($this->bucketsService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Event buckets service not available',
+            ], 503);
+        }
+
+        $granularity = $request->query('granularity', 'hour');
+        $last = min((int) $request->query('last', 24), 500);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'series' => $series,
+            'granularity' => $granularity,
+            'summary' => $this->bucketsService->summary($series, $granularity, $last),
+        ]);
+    }
+
+    /**
+     * Compare two bucket series.
+     *
+     * GET /api/analytics/buckets/{seriesA}/compare/{seriesB}?granularity=hour&limit=24
+     */
+    public function eventBucketCompare(Request $request, string $seriesA, string $seriesB): JsonResponse
+    {
+        if ($this->bucketsService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Event buckets service not available',
+            ], 503);
+        }
+
+        $granularity = $request->query('granularity', 'hour');
+        $limit = min((int) $request->query('limit', 24), 500);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'series_a' => $seriesA,
+            'series_b' => $seriesB,
+            'granularity' => $granularity,
+            'comparison' => $this->bucketsService->compare($seriesA, $seriesB, $granularity, $limit),
+        ]);
+    }
+
+    /**
+     * List all registered bucket series.
+     *
+     * GET /api/analytics/buckets
+     */
+    public function eventBucketList(): JsonResponse
+    {
+        if ($this->bucketsService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Event buckets service not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'series' => $this->bucketsService->seriesList(),
+            'granularities' => EventBucketsService::availableGranularities(),
+        ]);
+    }
+
+    // ── SaaS Health Score ─────────────────────────────────────────
+
+    /**
+     * Get the current SaaS health score.
+     *
+     * GET /api/analytics/health-score
+     *
+     * Returns overall score (0-100) with sub-scores for engagement,
+     * revenue, conversion, and retention dimensions.
+     */
+    public function healthScore(): JsonResponse
+    {
+        if ($this->healthScoreService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Health score service not available',
+            ], 503);
+        }
+
+        $cached = $this->healthScoreService->current();
+
+        if ($cached !== null) {
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.55.0',
+                'source' => 'cached',
+                ...$cached,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'source' => 'calculated',
+            ...$this->healthScoreService->calculate(),
+        ]);
+    }
+
+    /**
+     * Force-recalculate and return the health score.
+     *
+     * POST /api/analytics/health-score/calculate
+     */
+    public function healthScoreCalculate(): JsonResponse
+    {
+        if ($this->healthScoreService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Health score service not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'source' => 'calculated',
+            ...$this->healthScoreService->calculate(),
+        ]);
+    }
+
+    /**
+     * Get health score history for trend visualization.
+     *
+     * GET /api/analytics/health-score/history?limit=30
+     */
+    public function healthScoreHistory(Request $request): JsonResponse
+    {
+        if ($this->healthScoreService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Health score service not available',
+            ], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 30), 90);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'limit' => $limit,
+            'history' => $this->healthScoreService->history($limit),
+        ]);
+    }
+
+    // ── User Journey Timeline ────────────────────────────────────
+
+    /**
+     * Get a specific user journey timeline.
+     *
+     * GET /api/analytics/journeys/{journeyId}
+     *
+     * Returns full journey with steps, sequence, page flow, and duration.
+     */
+    public function journeyTimeline(string $journeyId): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        $journey = $this->journeyService->getJourney($journeyId);
+
+        if ($journey === null) {
+            return response()->json([
+                'status' => 'not_found',
+                'message' => 'Journey not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'journey' => $journey,
+            'page_flow' => $this->journeyService->getPageFlow($journeyId),
+        ]);
+    }
+
+    /**
+     * Get journey statistics across all tracked journeys.
+     *
+     * GET /api/analytics/journeys/stats
+     */
+    public function journeyStats(): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'stats' => $this->journeyService->getStats(),
+        ]);
+    }
+
+    /**
+     * Get most common journey patterns.
+     *
+     * GET /api/analytics/journeys/patterns?steps=0&limit=20
+     */
+    public function journeyPatterns(Request $request): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        $steps = (int) $request->query('steps', 0);
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'patterns' => $this->journeyService->mostCommonPatterns($steps, $limit),
+        ]);
+    }
+
+    /**
+     * Get drop-off points across all journeys.
+     *
+     * GET /api/analytics/journeys/drop-offs?limit=20
+     */
+    public function journeyDropOffs(Request $request): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        $limit = min((int) $request->query('limit', 20), 100);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'drop_offs' => $this->journeyService->dropOffPoints($limit),
+        ]);
+    }
+
+    /**
+     * Search for journeys matching a pattern.
+     *
+     * GET /api/analytics/journeys/search?pattern=page_view+%E2%86%92+*+purchase&limit=50
+     */
+    public function journeySearch(Request $request): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        $pattern = $request->query('pattern', '');
+        $limit = min((int) $request->query('limit', 50), 200);
+
+        if ($pattern === '') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Pattern parameter is required',
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'pattern' => $pattern,
+            'matches' => $this->journeyService->findMatchingJourneys($pattern, $limit),
+            'count' => count($this->journeyService->findMatchingJourneys($pattern, $limit)),
+        ]);
+    }
+
+    /**
+     * Get funnel conversion within journeys.
+     *
+     * POST /api/analytics/journeys/funnel
+     *
+     * Body: { "steps": ["page_view", "add_to_cart", "purchase"] }
+     */
+    public function journeyFunnel(Request $request): JsonResponse
+    {
+        if ($this->journeyService === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Journey service not available',
+            ], 503);
+        }
+
+        $request->validate([
+            'steps' => 'required|array|min:2|max:20',
+            'steps.*' => 'string',
+        ]);
+
+        $steps = $request->input('steps', []);
+        $steps = is_array($steps) ? $steps : [];
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.55.0',
+            'funnel' => $this->journeyService->funnelConversion($steps),
         ]);
     }
 }

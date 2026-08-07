@@ -88,6 +88,8 @@ use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
 use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
+use ZeroBoiler\Analytics\Services\EventBucketsService;
+use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -840,6 +842,28 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventCacheService($cache, $config);
+        });
+
+        // Event buckets service — time-binned event aggregation for dashboards
+        $this->app->singleton(EventBucketsService::class, function (Application $app): EventBucketsService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventBucketsService($cache, $config);
+        });
+
+        // SaaS health score service — composite health scoring from KPIs
+        $this->app->singleton(SaaSHealthScoreService::class, function (Application $app): SaaSHealthScoreService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var SaasKpiTracker $kpiTracker */
+            $kpiTracker = $app->make(SaasKpiTracker::class);
+
+            return new SaaSHealthScoreService($cache, $config, $kpiTracker);
         });
     }
 

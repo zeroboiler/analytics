@@ -152,6 +152,19 @@ Done. That's it.
 - `GET /api/analytics/correlation/transitions` — Top event transitions
 - `GET /api/analytics/correlation/predict` — Next-event prediction
 - `GET /api/analytics/correlation/summary` — Correlation analysis summary
+- `GET /api/analytics/buckets` — List all event bucket series
+- `GET /api/analytics/buckets/{series}` — Get time-binned event aggregation (granularity=minute|hour|day|week|month)
+- `GET /api/analytics/buckets/{series}/summary` — Bucket series summary with top events
+- `GET /api/analytics/buckets/{seriesA}/compare/{seriesB}` — Compare two bucket series side-by-side
+- `GET /api/analytics/health-score` — Get current SaaS health score (0–100, A–F grade)
+- `POST /api/analytics/health-score/calculate` — Force-recalculate health score
+- `GET /api/analytics/health-score/history` — Health score trend history
+- `GET /api/analytics/journeys/stats` — Journey statistics across all tracked journeys
+- `GET /api/analytics/journeys/patterns` — Most common journey patterns
+- `GET /api/analytics/journeys/drop-offs` — Drop-off points analysis
+- `GET /api/analytics/journeys/search?pattern=...` — Find journeys matching a pattern
+- `POST /api/analytics/journeys/funnel` — Funnel conversion within journeys
+- `GET /api/analytics/journeys/{id}` — Full journey timeline with page flow
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -236,6 +249,8 @@ Done. That's it.
 - **A/B Test Analytics** — Experiment tracking with exposure, conversion, and result analysis
 - **Analytics Snapshots** — Daily/hourly snapshots with day-over-day comparison
 - **SaaS KPI Tracker** — MRR, churn rate, trial conversion, ARPU, and LTV tracking
+- **Event Buckets** — Time-binned aggregation (minute/hour/day/week/month) for chart rendering and dashboard widgets, per-event breakdowns, unique user counting, cross-series comparison
+- **SaaS Health Score** — Composite 0–100 score with A–F grading across 4 dimensions (engagement, revenue, conversion, retention), sub-score breakdowns, historical trend tracking
 - **UTM Aggregation** — Source/campaign breakdown and top UTM analytics
 - **SaasKpiTracker** — Comprehensive SaaS metrics tracking with KPI history
 - **Event Correlation** — Pattern detection, transition analysis, and next-event prediction
@@ -310,6 +325,8 @@ src/
 │   ├── ConsentLogService.php          # GDPR consent audit trail & DSAR export
 │   ├── EventAliasResolver.php         # Event name alias resolution (100+ built-in aliases)
 │   ├── EventCacheService.php          # L1 memory + L2 cache for event lookups
+│   ├── EventBucketsService.php        # Time-binned event aggregation (minute/day/week/month)
+│   └── SaaSHealthScoreService.php     # Composite SaaS health score (0-100, A-F grading)
 ├── Tracking/
 │   ├── ServerSideTracker.php       # Auto-track Laravel auth events + custom app events
 │   ├── UserIdentityTracker.php     # User ↔ client linking (login, register, logout)
