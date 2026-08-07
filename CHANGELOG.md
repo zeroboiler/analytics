@@ -2,6 +2,23 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.41.0] - 2026-08-07
+
+### Added
+- **Account Lifecycle Events**: `AccountActivatedEvent`, `AccountDeactivatedEvent`, `PasswordChangedEvent`, `PasswordResetEvent`, `ProfileUpdatedEvent`, `EmailVerifiedEvent` — 6 new typed event classes for SaaS account management tracking
+- **B2B / Team Events**: `TeamCreatedEvent`, `TeamMemberJoinedEvent`, `TeamMemberRemovedEvent`, `RoleChangedEvent` — 4 new typed event classes for multi-tenant SaaS collaboration tracking
+- **Billing Events**: `PaymentFailedEvent`, `PaymentSucceededEvent`, `PaymentMethodAddedEvent`, `InvoiceGeneratedEvent`, `CreditAppliedEvent` — 5 new typed event classes for payment and billing lifecycle tracking
+- `ConsentLogService` — granular GDPR consent tracking with audit trail, per-purpose consent management, DSAR export, and cache-backed history
+- `consent.purposes` config section (necessary, analytics, marketing, functional) with required/default flags for consent banners
+- `consent.log_enabled` and `consent.log_ttl` config options for consent audit logging
+- `AnalyticsConfig::consentPurposes()`, `consentLogEnabled()`, `consentLogTtl()` accessors
+- Inertia middleware `consentPurposes` prop exposure for frontend consent banner integration
+- Full PostHog event name mappings for all 15 new events
+- SaaS event catalog expanded from 20 → 35 events
+
+### Changed
+- Version consistency bump to 2.41.0 across AnalyticsManager, 26 controller endpoints, JS client, TS definitions, EventSourceTagger, and 18 test files
+
 ## [2.40.0] - 2026-08-07
 
 ### Added

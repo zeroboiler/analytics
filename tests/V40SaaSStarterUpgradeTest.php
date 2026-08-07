@@ -20,31 +20,31 @@ beforeEach(function (): void {
 
 // ── Version Consistency ─────────────────────────────────────────────
 
-describe('v2.40.0 Version Consistency', function (): void {
-    test('version is 2.40.0 in AnalyticsManager', function (): void {
+describe('v2.41.0 Version Consistency', function (): void {
+    test('version is 2.41.0 in AnalyticsManager', function (): void {
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager(null);
-        expect($manager->version())->toBe('2.40.0');
+        expect($manager->version())->toBe('2.41.0');
     });
 
-    test('version is 2.40.0 in composer.json', function (): void {
+    test('version is 2.41.0 in composer.json', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.40.0');
+        expect($composer['version'])->toBe('2.41.0');
     });
 
-    test('version is 2.40.0 in JS client', function (): void {
+    test('version is 2.41.0 in JS client', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'2.40.0'");
-        expect($js)->toContain('@version 2.40.0');
+        expect($js)->toContain("'2.41.0'");
+        expect($js)->toContain('@version 2.41.0');
     });
 
-    test('version is 2.40.0 in TypeScript definitions', function (): void {
+    test('version is 2.41.0 in TypeScript definitions', function (): void {
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect($dts)->toContain('2.40.0');
+        expect($dts)->toContain('2.41.0');
     });
 
-    test('version is 2.40.0 in controller catalog endpoint', function (): void {
+    test('version is 2.41.0 in controller catalog endpoint', function (): void {
         $controller = file_get_contents(__DIR__ . '/../src/Http/Controllers/AnalyticsEventController.php');
-        $count = substr_count($controller, "'version' => '2.40.0'");
+        $count = substr_count($controller, "'version' => '2.41.0'");
         expect($count)->toBeGreaterThan(0);
     });
 });
@@ -64,7 +64,7 @@ describe('ServerSideTracker subscription.renewal mapping', function (): void {
 
 // ── Config Expansion ──────────────────────────────────────────────────
 
-describe('v2.40.0 Config Expansion', function (): void {
+describe('v2.41.0 Config Expansion', function (): void {
     test('ecommerce.shipping_default config exists', function (): void {
         $configArray = require __DIR__ . '/../config/zeroboiler.php';
         expect(isset($configArray['analytics']['ecommerce']['shipping_default']))->toBeTrue();
@@ -87,7 +87,7 @@ describe('v2.40.0 Config Expansion', function (): void {
 
 // ── AnalyticsConfig New Accessors ────────────────────────────────────
 
-describe('AnalyticsConfig v2.40.0 accessors', function (): void {
+describe('AnalyticsConfig v2.41.0 accessors', function (): void {
     test('ecommerceShippingDefault returns float', function (): void {
         $config = new AnalyticsConfig($this->config);
         $this->config->shouldReceive('get')

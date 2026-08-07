@@ -165,6 +165,24 @@ final class EventTransformer
             'error' => '$error',
             'form_submit' => 'form_submitted',
             'search' => '$search',
+            // Account lifecycle events
+            'account_activated' => 'account_activated',
+            'account_deactivated' => 'account_deactivated',
+            'password_changed' => 'password_changed',
+            'password_reset' => 'password_reset',
+            'profile_updated' => 'profile_updated',
+            'email_verified' => 'email_verified',
+            // B2B / Team events
+            'team_created' => 'team_created',
+            'team_member_joined' => 'team_member_joined',
+            'team_member_removed' => 'team_member_removed',
+            'role_changed' => 'role_changed',
+            // Billing events
+            'payment_failed' => 'payment_failed',
+            'payment_succeeded' => 'payment_succeeded',
+            'payment_method_added' => 'payment_method_added',
+            'invoice_generated' => 'invoice_generated',
+            'credit_applied' => 'credit_applied',
         ];
     }
 

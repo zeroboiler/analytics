@@ -106,6 +106,28 @@ final class AnalyticsConfig
         return $this->consentDefault() === 'denied';
     }
 
+    /**
+     * Get consent purposes configuration.
+     *
+     * @return array<string, array{label: string, required: bool, default: bool}>
+     */
+    public function consentPurposes(): array
+    {
+        $purposes = $this->get('consent.purposes', []);
+
+        return is_array($purposes) ? $purposes : [];
+    }
+
+    public function consentLogEnabled(): bool
+    {
+        return (bool) $this->get('consent.log_enabled', false);
+    }
+
+    public function consentLogTtl(): int
+    {
+        return (int) $this->get('consent.log_ttl', 7776000);
+    }
+
     // ── Queue ────────────────────────────────────────────────────────────
 
     public function queueEnabled(): bool
@@ -1168,6 +1190,9 @@ final class AnalyticsConfig
             ],
             'consent' => [
                 'default' => $this->consentDefault(),
+                'purposes_count' => count($this->consentPurposes()),
+                'log_enabled' => $this->consentLogEnabled(),
+                'log_ttl' => $this->consentLogTtl(),
             ],
             'queue' => [
                 'enabled' => $this->queueEnabled(),

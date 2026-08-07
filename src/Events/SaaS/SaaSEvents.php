@@ -153,6 +153,99 @@ final class SaaSEvents
                 'ga4' => 'subscription_renewal',
                 'meta' => 'SubscriptionRenewal',
             ],
+            // Account lifecycle events
+            'account_activated' => [
+                'name' => 'account_activated',
+                'class' => AccountActivatedEvent::class,
+                'ga4' => 'account_activated',
+                'meta' => 'AccountActivated',
+            ],
+            'account_deactivated' => [
+                'name' => 'account_deactivated',
+                'class' => AccountDeactivatedEvent::class,
+                'ga4' => 'account_deactivated',
+                'meta' => 'AccountDeactivated',
+            ],
+            'password_changed' => [
+                'name' => 'password_changed',
+                'class' => PasswordChangedEvent::class,
+                'ga4' => 'password_changed',
+                'meta' => 'PasswordChanged',
+            ],
+            'password_reset' => [
+                'name' => 'password_reset',
+                'class' => PasswordResetEvent::class,
+                'ga4' => 'password_reset',
+                'meta' => 'PasswordReset',
+            ],
+            'profile_updated' => [
+                'name' => 'profile_updated',
+                'class' => ProfileUpdatedEvent::class,
+                'ga4' => 'profile_updated',
+                'meta' => 'ProfileUpdated',
+            ],
+            'email_verified' => [
+                'name' => 'email_verified',
+                'class' => EmailVerifiedEvent::class,
+                'ga4' => 'email_verified',
+                'meta' => 'EmailVerified',
+            ],
+            // B2B / Team events
+            'team_created' => [
+                'name' => 'team_created',
+                'class' => TeamCreatedEvent::class,
+                'ga4' => 'team_created',
+                'meta' => 'TeamCreated',
+            ],
+            'team_member_joined' => [
+                'name' => 'team_member_joined',
+                'class' => TeamMemberJoinedEvent::class,
+                'ga4' => 'team_member_joined',
+                'meta' => 'TeamMemberJoined',
+            ],
+            'team_member_removed' => [
+                'name' => 'team_member_removed',
+                'class' => TeamMemberRemovedEvent::class,
+                'ga4' => 'team_member_removed',
+                'meta' => 'TeamMemberRemoved',
+            ],
+            'role_changed' => [
+                'name' => 'role_changed',
+                'class' => RoleChangedEvent::class,
+                'ga4' => 'role_changed',
+                'meta' => 'RoleChanged',
+            ],
+            // Billing events
+            'payment_failed' => [
+                'name' => 'payment_failed',
+                'class' => PaymentFailedEvent::class,
+                'ga4' => 'payment_failed',
+                'meta' => 'PaymentFailed',
+            ],
+            'payment_succeeded' => [
+                'name' => 'payment_succeeded',
+                'class' => PaymentSucceededEvent::class,
+                'ga4' => 'payment_succeeded',
+                'meta' => 'PaymentSucceeded',
+            ],
+            'payment_method_added' => [
+                'name' => 'payment_method_added',
+                'class' => PaymentMethodAddedEvent::class,
+                'ga4' => 'payment_method_added',
+                'meta' => 'PaymentMethodAdded',
+            ],
+            'invoice_generated' => [
+                'name' => 'invoice_generated',
+                'class' => InvoiceGeneratedEvent::class,
+                'ga4' => 'invoice_generated',
+                'meta' => 'InvoiceGenerated',
+            ],
+            'credit_applied' => [
+                'name' => 'credit_applied',
+                'class' => CreditAppliedEvent::class,
+                'ga4' => 'credit_applied',
+                'meta' => 'CreditApplied',
+            ],
         ];
 
         return self::$catalog;

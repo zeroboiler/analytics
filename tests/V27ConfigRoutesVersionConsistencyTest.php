@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\AnalyticsServiceProvider;
 describe('V2.27 Version Consistency', function () {
     it('AnalyticsManager::version() returns 2.27.0', function () {
         $manager = new AnalyticsManager;
-        expect($manager->version())->toBe('2.40.0');
+        expect($manager->version())->toBe('2.41.0');
     });
 
     it('Facade directDispatch return type is bool', function () {
@@ -39,13 +39,13 @@ describe('V2.27 Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('2.40.0');
+        expect($composer['version'])->toBe('2.41.0');
     });
 
     it('JS client version is 2.27.0', function () {
         $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-        expect($js)->toContain('@version 2.40.0');
-        expect($js)->toContain("'2.40.0'");
+        expect($js)->toContain('@version 2.41.0');
+        expect($js)->toContain("'2.41.0'");
     });
 
     it('JS client exports getVersion()', function () {
@@ -199,13 +199,13 @@ describe('V2.27 Controller Version Strings', function () {
     it('catalog endpoint returns version 2.27.0', function () {
         $controller = file_get_contents(__DIR__.'/../src/Http/Controllers/AnalyticsEventController.php');
         // The catalog method has the version
-        expect($controller)->toContain("'version' => '2.40.0'");
+        expect($controller)->toContain("'version' => '2.41.0'");
     });
 
     it('health endpoint returns version 2.35.0', function () {
         // Both catalog and health use the same version string now
         $controller = file_get_contents(__DIR__.'/../src/Http/Controllers/AnalyticsEventController.php');
-        $count = substr_count($controller, "'version' => '2.40.0'");
+        $count = substr_count($controller, "'version' => '2.41.0'");
         // catalog, health, stats = 3 occurrences
         expect($count)->toBeGreaterThanOrEqual(3);
     });

@@ -34,6 +34,23 @@ return [
         */
         'consent' => [
             'default' => env('ANALYTICS_CONSENT_DEFAULT', 'granted'),
+
+            /*
+            | Granular Consent Purposes (GDPR)
+            |
+            | Define consent purposes exposed to the frontend via Inertia props.
+            | 'necessary' is always granted and cannot be denied.
+            | Other purposes follow the 'default' setting above.
+            |
+            */
+            'purposes' => [
+                'necessary' => ['label' => 'Necessary', 'required' => true, 'default' => true],
+                'analytics' => ['label' => 'Analytics', 'required' => false, 'default' => true],
+                'marketing' => ['label' => 'Marketing', 'required' => false, 'default' => false],
+                'functional' => ['label' => 'Functional', 'required' => false, 'default' => true],
+            ],
+            'log_enabled' => env('ANALYTICS_CONSENT_LOG_ENABLED', false),
+            'log_ttl' => (int) env('ANALYTICS_CONSENT_LOG_TTL', 7776000), // 90 days
         ],
 
         /*

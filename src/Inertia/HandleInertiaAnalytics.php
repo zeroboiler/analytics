@@ -102,6 +102,18 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $analyticsProps['apiBase'] = $this->config->get('zeroboiler.analytics.api.base_url', '/api/analytics');
         $analyticsProps['apiEnabled'] = (bool) $this->config->get('zeroboiler.analytics.api.enabled', true);
 
+        // Consent purposes (granular GDPR consent for consent banners)
+        $consentPurposes = $this->config->get('zeroboiler.analytics.consent.purposes', []);
+        /** @var array<string, array{label: string, required: bool, default: bool}> $consentPurposes */
+        $analyticsProps['consentPurposes'] = [];
+        foreach ($consentPurposes as $key => $purpose) {
+            $analyticsProps['consentPurposes'][$key] = [
+                'label' => (string) ($purpose['label'] ?? $key),
+                'required' => (bool) ($purpose['required'] ?? false),
+                'default' => (bool) ($purpose['default'] ?? false),
+            ];
+        }
+
         // Debug mode (client-side should respect server debug setting)
         $debugConfig = $this->config->get('zeroboiler.analytics.debug', []);
         /** @var array{enabled?: bool} $debugConfig */
