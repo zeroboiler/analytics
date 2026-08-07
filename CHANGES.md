@@ -4,6 +4,22 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.50.0] - 2026-08-07
+
+### Added
+- **PostHog e-commerce format conversion** — `EcommerceFormatConverter::ga4ToPosthogProperties()`, `ga4ToPosthogPurchase()`, `ga4ToPosthogRefund()`, `buildPosthogPurchase()` for full GA4→PostHog item/transaction parameter transformation
+- **3-provider purchase builder** — `EcommerceFormatConverter::buildPurchaseEvent()` now supports `posthog` provider alongside `ga4` and `meta`
+- **PostHog catalog mapping table** — `EventCatalog::allPosthogMappings()` returns complete event→PostHog name mapping, `posthogNameFor()` for single lookups
+- **V50SaaSStarterIndustryStandardTest** — Comprehensive 10-section test suite validating event catalog completeness, cross-provider mappings, e-commerce format conversion, config structure, filesystem integrity, JS client exports, and source file metrics
+
+### Changed
+- Version bump to 2.50.0
+- `EventCatalog::allPosthogNames()` refactored to use shared `posthogNameFor()` method
+- `EcommerceFormatConverter::buildPurchaseEvent()` type union expanded to `'ga4'|'meta'|'posthog'`
+- JS client version string updated to 2.50.0
+- TypeScript definitions version updated to 2.50.0
+- All version consistency tests updated to 2.50.0
+
 ## [2.49.0] - 2026-08-07
 
 ### Added

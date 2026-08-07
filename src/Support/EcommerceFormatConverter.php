@@ -343,10 +343,136 @@ final class EcommerceFormatConverter
 
     // ── Cross-Provider Event Builder ─────────────────────────────────
 
+    // ── GA4 → PostHog Items Conversion ────────────────────────────────
+
+    /**
+     * Convert GA4 items array to PostHog properties format.
+     *
+     * PostHog uses `$items` property with a flat structure optimized for
+     * product analytics and cohort analysis.
+     *
+     * @param  array<int, array<string, mixed>>  $items  GA4-format items
+     * @return array{items: array<int, array<string, mixed>>, total_value: float, item_count: int}
+     */
+    public static function ga4ToPosthogProperties(array $items): array
+    {
+        $posthogItems = [];
+        $totalValue = 0.0;
+
+        foreach ($items as $item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 1);
+
+            $posthogItems[] = [
+                'sku' => (string) ($item['item_id'] ?? ''),
+                'name' => (string) ($item['item_name'] ?? ''),
+                'category' => (string) ($item['item_category'] ?? ''),
+                'price' => $price,
+                'quantity' => $quantity,
+                'variant' => (string) ($item['item_variant'] ?? ''),
+                'brand' => (string) ($item['item_brand'] ?? ''),
+            ];
+
+            $totalValue += $price * $quantity;
+        }
+
+        return [
+            'items' => $posthogItems,
+            'total_value' => $totalValue,
+            'item_count' => count($posthogItems),
+        ];
+    }
+
+    /**
+     * Convert GA4 purchase event params to PostHog 'purchase' event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  PostHog event properties
+     */
+    public static function ga4ToPosthogPurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $posthogItems = self::ga4ToPosthogProperties($items);
+
+        return array_merge($posthogItems, [
+            '$currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'value' => (float) ($ga4Params['value'] ?? $posthogItems['total_value']),
+            'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+            'coupon' => (string) ($ga4Params['coupon'] ?? ''),
+            'tax' => (float) ($ga4Params['tax'] ?? 0),
+            'shipping' => (float) ($ga4Params['shipping'] ?? 0),
+            'affiliation' => (string) ($ga4Params['affiliation'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Convert GA4 refund event params to PostHog event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  PostHog event properties
+     */
+    public static function ga4ToPosthogRefund(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $posthogItems = self::ga4ToPosthogProperties($items);
+
+        return array_merge($posthogItems, [
+            '$currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'value' => (float) ($ga4Params['value'] ?? $posthogItems['total_value']),
+            'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Build PostHog-formatted purchase properties from GA4-style items.
+     *
+     * @param  string  $transactionId  Transaction/order ID
+     * @param  float  $value  Total revenue
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  array<int, array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}>  $items  Line items
+     * @param  array{coupon?: string, tax?: float, shipping?: float, affiliation?: string}  $options  Optional params
+     * @return array<string, mixed>  PostHog event properties
+     */
+    public static function buildPosthogPurchase(
+        string $transactionId,
+        float $value,
+        string $currency,
+        array $items,
+        array $options = [],
+    ): array
+    {
+        $posthogItems = self::ga4ToPosthogProperties($items);
+
+        $props = array_merge($posthogItems, [
+            '$currency' => $currency,
+            'value' => $value,
+            'transaction_id' => $transactionId,
+        ]);
+
+        if (isset($options['coupon'])) {
+            $props['coupon'] = (string) $options['coupon'];
+        }
+        if (isset($options['tax'])) {
+            $props['tax'] = (float) $options['tax'];
+        }
+        if (isset($options['shipping'])) {
+            $props['shipping'] = (float) $options['shipping'];
+        }
+        if (isset($options['affiliation'])) {
+            $props['affiliation'] = (string) $options['affiliation'];
+        }
+
+        return $props;
+    }
+
     /**
      * Build a purchase event optimized for a specific provider.
      *
-     * @param  'ga4'|'meta'  $provider  Target provider
+     * Supports GA4, Meta Pixel, and PostHog output formats.
+     *
+     * @param  'ga4'|'meta'|'posthog'  $provider  Target provider
      * @param  string  $transactionId  Transaction ID
      * @param  float  $value  Revenue
      * @param  string  $currency  Currency code
@@ -376,14 +502,24 @@ final class EcommerceFormatConverter
                 ),
                 $extraParams,
             ),
+            'posthog' => array_merge(
+                self::buildPosthogPurchase($transactionId, $value, $currency, $items, $extraParams),
+                $extraParams,
+            ),
             default => array_merge(
                 self::buildGa4Purchase($transactionId, $value, $currency, $items),
                 $extraParams,
             ),
         };
 
+        $eventName = match ($provider) {
+            'meta' => 'Purchase',
+            'posthog' => 'purchase',
+            default => 'purchase',
+        };
+
         return new AnalyticsEvent(
-            name: $provider === 'meta' ? 'Purchase' : 'purchase',
+            name: $eventName,
             params: $params,
         );
     }

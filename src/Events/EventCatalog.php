@@ -149,14 +149,45 @@ final class EventCatalog
      */
     public static function allPosthogNames(): array
     {
+        return array_values(array_unique(
+            array_map(
+                fn (string $name): string => self::posthogNameFor($name),
+                self::names(),
+            ),
+        ));
+    }
+
+    /**
+     * Get the complete event → PostHog mapping table.
+     *
+     * Returns an associative array mapping every catalog event name to its
+     * PostHog equivalent. Useful for documentation, debugging, and
+     * building custom PostHog event dispatchers.
+     *
+     * @return array<string, string>
+     */
+    public static function allPosthogMappings(): array
+    {
         $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
-        $names = [];
+        $mappings = [];
 
         foreach (self::names() as $name) {
-            $names[] = $posthogMap[$name] ?? $name;
+            $mappings[$name] = $posthogMap[$name] ?? $name;
         }
 
-        return array_values(array_unique($names));
+        return $mappings;
+    }
+
+    /**
+     * Get the PostHog event name for a given catalog event name.
+     *
+     * @return string PostHog event name (may include $ prefix for reserved events)
+     */
+    public static function posthogNameFor(string $name): string
+    {
+        $posthogMap = \ZeroBoiler\Analytics\Support\EventTransformer::saasToPosthogEventMap();
+
+        return $posthogMap[$name] ?? $name;
     }
 
     /**
