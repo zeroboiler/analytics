@@ -4,6 +4,28 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.57.0] - 2026-08-07
+
+### Added
+- **Event Schema Validation API** — 4 new REST endpoints for schema registry access: `GET /api/analytics/schemas` (all schemas with optional ?category filter and ?compact mode), `GET /api/analytics/schemas/summary` (category counts, parameter type distribution, avg params/event), `GET /api/analytics/schemas/{eventName}` (single schema with parameter type/maxLength details), `POST /api/analytics/schemas/validate` (validate event payload against schema with optional ?sanitize=1). All endpoints expose the existing EventSchemaRegistry via JSON API for client-side validation, documentation generation, and admin dashboards.
+- **AnalyticsScheduledReportCommand** — Artisan command (`analytics:report:schedule`) for generating periodic analytics reports via Laravel Scheduler. Supports `--period` (hourly/daily/weekly/monthly), `--format` (json/table), `--output` (write to disk), and `--all` (all periods). Table format displays top events, provider breakdown, and key metrics. Designed for cron-based or scheduled delivery.
+- **Config: `scheduled_reports`** — New config section with `enabled`, `output_path`, `auto_archive`, and `archive_days` settings. Example scheduler integration documented in config comments.
+- **4 new routes** — Schema Validation API routes registered in both `routes/analytics.php` and `AnalyticsServiceProvider`.
+- **V57SchemaApiScheduledReportTest** — 30+ test cases covering EventSchemaRegistry (catalog coverage, category grouping, validation, type checking, missing params, parameter listing), AnalyticsScheduledReportCommand (class structure, signature, method signatures, return types), controller schema methods (existence, return types, parameter signatures), config integrity, version consistency (6 files), route registration, filesystem integrity, and source file counts.
+
+### Changed
+- Version bump to 2.57.0
+- AnalyticsManager::version() returns '2.57.0' (was '2.56.0')
+- Composer version updated to 2.57.0
+- JS client version string updated to 2.57.0 (was 2.56.0)
+- TypeScript definitions version updated to 2.57.0 (was 2.56.0)
+- EventSourceTagger::_version updated to 2.57.0 (was 2.56.0)
+- EventEnvelopeService::summary() version updated to 2.57.0 (was 2.56.0)
+- All 21 controller endpoint version strings updated to 2.57.0
+- Total source files: 195 (was 194)
+- Total test files: 96 (was 95)
+- Total config sections: 50+ (was 48+)
+
 ## [2.56.0] - 2026-08-07
 
 ### Added

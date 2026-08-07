@@ -194,7 +194,7 @@ test('EventEnvelopeService summary', function (): void {
     $summary = $service->summary();
 
     expect($summary['enabled'])->toBeTrue();
-    expect($summary['version'])->toBe('2.56.0');
+    expect($summary['version'])->toBe('2.57.0');
     expect($summary['sections'])->toBeArray();
 });
 
@@ -393,30 +393,30 @@ test('config has consent_purposes section', function (): void {
 
 // ── Version Consistency ─────────────────────────────────────────
 
-test('composer.json version is 2.56.0', function (): void {
+test('composer.json version is 2.57.0', function (): void {
     $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-    expect($composer['version'])->toBe('2.56.0');
+    expect($composer['version'])->toBe('2.57.0');
 });
 
-test('AnalyticsManager version is 2.56.0', function (): void {
+test('AnalyticsManager version is 2.57.0', function (): void {
     $manager = new \ZeroBoiler\Analytics\AnalyticsManager;
-    expect($manager->version())->toBe('2.56.0');
+    expect($manager->version())->toBe('2.57.0');
 });
 
-test('JS client version is 2.56.0', function (): void {
+test('JS client version is 2.57.0', function (): void {
     $content = file_get_contents(base_path('resources/js/analytics.js'));
-    expect($content)->toContain("'2.56.0'");
-    expect($content)->toContain('@version 2.56.0');
+    expect($content)->toContain("'2.57.0'");
+    expect($content)->toContain('@version 2.57.0');
 });
 
-test('TypeScript definitions version is 2.56.0', function (): void {
+test('TypeScript definitions version is 2.57.0', function (): void {
     $content = file_get_contents(base_path('resources/js/analytics.d.ts'));
-    expect($content)->toContain('@version 2.56.0');
+    expect($content)->toContain('@version 2.57.0');
 });
 
-test('EventSourceTagger version is 2.56.0', function (): void {
+test('EventSourceTagger version is 2.57.0', function (): void {
     $content = file_get_contents(base_path('src/Services/EventSourceTagger.php'));
-    expect($content)->toContain('2.56.0');
+    expect($content)->toContain('2.57.0');
 });
 
 // ── Route Registration ─────────────────────────────────────────

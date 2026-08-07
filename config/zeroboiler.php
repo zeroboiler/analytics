@@ -1196,5 +1196,26 @@ return [
             'strict' => env('ANALYTICS_CONSENT_PURPOSES_STRICT', false),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Scheduled Reports (Periodic Analytics Report Generation)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the `analytics:report:schedule` command generates periodic
+        | reports for dashboard delivery, email notifications, or archival.
+        | Configure output path, periods, and auto-archive behavior.
+        |
+        | Laravel Scheduler integration example:
+        |   $schedule->command('analytics:report:schedule --period=daily')->dailyAt('09:00');
+        |   $schedule->command('analytics:report:schedule --period=weekly --all')->weekly();
+        |
+        */
+        'scheduled_reports' => [
+            'enabled' => env('ANALYTICS_SCHEDULED_REPORTS_ENABLED', false),
+            'output_path' => env('ANALYTICS_SCHEDULED_REPORTS_PATH', storage_path('app/analytics/reports')),
+            'auto_archive' => env('ANALYTICS_SCHEDULED_REPORTS_ARCHIVE', false),
+            'archive_days' => (int) env('ANALYTICS_SCHEDULED_REPORTS_ARCHIVE_DAYS', 90),
+        ],
+
     ],
 ];

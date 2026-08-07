@@ -2487,7 +2487,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'series' => $series,
             'granularity' => $granularity,
             'limit' => $limit,
@@ -2514,7 +2514,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'series' => $series,
             'granularity' => $granularity,
             'summary' => $this->bucketsService->summary($series, $granularity, $last),
@@ -2540,7 +2540,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'series_a' => $seriesA,
             'series_b' => $seriesB,
             'granularity' => $granularity,
@@ -2564,7 +2564,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'series' => $this->bucketsService->seriesList(),
             'granularities' => EventBucketsService::availableGranularities(),
         ]);
@@ -2594,7 +2594,7 @@ final class AnalyticsEventController extends Controller
         if ($cached !== null) {
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.56.0',
+                'version' => '2.57.0',
                 'source' => 'cached',
                 ...$cached,
             ]);
@@ -2602,7 +2602,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2624,7 +2624,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2648,7 +2648,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'limit' => $limit,
             'history' => $this->healthScoreService->history($limit),
         ]);
@@ -2683,7 +2683,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'journey' => $journey,
             'page_flow' => $this->journeyService->getPageFlow($journeyId),
         ]);
@@ -2705,7 +2705,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'stats' => $this->journeyService->getStats(),
         ]);
     }
@@ -2729,7 +2729,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'patterns' => $this->journeyService->mostCommonPatterns($steps, $limit),
         ]);
     }
@@ -2752,7 +2752,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'drop_offs' => $this->journeyService->dropOffPoints($limit),
         ]);
     }
@@ -2783,7 +2783,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'pattern' => $pattern,
             'matches' => $this->journeyService->findMatchingJourneys($pattern, $limit),
             'count' => count($this->journeyService->findMatchingJourneys($pattern, $limit)),
@@ -2816,7 +2816,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'funnel' => $this->journeyService->funnelConversion($steps),
         ]);
     }
@@ -2840,7 +2840,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'purposes' => $consentLog->availablePurposes(),
             'purpose_map' => $consentFilter->getPurposeMap(),
             'purpose_to_signal' => \ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::purposeToSignalMap(),
@@ -2866,7 +2866,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'enabled' => $envelopeService->isEnabled(),
             'active_sections' => $envelopeService->activeSections(),
             'summary' => $envelopeService->summary(),
@@ -2906,11 +2906,262 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.56.0',
+            'version' => '2.57.0',
             'identifier' => $identifier,
             'current' => $consentLog->getCurrentConsent($identifier),
             'history' => $history,
             'count' => count($history),
+        ]);
+    }
+
+    /**
+     * Get all event schemas from the registry.
+     *
+     * Returns all registered event schemas grouped by category with parameter definitions,
+     * types, required/optional status, and provider mappings. Useful for client-side
+     * validation, documentation generation, and admin dashboards.
+     *
+     * Supports ?category=ecommerce|saas|engagement filter and ?compact=1 for lightweight listing.
+     *
+     * GET /api/analytics/schemas
+     */
+    public function schemaList(Request $request): JsonResponse
+    {
+        try {
+            $registry = app(EventSchemaRegistry::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Schema registry not available',
+            ], 503);
+        }
+
+        $categoryFilter = $request->query('category');
+        $compact = (bool) $request->query('compact', false);
+
+        if ($compact) {
+            $names = $registry->getEventNames();
+
+            if ($categoryFilter !== null) {
+                $names = $registry->getEventsByCategory((string) $categoryFilter);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => '2.57.0',
+                'count' => count($names),
+                'events' => $names,
+            ]);
+        }
+
+        $allSchemas = $registry->all();
+
+        if ($categoryFilter !== null) {
+            $allSchemas = array_filter(
+                $allSchemas,
+                fn (\ZeroBoiler\Analytics\Schema\EventSchema $schema): bool =>
+                    $schema->category === (string) $categoryFilter,
+            );
+        }
+
+        $schemas = [];
+
+        foreach ($allSchemas as $name => $schema) {
+            $schemas[$name] = [
+                'name' => $schema->name,
+                'category' => $schema->category,
+                'description' => $schema->description,
+                'required_params' => array_keys($schema->requiredParams),
+                'optional_params' => array_keys($schema->optionalParams),
+                'all_params' => $schema->getAllParamNames(),
+                'provider_mapping' => $schema->providerMapping,
+            ];
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.57.0',
+            'count' => count($schemas),
+            'categories' => array_keys($registry->getSchemasByCategory()),
+            'schemas' => $schemas,
+        ]);
+    }
+
+    /**
+     * Get a single event schema by name.
+     *
+     * Returns the full schema definition including parameter types,
+     * required/optional status, max string lengths, and provider mappings.
+     *
+     * GET /api/analytics/schemas/{eventName}
+     */
+    public function schemaDetail(string $eventName): JsonResponse
+    {
+        try {
+            $registry = app(EventSchemaRegistry::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Schema registry not available',
+            ], 503);
+        }
+
+        $schema = $registry->get($eventName);
+
+        if ($schema === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Schema not found for event: {$eventName}",
+                'available' => $registry->getEventNames(),
+            ], 404);
+        }
+
+        $requiredParams = [];
+        foreach ($schema->requiredParams as $paramName => $param) {
+            $requiredParams[$paramName] = [
+                'type' => $param->type,
+                'max_length' => $param->maxLength,
+                'description' => $param->description,
+            ];
+        }
+
+        $optionalParams = [];
+        foreach ($schema->optionalParams as $paramName => $param) {
+            $optionalParams[$paramName] = [
+                'type' => $param->type,
+                'max_length' => $param->maxLength,
+                'description' => $param->description,
+            ];
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.57.0',
+            'schema' => [
+                'name' => $schema->name,
+                'category' => $schema->category,
+                'description' => $schema->description,
+                'required_params' => $requiredParams,
+                'optional_params' => $optionalParams,
+                'all_params' => $schema->getAllParamNames(),
+                'provider_mapping' => $schema->providerMapping,
+            ],
+        ]);
+    }
+
+    /**
+     * Validate an event payload against its schema.
+     *
+     * Accepts a JSON body with `event` (event name) and `params` (event parameters).
+     * Returns validation result with errors and sanitized params.
+     * When ?sanitize=1 is set, also returns the sanitized payload.
+     *
+     * POST /api/analytics/schemas/validate
+     *
+     * @body event string The event name to validate against
+     * @body params object The event parameters to validate
+     */
+    public function schemaValidate(Request $request): JsonResponse
+    {
+        try {
+            $registry = app(EventSchemaRegistry::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Schema registry not available',
+            ], 503);
+        }
+
+        $eventName = $request->input('event');
+        $params = $request->input('params', []);
+
+        if ($eventName === null || ! is_string($eventName)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Missing or invalid "event" field in request body',
+            ], 422);
+        }
+
+        if (! is_array($params)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => '"params" must be an object',
+            ], 422);
+        }
+
+        $result = $registry->validate($eventName, $params);
+
+        $response = [
+            'status' => $result['valid'] ? 'ok' : 'validation_error',
+            'version' => '2.57.0',
+            'event' => $eventName,
+            'valid' => $result['valid'],
+            'errors' => $result['errors'],
+            'param_count' => count($params),
+        ];
+
+        if ($request->query('sanitize', false)) {
+            $response['sanitized'] = $result['sanitized'];
+        }
+
+        return response()->json($response, $result['valid'] ? 200 : 422);
+    }
+
+    /**
+     * Get schema registry statistics and summary.
+     *
+     * Returns counts by category, parameter type distribution, and
+     * schema coverage metrics. Useful for admin dashboards.
+     *
+     * GET /api/analytics/schemas/summary
+     */
+    public function schemaSummary(): JsonResponse
+    {
+        try {
+            $registry = app(EventSchemaRegistry::class);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Schema registry not available',
+            ], 503);
+        }
+
+        $allSchemas = $registry->all();
+        $categoryCounts = [];
+        $totalParams = 0;
+        $totalRequired = 0;
+        $typeDistribution = [];
+
+        foreach ($allSchemas as $schema) {
+            $category = $schema->category;
+            $categoryCounts[$category] = ($categoryCounts[$category] ?? 0) + 1;
+
+            $allParamsCount = count($schema->requiredParams) + count($schema->optionalParams);
+            $totalParams += $allParamsCount;
+            $totalRequired += count($schema->requiredParams);
+
+            foreach ($schema->requiredParams as $param) {
+                $typeDistribution[$param->type] = ($typeDistribution[$param->type] ?? 0) + 1;
+            }
+            foreach ($schema->optionalParams as $param) {
+                $typeDistribution[$param->type] = ($typeDistribution[$param->type] ?? 0) + 1;
+            }
+        }
+
+        arsort($categoryCounts);
+        arsort($typeDistribution);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.57.0',
+            'total_schemas' => $registry->count(),
+            'categories' => $categoryCounts,
+            'total_params' => $totalParams,
+            'total_required_params' => $totalRequired,
+            'avg_params_per_event' => $registry->count() > 0
+                ? round($totalParams / $registry->count(), 1)
+                : 0,
+            'type_distribution' => $typeDistribution,
         ]);
     }
 }

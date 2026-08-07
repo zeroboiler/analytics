@@ -49,6 +49,7 @@ use ZeroBoiler\Analytics\Services\EventStreamService;
 use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsScheduledReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
@@ -920,6 +921,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 RevenueReportCommand::class,
                 AnalyticsHealthCommand::class,
                 AnalyticsDashboardCommand::class,
+                AnalyticsScheduledReportCommand::class,
             ]);
         }
 
@@ -1100,6 +1102,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // Consent purpose endpoints
                 Route::get('analytics/consent/purposes', [$controller, 'consentPurposes']);
                 Route::get('analytics/consent/envelope-info', [$controller, 'envelopeInfo']);
+
+                // Event Schema Validation API endpoints
+                Route::get('analytics/schemas', [$controller, 'schemaList']);
+                Route::get('analytics/schemas/summary', [$controller, 'schemaSummary']);
+                Route::post('analytics/schemas/validate', [$controller, 'schemaValidate']);
+                Route::get('analytics/schemas/{eventName}', [$controller, 'schemaDetail']);
             });
 
         // Authenticated endpoints

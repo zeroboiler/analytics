@@ -94,6 +94,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('taxonomy/grouped', [AnalyticsEventController::class, 'taxonomyGrouped']);
     Route::get('taxonomy/{tag}', [AnalyticsEventController::class, 'taxonomyTag']);
 
+    // Event Schema Validation API
+    Route::get('schemas', [AnalyticsEventController::class, 'schemaList']);
+    Route::get('schemas/summary', [AnalyticsEventController::class, 'schemaSummary']);
+    Route::post('schemas/validate', [AnalyticsEventController::class, 'schemaValidate']);
+    Route::get('schemas/{eventName}', [AnalyticsEventController::class, 'schemaDetail']);
+
     // Tracking preference endpoints (authenticated)
     Route::get('preference', [AnalyticsEventController::class, 'preference']);
     Route::post('opt-out', [AnalyticsEventController::class, 'optOut']);
