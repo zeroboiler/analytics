@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.95.0';
+        return '2.96.0';
     }
 
     /**
@@ -1775,5 +1775,166 @@ final class AnalyticsManager
     public function funnelTemplate(string $name): ?array
     {
         return \ZeroBoiler\Analytics\Events\EventCatalog::funnelTemplate($name);
+    }
+
+    // ── SaaS Lifecycle Convenience Methods (v2.96.0) ──────────────────
+
+    /**
+     * Track a user sign-up event.
+     *
+     * Fires the core SaaS acquisition event. Typically called from
+     * Registered listener or RegisterController.
+     *
+     * @param  string|null  $method  Registration method (email, google, github, sso)
+     * @param  array<string, mixed>  $params  Additional parameters (invite_id, referral_code, etc.)
+     */
+    public function signUp(?string $method = null, array $params = []): void
+    {
+        $this->track('sign_up', array_filter(array_merge([
+            'method' => $method,
+        ], $params)));
+    }
+
+    /**
+     * Track a user login event.
+     *
+     * Convenience wrapper that also links client ↔ user identity.
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  string|null  $clientId  Client tracking ID (for identity linking)
+     * @param  string|null  $method  Auth method (email, oauth, sso, token)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function login(string $userId, ?string $clientId = null, ?string $method = null, array $params = []): void
+    {
+        $this->track('login', array_filter(array_merge([
+            'user_id' => $userId,
+            'method' => $method,
+        ], $params)));
+
+        // Auto-link identity if client ID provided
+        if ($clientId !== null && $clientId !== '') {
+            $this->identify($userId, $clientId);
+        }
+    }
+
+    /**
+     * Track a trial start event.
+     *
+     * Fires when a user begins a free trial. Essential for conversion funnel analysis.
+     *
+     * @param  string|null  $planName  Trial plan name
+     * @param  int|null  $trialDays  Trial duration in days
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trialStart(?string $planName = null, ?int $trialDays = null, array $params = []): void
+    {
+        $this->track('start_trial', array_filter(array_merge([
+            'plan_name' => $planName,
+            'trial_days' => $trialDays,
+        ], $params)));
+    }
+
+    /**
+     * Track a subscription creation event.
+     *
+     * Fires when a user subscribes to a paid plan. Use for MRR tracking
+     * and subscription funnel analysis.
+     *
+     * @param  string|null  $planName  Plan name (e.g. 'pro', 'enterprise')
+     * @param  float|null  $amount  Subscription amount
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  string|null  $billingCycle  'monthly', 'yearly', 'custom'
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function subscription(
+        ?string $planName = null,
+        ?float $amount = null,
+        string $currency = 'USD',
+        ?string $billingCycle = null,
+        array $params = [],
+    ): void {
+        $this->track('subscribe', array_filter(array_merge([
+            'plan_name' => $planName,
+            'amount' => $amount,
+            'currency' => $currency,
+            'billing_cycle' => $billingCycle,
+        ], $params)));
+    }
+
+    /**
+     * Track a plan upgrade event.
+     *
+     * Fires when a user upgrades to a higher plan. Used for expansion
+     * revenue analysis and plan migration funnels.
+     *
+     * @param  string  $fromPlan  Previous plan name
+     * @param  string  $toPlan  New plan name
+     * @param  float|null  $priceDifference  Additional cost
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function planUpgrade(string $fromPlan, string $toPlan, ?float $priceDifference = null, array $params = []): void
+    {
+        $this->track('plan_upgrade', array_filter(array_merge([
+            'from_plan' => $fromPlan,
+            'to_plan' => $toPlan,
+            'price_difference' => $priceDifference,
+        ], $params)));
+    }
+
+    /**
+     * Track a subscription cancellation event.
+     *
+     * Fires when a user cancels their subscription. Critical for
+     * churn analysis and retention funnel optimization.
+     *
+     * @param  string|null  $planName  Cancelled plan name
+     * @param  string|null  $reason  Cancellation reason (price, features, competitor, unused)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function cancellation(?string $planName = null, ?string $reason = null, array $params = []): void
+    {
+        $this->track('cancellation', array_filter(array_merge([
+            'plan_name' => $planName,
+            'reason' => $reason,
+        ], $params)));
+    }
+
+    /**
+     * Track a complete SaaS signup-to-paid conversion funnel.
+     *
+     * Convenience method that dispatches the full SaaS acquisition
+     * sequence: sign_up → start_trial → subscribe in a single call.
+     * Useful for landing pages and onboarding flows.
+     *
+     * @param  string|null  $planName  Plan name
+     * @param  float|null  $amount  Subscription amount
+     * @param  string  $currency  Currency code
+     * @param  array{method?: string|null, trial_days?: int|null, billing_cycle?: string|null, skip_trial?: bool}  $options  Options
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackSaaSAcquisition(
+        ?string $planName = null,
+        ?float $amount = null,
+        string $currency = 'USD',
+        array $options = [],
+        array $params = [],
+    ): void {
+        $this->signUp($options['method'] ?? null, $params);
+
+        $skipTrial = (bool) ($options['skip_trial'] ?? false);
+        if (! $skipTrial) {
+            $this->trialStart($planName, $options['trial_days'] ?? null, $params);
+        }
+
+        if ($amount !== null) {
+            $this->subscription(
+                $planName,
+                $amount,
+                $currency,
+                $options['billing_cycle'] ?? null,
+                $params,
+            );
+        }
     }
 }

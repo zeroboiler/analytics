@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.96.0] - 2026-08-08
+
+### Added
+- **SaaS Lifecycle Convenience Methods** — `AnalyticsManager::signUp()`, `::login()` (auto identity linking), `::trialStart()`, `::subscription()`, `::planUpgrade()`, `::cancellation()` — one-liner SaaS event dispatch
+- **SaaS Acquisition Funnel Shortcut** — `AnalyticsManager::trackSaaSAcquisition()` fires signup → trial → subscribe in one call
+- **Inertia Page View Auto-Tracker** — `initInertiaPageViewTracker()` with `inertia:navigate`, `inertia:success`, `popstate` hooks, scroll depth option, and cleanup
+- **TypeScript `InertiaPageViewTrackerOptions`** interface for the new auto-tracker
+- **V96SaasStarterUpgradeTest** — 16 test cases covering all new SaaS convenience methods, funnel shortcuts, event catalog validation, and version consistency
+- **Facade annotations** — All 7 new methods documented with `@method` annotations
+
+### Changed
+- Version bump to 2.96.0 across composer.json, AnalyticsEvent::VERSION, AnalyticsManager::version(), JS client (3 locations), TypeScript definitions
+- **Fixed `initSvelteTracker`** — Event listeners now use proper `addEventListener`/`removeEventListener` pattern instead of broken return-value cleanup
+- Overview command features list updated with SaaS lifecycle convenience methods
+
 ## [2.94.0] - 2026-08-08
 
 ### Added

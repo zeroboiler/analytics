@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.95.0
+ * @version 2.96.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -507,8 +507,16 @@ export function updateConsent(signals: Partial<ConsentSignals>): Promise<void>;
 /** Initialize scroll depth tracking */
 export function initScrollDepth(): () => void;
 
+/** Options for initInertiaPageViewTracker */
+export interface InertiaPageViewTrackerOptions {
+    trackInitial?: boolean;
+    delayMs?: number;
+    onTrack?: (title: string, location: string) => void;
+    enableScrollDepth?: boolean;
+}
+
 /** Initialize automatic Inertia page view tracking */
-export function initInertiaPageViewTracker(): () => void;
+export function initInertiaPageViewTracker(options?: InertiaPageViewTrackerOptions): () => void;
 
 /** Initialize automatic form interaction tracking */
 export function initFormTracking(options?: FormTrackingOptions): () => void;

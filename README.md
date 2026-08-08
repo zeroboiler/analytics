@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.95.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-2.96.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.96.0](#whats-new-in-v2960)
 - [What's New in v2.95.0](#whats-new-in-v2950)
 - [What's New in v2.94.0](#whats-new-in-v2940)
 - [What's New in v2.93.0](#whats-new-in-v2930)
@@ -61,6 +62,17 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.96.0
+
+- **SaaS Lifecycle Convenience Methods** — `Analytics::signUp()`, `Analytics::login()` (with auto identity linking), `Analytics::trialStart()`, `Analytics::subscription()`, `Analytics::planUpgrade()`, `Analytics::cancellation()` — the 6 essential SaaS events as one-liners on the AnalyticsManager and Facade
+- **SaaS Acquisition Funnel Shortcut** — `Analytics::trackSaaSAcquisition()` fires the full signup → trial → subscribe sequence in a single call, with `skip_trial` and custom params support
+- **Inertia Page View Auto-Tracker** — `initInertiaPageViewTracker()` JS function with framework-agnostic Inertia navigation hooks (`inertia:navigate`, `inertia:success`, `popstate`), optional scroll depth, callback support, and proper cleanup. Works with Svelte, Vue, and React adapters
+- **Fixed `initSvelteTracker` cleanup** — Event listeners now properly remove on component unmount instead of relying on broken `addEventListener` return value
+- **TypeScript `InertiaPageViewTrackerOptions`** — Full type definitions for the new auto-tracker options
+- **Facade annotations** — All new SaaS methods documented in `@method` annotations for IDE autocomplete
+- **Admin command features** — Overview command updated with SaaS lifecycle convenience methods
+- **Version bump to 2.96.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
 ## What's New in v2.95.0
 

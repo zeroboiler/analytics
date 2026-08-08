@@ -254,6 +254,8 @@ final class AnalyticsOverviewCommand extends Command
             'SaaS analytics maturity score (0-100 grade with detailed breakdown)',
             'Onboarding checklist API (GET /api/analytics/onboarding)',
             'Industry-standard event catalog with priority tiers (critical/high/medium/low)',
+            'SaaS lifecycle convenience methods (signUp, login, trialStart, subscription, planUpgrade, cancellation)',
+            'SaaS acquisition funnel shortcut (trackSaaSAcquisition)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");
