@@ -208,6 +208,53 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             $analyticsProps['onboarding'] = ['completion' => 0.0, 'gaps' => []];
         }
 
+        // Funnel readiness scores for client-side instrumentation guidance (v2.84.0)
+        try {
+            $calculator = new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+            $funnelReadiness = $calculator->funnelReadiness();
+            $analyticsProps['funnelReadiness'] = [
+                'signup' => round($funnelReadiness['signup_funnel']['score'] ?? 0.0, 2),
+                'purchase' => round($funnelReadiness['purchase_funnel']['score'] ?? 0.0, 2),
+                'subscription' => round($funnelReadiness['subscription_funnel']['score'] ?? 0.0, 2),
+                'overall' => round($funnelReadiness['overall'] ?? 0.0, 2),
+            ];
+        } catch (\Throwable) {
+            $analyticsProps['funnelReadiness'] = [
+                'signup' => 0.0,
+                'purchase' => 0.0,
+                'subscription' => 0.0,
+                'overall' => 0.0,
+            ];
+        }
+
+        // Recommended next events for client-side instrumentation (v2.84.0)
+        try {
+            $instrumentation = \ZeroBoiler\Analytics\Events\EventCatalog::recommendedInstrumentation('starter');
+            $untrackedEvents = [];
+            foreach ($instrumentation['events'] as $entry) {
+                $name = $entry['name'];
+                // Check if this event appears in the onboarding gaps
+                if (in_array($name, $analyticsProps['onboarding']['gaps'], true)) {
+                    $untrackedEvents[] = [
+                        'name' => $name,
+                        'category' => $entry['category'] ?? null,
+                        'priority' => \ZeroBoiler\Analytics\Events\EventCatalog::eventPriority($name),
+                    ];
+                }
+            }
+            $analyticsProps['recommendedEvents'] = array_slice($untrackedEvents, 0, 10);
+        } catch (\Throwable) {
+            $analyticsProps['recommendedEvents'] = [];
+        }
+
+        // Event deduplication config for client-side debounce tuning (v2.84.0)
+        $dedupConfig = $this->config->get('zeroboiler.analytics.dedup', []);
+        /** @var array{enabled?: bool, window_seconds?: int} $dedupConfig */
+        $analyticsProps['dedup'] = [
+            'enabled' => (bool) ($dedupConfig['enabled'] ?? true),
+            'windowSeconds' => (int) ($dedupConfig['window_seconds'] ?? 10),
+        ];
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

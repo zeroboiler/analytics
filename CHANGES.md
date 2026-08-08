@@ -4,6 +4,23 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.84.0] - 2026-08-08
+
+### Added
+- **EventFingerprintService** — Content-aware event fingerprinting with cache-based deduplication. Generates deterministic fingerprints from event name, client ID, user ID, and sorted params (nulls filtered, floats rounded, booleans normalized). Configurable dedup window (`dedup.window_seconds`), max fingerprints, and cache prefix. 6 new PHP tests.
+- **Inertia middleware: Funnel readiness props** — Exposes `funnelReadiness` in zbAnalytics: signup, purchase, subscription, and overall funnel conversion readiness scores. Enables client-side instrumentation guidance.
+- **Inertia middleware: Recommended events** — Exposes `recommendedEvents` in zbAnalytics: up to 10 untracked events from the starter instrumentation set with category and priority. Computed from onboarding gap analysis.
+- **Inertia middleware: Dedup config** — Exposes `dedup` in zbAnalytics: enabled flag and windowSeconds for client-side debounce tuning.
+- **JS client: getFunnelReadinessFromProps()** — Synchronous funnel readiness accessor from Inertia props.
+- **JS client: getRecommendedEvents()** — Returns untracked recommended events with name, category, and priority.
+- **JS client: getDedupConfig()** — Returns client-side dedup configuration for event debouncing.
+- **TypeScript: FunnelReadiness, RecommendedEvent, DedupConfig interfaces** — New type definitions for v2.84.0 Inertia props.
+- **Config expansion: dedup.window_seconds, dedup.max_fingerprints, dedup.cache_prefix** — New env-driven config keys for fine-grained dedup control.
+- **Test suite: V84FingerprintInertiaPropsTest** — 32 tests covering fingerprint determinism, param normalization (order, nulls, floats, booleans, nested arrays), client/user ID inclusion, provider coverage, industry standard tiers, funnel events, PLG events, critical vs samplable separation.
+
+### Changed
+- Version bump to 2.84.0 across all version references (AnalyticsEvent, composer.json, JS client ×2, TypeScript, AnalyticsManager, AnalyticsEventController ×100+).
+
 ## [2.81.0] - 2026-08-08
 
 ### Added

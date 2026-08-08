@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.83.0
+ * @version 2.84.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.83.0';
+    return '2.84.0';
 }
 
 /**
@@ -3121,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.82.0';
+    return '2.84.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -4677,6 +4677,64 @@ export async function getFunnelReadiness() {
     } catch {
         return null;
     }
+}
+
+// ─── Funnel Readiness & Instrumentation Guidance (v2.84.0) ──────────
+
+/**
+ * Get the funnel readiness scores from Inertia props (synchronous).
+ *
+ * Returns the pre-computed signup, purchase, subscription, and overall
+ * funnel readiness scores. No API request needed — data comes from
+ * the Inertia middleware.
+ *
+ * @returns {object|null} Funnel readiness scores
+ *
+ * @example
+ * const funnel = getFunnelReadinessFromProps();
+ * console.log(`Signup funnel: ${funnel.signup}%, Purchase: ${funnel.purchase}%`);
+ */
+export function getFunnelReadinessFromProps() {
+    if (!initialized || !config?.funnelReadiness) return null;
+    return { ...config.funnelReadiness };
+}
+
+/**
+ * Get the list of recommended events for instrumentation from Inertia props.
+ *
+ * Returns events from the starter instrumentation set that are not yet
+ * tracked, sorted by priority. Use this to guide development of
+ * analytics instrumentation.
+ *
+ * @returns {Array<object>} Recommended events to instrument
+ *
+ * @example
+ * const events = getRecommendedEvents();
+ * events.forEach(e => console.log(`Track ${e.name} (${e.priority})`));
+ */
+export function getRecommendedEvents() {
+    if (!initialized || !config?.recommendedEvents) return [];
+    return [...config.recommendedEvents];
+}
+
+/**
+ * Get the client-side deduplication configuration from Inertia props.
+ *
+ * Returns the dedup window and enabled flag for tuning client-side
+ * event debouncing. When dedup is enabled, the client should not
+ * send the same event twice within the window.
+ *
+ * @returns {object|null} Dedup configuration
+ *
+ * @example
+ * const dedup = getDedupConfig();
+ * if (dedup.enabled) {
+ *     console.log(`Dedup window: ${dedup.windowSeconds}s`);
+ * }
+ */
+export function getDedupConfig() {
+    if (!initialized || !config?.dedup) return null;
+    return { ...config.dedup };
 }
 
 /**

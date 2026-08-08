@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.83.0
+ * @version 2.84.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -44,6 +44,9 @@ export interface ZbAnalyticsConfig {
     identityAutoLink?: boolean;
     maturity?: MaturityScore;
     onboarding?: OnboardingStatus;
+    funnelReadiness?: FunnelReadiness;
+    recommendedEvents?: RecommendedEvent[];
+    dedup?: DedupConfig;
 }
 
 /** Consent signals (GDPR Consent Mode v2) */
@@ -121,6 +124,27 @@ export interface MaturityScore {
 export interface OnboardingStatus {
     completion: number;
     gaps: string[];
+}
+
+/** Funnel readiness scores from server (v2.84.0) */
+export interface FunnelReadiness {
+    signup: number;
+    purchase: number;
+    subscription: number;
+    overall: number;
+}
+
+/** Recommended event for client-side instrumentation (v2.84.0) */
+export interface RecommendedEvent {
+    name: string;
+    category: string | null;
+    priority: 'critical' | 'high' | 'medium' | 'low';
+}
+
+/** Event deduplication configuration from server (v2.84.0) */
+export interface DedupConfig {
+    enabled: boolean;
+    windowSeconds: number;
 }
 
 /** Performance budget configuration */

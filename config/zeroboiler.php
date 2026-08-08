@@ -506,6 +506,9 @@ return [
         */
         'dedup' => [
             'enabled' => env('ANALYTICS_DEDUP_ENABLED', true),
+            'window_seconds' => (int) env('ANALYTICS_DEDUP_WINDOW_SECONDS', 10),
+            'max_fingerprints' => (int) env('ANALYTICS_DEDUP_MAX_FINGERPRINTS', 10000),
+            'cache_prefix' => env('ANALYTICS_DEDUP_CACHE_PREFIX', 'zb_fp_'),
         ],
 
         /*
