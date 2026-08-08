@@ -87,6 +87,10 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void trackWithAlias(string $name, array<string, mixed> $params = [])
  * @method static void featureAdopted(string $featureName, ?string $category = null, array<string, mixed> $params = [])
  * @method static void expansionRevenue(float $amount, string $source, ?string $currency = null)
+ * @method static void exportEvent(string $format, ?string $resource = null, ?int $recordCount = null, array<string, mixed> $params = [])
+ * @method static void importEvent(string $format, ?string $resource = null, ?int $recordCount = null, ?bool $success = null, array<string, mixed> $params = [])
+ * @method static void trackFunnel(string $funnelName, string $stepName, ?int $stepNumber = null, ?int $totalSteps = null, array<string, mixed> $params = [])
+ * @method static array{events: list<array<string, mixed>>, count: int, categories: array<string, int>, funnel_coverage: array<string, bool>} quickStartEvents()
  * @method static list<array{name: string, class: class-string, ga4: string, category: string}> plgEvents()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager

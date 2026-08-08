@@ -447,6 +447,23 @@ final class SaaSEvents
                 'posthog' => 'expansion_revenue',
                 'plausible' => null,
             ],
+            // Data portability events (v2.86.0)
+            'export' => [
+                'name' => 'export',
+                'class' => ExportEvent::class,
+                'ga4' => 'file_download',
+                'meta' => 'ExportData',
+                'posthog' => 'export',
+                'plausible' => null,
+            ],
+            'import' => [
+                'name' => 'import',
+                'class' => ImportEvent::class,
+                'ga4' => 'file_upload',
+                'meta' => 'ImportData',
+                'posthog' => 'import',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

@@ -802,6 +802,8 @@ final class EventCatalog
             'add_to_cart', 'begin_checkout', 'purchase', 'add_to_wishlist',
             // PLG-specific (v2.78.0)
             'feature_adopted', 'expansion_revenue',
+            // Data portability (v2.86.0)
+            'export', 'import',
         ];
 
         return array_values(array_filter(
@@ -853,6 +855,11 @@ final class EventCatalog
             self::retentionSignals(),
             self::billingEvents(),
             self::productGrowthEvents(),
+            // Data portability
+            array_filter(
+                array_map(fn (string $key): ?array => self::get($key), ['export', 'import']),
+                fn (?array $entry): bool => $entry !== null,
+            ),
         ), SORT_REGULAR));
     }
 
@@ -893,6 +900,8 @@ final class EventCatalog
             'add_to_wishlist', 'select_item', 'credit_applied', 'payment_method_added',
             'workspace_created', 'feature_adopted', 'expansion_revenue',
             'feedback', 'goal_conversion',
+            // Data portability (v2.86.0)
+            'export', 'import',
         ];
 
         $lowKeys = [
@@ -1043,6 +1052,8 @@ final class EventCatalog
             // ── E-commerce (if applicable) ────────────────
             'view_item', 'add_to_cart', 'begin_checkout', 'purchase',
             'refund', 'add_payment_info',
+            // ── Data Portability ────────────────────────
+            'export', 'import',
         ];
 
         $events = array_values(array_filter(
@@ -1117,6 +1128,8 @@ final class EventCatalog
             'feedback', 'sla_breach', 'payment_method_updated',
             'workspace_created', 'expansion_revenue', 'feature_adopted',
             'integration_failed', 'abandoned_cart', 'checkout_abandon',
+            // Data portability (v2.86.0)
+            'export', 'import',
         ];
 
         $levels = [
@@ -1219,6 +1232,152 @@ final class EventCatalog
         }
 
         return $matrix;
+    }
+
+    /**
+     * Get the absolute minimum quick-start event set for day-one SaaS instrumentation.
+     *
+     * Returns just 12 essential events that cover the critical SaaS funnel:
+     * acquisition, activation, revenue, and retention. This is the "hello world"
+     * set — instrument these on day one and you have actionable analytics immediately.
+     *
+     * @return array{events: list<EventEntry>, count: int, categories: array<string, int>, funnel_coverage: array{signup: bool, trial: bool, revenue: bool, engagement: bool}}
+     */
+    public static function quickStart(): array
+    {
+        $quickStartKeys = [
+            'sign_up', 'login', 'start_trial', 'subscribe', 'purchase',
+            'cancellation', 'page_view', 'search', 'form_submit',
+            'feature_used', 'error', 'revenue_tracked',
+        ];
+
+        $events = array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $quickStartKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+
+        $categories = ['ecommerce' => 0, 'saas' => 0, 'engagement' => 0];
+        foreach ($events as $entry) {
+            $cat = $entry['category'] ?? 'engagement';
+            if (isset($categories[$cat])) {
+                $categories[$cat]++;
+            }
+        }
+
+        $names = array_column($events, 'name');
+
+        return [
+            'events' => $events,
+            'count' => count($events),
+            'categories' => $categories,
+            'funnel_coverage' => [
+                'signup' => in_array('sign_up', $names, true),
+                'trial' => in_array('start_trial', $names, true),
+                'revenue' => in_array('subscribe', $names, true) || in_array('purchase', $names, true),
+                'engagement' => in_array('feature_used', $names, true),
+            ],
+        ];
+    }
+
+    /**
+     * Get events that are safe to track without collecting any PII.
+     *
+     * Returns events that typically contain only behavioral/aggregate data
+     * with no personal identifiers. Ideal for privacy-first implementations
+     * and cookieless tracking scenarios.
+     *
+     * @return list<EventEntry>
+     */
+    public static function privacySafeEvents(): array
+    {
+        $safeKeys = [
+            'page_view', 'scroll_depth', 'click', 'search', 'share',
+            'screen_view', 'outbound_click', 'file_download', 'video_play',
+            'content_engagement', 'web_vitals', 'timing', 'ab_test_exposure',
+            'session_start', 'session_end', 'time_on_page',
+            'feature_impression', 'notification',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $safeKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events that typically contain or imply PII and need extra consent gating.
+     *
+     * Returns events that may carry personal information: authentication,
+     * profile, billing, and identity-related events. These should be
+     * gated behind explicit user consent beyond the default analytics consent.
+     *
+     * @return list<EventEntry>
+     */
+    public static function gdprSensitiveEvents(): array
+    {
+        $sensitiveKeys = [
+            'sign_up', 'login', 'logout', 'email_verified', 'password_changed',
+            'password_reset', 'profile_updated', 'account_activated',
+            'account_deactivated', 'payment_failed', 'payment_succeeded',
+            'payment_method_added', 'payment_method_updated', 'invoice_generated',
+            'credit_applied', 'identify',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $sensitiveKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events specifically related to user acquisition channels and sources.
+     *
+     * Returns events that measure how users discover and enter the product:
+     * sign-ups from different channels, trial starts, referral conversions,
+     * and campaign-driven registrations. Useful for marketing analytics and
+     * CAC (Customer Acquisition Cost) calculations.
+     *
+     * @return list<EventEntry>
+     */
+    public static function saasAcquisitionEvents(): array
+    {
+        $acquisitionKeys = [
+            'sign_up', 'email_verified', 'start_trial', 'invite_sent',
+            'share', 'campaign_attribution', 'ad_click', 'outbound_click',
+            'goal_conversion', 'feature_request', 'integration_connected',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $acquisitionKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events specifically related to monetization and revenue generation.
+     *
+     * Returns events that directly impact revenue: purchases, subscriptions,
+     * upgrades, billing, expansion revenue, and payment lifecycle. Useful for
+     * revenue analytics, LTV calculations, and MRR monitoring.
+     *
+     * @return list<EventEntry>
+     */
+    public static function saasMonetizationEvents(): array
+    {
+        $monetizationKeys = [
+            'purchase', 'subscribe', 'plan_upgrade', 'plan_downgrade',
+            'cancellation', 'trial_converted', 'subscription_renewal',
+            'subscription_resumed', 'subscription_paused', 'revenue_tracked',
+            'payment_succeeded', 'payment_failed', 'invoice_generated',
+            'credit_applied', 'billing_retry', 'subscription_value_changed',
+            'expansion_revenue', 'refund', 'add_to_cart', 'begin_checkout',
+            'add_payment_info',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $monetizationKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
     }
 
     /**

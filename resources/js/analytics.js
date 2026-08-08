@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.85.0
+ * @version 2.86.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.85.0';
+    return '2.86.0';
 }
 
 /**
@@ -3121,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.85.0';
+    return '2.86.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -4754,6 +4754,98 @@ export async function getIndustryStandard() {
 
     try {
         const response = await fetch(`${apiBaseUrl}/industry-standard`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Data Portability Events (v2.86.0) ─────────────────────────────────────
+
+/**
+ * Track a data export action.
+ *
+ * Tracks when users export data (CSV, JSON, PDF, etc.). Useful for
+ * GDPR compliance monitoring and churn prediction (exports often
+ * precede account cancellation).
+ *
+ * @param {string} format - Export format (csv, json, pdf, xlsx)
+ * @param {object} [options] - Additional options
+ * @param {string} [options.resource] - Type of data exported (reports, users, transactions)
+ * @param {number} [options.recordCount] - Number of records exported
+ * @param {object} [options.params={}] - Additional event parameters
+ *
+ * @example
+ * await trackExport('csv', { resource: 'reports', recordCount: 150 });
+ */
+export async function trackExport(format, options = {}) {
+    if (!initialized) return;
+
+    const params = {
+        format,
+        resource: options.resource || undefined,
+        record_count: options.recordCount || undefined,
+        ...options.params,
+    };
+
+    await trackEvent('export', params);
+}
+
+/**
+ * Track a data import action.
+ *
+ * Tracks when users import data. Useful for onboarding optimization
+ * and identifying power users (high import counts signal active usage).
+ *
+ * @param {string} format - Import format (csv, json, xlsx)
+ * @param {object} [options] - Additional options
+ * @param {string} [options.resource] - Type of data imported (contacts, products, transactions)
+ * @param {number} [options.recordCount] - Number of records imported
+ * @param {boolean} [options.success] - Whether the import succeeded
+ * @param {object} [options.params={}] - Additional event parameters
+ *
+ * @example
+ * await trackImport('csv', { resource: 'contacts', recordCount: 500, success: true });
+ */
+export async function trackImport(format, options = {}) {
+    if (!initialized) return;
+
+    const params = {
+        format,
+        resource: options.resource || undefined,
+        record_count: options.recordCount || undefined,
+        success: options.success !== undefined ? options.success : undefined,
+        ...options.params,
+    };
+
+    await trackEvent('import', params);
+}
+
+// ─── Quick-Start Events (v2.86.0) ────────────────────────────────────────
+
+/**
+ * Fetch the quick-start event set from the server.
+ *
+ * Returns the 12 essential events every SaaS should track on day one.
+ * Use for onboarding guidance and instrumentation checklists.
+ *
+ * @returns {Promise<object|null>} Quick-start event set with funnel coverage
+ *
+ * @example
+ * const quickStart = await getQuickStartEvents();
+ * console.log(`${quickStart.count} essential events to instrument`);
+ * console.log('Funnel coverage:', quickStart.funnel_coverage);
+ */
+export async function getQuickStartEvents() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/quick-start`, {
             headers: { Accept: 'application/json' },
         });
 

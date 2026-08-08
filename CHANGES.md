@@ -4,7 +4,33 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
-## [2.84.0] - 2026-08-08
+## [2.86.0] - 2026-08-08
+
+### Added
+- **ExportEvent** — Data export tracking event for GDPR compliance monitoring and churn prediction. Captures format (csv, json, pdf, xlsx), resource type, and record count. GA4: `file_download`, Meta: `ExportData`.
+- **ImportEvent** — Data import tracking event for onboarding optimization and power user identification. Captures format, resource type, record count, and success status. GA4: `file_upload`, Meta: `ImportData`.
+- **EventCatalog::quickStart()** — Returns the 12 essential events every SaaS should track on day one, with category breakdown and funnel coverage (signup, trial, revenue, engagement). The "hello world" set for immediate actionable analytics.
+- **EventCatalog::privacySafeEvents()** — Returns events safe to track without collecting any PII (page_view, scroll_depth, click, search, web_vitals, etc.). Ideal for privacy-first and cookieless implementations.
+- **EventCatalog::gdprSensitiveEvents()** — Returns events that typically contain or imply PII and need extra consent gating (sign_up, login, payment events, profile events, etc.).
+- **EventCatalog::saasAcquisitionEvents()** — Returns acquisition-focused events for marketing analytics and CAC calculations.
+- **EventCatalog::saasMonetizationEvents()** — Returns 21 revenue-focused events for LTV, MRR, and revenue analytics.
+- **AnalyticsManager::exportEvent()** — Convenience method for tracking data exports with format, resource, and record count.
+- **AnalyticsManager::importEvent()** — Convenience method for tracking data imports with format, resource, record count, and success status.
+- **AnalyticsManager::trackFunnel()** — Convenience method for tracking multi-step funnel progression with funnel name, step name, step number, and total steps metadata.
+- **AnalyticsManager::quickStartEvents()** — Returns the quick-start event set for onboarding guidance.
+- **JS client: trackExport()** — Client-side data export tracking with format and optional resource/recordCount.
+- **JS client: trackImport()** — Client-side data import tracking with format, optional resource/recordCount, and success status.
+- **JS client: getQuickStartEvents()** — Fetches the 12-event quick-start set from the server for onboarding checklists.
+- **AARRR classification** — `export` → operational, `import` → activation.
+- **Test suite: V86QuickStartPrivacyTest** — 45+ tests covering new events, quick-start set, privacy-safe events, GDPR-sensitive events, acquisition/monetization sets, catalog integrity, and AARRR classification.
+
+### Changed
+- Version bump to 2.86.0 across all version references (AnalyticsEvent, composer.json, JS client ×3, TypeScript, AnalyticsManager, ServiceProvider, controller ×115+).
+- Total catalog events: 90 → 92 (added export, import).
+- SaaS event count: 50 → 52 (added export, import).
+- Export/import events added to productGrowthEvents, allLifecycleEvents, saasEssential, industryStandard (medium tier), and recommendedInstrumentation (enterprise).
+
+## [2.85.0] - 2026-08-08
 
 ### Added
 - **EventFingerprintService** — Content-aware event fingerprinting with cache-based deduplication. Generates deterministic fingerprints from event name, client ID, user ID, and sorted params (nulls filtered, floats rounded, booleans normalized). Configurable dedup window (`dedup.window_seconds`), max fingerprints, and cache prefix. 6 new PHP tests.

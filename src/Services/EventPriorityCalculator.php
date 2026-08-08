@@ -143,6 +143,10 @@ final class EventPriorityCalculator
         // Feedback & goals (v2.79.0)
         'feedback' => self::CATEGORY_RETENTION,
         'goal_conversion' => self::CATEGORY_REVENUE,
+
+        // Data portability (v2.86.0)
+        'export' => self::CATEGORY_OPERATIONAL,
+        'import' => self::CATEGORY_ACTIVATION,
     ];
 
     /**

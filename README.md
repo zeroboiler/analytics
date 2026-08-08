@@ -9,7 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [What's New in v2.85.0](#whats-new-in-v2850)
+- [What's New in v2.86.0](#whats-new-in-v2860)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Configuration](#configuration)
@@ -56,7 +56,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-## What's New in v2.85.0
+## What's New in v2.86.0
+
+- **ExportEvent & ImportEvent** — Data portability tracking for GDPR compliance monitoring, churn prediction (exports often precede cancellation), and power user identification (high imports = active usage)
+- **EventCatalog::quickStart()** — 12 essential "hello world" events every SaaS should track on day one, with funnel coverage analysis (signup, trial, revenue, engagement)
+- **EventCatalog::privacySafeEvents()** — Events safe to track without PII (18 behavioral/aggregate events for privacy-first and cookieless implementations)
+- **EventCatalog::gdprSensitiveEvents()** — Events that carry PII and need extra consent gating (16 auth, billing, and profile events)
+- **EventCatalog::saasAcquisitionEvents()** — Acquisition-focused events for marketing analytics and CAC calculations
+- **EventCatalog::saasMonetizationEvents()** — 21 revenue-focused events for LTV, MRR, and revenue analytics
+- **AnalyticsManager::trackFunnel()** — Multi-step funnel tracking with funnel name, step, and progress metadata
+- **AnalyticsManager::exportEvent() / importEvent()** — Convenience methods for data portability events
+- **JS client: trackExport(), trackImport(), getQuickStartEvents()** — Client-side data portability tracking and quick-start accessor
+- **45+ new tests** — V86QuickStartPrivacyTest covering new events, privacy sets, acquisition/monetization helpers, catalog integrity
+- **Total events: 92** (E-commerce 15, SaaS 52, Engagement 27)
 
 - **EventCatalog::b2bTeamEvents()** — B2B/team and organization-level events (team_created, team_member_joined, workspace_created, invite_sent, role_changed)
 - **EventCatalog::accountLifecycleEvents()** — Full account lifecycle events (activation, deactivation, security, profile)
@@ -78,7 +90,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **90 typed event classes** across 3 categories (E-commerce 15, SaaS 48, Engagement 27)
+- **92 typed event classes** across 3 categories (E-commerce 15, SaaS 52, Engagement 27)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, category filtering, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle)
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -106,8 +118,8 @@ Done. That's it.
 - **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
-- **48 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + SubscriptionValueChanged, + UsageQuotaReached, + BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied), + FeatureAdopted, ExpansionRevenue
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 86 events now have typed classes)
+- **52 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + SubscriptionValueChanged, + UsageQuotaReached, + BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied), + FeatureAdopted, ExpansionRevenue, + Export, Import
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 92 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking

@@ -124,7 +124,7 @@ use ZeroBoiler\Analytics\Services\EventImpactService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.85.0
+ * @version 2.86.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {

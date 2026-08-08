@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.85.0';
+        return '2.86.0';
     }
 
     /**
@@ -1589,5 +1589,85 @@ final class AnalyticsManager
             source: $source,
             currency: $currency,
         ));
+    }
+
+    /**
+     * Track a data export action.
+     *
+     * Tracks user data exports for GDPR compliance monitoring,
+     * churn prediction (exports often precede cancellation),
+     * and data portability analytics.
+     *
+     * @param  string  $format  Export format (csv, json, pdf, xlsx)
+     * @param  string|null  $resource  Type of data exported (reports, users, transactions)
+     * @param  int|null  $recordCount  Number of records exported
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function exportEvent(string $format, ?string $resource = null, ?int $recordCount = null, array $params = []): void
+    {
+        $this->trackEvent(new \ZeroBoiler\Analytics\Events\SaaS\ExportEvent(
+            format: $format,
+            resource: $resource,
+            recordCount: $recordCount,
+            params: $params,
+        ));
+    }
+
+    /**
+     * Track a data import action.
+     *
+     * Tracks bulk data imports for onboarding optimization,
+     * power user identification, and data migration monitoring.
+     *
+     * @param  string  $format  Import format (csv, json, xlsx)
+     * @param  string|null  $resource  Type of data imported (contacts, products, transactions)
+     * @param  int|null  $recordCount  Number of records imported
+     * @param  bool|null  $success  Whether the import succeeded
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function importEvent(string $format, ?string $resource = null, ?int $recordCount = null, ?bool $success = null, array $params = []): void
+    {
+        $this->trackEvent(new \ZeroBoiler\Analytics\Events\SaaS\ImportEvent(
+            format: $format,
+            resource: $resource,
+            recordCount: $recordCount,
+            success: $success,
+            params: $params,
+        ));
+    }
+
+    /**
+     * Track a funnel step with automatic metadata enrichment.
+     *
+     * Convenience method for tracking multi-step funnel progression
+     * (signup, checkout, onboarding, etc.) with funnel name and step metadata.
+     *
+     * @param  string  $funnelName  Funnel identifier (e.g. 'signup', 'checkout', 'trial')
+     * @param  string  $stepName  Step within the funnel (e.g. 'form_start', 'payment_info')
+     * @param  int|null  $stepNumber  Sequential step number (1-indexed)
+     * @param  int|null  $totalSteps  Total number of steps in the funnel
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function trackFunnel(string $funnelName, string $stepName, ?int $stepNumber = null, ?int $totalSteps = null, array $params = []): void
+    {
+        $this->track('funnel_step', array_filter([
+            'funnel_name' => $funnelName,
+            'step_name' => $stepName,
+            'step_number' => $stepNumber,
+            'total_steps' => $totalSteps,
+        ] + $params, fn (mixed $v): bool => $v !== null && $v !== ''));
+    }
+
+    /**
+     * Get the quick-start event set for day-one SaaS instrumentation.
+     *
+     * Returns the 12 essential events every SaaS should track immediately.
+     * Use for onboarding guidance and instrumentation checklists.
+     *
+     * @return array{events: list<array<string, mixed>>, count: int, categories: array<string, int>, funnel_coverage: array<string, bool>}
+     */
+    public function quickStartEvents(): array
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::quickStart();
     }
 }
