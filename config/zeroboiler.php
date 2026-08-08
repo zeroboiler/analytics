@@ -1778,5 +1778,60 @@ return [
             ],
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Insights (Automated Event Intelligence)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, generates automated insights from event data:
+        | trending events, anomalies, funnel drop-offs, and conversion opportunities.
+        | Used by admin dashboards and scheduled reports.
+        |
+        */
+        'insights' => [
+            'enabled' => env('ANALYTICS_INSIGHTS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_INSIGHTS_CACHE_TTL', 300), // 5 minutes
+            'min_events_for_trend' => (int) env('ANALYTICS_INSIGHTS_MIN_EVENTS', 10),
+            'anomaly_threshold' => (float) env('ANALYTICS_INSIGHTS_ANOMALY_THRESHOLD', 3.0), // z-score threshold
+            'max_insights' => (int) env('ANALYTICS_INSIGHTS_MAX', 20),
+            'trend_window_hours' => (int) env('ANALYTICS_INSIGHTS_TREND_WINDOW', 24),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Funnel Velocity Analysis (Time-Based Funnel Metrics)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, provides time-based funnel analysis measuring how long
+        | users spend at each step. Identifies bottlenecks by median/percentile
+        | transition times and drop-off rates.
+        |
+        */
+        'funnel_velocity' => [
+            'enabled' => env('ANALYTICS_FUNNEL_VELOCITY_ENABLED', true),
+            'percentile_window' => (int) env('ANALYTICS_FUNNEL_VELOCITY_PERCENTILE_WINDOW', 100),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Impact Scoring (Conversion & Retention Correlation)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, calculates which events most strongly correlate with
+        | conversion, retention, and revenue outcomes. Uses point-biserial
+        | correlation for statistical rigor without ML infrastructure.
+        |
+        */
+        'event_impact' => [
+            'enabled' => env('ANALYTICS_EVENT_IMPACT_ENABLED', true),
+            'min_sample_size' => (int) env('ANALYTICS_EVENT_IMPACT_MIN_SAMPLE', 30),
+            'conversion_events' => [
+                'subscribe', 'purchase', 'trial_converted', 'plan_upgrade',
+            ],
+            'retention_events' => [
+                'feature_used', 'login', 'form_submit', 'page_view',
+            ],
+        ],
+
     ],
 ];

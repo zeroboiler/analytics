@@ -2,6 +2,35 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.82.0] - 2026-08-08
+
+### Added
+- **SubscriptionMetricsCalculator** — Subscription metric calculations (MRR, ARR, churn rate, net retention)
+- **Phase5ProductionReadinessTest** — 50+ new production readiness tests (DTO completeness, return type audit, config completeness, Facade @method verification, ServiceProvider binding audit, license headers, Macroable removal check)
+
+### Changed
+- Version bump to 2.82.0 across AnalyticsEvent, composer.json, AnalyticsManager::version(), AnalyticsServiceProvider docblock
+- Fix ProductionReadinessTest: ConsentState tests now use correct API (isGranted/hasAnalyticsConsent instead of non-existent property accessors)
+- Fix ProductionReadinessTest: Facade test now correctly expects `final` (not "not final")
+- Fix V81ForecastChurnVersionTest: VERSION assertion updated to 2.82.0
+
+## [2.81.0] - 2026-08-08
+
+### Added
+- **AnalyticsInsightsService** — Automated event intelligence engine. Generates insights from event data: trending event detection (z-score based), anomaly detection (statistical threshold), funnel drop-off analysis (per-step conversion gaps), conversion opportunity identification (high-intent non-converting events), user flow analysis (most common multi-step paths). Configurable insight types, max count, anomaly threshold, trend window, and cache TTL.
+- **FunnelVelocityService** — Time-based funnel velocity analysis. Measures per-step and per-transition timing metrics (avg, median, p75, p90), identifies bottleneck steps (highest drop-off rate) and slowest transitions, calculates overall funnel conversion rate and total completion time. Supports built-in funnels (checkout, signup, trial, activation) and custom funnels. Includes funnel comparison method.
+- **EventImpactService** — Event impact scoring using point-biserial correlation. Measures which events most strongly correlate with conversion, retention, and revenue outcomes. Produces composite impact scores with category labels (high/moderate/low/minimal impact). Includes `conversionDrivers()` and `retentionDrivers()` convenience methods.
+- **AnalyticsInsight DTO** — Immutable data transfer object for insight data with type, severity, confidence, source, metadata, and a static `fromArray()` constructor.
+- **FunnelVelocityReport DTO** — Immutable data transfer object for funnel velocity results with per-step metrics, transition data, completion stats, bottleneck identification, and optional metadata.
+- **EcommerceEvents**: `abandoned_cart` and `checkout_abandon` event catalog entries — new e-commerce abandonment tracking events.
+- **AbandonedCartEvent / CheckoutAbandonEvent** — Dedicated event classes with typed properties (cart items, totals, step reached, time spent) and `toAnalyticsEvent()` conversion.
+- **EventCatalog**: `conversionEvents()` and `abandonedEvents()` helper methods — curated event sets for CRO dashboards and abandonment recovery campaigns.
+- **Config sections**: `insights` (enabled, cache_ttl, min_events_for_trend, anomaly_threshold, max_insights, trend_window_hours), `funnel_velocity` (enabled, percentile_window), `event_impact` (enabled, min_sample_size, conversion_events, retention_events).
+- **Service provider registrations** — AnalyticsInsightsService, FunnelVelocityService, and EventImpactService registered as singletons.
+
+### Changed
+- Version bump to 2.82.0 across AnalyticsEvent, composer.json, JS client (header + getVersion + _getInternalVersion), AnalyticsManager, AnalyticsServiceProvider, and all 188 controller endpoint version strings.
+
 ## [2.81.0] - 2026-08-08
 
 ### Added

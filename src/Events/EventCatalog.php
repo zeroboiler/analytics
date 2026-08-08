@@ -927,6 +927,58 @@ final class EventCatalog
     }
 
     /**
+     * Get events related to conversion optimization.
+     *
+     * Returns events that represent key conversion milestones across
+     * signup, trial, subscription, and e-commerce funnels. Useful for
+     * conversion rate optimization (CRO) dashboards.
+     *
+     * @return list<EventEntry>
+     */
+    public static function conversionEvents(): array
+    {
+        $conversionKeys = [
+            // SaaS conversion funnel
+            'sign_up', 'email_verified', 'start_trial', 'trial_converted',
+            'subscribe', 'plan_upgrade', 'feature_adopted',
+            // E-commerce conversion funnel
+            'view_item', 'add_to_cart', 'view_cart', 'begin_checkout',
+            'add_payment_info', 'purchase',
+            // Engagement-driven conversion signals
+            'form_submit', 'goal_conversion', 'milestone_reached',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $conversionKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events related to cart and checkout abandonment.
+     *
+     * Returns events that signal user intent but not completion — the
+     * gap between "interested" and "converted". Critical for recovery
+     * campaigns and funnel optimization.
+     *
+     * @return list<EventEntry>
+     */
+    public static function abandonedEvents(): array
+    {
+        $abandonedKeys = [
+            'abandoned_cart', 'checkout_abandon',
+            'remove_from_cart', 'view_cart',
+            // Partial engagement signals
+            'form_start', 'begin_checkout', 'add_payment_info',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $abandonedKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
      * Get the AARRR category classification for a given event name.
      *
      * Uses the EventPriorityCalculator's classification to determine

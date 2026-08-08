@@ -136,6 +136,23 @@ final class EcommerceEvents
                 'posthog' => 'checkout_step',
                 'plausible' => null,
             ],
+            // Cart & checkout abandonment (v2.82.0)
+            'abandoned_cart' => [
+                'name' => 'abandoned_cart',
+                'class' => AbandonedCartEvent::class,
+                'ga4' => 'remove_from_cart',
+                'meta' => 'InitiateCheckout',
+                'posthog' => 'abandoned_cart',
+                'plausible' => null,
+            ],
+            'checkout_abandon' => [
+                'name' => 'checkout_abandon',
+                'class' => CheckoutAbandonEvent::class,
+                'ga4' => 'begin_checkout',
+                'meta' => 'InitiateCheckout',
+                'posthog' => 'checkout_abandon',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

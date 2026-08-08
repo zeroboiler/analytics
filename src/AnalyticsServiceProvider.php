@@ -110,9 +110,12 @@ use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
 use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
 use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
+use ZeroBoiler\Analytics\Services\FunnelVelocityService;
+use ZeroBoiler\Analytics\Services\EventImpactService;
 
 /**
- * @version 2.81.0
+ * @version 2.82.0
  */
 
 /**
@@ -1084,6 +1087,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsReadinessService($app->make('cache'), $config);
+        });
+
+        // Analytics Insights Service (v2.82.0)
+        $this->app->singleton(AnalyticsInsightsService::class, function (Application $app): AnalyticsInsightsService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsInsightsService($config);
+        });
+
+        // Funnel Velocity Service (v2.82.0)
+        $this->app->singleton(FunnelVelocityService::class, function (Application $app): FunnelVelocityService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelVelocityService($config);
+        });
+
+        // Event Impact Service (v2.82.0)
+        $this->app->singleton(EventImpactService::class, function (Application $app): EventImpactService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventImpactService($config);
         });
     }
 

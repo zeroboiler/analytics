@@ -116,33 +116,57 @@ describe('AnalyticsEvent DTO', function () {
 // ─── ConsentState DTO ─────────────────────────────────────────────────────
 
 describe('ConsentState DTO', function () {
-    it('creates granted state', function () {
+    it('creates granted state with all signals', function () {
         $state = ConsentState::granted();
 
-        expect($state->analytics)->toBeTrue();
-        expect($state->adStorage)->toBeTrue();
-        expect($state->adUserData)->toBeTrue();
-        expect($state->adPersonalization)->toBeTrue();
+        expect($state->hasAnalyticsConsent())->toBeTrue();
+        expect($state->hasAdConsent())->toBeTrue();
+        expect($state->isGranted('ad_user_data'))->toBeTrue();
+        expect($state->isGranted('ad_personalization'))->toBeTrue();
+        expect($state->isGranted('functionality_storage'))->toBeTrue();
+        expect($state->isGranted('personalization_storage'))->toBeTrue();
     });
 
-    it('creates denied state', function () {
+    it('creates denied state with analytics and ad denied', function () {
         $state = ConsentState::denied();
 
-        expect($state->analytics)->toBeFalse();
-        expect($state->adStorage)->toBeFalse();
+        expect($state->hasAnalyticsConsent())->toBeFalse();
+        expect($state->hasAdConsent())->toBeFalse();
+        // security_storage is always granted per Google spec
+        expect($state->isGranted('security_storage'))->toBeTrue();
     });
 
-    it('creates from config string', function () {
-        $granted = ConsentState::fromString('granted');
-        expect($granted->analytics)->toBeTrue();
+    it('isGranted returns false for unset signals', function () {
+        $state = new ConsentState;
 
-        $denied = ConsentState::fromString('denied');
-        expect($denied->analytics)->toBeFalse();
+        expect($state->hasAnalyticsConsent())->toBeFalse();
+        expect($state->hasAdConsent())->toBeFalse();
     });
 
-    it('defaults to granted for unknown string', function () {
-        $state = ConsentState::fromString('unknown');
-        expect($state->analytics)->toBeTrue();
+    it('with() returns new state with merged signals', function () {
+        $state = ConsentState::denied();
+        $updated = $state->with(['analytics_storage' => 'granted']);
+
+        expect($updated->hasAnalyticsConsent())->toBeTrue();
+        expect($updated->hasAdConsent())->toBeFalse();
+        // Original state unchanged (immutability)
+        expect($state->hasAnalyticsConsent())->toBeFalse();
+    });
+
+    it('toArray returns all signals', function () {
+        $state = ConsentState::granted();
+        $arr = $state->toArray();
+
+        expect($arr)->toBeArray();
+        expect($arr['analytics_storage'])->toBe('granted');
+        expect($arr['security_storage'])->toBe('granted');
+    });
+
+    it('isDenied returns true for denied signals', function () {
+        $state = ConsentState::denied();
+
+        expect($state->isDenied('analytics_storage'))->toBeTrue();
+        expect($state->isDenied('ad_storage'))->toBeTrue();
     });
 });
 
@@ -533,8 +557,12 @@ describe('Structural Checks', function () {
         expect((new ReflectionClass(AnalyticsEvent::class))->isReadOnly())->toBeTrue();
     });
 
-    it('Facade is not final (Laravel convention)', function () {
-        expect((new ReflectionClass(\ZeroBoiler\Analytics\Facades\Analytics::class))->isFinal())->toBeFalse();
+    it('Facade is final with #[Override]', function () {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Facades\Analytics::class);
+        expect($r->isFinal())->toBeTrue();
+        $m = $r->getMethod('getFacadeAccessor');
+        $has = array_any($m->getAttributes(), fn (ReflectionAttribute $a): bool => $a->getName() === 'Override');
+        expect($has)->toBeTrue();
     });
 
     it('composer.json has minimum-stability stable', function () {
