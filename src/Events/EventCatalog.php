@@ -452,6 +452,30 @@ final class EventCatalog
     }
 
     /**
+     * Get GDPR-related events for compliance tracking.
+     *
+     * Returns events that carry PII, involve consent, or represent
+     * data subject rights (account deletion, consent changes, erasure).
+     * Essential for GDPR Article 30 records of processing activities.
+     *
+     * @return list<EventEntry>
+     */
+    public static function gdprEvents(): array
+    {
+        $gdprKeys = [
+            'sign_up', 'login', 'account_activated', 'account_deactivated',
+            'account_deleted', 'password_changed', 'password_reset',
+            'email_verified', 'profile_updated', 'export', 'import',
+            'cancellation', 'subscription_cancelled',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $gdprKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
      * Get a summary of the event catalog with counts and breakdown.
      *
      * @return array{total: int, ecommerce: int, saas: int, engagement: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int}
@@ -768,9 +792,10 @@ final class EventCatalog
     {
         $billingKeys = [
             'payment_succeeded', 'payment_failed', 'payment_method_added',
-            'invoice_generated', 'credit_applied', 'billing_retry',
-            'subscription_value_changed', 'subscribe', 'subscription_renewal',
-            'revenue_tracked', 'purchase', 'expansion_revenue',
+            'payment_method_updated', 'invoice_generated', 'credit_applied',
+            'billing_retry', 'subscription_value_changed', 'subscribe',
+            'subscription_created', 'subscription_cancelled', 'subscription_renewal',
+            'revenue_tracked', 'purchase', 'expansion_revenue', 'plan_changed',
         ];
 
         return array_values(array_filter(

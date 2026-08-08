@@ -118,7 +118,7 @@ final class V51EventExporterAndSummaryTest extends TestCase
         $data = json_decode($json, true);
         $this->assertNotNull($data);
         $this->assertArrayHasKey('version', $data);
-        $this->assertSame('2.89.0', $data['version']);
+        $this->assertSame('2.90.0', $data['version']);
         $this->assertArrayHasKey('total', $data);
         $this->assertArrayHasKey('categories', $data);
         $this->assertArrayHasKey('ecommerce', $data['categories']);
@@ -319,6 +319,6 @@ final class V51EventExporterAndSummaryTest extends TestCase
     {
         $manager = $this->app->make(AnalyticsManager::class);
 
-        $this->assertSame('2.89.0', $manager->version());
+        $this->assertSame('2.90.0', $manager->version());
     }
 }

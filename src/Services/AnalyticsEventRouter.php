@@ -228,7 +228,7 @@ final class AnalyticsEventRouter
             'enabled' => $this->enabled,
             'rule_count' => count($this->rules),
             'rules' => $this->rules,
-            'version' => '2.89.0',
+            'version' => '2.90.0',
         ];
     }
 

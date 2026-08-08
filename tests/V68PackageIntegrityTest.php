@@ -21,12 +21,12 @@ describe('V68 Package Integrity', function (): void {
     // ─── Version Consistency ─────────────────────────────────────────
     describe('Version Consistency', function (): void {
         test('AnalyticsManager returns 2.68.0', function (): void {
-            expect($this->manager->version())->toBe('2.89.0');
+            expect($this->manager->version())->toBe('2.90.0');
         });
 
         test('composer.json version is 2.68.0', function (): void {
             $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-            expect($composer['version'])->toBe('2.89.0');
+            expect($composer['version'])->toBe('2.90.0');
         });
 
         test('JS client header version is 2.68.0', function (): void {
@@ -36,7 +36,7 @@ describe('V68 Package Integrity', function (): void {
 
         test('JS client getVersion returns 2.68.0', function (): void {
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->toContain("return '2.89.0'");
+            expect($js)->toContain("return '2.90.0'");
         });
 
         test('JS client _getInternalVersion returns 2.68.0', function (): void {

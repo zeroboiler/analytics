@@ -358,6 +358,14 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractTrialParams',
             'priority' => 80,
         ],
+
+        // ── GDPR & Account Lifecycle (v2.90) ──────────────────────
+        'account.deleted' => [
+            'source' => 'account.deleted',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\AccountDeletedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 95,
+        ],
     ];
 
     /** @var array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}> */

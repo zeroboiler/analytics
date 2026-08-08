@@ -35,7 +35,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 // ─── Phase 5: Deep Production Readiness ────────────────────────────────
 
 describe('Phase 5: Version Consistency', function () {
-    test('all versions are 2.89.0', function (): void {
+    test('all versions are 2.90.0', function (): void {
         $composer = json_decode(
             file_get_contents(__DIR__ . '/../composer.json'),
             true,
@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('2.89.0');
-        expect(AnalyticsEvent::VERSION)->toBe('2.89.0');
-        expect((new AnalyticsManager)->version())->toBe('2.89.0');
+        expect($composer['version'])->toBe('2.90.0');
+        expect(AnalyticsEvent::VERSION)->toBe('2.90.0');
+        expect((new AnalyticsManager)->version())->toBe('2.90.0');
     });
 });
 

@@ -616,7 +616,7 @@ describe('AnalyticsManager Interceptor Integration', function (): void {
     test('version returns 2.22.0', function (): void {
         $manager = new AnalyticsManager($this->config);
 
-        expect($manager->version())->toBe('2.89.0');
+        expect($manager->version())->toBe('2.90.0');
     });
 
     test('directDispatch returns bool', function (): void {

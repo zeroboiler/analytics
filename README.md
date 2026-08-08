@@ -619,6 +619,65 @@ $saas->trackFeatureUsed('export', 5);
 $saas->trackCustomEvent('onboarding_complete', ['step_count' => 5]);
 ```
 
+### v2.90 — New SaaS Lifecycle Events (GDPR + Subscription)
+
+```php
+use ZeroBoiler\Analytics\Events\SaaS\{
+    AccountDeletedEvent, SubscriptionCreatedEvent, SubscriptionCancelledEvent,
+    TrialExpiredEvent, PlanChangedEvent,
+};
+
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// GDPR account deletion tracking
+Analytics::trackEvent(new AccountDeletedEvent(
+    reason: 'gdpr_request',
+    method: 'self_service',
+    accountAgeDays: 365,
+    lastPlan: 'pro',
+));
+
+// Subscription creation
+Analytics::trackEvent(new SubscriptionCreatedEvent(
+    plan: 'business',
+    value: 99.99,
+    currency: 'EUR',
+    billingCycle: 'monthly',
+    source: 'trial_conversion',
+));
+
+// Subscription cancellation with retention context
+Analytics::trackEvent(new SubscriptionCancelledEvent(
+    plan: 'pro',
+    reason: 'too_expensive',
+    flow: 'self_service',
+    effectiveDate: '2026-09-01',
+    retentionOfferAccepted: false,
+));
+
+// Trial expired (lapsed without action)
+Analytics::trackEvent(new TrialExpiredEvent(
+    plan: 'pro',
+    trialLengthDays: 14,
+    featuresUsedCount: 3,
+    lastActivity: '2026-08-01T10:00:00Z',
+));
+
+// General plan change
+Analytics::trackEvent(new PlanChangedEvent(
+    fromPlan: 'starter',
+    toPlan: 'enterprise',
+    direction: 'upgrade',
+    reason: 'user_initiated',
+    priceDifference: 50.00,
+    currency: 'USD',
+));
+
+// GDPR & billing event helpers
+EventCatalog::gdprEvents();    // Compliance-relevant events
+EventCatalog::billingEvents(); // Financial lifecycle events
+```
+
 ### Revenue Analytics
 
 ```php

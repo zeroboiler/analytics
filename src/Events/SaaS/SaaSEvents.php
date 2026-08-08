@@ -464,6 +464,50 @@ final class SaaSEvents
                 'posthog' => 'import',
                 'plausible' => null,
             ],
+            // GDPR compliance & account lifecycle (v2.90.0)
+            'account_deleted' => [
+                'name' => 'account_deleted',
+                'class' => AccountDeletedEvent::class,
+                'ga4' => 'account_deleted',
+                'meta' => 'CustomEvent',
+                'posthog' => 'account_deleted',
+                'plausible' => null,
+            ],
+            // Subscription lifecycle (v2.90.0)
+            'subscription_created' => [
+                'name' => 'subscription_created',
+                'class' => SubscriptionCreatedEvent::class,
+                'ga4' => 'subscription_created',
+                'meta' => 'Subscribe',
+                'posthog' => 'subscription_created',
+                'plausible' => 'subscription',
+            ],
+            'subscription_cancelled' => [
+                'name' => 'subscription_cancelled',
+                'class' => SubscriptionCancelledEvent::class,
+                'ga4' => 'subscription_cancelled',
+                'meta' => 'CancelSubscription',
+                'posthog' => 'subscription_cancelled',
+                'plausible' => 'cancellation',
+            ],
+            // Trial lifecycle (v2.90.0)
+            'trial_expired' => [
+                'name' => 'trial_expired',
+                'class' => TrialExpiredEvent::class,
+                'ga4' => 'trial_expired',
+                'meta' => 'CustomEvent',
+                'posthog' => 'trial_expired',
+                'plausible' => null,
+            ],
+            // Plan management (v2.90.0)
+            'plan_changed' => [
+                'name' => 'plan_changed',
+                'class' => PlanChangedEvent::class,
+                'ga4' => 'plan_changed',
+                'meta' => 'CustomEvent',
+                'posthog' => 'plan_changed',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

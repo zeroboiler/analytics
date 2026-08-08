@@ -717,6 +717,14 @@ return [
                 // ── Integrations ─────────────────────────────────
                 'integration.connected' => true,
                 'integration.failed' => true,
+
+                // ── GDPR & Account Deletion (v2.90.0) ────────
+                'account.deleted' => true,
+
+                // ── Subscription & Trial (v2.90.0) ────────────
+                'subscription.created' => true,
+                'subscription.cancelled' => true,
+                'trial.expired' => true,
             ],
             /*
             | Custom event mappings (merged with or override defaults).
@@ -1687,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.89.0',
+            'catalog_version' => '2.90.0',
         ],
 
         /*

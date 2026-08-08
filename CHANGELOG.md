@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.90.0] - 2026-08-08
+
+### Added
+- **5 new SaaS lifecycle events** — Expanded event catalog with critical SaaS lifecycle events:
+  - `AccountDeletedEvent` — GDPR right-to-erasure tracking with reason, method, account age, and last plan
+  - `SubscriptionCreatedEvent` — Subscription creation with plan, value, currency, billing cycle, and acquisition source
+  - `SubscriptionCancelledEvent` — Subscription cancellation with full context (reason, flow, effective date, retention offer status)
+  - `TrialExpiredEvent` — Trial lapse without conversion with plan, trial length, feature usage, and last activity
+  - `PlanChangedEvent` — General-purpose plan transition with from/to plan, direction, reason, price difference, and currency
+- **EventCatalog::gdprEvents()** — Returns GDPR-related events for compliance tracking (PII events, consent, account deletion)
+- **EventCatalog::billingEvents()** — Updated billing events list with new subscription_created, subscription_cancelled, and plan_changed
+- **LifecycleEventMapper** — Added `account.deleted` → `AccountDeletedEvent` mapping with high priority (95)
+- **Lifecycle config** — Added toggle entries for `account.deleted`, `subscription.created`, `subscription.cancelled`, `trial.expired`
+- **V90SaaSLifecycleEventsTest** — 27 test cases covering all 5 new event classes, catalog integration, version consistency, GDPR events helper, and billing events helper
+
+### Changed
+- Version bump to 2.90.0 across all files (AnalyticsEvent::VERSION, AnalyticsManager::version(), composer.json, JS client, TypeScript definitions, config catalog_version, ServiceProvider docblocks, 50+ controller/service version strings, 50+ test files)
+
 ## [2.89.1] - 2026-08-08
 
 ### Changed
