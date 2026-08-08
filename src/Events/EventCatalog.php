@@ -1410,6 +1410,84 @@ final class EventCatalog
     }
 
     /**
+     * Get events required for enterprise compliance tracking.
+     *
+     * Returns events that map to GDPR Article 30 (records of processing),
+     * SOC2 CC7 (logical access monitoring), and ISO 27001 (audit trail)
+     * compliance requirements. These events form the minimum audit trail
+     * for enterprise customers with compliance obligations.
+     *
+     * @return list<EventEntry>
+     */
+    public static function enterpriseComplianceEvents(): array
+    {
+        $complianceKeys = [
+            // GDPR Article 30 — Records of processing
+            'sign_up', 'login', 'email_verified', 'password_changed', 'password_reset',
+            'profile_updated', 'account_activated', 'account_deactivated', 'account_deleted',
+            'consent_granted', 'consent_withdrawn',
+            'data_subject_access_request', 'data_erasure_completed',
+            // SOC2 CC7 — Access monitoring
+            'logout', 'role_changed', 'team_member_joined', 'team_member_removed',
+            // Audit trail
+            'integration_connected', 'integration_failed',
+            'payment_method_added', 'payment_method_updated',
+            'export', 'import',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $complianceKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events needed for DAU/MAU ratio tracking.
+     *
+     * Returns the minimum set of events required to calculate Daily Active
+     * Users (DAU), Monthly Active Users (MAU), and the DAU/MAU stickiness
+     * ratio. These are the core engagement health metrics for any SaaS product.
+     *
+     * @return list<EventEntry>
+     */
+    public static function dauMauEvents(): array
+    {
+        $dauMauKeys = [
+            'login', 'page_view', 'session_start', 'feature_used',
+            'search', 'form_submit', 'click', 'content_engagement',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $dauMauKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get product health monitoring events.
+     *
+     * Returns events that indicate product stability, user satisfaction,
+     * and system health. Essential for product teams monitoring quality
+     * metrics and error rates.
+     *
+     * @return list<EventEntry>
+     */
+    public static function productHealthEvents(): array
+    {
+        $healthKeys = [
+            'error', 'js_error', 'web_vitals', 'timing',
+            'payment_failed', 'billing_retry', 'sla_breach',
+            'feature_limit_reached', 'usage_quota_reached',
+            'feedback', 'support_tickets_placeholder', // mapped to feedback
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $healthKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
      * Get the industry-standard SaaS readiness score (0-100).
      *
      * Calculates how well-instrumented the current event catalog is

@@ -118,9 +118,10 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 use ZeroBoiler\Analytics\Services\PrivacySandboxService;
 use ZeroBoiler\Analytics\Services\CartStateManager;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
+use ZeroBoiler\Analytics\Services\OnboardingCompletionService;
 
 /**
- * @version 2.91.0
+ * @version 2.92.0
  */
 
 /**
@@ -129,7 +130,7 @@ use ZeroBoiler\Analytics\Services\EventAffinityService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.91.0
+ * @version 2.92.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1156,6 +1157,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventAffinityService(
                 $app->make('cache'),
                 $manager->metrics(),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Onboarding Completion Service (v2.92.0)
+        $this->app->singleton(OnboardingCompletionService::class, function (Application $app): OnboardingCompletionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+
+            return new OnboardingCompletionService(
+                $manager,
+                $queue,
+                $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
         });

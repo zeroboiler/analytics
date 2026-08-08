@@ -9,6 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.92.0](#whats-new-in-v2920)
 - [What's New in v2.91.0](#whats-new-in-v2910)
 - [What's New in v2.88.0](#whats-new-in-v2880)
 - [Features](#features)
@@ -56,6 +57,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.92.0
+
+- **Onboarding Completion Service** — OnboardingCompletionService tracks multi-step user onboarding with configurable required/optional milestones, time-to-completion tracking, completion percentage, and automatic `onboarding_completed` event dispatch
+- **EventCatalog::enterpriseComplianceEvents()** — GDPR Article 30, SOC2 CC7, ISO 27001 compliance event set for enterprise audit trails (24 events)
+- **EventCatalog::dauMauEvents()** — DAU/MAU stickiness tracking event set (8 core engagement events)
+- **EventCatalog::productHealthEvents()** — Product stability, quality, and system health monitoring events
+- **Onboarding tracking config** — New `onboarding_tracking` config section with required/optional steps, cache TTL, and prefix
+- **Version bump to 2.92.0** — Config, ServiceProvider, schema versioning updated
+- **13 new tests** — V92OnboardingComplianceDauMauTest covering new catalog methods, OnboardingCompletionService, version consistency, and file quality
 
 ## What's New in v2.91.0
 

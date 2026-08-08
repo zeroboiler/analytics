@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.91.0',
+            'catalog_version' => '2.92.0',
         ],
 
         /*
@@ -1923,6 +1923,33 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_AFFINITY_CACHE_TTL', 3600), // 1 hour
             'min_co_occurrences' => (int) env('ANALYTICS_AFFINITY_MIN_CO', 5),
             'min_lift_threshold' => (float) env('ANALYTICS_AFFINITY_MIN_LIFT', 1.2),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Onboarding Completion Tracking
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks multi-step user onboarding progress with configurable milestones.
+        | When all required steps are completed, an `onboarding_completed` event
+        | is dispatched with timing metadata. Supports required and optional
+        | milestones for flexible onboarding funnel analysis.
+        |
+        */
+        'onboarding_tracking' => [
+            'enabled' => env('ANALYTICS_ONBOARDING_ENABLED', true),
+            'required_steps' => [
+                'profile_setup',
+                'first_feature_used',
+                'team_invited_or_skipped',
+            ],
+            'optional_steps' => [
+                'billing_connected',
+                'integration_added',
+                'tutorial_completed',
+            ],
+            'cache_ttl' => (int) env('ANALYTICS_ONBOARDING_CACHE_TTL', 2592000), // 30 days
+            'cache_prefix' => env('ANALYTICS_ONBOARDING_CACHE_PREFIX', 'zb_onboarding_'),
         ],
 
     ],
