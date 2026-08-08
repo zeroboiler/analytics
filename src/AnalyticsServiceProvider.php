@@ -50,6 +50,7 @@ use ZeroBoiler\Analytics\Services\ExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsScheduledReportCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
@@ -116,7 +117,7 @@ use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 
 /**
- * @version 2.88.0
+ * @version 2.89.0
  */
 
 /**
@@ -125,7 +126,7 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.88.0
+ * @version 2.89.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1145,6 +1146,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsHealthCommand::class,
                 AnalyticsDashboardCommand::class,
                 AnalyticsScheduledReportCommand::class,
+                AnalyticsReadinessCommand::class,
             ]);
         }
 

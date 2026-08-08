@@ -2,6 +2,17 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.89.0] - 2026-08-08
+
+### Added
+- **AnalyticsReadinessCommand** — Artisan command `zb:analytics:readiness` for production readiness checks. Runs a comprehensive checklist validating provider configuration, consent defaults, queue setup, identity tracking, event validation, debug mode, event replay, deduplication, PII sanitization, consent logging, GDPR IP anonymization, UTM attribution, health score, error tracking, and performance budget. Supports `--json` output and `--no-cache` force-refresh. Returns exit code 0 (ready) or 1 (not ready). The readiness service already existed but had no CLI entry point — config documentation referenced `zb:analytics:readiness` without an actual command.
+- **V89ReadinessCommandVersionTest** — 17 test cases covering command class structure, strict types, license header, #[Override] attribute, service injection, return types, ServiceProvider registration, and comprehensive version consistency (2.89.0) across 15+ files with stale version detection.
+- Command registered in ServiceProvider (8 total artisan commands now).
+
+### Changed
+- Version bump to 2.89.0 across AnalyticsEvent::VERSION, AnalyticsManager::version(), composer.json, JS client (getVersion + _getInternalVersion), TypeScript definitions, config catalog_version, and 50+ controller/service version strings.
+- All 50+ hardcoded VERSION assertions across 20+ test files updated to match 2.89.0.
+
 ## [2.88.0] - 2026-08-08
 
 ### Changed

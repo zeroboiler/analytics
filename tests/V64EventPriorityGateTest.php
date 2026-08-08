@@ -289,9 +289,9 @@ describe('Version consistency', function (): void {
         $managerPhp = file_get_contents(__DIR__ . '/../src/AnalyticsManager.php');
         $analyticsJs = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($composerJson)->toContain('2.88.0');
-        expect($managerPhp)->toContain('2.88.0');
-        expect($analyticsJs)->toContain('2.88.0');
+        expect($composerJson)->toContain('2.89.0');
+        expect($managerPhp)->toContain('2.89.0');
+        expect($analyticsJs)->toContain('2.89.0');
     });
 
     test('EventPriority file exists with correct namespace', function (): void {

@@ -42,7 +42,7 @@ describe('v2.72.0 — Industry Standard SaaS Starter', function () {
         });
 
         it('includes priority in VERSION constant', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('2.88.0');
+            expect(AnalyticsEvent::VERSION)->toBe('2.89.0');
         });
 
         it('fromArray works without priority (backward compatibility)', function () {

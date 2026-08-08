@@ -58,7 +58,7 @@ final class EventSchemaVersioningService
         $this->paramName = (string) ($svConfig['param_name'] ?? '_schema_version');
         $this->defaultVersion = (string) ($svConfig['default_version'] ?? '1.0');
         $this->includeCatalogVersion = (bool) ($svConfig['include_catalog_version'] ?? true);
-        $this->catalogVersion = (string) ($svConfig['catalog_version'] ?? '2.88.0');
+        $this->catalogVersion = (string) ($svConfig['catalog_version'] ?? '2.89.0');
     }
 
     /**

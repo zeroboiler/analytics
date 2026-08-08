@@ -186,7 +186,7 @@ test('AnalyticsManager plgEvents returns catalog PLG events', function (): void 
 
 test('Version consistency across all files', function (): void {
     // AnalyticsEvent VERSION constant
-    expect(AnalyticsEvent::VERSION)->toBe('2.88.0');
+    expect(AnalyticsEvent::VERSION)->toBe('2.89.0');
 
     // Event count consistency
     expect(EventCatalog::count())->toBe(90);

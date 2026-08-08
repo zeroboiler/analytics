@@ -362,7 +362,7 @@ final class EventEnvelopeService
         return [
             'enabled' => $this->enabled,
             'sections' => $this->activeSections(),
-            'version' => '2.88.0',
+            'version' => '2.89.0',
         ];
     }
 }
