@@ -620,4 +620,138 @@ final class EventCatalog
             ],
         ];
     }
+
+    /**
+     * Get business-critical events that should never be sampled or dropped.
+     *
+     * Revenue, authentication, and subscription events that directly impact
+     * business metrics. Use with PriorityAwareFilter to ensure these events
+     * are always dispatched regardless of sampling or deduplication settings.
+     *
+     * @return list<EventEntry>
+     */
+    public static function criticalEvents(): array
+    {
+        $criticalKeys = [
+            // Revenue-impacting
+            'purchase', 'refund', 'subscribe', 'revenue_tracked',
+            'payment_succeeded', 'payment_failed', 'credit_applied',
+            'invoice_generated', 'trial_converted', 'subscription_renewal',
+            'subscription_value_changed', 'billing_retry',
+            // Authentication
+            'sign_up', 'login', 'logout',
+            // Subscription lifecycle
+            'plan_upgrade', 'plan_downgrade', 'cancellation',
+            'subscription_paused', 'subscription_resumed',
+            // E-commerce funnel
+            'add_to_cart', 'begin_checkout', 'add_payment_info',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $criticalKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events safe for probabilistic sampling in high-traffic scenarios.
+     *
+     * Returns engagement and low-criticality events that can be safely
+     * sampled to reduce volume during traffic spikes without impacting
+     * business metrics.
+     *
+     * @return list<EventEntry>
+     */
+    public static function samplableEvents(): array
+    {
+        $samplableKeys = [
+            'page_view', 'scroll_depth', 'click', 'time_on_page',
+            'content_engagement', 'screen_view', 'session_start',
+            'session_end', 'outbound_click', 'notification',
+            'timing', 'web_vitals', 'feature_impression',
+            'campaign_attribution',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $samplableKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get the complete e-commerce checkout funnel events in order.
+     *
+     * Returns events representing a typical checkout flow:
+     * view_item → add_to_cart → view_cart → begin_checkout →
+     * add_payment_info → purchase → refund (post-purchase).
+     * Useful for funnel visualization and drop-off analysis.
+     *
+     * @return list<EventEntry>
+     */
+    public static function checkoutFunnel(): array
+    {
+        $funnelKeys = [
+            'view_item', 'select_item', 'add_to_cart', 'remove_from_cart',
+            'view_cart', 'add_to_wishlist', 'begin_checkout',
+            'add_payment_info', 'purchase', 'refund',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $funnelKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get the product-led activation funnel events.
+     *
+     * Returns events representing a user's journey from sign-up to
+     * first meaningful value realization. Covers onboarding steps,
+     * feature usage, and key engagement signals.
+     *
+     * @return list<EventEntry>
+     */
+    public static function activationFunnel(): array
+    {
+        $activationKeys = [
+            'sign_up', 'email_verified', 'login', 'onboarding_step',
+            'feature_used', 'page_view', 'search', 'form_submit',
+            'share', 'content_engagement', 'milestone_reached',
+            'start_trial', 'trial_converted', 'subscribe',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $activationKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events that signal retention health or churn risk.
+     *
+     * Returns events indicating user engagement levels and churn signals:
+     * account deactivation, cancellation, feature limit reached, usage quota
+     * warnings, payment failures, and plan downgrades.
+     *
+     * @return list<EventEntry>
+     */
+    public static function retentionSignals(): array
+    {
+        $retentionKeys = [
+            // Churn signals
+            'cancellation', 'account_deactivated', 'plan_downgrade',
+            'payment_failed', 'billing_retry', 'subscription_paused',
+            'feature_limit_reached', 'usage_quota_reached',
+            // Retention positive signals
+            'login', 'feature_used', 'content_engagement',
+            'milestone_reached', 'plan_upgrade', 'subscription_value_changed',
+            'team_member_joined', 'integration_connected',
+            'payment_method_added',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $retentionKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
 }

@@ -4,6 +4,24 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.75.0] - 2026-08-08
+
+### Added
+- **SubscriptionValueChangedEvent** — MRR/ARR movement tracker. Captures previous/new subscription values, computed delta, currency, billing cycle, and reason (upgrade, downgrade, add_on, removal, discount, promotional). Registered in SaaSEvents catalog (46 total) with GA4/Meta/PostHog mappings. Auto-tracked via `subscription.value_changed` ServerSide event.
+- **UsageQuotaReachedEvent** — Expansion/upsell signal event. Tracks feature/resource that hit quota limit, current usage, limit, unit, and auto-calculated usage percentage. Signals for upsell dashboards, churn prediction, and feature gating analytics. Auto-tracked via `usage.quota_reached` ServerSide event.
+- **BillingRetryEvent** — Dunning lifecycle tracker. Captures retry status (attempted, succeeded, failed, exhausted), attempt number, plan, amount, currency, and failure reason (card_declined, insufficient_funds, expired_card). Critical for revenue recovery rate dashboards. Auto-tracked via `billing.retry` ServerSide event.
+- **EventCatalog::criticalEvents()** — Business-critical events that should never be sampled or dropped. Revenue, authentication, subscription lifecycle, and e-commerce funnel events (21 events). Use with PriorityAwareFilter to guarantee dispatch.
+- **EventCatalog::samplableEvents()** — Events safe for probabilistic sampling during traffic spikes. Engagement and low-criticality events (15 events) that can be dropped without impacting business metrics.
+- **EventCatalog::checkoutFunnel()** — Complete e-commerce checkout funnel in order (10 events): view_item → select_item → add_to_cart → remove_from_cart → view_cart → add_to_wishlist → begin_checkout → add_payment_info → purchase → refund.
+- **EventCatalog::activationFunnel()** — Product-led activation funnel events (14 events): sign_up → email_verified → login → onboarding_step → feature_used → engagement → milestone → trial → subscribe.
+- **EventCatalog::retentionSignals()** — Retention health and churn risk signals (19 events): churn signals (cancellation, account_deactivated, plan_downgrade, payment_failed, billing_retry, feature_limit_reached, usage_quota_reached) and positive retention signals (login, feature_used, milestone_reached, plan_upgrade, subscription_value_changed, team_member_joined, integration_connected, payment_method_added).
+- **ServerSideTracker: 3 new custom event mappings** — `subscription.value_changed`, `usage.quota_reached`, `billing.retry` registered in the default customEventMap for config-driven auto-tracking.
+
+### Changed
+- Version bump to 2.75.0 across AnalyticsEvent, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, AnalyticsManager, and ServiceProvider docblock.
+- SaaS event count: 43 → 46 (added subscription_value_changed, usage_quota_reached, billing_retry).
+- Total catalog events: 81 → 84.
+
 ## [2.74.0] - 2026-08-08
 
 ### Added

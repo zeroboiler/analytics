@@ -385,6 +385,33 @@ final class SaaSEvents
                 'posthog' => 'subscription_paused',
                 'plausible' => null,
             ],
+            // Revenue movement events
+            'subscription_value_changed' => [
+                'name' => 'subscription_value_changed',
+                'class' => SubscriptionValueChangedEvent::class,
+                'ga4' => 'subscription_value_changed',
+                'meta' => 'SubscriptionValueChanged',
+                'posthog' => 'subscription_value_changed',
+                'plausible' => null,
+            ],
+            // Expansion & limit signals
+            'usage_quota_reached' => [
+                'name' => 'usage_quota_reached',
+                'class' => UsageQuotaReachedEvent::class,
+                'ga4' => 'usage_quota_reached',
+                'meta' => 'UsageQuotaReached',
+                'posthog' => 'usage_quota_reached',
+                'plausible' => null,
+            ],
+            // Dunning / billing retry
+            'billing_retry' => [
+                'name' => 'billing_retry',
+                'class' => BillingRetryEvent::class,
+                'ga4' => 'billing_retry',
+                'meta' => 'BillingRetry',
+                'posthog' => 'billing_retry',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;
