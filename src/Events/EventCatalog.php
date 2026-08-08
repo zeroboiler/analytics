@@ -404,6 +404,54 @@ final class EventCatalog
     }
 
     /**
+     * Get revenue-related events across all categories.
+     *
+     * Returns events that directly impact revenue tracking: purchases, subscriptions,
+     * refunds, trial conversions, billing events, and revenue tracking.
+     * Useful for revenue dashboards and financial reporting.
+     *
+     * @return list<EventEntry>
+     */
+    public static function revenueEvents(): array
+    {
+        $revenueKeys = [
+            'purchase', 'refund', 'subscribe', 'revenue_tracked',
+            'payment_succeeded', 'payment_failed', 'invoice_generated',
+            'credit_applied', 'trial_converted', 'plan_upgrade', 'plan_downgrade',
+            'cancellation', 'subscription_renewal', 'subscription_resumed',
+            'add_to_cart', 'remove_from_cart', 'begin_checkout', 'add_payment_info',
+            'view_cart', 'add_to_wishlist',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $revenueKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get core SaaS lifecycle events for startup onboarding.
+     *
+     * Returns the essential subset of SaaS events every new deployment should
+     * track: authentication, subscription lifecycle, trial, and key business events.
+     *
+     * @return list<EventEntry>
+     */
+    public static function coreSaaS(): array
+    {
+        $coreKeys = [
+            'sign_up', 'login', 'logout', 'start_trial', 'trial_end',
+            'subscribe', 'plan_upgrade', 'plan_downgrade', 'cancellation',
+            'trial_converted', 'subscription_resumed',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $coreKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
      * Get a summary of the event catalog with counts and breakdown.
      *
      * @return array{total: int, ecommerce: int, saas: int, engagement: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int}

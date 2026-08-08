@@ -13,11 +13,17 @@ namespace ZeroBoiler\Analytics\DTO;
 final readonly class AnalyticsEvent
 {
     /**
+     * Package version for schema versioning.
+     */
+    public const VERSION = '2.72.0';
+
+    /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')
      * @param  array<string, mixed>  $params  Event parameters
      * @param  string|null  $clientId  GA4 client ID (optional, generated if null)
      * @param  string|null  $userId  Authenticated user ID (optional)
      * @param  \DateTimeImmutable|null  $timestamp  Event timestamp (optional, defaults to now)
+     * @param  string|null  $priority  Event priority level (critical|normal|low|background), used by EventPriorityGate
      */
     public function __construct(
         public string $name,
@@ -25,12 +31,13 @@ final readonly class AnalyticsEvent
         public ?string $clientId = null,
         public ?string $userId = null,
         public ?\DateTimeImmutable $timestamp = null,
+        public ?string $priority = null,
     ): void {}
 
     /**
      * Create an AnalyticsEvent from an array.
      *
-     * @param  array{name?: string, params?: array<string, mixed>, client_id?: string|null, user_id?: string|null}  $data
+     * @param  array{name?: string, params?: array<string, mixed>, client_id?: string|null, user_id?: string|null, priority?: string|null}  $data
      */
     public static function fromArray(array $data): self
     {
@@ -39,6 +46,7 @@ final readonly class AnalyticsEvent
             params: is_array($data['params'] ?? null) ? $data['params'] : [],
             clientId: is_string($data['client_id'] ?? null) ? $data['client_id'] : null,
             userId: is_string($data['user_id'] ?? null) ? $data['user_id'] : null,
+            priority: is_string($data['priority'] ?? null) ? $data['priority'] : null,
         );
     }
 
