@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.94.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-2.95.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.95.0](#whats-new-in-v2950)
 - [What's New in v2.94.0](#whats-new-in-v2940)
 - [What's New in v2.93.0](#whats-new-in-v2930)
 - [What's New in v2.92.0](#whats-new-in-v2920)
@@ -60,6 +61,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.95.0
+
+- **Server-Sent Events (SSE) Controller** — Real-time event streaming via persistent HTTP connections with cursor-based resume, event filtering, category filtering, and configurable heartbeat. Endpoints: `GET /api/analytics/sse`, `/sse/info`, `/sse/health`
+- **EventWindowAggregator** — Time-windowed event counting (minute/hour/day) in cache for dashboard sparkline charts. Provides `lastNMinutes()`, `lastNHours()`, `lastNDays()` with configurable TTLs
+- **FeatureAdoptionTracker** — Per-user feature adoption tracking with streak detection, adoption funnels, and PLG (product-led growth) analysis. Tracks first/last use timestamps and use counts per feature
+- **AnalyticsApiGuard** — Centralized API request validation with payload size limits, event name length checks, batch size limits, and per-client sliding window rate limiting
+- **JS Client SSE support** — `connectSSE()` function using native EventSource API with `onEvent`, `onHeartbeat`, `onClose` callbacks. Plus `fetchSSEInfo()` and `fetchSSEHealth()` helpers
+- **TypeScript definitions** — Full type coverage for SSE (SSEInfo, SSEEventData, SSEConnection, SSEConnectOptions), Feature Adoption (FeatureAdoptionProfile, FeatureAdoptionFunnelStep)
+- **Config expansion** — New `sse`, `windowed_aggregation`, `feature_adoption`, and `api_guard` config sections with env-driven settings
+- **EventStreamService enhancements** — Added `getEventsSince()`, `getBufferSize()`, `getCurrentCount()`, `getCurrentCursor()`, `getBufferUtilization()` for SSE controller integration
+- **Version bump to 2.95.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
 ## What's New in v2.94.0
 

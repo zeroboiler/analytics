@@ -25,12 +25,12 @@ test('SchemaDrivenEventBuilder has correct namespace, strict types, and final', 
     expect($file)->toContain('This file is part of ZeroBoiler, licensed under the MIT license');
 });
 
-test('SchemaDrivenEventBuilder has version 2.94.0 in docblock', function (): void {
+test('SchemaDrivenEventBuilder has version 2.95.0 in docblock', function (): void {
     $reflection = new ReflectionClass(SchemaDrivenEventBuilder::class);
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('2.94.0');
+    expect($doc)->toContain('2.95.0');
 });
 
 test('SchemaDrivenEventBuilder constructor accepts nullable parameters', function (): void {
@@ -326,12 +326,12 @@ test('SchemaDiffReporter has correct namespace, strict types, and final', functi
     expect($file)->toContain('This file is part of ZeroBoiler, licensed under the MIT license');
 });
 
-test('SchemaDiffReporter has version 2.94.0 in docblock', function (): void {
+test('SchemaDiffReporter has version 2.95.0 in docblock', function (): void {
     $reflection = new ReflectionClass(SchemaDiffReporter::class);
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('2.94.0');
+    expect($doc)->toContain('2.95.0');
 });
 
 // ─── SchemaDiffReporter: report() ────────────────────────────────────────
@@ -536,7 +536,7 @@ test('EventPropertySchema expanded schema count is significantly larger than bef
     $schema = new EventPropertySchema;
     $schema->registerBuiltInSchemas();
 
-    // v2.93.0 had ~13 schemas. v2.94.0 should have 60+.
+    // v2.93.0 had ~13 schemas. v2.95.0 should have 60+.
     expect($schema->schemaCount())->toBeGreaterThanOrEqual(60);
 });
 
@@ -559,13 +559,13 @@ test('EventPropertySchema global rules include timestamp and source', function (
 
 // ─── Version Consistency ────────────────────────────────────────────────
 
-test('Version 2.94.0 is consistent across key files', function (): void {
+test('Version 2.95.0 is consistent across key files', function (): void {
     $managerReflection = new ReflectionClass(\ZeroBoiler\Analytics\AnalyticsManager::class);
     $managerFile = file_get_contents($managerReflection->getFileName());
 
     $spReflection = new ReflectionClass(\ZeroBoiler\Analytics\AnalyticsServiceProvider::class);
     $spFile = file_get_contents($spReflection->getFileName());
 
-    expect($managerFile)->toContain('2.94.0');
-    expect($spFile)->toContain('2.94.0');
+    expect($managerFile)->toContain('2.95.0');
+    expect($spFile)->toContain('2.95.0');
 });

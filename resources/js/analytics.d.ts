@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.94.0
+ * @version 2.95.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -1388,3 +1388,142 @@ export function fetchBenchmarkQuickStart(): Promise<{
         version: string;
     };
 } | null>;
+
+// ─── Server-Sent Events (v2.95.0) ──────────────────────────────────
+
+/** SSE server capability info */
+export interface SSEInfo {
+    status: string;
+    version: string;
+    sse: {
+        supported: boolean;
+        endpoint: string;
+        max_connection_seconds: number;
+        min_heartbeat_seconds: number;
+        default_heartbeat_seconds: number;
+        max_heartbeat_seconds: number;
+        supports_cursor_resume: boolean;
+        supports_filtering: boolean;
+        supports_category_filter: boolean;
+    };
+    buffer: {
+        size: number;
+        current_count: number;
+        cursor: number;
+    };
+}
+
+/** SSE health check response */
+export interface SSEHealth {
+    status: string;
+    sse: string;
+    buffer_utilization: number;
+}
+
+/** SSE event data from the stream */
+export interface SSEEventData {
+    id: number;
+    event: string;
+    params: Record<string, unknown>;
+    client_id: string | null;
+    user_id: string | null;
+    provider: string | null;
+    timestamp: string;
+    dispatched: boolean;
+}
+
+/** SSE heartbeat message */
+export interface SSEHeartbeat {
+    cursor: number;
+    timestamp: string;
+}
+
+/** SSE close message */
+export interface SSEClose {
+    reason: string;
+    cursor: number;
+}
+
+/** SSE event callback types */
+export type SSEEventCallback = (data: SSEEventData) => void;
+export type SSEHeartbeatCallback = (data: SSEHeartbeat) => void;
+export type SSECloseCallback = (data: SSEClose) => void;
+
+/** Options for connecting to the SSE stream */
+export interface SSEConnectOptions {
+    /** Resume from cursor (default: 0) */
+    cursor?: number;
+    /** Event name filter (supports * wildcard) */
+    filter?: string;
+    /** Category filter (ecommerce|saas|engagement) */
+    category?: string;
+    /** Heartbeat interval in seconds (default: 30) */
+    heartbeat?: number;
+    /** Callback for event messages */
+    onEvent?: SSEEventCallback;
+    /** Callback for heartbeat messages */
+    onHeartbeat?: SSEHeartbeatCallback;
+    /** Callback when the stream closes */
+    onClose?: SSECloseCallback;
+    /** Callback on connection errors */
+    onError?: (error: Event) => void;
+}
+
+/** SSE connection handle (returned by connectSSE) */
+export interface SSEConnection {
+    /** Close the SSE connection */
+    close: () => void;
+    /** Whether the connection is currently active */
+    active: boolean;
+}
+
+/** Fetch SSE endpoint capability info */
+export function fetchSSEInfo(): Promise<SSEInfo | null>;
+
+/** Fetch SSE health check */
+export function fetchSSEHealth(): Promise<SSEHealth | null>;
+
+/**
+ * Connect to the real-time SSE analytics stream.
+ *
+ * Opens a persistent HTTP connection that receives events as they occur.
+ * Returns a connection handle with a close() method.
+ *
+ * @param options - Connection options including callbacks
+ * @returns SSE connection handle
+ *
+ * @example
+ * const conn = connectSSE({
+ *     onEvent: (data) => console.log('Event:', data.event, data.params),
+ *     onHeartbeat: (data) => console.log('Heartbeat:', data.cursor),
+ *     onClose: (data) => console.log('Stream closed:', data.reason),
+ *     filter: 'purchase*',
+ * });
+ *
+ * // Later: close the connection
+ * conn.close();
+ */
+export function connectSSE(options?: SSEConnectOptions): SSEConnection;
+
+// ─── Feature Adoption (v2.95.0) ──────────────────────────────────────
+
+/** Feature adoption profile for a user */
+export interface FeatureAdoptionProfile {
+    total_features: number;
+    features: Record<string, {
+        first_used: string;
+        last_used: string;
+        use_count: number;
+        context: Record<string, unknown>;
+    }>;
+    streaks: Record<string, string[]>;
+    last_activity: string | null;
+}
+
+/** Feature adoption funnel step */
+export interface FeatureAdoptionFunnelStep {
+    feature: string;
+    adopted: number;
+    adoption_rate: number;
+    drop_off: number;
+}

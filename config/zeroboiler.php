@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.94.0',
+            'catalog_version' => '2.95.0',
         ],
 
         /*
@@ -1976,6 +1976,77 @@ return [
                 'trial',
                 'activation',
             ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Server-Sent Events (SSE) Streaming
+        |--------------------------------------------------------------------------
+        |
+        | Real-time event streaming via SSE for dashboard widgets.
+        | When enabled, the GET /api/analytics/sse endpoint is available
+        | for persistent HTTP connections that push events as they occur.
+        |
+        | Configure max connection lifetime, heartbeat interval, and
+        | auto-register the SSE routes via the service provider.
+        |
+        */
+        'sse' => [
+            'enabled' => env('ANALYTICS_SSE_ENABLED', true),
+            'max_connection_seconds' => (int) env('ANALYTICS_SSE_MAX_CONNECTION', 300), // 5 minutes
+            'heartbeat_seconds' => (int) env('ANALYTICS_SSE_HEARTBEAT', 30),
+            'poll_interval_ms' => (int) env('ANALYTICS_SSE_POLL_INTERVAL', 500),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Windowed Event Aggregation (Sparklines)
+        |--------------------------------------------------------------------------
+        |
+        | Time-windowed event counting for dashboard sparkline charts.
+        | Counts events per minute/hour/day in the cache for efficient querying.
+        | Used by the /api/analytics/sparkline endpoints.
+        |
+        */
+        'windowed_aggregation' => [
+            'enabled' => env('ANALYTICS_WINDOWED_AGGREGATION_ENABLED', true),
+            'minute_ttl' => (int) env('ANALYTICS_WINDOWED_MINUTE_TTL', 7200), // 2 hours
+            'hour_ttl' => (int) env('ANALYTICS_WINDOWED_HOUR_TTL', 86400), // 24 hours
+            'day_ttl' => (int) env('ANALYTICS_WINDOWED_DAY_TTL', 2592000), // 30 days
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feature Adoption Tracking (PLG)
+        |--------------------------------------------------------------------------
+        |
+        | Tracks which features each user has adopted for product-led growth
+        | analysis, activation scoring, and adoption funnels.
+        | Data stored in cache with configurable TTL.
+        |
+        */
+        'feature_adoption' => [
+            'enabled' => env('ANALYTICS_FEATURE_ADOPTION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FEATURE_ADOPTION_TTL', 2592000), // 30 days
+            'streak_window_days' => (int) env('ANALYTICS_FEATURE_ADOPTION_STREAK_WINDOW', 7),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Guard (Request Validation & Rate Limiting)
+        |--------------------------------------------------------------------------
+        |
+        | Centralized request validation for incoming analytics API requests.
+        | Validates payload size, event name length, batch size, and applies
+        | per-client rate limiting before event processing.
+        |
+        */
+        'api_guard' => [
+            'enabled' => env('ANALYTICS_API_GUARD_ENABLED', true),
+            'batch_max' => (int) env('ANALYTICS_API_GUARD_BATCH_MAX', 25),
+            'max_payload_bytes' => (int) env('ANALYTICS_API_GUARD_MAX_PAYLOAD', 65536), // 64KB
+            'max_event_name_length' => (int) env('ANALYTICS_API_GUARD_MAX_NAME', 100),
+            'rate_window' => (int) env('ANALYTICS_API_GUARD_RATE_WINDOW', 60), // seconds
         ],
 
     ],

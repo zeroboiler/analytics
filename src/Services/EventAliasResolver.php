@@ -206,7 +206,7 @@ final class EventAliasResolver
                 'saas' => count($categories['saas']),
                 'engagement' => count($categories['engagement']),
             ],
-            'version' => '2.94.0',
+            'version' => '2.95.0',
         ];
     }
 

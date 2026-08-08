@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.94.0
+ * @version 2.95.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.94.0';
+    return '2.95.0';
 }
 
 /**
@@ -3121,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.94.0';
+    return '2.95.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -5015,4 +5015,147 @@ export async function fetchBenchmarkQuickStart() {
     } catch {
         return null;
     }
+}
+
+// ─── Server-Sent Events (v2.95.0) ──────────────────────────────────
+
+/**
+ * Fetch SSE endpoint capability info.
+ *
+ * @returns {Promise<Object|null>} SSE server capabilities and buffer info
+ */
+export async function fetchSSEInfo() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/sse/info`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch SSE health check status.
+ *
+ * @returns {Promise<Object|null>} SSE health and buffer utilization
+ */
+export async function fetchSSEHealth() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/sse/health`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Connect to the real-time SSE analytics stream.
+ *
+ * Opens a persistent HTTP connection that receives events as they occur.
+ * Uses the EventSource API with a polyfill-friendly fallback for
+ * POST-based connections with filters.
+ *
+ * @param {Object} options - Connection options
+ * @param {number} [options.cursor=0] - Resume from cursor
+ * @param {string} [options.filter] - Event name filter (supports * wildcard)
+ * @param {string} [options.category] - Category filter
+ * @param {number} [options.heartbeat=30] - Heartbeat interval in seconds
+ * @param {Function} [options.onEvent] - Callback for event messages
+ * @param {Function} [options.onHeartbeat] - Callback for heartbeat messages
+ * @param {Function} [options.onClose] - Callback when stream closes
+ * @param {Function} [options.onError] - Callback for connection errors
+ * @returns {Object} Connection handle with close() method
+ *
+ * @example
+ * const conn = connectSSE({
+ *     onEvent: (data) => console.log('Event:', data.event),
+ *     filter: 'purchase*',
+ * });
+ * // Later:
+ * conn.close();
+ */
+export function connectSSE(options = {}) {
+    if (!initialized) {
+        return { close: () => {}, active: false };
+    }
+
+    const cursor = options.cursor || 0;
+    const filter = options.filter || '';
+    const category = options.category || '';
+    const heartbeat = Math.min(60, Math.max(5, options.heartbeat || 30));
+
+    const params = new URLSearchParams({
+        cursor: String(cursor),
+        ...(filter && { filter }),
+        ...(category && { category }),
+        heartbeat: String(heartbeat),
+    });
+
+    const url = `${apiBaseUrl}/sse?${params}`;
+
+    let active = true;
+    let eventSource = null;
+
+    // Try native EventSource first (simple GET-based SSE)
+    if (typeof EventSource !== 'undefined') {
+        eventSource = new EventSource(url);
+
+        eventSource.addEventListener('event', (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (options.onEvent) options.onEvent(data);
+            } catch {
+                // Ignore parse errors
+            }
+        });
+
+        eventSource.addEventListener('heartbeat', (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (options.onHeartbeat) options.onHeartbeat(data);
+            } catch {
+                // Ignore parse errors
+            }
+        });
+
+        eventSource.addEventListener('close', (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                active = false;
+                if (options.onClose) options.onClose(data);
+            } catch {
+                active = false;
+            }
+        });
+
+        eventSource.onerror = (e) => {
+            if (options.onError) options.onError(e);
+        };
+    }
+
+    return {
+        close: () => {
+            active = false;
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+        },
+        get active() {
+            return active;
+        },
+    };
 }

@@ -274,6 +274,53 @@ final class EventStreamService
     }
 
     /**
+     * Get events newer than a given cursor (alias for SSE controller).
+     *
+     * @param  int  $cursor  Cursor to fetch after
+     * @return list<array{id: int, event: string, params: array<string, mixed>, client_id: string|null, user_id: string|null, provider: string|null, timestamp: string, dispatched: bool}>
+     */
+    public function getEventsSince(int $cursor = 0): array
+    {
+        return $this->since($cursor, 50);
+    }
+
+    /**
+     * Get the configured buffer size.
+     */
+    public function getBufferSize(): int
+    {
+        return $this->bufferSize;
+    }
+
+    /**
+     * Get the current number of events in the buffer.
+     */
+    public function getCurrentCount(): int
+    {
+        return count($this->buffer);
+    }
+
+    /**
+     * Get the current cursor position.
+     */
+    public function getCurrentCursor(): int
+    {
+        return $this->cursor;
+    }
+
+    /**
+     * Get the buffer utilization as a percentage (0.0 - 1.0).
+     */
+    public function getBufferUtilization(): float
+    {
+        if ($this->bufferSize <= 0) {
+            return 0.0;
+        }
+
+        return round(count($this->buffer) / $this->bufferSize, 4);
+    }
+
+    /**
      * Sanitize event parameters for safe streaming.
      *
      * Removes sensitive keys and truncates large values to prevent

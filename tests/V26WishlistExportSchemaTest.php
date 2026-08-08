@@ -260,7 +260,7 @@ describe('Version v2.6.0 consistency', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('2.94.0');
+        expect($manager->version())->toBe('2.95.0');
     });
 
     it('event catalog summary includes all categories', function () {

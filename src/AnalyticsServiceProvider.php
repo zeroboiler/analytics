@@ -124,7 +124,7 @@ use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 
 /**
- * @version 2.94.0
+ * @version 2.95.0
  */
 
 /**
@@ -133,7 +133,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.94.0
+ * @version 2.95.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1210,7 +1210,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Schema-Driven Event Builder (v2.94.0)
+        // Schema-Driven Event Builder (v2.95.0)
         $this->app->singleton(SchemaDrivenEventBuilder::class, function (Application $app): SchemaDrivenEventBuilder {
             /** @var EventPropertySchema $propertySchema */
             $propertySchema = $app->make(EventPropertySchema::class);
@@ -1220,8 +1220,40 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SchemaDrivenEventBuilder($propertySchema, $schemaRegistry, false);
         });
 
-        // Schema Diff Reporter (v2.94.0)
+        // Schema Diff Reporter (v2.95.0)
         $this->app->singleton(SchemaDiffReporter::class);
+
+        // SSE Controller (v2.95.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class, function (Application $app): \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController {
+            /** @var EventStreamService $streamService */
+            $streamService = $app->make(EventStreamService::class);
+
+            return new \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController($streamService);
+        });
+
+        // Event Window Aggregator (v2.95.0)
+        $this->app->singleton(EventWindowAggregator::class, function (Application $app): EventWindowAggregator {
+            return new EventWindowAggregator(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Feature Adoption Tracker (v2.95.0)
+        $this->app->singleton(FeatureAdoptionTracker::class, function (Application $app): FeatureAdoptionTracker {
+            return new FeatureAdoptionTracker(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics API Guard (v2.95.0)
+        $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
+            return new AnalyticsApiGuard(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -1484,6 +1516,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/benchmarks/compare', [$controller, 'benchmarksCompare']);
                 Route::get('analytics/benchmarks/report-card', [$controller, 'benchmarksReportCard']);
                 Route::get('analytics/benchmarks/quick-start', [$controller, 'benchmarksQuickStart']);
+
+                // SSE Streaming (v2.95.0)
+                $sseController = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class;
+                Route::get('analytics/sse', [$sseController, 'stream']);
+                Route::get('analytics/sse/info', [$sseController, 'info']);
+                Route::get('analytics/sse/health', [$sseController, 'health']);
             });
 
         // Authenticated endpoints
