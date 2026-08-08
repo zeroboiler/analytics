@@ -317,6 +317,25 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new FunnelAnalyticsService($manager, $queue, $config);
         });
 
+        // Funnel progress tracker (cache-persisted state)
+        $this->app->singleton(FunnelProgressTracker::class, function (Application $app): FunnelProgressTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $funnelConfig = $config->get('zeroboiler.analytics.funnels', []);
+            /** @var array{cache_ttl?: int} $funnelConfig */
+
+            return new FunnelProgressTracker(
+                manager: $manager,
+                cache: $cache,
+                defaultTtl: $funnelConfig['cache_ttl'] ?? 86400,
+            );
+        });
+
         // Revenue attribution service
         $this->app->singleton(RevenueAttributionService::class, function (Application $app): RevenueAttributionService {
             /** @var AnalyticsManager $manager */

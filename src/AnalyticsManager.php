@@ -1699,4 +1699,81 @@ final class AnalyticsManager
     {
         return \ZeroBoiler\Analytics\Events\EventCatalog::quickStart();
     }
+
+    /**
+     * Track funnel progress with completion percentage and auto-detection.
+     *
+     * Delegates to FunnelProgressTracker for persistent state tracking.
+     * Tracks step advancement, regression, completion, and timing.
+     *
+     * @param  string  $funnelName  Funnel identifier (e.g. 'signup', 'checkout')
+     * @param  string  $stepName  Current step identifier
+     * @param  string  $identity  User ID or client ID
+     * @param  int  $stepNumber  Current step (1-indexed)
+     * @param  int  $totalSteps  Total steps in funnel
+     * @param  array<string, mixed>  $params  Additional parameters
+     * @return array{funnel_name: string, step_name: string, step_number: int, total_steps: int, completion_pct: float, is_complete: bool, is_advancement: bool, is_regression: bool, elapsed_seconds: float|null, previous_step: string|null, previous_step_number: int|null, first_seen: string|null, last_updated: string}
+     */
+    public function trackFunnelProgress(
+        string $funnelName,
+        string $stepName,
+        string $identity,
+        int $stepNumber,
+        int $totalSteps,
+        array $params = [],
+    ): array {
+        try {
+            $tracker = $this->getContainer()->make(
+                \ZeroBoiler\Analytics\Services\FunnelProgressTracker::class,
+            );
+
+            return $tracker->track(
+                funnelName: $funnelName,
+                stepName: $stepName,
+                identity: $identity,
+                stepNumber: $stepNumber,
+                totalSteps: $totalSteps,
+                params: $params,
+            );
+        } catch (\Throwable) {
+            // Fallback to basic track if tracker unavailable
+            $this->trackFunnel($funnelName, $stepName, $stepNumber, $totalSteps, $params);
+
+            return [
+                'funnel_name' => $funnelName,
+                'step_name' => $stepName,
+                'step_number' => $stepNumber,
+                'total_steps' => $totalSteps,
+                'completion_pct' => $totalSteps > 0 ? round(($stepNumber / $totalSteps) * 100, 1) : 0.0,
+                'is_complete' => $stepNumber >= $totalSteps,
+                'is_advancement' => false,
+                'is_regression' => false,
+                'elapsed_seconds' => null,
+                'previous_step' => null,
+                'previous_step_number' => null,
+                'first_seen' => null,
+                'last_updated' => (string) now()->toIso8601String(),
+            ];
+        }
+    }
+
+    /**
+     * Get pre-built funnel templates.
+     *
+     * @return array<string, array{name: string, description: string, steps: list<array{event: string, label: string}>, total_steps: int}>
+     */
+    public function funnelTemplates(): array
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::funnelTemplates();
+    }
+
+    /**
+     * Get a specific funnel template by name.
+     *
+     * @return array{name: string, description: string, steps: list<array{event: string, label: string}>, total_steps: int}|null
+     */
+    public function funnelTemplate(string $name): ?array
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::funnelTemplate($name);
+    }
 }

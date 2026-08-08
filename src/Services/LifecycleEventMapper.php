@@ -43,11 +43,21 @@ use ZeroBoiler\Analytics\Events\SaaS\TeamMemberJoinedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TeamMemberRemovedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ConsentGrantedEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ConsentWithdrawnEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ErrorEvent;
 use ZeroBoiler\Analytics\Events\Engagement\FormSubmitEvent;
 use ZeroBoiler\Analytics\Events\Engagement\SearchEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\PurchaseEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\RefundEvent;
+use ZeroBoiler\Analytics\Events\SaaS\DataErasureCompletedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\DataSubjectAccessRequestEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PlanChangedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\PaymentMethodUpdatedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SubscriptionCancelledEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SubscriptionCreatedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\SubscriptionResumedEvent;
+use ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent;
 
 /**
  * Config-driven lifecycle event mapping service.
@@ -366,9 +376,8 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractSimpleUserIdParams',
             'priority' => 95,
         ],
-        ],
 
-        // — GDPR Consent Lifecycle (v2.93) ——————
+        // ── GDPR Consent Lifecycle (v2.93) ───────────────────────
         'consent.granted' => [
             'source' => 'consent.granted',
             'target' => \ZeroBoiler\Analytics\Events\Engagement\ConsentGrantedEvent::class,
@@ -394,7 +403,7 @@ final class LifecycleEventMapper
             'priority' => 95,
         ],
 
-        // — Plan Management (v2.93) ——————
+        // ── Plan Management (v2.93) ────────────────────────────────
         'plan.changed' => [
             'source' => 'plan.changed',
             'target' => \ZeroBoiler\Analytics\Events\SaaS\PlanChangedEvent::class,
@@ -408,7 +417,7 @@ final class LifecycleEventMapper
             'priority' => 70,
         ],
 
-        // — Subscription Lifecycle Expansion (v2.93) ——————
+        // ── Subscription Lifecycle Expansion (v2.93) ───────────────
         'subscription.created_new' => [
             'source' => 'subscription.created_new',
             'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionCreatedEvent::class,
@@ -1099,6 +1108,71 @@ final class LifecycleEventMapper
                 'errorMessage' => (string) ($params['error_message'] ?? $params['errorMessage'] ?? ''),
                 'isRetryable' => (bool) ($params['is_retryable'] ?? $params['isRetryable'] ?? false),
                 'metadata' => array_filter(['user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? '')]),
+            ],
+            default => $params,
+        };
+
+        return $this->constructWithParams($class, $mapped);
+    }
+
+    /**
+     * Extract params from consent granted/withdrawn events.
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractConsentParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        $mapped = match ($class) {
+            ConsentGrantedEvent::class => [
+                'consentCategory' => (string) ($params['consent_category'] ?? $params['category'] ?? 'analytics'),
+                'consentStatus' => 'granted',
+                'userId' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'extra' => array_filter([
+                    'source' => (string) ($params['source'] ?? 'banner'),
+                ]),
+            ],
+            ConsentWithdrawnEvent::class => [
+                'consentCategory' => (string) ($params['consent_category'] ?? $params['category'] ?? 'analytics'),
+                'consentStatus' => 'withdrawn',
+                'userId' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'extra' => array_filter([
+                    'source' => (string) ($params['source'] ?? 'settings'),
+                ]),
+            ],
+            default => $params,
+        };
+
+        return $this->constructWithParams($class, $mapped);
+    }
+
+    /**
+     * Extract params from GDPR compliance events.
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractGdprParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        $mapped = match ($class) {
+            DataSubjectAccessRequestEvent::class => [
+                'requestType' => 'access',
+                'userId' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'extra' => array_filter([
+                    'request_id' => (string) ($params['request_id'] ?? $params['requestId'] ?? ''),
+                ]),
+            ],
+            DataErasureCompletedEvent::class => [
+                'requestType' => 'erasure',
+                'userId' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+                'extra' => array_filter([
+                    'request_id' => (string) ($params['request_id'] ?? $params['requestId'] ?? ''),
+                    'completed_at' => (string) ($params['completed_at'] ?? $params['completedAt'] ?? ''),
+                ]),
             ],
             default => $params,
         };
