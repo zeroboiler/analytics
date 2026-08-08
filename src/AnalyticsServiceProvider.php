@@ -29,8 +29,9 @@ use ZeroBoiler\Analytics\Pipeline\SamplingFilter;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
 use ZeroBoiler\Analytics\Services\EventValidationService;
+use ZeroBoiler\Analytics\Services\FunnelProgressTracker;
 use ZeroBoiler\Analytics\Services\FunnelAnalyticsService;
-use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
+use ZeroBoiler\Analytics\Services\OnboardingCompletionService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
 use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
@@ -118,10 +119,9 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 use ZeroBoiler\Analytics\Services\PrivacySandboxService;
 use ZeroBoiler\Analytics\Services\CartStateManager;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
-use ZeroBoiler\Analytics\Services\OnboardingCompletionService;
 
 /**
- * @version 2.92.0
+ * @version 2.93.0
  */
 
 /**
@@ -130,7 +130,7 @@ use ZeroBoiler\Analytics\Services\OnboardingCompletionService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.92.0
+ * @version 2.93.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1129,7 +1129,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Privacy Sandbox Service (v2.91.0)
+        // Privacy Sandbox Service (v2.93.0)
         $this->app->singleton(PrivacySandboxService::class, function (Application $app): PrivacySandboxService {
             return new PrivacySandboxService(
                 $app->make('cache'),
@@ -1137,7 +1137,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Cart State Manager (v2.91.0)
+        // Cart State Manager (v2.93.0)
         $this->app->singleton(CartStateManager::class, function (Application $app): CartStateManager {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
@@ -1149,7 +1149,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event Affinity Service (v2.91.0)
+        // Event Affinity Service (v2.93.0)
         $this->app->singleton(EventAffinityService::class, function (Application $app): EventAffinityService {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
@@ -1161,7 +1161,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Onboarding Completion Service (v2.92.0)
+        // Funnel Progress Tracker (v2.93.0)
+        $this->app->singleton(FunnelProgressTracker::class, function (Application $app): FunnelProgressTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new FunnelProgressTracker(
+                $manager,
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Onboarding Completion Service (v2.93.0)
         $this->app->singleton(OnboardingCompletionService::class, function (Application $app): OnboardingCompletionService {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');

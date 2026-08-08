@@ -467,9 +467,9 @@ final class EventCatalog
             'account_deleted', 'password_changed', 'password_reset',
             'email_verified', 'profile_updated', 'export', 'import',
             'cancellation', 'subscription_cancelled',
-            // GDPR consent lifecycle (v2.91.0)
+            // GDPR consent lifecycle (v2.93.0)
             'consent_granted', 'consent_withdrawn',
-            // Data subject rights (v2.91.0)
+            // Data subject rights (v2.93.0)
             'data_subject_access_request', 'data_erasure_completed',
         ];
 
@@ -1534,5 +1534,129 @@ final class EventCatalog
             'total_standard' => $totalStandard,
             'total_covered' => $covered,
         ];
+    }
+
+    /**
+     * Get pre-built funnel templates for common SaaS funnels.
+     *
+     * Returns named funnel definitions with ordered steps, each step
+     * having a canonical event name and display label. Use with
+     * FunnelProgressTracker::track() for automated funnel progression.
+     *
+     * @return array<string, array{name: string, description: string, steps: list<array{event: string, label: string}>, total_steps: int}>
+     */
+    public static function funnelTemplates(): array
+    {
+        return [
+            'signup' => [
+                'name' => 'signup',
+                'description' => 'User registration funnel — from landing page to account creation',
+                'steps' => [
+                    ['event' => 'page_view', 'label' => 'Landing Page'],
+                    ['event' => 'form_start', 'label' => 'Registration Form Started'],
+                    ['event' => 'form_submit', 'label' => 'Registration Form Submitted'],
+                    ['event' => 'sign_up', 'label' => 'Account Created'],
+                    ['event' => 'email_verified', 'label' => 'Email Verified'],
+                ],
+                'total_steps' => 5,
+            ],
+            'trial' => [
+                'name' => 'trial',
+                'description' => 'Trial activation funnel — from signup to trial conversion',
+                'steps' => [
+                    ['event' => 'start_trial', 'label' => 'Trial Started'],
+                    ['event' => 'feature_used', 'label' => 'First Feature Used'],
+                    ['event' => 'onboarding_step', 'label' => 'Onboarding Completed'],
+                    ['event' => 'trial_converted', 'label' => 'Trial Converted'],
+                ],
+                'total_steps' => 4,
+            ],
+            'checkout' => [
+                'name' => 'checkout',
+                'description' => 'E-commerce checkout funnel — from product view to purchase',
+                'steps' => [
+                    ['event' => 'view_item', 'label' => 'Product Viewed'],
+                    ['event' => 'add_to_cart', 'label' => 'Added to Cart'],
+                    ['event' => 'begin_checkout', 'label' => 'Checkout Started'],
+                    ['event' => 'add_payment_info', 'label' => 'Payment Info Entered'],
+                    ['event' => 'purchase', 'label' => 'Purchase Completed'],
+                ],
+                'total_steps' => 5,
+            ],
+            'onboarding' => [
+                'name' => 'onboarding',
+                'description' => 'Product onboarding funnel — from signup to activation',
+                'steps' => [
+                    ['event' => 'sign_up', 'label' => 'Signed Up'],
+                    ['event' => 'email_verified', 'label' => 'Email Verified'],
+                    ['event' => 'profile_updated', 'label' => 'Profile Completed'],
+                    ['event' => 'feature_used', 'label' => 'First Feature Used'],
+                    ['event' => 'milestone_reached', 'label' => 'Activation Milestone'],
+                ],
+                'total_steps' => 5,
+            ],
+            'activation' => [
+                'name' => 'activation',
+                'description' => 'Product activation funnel — key value-realization moments',
+                'steps' => [
+                    ['event' => 'sign_up', 'label' => 'Signed Up'],
+                    ['event' => 'feature_used', 'label' => 'Feature Used'],
+                    ['event' => 'search', 'label' => 'Search Performed'],
+                    ['event' => 'content_engagement', 'label' => 'Content Engaged'],
+                    ['event' => 'integration_connected', 'label' => 'Integration Added'],
+                    ['event' => 'team_member_joined', 'label' => 'Team Expanded'],
+                ],
+                'total_steps' => 6,
+            ],
+            'billing' => [
+                'name' => 'billing',
+                'description' => 'Subscription billing funnel — from plan selection to payment',
+                'steps' => [
+                    ['event' => 'plan_upgrade', 'label' => 'Plan Selected'],
+                    ['event' => 'begin_checkout', 'label' => 'Checkout Initiated'],
+                    ['event' => 'add_payment_info', 'label' => 'Payment Method Added'],
+                    ['event' => 'subscribe', 'label' => 'Subscription Created'],
+                    ['event' => 'payment_succeeded', 'label' => 'Payment Succeeded'],
+                ],
+                'total_steps' => 5,
+            ],
+        ];
+    }
+
+    /**
+     * Get a specific funnel template by name.
+     *
+     * @return array{name: string, description: string, steps: list<array{event: string, label: string}>, total_steps: int}|null
+     */
+    public static function funnelTemplate(string $name): ?array
+    {
+        return self::funnelTemplates()[$name] ?? null;
+    }
+
+    /**
+     * Get all funnel template names.
+     *
+     * @return list<string>
+     */
+    public static function funnelTemplateNames(): array
+    {
+        return array_keys(self::funnelTemplates());
+    }
+
+    /**
+     * Get the event names from a funnel template as a flat list.
+     *
+     * @param  string  $name  Funnel template name
+     * @return list<string> Event names in funnel order
+     */
+    public static function funnelTemplateEvents(string $name): array
+    {
+        $template = self::funnelTemplate($name);
+
+        if ($template === null) {
+            return [];
+        }
+
+        return array_column($template['steps'], 'event');
     }
 }

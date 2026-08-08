@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * Supports optional and required milestones, time-to-completion tracking,
  * and drop-off analysis at each step.
  *
- * @version 2.92.0
+ * @version 2.93.0
  */
 final class OnboardingCompletionService
 {

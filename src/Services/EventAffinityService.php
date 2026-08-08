@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  *   Score < 1.0 = negative correlation (events tend NOT to co-occur)
  *   Score = 1.0 = independent events (no correlation)
  *
- * @version 2.91.0
+ * @version 2.93.0
  */
 final class EventAffinityService
 {

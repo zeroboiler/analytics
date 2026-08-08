@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.93.0] - 2026-08-08
+
+### Added
+- **FunnelProgressTracker** — Cache-persisted funnel progress tracker with completion percentage, step timing, automatic advancement/regression detection, and `funnel_step`/`funnel_completed` event dispatch
+- **AnalyticsManager::funnelProgress()** — Convenience method delegating to FunnelProgressTracker for stateful funnel tracking
+- **Funnel progress config** — New `funnel_progress` config section with `ANALYTICS_FUNNEL_PROGRESS_ENABLED` toggle and customizable `known_funnels` list
+- **Facade** — `Analytics::funnelProgress()` documented in Facade `@method` annotations
+- **V93FunnelProgressTrackerTest** — 22 test cases covering FunnelProgressTracker structure, method signatures, functional behavior (advancement, regression, completion, duplicate prevention), config integration, AnalyticsManager delegation, ServiceProvider registration, and version consistency
+
+### Changed
+- Version bump to 2.93.0 across all source files, config, JS client, TypeScript definitions, and 100+ test file assertions
+
 ## [2.91.0] - 2026-08-08
 
 ### Fixed

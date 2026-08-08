@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.91.0';
+        return '2.93.0';
     }
 
     /**
@@ -1656,6 +1656,35 @@ final class AnalyticsManager
             'step_number' => $stepNumber,
             'total_steps' => $totalSteps,
         ] + $params, fn (mixed $v): bool => $v !== null && $v !== ''));
+    }
+
+    /**
+     * Track funnel progress with cache-persisted state.
+     *
+     * Delegates to FunnelProgressTracker::track() which manages per-user,
+     * per-funnel state in cache. Automatically detects advancement, regression,
+     * and completion. Dispatches funnel_step and funnel_completed events.
+     *
+     * @param  string  $funnelName  Funnel identifier (e.g. 'signup', 'checkout', 'onboarding')
+     * @param  string  $stepName  Current step identifier (e.g. 'form_submit', 'payment_info')
+     * @param  string  $identity  User ID or client ID for tracking
+     * @param  int  $stepNumber  Current step number (1-indexed)
+     * @param  int  $totalSteps  Total steps in the funnel
+     * @param  array<string, mixed>  $params  Additional event parameters
+     * @return array{funnel_name: string, step_name: string, step_number: int, total_steps: int, completion_pct: float, is_complete: bool, is_advancement: bool, is_regression: bool, elapsed_seconds: float|null, previous_step: string|null, previous_step_number: int|null, first_seen: string|null, last_updated: string}
+     */
+    public function funnelProgress(
+        string $funnelName,
+        string $stepName,
+        string $identity,
+        int $stepNumber,
+        int $totalSteps,
+        array $params = [],
+    ): array {
+        /** @var \ZeroBoiler\Analytics\Services\FunnelProgressTracker $tracker */
+        $tracker = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\FunnelProgressTracker::class);
+
+        return $tracker->track($funnelName, $stepName, $identity, $stepNumber, $totalSteps, $params);
     }
 
     /**

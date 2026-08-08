@@ -27,7 +27,7 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
     describe('Version unification — 2.58.0', function (): void {
         test('AnalyticsManager::version() returns 2.58.0', function (): void {
             $manager = new AnalyticsManager;
-            expect($manager->version())->toBe('2.91.0');
+            expect($manager->version())->toBe('2.93.0');
         });
 
         test('composer.json version is 2.58.0', function (): void {
@@ -37,7 +37,7 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
                 512,
                 JSON_THROW_ON_ERROR,
             );
-            expect($composer['version'])->toBe('2.91.0');
+            expect($composer['version'])->toBe('2.93.0');
         });
 
         test('EventSourceTagger uses version 2.58.0', function (): void {
@@ -51,7 +51,7 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
             $tagged = $instance->tag($event);
 
             expect($tagged->params)->toHaveKey('_version');
-            expect($tagged->params['_version'])->toBe('2.91.0');
+            expect($tagged->params['_version'])->toBe('2.93.0');
         });
 
         test('EventEnvelopeService uses version 2.58.0', function (): void {
@@ -61,12 +61,12 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
             $result = $envelope->wrap($event);
 
             expect($result['metadata']['version'] ?? $result['_version'] ?? null)
-                ->toBe('2.91.0');
+                ->toBe('2.93.0');
         });
 
         test('JS client version is 2.58.0', function (): void {
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->toContain("'2.91.0'");
+            expect($js)->toContain("'2.93.0'");
             expect($js)->not->toContain("'2.87.0'");
             expect($js)->not->toContain("'2.52.0'");
             expect($js)->not->toContain("'2.87.0'");
@@ -74,7 +74,7 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
 
         test('TypeScript definitions version is 2.58.0', function (): void {
             $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-            expect($dts)->toContain('2.91.0');
+            expect($dts)->toContain('2.93.0');
             expect($dts)->not->toContain('2.87.0');
         });
 

@@ -508,7 +508,7 @@ final class SaaSEvents
                 'posthog' => 'plan_changed',
                 'plausible' => null,
             ],
-            // GDPR compliance events (v2.91.0)
+            // GDPR compliance events (v2.93.0)
             'data_subject_access_request' => [
                 'name' => 'data_subject_access_request',
                 'class' => DataSubjectAccessRequestEvent::class,

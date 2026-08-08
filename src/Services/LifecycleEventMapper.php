@@ -366,6 +366,73 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractSimpleUserIdParams',
             'priority' => 95,
         ],
+        ],
+
+        // — GDPR Consent Lifecycle (v2.93) ——————
+        'consent.granted' => [
+            'source' => 'consent.granted',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\ConsentGrantedEvent::class,
+            'params_extractor' => 'extractConsentParams',
+            'priority' => 90,
+        ],
+        'consent.withdrawn' => [
+            'source' => 'consent.withdrawn',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\ConsentWithdrawnEvent::class,
+            'params_extractor' => 'extractConsentParams',
+            'priority' => 90,
+        ],
+        'gdpr.data_subject_access_request' => [
+            'source' => 'gdpr.data_subject_access_request',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\DataSubjectAccessRequestEvent::class,
+            'params_extractor' => 'extractGdprParams',
+            'priority' => 95,
+        ],
+        'gdpr.data_erasure_completed' => [
+            'source' => 'gdpr.data_erasure_completed',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\DataErasureCompletedEvent::class,
+            'params_extractor' => 'extractGdprParams',
+            'priority' => 95,
+        ],
+
+        // — Plan Management (v2.93) ——————
+        'plan.changed' => [
+            'source' => 'plan.changed',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\PlanChangedEvent::class,
+            'params_extractor' => 'extractPlanChangeParams',
+            'priority' => 90,
+        ],
+        'billing.payment_method_updated' => [
+            'source' => 'billing.payment_method_updated',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\PaymentMethodUpdatedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
+
+        // — Subscription Lifecycle Expansion (v2.93) ——————
+        'subscription.created_new' => [
+            'source' => 'subscription.created_new',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionCreatedEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 90,
+        ],
+        'subscription.cancelled_new' => [
+            'source' => 'subscription.cancelled_new',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionCancelledEvent::class,
+            'params_extractor' => 'extractCancellationParams',
+            'priority' => 90,
+        ],
+        'subscription.resumed' => [
+            'source' => 'subscription.resumed',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionResumedEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 85,
+        ],
+        'trial.expired' => [
+            'source' => 'trial.expired',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent::class,
+            'params_extractor' => 'extractTrialParams',
+            'priority' => 85,
+        ],
     ];
 
     /** @var array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}> */

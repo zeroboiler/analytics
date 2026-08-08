@@ -429,7 +429,7 @@ test('Version consistency — all PHP files use 2.66.0', function (): void {
 test('JS client uses version 2.66.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-    expect($js)->toContain("'2.91.0'");
+    expect($js)->toContain("'2.93.0'");
     expect($js)->toContain('@version 2.66.0');
 });
 

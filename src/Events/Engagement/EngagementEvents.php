@@ -258,7 +258,7 @@ final class EngagementEvents
                 'posthog' => 'goal_conversion',
                 'plausible' => 'goal',
             ],
-            // GDPR consent lifecycle events (v2.91.0)
+            // GDPR consent lifecycle events (v2.93.0)
             'consent_granted' => [
                 'name' => 'consent_granted',
                 'class' => ConsentGrantedEvent::class,

@@ -580,22 +580,22 @@ describe('v2.45.0 Full Config Coverage', function (): void {
 
     test('version 2.45.0 is consistent across all markers', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.91.0');
+        expect($composer['version'])->toBe('2.93.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, "'2.91.0'"))->toBeTrue();
+        expect(str_contains($js, "'2.93.0'"))->toBeTrue();
 
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect(str_contains($dts, '2.91.0'))->toBeTrue();
+        expect(str_contains($dts, '2.93.0'))->toBeTrue();
 
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-        expect($manager->version())->toBe('2.91.0');
+        expect($manager->version())->toBe('2.93.0');
 
         $tagger = file_get_contents(__DIR__ . '/../src/Services/EventSourceTagger.php');
-        expect(str_contains($tagger, "'2.91.0'"))->toBeTrue();
+        expect(str_contains($tagger, "'2.93.0'"))->toBeTrue();
 
         $forwarder = file_get_contents(__DIR__ . '/../src/Services/EventForwardingService.php');
-        expect(str_contains($forwarder, '2.91.0'))->toBeTrue();
+        expect(str_contains($forwarder, '2.93.0'))->toBeTrue();
     });
 
     // ── Summary Completeness ─────────────────────────────────────

@@ -154,7 +154,7 @@ describe('EventSchemaVersioningService', function () {
         $service = new EventSchemaVersioningService($config);
 
         expect($service->isEnabled())->toBe(true);
-        expect($service->getCatalogVersion())->toBe('2.91.0');
+        expect($service->getCatalogVersion())->toBe('2.93.0');
         expect($service->getParamName())->toBe('_schema_version');
     });
 
@@ -385,7 +385,7 @@ describe('v2.71.0 Integration', function () {
         expect($config['analytics'])->toHaveKey('schema_versioning');
         expect($config['analytics']['schema_versioning'])->toHaveKey('enabled');
         expect($config['analytics']['schema_versioning'])->toHaveKey('catalog_version');
-        expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('2.91.0');
+        expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('2.93.0');
 
         // Readiness
         expect($config['analytics'])->toHaveKey('readiness');
@@ -408,13 +408,13 @@ describe('v2.71.0 Integration', function () {
     it('composer.json version is 2.71.0', function () {
         $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 
-        expect($composer['version'])->toBe('2.91.0');
+        expect($composer['version'])->toBe('2.93.0');
     });
 
     it('config/zeroboiler.php catalog_version is 2.71.0', function () {
         $config = require __DIR__.'/../config/zeroboiler.php';
 
-        expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('2.91.0');
+        expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('2.93.0');
     });
 
     it('new routes are defined', function () {

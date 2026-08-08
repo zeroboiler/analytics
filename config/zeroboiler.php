@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.92.0',
+            'catalog_version' => '2.93.0',
         ],
 
         /*
@@ -1950,6 +1950,32 @@ return [
             ],
             'cache_ttl' => (int) env('ANALYTICS_ONBOARDING_CACHE_TTL', 2592000), // 30 days
             'cache_prefix' => env('ANALYTICS_ONBOARDING_CACHE_PREFIX', 'zb_onboarding_'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Funnel Progress Tracking
+        |--------------------------------------------------------------------------
+        |
+        | Tracks user progression through multi-step funnels (signup, checkout,
+        | onboarding, trial, activation) with cache-persisted state. Uses
+        | FunnelProgressTracker for completion percentage, step timing, and
+        | automatic advancement/regression detection.
+        |
+        | The `known_funnels` list defines which funnel names are scanned
+        | when calling `getAllProgress()`. Customize to match your app's
+        | actual funnel identifiers.
+        |
+        */
+        'funnel_progress' => [
+            'enabled' => env('ANALYTICS_FUNNEL_PROGRESS_ENABLED', true),
+            'known_funnels' => [
+                'signup',
+                'checkout',
+                'onboarding',
+                'trial',
+                'activation',
+            ],
         ],
 
     ],

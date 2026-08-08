@@ -9,6 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.93.0](#whats-new-in-v2930)
 - [What's New in v2.92.0](#whats-new-in-v2920)
 - [What's New in v2.91.0](#whats-new-in-v2910)
 - [What's New in v2.88.0](#whats-new-in-v2880)
@@ -57,6 +58,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.93.0
+
+- **FunnelProgressTracker** — Cache-persisted funnel progress tracking with completion percentage, step timing, automatic advancement/regression detection, and `funnel_step`/`funnel_completed` event dispatch. Configurable TTL and known funnel names.
+- **AnalyticsManager::funnelProgress()** — Convenience method that delegates to FunnelProgressTracker for stateful funnel tracking
+- **Funnel progress config** — New `funnel_progress` config section with `ANALYTICS_FUNNEL_PROGRESS_ENABLED` toggle and customizable `known_funnels` list
+- **Facade** — `Analytics::funnelProgress()` documented in Facade @method annotations
+- **Version bump to 2.93.0** — All 100+ version assertions across source, config, JS client, TypeScript definitions, and tests updated
+- **22 new tests** — V93FunnelProgressTrackerTest covering FunnelProgressTracker structure, public method signatures, functional behavior (advancement, regression, completion), config integration, AnalyticsManager delegation, ServiceProvider registration, and version consistency
 
 ## What's New in v2.92.0
 

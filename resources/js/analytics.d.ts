@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.91.0
+ * @version 2.93.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
