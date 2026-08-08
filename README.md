@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.96.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-2.97.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.97.0](#whats-new-in-v2970)
 - [What's New in v2.96.0](#whats-new-in-v2960)
 - [What's New in v2.95.0](#whats-new-in-v2950)
 - [What's New in v2.94.0](#whats-new-in-v2940)
@@ -62,6 +63,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.97.0
+
+- **Comprehensive Health Check Service** — `AnalyticsHealthCheckService` runs a full diagnostic across 12 subsystems: providers, catalog, AARRR coverage, identity tracking, queue, GDPR, consent mode, lifecycle mapper, auto-tracking, dedup, API, and pipeline. Returns per-subsystem scores, overall health status, and prioritized recommendations
+- **Health Check API Endpoints** — `GET /api/analytics/health-check` for full diagnostic, `GET /api/analytics/ping` for lightweight monitoring (version + provider count + catalog size). Both public endpoints for dashboards and uptime monitoring
+- **AnalyticsManager Convenience Methods** — `Analytics::healthCheck()` and `Analytics::ping()` for programmatic access from application code
+- **Facade Annotations** — `healthCheck()`, `ping()`, `maturityScore()`, `onboardingChecklist()`, `funnelReadiness()` documented in `@method` annotations for IDE autocomplete
+- **Service Registration** — `AnalyticsHealthCheckService` registered as singleton in ServiceProvider for dependency injection
+- **Comprehensive Test Suite** — 25 new tests covering all health check subsystems, recommendation sorting, status determination, version consistency, and facade delegation
+- **Version bump to 2.97.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
 ## What's New in v2.96.0
 

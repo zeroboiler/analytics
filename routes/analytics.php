@@ -255,4 +255,8 @@ Route::prefix('analytics')->group(function () {
     Route::get('benchmarks/compare', [AnalyticsEventController::class, 'benchmarksCompare']);
     Route::get('benchmarks/report-card', [AnalyticsEventController::class, 'benchmarksReportCard']);
     Route::get('benchmarks/quick-start', [AnalyticsEventController::class, 'benchmarksQuickStart']);
+
+    // Comprehensive Health Check (v2.97.0)
+    Route::get('health-check', [AnalyticsEventController::class, 'healthCheck']);
+    Route::get('ping', [AnalyticsEventController::class, 'ping']);
 });

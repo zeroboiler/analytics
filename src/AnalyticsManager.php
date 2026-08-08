@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.96.0';
+        return '2.97.0';
     }
 
     /**
@@ -1898,6 +1898,54 @@ final class AnalyticsManager
             'plan_name' => $planName,
             'reason' => $reason,
         ], $params)));
+    }
+
+    /**
+     * Track a complete SaaS signup-to-paid conversion funnel.
+     *
+     * Convenience method that dispatches the full SaaS acquisition
+     * sequence: sign_up → start_trial → subscribe in a single call.
+     * Useful for landing pages and onboarding flows.
+     *
+     * @param  string|null  $planName  Plan name
+     * @param  float|null  $amount  Subscription amount
+     * @param  string  $currency  Currency code
+     * @param  array{method?: string|null, trial_days?: int|null, billing_cycle?: string|null, skip_trial?: bool}  $options  Options
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    /**
+     * Run a comprehensive health check diagnostic.
+     *
+     * Returns a full diagnostic report covering provider configuration,
+     * catalog coverage, AARRR completeness, identity tracking, queue setup,
+     * GDPR compliance, consent mode, lifecycle mapper, auto-tracking, dedup,
+     * API, and pipeline configuration.
+     *
+     * @return array{status: string, version: string, overall_score: int, timestamp: string, subsystems: array<string, mixed>, recommendations: list<array{priority: string, category: string, message: string}>}
+     */
+    public function healthCheck(): array
+    {
+        $container = $this->getContainer();
+
+        /** @var \ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService $service */
+        $service = $container->make(\ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
+
+        return $service->run();
+    }
+
+    /**
+     * Quick ping — returns version and provider count.
+     *
+     * @return array{status: string, version: string, providers_configured: int, catalog_size: int}
+     */
+    public function ping(): array
+    {
+        $container = $this->getContainer();
+
+        /** @var \ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService $service */
+        $service = $container->make(\ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
+
+        return $service->ping();
     }
 
     /**

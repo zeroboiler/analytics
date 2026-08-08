@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.97.0] - 2026-08-08
+
+### Added
+- **AnalyticsHealthCheckService** — Comprehensive diagnostic service checking 12 subsystems: providers, catalog, AARRR coverage, identity, queue, GDPR, consent, lifecycle, auto-track, dedup, API, and pipeline
+- **Health Check API Endpoints** — `GET /api/analytics/health-check` (full diagnostic) and `GET /api/analytics/ping` (lightweight monitoring)
+- **AnalyticsManager::healthCheck()** and **AnalyticsManager::ping()** — Programmatic convenience methods
+- **Facade annotations** — `healthCheck()`, `ping()`, `maturityScore()`, `onboardingChecklist()`, `funnelReadiness()` documented
+- **V97HealthCheckDiagnosticTest** — 25 test cases covering all health check subsystems, recommendations, version consistency
+
+### Changed
+- Version bump to 2.97.0 across all source files
+
 ## [2.96.0] - 2026-08-08
 
 ### Added

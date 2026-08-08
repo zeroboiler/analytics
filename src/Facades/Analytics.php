@@ -100,6 +100,11 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void planUpgrade(string $fromPlan, string $toPlan, ?float $priceDifference = null, array<string, mixed> $params = [])
  * @method static void cancellation(?string $planName = null, ?string $reason = null, array<string, mixed> $params = [])
  * @method static void trackSaaSAcquisition(?string $planName = null, ?float $amount = null, string $currency = 'USD', array<string, mixed> $options = [], array<string, mixed> $params = [])
+ * @method static array{status: string, version: string, overall_score: int, timestamp: string, subsystems: array<string, mixed>, recommendations: list<array{priority: string, category: string, message: string}>} healthCheck()
+ * @method static array{status: string, version: string, providers_configured: int, catalog_size: int} ping()
+ * @method static array{score: int, grade: string, details: array{critical_events: array{present: int, total: int, score: int, max_score: int, missing: list<string>}, aarr_categories: int, providers: int, catalog_size: int}} maturityScore()
+ * @method static array{checklist: array<string, list<array{event: string, tracked: bool, priority: string}>>, summary: array{total: int, tracked: int, completion: float, gaps: list<string>}} onboardingChecklist()
+ * @method static array{signup_funnel: array{steps: int, present: int, missing: list<string>, score: float}, purchase_funnel: array{steps: int, present: int, missing: list<string>, score: float}, subscription_funnel: array{steps: int, present: int, missing: list<string>, score: float}, overall: float} funnelReadiness()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

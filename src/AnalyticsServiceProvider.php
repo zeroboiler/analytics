@@ -98,6 +98,7 @@ use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
+use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
 use ZeroBoiler\Analytics\Services\CampaignRoiService;
 use ZeroBoiler\Analytics\Services\DataMinimizationService;
@@ -124,7 +125,7 @@ use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 
 /**
- * @version 2.96.0
+ * @version 2.97.0
  */
 
 /**
@@ -133,7 +134,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.96.0
+ * @version 2.97.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -943,6 +944,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SaaSHealthScoreService($cache, $config, $kpiTracker);
         });
 
+        // Analytics health check service — comprehensive diagnostic
+        $this->app->singleton(AnalyticsHealthCheckService::class, function (Application $app): AnalyticsHealthCheckService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsHealthCheckService($config);
+        });
+
         // Event envelope service — context-rich event building from HTTP requests
         $this->app->singleton(EventEnvelopeService::class, function (Application $app): EventEnvelopeService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
@@ -1210,7 +1219,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Schema-Driven Event Builder (v2.96.0)
+        // Schema-Driven Event Builder (v2.94.0)
         $this->app->singleton(SchemaDrivenEventBuilder::class, function (Application $app): SchemaDrivenEventBuilder {
             /** @var EventPropertySchema $propertySchema */
             $propertySchema = $app->make(EventPropertySchema::class);
@@ -1220,10 +1229,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SchemaDrivenEventBuilder($propertySchema, $schemaRegistry, false);
         });
 
-        // Schema Diff Reporter (v2.96.0)
+        // Schema Diff Reporter (v2.94.0)
         $this->app->singleton(SchemaDiffReporter::class);
 
-        // SSE Controller (v2.96.0)
+        // SSE Controller (v2.95.0)
         $this->app->singleton(\ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class, function (Application $app): \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController {
             /** @var EventStreamService $streamService */
             $streamService = $app->make(EventStreamService::class);
@@ -1231,7 +1240,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController($streamService);
         });
 
-        // Event Window Aggregator (v2.96.0)
+        // Event Window Aggregator (v2.95.0)
         $this->app->singleton(EventWindowAggregator::class, function (Application $app): EventWindowAggregator {
             return new EventWindowAggregator(
                 $app->make('cache'),
@@ -1239,7 +1248,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Feature Adoption Tracker (v2.96.0)
+        // Feature Adoption Tracker (v2.95.0)
         $this->app->singleton(FeatureAdoptionTracker::class, function (Application $app): FeatureAdoptionTracker {
             return new FeatureAdoptionTracker(
                 $app->make('cache'),
@@ -1247,7 +1256,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Analytics API Guard (v2.96.0)
+        // Analytics API Guard (v2.95.0)
         $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
             return new AnalyticsApiGuard(
                 $app->make('cache'),
@@ -1517,7 +1526,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/benchmarks/report-card', [$controller, 'benchmarksReportCard']);
                 Route::get('analytics/benchmarks/quick-start', [$controller, 'benchmarksQuickStart']);
 
-                // SSE Streaming (v2.96.0)
+                // SSE Streaming (v2.95.0)
                 $sseController = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class;
                 Route::get('analytics/sse', [$sseController, 'stream']);
                 Route::get('analytics/sse/info', [$sseController, 'info']);
