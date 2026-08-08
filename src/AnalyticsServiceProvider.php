@@ -119,9 +119,12 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 use ZeroBoiler\Analytics\Services\PrivacySandboxService;
 use ZeroBoiler\Analytics\Services\CartStateManager;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
+use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
+use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 
 /**
- * @version 2.93.0
+ * @version 2.94.0
  */
 
 /**
@@ -130,7 +133,7 @@ use ZeroBoiler\Analytics\Services\EventAffinityService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.93.0
+ * @version 2.94.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1206,6 +1209,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Schema-Driven Event Builder (v2.94.0)
+        $this->app->singleton(SchemaDrivenEventBuilder::class, function (Application $app): SchemaDrivenEventBuilder {
+            /** @var EventPropertySchema $propertySchema */
+            $propertySchema = $app->make(EventPropertySchema::class);
+            /** @var EventSchemaRegistry $schemaRegistry */
+            $schemaRegistry = $app->make(EventSchemaRegistry::class);
+
+            return new SchemaDrivenEventBuilder($propertySchema, $schemaRegistry, false);
+        });
+
+        // Schema Diff Reporter (v2.94.0)
+        $this->app->singleton(SchemaDiffReporter::class);
     }
 
     /**
@@ -1229,6 +1245,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDashboardCommand::class,
                 AnalyticsScheduledReportCommand::class,
                 AnalyticsReadinessCommand::class,
+                AnalyticsSchemaExportCommand::class,
             ]);
         }
 
