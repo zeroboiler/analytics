@@ -2,6 +2,19 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.98.0] - 2026-08-08
+
+### Added
+- **EventBuilder** — Fluent, type-safe builder for constructing analytics events with catalog-aware validation, provider name resolution, `dispatch()` and `dispatchAsync()` shortcuts, static factory methods (`purchase()`, `signUp()`, `pageView()`)
+- **SessionReplayService** — Cache-based session event recording with ring buffer, timeline reconstruction, session summaries (revenue/error flags), per-user session indexing, and TTL management
+- **AdvancedPIIDetector** — Regex-based PII detection for 14 built-in patterns (email, phone, credit card, SSN, IBAN, JWT, IP, address), field name heuristics for 30+ PII field patterns, configurable confidence threshold, and `redact()` method with first/last character preservation
+- **Config: session_replay** — `ANALYTICS_SESSION_REPLAY_ENABLED`, `ANALYTICS_SESSION_REPLAY_MAX_EVENTS`, `ANALYTICS_SESSION_REPLAY_TTL`
+- **Config: pii_detection** — `ANALYTICS_PII_DETECTION_ENABLED`, `ANALYTICS_PII_DETECTION_THRESHOLD`, custom patterns support
+- **V98EventBuilderPIISessionReplayTest** — Test cases covering EventBuilder, AdvancedPIIDetector, and SessionReplayService
+
+### Changed
+- Version bump to 2.98.0 across 23 source files, test files, JS/TS client, and documentation
+
 ## [2.97.0] - 2026-08-08
 
 ### Added

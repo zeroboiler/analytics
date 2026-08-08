@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.97.0',
+            'catalog_version' => '2.98.0',
         ],
 
         /*
@@ -2047,6 +2047,39 @@ return [
             'max_payload_bytes' => (int) env('ANALYTICS_API_GUARD_MAX_PAYLOAD', 65536), // 64KB
             'max_event_name_length' => (int) env('ANALYTICS_API_GUARD_MAX_NAME', 100),
             'rate_window' => (int) env('ANALYTICS_API_GUARD_RATE_WINDOW', 60), // seconds
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Session Replay (User Journey Reconstruction)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, records recent analytics events per session in cache
+        | for support debugging and user journey reconstruction. Events are
+        | stored in a ring buffer with configurable TTL and max events.
+        |
+        */
+        'session_replay' => [
+            'enabled' => env('ANALYTICS_SESSION_REPLAY_ENABLED', false),
+            'max_events' => (int) env('ANALYTICS_SESSION_REPLAY_MAX_EVENTS', 200),
+            'ttl' => (int) env('ANALYTICS_SESSION_REPLAY_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Advanced PII Detection
+        |-------------------------------------------------------------------------- 
+        |
+        | Regex-based detection of personally identifiable information in event
+        | parameters. Used by the anonymization service to identify and redact
+        | PII fields before dispatch. Supports email, phone, credit card, SSN,
+        | IP address, JWT tokens, and custom patterns.
+        |
+        */
+        'pii_detection' => [
+            'enabled' => env('ANALYTICS_PII_DETECTION_ENABLED', false),
+            'confidence_threshold' => (float) env('ANALYTICS_PII_DETECTION_THRESHOLD', 0.5),
+            'custom_patterns' => [],
         ],
 
     ],

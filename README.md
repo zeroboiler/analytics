@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.97.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-2.98.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.98.0](#whats-new-in-v2980)
 - [What's New in v2.97.0](#whats-new-in-v2970)
 - [What's New in v2.96.0](#whats-new-in-v2960)
 - [What's New in v2.95.0](#whats-new-in-v2950)
@@ -63,6 +64,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.98.0
+
+- **EventBuilder (Fluent API)** — Type-safe, declarative event construction with catalog-aware validation. Static factories for common events: `EventBuilder::purchase()`, `::signUp()`, `::pageView()`. Chain `->param()`, `->params()`, `->items()`, `->client()`, `->user()`, `->priority()`, and finish with `->build()`, `->dispatch()`, or `->dispatchAsync()`
+- **SessionReplayService** — Cache-based session event recording for user journey reconstruction. Ring buffer (configurable max events + TTL), timeline with duration/summary, per-user session indexing, revenue/error event detection. Ideal for support debugging and behavior analysis
+- **AdvancedPIIDetector** — Regex-based PII detection engine with 14 built-in patterns (email, phone US/intl, credit card Visa/MC/Amex, SSN, IBAN, JWT, IPv4/IPv6, address, ZIP). Field name heuristics for 30+ PII keys. Configurable confidence threshold and `redact()` with first/last character preservation
+- **Config: Session Replay** — `ANALYTICS_SESSION_REPLAY_ENABLED` (default: false), `ANALYTICS_SESSION_REPLAY_MAX_EVENTS` (200), `ANALYTICS_SESSION_REPLAY_TTL` (3600)
+- **Config: PII Detection** — `ANALYTICS_PII_DETECTION_ENABLED` (default: false), `ANALYTICS_PII_DETECTION_THRESHOLD` (0.5), `ANALYTICS_PII_DETECTION_CUSTOM_PATTERNS`
+- **Version bump to 2.98.0** — 23 files updated across PHP source, tests, JS client, TypeScript definitions, config, and documentation
 
 ## What's New in v2.97.0
 

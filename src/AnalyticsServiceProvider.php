@@ -122,10 +122,13 @@ use ZeroBoiler\Analytics\Services\CartStateManager;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
 use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
 use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
+use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
+use ZeroBoiler\Analytics\Services\SessionReplayService;
+use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 
 /**
- * @version 2.97.0
+ * @version 2.98.0
  */
 
 /**
@@ -134,7 +137,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.97.0
+ * @version 2.98.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -652,6 +655,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsAnonymizationService($config);
+        });
+
+        // Advanced PII detection with regex patterns (v2.98.0)
+        $this->app->singleton(AdvancedPIIDetector::class, function (Application $app): AdvancedPIIDetector {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $piiConfig = $config->get('zeroboiler.analytics.pii_detection', []);
+            /** @var array{enabled?: bool, confidence_threshold?: float, custom_patterns?: array<string, array{pattern: string, confidence?: float, description?: string}>} $piiConfig */
+
+            $threshold = (float) ($piiConfig['confidence_threshold'] ?? 0.5);
+            $customPatterns = $piiConfig['custom_patterns'] ?? [];
+
+            return new AdvancedPIIDetector($threshold, $customPatterns);
+        });
+
+        // Session replay service for user journey reconstruction (v2.98.0)
+        $this->app->singleton(SessionReplayService::class, function (Application $app): SessionReplayService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $replayConfig = $config->get('zeroboiler.analytics.session_replay', []);
+            /** @var array{max_events?: int, ttl?: int} $replayConfig */
+
+            $maxEvents = (int) ($replayConfig['max_events'] ?? 200);
+            $ttl = (int) ($replayConfig['ttl'] ?? 3600);
+
+            return new SessionReplayService($cache, $maxEvents, $ttl);
         });
 
         // Event alert rules service for threshold-based alerting
