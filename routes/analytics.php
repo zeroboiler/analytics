@@ -248,4 +248,11 @@ Route::prefix('analytics')->group(function () {
     Route::post('churn/cohort-summary', [AnalyticsEventController::class, 'churnCohortSummary']);
     Route::get('churn/weights', [AnalyticsEventController::class, 'churnSignalWeights']);
     Route::get('churn/thresholds', [AnalyticsEventController::class, 'churnThresholds']);
+
+    // SaaS Metrics Benchmarks (v2.87.0)
+    Route::get('benchmarks', [AnalyticsEventController::class, 'benchmarksList']);
+    Route::get('benchmarks/{metric}', [AnalyticsEventController::class, 'benchmarksGet']);
+    Route::get('benchmarks/compare', [AnalyticsEventController::class, 'benchmarksCompare']);
+    Route::get('benchmarks/report-card', [AnalyticsEventController::class, 'benchmarksReportCard']);
+    Route::get('benchmarks/quick-start', [AnalyticsEventController::class, 'benchmarksQuickStart']);
 });

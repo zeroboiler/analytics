@@ -113,6 +113,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
 use ZeroBoiler\Analytics\Services\FunnelVelocityService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
+use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 
 /**
  * @version 2.84.0
@@ -1114,6 +1115,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new EventImpactService($config);
         });
+
+        // SaaS Metrics Benchmark Service (v2.87.0)
+        $this->app->singleton(SaaSMetricsBenchmarkService::class, function (Application $app): SaaSMetricsBenchmarkService {
+            return new SaaSMetricsBenchmarkService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -1367,6 +1376,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
                 // SaaS Starter Readiness (v2.71.0)
                 Route::get('analytics/readiness', [$controller, 'readiness']);
+
+                // SaaS Metrics Benchmarks (v2.87.0)
+                Route::get('analytics/benchmarks', [$controller, 'benchmarksList']);
+                Route::get('analytics/benchmarks/{metric}', [$controller, 'benchmarksGet']);
+                Route::get('analytics/benchmarks/compare', [$controller, 'benchmarksCompare']);
+                Route::get('analytics/benchmarks/report-card', [$controller, 'benchmarksReportCard']);
+                Route::get('analytics/benchmarks/quick-start', [$controller, 'benchmarksQuickStart']);
             });
 
         // Authenticated endpoints

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.86.0
+ * @version 2.87.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.86.0';
+    return '2.87.0';
 }
 
 /**
@@ -3121,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.86.0';
+    return '2.87.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -4846,6 +4846,166 @@ export async function getQuickStartEvents() {
 
     try {
         const response = await fetch(`${apiBaseUrl}/quick-start`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── SaaS Metrics Benchmarks (v2.87.0) ──────────────────────────────────
+
+/**
+ * Fetch all available benchmark metrics with thresholds.
+ *
+ * @param {object} [options] - Optional filters
+ * @param {string} [options.category] - Filter by category (revenue, conversion, retention, engagement, funnel)
+ * @returns {Promise<object|null>} Benchmark definitions keyed by metric name
+ *
+ * @example
+ * const benchmarks = await fetchBenchmarks();
+ * const revenue = await fetchBenchmarks({ category: 'revenue' });
+ */
+export async function fetchBenchmarks(options = {}) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        if (options.category) params.set('category', options.category);
+
+        const response = await fetch(`${apiBaseUrl}/benchmarks?${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch benchmark thresholds for a specific metric.
+ *
+ * @param {string} metric - Metric name (e.g. 'monthly_churn_rate', 'trial_conversion_rate')
+ * @returns {Promise<object|null>} Benchmark thresholds (p25, p50, p75, p90) and metadata
+ *
+ * @example
+ * const churn = await fetchBenchmark('monthly_churn_rate');
+ * console.log(churn.label, churn.benchmarks);
+ */
+export async function fetchBenchmark(metric) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/benchmarks/${encodeURIComponent(metric)}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Compare your SaaS metrics against industry benchmarks.
+ *
+ * @param {Object<string, number>} metrics - Key-value map of metric name → value
+ * @returns {Promise<object|null>} Comparison results with grades and percentiles
+ *
+ * @example
+ * const result = await compareBenchmarks({
+ *     monthly_churn_rate: 3.5,
+ *     trial_conversion_rate: 28,
+ *     mrr_growth_rate: 12,
+ *     net_revenue_retention: 110,
+ * });
+ * console.log(result.summary.overall_grade);
+ */
+export async function compareBenchmarks(metrics) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(metrics)) {
+            params.append(`metrics[${key}]`, String(value));
+        }
+
+        const response = await fetch(`${apiBaseUrl}/benchmarks/compare?${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get a full benchmark report card with grades, recommendations, and priorities.
+ *
+ * @param {Object<string, number>} metrics - Key-value map of metric name → value
+ * @returns {Promise<object|null>} Report card with prioritized improvement recommendations
+ *
+ * @example
+ * const card = await fetchBenchmarkReportCard({
+ *     monthly_churn_rate: 6.2,
+ *     trial_conversion_rate: 18,
+ *     dau_mau_ratio: 15,
+ * });
+ * console.log(card.summary); // "Overall score: average (52/100)"
+ * console.log(card.priorities); // ['monthly_churn_rate', 'trial_conversion_rate']
+ */
+export async function fetchBenchmarkReportCard(metrics) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(metrics)) {
+            params.append(`metrics[${key}]`, String(value));
+        }
+
+        const response = await fetch(`${apiBaseUrl}/benchmarks/report-card?${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch quick-start benchmark targets for new SaaS products.
+ *
+ * Returns the 8 most impactful metrics with p75 (good) tier targets.
+ * Use for onboarding dashboards and OKR-setting.
+ *
+ * @returns {Promise<object|null>} Quick-start metrics with target values
+ *
+ * @example
+ * const targets = await fetchBenchmarkQuickStart();
+ * targets.metrics.forEach(m => {
+ *     console.log(`${m.label}: target ${m.target}${m.unit}`);
+ * });
+ */
+export async function fetchBenchmarkQuickStart() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/benchmarks/quick-start`, {
             headers: { Accept: 'application/json' },
         });
 

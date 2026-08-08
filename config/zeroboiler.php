@@ -1837,5 +1837,26 @@ return [
             ],
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Metrics Benchmarks (Industry Standards)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, provides industry-standard benchmark comparisons for
+        | 24 key SaaS metrics across 5 categories (revenue, conversion, retention,
+        | engagement, funnel). Based on data from OpenView, KeyBanc, ProfitWell,
+        | and published SaaS industry research.
+        |
+        | Compare your metrics against percentile thresholds (p25/p50/p75/p90)
+        | to identify areas needing improvement.
+        |
+        */
+        'benchmarks' => [
+            'enabled' => env('ANALYTICS_BENCHMARKS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_BENCHMARKS_CACHE_TTL', 43200), // 12 hours
+            'industry' => env('ANALYTICS_BENCHMARKS_INDUSTRY', 'saas'), // saas, b2b, b2c, marketplace
+            'company_stage' => (int) env('ANALYTICS_BENCHMARKS_COMPANY_STAGE', 0), // 0=early, 1=growth, 2=mature
+        ],
+
     ],
 ];

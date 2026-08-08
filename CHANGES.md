@@ -4,6 +4,23 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.87.0] - 2026-08-08
+
+### Added
+- **SaaSMetricsBenchmarkService** — Industry-standard benchmarking engine for 24 key SaaS metrics across 5 categories (revenue, conversion, retention, engagement, funnel). Percentile-based scoring (p25/p50/p75/p90), batch comparison, report cards with prioritized recommendations, and quick-start targets. Based on OpenView, KeyBanc, ProfitWell, Tomasz Tunguz, and SaaS industry research data.
+- **Benchmark config** — `zeroboiler.analytics.benchmarks` section with `enabled`, `cache_ttl`, `industry`, and `company_stage` settings.
+- **Benchmark API endpoints** — `GET /api/analytics/benchmarks` (list all), `GET /api/analytics/benchmarks/{metric}` (single), `GET /api/analytics/benchmarks/compare` (batch comparison), `GET /api/analytics/benchmarks/report-card` (grades + recommendations), `GET /api/analytics/benchmarks/quick-start` (8 most impactful targets).
+- **JS client: fetchBenchmarks()** — Fetch all benchmarks with optional category filter.
+- **JS client: fetchBenchmark(metric)** — Fetch single metric thresholds.
+- **JS client: compareBenchmarks(metrics)** — Compare metric values against industry benchmarks.
+- **JS client: fetchBenchmarkReportCard(metrics)** — Full report card with grades and priorities.
+- **JS client: fetchBenchmarkQuickStart()** — 8 essential benchmark targets for onboarding.
+- **TypeScript: BenchmarkMetric, BenchmarkComparison, BenchmarkBatchResult, BenchmarkReportCard, BenchmarkQuickStartMetric** interfaces and all 5 function signatures.
+- **Test suite: V87SaaSBenchmarkTest** — 25+ tests covering benchmark data integrity, percentile scoring (higher_better + lower_better), batch comparison, report cards, quick-start metrics, category filtering, boundary conditions, gap calculations, disabled service behavior, and consistency checks.
+
+### Changed
+- Version bump to 2.87.0 across all version references (AnalyticsEvent, composer.json, JS client ×3, TypeScript, AnalyticsManager).
+
 ## [2.86.0] - 2026-08-08
 
 ### Added

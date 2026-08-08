@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.86.0
+ * @version 2.87.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -1272,3 +1272,119 @@ export function getFunnelReadiness(): Promise<{ status: string; score: number; g
 
 /** Get the industry-standard instrumentation checklist from the server */
 export function getIndustryStandard(): Promise<{ status: string; critical: EventEntry[]; high: EventEntry[]; medium: EventEntry[]; low: EventEntry[]; all: EventEntry[]; count: number } | null>;
+
+// ─── SaaS Metrics Benchmarks (v2.87.0) ──────────────────────────────────
+
+/** Benchmark metric definition */
+interface BenchmarkMetric {
+    label: string;
+    unit: string;
+    p25: number;
+    p50: number;
+    p75: number;
+    p90: number;
+    direction: 'higher_better' | 'lower_better';
+    category: string;
+}
+
+/** Benchmark comparison result for a single metric */
+interface BenchmarkComparison {
+    metric: string;
+    label: string;
+    unit: string;
+    value: number;
+    grade: string;
+    percentile: number;
+    gap: number;
+    direction: string;
+    benchmarks: { p25: number; p50: number; p75: number; p90: number };
+    category: string;
+}
+
+/** Benchmark batch comparison result */
+interface BenchmarkBatchResult {
+    results: Record<string, BenchmarkComparison>;
+    summary: {
+        total: number;
+        excellent: number;
+        good: number;
+        average: number;
+        poor: number;
+        overall_score: number;
+        overall_grade: string;
+        strongest: string | null;
+        weakest: string | null;
+    };
+}
+
+/** Benchmark report card */
+interface BenchmarkReportCard {
+    score: number;
+    grade: string;
+    metrics: Record<string, {
+        metric: string;
+        label: string;
+        value: number;
+        unit: string;
+        grade: string;
+        percentile: number;
+        gap: number;
+        recommendation: string;
+    }>;
+    priorities: string[];
+    summary: string;
+}
+
+/** Quick-start benchmark target */
+interface BenchmarkQuickStartMetric {
+    metric: string;
+    label: string;
+    target: number;
+    unit: string;
+    category: string;
+}
+
+/** Fetch all available benchmark metrics with optional category filter */
+export function fetchBenchmarks(options?: { category?: string }): Promise<{
+    status: string;
+    version: string;
+    total: number;
+    categories: string[];
+    by_category: Record<string, string[]>;
+    benchmarks: Record<string, BenchmarkMetric>;
+} | null>;
+
+/** Fetch benchmark thresholds for a specific metric */
+export function fetchBenchmark(metric: string): Promise<{
+    status: string;
+    version: string;
+    metric: string;
+    label: string;
+    unit: string;
+    p25: number;
+    p50: number;
+    p75: number;
+    p90: number;
+    direction: string;
+    category: string;
+} | null>;
+
+/** Compare metrics against industry benchmarks */
+export function compareBenchmarks(metrics: Record<string, number>): Promise<BenchmarkBatchResult | null>;
+
+/** Get full benchmark report card with grades and recommendations */
+export function fetchBenchmarkReportCard(metrics: Record<string, number>): Promise<BenchmarkReportCard | null>;
+
+/** Fetch quick-start benchmark targets for new SaaS products */
+export function fetchBenchmarkQuickStart(): Promise<{
+    status: string;
+    version: string;
+    metrics: BenchmarkQuickStartMetric[];
+    summary: {
+        enabled: boolean;
+        total_metrics: number;
+        categories: string[];
+        industry: string;
+        version: string;
+    };
+} | null>;

@@ -4806,4 +4806,157 @@ final class AnalyticsEventController extends Controller
             'thresholds' => $service->getThresholds(),
         ]);
     }
+
+    // ─── SaaS Metrics Benchmarks (v2.87.0) ────────────────────────────
+
+    /**
+     * List all available benchmark metrics with their thresholds.
+     *
+     * GET /api/analytics/benchmarks
+     *
+     * Query params: ?category=revenue|conversion|retention|engagement|funnel
+     */
+    public function benchmarksList(Request $request): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService::class);
+
+        $category = $request->string('category')->toString();
+
+        if ($category !== '' && in_array($category, $service->availableCategories(), true)) {
+            $benchmarks = $service->category($category);
+        } else {
+            $benchmarks = $service->allBenchmarks();
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.87.0',
+            'total' => count($benchmarks),
+            'categories' => $service->availableCategories(),
+            'by_category' => $service->byCategory(),
+            'benchmarks' => $benchmarks,
+        ]);
+    }
+
+    /**
+     * Get benchmark thresholds for a specific metric.
+     *
+     * GET /api/analytics/benchmarks/{metric}
+     */
+    public function benchmarksGet(string $metric): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService::class);
+
+        $benchmark = $service->getBenchmark($metric);
+
+        if ($benchmark === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Unknown benchmark metric: {$metric}",
+                'available' => $service->availableMetrics(),
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.87.0',
+            'metric' => $metric,
+            ...$benchmark,
+        ]);
+    }
+
+    /**
+     * Compare metric values against industry benchmarks.
+     *
+     * GET /api/analytics/benchmarks/compare?metrics[monthly_churn_rate]=3.5&metrics[trial_conversion_rate]=30
+     *
+     * Accepts query params as metrics[name]=value pairs.
+     */
+    public function benchmarksCompare(Request $request): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService::class);
+
+        $metrics = $request->input('metrics', []);
+
+        if (! is_array($metrics) || empty($metrics)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Provide metrics as query params: ?metrics[monthly_churn_rate]=3.5&metrics[trial_conversion_rate]=30',
+                'available' => $service->availableMetrics(),
+            ], 400);
+        }
+
+        // Cast all values to float
+        $castMetrics = array_map(
+            fn (mixed $v): float => (float) $v,
+            $metrics,
+        );
+
+        $result = $service->compareBatch($castMetrics);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.87.0',
+            ...$result,
+        ]);
+    }
+
+    /**
+     * Get a full benchmark report card with grades and recommendations.
+     *
+     * GET /api/analytics/benchmarks/report-card?metrics[monthly_churn_rate]=3.5&metrics[trial_conversion_rate]=30
+     *
+     * Returns prioritized improvement recommendations.
+     */
+    public function benchmarksReportCard(Request $request): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService::class);
+
+        $metrics = $request->input('metrics', []);
+
+        if (! is_array($metrics) || empty($metrics)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Provide metrics as query params: ?metrics[monthly_churn_rate]=3.5',
+                'available' => $service->availableMetrics(),
+            ], 400);
+        }
+
+        $castMetrics = array_map(
+            fn (mixed $v): float => (float) $v,
+            $metrics,
+        );
+
+        $report = $service->reportCard($castMetrics);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.87.0',
+            ...$report,
+        ]);
+    }
+
+    /**
+     * Get quick-start benchmark targets for new SaaS products.
+     *
+     * GET /api/analytics/benchmarks/quick-start
+     *
+     * Returns the 8 most impactful metrics with p75 (good) tier targets.
+     */
+    public function benchmarksQuickStart(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService::class);
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => '2.87.0',
+            'metrics' => $service->quickStartMetrics(),
+            'summary' => $service->summary(),
+        ]);
+    }
 }
