@@ -2,6 +2,16 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.91.0] - 2026-08-08
+
+### Fixed
+- **Version consistency sweep** — All 158 hardcoded `2.90.0` assertions across 60+ test files updated to `2.91.0`
+- **Stale version guard** — V43 stale version reference check updated to detect removed `2.90.0` instead of `2.91.0`
+- **License header** — `FeatureFlagIntegrationService` updated to use standard ZeroBoiler license header format
+
+### Changed
+- **README** — Added v2.91.0 changelog section and TOC entry
+
 ## [2.90.0] - 2026-08-08
 
 ### Added

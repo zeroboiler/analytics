@@ -9,6 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.91.0](#whats-new-in-v2910)
 - [What's New in v2.88.0](#whats-new-in-v2880)
 - [Features](#features)
 - [Architecture](#architecture)
@@ -55,6 +56,14 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.91.0
+
+- **Privacy Sandbox & Cart Affinity** — PrivacySandboxService for first-party data strategies, CartStateManager for abandoned cart analytics with item-level tracking
+- **Event Affinity Service** — EventAffinityService for cross-event correlation and user behavior pattern detection
+- **License header normalization** — FeatureFlagIntegrationService updated to use standard ZeroBoiler license header
+- **Version consistency sweep** — All 158 hardcoded version assertions across test files updated to 2.91.0
+- **Stale version reference cleanup** — V43 stale version guard updated to check for removed 2.90.0 references
 
 ## What's New in v2.88.0
 

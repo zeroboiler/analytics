@@ -20,12 +20,12 @@ use ZeroBoiler\Analytics\Events\Engagement\FeatureRequestEvent;
 describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
     describe('Version consistency', function () {
         it('AnalyticsEvent VERSION is 2.74.0', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('2.90.0');
+            expect(AnalyticsEvent::VERSION)->toBe('2.91.0');
         });
 
         it('composer.json version matches AnalyticsEvent VERSION', function () {
             $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-            expect($composer['version'])->toBe('2.90.0');
+            expect($composer['version'])->toBe('2.91.0');
         });
     });
 
@@ -33,7 +33,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
         it('version returns 2.74.0', function () {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager(null);
 
-            expect($manager->version())->toBe('2.90.0');
+            expect($manager->version())->toBe('2.91.0');
         });
     });
 
@@ -315,15 +315,15 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
     describe('JS client version consistency', function () {
         it('JS client version is 2.74.0', function () {
             $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-            expect(str_contains($js, "'2.90.0'"))->toBeTrue();
+            expect(str_contains($js, "'2.91.0'"))->toBeTrue();
             // Should have 3 version references
-            $count = substr_count($js, "'2.90.0'");
+            $count = substr_count($js, "'2.91.0'");
             expect($count)->toBeGreaterThanOrEqual(3);
         });
 
         it('TypeScript definitions version is 2.74.0', function () {
             $ts = file_get_contents(__DIR__.'/../resources/js/analytics.d.ts');
-            expect(str_contains($ts, '2.90.0'))->toBeTrue();
+            expect(str_contains($ts, '2.91.0'))->toBeTrue();
         });
 
         it('TypeScript definitions have EcommerceConfig interface', function () {

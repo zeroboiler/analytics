@@ -302,7 +302,7 @@ describe('EventSourceTagger', function (): void {
         expect($tagged->name)->toBe('purchase');
         expect($tagged->params['_source'])->toBe('api');
         expect($tagged->params['_timestamp'])->toBeString();
-        expect($tagged->params['_version'])->toBe('2.90.0');
+        expect($tagged->params['_version'])->toBe('2.91.0');
         expect($tagged->params['value'])->toBe(99.99);
     });
 
@@ -653,7 +653,7 @@ describe('v2.29 version consistency', function (): void {
         $this->config->shouldReceive('get')->andReturnFalse();
         $manager = new AnalyticsManager($this->config);
 
-        expect($manager->version())->toBe('2.90.0');
+        expect($manager->version())->toBe('2.91.0');
     });
 
     test('event catalog count is 53 (after subscription_renewal)', function (): void {

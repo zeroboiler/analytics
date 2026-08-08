@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * This file is part of ZeroBoiler, licensed under the MIT license.
+ */
+
 declare(strict_types=1);
 
 /**
@@ -12,10 +16,6 @@ declare(strict_types=1);
  *
  * Supports LaunchDarkly-style flag evaluation via a pluggable resolver
  * callback, or config-driven static flags for simpler use cases.
- *
- * @license MIT
- * @version 2.70.0
- * @package ZeroBoiler\Analytics\Services
  */
 
 namespace ZeroBoiler\Analytics\Services;

@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('2.90.0');
-        expect(AnalyticsEvent::VERSION)->toBe('2.90.0');
-        expect((new AnalyticsManager)->version())->toBe('2.90.0');
+        expect($composer['version'])->toBe('2.91.0');
+        expect(AnalyticsEvent::VERSION)->toBe('2.91.0');
+        expect((new AnalyticsManager)->version())->toBe('2.91.0');
     });
 });
 
