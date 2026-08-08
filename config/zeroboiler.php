@@ -1727,5 +1727,56 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Revenue Forecasting (SaaS Predictive Analytics)
+        |-------------------------------------------------------------------------- 
+        |
+        | Configurable revenue forecasting engine that projects MRR/ARR growth,
+        | calculates LTV, estimates runway, and models churn impact.
+        | Results are cached for performance.
+        |
+        */
+        'forecasting' => [
+            'enabled' => env('ANALYTICS_FORECASTING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FORECASTING_CACHE_TTL', 300), // 5 minutes
+            'monthly_churn_rate' => (float) env('ANALYTICS_FORECASTING_CHURN_RATE', 0.03), // 3% default
+            'growth_rate' => (float) env('ANALYTICS_FORECASTING_GROWTH_RATE', 0.05), // 5% default
+            'horizon_days' => (int) env('ANALYTICS_FORECASTING_HORIZON', 90), // 90-day forecast
+            'historical_window_days' => (int) env('ANALYTICS_FORECASTING_HISTORICAL_WINDOW', 90),
+            'avg_revenue_per_account' => (float) env('ANALYTICS_FORECASTING_ARPU', 99.0),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Churn Prediction (Risk Scoring)
+        |-------------------------------------------------------------------------- 
+        |
+        | Weighted scoring model that evaluates user behavior signals to predict
+        | churn risk. Supports configurable signal weights and risk thresholds.
+        | Users are classified as low/medium/high/critical risk.
+        |
+        */
+        'churn_prediction' => [
+            'enabled' => env('ANALYTICS_CHURN_PREDICTION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CHURN_PREDICTION_CACHE_TTL', 600), // 10 minutes
+            'high_risk_threshold' => (int) env('ANALYTICS_CHURN_HIGH_RISK', 60),
+            'medium_risk_threshold' => (int) env('ANALYTICS_CHURN_MEDIUM_RISK', 30),
+            'critical_risk_threshold' => (int) env('ANALYTICS_CHURN_CRITICAL_RISK', 80),
+            'inactive_days_threshold' => (int) env('ANALYTICS_CHURN_INACTIVE_DAYS', 14),
+            'signal_weights' => [
+                'days_inactive' => (float) env('ANALYTICS_CHURN_WEIGHT_INACTIVE', 25.0),
+                'usage_decline_pct' => (float) env('ANALYTICS_CHURN_WEIGHT_USAGE', 20.0),
+                'support_tickets_30d' => (float) env('ANALYTICS_CHURN_WEIGHT_SUPPORT', 15.0),
+                'failed_payments_90d' => (float) env('ANALYTICS_CHURN_WEIGHT_PAYMENTS', 20.0),
+                'feature_adoption_low' => (float) env('ANALYTICS_CHURN_WEIGHT_ADOPTION', 10.0),
+                'contract_expiring_30d' => (float) env('ANALYTICS_CHURN_WEIGHT_CONTRACT', 15.0),
+                'billing_disputes' => (float) env('ANALYTICS_CHURN_WEIGHT_DISPUTES', 20.0),
+                'login_frequency_decline' => (float) env('ANALYTICS_CHURN_WEIGHT_LOGIN', 15.0),
+                'engagement_score_low' => (float) env('ANALYTICS_CHURN_WEIGHT_ENGAGEMENT', 10.0),
+                'plan_downgrade_recent' => (float) env('ANALYTICS_CHURN_WEIGHT_DOWNGRADE', 25.0),
+            ],
+        ],
+
     ],
 ];

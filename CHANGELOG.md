@@ -2,6 +2,21 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.81.0] - 2026-08-08
+
+### Added
+- **RevenueForecastService** — SaaS revenue forecasting engine with MRR trend projection, 90-day forecast, LTV calculation, LTV:CAC ratio, CAC payback period, runway estimation, cohort retention curves, and MRR movement breakdown (new/expansion/contraction/churn). Configurable growth rate, churn rate, and forecast horizon. Cached for performance.
+- **ChurnPredictionService** — Weighted scoring model for user churn risk prediction. Evaluates 10 configurable signals (days inactive, usage decline, support tickets, failed payments, feature adoption, contract expiration, billing disputes, login frequency, engagement score, plan downgrades). Classifies users as low/medium/high/critical risk with actionable recommendations.
+- **9 revenue forecasting API endpoints** — `GET /api/analytics/forecast`, `forecast/summary`, `forecast/project`, `forecast/ltv`, `forecast/ltv-cac`, `forecast/payback`, `forecast/runway`, `forecast/cohort-retention`, `forecast/mrr-movement`
+- **5 churn prediction API endpoints** — `POST /api/analytics/churn/score`, `churn/score-batch`, `churn/cohort-summary`, `GET churn/weights`, `churn/thresholds`
+- **Config sections**: `forecasting` (enabled, cache_ttl, monthly_churn_rate, growth_rate, horizon_days, historical_window_days, avg_revenue_per_account), `churn_prediction` (enabled, cache_ttl, high/medium/critical risk thresholds, inactive_days_threshold, 10 configurable signal weights)
+- **JS client functions** — Revenue forecasting API helpers (`fetchRevenueForecast`, `fetchRevenueForecastSummary`, `fetchRevenueProject`, `fetchLtv`, `fetchLtvCacRatio`, `fetchPaybackPeriod`, `fetchRunway`, `fetchCohortRetention`, `fetchMrrMovement`), Churn prediction helpers (`fetchChurnScore`, `fetchChurnScoreBatch`, `fetchChurnCohortSummary`, `fetchChurnWeights`, `fetchChurnThresholds`)
+- **TypeScript definitions** — `ForecastPoint`, `ForecastSummary`, `LtvResult`, `LtvCacResult`, `PaybackResult`, `RunwayResult`, `MrrMovement`, `ChurnRiskProfile`, `ChurnSignal`, `ChurnThresholds` interfaces
+
+### Changed
+- Version bump to 2.81.0 across AnalyticsEvent, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, AnalyticsManager, AnalyticsServiceProvider, and controller endpoint version string.
+- AnalyticsEventController: Added `$this->config` property to fix missing ConfigRepository reference used by revenue forecasting and churn prediction endpoints.
+
 ## [2.80.0] - 2026-08-08
 
 ### Changed

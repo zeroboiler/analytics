@@ -230,4 +230,22 @@ Route::prefix('analytics')->group(function () {
     Route::get('onboarding', [AnalyticsEventController::class, 'onboardingChecklist']);
     Route::get('funnel-readiness', [AnalyticsEventController::class, 'funnelReadiness']);
     Route::get('industry-standard', [AnalyticsEventController::class, 'industryStandard']);
+
+    // Revenue Forecasting (v2.81.0)
+    Route::get('forecast', [AnalyticsEventController::class, 'revenueForecast']);
+    Route::get('forecast/summary', [AnalyticsEventController::class, 'revenueForecastSummary']);
+    Route::get('forecast/project', [AnalyticsEventController::class, 'revenueForecastProject']);
+    Route::get('forecast/ltv', [AnalyticsEventController::class, 'ltvCalculation']);
+    Route::get('forecast/ltv-cac', [AnalyticsEventController::class, 'ltvCacRatio']);
+    Route::get('forecast/payback', [AnalyticsEventController::class, 'paybackPeriod']);
+    Route::get('forecast/runway', [AnalyticsEventController::class, 'runwayEstimate']);
+    Route::get('forecast/cohort-retention', [AnalyticsEventController::class, 'cohortRetentionCurve']);
+    Route::get('forecast/mrr-movement', [AnalyticsEventController::class, 'mrrMovementBreakdown']);
+
+    // Churn Prediction (v2.81.0)
+    Route::post('churn/score', [AnalyticsEventController::class, 'churnScoreUser']);
+    Route::post('churn/score-batch', [AnalyticsEventController::class, 'churnScoreBatch']);
+    Route::post('churn/cohort-summary', [AnalyticsEventController::class, 'churnCohortSummary']);
+    Route::get('churn/weights', [AnalyticsEventController::class, 'churnSignalWeights']);
+    Route::get('churn/thresholds', [AnalyticsEventController::class, 'churnThresholds']);
 });

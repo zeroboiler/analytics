@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **86 typed event classes** across 3 categories (E-commerce 13, SaaS 48, Engagement 25)
+- **90 typed event classes** across 3 categories (E-commerce 13, SaaS 50, Engagement 27)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, category filtering, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle)
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -633,6 +633,80 @@ $attribution->trackCohortRevenue('2026-01', 15000.00, 250);
 
 // Revenue breakdown by channel
 $attribution->trackRevenueBreakdown('stripe', 'organic', 5000.00, 50);
+```
+
+### Revenue Forecasting
+
+```php
+use ZeroBoiler\Analytics\Services\RevenueForecastService;
+
+$forecast = app(RevenueForecastService::class);
+
+// Full 90-day forecast with daily MRR projections
+$projection = $forecast->forecast([
+    'mrr' => 10000.0,
+    'active_subscribers' => 120,
+    'churned_mrr_last_month' => 500.0,
+    'new_mrr_last_month' => 2000.0,
+    'expansion_mrr_last_month' => 800.0,
+    'churned_subscribers_last_month' => 4,
+]);
+
+// Quick summary
+$summary = $forecast->summary(['mrr' => 10000.0, 'active_subscribers' => 120]);
+
+// LTV calculation
+$ltv = $forecast->calculateLtv(arpu: 99.0, monthlyChurnRate: 0.03, grossMargin: 0.75);
+
+// LTV:CAC ratio analysis
+$ratio = $forecast->ltvCACRatio(ltv: 3000.0, cac: 1000.0);
+
+// CAC payback period
+$payback = $forecast->paybackPeriod(cac: 500.0, monthlyArpu: 99.0, grossMargin: 0.75);
+
+// Runway estimation
+$runway = $forecast->runway(currentMrr: 5000.0, monthlyExpenses: 15000.0);
+
+// Cohort retention curve
+$curve = $forecast->cohortRetentionCurve(months: 12, monthlyChurnRate: 0.03);
+
+// MRR movement breakdown
+$movement = $forecast->mrrMovementBreakdown([
+    'new_mrr' => 5000.0, 'expansion_mrr' => 2000.0,
+    'contraction_mrr' => 500.0, 'churned_mrr' => 1000.0,
+    'previous_mrr' => 20000.0,
+]);
+```
+
+### Churn Prediction
+
+```php
+use ZeroBoiler\Analytics\Services\ChurnPredictionService;
+
+$churn = app(ChurnPredictionService::class);
+
+// Score a single user
+$profile = $churn->scoreUser('user-123', [
+    'days_inactive' => 30,
+    'usage_decline_pct' => 45,
+    'support_tickets_30d' => 2,
+    'failed_payments_90d' => 1,
+]);
+// Returns: user_id, overall_score (0-100), risk_level (low/medium/high/critical),
+//          signals (10 evaluated), recommendation, probability_percent
+
+// Batch score multiple users (ranked by risk)
+$batch = $churn->scoreBatch([
+    ['user_id' => 'u1', 'days_inactive' => 0],
+    ['user_id' => 'u2', 'days_inactive' => 45, 'usage_decline_pct' => 80],
+]);
+
+// Cohort risk summary (aggregate stats)
+$summary = $churn->cohortRiskSummary($users);
+
+// Get configured signal weights and thresholds
+$weights = $churn->getSignalWeights();
+$thresholds = $churn->getThresholds();
 ```
 
 ### Conversion Funnels

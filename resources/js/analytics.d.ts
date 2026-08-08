@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.79.0
+ * @version 2.81.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -997,6 +997,214 @@ export function fetchComplianceReport(): Promise<ComplianceReport | null>;
 
 /** Fetch quick compliance score (0-100) */
 export function fetchComplianceScore(): Promise<number | null>;
+
+// ─── Revenue Forecasting (v2.81.0) ──────────────────────────────────
+
+/** Revenue forecast summary */
+export interface ForecastSummary {
+    current_mrr: number;
+    current_arr: number;
+    projected_mrr_30d: number;
+    projected_arr_30d: number;
+    mrr_growth_rate: number;
+    churn_rate: number;
+    net_revenue_retention: number;
+    ltv_estimate: number;
+    runway_months: number;
+    confidence: 'high' | 'medium' | 'low';
+}
+
+/** Daily forecast data point */
+export interface ForecastPoint {
+    date: string;
+    mrr: number;
+    arr: number;
+    churned_mrr: number;
+    net_new_mrr: number;
+    churn_rate: number;
+}
+
+/** Full forecast response */
+export interface RevenueForecastResponse {
+    status: string;
+    summary: ForecastSummary;
+    daily: ForecastPoint[];
+    assumptions: Record<string, unknown>;
+}
+
+/** LTV calculation result */
+export interface LTVResult {
+    ltv: number;
+    ltv_months: number;
+    arpu_annual: number;
+    churn_multiplier: number;
+}
+
+/** LTV:CAC ratio result */
+export interface LTVCACResult {
+    ratio: number;
+    rating: 'excellent' | 'healthy' | 'underperforming' | 'critical' | 'unknown';
+    recommendation: string;
+}
+
+/** Payback period result */
+export interface PaybackResult {
+    months: number;
+    rating: 'excellent' | 'healthy' | 'acceptable' | 'concerning' | 'critical';
+    target_months: number;
+}
+
+/** Runway estimation result */
+export interface RunwayResult {
+    runway_months: number;
+    breakeven_date: string | null;
+    burn_rate: number;
+    path_to_profitability: string;
+}
+
+/** MRR movement breakdown */
+export interface MRRMovement {
+    new: number;
+    expansion: number;
+    contraction: number;
+    churn: number;
+    net_change: number;
+    previous_mrr: number;
+    new_mrr: number;
+}
+
+/** Revenue projection at a specific date */
+export interface RevenueProjection {
+    date: string;
+    projected_mrr: number;
+    projected_arr: number;
+    cumulative_churn: number;
+    cumulative_growth: number;
+}
+
+/** Cohort retention curve point */
+export interface CohortRetentionPoint {
+    month: number;
+    retention_rate: number;
+    estimated_subscribers: number;
+    estimated_mrr: number;
+}
+
+/** Revenue forecast parameters */
+export interface ForecastParams {
+    mrr?: number;
+    arr?: number;
+    churned_mrr_last_month?: number;
+    new_mrr_last_month?: number;
+    expansion_mrr_last_month?: number;
+    active_subscribers?: number;
+    churned_subscribers_last_month?: number;
+}
+
+/** Fetch full revenue forecast with daily data points */
+export function fetchRevenueForecast(params?: ForecastParams): Promise<RevenueForecastResponse | null>;
+
+/** Fetch quick revenue forecast summary */
+export function fetchForecastSummary(params?: ForecastParams): Promise<ForecastSummary | null>;
+
+/** Project MRR at a specific future date */
+export function fetchRevenueProjection(daysOut: number, mrr?: number): Promise<RevenueProjection | null>;
+
+/** Calculate Customer Lifetime Value */
+export function fetchLTV(arpu: number, churnRate: number, grossMargin?: number): Promise<LTVResult | null>;
+
+/** Calculate LTV:CAC ratio */
+export function fetchLTVCACRatio(ltv: number, cac: number): Promise<LTVCACResult | null>;
+
+/** Calculate CAC payback period */
+export function fetchPaybackPeriod(cac: number, arpu: number, grossMargin?: number): Promise<PaybackResult | null>;
+
+/** Fetch runway estimate */
+export function fetchRunway(mrr: number, expenses: number, growthRate?: number, churnRate?: number): Promise<RunwayResult | null>;
+
+/** Fetch cohort retention curve */
+export function fetchCohortRetentionCurve(months?: number, churnRate?: number): Promise<{ curve: CohortRetentionPoint[] } | null>;
+
+/** Fetch MRR movement breakdown */
+export function fetchMRRMovement(params?: { new_mrr?: number; expansion_mrr?: number; contraction_mrr?: number; churned_mrr?: number; previous_mrr?: number }): Promise<MRRMovement | null>;
+
+// ─── Churn Prediction (v2.81.0) ───────────────────────────────────
+
+/** Churn risk signal */
+export interface ChurnRiskSignal {
+    name: string;
+    weight: number;
+    value: number;
+    max_value: number;
+    score: number;
+}
+
+/** Churn risk profile for a single user */
+export interface ChurnRiskProfile {
+    user_id: string;
+    overall_score: number;
+    risk_level: 'low' | 'medium' | 'high' | 'critical';
+    signals: ChurnRiskSignal[];
+    recommendation: string;
+    probability_percent: number;
+}
+
+/** Churn user signals for scoring */
+export interface ChurnUserSignals {
+    days_inactive?: number;
+    usage_decline_pct?: number;
+    support_tickets_30d?: number;
+    failed_payments_90d?: number;
+    feature_adoption_pct?: number;
+    contract_expiring_30d?: boolean;
+    billing_disputes?: number;
+    login_frequency_decline_pct?: number;
+    engagement_score?: number;
+    plan_downgrade_recent?: boolean;
+}
+
+/** Batch churn scoring result */
+export interface ChurnBatchResult {
+    ranked: ChurnRiskProfile[];
+    summary: {
+        total: number;
+        critical: number;
+        high: number;
+        medium: number;
+        low: number;
+        avg_score: number;
+    };
+    at_risk_count: number;
+}
+
+/** Cohort churn risk summary */
+export interface ChurnCohortSummary {
+    total_users: number;
+    risk_distribution: {
+        low: number;
+        medium: number;
+        high: number;
+        critical: number;
+    };
+    avg_risk_score: number;
+    estimated_monthly_churn_revenue: number;
+    top_risk_factors: Array<{ signal: string; avg_score: number }>;
+}
+
+/** Score a single user's churn risk */
+export function scoreChurnRisk(userId: string, signals?: ChurnUserSignals): Promise<ChurnRiskProfile | null>;
+
+/** Score multiple users and return ranked results */
+export function scoreChurnBatch(users: Array<{ user_id: string } & ChurnUserSignals>): Promise<ChurnBatchResult | null>;
+
+/** Fetch churn cohort risk summary */
+export function fetchChurnCohortSummary(users: Array<{ user_id: string } & ChurnUserSignals>): Promise<ChurnCohortSummary | null>;
+
+/** Fetch configured churn signal weights */
+export function fetchChurnWeights(): Promise<{ status: string; weights: Record<string, number> } | null>;
+
+/** Fetch configured churn risk thresholds */
+export function fetchChurnThresholds(): Promise<{ status: string; thresholds: { medium: number; high: number; critical: number } } | null>;
 
 /** Fetch DLQ recovery budget status */
 export function fetchRecoveryBudget(): Promise<RecoveryBudget | null>;

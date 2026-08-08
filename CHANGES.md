@@ -4,6 +4,19 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.81.0] - 2026-08-08
+
+### Added
+- **RevenueForecastService** — SaaS revenue forecasting engine with MRR trend projection, LTV calculation, LTV:CAC ratio, CAC payback period, runway estimation, cohort retention curves, and MRR movement breakdown. Config-driven via `zeroboiler.analytics.forecasting`. 9 API endpoints.
+- **ChurnPredictionService** — Weighted scoring model for user churn risk prediction. 10 configurable signals (days inactive, usage decline, support tickets, failed payments, feature adoption, contract expiration, billing disputes, login frequency, engagement score, plan downgrades). Classifies users as low/medium/high/critical risk. 5 API endpoints.
+- **Config sections**: `forecasting` (enabled, cache_ttl, monthly_churn_rate, growth_rate, horizon_days, historical_window_days, avg_revenue_per_account), `churn_prediction` (enabled, cache_ttl, high/medium/critical risk thresholds, inactive_days_threshold, 10 signal weights).
+- **JS client**: Revenue forecasting API helpers (fetchRevenueForecast, fetchRevenueForecastSummary, fetchRevenueProject, fetchLtv, fetchLtvCacRatio, fetchPaybackPeriod, fetchRunway, fetchCohortRetention, fetchMrrMovement), churn prediction helpers (fetchChurnScore, fetchChurnScoreBatch, fetchChurnCohortSummary, fetchChurnWeights, fetchChurnThresholds).
+- **TypeScript**: ForecastPoint, ForecastSummary, LtvResult, LtvCacResult, PaybackResult, RunwayResult, MrrMovement, ChurnRiskProfile, ChurnSignal, ChurnThresholds interfaces.
+
+### Changed
+- Version bump to 2.81.0 across all version references (AnalyticsEvent, composer.json, JS client, TypeScript, AnalyticsManager, ServiceProvider, controller).
+- AnalyticsEventController: Fixed missing `$this->config` property (ConfigRepository) required by revenue forecasting and churn prediction endpoints.
+
 ## [2.79.0] - 2026-08-08
 
 ### Added

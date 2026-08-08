@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.79.0
+ * @version 2.81.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.79.0';
+    return '2.81.0';
 }
 
 /**
@@ -4114,6 +4114,438 @@ export async function fetchRecoveryHistory() {
             headers: {
                 Accept: 'application/json',
             },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Revenue Forecasting (v2.81.0) ────────────────────────────────
+
+/**
+ * Revenue forecast summary data.
+ *
+ * @typedef {object} ForecastSummary
+ * @property {number} current_mrr
+ * @property {number} current_arr
+ * @property {number} projected_mrr_30d
+ * @property {number} projected_arr_30d
+ * @property {number} mrr_growth_rate
+ * @property {number} churn_rate
+ * @property {number} net_revenue_retention
+ * @property {number} ltv_estimate
+ * @property {number} runway_months
+ * @property {string} confidence
+ */
+
+/**
+ * Daily forecast data point.
+ *
+ * @typedef {object} ForecastPoint
+ * @property {string} date
+ * @property {number} mrr
+ * @property {number} arr
+ * @property {number} churned_mrr
+ * @property {number} net_new_mrr
+ * @property {number} churn_rate
+ */
+
+/**
+ * Fetch a full revenue forecast with daily data points.
+ *
+ * @param {object} [params] - Current revenue snapshot
+ * @param {number} [params.mrr=0] - Current Monthly Recurring Revenue
+ * @param {number} [params.arr=0] - Current Annual Recurring Revenue
+ * @param {number} [params.churned_mrr_last_month=0] - MRR lost to churn last month
+ * @param {number} [params.new_mrr_last_month=0] - New MRR from new customers
+ * @param {number} [params.expansion_mrr_last_month=0] - MRR from expansion revenue
+ * @param {number} [params.active_subscribers=0] - Current active subscriber count
+ * @param {number} [params.churned_subscribers_last_month=0] - Subscribers lost last month
+ * @returns {Promise<object|null>} Full forecast with summary, daily points, and assumptions
+ *
+ * @example
+ * const forecast = await fetchRevenueForecast({
+ *     mrr: 50000,
+ *     churned_mrr_last_month: 1500,
+ *     new_mrr_last_month: 8000,
+ *     active_subscribers: 500,
+ * });
+ */
+export async function fetchRevenueForecast(params = {}) {
+    if (!initialized) return null;
+
+    const query = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/forecast${query ? `?${query}` : ''}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch a quick revenue forecast summary (no daily breakdown).
+ *
+ * @param {object} [params] - Same as fetchRevenueForecast params
+ * @returns {Promise<ForecastSummary|null>}
+ */
+export async function fetchForecastSummary(params = {}) {
+    if (!initialized) return null;
+
+    const query = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/forecast/summary${query ? `?${query}` : ''}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Project MRR at a specific future date.
+ *
+ * @param {number} daysOut - Number of days into the future (1-365)
+ * @param {number} [mrr=0] - Current MRR
+ * @returns {Promise<object|null>} Projected MRR/ARR with cumulative churn/growth
+ */
+export async function fetchRevenueProjection(daysOut, mrr = 0) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/project?days_out=${Math.min(365, Math.max(1, daysOut))}&mrr=${mrr}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Calculate Customer Lifetime Value (LTV).
+ *
+ * @param {number} arpu - Average Revenue Per User (monthly)
+ * @param {number} churnRate - Monthly churn rate (0-1)
+ * @param {number} [grossMargin=0.75] - Gross margin (0-1)
+ * @returns {Promise<object|null>} LTV calculation with months and multiplier
+ */
+export async function fetchLTV(arpu, churnRate, grossMargin = 0.75) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/ltv?arpu=${arpu}&churn_rate=${churnRate}&gross_margin=${grossMargin}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Calculate LTV:CAC ratio.
+ *
+ * @param {number} ltv - Customer Lifetime Value
+ * @param {number} cac - Customer Acquisition Cost
+ * @returns {Promise<object|null>} Ratio with rating and recommendation
+ */
+export async function fetchLTVCACRatio(ltv, cac) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/ltv-cac?ltv=${ltv}&cac=${cac}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Calculate CAC payback period.
+ *
+ * @param {number} cac - Customer Acquisition Cost
+ * @param {number} arpu - Average Revenue Per User (monthly)
+ * @param {number} [grossMargin=0.75] - Gross margin (0-1)
+ * @returns {Promise<object|null>} Payback in months with rating
+ */
+export async function fetchPaybackPeriod(cac, arpu, grossMargin = 0.75) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/payback?cac=${cac}&arpu=${arpu}&gross_margin=${grossMargin}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch runway estimate and path to profitability.
+ *
+ * @param {number} mrr - Current Monthly Recurring Revenue
+ * @param {number} expenses - Monthly operating expenses
+ * @param {number} [growthRate=0.05] - Monthly growth rate (0-1)
+ * @param {number} [churnRate=0.03] - Monthly churn rate (0-1)
+ * @returns {Promise<object|null>} Runway months, breakeven date, burn rate
+ */
+export async function fetchRunway(mrr, expenses, growthRate = 0.05, churnRate = 0.03) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/runway?mrr=${mrr}&expenses=${expenses}&growth_rate=${growthRate}&churn_rate=${churnRate}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch cohort retention curve projection.
+ *
+ * @param {number} [months=12] - Number of months to project (1-60)
+ * @param {number} [churnRate=0.03] - Monthly churn rate (0-1)
+ * @returns {Promise<object|null>} Retention curve data points
+ */
+export async function fetchCohortRetentionCurve(months = 12, churnRate = 0.03) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(
+            `${apiBaseUrl}/forecast/cohort-retention?months=${Math.min(60, months)}&churn_rate=${churnRate}`,
+            { headers: { Accept: 'application/json' } },
+        );
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch MRR movement breakdown.
+ *
+ * @param {object} params - MRR movement components
+ * @param {number} [params.new_mrr=0]
+ * @param {number} [params.expansion_mrr=0]
+ * @param {number} [params.contraction_mrr=0]
+ * @param {number} [params.churned_mrr=0]
+ * @param {number} [params.previous_mrr=0]
+ * @returns {Promise<object|null>} Movement breakdown with net change
+ */
+export async function fetchMRRMovement(params = {}) {
+    if (!initialized) return null;
+
+    const query = new URLSearchParams(
+        Object.entries(params).map(([k, v]) => [k, String(v)]),
+    ).toString();
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/forecast/mrr-movement${query ? `?${query}` : ''}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Churn Prediction (v2.81.0) ─────────────────────────────────
+
+/**
+ * Churn risk profile for a single user.
+ *
+ * @typedef {object} ChurnRiskProfile
+ * @property {string} user_id
+ * @property {number} overall_score
+ * @property {'low'|'medium'|'high'|'critical'} risk_level
+ * @property {Array<{name: string, weight: number, value: number, max_value: number, score: number}>} signals
+ * @property {string} recommendation
+ * @property {number} probability_percent
+ */
+
+/**
+ * Score a single user's churn risk.
+ *
+ * @param {string} userId - The user to score
+ * @param {object} [signals] - User behavior signals
+ * @param {number} [signals.days_inactive=0]
+ * @param {number} [signals.usage_decline_pct=0]
+ * @param {number} [signals.support_tickets_30d=0]
+ * @param {number} [signals.failed_payments_90d=0]
+ * @param {number} [signals.feature_adoption_pct=100]
+ * @param {boolean} [signals.contract_expiring_30d=false]
+ * @param {number} [signals.billing_disputes=0]
+ * @param {number} [signals.login_frequency_decline_pct=0]
+ * @param {number} [signals.engagement_score=100]
+ * @param {boolean} [signals.plan_downgrade_recent=false]
+ * @returns {Promise<ChurnRiskProfile|null>} Risk profile with score and recommendation
+ *
+ * @example
+ * const profile = await scoreChurnRisk('user-123', {
+ *     days_inactive: 21,
+ *     usage_decline_pct: 45,
+ *     failed_payments_90d: 1,
+ * });
+ * console.log(`Risk: ${profile.risk_level} (${profile.overall_score}/100)`);
+ */
+export async function scoreChurnRisk(userId, signals = {}) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/churn/score`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ user_id: userId, ...signals }),
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Score multiple users and return ranked results.
+ *
+ * @param {Array<{user_id: string} & Record<string, unknown>>} users - Array of users with signals
+ * @returns {Promise<object|null>} Ranked profiles with cohort summary
+ */
+export async function scoreChurnBatch(users) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/churn/score-batch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ users }),
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch churn risk summary for a cohort.
+ *
+ * @param {Array<{user_id: string} & Record<string, unknown>>} users - Array of users
+ * @returns {Promise<object|null>} Cohort-level risk distribution and top factors
+ */
+export async function fetchChurnCohortSummary(users) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/churn/cohort-summary`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ users }),
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch configured churn signal weights.
+ *
+ * @returns {Promise<object|null>} Signal weight configuration
+ */
+export async function fetchChurnWeights() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/churn/weights`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch configured churn risk thresholds.
+ *
+ * @returns {Promise<object|null>} Threshold configuration
+ */
+export async function fetchChurnThresholds() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/churn/thresholds`, {
+            headers: { Accept: 'application/json' },
         });
 
         if (!response.ok) return null;

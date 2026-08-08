@@ -65,6 +65,8 @@ final class AnalyticsEventController extends Controller
 {
     private AnalyticsManager $manager;
 
+    private ConfigRepository $config;
+
     private string $cookieName;
 
     private ?EventValidationService $validator;
@@ -205,6 +207,7 @@ final class AnalyticsEventController extends Controller
         ?SaaSConversionService $conversionService = null,
     ): void {
         $this->manager = $manager;
+        $this->config = $config;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $this->cookieName = is_string($cookieName) ? $cookieName : 'zb_analytics_id';
         $this->validator = $validator;
@@ -520,7 +523,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'total' => EventCatalog::count(),
             'categories' => [
                 'ecommerce' => [
@@ -607,7 +610,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'providers' => $providers,
             'consent' => $this->manager->getConsent()->toArray(),
             'metrics' => $metricsSummary,
@@ -792,7 +795,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'mappings' => $exporter->exportProviderMappings(),
         ]);
     }
@@ -1048,7 +1051,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'export' => $export,
         ]);
     }
@@ -1070,7 +1073,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'stats' => $this->statsService->summary(),
         ]);
     }
@@ -1301,7 +1304,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
         ]);
@@ -1328,7 +1331,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'min_length' => $minLength,
             'count' => count($patterns),
             'patterns' => $patterns,
@@ -1354,7 +1357,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'count' => count($this->correlationService->topTransitions($limit)),
             'transitions' => $this->correlationService->topTransitions($limit),
         ]);
@@ -1386,7 +1389,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'after' => $afterEvent,
             'count' => count($predictions),
             'predictions' => $predictions,
@@ -1410,7 +1413,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'summary' => $this->correlationService->summary(),
         ]);
     }
@@ -1434,7 +1437,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => $result['valid'] ? 'ok' : 'errors',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'valid' => $result['valid'],
             'errors' => $result['errors'],
             'warnings' => $result['warnings'],
@@ -1469,7 +1472,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.71.0',
+                'version' => '2.81.0',
                 'device' => $context,
             ]);
         } catch (\Throwable) {
@@ -1501,7 +1504,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'referrer' => $referrer,
             'utm' => $utm,
         ]);
@@ -1523,7 +1526,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'broadcast' => [
                 'enabled' => $this->broadcasterService->isEnabled(),
                 'channel_prefix' => $this->broadcasterService->getChannelPrefix(),
@@ -1554,7 +1557,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'tenant_id' => $tenantId,
             'isolation' => $this->tenantService->summary(),
             'rate_limit' => $tenantId !== null
@@ -1621,7 +1624,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'retention' => $this->retentionService->summary(),
         ]);
     }
@@ -1645,7 +1648,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'gate' => $this->gateService->summary($userId),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
             'features' => AnalyticsGateService::getFeatureDefinitions(),
@@ -1661,7 +1664,7 @@ final class AnalyticsEventController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'features' => AnalyticsGateService::getFeatureDefinitions(),
             'plan_tiers' => AnalyticsGateService::getPlanTiers(),
         ]);
@@ -1687,7 +1690,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'report' => $this->reportingService->report($period),
         ]);
     }
@@ -1880,7 +1883,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'replayed' => count($events),
             'dispatched' => $dispatched,
             'failed' => $failed,
@@ -1913,7 +1916,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.71.0',
+                'version' => '2.81.0',
                 'replayed' => true,
                 'event' => $event->name,
                 'offset' => $offset,
@@ -1945,7 +1948,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'realtime' => $this->realtimeService->snapshot(),
         ]);
     }
@@ -1991,7 +1994,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'experiment' => $results,
         ]);
     }
@@ -2088,7 +2091,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -2112,7 +2115,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'snapshot' => $snapshot,
         ]);
     }
@@ -2130,7 +2133,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'comparison' => $this->snapshotService->dailyComparison(),
         ]);
     }
@@ -2153,7 +2156,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'kpi' => $this->kpiTracker->summary(),
         ]);
     }
@@ -2194,7 +2197,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'sources' => $this->utmAggregation->topSources($limit),
         ]);
     }
@@ -2214,7 +2217,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'campaigns' => $this->utmAggregation->topCampaigns($limit),
         ]);
     }
@@ -2232,7 +2235,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'breakdown' => $this->utmAggregation->sourceMediumBreakdown(),
         ]);
     }
@@ -2252,7 +2255,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'enabled' => $this->forwardingService->isEnabled(),
             'forwarders' => $this->forwardingService->forwarderNames(),
             'details' => array_map(
@@ -2278,7 +2281,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'stats' => $this->forwardingService->stats(),
         ]);
     }
@@ -2298,7 +2301,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$result,
         ]);
     }
@@ -2318,7 +2321,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => 'Forwarding statistics reset',
         ]);
     }
@@ -2338,7 +2341,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'config' => $this->performanceBudgetService->getConfig(),
         ]);
     }
@@ -2368,7 +2371,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'payload_size' => $this->performanceBudgetService->getPayloadSize($event),
             ...$validation,
         ]);
@@ -2389,7 +2392,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'attribution' => $this->attributionService->getAttribution($identifier),
         ]);
     }
@@ -2407,7 +2410,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'touchpoints' => $this->attributionService->getTouchpoints($identifier),
         ]);
     }
@@ -2425,7 +2428,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'first_touch' => $this->attributionService->getFirstTouch($identifier),
         ]);
     }
@@ -2443,7 +2446,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'last_touch' => $this->attributionService->getLastTouch($identifier),
         ]);
     }
@@ -2477,7 +2480,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => 'Touchpoint recorded',
             'attribution' => $this->attributionService->getAttribution($identifier),
         ]);
@@ -2498,7 +2501,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => 'Attribution data cleared',
         ]);
     }
@@ -2517,7 +2520,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'data' => $this->taxonomyService->summary(),
         ]);
     }
@@ -2536,7 +2539,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'tag' => $tag,
             'events' => $this->taxonomyService->eventsWithTag($tag),
             'count' => count($this->taxonomyService->eventsWithTag($tag)),
@@ -2561,7 +2564,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'data' => $this->taxonomyService->tagDefinitions(),
         ]);
     }
@@ -2580,7 +2583,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'data' => $this->taxonomyService->eventsGroupedByTag(),
         ]);
     }
@@ -2616,7 +2619,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'series' => $series,
             'granularity' => $granularity,
             'limit' => $limit,
@@ -2643,7 +2646,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'series' => $series,
             'granularity' => $granularity,
             'summary' => $this->bucketsService->summary($series, $granularity, $last),
@@ -2669,7 +2672,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'series_a' => $seriesA,
             'series_b' => $seriesB,
             'granularity' => $granularity,
@@ -2693,7 +2696,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'series' => $this->bucketsService->seriesList(),
             'granularities' => EventBucketsService::availableGranularities(),
         ]);
@@ -2723,7 +2726,7 @@ final class AnalyticsEventController extends Controller
         if ($cached !== null) {
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.71.0',
+                'version' => '2.81.0',
                 'source' => 'cached',
                 ...$cached,
             ]);
@@ -2731,7 +2734,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2753,7 +2756,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'source' => 'calculated',
             ...$this->healthScoreService->calculate(),
         ]);
@@ -2777,7 +2780,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'limit' => $limit,
             'history' => $this->healthScoreService->history($limit),
         ]);
@@ -2812,7 +2815,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'journey' => $journey,
             'page_flow' => $this->journeyService->getPageFlow($journeyId),
         ]);
@@ -2834,7 +2837,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'stats' => $this->journeyService->getStats(),
         ]);
     }
@@ -2858,7 +2861,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'patterns' => $this->journeyService->mostCommonPatterns($steps, $limit),
         ]);
     }
@@ -2881,7 +2884,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'drop_offs' => $this->journeyService->dropOffPoints($limit),
         ]);
     }
@@ -2912,7 +2915,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'pattern' => $pattern,
             'matches' => $this->journeyService->findMatchingJourneys($pattern, $limit),
             'count' => count($this->journeyService->findMatchingJourneys($pattern, $limit)),
@@ -2945,7 +2948,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'funnel' => $this->journeyService->funnelConversion($steps),
         ]);
     }
@@ -2969,7 +2972,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'purposes' => $consentLog->availablePurposes(),
             'purpose_map' => $consentFilter->getPurposeMap(),
             'purpose_to_signal' => \ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::purposeToSignalMap(),
@@ -2995,7 +2998,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'enabled' => $envelopeService->isEnabled(),
             'active_sections' => $envelopeService->activeSections(),
             'summary' => $envelopeService->summary(),
@@ -3035,7 +3038,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'identifier' => $identifier,
             'current' => $consentLog->getCurrentConsent($identifier),
             'history' => $history,
@@ -3077,7 +3080,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.71.0',
+                'version' => '2.81.0',
                 'count' => count($names),
                 'events' => $names,
             ]);
@@ -3109,7 +3112,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'count' => count($schemas),
             'categories' => array_keys($registry->getSchemasByCategory()),
             'schemas' => $schemas,
@@ -3165,7 +3168,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'schema' => [
                 'name' => $schema->name,
                 'category' => $schema->category,
@@ -3222,7 +3225,7 @@ final class AnalyticsEventController extends Controller
 
         $response = [
             'status' => $result['valid'] ? 'ok' : 'validation_error',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'event' => $eventName,
             'valid' => $result['valid'],
             'errors' => $result['errors'],
@@ -3282,7 +3285,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'total_schemas' => $registry->count(),
             'categories' => $categoryCounts,
             'total_params' => $totalParams,
@@ -3431,7 +3434,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'enabled' => $telemetryService->isEnabled(),
                 'results' => $telemetryService->results(),
                 'summary' => $telemetryService->summary(),
@@ -3460,7 +3463,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'probes' => $telemetryService->probeAll(),
             ]);
         } catch (\Throwable $e) {
@@ -3489,7 +3492,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'enabled' => $roiService->isEnabled(),
                 'summary' => $roiService->summary(),
                 'top_campaigns' => $roiService->topCampaigns(10),
@@ -3516,7 +3519,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'roi' => $roiService->roi($campaign),
             ]);
         } catch (\Throwable $e) {
@@ -3585,7 +3588,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'summary' => $dmService->summary(),
                 'global_allowlist' => $dmService->getGlobalAllowlist(),
                 'strip_params' => $dmService->getStripParams(),
@@ -3627,7 +3630,7 @@ final class AnalyticsEventController extends Controller
 
             return response()->json([
                 'status' => 'ok',
-                'version' => '2.62.0',
+                'version' => '2.81.0',
                 'enabled' => $dmService->isEnabled(),
                 'stripped_params' => $dmService->previewStripped($event),
                 'original_param_count' => count($event->params),
@@ -3662,7 +3665,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'conversion' => $this->conversionService->summary(),
         ]);
     }
@@ -3685,7 +3688,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'funnel' => $this->conversionService->conversionFunnel(),
         ]);
     }
@@ -3708,7 +3711,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'user_id' => $userId,
             'activation' => $this->conversionService->activationScore($userId),
         ]);
@@ -3732,7 +3735,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'time_to_conversion' => $this->conversionService->timeToConversion(),
         ]);
     }
@@ -3808,7 +3811,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'export' => $result,
             'summary' => $exportService->summary(),
         ]);
@@ -3835,7 +3838,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'dashboard' => $dashboardService->overview(),
         ]);
     }
@@ -3853,7 +3856,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->analyze(),
         ]);
     }
@@ -3872,7 +3875,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->inferAll(),
         ]);
     }
@@ -3941,7 +3944,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$data,
         ]);
     }
@@ -3960,7 +3963,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'urls' => $service->getTrackedUrls(),
             'summary' => $service->getSummary(),
         ]);
@@ -4003,7 +4006,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getDashboard(),
         ]);
     }
@@ -4022,7 +4025,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getClientStatus($clientId),
         ]);
     }
@@ -4058,7 +4061,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$breaker->getDashboard(),
         ]);
     }
@@ -4075,7 +4078,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$breaker->summary(),
         ]);
     }
@@ -4102,7 +4105,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'provider' => $provider,
             'state' => $breaker->getState($provider),
         ]);
@@ -4130,7 +4133,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'provider' => $provider,
             'state' => $breaker->getState($provider),
         ]);
@@ -4150,7 +4153,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->generateReport(),
         ]);
     }
@@ -4167,7 +4170,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'score' => $service->getScore(),
         ]);
     }
@@ -4185,7 +4188,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => 'Compliance cache invalidated. Next request will regenerate the report.',
         ]);
     }
@@ -4204,7 +4207,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getBudget(),
         ]);
     }
@@ -4221,7 +4224,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->assessHealth(),
         ]);
     }
@@ -4238,7 +4241,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getHistory(),
         ]);
     }
@@ -4263,7 +4266,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$result,
             'budget' => $service->getBudget(),
         ]);
@@ -4283,7 +4286,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getMeta(),
         ]);
     }
@@ -4315,7 +4318,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'total' => $total,
             'offset' => $offset,
             'limit' => $limit,
@@ -4337,7 +4340,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => 'Sandbox events cleared.',
         ]);
     }
@@ -4354,7 +4357,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'replay_log' => $service->getReplayLog(),
         ]);
     }
@@ -4373,7 +4376,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'enabled' => $service->isEnabled(),
             'overflow_strategy' => $service->getOverflowStrategy(),
             'providers' => $service->getStatus(),
@@ -4397,7 +4400,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             'message' => $provider !== null
                 ? "Rate limit counter reset for provider '{$provider}'."
                 : 'All provider rate limit counters reset.',
@@ -4418,7 +4421,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.81.0',
             ...$service->getSummary(),
         ]);
     }
@@ -4447,7 +4450,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.79.0',
+            'version' => '2.81.0',
             ...$report->toArray(),
         ]);
     }
@@ -4517,6 +4520,290 @@ final class AnalyticsEventController extends Controller
         return response()->json([
             'status' => 'ok',
             ...\ZeroBoiler\Analytics\Events\EventCatalog::industryStandard(),
+        ]);
+    }
+
+    // ─── Revenue Forecasting (v2.81.0) ─────────────────────────────────────
+
+    /**
+     * Get full revenue forecast with daily data points.
+     *
+     * GET /api/analytics/forecast
+     *
+     * Query params: mrr, arr, churned_mrr_last_month, new_mrr_last_month,
+     * expansion_mrr_last_month, active_subscribers, churned_subscribers_last_month
+     */
+    public function revenueForecast(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        $currentData = [
+            'mrr' => (float) ($request->query('mrr', 0)),
+            'arr' => (float) ($request->query('arr', 0)),
+            'churned_mrr_last_month' => (float) ($request->query('churned_mrr_last_month', 0)),
+            'new_mrr_last_month' => (float) ($request->query('new_mrr_last_month', 0)),
+            'expansion_mrr_last_month' => (float) ($request->query('expansion_mrr_last_month', 0)),
+            'active_subscribers' => (int) ($request->query('active_subscribers', 0)),
+            'churned_subscribers_last_month' => (int) ($request->query('churned_subscribers_last_month', 0)),
+        ];
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->forecast($currentData),
+        ]);
+    }
+
+    /**
+     * Get quick revenue forecast summary.
+     *
+     * GET /api/analytics/forecast/summary
+     */
+    public function revenueForecastSummary(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        $currentData = [
+            'mrr' => (float) ($request->query('mrr', 0)),
+            'arr' => (float) ($request->query('arr', 0)),
+            'churned_mrr_last_month' => (float) ($request->query('churned_mrr_last_month', 0)),
+            'new_mrr_last_month' => (float) ($request->query('new_mrr_last_month', 0)),
+            'expansion_mrr_last_month' => (float) ($request->query('expansion_mrr_last_month', 0)),
+            'active_subscribers' => (int) ($request->query('active_subscribers', 0)),
+            'churned_subscribers_last_month' => (int) ($request->query('churned_subscribers_last_month', 0)),
+        ];
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->summary($currentData),
+        ]);
+    }
+
+    /**
+     * Project MRR at a specific future date.
+     *
+     * GET /api/analytics/forecast/project?days_out=60&mrr=10000
+     */
+    public function revenueForecastProject(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        $daysOut = min(365, max(1, (int) ($request->query('days_out', 30))));
+        $currentData = ['mrr' => (float) ($request->query('mrr', 0))];
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->projectAt($daysOut, $currentData),
+        ]);
+    }
+
+    /**
+     * Calculate Customer Lifetime Value (LTV).
+     *
+     * GET /api/analytics/forecast/ltv?arpu=99&churn_rate=0.03&gross_margin=0.75
+     */
+    public function ltvCalculation(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->calculateLtv(
+                arpu: (float) ($request->query('arpu', 99)),
+                monthlyChurnRate: (float) ($request->query('churn_rate', 0.03)),
+                grossMargin: (float) ($request->query('gross_margin', 0.75)),
+            ),
+        ]);
+    }
+
+    /**
+     * Calculate LTV:CAC ratio.
+     *
+     * GET /api/analytics/forecast/ltv-cac?ltv=3000&cac=500
+     */
+    public function ltvCacRatio(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->ltvCACRatio(
+                ltv: (float) ($request->query('ltv', 0)),
+                cac: (float) ($request->query('cac', 1)),
+            ),
+        ]);
+    }
+
+    /**
+     * Calculate CAC payback period.
+     *
+     * GET /api/analytics/forecast/payback?cac=500&arpu=99&gross_margin=0.75
+     */
+    public function paybackPeriod(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->paybackPeriod(
+                cac: (float) ($request->query('cac', 500)),
+                monthlyArpu: (float) ($request->query('arpu', 99)),
+                grossMargin: (float) ($request->query('gross_margin', 0.75)),
+            ),
+        ]);
+    }
+
+    /**
+     * Estimate runway and path to profitability.
+     *
+     * GET /api/analytics/forecast/runway?mrr=10000&expenses=15000&growth_rate=0.05&churn_rate=0.03
+     */
+    public function runwayEstimate(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->runway(
+                currentMrr: (float) ($request->query('mrr', 0)),
+                monthlyExpenses: (float) ($request->query('expenses', 0)),
+                growthRate: (float) ($request->query('growth_rate', 0.05)),
+                churnRate: (float) ($request->query('churn_rate', 0.03)),
+            ),
+        ]);
+    }
+
+    /**
+     * Get cohort retention curve projection.
+     *
+     * GET /api/analytics/forecast/cohort-retention?months=12&churn_rate=0.03
+     */
+    public function cohortRetentionCurve(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            'curve' => $service->cohortRetentionCurve(
+                months: min(60, (int) ($request->query('months', 12))),
+                monthlyChurnRate: (float) ($request->query('churn_rate', 0.03)),
+            ),
+        ]);
+    }
+
+    /**
+     * Get MRR movement breakdown (new, expansion, contraction, churn).
+     *
+     * GET /api/analytics/forecast/mrr-movement
+     */
+    public function mrrMovementBreakdown(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\RevenueForecastService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->mrrMovementBreakdown([
+                'new_mrr' => (float) ($request->query('new_mrr', 0)),
+                'expansion_mrr' => (float) ($request->query('expansion_mrr', 0)),
+                'contraction_mrr' => (float) ($request->query('contraction_mrr', 0)),
+                'churned_mrr' => (float) ($request->query('churned_mrr', 0)),
+                'previous_mrr' => (float) ($request->query('previous_mrr', 0)),
+            ]),
+        ]);
+    }
+
+    // ─── Churn Prediction (v2.81.0) ───────────────────────────────────────
+
+    /**
+     * Score a single user's churn risk.
+     *
+     * POST /api/analytics/churn/score
+     *
+     * Body: { user_id, days_inactive, usage_decline_pct, support_tickets_30d, ... }
+     */
+    public function churnScoreUser(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\ChurnPredictionService($this->config);
+
+        $userId = (string) ($request->input('user_id', ''));
+        $signals = $request->except('user_id');
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->scoreUser($userId, $signals),
+        ]);
+    }
+
+    /**
+     * Score multiple users and return ranked results.
+     *
+     * POST /api/analytics/churn/score-batch
+     *
+     * Body: { users: [{ user_id, days_inactive, ... }, ...] }
+     */
+    public function churnScoreBatch(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\ChurnPredictionService($this->config);
+
+        $users = $request->input('users', []);
+
+        if (! is_array($users)) {
+            return response()->json(['status' => 'error', 'message' => 'users must be an array'], 422);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->scoreBatch($users),
+        ]);
+    }
+
+    /**
+     * Get cohort churn risk summary.
+     *
+     * POST /api/analytics/churn/cohort-summary
+     */
+    public function churnCohortSummary(Request $request): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\ChurnPredictionService($this->config);
+
+        $users = $request->input('users', []);
+
+        if (! is_array($users)) {
+            return response()->json(['status' => 'error', 'message' => 'users must be an array'], 422);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            ...$service->cohortRiskSummary($users),
+        ]);
+    }
+
+    /**
+     * Get configured churn signal weights.
+     *
+     * GET /api/analytics/churn/weights
+     */
+    public function churnSignalWeights(): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\ChurnPredictionService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            'weights' => $service->getSignalWeights(),
+        ]);
+    }
+
+    /**
+     * Get configured churn risk thresholds.
+     *
+     * GET /api/analytics/churn/thresholds
+     */
+    public function churnThresholds(): JsonResponse
+    {
+        $service = new \ZeroBoiler\Analytics\Services\ChurnPredictionService($this->config);
+
+        return response()->json([
+            'status' => 'ok',
+            'thresholds' => $service->getThresholds(),
         ]);
     }
 }
