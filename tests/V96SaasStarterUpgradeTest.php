@@ -233,11 +233,11 @@ test('AnalyticsManager::trackSaaSAcquisition with null amount omits subscribe', 
     expect($events[1]->name)->toBe('start_trial');
 });
 
-test('version is 2.96.0', function (): void {
+test('version is 2.97.0', function (): void {
     $manager = new AnalyticsManager;
 
-    expect($manager->version())->toBe('2.96.0');
-    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('2.96.0');
+    expect($manager->version())->toBe('2.97.0');
+    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('2.97.0');
 });
 
 test('SaaS event names exist in catalog', function (): void {

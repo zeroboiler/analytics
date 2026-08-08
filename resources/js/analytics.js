@@ -3124,7 +3124,7 @@ export function _getInternalVersion() {
     return '2.97.0';
 }
 
-// ─── Inertia Page View Auto-Tracker (v2.97.0) ────────────────────
+// ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
 
 /**
  * Initialize automatic Inertia page view tracking.
