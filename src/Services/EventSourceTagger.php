@@ -62,7 +62,7 @@ final class EventSourceTagger
         $tags = [
             '_source' => $source,
             '_timestamp' => now()->toIso8601String(),
-            '_version' => '2.95.0',
+            '_version' => '2.96.0',
         ];
 
         $mergedParams = array_merge($event->params, $tags, $extra);

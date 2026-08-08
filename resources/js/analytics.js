@@ -5127,7 +5127,7 @@ export async function fetchBenchmarkQuickStart() {
     }
 }
 
-// ─── Server-Sent Events (v2.95.0) ──────────────────────────────────
+// ─── Server-Sent Events ──────────────────────────────────
 
 /**
  * Fetch SSE endpoint capability info.

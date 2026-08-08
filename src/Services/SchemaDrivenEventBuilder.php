@@ -29,7 +29,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  *
  * @see \ZeroBoiler\Analytics\Schema\EventPropertySchema
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaRegistry
- * @version 2.95.0
+ * @version 2.96.0
  */
 final class SchemaDrivenEventBuilder
 {

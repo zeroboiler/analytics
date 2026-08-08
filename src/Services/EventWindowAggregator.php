@@ -21,7 +21,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Zero-dependency: uses the application cache (file, Redis, APCu, etc.)
  * with atomic increment operations for thread-safe counting.
  *
- * @version 2.95.0
+ * @version 2.96.0
  */
 final class EventWindowAggregator
 {

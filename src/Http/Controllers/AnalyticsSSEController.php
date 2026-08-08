@@ -136,7 +136,7 @@ final class AnalyticsSSEController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '2.95.0',
+            'version' => '2.96.0',
             'sse' => [
                 'supported' => true,
                 'endpoint' => '/api/analytics/sse',
