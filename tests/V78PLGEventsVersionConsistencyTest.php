@@ -72,11 +72,11 @@ test('SaaSEvents catalog has feature_adopted and expansion_revenue', function ()
 });
 
 test('SaaSEvents total count is 48 (was 46 + 2 PLG events)', function (): void {
-    expect(SaaSEvents::count())->toBe(48);
+    expect(SaaSEvents::count())->toBe(50);
 });
 
 test('EventCatalog total count is 86 (13 ecommerce + 48 SaaS + 25 engagement)', function (): void {
-    expect(EventCatalog::count())->toBe(86);
+    expect(EventCatalog::count())->toBe(90);
 });
 
 test('SaaSEvents entries have correct class references', function (): void {
@@ -186,23 +186,23 @@ test('AnalyticsManager plgEvents returns catalog PLG events', function (): void 
 
 test('Version consistency across all files', function (): void {
     // AnalyticsEvent VERSION constant
-    expect(AnalyticsEvent::VERSION)->toBe('2.78.0');
+    expect(AnalyticsEvent::VERSION)->toBe('2.79.0');
 
     // Event count consistency
-    expect(EventCatalog::count())->toBe(86);
-    expect(SaaSEvents::count())->toBe(48);
+    expect(EventCatalog::count())->toBe(90);
+    expect(SaaSEvents::count())->toBe(50);
 
-    // SaaSEvents count = EcommerceEvents + EngagementEvents + 48
+    // SaaSEvents count = EcommerceEvents + EngagementEvents + 50
     expect(EventCatalog::count())->toBe(
-        13 + 48 + 25,
+        13 + 50 + 27,
     );
 });
 
-test('Maturity score accounts for new events (86 total)', function (): void {
+test('Maturity score accounts for new events (90 total)', function (): void {
     $calculator = new EventPriorityCalculator;
     $counts = $calculator->categoryCounts();
 
-    expect($counts['total'])->toBe(86);
+    expect($counts['total'])->toBe(90);
     expect($counts['referral'])->toBeGreaterThanOrEqual(7); // was 5 + 2 new
     expect($counts['acquisition'])->toBeGreaterThanOrEqual(5);
     expect($counts['activation'])->toBeGreaterThanOrEqual(12);

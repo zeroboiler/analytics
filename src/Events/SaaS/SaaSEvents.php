@@ -412,6 +412,24 @@ final class SaaSEvents
                 'posthog' => 'billing_retry',
                 'plausible' => null,
             ],
+            // SLA compliance event
+            'sla_breach' => [
+                'name' => 'sla_breach',
+                'class' => SlaBreachEvent::class,
+                'ga4' => 'sla_breach',
+                'meta' => 'CustomEvent',
+                'posthog' => 'sla_breach',
+                'plausible' => null,
+            ],
+            // Payment method update event
+            'payment_method_updated' => [
+                'name' => 'payment_method_updated',
+                'class' => PaymentMethodUpdatedEvent::class,
+                'ga4' => 'payment_method_updated',
+                'meta' => 'CustomEvent',
+                'posthog' => 'payment_method_updated',
+                'plausible' => null,
+            ],
             // Product-Led Growth events (v2.78.0)
             'feature_adopted' => [
                 'name' => 'feature_adopted',

@@ -240,6 +240,24 @@ final class EngagementEvents
                 'posthog' => 'feature_request',
                 'plausible' => null,
             ],
+            // User satisfaction & feedback (v2.79.0)
+            'feedback' => [
+                'name' => 'feedback',
+                'class' => FeedbackEvent::class,
+                'ga4' => 'feedback',
+                'meta' => 'Feedback',
+                'posthog' => 'feedback',
+                'plausible' => null,
+            ],
+            // Custom goal conversion tracking (v2.79.0)
+            'goal_conversion' => [
+                'name' => 'goal_conversion',
+                'class' => GoalConversionEvent::class,
+                'ga4' => 'goal_conversion',
+                'meta' => 'Conversion',
+                'posthog' => 'goal_conversion',
+                'plausible' => 'goal',
+            ],
         ];
 
         return self::$catalog;

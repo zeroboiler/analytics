@@ -129,6 +129,20 @@ final class EventPriorityCalculator
         'role_changed' => self::CATEGORY_OPERATIONAL,
         'team_member_removed' => self::CATEGORY_OPERATIONAL,
         'logout' => self::CATEGORY_OPERATIONAL,
+        'integration_failed' => self::CATEGORY_OPERATIONAL,
+        'sla_breach' => self::CATEGORY_OPERATIONAL,
+        'payment_method_updated' => self::CATEGORY_OPERATIONAL,
+        'cohort_assigned' => self::CATEGORY_OPERATIONAL,
+        'cohort_retention' => self::CATEGORY_OPERATIONAL,
+        'cohort_churn' => self::CATEGORY_OPERATIONAL,
+        'cohort_conversion' => self::CATEGORY_OPERATIONAL,
+        'cohort_migration' => self::CATEGORY_OPERATIONAL,
+        'cohort_engagement' => self::CATEGORY_OPERATIONAL,
+        'checkout_step' => self::CATEGORY_OPERATIONAL,
+
+        // Feedback & goals (v2.79.0)
+        'feedback' => self::CATEGORY_RETENTION,
+        'goal_conversion' => self::CATEGORY_REVENUE,
     ];
 
     /**

@@ -4,7 +4,24 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
-## [2.76.0] - 2026-08-08
+## [2.79.0] - 2026-08-08
+
+### Added
+- **SlaBreachEvent** — Enterprise SLA breach monitoring event. Tracks uptime, response time, and resolution time threshold violations with severity classification (minor/major/critical). Fields: sla_type, threshold, actual, unit, severity, customer_id. Registered in SaaSEvents catalog with GA4/PostHog mappings.
+- **PaymentMethodUpdatedEvent** — Payment method change tracking event. Captures method type (credit_card, bank_transfer, paypal), change type (added, updated, removed, set_default), and processor (stripe, paypal, braintree). Important for RevOps analytics and payment optimization. Registered in SaaSEvents catalog.
+- **FeedbackEvent** — User satisfaction signal event for NPS, CSAT, CES, feature requests, and bug reports. Tracks score, rating (promoter/passive/detractor), category (ui, performance, feature, support), and source. Critical for product-market fit analysis. Registered in EngagementEvents catalog with GA4/Meta/PostHog mappings.
+- **GoalConversionEvent** — Custom goal conversion tracking beyond standard e-commerce/SaaS events. Supports goal name, category (onboarding, activation, revenue, retention), goal value for ROI calculation, and funnel step tracking. Plausible-compatible with `goal` event name. Registered in EngagementEvents catalog.
+- **EventPriorityCalculator expansion** — 11 previously unclassified events added to AARRR category map: integration_failed, sla_breach, payment_method_updated, cohort_assigned/retention/churn/conversion/migration/engagement, checkout_step → operational; feedback → retention; goal_conversion → revenue. Ensures 100% catalog coverage in AARRR classification.
+- **EventCatalog::industryStandard()** — feedback and goal_conversion added to medium priority tier.
+
+### Changed
+- Version bump to 2.79.0 across AnalyticsEvent, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, AnalyticsManager, AnalyticsServiceProvider, controller endpoint version string.
+- SaaS event count: 48 → 50 (added sla_breach, payment_method_updated).
+- Engagement event count: 25 → 27 (added feedback, goal_conversion).
+- Total catalog events: 86 → 90.
+- All AARRR categories now have 100% classification coverage across the full 90-event catalog.
+
+## [2.78.0] - 2026-08-08
 
 ### Added
 - **EventCatalog::billingEvents()** — Get all billing and revenue-related SaaS events (payments, invoices, credits, billing retries, subscription value changes). Ideal for revenue dashboards and billing health monitors.

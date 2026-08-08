@@ -4447,7 +4447,7 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.78.0',
+            'version' => '2.79.0',
             ...$report->toArray(),
         ]);
     }

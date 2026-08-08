@@ -892,6 +892,7 @@ final class EventCatalog
             'invite_sent', 'profile_updated', 'view_cart', 'remove_from_cart',
             'add_to_wishlist', 'select_item', 'credit_applied', 'payment_method_added',
             'workspace_created', 'feature_adopted', 'expansion_revenue',
+            'feedback', 'goal_conversion',
         ];
 
         $lowKeys = [
