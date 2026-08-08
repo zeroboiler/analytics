@@ -274,7 +274,7 @@ class V90SaaSLifecycleEventsTest extends TestCase
     public function testNewEventsInCatalogCount(): void
     {
         $total = EventCatalog::count();
-        // v2.89.0 had 91 events, v2.90.0 adds 5 new SaaS events → 96
+        // Previous versions had ~91 events; v2.90 adds 5 new SaaS events → expect 96+
         $this->assertGreaterThanOrEqual(96, $total);
     }
 
