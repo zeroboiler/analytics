@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.75.0
+ * @version 2.76.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -40,6 +40,8 @@ export interface ZbAnalyticsConfig {
     ecommerce?: EcommerceConfig;
     consentLogEnabled?: boolean;
     version?: string;
+    subscriptionTiers?: Record<string, SubscriptionTier>;
+    identityAutoLink?: boolean;
 }
 
 /** Consent signals (GDPR Consent Mode v2) */
@@ -97,6 +99,14 @@ export interface EcommerceConfig {
     brand: string;
     taxBehavior: string;
     shippingDefault: number;
+}
+
+/** Subscription tier definition from server config */
+export interface SubscriptionTier {
+    name?: string;
+    price?: number;
+    billing_cycle?: string;
+    features?: string[];
 }
 
 /** Performance budget configuration */

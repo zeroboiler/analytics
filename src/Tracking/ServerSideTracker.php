@@ -66,6 +66,7 @@ final class ServerSideTracker
         'billing.retry' => \ZeroBoiler\Analytics\Events\SaaS\BillingRetryEvent::class,
         'trial.started' => TrialStartEvent::class,
         'trial.ended' => TrialEndEvent::class,
+        'trial.converted' => \ZeroBoiler\Analytics\Events\SaaS\TrialConvertedEvent::class,
         'feature.used' => FeatureUsedEvent::class,
     ];
 

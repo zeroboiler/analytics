@@ -4,6 +4,23 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.76.0] - 2026-08-08
+
+### Added
+- **EventCatalog::billingEvents()** — Get all billing and revenue-related SaaS events (payments, invoices, credits, billing retries, subscription value changes). Ideal for revenue dashboards and billing health monitors.
+- **EventCatalog::productGrowthEvents()** — Get product-led growth and expansion events covering acquisition, activation, retention, revenue, and referral (AARRR framework). Useful for PLG dashboards.
+- **EventCatalog::allLifecycleEvents()** — Get all events involved in the complete user lifecycle (AARRR/Pirate Metrics). Combines activation, checkout, SaaS funnel, retention, billing, and growth events.
+- **LifecycleEventMapper** — 7 new conversion & expansion lifecycle mappings: `trial.converted`, `subscription.value_changed`, `usage.quota_reached`, `billing.retry`, `subscription.paused`, `workspace.created`, `milestone.reached` (38 total built-in mappings).
+- **ServerSideTracker** — Added `trial.converted` custom event mapping.
+- **Inertia Middleware** — Exposes `subscriptionTiers` (revenue config) and `identityAutoLink` (identity linking flag) as page props for client-side usage.
+- **Config** — Added `identity.link_on_auth` for controlling auto-identify on authentication. Added `api.prefix`, `api.middleware`, `api.auth_middleware` for flexible route registration.
+- **JS Client** — Auto-identify on init: when `identityAutoLink` is true and user is authenticated, silently sends identify event via sendBeacon for zero-latency client ID ↔ user ID linking.
+- **TypeScript** — Added `SubscriptionTier` interface and `subscriptionTiers`/`identityAutoLink` props to `ZbAnalyticsConfig`.
+
+### Changed
+- README updated: 84 total events (E-commerce 13, SaaS 46, Engagement 25), LifecycleEventMapper documentation.
+- Version bumped to 2.76.0 (composer.json, JS client, TypeScript definitions).
+
 ## [2.75.0] - 2026-08-08
 
 ### Added

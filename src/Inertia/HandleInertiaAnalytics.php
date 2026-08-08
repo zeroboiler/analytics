@@ -174,6 +174,16 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         // Package version for client-side feature detection
         $analyticsProps['version'] = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
 
+        // Revenue subscription tiers for client-side plan display
+        $subscriptionTiers = $this->config->get('zeroboiler.analytics.revenue.subscription_tiers', []);
+        /** @var array<string, array{name?: string, price?: int|float, billing_cycle?: string, features?: list<string>}> $subscriptionTiers */
+        $analyticsProps['subscriptionTiers'] = $subscriptionTiers;
+
+        // Identity auto-linking flag for client-side identify call
+        $identityConfig = $this->config->get('zeroboiler.analytics.identity', []);
+        /** @var array{link_on_auth?: bool} $identityConfig */
+        $analyticsProps['identityAutoLink'] = (bool) ($identityConfig['link_on_auth'] ?? true);
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

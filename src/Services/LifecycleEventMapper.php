@@ -300,6 +300,50 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractIntegrationParams',
             'priority' => 60,
         ],
+
+        // ── Conversion & Expansion Lifecycle (v2.76) ────────────────
+        'trial.converted' => [
+            'source' => 'trial.converted',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\TrialConvertedEvent::class,
+            'params_extractor' => 'extractTrialParams',
+            'priority' => 95,
+        ],
+        'subscription.value_changed' => [
+            'source' => 'subscription.value_changed',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionValueChangedEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 85,
+        ],
+        'usage.quota_reached' => [
+            'source' => 'usage.quota_reached',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\UsageQuotaReachedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 80,
+        ],
+        'billing.retry' => [
+            'source' => 'billing.retry',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\BillingRetryEvent::class,
+            'params_extractor' => 'extractPaymentParams',
+            'priority' => 90,
+        ],
+        'subscription.paused' => [
+            'source' => 'subscription.paused',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionPausedEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 85,
+        ],
+        'workspace.created' => [
+            'source' => 'workspace.created',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\WorkspaceCreatedEvent::class,
+            'params_extractor' => 'extractTeamParams',
+            'priority' => 80,
+        ],
+        'milestone.reached' => [
+            'source' => 'milestone.reached',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\MilestoneReachedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
     ];
 
     /** @var array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}> */

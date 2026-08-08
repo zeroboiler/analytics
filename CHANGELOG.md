@@ -2,6 +2,17 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.76.0] - 2026-08-08
+
+### Added
+- EventCatalog: `billingEvents()`, `productGrowthEvents()`, `allLifecycleEvents()` — AARRR lifecycle framework helpers
+- LifecycleEventMapper: 7 new conversion & expansion mappings (38 total)
+- Config: `identity.link_on_auth`, `api.prefix`, `api.middleware`, `api.auth_middleware`
+- Inertia: `subscriptionTiers` and `identityAutoLink` page props
+- JS Client: Auto-identify via sendBeacon on init
+- TypeScript: `SubscriptionTier` interface, new config props
+- Test: V76SaaSStarterIndustryStandardTest (36 assertions)
+
 ## [2.73.0] - 2026-08-08
 
 ### Added

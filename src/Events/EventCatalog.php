@@ -754,4 +754,78 @@ final class EventCatalog
             fn (?array $entry): bool => $entry !== null,
         ));
     }
+
+    /**
+     * Get all billing and revenue-related SaaS events.
+     *
+     * Returns events for financial lifecycle tracking: payments, invoices,
+     * credits, billing retries, and subscription value changes. Ideal for
+     * revenue dashboards, billing health monitors, and dunning analytics.
+     *
+     * @return list<EventEntry>
+     */
+    public static function billingEvents(): array
+    {
+        $billingKeys = [
+            'payment_succeeded', 'payment_failed', 'payment_method_added',
+            'invoice_generated', 'credit_applied', 'billing_retry',
+            'subscription_value_changed', 'subscribe', 'subscription_renewal',
+            'revenue_tracked', 'purchase',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $billingKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get product-led growth and expansion events.
+     *
+     * Returns events that indicate organic growth, product adoption, and
+     * expansion revenue signals. Useful for PLG dashboards and growth analytics.
+     *
+     * @return list<EventEntry>
+     */
+    public static function productGrowthEvents(): array
+    {
+        $growthKeys = [
+            // Acquisition
+            'sign_up', 'start_trial', 'trial_converted', 'email_verified',
+            // Engagement depth
+            'feature_used', 'onboarding_step', 'content_engagement',
+            'search', 'share', 'form_submit', 'milestone_reached',
+            // Expansion
+            'plan_upgrade', 'team_member_joined', 'team_created',
+            'integration_connected', 'workspace_created', 'invite_sent',
+            // E-commerce signals
+            'add_to_cart', 'begin_checkout', 'purchase', 'add_to_wishlist',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $growthKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get all events involved in the complete user lifecycle.
+     *
+     * Combines acquisition, activation, retention, revenue, and referral
+     * events for a unified lifecycle view. This is the AARRR (Pirate Metrics)
+     * framework representation in the event catalog.
+     *
+     * @return list<EventEntry>
+     */
+    public static function allLifecycleEvents(): array
+    {
+        return array_values(array_unique(array_merge(
+            self::activationFunnel(),
+            self::checkoutFunnel(),
+            self::saasFunnelEvents(),
+            self::retentionSignals(),
+            self::billingEvents(),
+            self::productGrowthEvents(),
+        ), SORT_REGULAR));
+    }
 }

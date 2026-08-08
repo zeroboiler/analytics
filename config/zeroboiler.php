@@ -128,6 +128,7 @@ return [
             'cookie_ttl' => (int) env('ANALYTICS_IDENTITY_COOKIE_TTL', 525600), // 365 days (minutes),
             'cookie_secure' => env('ANALYTICS_IDENTITY_COOKIE_SECURE', true),
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
+            'link_on_auth' => env('ANALYTICS_IDENTITY_LINK_ON_AUTH', true),
         ],
 
         /*
@@ -226,6 +227,9 @@ return [
             'enabled' => env('ANALYTICS_API_ENABLED', true),
             'throttle' => env('ANALYTICS_API_THROTTLE', 60),
             'base_url' => env('ANALYTICS_API_BASE_URL', '/api/analytics'),
+            'prefix' => env('ANALYTICS_API_PREFIX', 'analytics'),
+            'middleware' => env('ANALYTICS_API_MIDDLEWARE', ''),
+            'auth_middleware' => env('ANALYTICS_API_AUTH_MIDDLEWARE', 'auth:sanctum'),
         ],
 
         /*

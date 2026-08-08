@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.75.0
+ * @version 2.76.0
  */
 
 let trackingId = null;
@@ -87,6 +87,11 @@ export function init(pageProps) {
 
     // Persist first-touch UTM to cookie (cross-session attribution)
     persistFirstTouchUTM(utmParams);
+
+    // Auto-identify: link client ID to authenticated user when identityAutoLink is enabled
+    if (analytics.identityAutoLink && analytics.userId && trackingId) {
+        autoIdentify(analytics.userId, trackingId);
+    }
 }
 
 /**
@@ -145,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.75.0';
+    return '2.76.0';
 }
 
 /**
@@ -345,6 +350,42 @@ export async function flushQueue() {
 function startFlushTimer() {
     if (flushTimer) clearInterval(flushTimer);
     flushTimer = setInterval(() => flushQueue(), FLUSH_INTERVAL);
+}
+
+/**
+ * Auto-identify: silently send an identify event to link client ID to user ID.
+ *
+ * Called on init when identityAutoLink is enabled and the user is authenticated.
+ * Uses a fire-and-forget sendBeacon-style approach for zero-latency impact.
+ *
+ * @param {string} userId - Authenticated user ID
+ * @param {string} clientId - Server-generated tracking ID
+ */
+function autoIdentify(userId, clientId) {
+    if (!initialized || !apiBaseUrl) return;
+
+    const payload = JSON.stringify({
+        name: 'identify',
+        params: { user_id: userId, client_id: clientId },
+    });
+
+    // Use sendBeacon for non-blocking identify on page load
+    if (navigator.sendBeacon) {
+        const blob = new Blob([payload], { type: 'application/json' });
+        navigator.sendBeacon(`${apiBaseUrl}/events`, blob);
+    } else {
+        // Fallback to fetch (fire-and-forget)
+        fetch(`${apiBaseUrl}/events`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': clientId,
+                Accept: 'application/json',
+            },
+            body: payload,
+            keepalive: true,
+        }).catch(() => {});
+    }
 }
 
 /**
@@ -3080,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.75.0';
+    return '2.76.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
