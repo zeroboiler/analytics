@@ -115,9 +115,12 @@ use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
 use ZeroBoiler\Analytics\Services\FunnelVelocityService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
+use ZeroBoiler\Analytics\Services\PrivacySandboxService;
+use ZeroBoiler\Analytics\Services\CartStateManager;
+use ZeroBoiler\Analytics\Services\EventAffinityService;
 
 /**
- * @version 2.90.0
+ * @version 2.91.0
  */
 
 /**
@@ -126,7 +129,7 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.90.0
+ * @version 2.91.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1121,6 +1124,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(SaaSMetricsBenchmarkService::class, function (Application $app): SaaSMetricsBenchmarkService {
             return new SaaSMetricsBenchmarkService(
                 $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Privacy Sandbox Service (v2.91.0)
+        $this->app->singleton(PrivacySandboxService::class, function (Application $app): PrivacySandboxService {
+            return new PrivacySandboxService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Cart State Manager (v2.91.0)
+        $this->app->singleton(CartStateManager::class, function (Application $app): CartStateManager {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new CartStateManager(
+                $manager,
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Affinity Service (v2.91.0)
+        $this->app->singleton(EventAffinityService::class, function (Application $app): EventAffinityService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new EventAffinityService(
+                $app->make('cache'),
+                $manager->metrics(),
                 $app->make(ConfigRepository::class),
             );
         });

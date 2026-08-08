@@ -258,6 +258,23 @@ final class EngagementEvents
                 'posthog' => 'goal_conversion',
                 'plausible' => 'goal',
             ],
+            // GDPR consent lifecycle events (v2.91.0)
+            'consent_granted' => [
+                'name' => 'consent_granted',
+                'class' => ConsentGrantedEvent::class,
+                'ga4' => 'consent_update',
+                'meta' => 'ConsentGranted',
+                'posthog' => 'consent_granted',
+                'plausible' => null,
+            ],
+            'consent_withdrawn' => [
+                'name' => 'consent_withdrawn',
+                'class' => ConsentWithdrawnEvent::class,
+                'ga4' => 'consent_update',
+                'meta' => 'ConsentWithdrawn',
+                'posthog' => 'consent_withdrawn',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

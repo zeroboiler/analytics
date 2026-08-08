@@ -508,6 +508,23 @@ final class SaaSEvents
                 'posthog' => 'plan_changed',
                 'plausible' => null,
             ],
+            // GDPR compliance events (v2.91.0)
+            'data_subject_access_request' => [
+                'name' => 'data_subject_access_request',
+                'class' => DataSubjectAccessRequestEvent::class,
+                'ga4' => 'data_subject_access_request',
+                'meta' => 'CustomEvent',
+                'posthog' => 'data_subject_access_request',
+                'plausible' => null,
+            ],
+            'data_erasure_completed' => [
+                'name' => 'data_erasure_completed',
+                'class' => DataErasureCompletedEvent::class,
+                'ga4' => 'data_erasure_completed',
+                'meta' => 'CustomEvent',
+                'posthog' => 'data_erasure_completed',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

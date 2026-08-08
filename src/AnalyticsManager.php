@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.90.0';
+        return '2.91.0';
     }
 
     /**

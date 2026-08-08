@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.90.0',
+            'catalog_version' => '2.91.0',
         ],
 
         /*
@@ -1864,6 +1864,65 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_BENCHMARKS_CACHE_TTL', 43200), // 12 hours
             'industry' => env('ANALYTICS_BENCHMARKS_INDUSTRY', 'saas'), // saas, b2b, b2c, marketplace
             'company_stage' => (int) env('ANALYTICS_BENCHMARKS_COMPANY_STAGE', 0), // 0=early, 1=growth, 2=mature
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Privacy Sandbox (Cookieless Tracking Future)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, bridges ZeroBoiler analytics events with Chrome's Privacy
+        | Sandbox APIs: Topics API, Attribution Reporting API, and Private
+        | Aggregation API. Prepares your analytics for the cookieless future.
+        |
+        | Topics API: Maps events to contextual interest signals
+        | Attribution Reporting: Conversion measurement without cross-site IDs
+        | Private Aggregation: Aggregate reporting without individual data
+        |
+        */
+        'privacy_sandbox' => [
+            'enabled' => env('ANALYTICS_PRIVACY_SANDBOX_ENABLED', false),
+            'topics_cache_prefix' => env('ANALYTICS_PRIVACY_SANDBOX_TOPICS_PREFIX', 'zb_topics_'),
+            'topics_cache_ttl' => (int) env('ANALYTICS_PRIVACY_SANDBOX_TOPICS_TTL', 604800), // 7 days
+            'attribution_window_days' => (int) env('ANALYTICS_PRIVACY_SANDBOX_ATTRIBUTION_WINDOW', 30),
+            'aggregation_cache_prefix' => env('ANALYTICS_PRIVACY_SANDBOX_AGG_PREFIX', 'zb_agg_'),
+            'aggregation_cache_ttl' => (int) env('ANALYTICS_PRIVACY_SANDBOX_AGG_TTL', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Cart State Tracking (E-Commerce)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, tracks cart state (items, value, currency) across sessions.
+        | Enables cart abandonment scoring and cross-session cart merge on auth.
+        | Used by CartStateManager for checkout funnel analysis.
+        |
+        */
+        'cart_tracking' => [
+            'enabled' => env('ANALYTICS_CART_TRACKING_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_CART_CACHE_PREFIX', 'zb_cart_'),
+            'cache_ttl' => (int) env('ANALYTICS_CART_CACHE_TTL', 2592000), // 30 days
+            'currency' => env('ANALYTICS_CART_CURRENCY', 'USD'),
+            'abandonment_decay_rate' => (float) env('ANALYTICS_CART_ABANDONMENT_DECAY', 0.1),
+            'abandonment_threshold_seconds' => (int) env('ANALYTICS_CART_ABANDONMENT_THRESHOLD', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Affinity Analysis
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, computes pairwise affinity scores between event types,
+        | measuring how often events co-occur within user sessions.
+        | High affinity reveals user behavior patterns for optimization.
+        |
+        */
+        'affinity' => [
+            'enabled' => env('ANALYTICS_AFFINITY_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_AFFINITY_CACHE_TTL', 3600), // 1 hour
+            'min_co_occurrences' => (int) env('ANALYTICS_AFFINITY_MIN_CO', 5),
+            'min_lift_threshold' => (float) env('ANALYTICS_AFFINITY_MIN_LIFT', 1.2),
         ],
 
     ],

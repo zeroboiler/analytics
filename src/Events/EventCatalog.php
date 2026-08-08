@@ -467,6 +467,10 @@ final class EventCatalog
             'account_deleted', 'password_changed', 'password_reset',
             'email_verified', 'profile_updated', 'export', 'import',
             'cancellation', 'subscription_cancelled',
+            // GDPR consent lifecycle (v2.91.0)
+            'consent_granted', 'consent_withdrawn',
+            // Data subject rights (v2.91.0)
+            'data_subject_access_request', 'data_erasure_completed',
         ];
 
         return array_values(array_filter(
