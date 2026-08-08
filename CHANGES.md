@@ -4,6 +4,44 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.68.0] - 2026-08-08
+
+### Added
+- **V68PackageIntegrityTest** — Comprehensive 50+ test case validation suite covering version consistency (6 locations), file counts (224 src, 110 test, 73 events, 6 providers, 68 services, 14 pipeline filters, 8 commands), config section integrity (52+ sections), catalog structure (3 categories, typed classes, cross-provider mappings), SaaS event table completeness (38 events documented), PHP 8.5 strict types compliance across all source files, final class markers on all leaf classes, AnalyticsEvent readonly enforcement, roadmap completion verification (all 12 items implemented).
+- **README comprehensive overhaul** — All stale metrics corrected: 73 events (was 70), 38 SaaS events (was 35), 224 source files (was 183), 110 test files (was 87), ~3600 JS LOC (was ~2500), 52+ config sections (was 47+), 120+ AnalyticsConfig typed methods (was 110+), 300+ tests (was 200+), 6 admin commands documented.
+- **3 new SaaS events documented in README** — TrialConvertedEvent (trial_converted, TrialConverted), SubscriptionResumedEvent (subscription_resumed, SubscriptionResumed), MilestoneReachedEvent (milestone_reached, MilestoneReached) added to SaaS Lifecycle Events reference table.
+- **Architecture tree updated** — EventContextEvent and EventPriority DTOs added; event counts per category corrected; JS LOC and config section counts updated.
+- **Health Response version** — Updated example JSON to v2.68.0.
+- **Upgrade guide** — New v2.68.0 section documenting all changes.
+
+### Changed
+- Version bump to 2.68.0 across AnalyticsManager, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, 9 service files (AnalyticsEventRouter, EventAliasResolver, EventCacheService, EventEnvelopeService, EventExporterService, EventForwardingService, EventSourceTagger), and all controller endpoint version strings (85 total version references).
+- README Event Catalog reference updated from 70 to 73 events.
+- README SaaS Lifecycle Events section header updated from 35 to 38 events.
+- README ProductionReadinessTest file count updated from 189 to 224 source files.
+- README API Reference catalog endpoint updated to 73 events.
+- Total changelog entries: 40+ versions documented.
+
+## [2.67.0] - 2026-08-08
+
+### Added
+- **DataWarehouseExportService** — ETL export engine for data warehouses (Snowflake, BigQuery, Redshift, Databricks). Supports NDJSON and CSV formats with configurable field selection, category/event filtering, null value handling, and file/toString export. Methods: `addEvent()`, `addEvents()`, `filterByCategory()`, `filterByEvent()`, `exportToString()`, `exportToFile()`, `clear()`, `count()`, `summary()`. Static helpers: `supportedFormats()`.
+- **AnalyticsDashboardDataProvider** — Dashboard data aggregation service. Methods: `overview()` (full admin view with version, providers, catalog, metrics), `publicOverview()` (sanitized public view), `providerStatus()` (enabled/total counts), `kpiSection()` (optional KPI data), `healthSection()` (optional health data), `realtimeSection()` (optional realtime data).
+- **EventPropertySchema** — Comprehensive event property schema validation system. Supports type checking (string, int, float, bool, array), format validation (email, url, currency, uuid, iso_date), range constraints (min, max), enum constraints, and required fields. Built-in schemas for purchase, sign_up, plan_upgrade, cancellation, error events. Methods: `validate()`, `hasSchema()`, `schemaCount()`, `getSchema()`, `defineProperty()`, `defineGlobalRule()`, `supportedTypes()`, `supportedFormats()`, `registerBuiltInSchemas()`.
+- **Unified Dashboard command** — `zb:analytics:dashboard` exports dashboard data as structured JSON or table with optional metrics, health, and KPI sections.
+- **AnalyticsScheduledReportCommand** — `analytics:report:schedule` for periodic analytics reports with configurable period (hourly/daily/weekly/monthly), format (json/table), and file output.
+- **First-Touch UTM Cookie** — Auto-persists first-touch UTM parameters in a cookie for cross-session attribution. Set by Inertia middleware, used by all client events.
+- **`property_schema` config section** — Controls event property schema validation (enabled, reject_invalid, log_violations, register_builtins).
+- **`data_warehouse` config section** — Controls ETL export format, output path, field selection, headers, and null values.
+- **`delivery_confirmation` config section** — Client feedback loop for critical events (purchase, sign_up, subscription, payment_succeeded).
+- **V67DataWarehouseSchemaDashboardTest** — 55 test cases covering DataWarehouseExportService (11 tests), EventPropertySchema (14 tests), AnalyticsDashboardDataProvider (6 tests), version consistency, file counts, catalog integrity, config sections.
+
+### Changed
+- Version bump to 2.67.0 across AnalyticsManager, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, and all controller endpoint version strings.
+- SaaS event catalog expanded from 70 → 73 events (trial_converted, subscription_resumed, milestone_reached).
+- Config file expanded with 3 new sections (property_schema, data_warehouse, delivery_confirmation).
+- Total config sections: 52+ (was 49+).
+
 ## [2.66.0] - 2026-08-07
 
 ### Added
