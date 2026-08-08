@@ -2,6 +2,23 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.73.0] - 2026-08-08
+
+### Added
+- **EventCatalog::withPosthogMapping()** — Filter events by category that have PostHog mappings. Useful for identifying events that can be sent to PostHog without additional transformation.
+- **EventCatalog::withPlausibleMapping()** — Filter events by category that have Plausible mappings.
+- **EventCatalog::providerCount()** — Get the count of events that have a specific provider mapping.
+- **EventCatalog::providerCoverage()** — Comprehensive breakdown of event coverage per provider with counts. Returns event lists and counts for ga4, meta, posthog, plausible.
+- **AnalyticsManager::flushMetrics()** — Flush all accumulated metrics and return a pre-flush snapshot. Useful for admin dashboards, testing, and periodic metric collection.
+- **Inertia middleware ecommerce props** — `zbAnalytics.ecommerce` now exposes `currency`, `brand`, `taxBehavior`, `shippingDefault` to the JS client for client-side e-commerce tracking.
+- **Inertia middleware consent log flag** — `zbAnalytics.consentLogEnabled` exposed to the JS client for consent banner display decisions.
+- **Inertia middleware version prop** — `zbAnalytics.version` now exposes the package version string for client-side feature detection.
+- **V73SaaSStarterIndustryStandardTest** — Comprehensive test suite covering all 12 SaaS starter feature areas, version consistency, cross-cutting quality checks (strict types, license headers, final classes, readonly DTOs).
+
+### Changed
+- Version 2.72.0 → 2.73.0 across AnalyticsManager, AnalyticsEvent, AnalyticsServiceProvider, composer.json.
+- All config section keys verified (40+ sections) for industry-standard SaaS starter coverage.
+
 ## [2.67.0] - 2026-08-07
 
 ### Added

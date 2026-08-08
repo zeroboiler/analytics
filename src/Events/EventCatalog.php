@@ -491,4 +491,86 @@ final class EventCatalog
             'with_plausible' => $withPlausible,
         ];
     }
+
+    /**
+     * Get events filtered by a specific category that have a PostHog mapping.
+     *
+     * Useful for identifying events that can be sent to PostHog from a
+     * specific category without additional transformation.
+     *
+     * @param  'ecommerce'|'saas'|'engagement'  $category
+     * @return list<EventEntry>
+     */
+    public static function withPosthogMapping(string $category): array
+    {
+        $events = self::category($category);
+
+        return array_values(array_filter(
+            $events,
+            fn (array $entry): bool => ($entry['posthog'] ?? null) !== null,
+        ));
+    }
+
+    /**
+     * Get events filtered by a specific category that have a Plausible mapping.
+     *
+     * Useful for identifying events that can be sent to Plausible from a
+     * specific category without additional transformation.
+     *
+     * @param  'ecommerce'|'saas'|'engagement'  $category
+     * @return list<EventEntry>
+     */
+    public static function withPlausibleMapping(string $category): array
+    {
+        $events = self::category($category);
+
+        return array_values(array_filter(
+            $events,
+            fn (array $entry): bool => ($entry['plausible'] ?? null) !== null,
+        ));
+    }
+
+    /**
+     * Get the count of events that have a specific provider mapping.
+     *
+     * @param  'ga4'|'meta'|'posthog'|'plausible'  $provider
+     */
+    public static function providerCount(string $provider): int
+    {
+        $all = self::all();
+        $count = 0;
+
+        foreach ($all as $entry) {
+            $value = $entry[$provider] ?? null;
+            if ($value !== null && $value !== '') {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Get all event names grouped by provider with counts.
+     *
+     * Returns a comprehensive breakdown of event coverage per provider,
+     * useful for admin dashboards and readiness checks.
+     *
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, counts: array{ga4: int, meta: int, posthog: int, plausible: int}}
+     */
+    public static function providerCoverage(): array
+    {
+        return [
+            'ga4' => self::allGa4Names(),
+            'meta' => self::allMetaNames(),
+            'posthog' => self::allPosthogNames(),
+            'plausible' => self::allPlausibleNames(),
+            'counts' => [
+                'ga4' => self::providerCount('ga4'),
+                'meta' => self::providerCount('meta'),
+                'posthog' => self::providerCount('posthog'),
+                'plausible' => self::providerCount('plausible'),
+            ],
+        ];
+    }
 }

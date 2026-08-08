@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.71.0';
+        return '2.73.0';
     }
 
     /**
@@ -1287,6 +1287,27 @@ final class AnalyticsManager
     public function metrics(): AnalyticsMetrics
     {
         return $this->metrics;
+    }
+
+    /**
+     * Flush all accumulated metrics (reset counters to zero).
+     *
+     * Useful for testing, admin dashboards, and periodic metric collection.
+     * Returns the pre-flush metrics snapshot for logging/reporting.
+     *
+     * @return array{dispatched: int, failed: int, by_provider: array<string, int>}
+     */
+    public function flushMetrics(): array
+    {
+        $snapshot = [
+            'dispatched' => $this->metrics->totalDispatched(),
+            'failed' => $this->metrics->totalFailed(),
+            'by_provider' => $this->metrics->dispatchedByProvider(),
+        ];
+
+        $this->metrics->flush();
+
+        return $snapshot;
     }
 
     /**

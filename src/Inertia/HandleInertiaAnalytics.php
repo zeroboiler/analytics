@@ -147,6 +147,24 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             'sendToServer' => (bool) ($performanceConfig['send_to_server'] ?? true),
         ];
 
+        // E-commerce defaults for client-side e-commerce tracking
+        $ecommerceConfig = $this->config->get('zeroboiler.analytics.ecommerce', []);
+        /** @var array{currency?: string, brand?: string, tax_behavior?: string, shipping_default?: float} $ecommerceConfig */
+        $analyticsProps['ecommerce'] = [
+            'currency' => (string) ($ecommerceConfig['currency'] ?? 'USD'),
+            'brand' => (string) ($ecommerceConfig['brand'] ?? ''),
+            'taxBehavior' => (string) ($ecommerceConfig['tax_behavior'] ?? 'inclusive'),
+            'shippingDefault' => (float) ($ecommerceConfig['shipping_default'] ?? 0.0),
+        ];
+
+        // Consent log enabled flag (for consent banner display on client)
+        $consentConfig = $this->config->get('zeroboiler.analytics.consent', []);
+        /** @var array{log_enabled?: bool} $consentConfig */
+        $analyticsProps['consentLogEnabled'] = (bool) ($consentConfig['log_enabled'] ?? false);
+
+        // Package version for client-side feature detection
+        $analyticsProps['version'] = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 
