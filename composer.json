@@ -1,6 +1,6 @@
 {
     "name": "zeroboiler/analytics",
-    "description": "Industry-standard SaaS analytics for Laravel — GA4, GTM, Meta Pixel, Plausible, PostHog",
+    "description": "Industry-standard SaaS analytics for Laravel \u2014 GA4, GTM, Meta Pixel, Plausible, PostHog",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -16,7 +16,7 @@
         "consent",
         "ecommerce"
     ],
-    "version": "2.89.0",
+    "version": "2.89.1",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
