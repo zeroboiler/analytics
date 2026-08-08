@@ -531,6 +531,53 @@ final class EventCatalog
     }
 
     /**
+     * Get all SaaS engagement/funnel events for startup onboarding.
+     *
+     * Returns engagement events that form the core SaaS product usage funnel:
+     * page views, scroll depth, clicks, forms, search, sharing, feature requests,
+     * onboarding steps, and errors.
+     *
+     * @return list<EventEntry>
+     */
+    public static function engagementEvents(): array
+    {
+        $engagementKeys = [
+            'page_view', 'scroll_depth', 'click', 'form_start', 'form_submit',
+            'search', 'share', 'error', 'time_on_page', 'session_start',
+            'session_end', 'outbound_click', 'content_engagement',
+            'onboarding_step', 'feature_request', 'web_vitals', 'js_error',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $engagementKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get SaaS funnel events for conversion tracking.
+     *
+     * Returns the essential events that form a SaaS conversion funnel:
+     * sign_up → trial_start → subscribe → plan_upgrade (expansion).
+     * Useful for funnel visualization and drop-off analysis.
+     *
+     * @return list<EventEntry>
+     */
+    public static function saasFunnelEvents(): array
+    {
+        $funnelKeys = [
+            'sign_up', 'login', 'start_trial', 'trial_converted', 'subscribe',
+            'plan_upgrade', 'plan_downgrade', 'cancellation', 'subscription_resumed',
+            'subscription_paused', 'milestone_reached',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $funnelKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
      * Get the count of events that have a specific provider mapping.
      *
      * @param  'ga4'|'meta'|'posthog'|'plausible'  $provider

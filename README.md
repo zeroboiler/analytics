@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **73 typed event classes** across 3 categories (E-commerce 12, SaaS 38, Engagement 23)
+- **81 typed event classes** across 3 categories (E-commerce 13, SaaS 43, Engagement 25)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, and category filtering
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -94,8 +94,8 @@ Done. That's it.
 - **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
-- **38 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied)
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 73 events now have typed classes)
+- **43 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied)
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 81 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
@@ -107,9 +107,9 @@ Done. That's it.
 - **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
 
 ### E-commerce
-- **12 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion
+- **13 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion, CheckoutStep
 - **EcommerceAnalyticsService** — Full e-commerce flow convenience methods
-- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 73 events (JS + PHP)
+- **GA4 ↔ Meta Format Conversion** — Automatic cross-provider event name and parameter mapping for all 81 events (JS + PHP)
 - **`Analytics::wishlist()`** — Convenience method with auto Meta `AddToWishlist` formatting
 
 ### Identity & GDPR
@@ -276,11 +276,11 @@ src/
 │   ├── EventPriority.php             # Event priority levels (critical/normal/low/background)
 │   └── UtmAttribution.php            # UTM campaign attribution DTO
 ├── Events/
-│   ├── Ecommerce/                    # 12 e-commerce event classes + EcommerceEvents catalog
-│   ├── SaaS/                         # 38 SaaS event classes + SaaSEvents catalog
-│   ├── Engagement/                   # 23 engagement event classes + EngagementEvents catalog
+│   ├── Ecommerce/                    # 13 e-commerce event classes + EcommerceEvents catalog
+│   ├── SaaS/                         # 43 SaaS event classes + SaaSEvents catalog
+│   ├── Engagement/                   # 25 engagement event classes + EngagementEvents catalog
 │   ├── CustomEvent.php               # Generic custom event
-│   └── EventCatalog.php              # Unified catalog (73 events, cross-provider mappings)
+│   └── EventCatalog.php              # Unified catalog (81 events, cross-provider mappings)
 ├── Middleware/
 │   ├── AnalyticsMiddlewareInterface.php   # Middleware contract
 │   ├── AnalyticsMiddlewareStack.php       # Priority-ordered middleware stack
@@ -801,8 +801,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 73 events across 3 categories
-EventCatalog::count();          // 73
+// Unified catalog — 81 events across 3 categories
+EventCatalog::count();          // 81
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -1120,7 +1120,7 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/analytics/health` | Health check (providers, consent, queue, metrics, replay, version) |
-| `GET` | `/api/analytics/catalog` | Full event catalog (73 events, categories, provider mappings) |
+| `GET` | `/api/analytics/catalog` | Full event catalog (81 events, categories, provider mappings) |
 | `GET` | `/api/analytics/stats` | Aggregated dashboard statistics (totals, top events, by-provider) |
 | `GET` | `/api/analytics/stream` | Real-time event stream (cursor-based polling) |
 | `GET` | `/api/analytics/stream/stats` | Event stream statistics |

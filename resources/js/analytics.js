@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.71.0
+ * @version 2.74.0
  */
 
 let trackingId = null;
@@ -145,7 +145,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.71.0';
+    return '2.74.0';
 }
 
 /**
@@ -3080,7 +3080,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.71.0';
+    return '2.74.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────

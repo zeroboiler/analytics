@@ -376,6 +376,15 @@ final class SaaSEvents
                 'posthog' => 'milestone_reached',
                 'plausible' => null,
             ],
+            // Subscription lifecycle — pause/resume
+            'subscription_paused' => [
+                'name' => 'subscription_paused',
+                'class' => SubscriptionPausedEvent::class,
+                'ga4' => 'subscription_paused',
+                'meta' => 'SubscriptionPaused',
+                'posthog' => 'subscription_paused',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

@@ -162,6 +162,15 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         /** @var array{log_enabled?: bool} $consentConfig */
         $analyticsProps['consentLogEnabled'] = (bool) ($consentConfig['log_enabled'] ?? false);
 
+        // Consent version hash — enables client to detect server-side consent config changes
+        $consentPurposesRaw = $this->config->get('zeroboiler.analytics.consent.purposes', []);
+        $consentDefaultRaw = $this->config->get('zeroboiler.analytics.consent.default', 'granted');
+        $consentVersionPayload = json_encode([
+            'purposes' => $consentPurposesRaw,
+            'default' => $consentDefaultRaw,
+        ], JSON_THROW_ON_ERROR);
+        $analyticsProps['consentVersion'] = hash('xxh128', $consentVersionPayload);
+
         // Package version for client-side feature detection
         $analyticsProps['version'] = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
 

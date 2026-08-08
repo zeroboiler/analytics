@@ -4,6 +4,28 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.74.0] - 2026-08-08
+
+### Added
+- **SubscriptionPausedEvent** — Typed event class for subscription pause lifecycle. Tracks pause patterns for retention analysis and revenue forecasting. Fields: plan, reason, pause_duration_days, user_id, client_id, + custom params. Registered in SaaSEvents catalog with GA4/Meta/PostHog mappings.
+- **FeatureRequestEvent** — Typed engagement event for user feature requests and demand signals. Tracks feature description, category, source (in_app_modal, feedback_widget, support_ticket), vote count, request ID, and page URL. Registered in EngagementEvents catalog with GA4/Meta/PostHog mappings.
+- **EventContextBuilder::withReferrer()** — Full referrer context enrichment with parsed components (host, path, search terms, search engine detection). Supports Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex, and generic `q`/`search`/`query`/`keyword` params.
+- **EventContextBuilder::withTenancy()** — Multi-tenant context extraction for B2B SaaS. Auto-detects tenant_id from user attributes (tenant_id, team_id, organization_id, workspace_id, account_id) or X-Tenant-Id header. Supports tenant_name extraction.
+- **EventContextBuilder::extractSearchTerm()** / **detectSearchEngine()** — Private helpers for search engine detection and search term extraction from referrer URLs.
+- **EventCatalog::engagementEvents()** — Quick-access helper returning core engagement events for SaaS product usage funnels (17 events including page_view, scroll_depth, click, forms, search, feature_request, onboarding_step).
+- **EventCatalog::saasFunnelEvents()** — Quick-access helper returning essential SaaS conversion funnel events (12 events: sign_up → trial_start → subscribe → plan_upgrade → cancellation → subscription_paused → milestone_reached).
+- **Inertia middleware: consentVersion prop** — XXH128 hash of consent configuration (purposes + default) injected into zbAnalytics props. Enables client-side cache invalidation when consent config changes server-side.
+- **Config: revenue.subscription_tiers** — Configurable subscription tier definitions for tier-level analytics. Each tier supports name, price, billing_cycle, and feature list. Used by SaaSAnalyticsService for plan-specific event enrichment.
+- **ServerSideTracker: subscription.paused mapping** — Auto-track `subscription.paused` application events as SubscriptionPausedEvent.
+- **TypeScript: EcommerceConfig interface** — Full IntelliSense support for e-commerce defaults (currency, brand, taxBehavior, shippingDefault).
+- **TypeScript: ZbAnalyticsConfig extended** — Added consentVersion, ecommerce, consentLogEnabled, and version optional fields.
+
+### Changed
+- Version bump to 2.74.0 across AnalyticsEvent, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, AnalyticsManager, and ServiceProvider docblock.
+- SaaS event count: 42 → 43 (added subscription_paused).
+- Engagement event count: 24 → 25 (added feature_request).
+- Total catalog events: 79 → 81.
+
 ## [2.70.0] - 2026-08-08
 
 ### Added

@@ -231,6 +231,15 @@ final class EngagementEvents
                 'posthog' => 'onboarding_step',
                 'plausible' => null,
             ],
+            // Product demand signals
+            'feature_request' => [
+                'name' => 'feature_request',
+                'class' => FeatureRequestEvent::class,
+                'ga4' => 'feature_request',
+                'meta' => 'FeatureRequest',
+                'posthog' => 'feature_request',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

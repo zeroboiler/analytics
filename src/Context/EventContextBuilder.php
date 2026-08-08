@@ -239,6 +239,112 @@ final class EventContextBuilder
     }
 
     /**
+     * Add full referrer context with parsed components.
+     *
+     * Extracts referrer host, path, search terms (from query params),
+     * and search engine detection for attribution analysis.
+     *
+     * @param  string|null  $override  Override the referrer URL
+     */
+    public function withReferrer(?string $override = null): self
+    {
+        $referrerUrl = $override;
+
+        if ($referrerUrl === null && $this->request !== null) {
+            $header = $this->request->headers->get('referer');
+            if (is_string($header) && $header !== '') {
+                $referrerUrl = $header;
+            }
+        }
+
+        if ($referrerUrl === null || $referrerUrl === '') {
+            return $this;
+        }
+
+        $this->context['referrer_url'] = $referrerUrl;
+
+        $parsed = parse_url($referrerUrl);
+
+        if (is_array($parsed)) {
+            $this->context['referrer_host'] = $parsed['host'] ?? null;
+            $this->context['referrer_path'] = $parsed['path'] ?? null;
+
+            // Detect search engine and extract search terms
+            $host = $parsed['host'] ?? '';
+            $query = $parsed['query'] ?? '';
+
+            if ($query !== '') {
+                parse_str($query, $queryParams);
+
+                $searchTerm = $this->extractSearchTerm($host, $queryParams);
+                if ($searchTerm !== null) {
+                    $this->context['referrer_search_term'] = $searchTerm;
+                    $this->context['referrer_search_engine'] = $this->detectSearchEngine($host);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add multi-tenant context for B2B SaaS applications.
+     *
+     * Extracts tenant/team/organization context from the authenticated user
+     * or from a custom header. Useful for multi-tenant analytics isolation
+     * and per-organization reporting.
+     *
+     * @param  string|null  $tenantId  Override tenant ID (e.g. from queue job payload)
+     * @param  string|null  $tenantName  Override tenant name
+     */
+    public function withTenancy(?string $tenantId = null, ?string $tenantName = null): self
+    {
+        if ($tenantId !== null) {
+            $this->context['tenant_id'] = $tenantId;
+
+            if ($tenantName !== null) {
+                $this->context['tenant_name'] = $tenantName;
+            }
+
+            return $this;
+        }
+
+        $user = $this->getAuthenticatedUser();
+
+        if ($user !== null && method_exists($user, 'getAttribute')) {
+            // Common tenant attribute names
+            $tenantAttributes = ['tenant_id', 'team_id', 'organization_id', 'workspace_id', 'account_id'];
+            $nameAttributes = ['tenant_name', 'team_name', 'organization_name', 'workspace_name', 'account_name'];
+
+            foreach ($tenantAttributes as $attr) {
+                $value = $user->getAttribute($attr);
+                if (is_string($value) && $value !== '') {
+                    $this->context['tenant_id'] = $value;
+                    break;
+                }
+            }
+
+            foreach ($nameAttributes as $attr) {
+                $value = $user->getAttribute($attr);
+                if (is_string($value) && $value !== '') {
+                    $this->context['tenant_name'] = $value;
+                    break;
+                }
+            }
+
+            // Also check X-Tenant-Id header for API/queue contexts
+            if (! isset($this->context['tenant_id']) && $this->request !== null) {
+                $headerTenant = $this->request->header('X-Tenant-Id');
+                if (is_string($headerTenant) && $headerTenant !== '') {
+                    $this->context['tenant_id'] = $headerTenant;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Add custom properties to the context.
      *
      * @param  array<string, mixed>  $properties
@@ -318,5 +424,75 @@ final class EventContextBuilder
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    /**
+     * Extract the search term from a referrer's query parameters.
+     *
+     * Supports Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex, and generic `q`/`search` params.
+     *
+     * @param  string  $host  Referrer host
+     * @param  array<string, string>  $queryParams  Parsed query parameters
+     * @return string|null  Extracted search term or null
+     */
+    private function extractSearchTerm(string $host, array $queryParams): ?string
+    {
+        $queryParamMap = [
+            'google' => ['q'],
+            'bing' => ['q'],
+            'yahoo' => ['p'],
+            'duckduckgo' => ['q'],
+            'baidu' => ['wd', 'word'],
+            'yandex' => ['text'],
+        ];
+
+        foreach ($queryParamMap as $engine => $params) {
+            if (str_contains($host, $engine)) {
+                foreach ($params as $param) {
+                    $value = $queryParams[$param] ?? null;
+                    if (is_string($value) && $value !== '') {
+                        return $value;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        // Fallback: check generic query params
+        foreach (['q', 'search', 'query', 'keyword'] as $param) {
+            $value = $queryParams[$param] ?? null;
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Detect the search engine from a referrer host.
+     *
+     * @param  string  $host  Referrer host
+     * @return string|null  Search engine name or null
+     */
+    private function detectSearchEngine(string $host): ?string
+    {
+        $engines = [
+            'google' => 'Google',
+            'bing' => 'Bing',
+            'yahoo' => 'Yahoo',
+            'duckduckgo' => 'DuckDuckGo',
+            'baidu' => 'Baidu',
+            'yandex' => 'Yandex',
+        ];
+
+        foreach ($engines as $domain => $name) {
+            if (str_contains($host, $domain)) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 }

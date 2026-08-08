@@ -60,6 +60,7 @@ final class ServerSideTracker
         'subscription.downgraded' => PlanDowngradeEvent::class,
         'subscription.cancelled' => CancellationEvent::class,
         'subscription.renewal' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionRenewalEvent::class,
+        'subscription.paused' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionPausedEvent::class,
         'trial.started' => TrialStartEvent::class,
         'trial.ended' => TrialEndEvent::class,
         'feature.used' => FeatureUsedEvent::class,

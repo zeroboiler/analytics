@@ -158,6 +158,43 @@ return [
         'revenue' => [
             'currency' => env('ANALYTICS_REVENUE_CURRENCY', 'USD'),
             'billing_cycle_default' => env('ANALYTICS_REVENUE_BILLING_CYCLE', 'monthly'),
+
+            /*
+            | Subscription Tiers
+            |
+            | Define your product's subscription tiers for tier-level analytics.
+            | Used by SaaSAnalyticsService for plan-specific event enrichment
+            | and by the admin dashboard for tier breakdowns.
+            |
+            | Each tier defines: display name, price (in configured currency),
+            | and an optional list of features for feature-gating analytics.
+            |
+            */
+            'subscription_tiers' => [
+                // 'free' => [
+                //     'name' => 'Free',
+                //     'price' => 0,
+                //     'features' => ['basic_dashboard', 'limited_exports'],
+                // ],
+                // 'starter' => [
+                //     'name' => 'Starter',
+                //     'price' => 19,
+                //     'billing_cycle' => 'monthly',
+                //     'features' => ['advanced_dashboard', 'api_access', 'email_support'],
+                // ],
+                // 'pro' => [
+                //     'name' => 'Pro',
+                //     'price' => 49,
+                //     'billing_cycle' => 'monthly',
+                //     'features' => ['team_collaboration', 'custom_reports', 'priority_support'],
+                // ],
+                // 'enterprise' => [
+                //     'name' => 'Enterprise',
+                //     'price' => 199,
+                //     'billing_cycle' => 'monthly',
+                //     'features' => ['sso', 'audit_log', 'dedicated_support', 'sla'],
+                // ],
+            ],
         ],
 
         /*
