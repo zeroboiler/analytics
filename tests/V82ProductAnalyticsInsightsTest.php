@@ -36,56 +36,58 @@ test('AnalyticsEvent VERSION is a valid semver string', function (): void {
 test('AnalyticsInsight immutable DTO construction', function (): void {
     $insight = new AnalyticsInsight(
         type: 'trending',
-        severity: 'info',
-        confidence: 0.85,
-        source: 'event_data',
         title: 'Event X is trending',
-        message: 'Event X increased by 40% in the last 24 hours',
+        description: 'Event X increased by 40% in the last 24 hours',
+        score: 0.85,
+        category: 'engagement',
+        eventName: 'sign_up',
     );
 
     expect($insight->type)->toBe('trending');
-    expect($insight->severity)->toBe('info');
-    expect($insight->confidence)->toBe(0.85);
-    expect($insight->source)->toBe('event_data');
     expect($insight->title)->toBe('Event X is trending');
-    expect($insight->createdAt)->toBeInstanceOf(\DateTimeImmutable::class);
+    expect($insight->description)->toBe('Event X increased by 40% in the last 24 hours');
+    expect($insight->score)->toBe(0.85);
+    expect($insight->category)->toBe('engagement');
+    expect($insight->eventName)->toBe('sign_up');
     expect($insight->metadata)->toBe([]);
+    expect($insight->observedAt)->toBeNull();
+    expect($insight->recommendation)->toBeNull();
 });
 
 test('AnalyticsInsight fromArray named constructor', function (): void {
     $data = [
         'type' => 'anomaly',
-        'severity' => 'warning',
-        'confidence' => 0.92,
-        'source' => 'statistical',
         'title' => 'Anomaly detected',
-        'message' => 'Event Y is 3x above normal',
-        'metadata' => ['event' => 'purchase', 'z_score' => 3.2],
+        'description' => 'Event Y is 3x above normal',
+        'score' => 0.92,
+        'category' => 'ecommerce',
+        'event_name' => 'purchase',
+        'metadata' => ['z_score' => 3.2],
     ];
 
     $insight = AnalyticsInsight::fromArray($data);
 
     expect($insight->type)->toBe('anomaly');
-    expect($insight->severity)->toBe('warning');
-    expect($insight->confidence)->toBe(0.92);
-    expect($insight->metadata)->toHaveKey('event');
+    expect($insight->title)->toBe('Anomaly detected');
+    expect($insight->score)->toBe(0.92);
+    expect($insight->eventName)->toBe('purchase');
+    expect($insight->metadata)->toHaveKey('z_score');
     expect($insight->metadata['z_score'])->toBe(3.2);
 });
 
 test('AnalyticsInsight toArray round-trip', function (): void {
     $insight = new AnalyticsInsight(
         type: 'funnel_drop_off',
-        severity: 'critical',
-        confidence: 0.95,
-        source: 'funnel_analysis',
         title: 'Checkout bottleneck',
-        message: '70% drop-off at payment step',
+        description: '70% drop-off at payment step',
+        score: 0.95,
     );
 
     $array = $insight->toArray();
 
-    expect($array)->toHaveKeys(['type', 'severity', 'confidence', 'source', 'title', 'message', 'created_at', 'metadata']);
+    expect($array)->toHaveKeys(['type', 'title', 'description', 'score', 'category', 'event_name', 'metadata', 'observed_at', 'recommendation']);
     expect($array['type'])->toBe('funnel_drop_off');
+    expect($array['score'])->toBe(0.95);
 });
 
 // ─── FunnelVelocityReport DTO ───────────────────────────────────────
@@ -136,46 +138,56 @@ test('FunnelVelocityReport optional fields default to null', function (): void {
 
 // ─── AbandonedCartEvent ─────────────────────────────────────────────
 
-test('AbandonedCartEvent creates AnalyticsEvent', function (): void {
-    $event = AbandonedCartEvent::make(
-        cartItems: 3,
-        cartTotal: 149.99,
-        currency: 'USD',
-        stepReached: 'view_cart',
-        timeOnPage: 45,
-        lastCategory: 'Electronics',
+test('AbandonedCartEvent creates correct event name and params', function (): void {
+    $event = new AbandonedCartEvent(
+        items: [
+            ['item_id' => 'prod-1', 'item_name' => 'Widget', 'price' => 29.99, 'quantity' => 2],
+            ['item_id' => 'prod-2', 'price' => 49.99],
+        ],
+        cartValue: 109.97,
     );
 
-    $analytics = $event->toAnalyticsEvent();
+    expect($event)->toBeInstanceOf(AnalyticsEvent::class);
+    expect($event->name)->toBe('abandoned_cart');
+    expect($event->params)->toHaveKey('items');
+    expect($event->params)->toHaveKey('cart_value');
+    expect($event->params['cart_value'])->toBe(109.97);
+    expect($event->params['cart_item_count'])->toBe(2);
+});
 
-    expect($analytics)->toBeInstanceOf(AnalyticsEvent::class);
-    expect($analytics->name)->toBe('abandoned_cart');
-    expect($analytics->params)->toHaveKey('cart_items');
-    expect($analytics->params['cart_items'])->toBe(3);
-    expect($analytics->params['cart_total'])->toBe(149.99);
-    expect($analytics->params['currency'])->toBe('USD');
-    expect($analytics->params['step_reached'])->toBe('view_cart');
+test('AbandonedCartEvent with default values', function (): void {
+    $event = new AbandonedCartEvent();
+
+    expect($event->name)->toBe('abandoned_cart');
+    expect($event->params['cart_value'])->toBe(0.0);
+    expect($event->params['cart_item_count'])->toBe(0);
 });
 
 // ─── CheckoutAbandonEvent ───────────────────────────────────────────
 
-test('CheckoutAbandonEvent creates AnalyticsEvent', function (): void {
-    $event = CheckoutAbandonEvent::make(
+test('CheckoutAbandonEvent creates correct event name and params', function (): void {
+    $event = new CheckoutAbandonEvent(
         stepReached: 'add_payment_info',
-        cartTotal: 249.00,
+        cartValue: 249.00,
         currency: 'USD',
-        cartItems: 5,
+        cartItemCount: 5,
         timeOnStep: 180,
-        paymentMethods: 2,
     );
 
-    $analytics = $event->toAnalyticsEvent();
+    expect($event)->toBeInstanceOf(AnalyticsEvent::class);
+    expect($event->name)->toBe('checkout_abandon');
+    expect($event->params['step_reached'])->toBe('add_payment_info');
+    expect($event->params['cart_value'])->toBe(249.00);
+    expect($event->params['currency'])->toBe('USD');
+    expect($event->params['cart_item_count'])->toBe(5);
+    expect($event->params['time_on_step'])->toBe(180);
+});
 
-    expect($analytics)->toBeInstanceOf(AnalyticsEvent::class);
-    expect($analytics->name)->toBe('checkout_abandon');
-    expect($analytics->params['step_reached'])->toBe('add_payment_info');
-    expect($analytics->params['cart_total'])->toBe(249.00);
-    expect($analytics->params['payment_methods'])->toBe(2);
+test('CheckoutAbandonEvent with defaults', function (): void {
+    $event = new CheckoutAbandonEvent();
+
+    expect($event->name)->toBe('checkout_abandon');
+    expect($event->params['step_reached'])->toBe('');
 });
 
 // ─── EventCatalog: conversionEvents & abandonedEvents ───────────────
@@ -244,7 +256,7 @@ test('AnalyticsInsightsService handles empty event data gracefully', function ()
         ->andReturn([]);
 
     $service = new AnalyticsInsightsService($config);
-    $result = $service->generateInsights([]);
+    $result = $service->generate();
 
     expect($result)->toBeEmpty();
 });
@@ -263,19 +275,17 @@ test('AnalyticsInsightsService trending event detection', function (): void {
 
     $service = new AnalyticsInsightsService($config);
 
-    // Create event data with a clear trend
-    $eventCounts = [
-        'page_view' => ['current' => 500, 'previous' => 300],
-        'purchase' => ['current' => 50, 'previous' => 45],
-        'sign_up' => ['current' => 200, 'previous' => 80], // 150% increase — trending
-    ];
+    // Create event data with a clear trend — flat key-value format
+    $current = ['page_view' => 500, 'purchase' => 50, 'sign_up' => 200];
+    $previous = ['page_view' => 300, 'purchase' => 45, 'sign_up' => 80]; // sign_up: 150% increase
 
-    $result = $service->detectTrendingEvents($eventCounts);
+    $result = $service->detectTrendingEvents($current, $previous);
 
     expect($result)->not->toBeEmpty();
     // sign_up should be flagged as trending (150% increase)
-    $names = array_column($result, 'event_name');
-    expect($names)->toContain('sign_up');
+    $titles = array_map(fn (AnalyticsInsight $i): string => $i->title, $result);
+    $hasSignUpTrend = count(array_filter($titles, fn (string $t): bool => str_contains($t, 'sign_up'))) > 0;
+    expect($hasSignUpTrend)->toBeTrue();
 });
 
 test('AnalyticsInsightsService anomaly detection', function (): void {
@@ -291,20 +301,17 @@ test('AnalyticsInsightsService anomaly detection', function (): void {
 
     $service = new AnalyticsInsightsService($config);
 
-    $timeSeries = [];
-    // Normal data around 100
-    for ($i = 0; $i < 20; $i++) {
-        $timeSeries[] = 100 + rand(-10, 10);
-    }
-    // Anomaly: spike to 400
-    $timeSeries[] = 400;
+    // Need at least 5 data points total for anomaly detection
+    $current = ['page_view' => 500, 'purchase' => 400, 'sign_up' => 200, 'login' => 350, 'click' => 450];
+    $previous = ['page_view' => 100, 'purchase' => 100, 'sign_up' => 80, 'login' => 120, 'click' => 90];
 
-    $result = $service->detectAnomalies('purchase', $timeSeries);
+    $result = $service->detectAnomalies($current, $previous);
 
     expect($result)->not->toBeEmpty();
-    expect($result[0]['event_name'])->toBe('purchase');
-    expect($result[0]['value'])->toBe(400);
-    expect($result[0]['z_score'])->toBeGreaterThan(2.0);
+    // purchase should be flagged as anomalous (400 vs baseline ~100)
+    $titles = array_map(fn (AnalyticsInsight $i): string => $i->title, $result);
+    $hasPurchaseAnomaly = count(array_filter($titles, fn (string $t): bool => str_contains($t, 'purchase'))) > 0;
+    expect($hasPurchaseAnomaly)->toBeTrue();
 });
 
 // ─── FunnelVelocityService ─────────────────────────────────────────
@@ -391,14 +398,16 @@ test('FunnelVelocityService identify bottleneck step', function (): void {
     $now = microtime(true);
 
     $userJourneys = [
-        // 5 users drop at form_submit (bottleneck)
+        // 3 users drop at page_view (highest drop-off)
         ['user_id' => 'u1', 'steps' => [['step' => 'page_view', 'timestamp' => $now - 100]]],
         ['user_id' => 'u2', 'steps' => [['step' => 'page_view', 'timestamp' => $now - 90]]],
         ['user_id' => 'u3', 'steps' => [['step' => 'page_view', 'timestamp' => $now - 80]]],
+        // 1 user drops at form_start
         ['user_id' => 'u4', 'steps' => [
             ['step' => 'page_view', 'timestamp' => $now - 70],
             ['step' => 'form_start', 'timestamp' => $now - 60],
         ]],
+        // 1 user completes
         ['user_id' => 'u5', 'steps' => [
             ['step' => 'page_view', 'timestamp' => $now - 50],
             ['step' => 'form_start', 'timestamp' => $now - 40],
@@ -409,7 +418,7 @@ test('FunnelVelocityService identify bottleneck step', function (): void {
 
     $report = $service->analyze('signup', $steps, $userJourneys);
 
-    // page_view has the highest drop-off (5 reached, 1 proceeded)
+    // page_view: 5 reached, 1 proceeded → 80% drop-off (highest)
     expect($report->bottleneckStep)->toBe('page_view');
 });
 

@@ -10,39 +10,39 @@ namespace ZeroBoiler\Analytics\Events\Ecommerce;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
- * Checkout abandonment event — fired when a user begins checkout but leaves before payment.
+ * Checkout abandonment event — fired when a user begins checkout but leaves without completing.
  *
- * More specific than abandoned_cart — tracks the checkout step where the user dropped off.
- * Critical for identifying checkout flow friction and optimizing conversion rates.
+ * Tracks the checkout step reached, cart value, and time spent before abandonment.
+ * Use with FunnelVelocityService to identify the slowest checkout step and optimize.
  *
  * @see \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents
  */
-final class CheckoutAbandonEvent extends AnalyticsEvent
+final readonly class CheckoutAbandonEvent extends AnalyticsEvent
 {
     /**
-     * @param  int  $checkoutStep  The checkout step where abandonment occurred (1-indexed)
+     * @param  string  $stepReached  Last checkout step reached
      * @param  float  $cartValue  Cart value at time of abandonment
-     * @param  string|null  $abandonmentReason  Why the user abandoned
-     * @param  int|null  $timeOnCheckout  Seconds spent in checkout before abandoning
-     * @param  string|null  $paymentMethod  Payment method selected (if any)
+     * @param  string|null  $currency  Currency code (ISO 4217)
+     * @param  int|null  $cartItemCount  Number of items in cart
+     * @param  int|null  $timeOnStep  Seconds spent on the last step before leaving
      * @param  array<string, mixed>  $params  Additional parameters
      */
     public function __construct(
-        int $checkoutStep = 1,
+        string $stepReached = '',
         float $cartValue = 0.0,
-        ?string $abandonmentReason = null,
-        ?int $timeOnCheckout = null,
-        ?string $paymentMethod = null,
+        ?string $currency = null,
+        ?int $cartItemCount = null,
+        ?int $timeOnStep = null,
         array $params = [],
     ) {
         parent::__construct(
             name: 'checkout_abandon',
             params: array_filter(array_merge([
-                'checkout_step' => $checkoutStep,
+                'step_reached' => $stepReached,
                 'cart_value' => $cartValue,
-                'abandonment_reason' => $abandonmentReason,
-                'time_on_checkout' => $timeOnCheckout,
-                'payment_method' => $paymentMethod,
+                'currency' => $currency,
+                'cart_item_count' => $cartItemCount,
+                'time_on_step' => $timeOnStep,
             ], $params)),
         );
     }

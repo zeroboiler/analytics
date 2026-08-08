@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @see \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents
  */
-final class AbandonedCartEvent extends AnalyticsEvent
+final readonly class AbandonedCartEvent extends AnalyticsEvent
 {
     /**
      * @param  array<int, array{item_id: string, item_name?: string, price?: float, quantity?: int}>  $items  Cart items at time of abandonment
