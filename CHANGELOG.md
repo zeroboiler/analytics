@@ -2,6 +2,14 @@
 
 All notable changes to the `zeroboiler/analytics` package will be documented in this file.
 
+## [2.80.0] - 2026-08-08
+
+### Changed
+- Added `final` to `Facades\Analytics`
+
+### Added
+- Phase 2-3-4 production test suite (`Phase234ProductionTest.php`)
+
 ## [2.76.0] - 2026-08-08
 
 ### Added

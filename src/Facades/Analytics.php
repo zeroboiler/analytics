@@ -91,7 +91,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */
-class Analytics extends Facade
+final class Analytics extends Facade
 {
     #[\Override]
     protected static function getFacadeAccessor(): string
