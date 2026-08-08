@@ -103,6 +103,13 @@ use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
 use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
 use ZeroBoiler\Analytics\Services\EventPriorityGate;
 use ZeroBoiler\Analytics\Services\SaaSConversionService;
+use ZeroBoiler\Analytics\Services\ProviderCircuitBreaker;
+use ZeroBoiler\Analytics\Services\EventComplianceService;
+use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
+
+/**
+ * @version 2.70.0
+ */
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -1014,6 +1021,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsDashboardDataProvider($manager);
         });
+
+        // Provider circuit breaker (v2.70.0)
+        $this->app->singleton(ProviderCircuitBreaker::class, function (Application $app): ProviderCircuitBreaker {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderCircuitBreaker($config);
+        });
+
+        // Event compliance service (v2.70.0)
+        $this->app->singleton(EventComplianceService::class, function (Application $app): EventComplianceService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventComplianceService($config);
+        });
+
+        // Analytics recovery service (v2.70.0)
+        $this->app->singleton(AnalyticsRecoveryService::class, function (Application $app): AnalyticsRecoveryService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var DeadLetterQueueService|null $dlq */
+            $dlq = $app->make(DeadLetterQueueService::class);
+
+            return new AnalyticsRecoveryService($manager, $config, $dlq);
+        });
     }
 
     /**
@@ -1239,6 +1274,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // Rate Limit Dashboard (v2.69.0)
                 Route::get('analytics/rate-limits', [$controller, 'rateLimitDashboard']);
                 Route::get('analytics/rate-limits/{clientId}', [$controller, 'rateLimitClientStatus']);
+
+                // Circuit Breaker Dashboard (v2.70.0)
+                Route::get('analytics/circuit-breaker', [$controller, 'circuitBreakerDashboard']);
+                Route::get('analytics/circuit-breaker/summary', [$controller, 'circuitBreakerSummary']);
+
+                // Compliance Audit Report (v2.70.0)
+                Route::get('analytics/compliance', [$controller, 'complianceReport']);
+                Route::get('analytics/compliance/score', [$controller, 'complianceScore']);
+                Route::post('analytics/compliance/invalidate', [$controller, 'complianceInvalidateCache']);
+
+                // Recovery Service (v2.70.0)
+                Route::get('analytics/recovery/budget', [$controller, 'recoveryBudget']);
+                Route::get('analytics/recovery/health', [$controller, 'recoveryHealth']);
+                Route::get('analytics/recovery/history', [$controller, 'recoveryHistory']);
             });
 
         // Authenticated endpoints
@@ -1284,6 +1333,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // Heatmap clear + Rate Limit reset (v2.69.0)
                 Route::delete('analytics/heatmap/data', [$controller, 'heatmapClear']);
                 Route::delete('analytics/rate-limits/{clientId}', [$controller, 'rateLimitResetClient']);
+
+                // Circuit Breaker control (v2.70.0)
+                Route::post('analytics/circuit-breaker/{provider}/reset', [$controller, 'circuitBreakerReset']);
+                Route::post('analytics/circuit-breaker/{provider}/trip', [$controller, 'circuitBreakerTrip']);
+
+                // Recovery batch (v2.70.0)
+                Route::post('analytics/recovery/batch', [$controller, 'recoveryBatch']);
             });
     }
 }

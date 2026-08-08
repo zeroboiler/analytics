@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.68.0
+ * @version 2.70.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -871,3 +871,116 @@ export interface DashboardOverview {
 
 /** Fetch the analytics dashboard overview from the server */
 export function fetchDashboardOverview(): Promise<DashboardOverview | null>;
+
+// ─── v2.70.0 Types ──────────────────────────────────────────────────
+
+/** Circuit breaker state per provider */
+export interface CircuitBreakerProviderState {
+    state: 'closed' | 'open' | 'half_open';
+    failures: number;
+    successes: number;
+    last_failure: number | null;
+    cooldown_remaining: number | null;
+}
+
+/** Circuit breaker dashboard response */
+export interface CircuitBreakerDashboard {
+    enabled: boolean;
+    failure_threshold: number;
+    success_threshold: number;
+    cooldown_seconds: number;
+    providers: Record<string, CircuitBreakerProviderState>;
+}
+
+/** Compliance audit report sections */
+export interface ComplianceReport {
+    generated_at: string;
+    overall_score: number;
+    pii_exposure: {
+        score: number;
+        total_events_analyzed: number;
+        pii_events: string[];
+        pii_risk_by_category: Record<string, string>;
+        pii_fields_detected: string[];
+        anonymization_enabled: boolean;
+        ip_anonymization_enabled: boolean;
+    };
+    consent_coverage: {
+        score: number;
+        total_events_mapped: number;
+        unmapped_events: string[];
+        purpose_breakdown: Record<string, number>;
+        default_consent: string;
+        granular_consent_enabled: boolean;
+    };
+    retention: {
+        score: number;
+        categories: Record<string, { default_days: number; pii_risk: string; configured_days: number | null; policy_active: boolean }>;
+        global_retention_days: number | null;
+        archive_action: string;
+    };
+    data_minimization: {
+        score: number;
+        enabled: boolean;
+        global_allowlist_count: number;
+        strip_params_count: number;
+        audit_logging: boolean;
+        strategy: string;
+    };
+    processing_transparency: {
+        score: number;
+        providers_configured: number;
+        providers_total: number;
+        pipeline_steps: string[];
+        middleware_registered: string[];
+        data_export_available: boolean;
+        dsar_available: boolean;
+    };
+    recommendations: string[];
+}
+
+/** Recovery budget response */
+export interface RecoveryBudget {
+    remaining: number;
+    max: number;
+    used: number;
+    resets_at: string;
+}
+
+/** Recovery health response */
+export interface RecoveryHealth {
+    status: 'healthy' | 'degraded' | 'critical';
+    dlq_size: number;
+    budget_remaining: number;
+    recovery_rate_24h: number | null;
+    health_score: number;
+}
+
+/** Recovery history response */
+export interface RecoveryHistory {
+    total_recovered_24h: number;
+    total_failed_24h: number;
+    last_recovery: string | null;
+    budget: RecoveryBudget;
+}
+
+/** Fetch circuit breaker dashboard for all providers */
+export function fetchCircuitBreakerDashboard(): Promise<CircuitBreakerDashboard | null>;
+
+/** Fetch circuit breaker summary (open/half-open/closed counts) */
+export function fetchCircuitBreakerSummary(): Promise<{ enabled: boolean; total_open: number; total_half_open: number; total_closed: number; providers: string[] } | null>;
+
+/** Fetch comprehensive compliance audit report */
+export function fetchComplianceReport(): Promise<ComplianceReport | null>;
+
+/** Fetch quick compliance score (0-100) */
+export function fetchComplianceScore(): Promise<number | null>;
+
+/** Fetch DLQ recovery budget status */
+export function fetchRecoveryBudget(): Promise<RecoveryBudget | null>;
+
+/** Fetch recovery pipeline health assessment */
+export function fetchRecoveryHealth(): Promise<RecoveryHealth | null>;
+
+/** Fetch recovery history summary (24h) */
+export function fetchRecoveryHistory(): Promise<RecoveryHistory | null>;

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.69.0
+ * @version 2.70.0
  */
 
 let trackingId = null;
@@ -145,7 +145,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.69.0';
+    return '2.70.0';
 }
 
 /**
@@ -3080,7 +3080,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.69.0';
+    return '2.70.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -3857,6 +3857,219 @@ export async function fetchRateLimitDashboard() {
 
     try {
         const response = await fetch(`${apiBaseUrl}/rate-limits`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Circuit Breaker Dashboard (v2.70.0) ──────────────────────────
+
+/**
+ * Fetch the circuit breaker dashboard for all analytics providers.
+ *
+ * Returns per-provider circuit state (closed/open/half_open),
+ * failure counts, success counts, last failure time, and cooldown remaining.
+ *
+ * @returns {Promise<object|null>} Circuit breaker dashboard
+ *
+ * @example
+ * const dashboard = await fetchCircuitBreakerDashboard();
+ * if (dashboard) {
+ *     Object.entries(dashboard.providers).forEach(([provider, info]) => {
+ *         console.log(`${provider}: ${info.state} (${info.failures} failures)`);
+ *     });
+ * }
+ */
+export async function fetchCircuitBreakerDashboard() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/circuit-breaker`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch the circuit breaker summary (open/half-open/closed counts).
+ *
+ * @returns {Promise<object|null>} Summary with provider counts per state
+ *
+ * @example
+ * const summary = await fetchCircuitBreakerSummary();
+ * console.log(`Open circuits: ${summary.total_open}`);
+ */
+export async function fetchCircuitBreakerSummary() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/circuit-breaker/summary`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Compliance Audit Report (v2.70.0) ────────────────────────────
+
+/**
+ * Fetch a comprehensive compliance audit report.
+ *
+ * Covers PII exposure, consent coverage, retention policies,
+ * data minimization, and processing transparency. Returns an
+ * overall compliance score (0-100) and actionable recommendations.
+ *
+ * @returns {Promise<object|null>} Full compliance report
+ *
+ * @example
+ * const report = await fetchComplianceReport();
+ * if (report) {
+ *     console.log(`Compliance score: ${report.overall_score}/100`);
+ *     report.recommendations.forEach(r => console.warn('⚠️', r));
+ * }
+ */
+export async function fetchComplianceReport() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/compliance`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch a quick compliance score (0-100).
+ *
+ * @returns {Promise<number|null>} Compliance score
+ *
+ * @example
+ * const score = await fetchComplianceScore();
+ * if (score !== null) {
+ *     console.log(`Compliance: ${score}%`);
+ * }
+ */
+export async function fetchComplianceScore() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/compliance/score`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        const data = await response.json();
+
+        return data.score ?? null;
+    } catch {
+        return null;
+    }
+}
+
+// ─── Recovery Service (v2.70.0) ────────────────────────────────────
+
+/**
+ * Fetch the DLQ recovery budget status.
+ *
+ * @returns {Promise<object|null>} Budget with remaining, max, used, resets_at
+ *
+ * @example
+ * const budget = await fetchRecoveryBudget();
+ * console.log(`Recovery budget: ${budget.remaining}/${budget.max} remaining`);
+ */
+export async function fetchRecoveryBudget() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/recovery/budget`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch the recovery pipeline health assessment.
+ *
+ * @returns {Promise<object|null>} Health with status, dlq_size, health_score
+ *
+ * @example
+ * const health = await fetchRecoveryHealth();
+ * console.log(`Recovery health: ${health.status} (${health.health_score}/100)`);
+ */
+export async function fetchRecoveryHealth() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/recovery/health`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch the recovery history summary (24h window).
+ *
+ * @returns {Promise<object|null>} History with recovered/failed counts and last recovery time
+ *
+ * @example
+ * const history = await fetchRecoveryHistory();
+ * console.log(`Recovered 24h: ${history.total_recovered_24h}, Failed: ${history.total_failed_24h}`);
+ */
+export async function fetchRecoveryHistory() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/recovery/history`, {
             headers: {
                 Accept: 'application/json',
             },

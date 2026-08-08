@@ -189,4 +189,23 @@ Route::prefix('analytics')->group(function () {
     Route::get('rate-limits', [AnalyticsEventController::class, 'rateLimitDashboard']);
     Route::get('rate-limits/{clientId}', [AnalyticsEventController::class, 'rateLimitClientStatus']);
     Route::delete('rate-limits/{clientId}', [AnalyticsEventController::class, 'rateLimitResetClient']);
+
+    // Circuit Breaker Dashboard (v2.70.0)
+    Route::get('circuit-breaker', [AnalyticsEventController::class, 'circuitBreakerDashboard']);
+    Route::get('circuit-breaker/summary', [AnalyticsEventController::class, 'circuitBreakerSummary']);
+
+    // Compliance Audit Report (v2.70.0)
+    Route::get('compliance', [AnalyticsEventController::class, 'complianceReport']);
+    Route::get('compliance/score', [AnalyticsEventController::class, 'complianceScore']);
+    Route::post('compliance/invalidate', [AnalyticsEventController::class, 'complianceInvalidateCache']);
+
+    // Recovery Service (v2.70.0)
+    Route::get('recovery/budget', [AnalyticsEventController::class, 'recoveryBudget']);
+    Route::get('recovery/health', [AnalyticsEventController::class, 'recoveryHealth']);
+    Route::get('recovery/history', [AnalyticsEventController::class, 'recoveryHistory']);
+    Route::post('recovery/batch', [AnalyticsEventController::class, 'recoveryBatch']);
+
+    // Circuit Breaker Control (v2.70.0)
+    Route::post('circuit-breaker/{provider}/reset', [AnalyticsEventController::class, 'circuitBreakerReset']);
+    Route::post('circuit-breaker/{provider}/trip', [AnalyticsEventController::class, 'circuitBreakerTrip']);
 });

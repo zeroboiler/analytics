@@ -4,6 +4,21 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.70.0] - 2026-08-08
+
+### Added
+- **ProviderCircuitBreaker** — Circuit breaker pattern for analytics provider outage protection. Three states (closed/open/half_open) with configurable failure threshold, success threshold, cooldown, and half-open probe limits. Per-provider independent circuits. Methods: `shouldDispatch()`, `recordSuccess()`, `recordFailure()`, `reset()`, `trip()`, `getState()`, `getDashboard()`, `summary()`, `isEnabled()`.
+- **EventComplianceService** — GDPR/SOC2/privacy compliance audit engine. Generates comprehensive reports covering PII exposure, consent coverage, retention policies, data minimization, and processing transparency. Produces 0-100 overall score with actionable recommendations. Methods: `generateReport()`, `analyzePiiExposure()`, `analyzeConsentCoverage()`, `analyzeRetention()`, `analyzeDataMinimization()`, `analyzeProcessingTransparency()`, `getScore()`, `invalidateCache()`.
+- **AnalyticsRecoveryService** — Advanced DLQ recovery with retry budget tracking, batch recovery, health assessment, and 24h recovery history. Wraps DeadLetterQueueService with enterprise-grade management. Methods: `getBudget()`, `hasBudgetRemaining()`, `batchRecover()`, `getHistory()`, `recordHistory()`, `assessHealth()`, `summary()`.
+- **Config sections**: `circuit_breaker` (failure_threshold, success_threshold, cooldown_seconds, half_open_max_probes), `compliance` (enabled, cache_ttl), `recovery` (enabled, max_recoveries_per_hour, batch_size).
+- **API endpoints**: `GET /api/analytics/circuit-breaker`, `GET /api/analytics/circuit-breaker/summary`, `POST /api/analytics/circuit-breaker/{provider}/reset`, `POST /api/analytics/circuit-breaker/{provider}/trip`, `GET /api/analytics/compliance`, `GET /api/analytics/compliance/score`, `POST /api/analytics/compliance/invalidate`, `GET /api/analytics/recovery/budget`, `GET /api/analytics/recovery/health`, `GET /api/analytics/recovery/history`, `POST /api/analytics/recovery/batch`.
+- **JS client functions**: `fetchCircuitBreakerDashboard()`, `fetchCircuitBreakerSummary()`, `fetchComplianceReport()`, `fetchComplianceScore()`, `fetchRecoveryBudget()`, `fetchRecoveryHealth()`, `fetchRecoveryHistory()`.
+- **TypeScript definitions**: `CircuitBreakerDashboard`, `CircuitBreakerProviderState`, `ComplianceReport`, `RecoveryBudget`, `RecoveryHealth`, `RecoveryHistory` interfaces with full IntelliSense support.
+- **V70CircuitBreakerComplianceRecoveryTest** — 45 test cases covering ProviderCircuitBreaker (12 tests), EventComplianceService (14 tests), AnalyticsRecoveryService (8 tests), and version consistency (11 tests).
+
+### Changed
+- Version bump to 2.70.0 across AnalyticsManager, composer.json, JS client (header + getVersion + _getInternalVersion), TypeScript definitions, 9 service files, all controller endpoint version strings, and ServiceProvider docblock.
+
 ## [2.69.0] - 2026-08-08
 
 ### Added

@@ -14,7 +14,7 @@ declare(strict_types=1);
  * callback, or config-driven static flags for simpler use cases.
  *
  * @license MIT
- * @version 2.69.0
+ * @version 2.70.0
  * @package ZeroBoiler\Analytics\Services
  */
 

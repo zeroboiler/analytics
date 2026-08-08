@@ -1481,5 +1481,62 @@ return [
             'register_builtins' => env('ANALYTICS_PROPERTY_SCHEMA_BUILTINS', true),
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Circuit Breaker (Provider Outage Protection)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, monitors provider dispatch failures and opens a circuit
+        | (stops sending events) when the failure threshold is exceeded. After
+        | a cooldown period, the circuit transitions to half-open and probes
+        | with limited events. Successful probes close the circuit.
+        |
+        | States: closed (normal), open (failing), half_open (recovering)
+        |
+        */
+        'circuit_breaker' => [
+            'enabled' => env('ANALYTICS_CIRCUIT_BREAKER_ENABLED', false),
+            'failure_threshold' => (int) env('ANALYTICS_CIRCUIT_BREAKER_FAILURE_THRESHOLD', 5),
+            'success_threshold' => (int) env('ANALYTICS_CIRCUIT_BREAKER_SUCCESS_THRESHOLD', 2),
+            'cooldown_seconds' => (int) env('ANALYTICS_CIRCUIT_BREAKER_COOLDOWN', 60),
+            'half_open_max_probes' => (int) env('ANALYTICS_CIRCUIT_BREAKER_PROBES', 3),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Compliance Audit (GDPR / SOC2 / Privacy)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the EventComplianceService generates comprehensive
+        | compliance reports covering PII exposure, consent coverage, retention
+        | policies, data minimization, and processing transparency.
+        |
+        | Reports are cached for the configured TTL and invalidated on config changes.
+        |
+        */
+        'compliance' => [
+            'enabled' => env('ANALYTICS_COMPLIANCE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_COMPLIANCE_CACHE_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Recovery Service (DLQ Batch Recovery)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, provides advanced DLQ recovery with retry budget tracking,
+        | batch recovery, health assessment, and recovery history.
+        |
+        | The max_recoveries_per_hour limit prevents runaway recovery loops
+        | from consuming excessive resources during extended outages.
+        |
+        */
+        'recovery' => [
+            'enabled' => env('ANALYTICS_RECOVERY_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_RECOVERY_CACHE_TTL', 300), // 5 minutes
+            'max_recoveries_per_hour' => (int) env('ANALYTICS_RECOVERY_MAX_PER_HOUR', 100),
+            'batch_size' => (int) env('ANALYTICS_RECOVERY_BATCH_SIZE', 10),
+        ],
+
     ],
 ];
