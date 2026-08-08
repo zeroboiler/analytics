@@ -111,6 +111,8 @@ final class EventPriorityCalculator
         'workspace_created' => self::CATEGORY_REFERRAL,
         'invite_sent' => self::CATEGORY_REFERRAL,
         'feature_impression' => self::CATEGORY_REFERRAL,
+        'feature_adopted' => self::CATEGORY_REFERRAL,
+        'expansion_revenue' => self::CATEGORY_REFERRAL,
 
         // Operational — infrastructure, compliance, system health
         'account_activated' => self::CATEGORY_OPERATIONAL,

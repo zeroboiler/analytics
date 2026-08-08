@@ -112,7 +112,7 @@ use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 
 /**
- * @version 2.75.0
+ * @version 2.78.0
  */
 
 /**

@@ -770,7 +770,7 @@ final class EventCatalog
             'payment_succeeded', 'payment_failed', 'payment_method_added',
             'invoice_generated', 'credit_applied', 'billing_retry',
             'subscription_value_changed', 'subscribe', 'subscription_renewal',
-            'revenue_tracked', 'purchase',
+            'revenue_tracked', 'purchase', 'expansion_revenue',
         ];
 
         return array_values(array_filter(
@@ -800,10 +800,37 @@ final class EventCatalog
             'integration_connected', 'workspace_created', 'invite_sent',
             // E-commerce signals
             'add_to_cart', 'begin_checkout', 'purchase', 'add_to_wishlist',
+            // PLG-specific (v2.78.0)
+            'feature_adopted', 'expansion_revenue',
         ];
 
         return array_values(array_filter(
             array_map(fn (string $key): ?array => self::get($key), $growthKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get product-led growth (PLG) specific events.
+     *
+     * Returns events that directly measure PLG motion: feature adoption,
+     * expansion revenue, trial conversion, team expansion, and organic
+     * sharing signals. These events form the PLG analytics framework.
+     *
+     * @return list<EventEntry>
+     */
+    public static function plgEvents(): array
+    {
+        $plgKeys = [
+            'feature_adopted', 'expansion_revenue',
+            'sign_up', 'start_trial', 'trial_converted',
+            'plan_upgrade', 'team_member_joined', 'team_created',
+            'invite_sent', 'share', 'milestone_reached',
+            'integration_connected', 'feature_used',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $plgKeys),
             fn (?array $entry): bool => $entry !== null,
         ));
     }
@@ -864,7 +891,7 @@ final class EventCatalog
             'team_created', 'team_member_joined', 'integration_connected',
             'invite_sent', 'profile_updated', 'view_cart', 'remove_from_cart',
             'add_to_wishlist', 'select_item', 'credit_applied', 'payment_method_added',
-            'workspace_created',
+            'workspace_created', 'feature_adopted', 'expansion_revenue',
         ];
 
         $lowKeys = [

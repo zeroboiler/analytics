@@ -412,6 +412,23 @@ final class SaaSEvents
                 'posthog' => 'billing_retry',
                 'plausible' => null,
             ],
+            // Product-Led Growth events (v2.78.0)
+            'feature_adopted' => [
+                'name' => 'feature_adopted',
+                'class' => FeatureAdoptedEvent::class,
+                'ga4' => 'feature_adopted',
+                'meta' => 'FeatureAdopted',
+                'posthog' => 'feature_adopted',
+                'plausible' => null,
+            ],
+            'expansion_revenue' => [
+                'name' => 'expansion_revenue',
+                'class' => ExpansionRevenueEvent::class,
+                'ga4' => 'expansion_revenue',
+                'meta' => 'Purchase',
+                'posthog' => 'expansion_revenue',
+                'plausible' => null,
+            ],
         ];
 
         return self::$catalog;

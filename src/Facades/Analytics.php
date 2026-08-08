@@ -85,6 +85,9 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{enabled: bool, strategy: string, total: int, buffered: int, max_size: int, storage_path: string, utilization: float} dlqSummary()
  * @method static string resolveEventName(string $name)
  * @method static void trackWithAlias(string $name, array<string, mixed> $params = [])
+ * @method static void featureAdopted(string $featureName, ?string $category = null, array<string, mixed> $params = [])
+ * @method static void expansionRevenue(float $amount, string $source, ?string $currency = null)
+ * @method static list<array{name: string, class: class-string, ga4: string, category: string}> plgEvents()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

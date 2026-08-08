@@ -66,7 +66,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **84 typed event classes** across 3 categories (E-commerce 13, SaaS 46, Engagement 25)
+- **86 typed event classes** across 3 categories (E-commerce 13, SaaS 48, Engagement 25)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, category filtering, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle)
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -94,8 +94,8 @@ Done. That's it.
 - **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
-- **46 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + SubscriptionValueChanged, + UsageQuotaReached, + BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied)
-- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 84 events now have typed classes)
+- **48 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, + SubscriptionValueChanged, + UsageQuotaReached, + BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied), + FeatureAdopted, ExpansionRevenue
+- **6 Dedicated Cohort Typed Classes** — CohortAssignedEvent, CohortRetentionEvent, CohortChurnEvent, CohortConversionEvent, CohortMigrationEvent, CohortEngagementEvent (all 86 events now have typed classes)
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
@@ -802,8 +802,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-// Unified catalog — 81 events across 3 categories
-EventCatalog::count();          // 81
+// Unified catalog — 86 events across 3 categories
+EventCatalog::count();          // 86
 EventCatalog::names();          // ['view_item', 'add_to_cart', 'sign_up', ...]
 EventCatalog::has('purchase');  // true
 EventCatalog::classFor('purchase'); // PurchaseEvent::class
@@ -1121,7 +1121,7 @@ Route::middleware(['analytics.scripts'])->group(function () {
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/analytics/health` | Health check (providers, consent, queue, metrics, replay, version) |
-| `GET` | `/api/analytics/catalog` | Full event catalog (81 events, categories, provider mappings) |
+| `GET` | `/api/analytics/catalog` | Full event catalog (86 events, categories, provider mappings) |
 | `GET` | `/api/analytics/stats` | Aggregated dashboard statistics (totals, top events, by-provider) |
 | `GET` | `/api/analytics/stream` | Real-time event stream (cursor-based polling) |
 | `GET` | `/api/analytics/stream/stats` | Event stream statistics |
@@ -1520,6 +1520,22 @@ This validates strict types, `final` modifiers, interface implementations, reado
 - Check `UserIdentityTracker::onLogin()` is being called (use ServerSideTracker auto-track)
 
 ## Upgrading
+
+### v2.78.0 — PLG Events, Version Consistency, Catalog Expansion
+
+- **FeatureAdoptedEvent** — Product-led growth activation milestone (fires once per user per high-value feature adoption)
+- **ExpansionRevenueEvent** — Expansion revenue tracking (add-on purchases, seat expansion, usage overages, cross-sell)
+- **86 total events** (was 84) — 13 ecommerce + 48 SaaS + 25 engagement
+- **EventCatalog::plgEvents()** — Product-led growth specific event grouping for PLG dashboards
+- **EventCatalog::productGrowthEvents()** — Now includes feature_adopted and expansion_revenue
+- **EventCatalog::billingEvents()** — Now includes expansion_revenue
+- **EventCatalog::industryStandard()** — New events in medium priority tier
+- **AnalyticsManager** — New convenience methods: `featureAdopted()`, `expansionRevenue()`, `plgEvents()`
+- **Facade proxy** — `featureAdopted()`, `expansionRevenue()`, `plgEvents()` added
+- **EventPriorityCalculator** — New events classified as referral (AARRR)
+- **Version consistency** — All 5 version references aligned to 2.78.0 (AnalyticsEvent, ServiceProvider, composer.json, JS client, TypeScript definitions)
+- **README** — Updated event counts, API reference, SaaS event list
+- **No breaking changes** — All changes are additive.
 
 ### From v2.67.x to v2.68.0
 - **README comprehensive update** — All stale numbers corrected: 73 events (was 70), 38 SaaS events (was 35), 224 source files (was 183), 110 test files (was 87), ~3600 JS LOC (was ~2500), 52+ config sections (was 47+), 120+ AnalyticsConfig methods (was 110+), 300+ tests across 110+ test files (was 200+ across 100+)

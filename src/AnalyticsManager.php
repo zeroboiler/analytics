@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.75.0';
+        return '2.78.0';
     }
 
     /**
@@ -1539,5 +1539,55 @@ final class AnalyticsManager
     public function funnelReadiness(): array
     {
         return $this->priorityCalculator()->funnelReadiness();
+    }
+
+    /**
+     * Get product-led growth (PLG) specific events from the catalog.
+     *
+     * Returns events that directly measure PLG motion: feature adoption,
+     * expansion revenue, trial conversion, team expansion, and organic sharing.
+     *
+     * @return list<array{name: string, class: class-string, ga4: string, category: string}>
+     */
+    public function plgEvents(): array
+    {
+        return \ZeroBoiler\Analytics\Events\EventCatalog::plgEvents();
+    }
+
+    /**
+     * Track a feature adoption event (PLG activation milestone).
+     *
+     * Fires once when a user first adopts a high-value feature.
+     *
+     * @param  string  $featureName  Feature identifier
+     * @param  string|null  $category  Feature category (core/premium/integration)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function featureAdopted(string $featureName, ?string $category = null, array $params = []): void
+    {
+        $this->trackEvent(new \ZeroBoiler\Analytics\Events\SaaS\FeatureAdoptedEvent(
+            featureName: $featureName,
+            category: $category,
+            params: $params,
+        ));
+    }
+
+    /**
+     * Track expansion revenue from an existing customer.
+     *
+     * Captures add-on purchases, seat expansion, usage overages,
+     * and cross-sell conversions for net revenue retention analysis.
+     *
+     * @param  float  $amount  Expansion revenue amount
+     * @param  string  $source  Expansion source (addon/seat_expansion/usage_overage/cross_sell)
+     * @param  string|null  $currency  Currency code
+     */
+    public function expansionRevenue(float $amount, string $source, ?string $currency = null): void
+    {
+        $this->trackEvent(new \ZeroBoiler\Analytics\Events\SaaS\ExpansionRevenueEvent(
+            amount: $amount,
+            source: $source,
+            currency: $currency,
+        ));
     }
 }
