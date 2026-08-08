@@ -4447,8 +4447,76 @@ final class AnalyticsEventController extends Controller
 
         return response()->json([
             'status' => 'ok',
-            'version' => '2.71.0',
+            'version' => '2.77.0',
             ...$report->toArray(),
+        ]);
+    }
+
+    /**
+     * Get SaaS analytics maturity score and AARRR classification.
+     *
+     * GET /api/analytics/maturity
+     *
+     * Returns maturity score (0-100), grade, and detailed breakdown of
+     * critical events coverage, AARRR category compliance, provider
+     * coverage, and catalog size.
+     */
+    public function maturity(): JsonResponse
+    {
+        $calculator = $this->manager->priorityCalculator();
+
+        return response()->json([
+            'status' => 'ok',
+            ...$calculator->maturityScore(),
+            'aarr_classification' => $calculator->classifyAll(),
+            'under_instrumented' => $calculator->underInstrumentedCategories(),
+        ]);
+    }
+
+    /**
+     * Get SaaS analytics onboarding checklist.
+     *
+     * GET /api/analytics/onboarding
+     *
+     * Returns a prioritized checklist of events that should be instrumented,
+     * grouped by AARRR category, with completion status and gaps.
+     */
+    public function onboardingChecklist(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            ...$this->manager->onboardingChecklist(),
+        ]);
+    }
+
+    /**
+     * Get funnel conversion readiness scores.
+     *
+     * GET /api/analytics/funnel-readiness
+     *
+     * Evaluates signup, purchase, and subscription funnel instrumentation.
+     */
+    public function funnelReadiness(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            ...$this->manager->funnelReadiness(),
+        ]);
+    }
+
+    /**
+     * Get industry-standard event catalog with priority tiers.
+     *
+     * GET /api/analytics/industry-standard
+     *
+     * Returns events classified by priority (critical/high/medium/low)
+     * as required by industry-standard SaaS analytics instrumentation.
+     */
+    public function industryStandard(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            ...\ZeroBoiler\Analytics\Events\EventCatalog::industryStandard(),
         ]);
     }
 }

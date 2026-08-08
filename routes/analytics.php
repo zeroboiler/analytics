@@ -224,4 +224,10 @@ Route::prefix('analytics')->group(function () {
 
     // SaaS Starter Readiness (v2.71.0)
     Route::get('readiness', [AnalyticsEventController::class, 'readiness']);
+
+    // SaaS Analytics Maturity & AARRR (v2.77.0)
+    Route::get('maturity', [AnalyticsEventController::class, 'maturity']);
+    Route::get('onboarding', [AnalyticsEventController::class, 'onboardingChecklist']);
+    Route::get('funnel-readiness', [AnalyticsEventController::class, 'funnelReadiness']);
+    Route::get('industry-standard', [AnalyticsEventController::class, 'industryStandard']);
 });

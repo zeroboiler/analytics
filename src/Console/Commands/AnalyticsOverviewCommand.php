@@ -250,6 +250,10 @@ final class AnalyticsOverviewCommand extends Command
             'Plausible ecommerce format conversion (GA4 → Plausible purchase/refund/add_to_cart/checkout)',
             'Subscription metrics calculator (MRR, ARR, churn, NRR, CLV, ARPU, runway, MoM growth)',
             'JS SaaS revenue tracking (trackSubscriptionEvent, trackTrialEvent, trackRevenueEvent, trackPlanChange)',
+            'Event priority calculator (AARRR classification, maturity scoring, funnel readiness)',
+            'SaaS analytics maturity score (0-100 grade with detailed breakdown)',
+            'Onboarding checklist API (GET /api/analytics/onboarding)',
+            'Industry-standard event catalog with priority tiers (critical/high/medium/low)',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

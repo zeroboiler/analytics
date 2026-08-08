@@ -184,6 +184,30 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         /** @var array{link_on_auth?: bool} $identityConfig */
         $analyticsProps['identityAutoLink'] = (bool) ($identityConfig['link_on_auth'] ?? true);
 
+        // SaaS analytics maturity score (computed on every request — lightweight)
+        try {
+            $calculator = new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+            $maturity = $calculator->maturityScore();
+            $analyticsProps['maturity'] = [
+                'score' => $maturity['score'],
+                'grade' => $maturity['grade'],
+            ];
+        } catch (\Throwable) {
+            $analyticsProps['maturity'] = ['score' => 0, 'grade' => 'N/A'];
+        }
+
+        // Onboarding checklist gaps for client-side instrumentation guidance
+        try {
+            $calculator = new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+            $checklist = $calculator->onboardingChecklist();
+            $analyticsProps['onboarding'] = [
+                'completion' => $checklist['summary']['completion'],
+                'gaps' => $checklist['summary']['gaps'],
+            ];
+        } catch (\Throwable) {
+            $analyticsProps['onboarding'] = ['completion' => 0.0, 'gaps' => []];
+        }
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

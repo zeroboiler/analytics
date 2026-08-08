@@ -828,4 +828,100 @@ final class EventCatalog
             self::productGrowthEvents(),
         ), SORT_REGULAR));
     }
+
+    /**
+     * Get events classified as industry-standard SaaS instrumentation.
+     *
+     * Returns the minimum set of events that an industry-standard SaaS
+     * product should instrument. Covers the full AARRR framework with
+     * priority ordering (critical first).
+     *
+     * Critical events are listed first, followed by high-priority,
+     * medium-priority, and low-priority events within each AARRR category.
+     *
+     * @return array{critical: list<EventEntry>, high: list<EventEntry>, medium: list<EventEntry>, low: list<EventEntry>, all: list<EventEntry>, count: int}
+     */
+    public static function industryStandard(): array
+    {
+        $criticalKeys = [
+            'sign_up', 'login', 'start_trial', 'subscribe', 'plan_upgrade',
+            'cancellation', 'page_view', 'purchase', 'payment_succeeded',
+            'payment_failed', 'trial_converted',
+        ];
+
+        $highKeys = [
+            'email_verified', 'onboarding_step', 'feature_used', 'add_to_cart',
+            'begin_checkout', 'add_payment_info', 'refund', 'plan_downgrade',
+            'subscription_renewal', 'subscription_resumed', 'trial_end',
+            'subscription_paused', 'view_item', 'search', 'form_submit',
+            'share', 'revenue_tracked', 'invoice_generated', 'billing_retry',
+            'subscription_value_changed',
+        ];
+
+        $mediumKeys = [
+            'scroll_depth', 'time_on_page', 'session_start', 'session_end',
+            'content_engagement', 'form_start', 'notification', 'milestone_reached',
+            'team_created', 'team_member_joined', 'integration_connected',
+            'invite_sent', 'profile_updated', 'view_cart', 'remove_from_cart',
+            'add_to_wishlist', 'select_item', 'credit_applied', 'payment_method_added',
+            'workspace_created',
+        ];
+
+        $lowKeys = [
+            'click', 'outbound_click', 'file_download', 'video_play',
+            'screen_view', 'web_vitals', 'timing', 'js_error', 'error',
+            'ab_test_exposure', 'ad_click', 'feature_impression',
+            'select_promotion', 'view_promotion', 'role_changed',
+            'team_member_removed', 'logout', 'feature_limit_reached',
+            'usage_quota_reached', 'password_changed', 'password_reset',
+            'account_activated', 'account_deactivated', 'campaign_attribution',
+        ];
+
+        $toEntries = static fn (array $keys): array => array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $keys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+
+        $critical = $toEntries($criticalKeys);
+        $high = $toEntries($highKeys);
+        $medium = $toEntries($mediumKeys);
+        $low = $toEntries($lowKeys);
+        $all = array_values(array_unique(array_merge($critical, $high, $medium, $low), SORT_REGULAR));
+
+        return [
+            'critical' => $critical,
+            'high' => $high,
+            'medium' => $medium,
+            'low' => $low,
+            'all' => $all,
+            'count' => count($all),
+        ];
+    }
+
+    /**
+     * Get the AARRR category classification for a given event name.
+     *
+     * Uses the EventPriorityCalculator's classification to determine
+     * which stage of the AARRR framework an event belongs to.
+     *
+     * @return 'acquisition'|'activation'|'retention'|'revenue'|'referral'|'operational'
+     */
+    public static function eventCategory(string $eventName): string
+    {
+        $calculator = new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+
+        return $calculator->classify($eventName);
+    }
+
+    /**
+     * Get the priority level of a given event name.
+     *
+     * @return 'critical'|'high'|'medium'|'low'
+     */
+    public static function eventPriority(string $eventName): string
+    {
+        $calculator = new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+
+        return $calculator->getEventPriority($eventName);
+    }
 }

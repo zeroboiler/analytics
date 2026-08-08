@@ -1499,4 +1499,45 @@ final class AnalyticsManager
             ];
         }
     }
+
+    /**
+     * Get the event priority calculator for AARRR classification.
+     *
+     * Provides SaaS analytics maturity scoring, funnel readiness,
+     * and onboarding checklist generation.
+     */
+    public function priorityCalculator(): \ZeroBoiler\Analytics\Services\EventPriorityCalculator
+    {
+        return new \ZeroBoiler\Analytics\Services\EventPriorityCalculator;
+    }
+
+    /**
+     * Calculate SaaS analytics maturity score.
+     *
+     * @return array{score: int, grade: string, details: array<string, mixed>}
+     */
+    public function maturityScore(): array
+    {
+        return $this->priorityCalculator()->maturityScore();
+    }
+
+    /**
+     * Get SaaS analytics onboarding checklist.
+     *
+     * @return array{checklist: array<string, array<string, array{event: string, tracked: bool, priority: string}>>, summary: array{total: int, tracked: int, completion: float, gaps: list<string>}}
+     */
+    public function onboardingChecklist(): array
+    {
+        return $this->priorityCalculator()->onboardingChecklist();
+    }
+
+    /**
+     * Get funnel conversion readiness scores.
+     *
+     * @return array{signup_funnel: array, purchase_funnel: array, subscription_funnel: array, overall: float}
+     */
+    public function funnelReadiness(): array
+    {
+        return $this->priorityCalculator()->funnelReadiness();
+    }
 }

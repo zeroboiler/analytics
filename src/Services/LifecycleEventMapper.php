@@ -344,6 +344,20 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractSimpleUserIdParams',
             'priority' => 70,
         ],
+
+        // ── Expansion & Growth Lifecycle (v2.77) ─────────────────────
+        'team.invite_accepted' => [
+            'source' => 'team.invite_accepted',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\TeamMemberJoinedEvent::class,
+            'params_extractor' => 'extractTeamParams',
+            'priority' => 75,
+        ],
+        'subscription.trial_end_reminder' => [
+            'source' => 'subscription.trial_end_reminder',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent::class,
+            'params_extractor' => 'extractTrialParams',
+            'priority' => 80,
+        ],
     ];
 
     /** @var array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}> */
