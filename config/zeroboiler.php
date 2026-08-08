@@ -1538,5 +1538,153 @@ return [
             'batch_size' => (int) env('ANALYTICS_RECOVERY_BATCH_SIZE', 10),
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Sandbox (Non-Production Event Capture)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, captures events in local storage without sending to any
+        | external provider. Events are stored in the configured cache store
+        | and can be inspected, replayed, or exported for development/testing.
+        |
+        | Automatically activates when APP_ENV is 'local' or 'testing' unless
+        | explicitly disabled. In 'staging' it logs but does not capture by default.
+        |
+        | Supports event inspection via API and artisan commands. Events can be
+        | replayed against live providers when debugging integration issues.
+        |
+        */
+        'sandbox' => [
+            'enabled' => env('ANALYTICS_SANDBOX_ENABLED', null), // null = auto-detect from APP_ENV
+            'auto_local' => env('ANALYTICS_SANDBOX_AUTO_LOCAL', true),
+            'auto_testing' => env('ANALYTICS_SANDBOX_AUTO_TESTING', true),
+            'staging_log_only' => env('ANALYTICS_SANDBOX_STAGING_LOG', true),
+            'max_events' => (int) env('ANALYTICS_SANDBOX_MAX_EVENTS', 5000),
+            'cache_ttl' => (int) env('ANALYTICS_SANDBOX_CACHE_TTL', 86400), // 24 hours
+            'cache_prefix' => env('ANALYTICS_SANDBOX_CACHE_PREFIX', 'zb_sandbox_'),
+            'include_context' => env('ANALYTICS_SANDBOX_CONTEXT', true),
+            'allow_replay' => env('ANALYTICS_SANDBOX_REPLAY', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Per-Provider Rate Limits
+        |--------------------------------------------------------------------------
+        |
+        | Independent rate limits per analytics provider. When a provider exceeds
+        | its per-minute rate limit, events for that provider are buffered in the
+        | event stream until the window resets. Other providers continue normally.
+        |
+        | Set to 0 or null to disable rate limiting for a specific provider.
+        | Global rate limiter (api.throttle) applies to incoming API requests
+        | and is separate from per-provider dispatch limits.
+        |
+        | Recommended limits based on provider quotas:
+        | - GA4 MP: 30 requests/sec (1800/min)
+        | - Meta CAPI: 2000 events/min
+        | - Plausible: 1000 events/min
+        | - PostHog: 1000 events/min
+        |
+        */
+        'provider_rate_limits' => [
+            'enabled' => env('ANALYTICS_PROVIDER_RATE_LIMITS_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_PROVIDER_RATE_LIMITS_TTL', 60), // 1 minute window
+            'cache_prefix' => env('ANALYTICS_PROVIDER_RATE_LIMITS_PREFIX', 'zb_prl_'),
+            'providers' => [
+                'ga4' => [
+                    'limit' => (int) env('ANALYTICS_PRL_GA4', 1800),
+                    'enabled' => env('ANALYTICS_PRL_GA4_ENABLED', true),
+                ],
+                'meta' => [
+                    'limit' => (int) env('ANALYTICS_PRL_META', 2000),
+                    'enabled' => env('ANALYTICS_PRL_META_ENABLED', true),
+                ],
+                'gtm' => [
+                    'limit' => 0, // No limit for GTM (client-side only)
+                    'enabled' => false,
+                ],
+                'plausible' => [
+                    'limit' => (int) env('ANALYTICS_PRL_PLAUSIBLE', 1000),
+                    'enabled' => env('ANALYTICS_PRL_PLAUSIBLE_ENABLED', true),
+                ],
+                'posthog' => [
+                    'limit' => (int) env('ANALYTICS_PRL_POSTHOG', 1000),
+                    'enabled' => env('ANALYTICS_PRL_POSTHOG_ENABLED', true),
+                ],
+                'webhook' => [
+                    'limit' => (int) env('ANALYTICS_PRL_WEBHOOK', 500),
+                    'enabled' => env('ANALYTICS_PRL_WEBHOOK_ENABLED', true),
+                ],
+            ],
+            'overflow_strategy' => env('ANALYTICS_PRL_OVERFLOW', 'drop'), // drop, buffer, downsample
+            'log_violations' => env('ANALYTICS_PRL_LOG', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Schema Versioning
+        |--------------------------------------------------------------------------
+        |
+        | Tracks schema version metadata on events for backward compatibility.
+        | When enabled, each dispatched event includes a `_schema_version` param
+        | indicating the event schema format version used at dispatch time.
+        |
+        | Consumers (data warehouses, downstream processors) can use this to
+        | handle format changes gracefully without breaking existing pipelines.
+        |
+        | Schema versions are per-event-name. When a schema changes, increment
+        | the version in the schema registry. The package auto-injects the current
+        | version into dispatched event params.
+        |
+        */
+        'schema_versioning' => [
+            'enabled' => env('ANALYTICS_SCHEMA_VERSIONING_ENABLED', true),
+            'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
+            'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
+            'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
+            'catalog_version' => '2.71.0',
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Starter Readiness (Production Checklist)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, provides a programmatic readiness check for production
+        | deployments. Validates critical configuration, provider setup, consent
+        | defaults, queue connectivity, and recommended settings.
+        |
+        | Use via artisan: `zb:analytics:readiness`
+        | Or via API: `GET /api/analytics/readiness`
+        |
+        | Checklist items are scored (pass/warn/fail) with an overall readiness
+        | percentage (0-100%). A minimum of 80% is recommended for production.
+        |
+        */
+        'readiness' => [
+            'enabled' => env('ANALYTICS_READINESS_ENABLED', true),
+            'minimum_score' => (int) env('ANALYTICS_READINESS_MIN_SCORE', 80),
+            'cache_ttl' => (int) env('ANALYTICS_READINESS_CACHE_TTL', 300), // 5 minutes
+            'required_checks' => [
+                'providers_configured',      // At least one provider is enabled and configured
+                'consent_default_set',       // Consent default is explicitly configured
+                'queue_configured',          // Queue driver is available
+                'identity_cookie_set',       // Identity cookie is configured
+                'event_validation_active',   // Event validation is enabled
+                'debug_disabled',            // Debug mode is OFF in production
+                'replay_enabled',            // Event replay is enabled for reliability
+                'dedup_active',              // Event deduplication is active
+            ],
+            'recommended_checks' => [
+                'pii_sanitization',          // PII sanitization recommended
+                'consent_logging',           // Consent audit log recommended for GDPR
+                'gdpr_ip_anonymization',     // IP anonymization recommended
+                'attribution_tracking',      // UTM attribution recommended
+                'health_score_enabled',      // SaaS health score tracking
+                'error_tracking_client',      // JS error tracking enabled
+                'performance_budget',        // Performance budget configured
+            ],
+        ],
+
     ],
 ];

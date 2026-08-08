@@ -208,4 +208,20 @@ Route::prefix('analytics')->group(function () {
     // Circuit Breaker Control (v2.70.0)
     Route::post('circuit-breaker/{provider}/reset', [AnalyticsEventController::class, 'circuitBreakerReset']);
     Route::post('circuit-breaker/{provider}/trip', [AnalyticsEventController::class, 'circuitBreakerTrip']);
+
+    // Analytics Sandbox (v2.71.0)
+    Route::get('sandbox', [AnalyticsEventController::class, 'sandboxStatus']);
+    Route::get('sandbox/events', [AnalyticsEventController::class, 'sandboxEvents']);
+    Route::get('sandbox/replay-log', [AnalyticsEventController::class, 'sandboxReplayLog']);
+    Route::delete('sandbox/events', [AnalyticsEventController::class, 'sandboxClear']);
+
+    // Per-Provider Rate Limits (v2.71.0)
+    Route::get('provider-rate-limits', [AnalyticsEventController::class, 'providerRateLimits']);
+    Route::post('provider-rate-limits/reset', [AnalyticsEventController::class, 'providerRateLimitsReset']);
+
+    // Schema Versioning (v2.71.0)
+    Route::get('schema-versions', [AnalyticsEventController::class, 'schemaVersions']);
+
+    // SaaS Starter Readiness (v2.71.0)
+    Route::get('readiness', [AnalyticsEventController::class, 'readiness']);
 });

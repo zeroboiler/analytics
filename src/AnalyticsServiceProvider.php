@@ -106,9 +106,13 @@ use ZeroBoiler\Analytics\Services\SaaSConversionService;
 use ZeroBoiler\Analytics\Services\ProviderCircuitBreaker;
 use ZeroBoiler\Analytics\Services\EventComplianceService;
 use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
+use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
+use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
+use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
+use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 
 /**
- * @version 2.70.0
+ * @version 2.71.0
  */
 
 /**
@@ -1049,6 +1053,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsRecoveryService($manager, $config, $dlq);
         });
+
+        // Analytics Sandbox for non-production environments (v2.71.0)
+        $this->app->singleton(AnalyticsSandboxService::class, function (Application $app): AnalyticsSandboxService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsSandboxService($app->make('cache'), $config);
+        });
+
+        // Per-Provider Rate Limiting (v2.71.0)
+        $this->app->singleton(ProviderRateLimitService::class, function (Application $app): ProviderRateLimitService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderRateLimitService($app->make('cache'), $config);
+        });
+
+        // Event Schema Versioning (v2.71.0)
+        $this->app->singleton(EventSchemaVersioningService::class, function (Application $app): EventSchemaVersioningService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventSchemaVersioningService($config, $app->make(EventSchemaRegistry::class));
+        });
+
+        // SaaS Starter Readiness Validator (v2.71.0)
+        $this->app->singleton(AnalyticsReadinessService::class, function (Application $app): AnalyticsReadinessService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsReadinessService($app->make('cache'), $config);
+        });
     }
 
     /**
@@ -1288,6 +1324,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/recovery/budget', [$controller, 'recoveryBudget']);
                 Route::get('analytics/recovery/health', [$controller, 'recoveryHealth']);
                 Route::get('analytics/recovery/history', [$controller, 'recoveryHistory']);
+
+                // Analytics Sandbox (v2.71.0)
+                Route::get('analytics/sandbox', [$controller, 'sandboxStatus']);
+                Route::get('analytics/sandbox/events', [$controller, 'sandboxEvents']);
+                Route::get('analytics/sandbox/replay-log', [$controller, 'sandboxReplayLog']);
+
+                // Per-Provider Rate Limits (v2.71.0)
+                Route::get('analytics/provider-rate-limits', [$controller, 'providerRateLimits']);
+
+                // Schema Versioning (v2.71.0)
+                Route::get('analytics/schema-versions', [$controller, 'schemaVersions']);
+
+                // SaaS Starter Readiness (v2.71.0)
+                Route::get('analytics/readiness', [$controller, 'readiness']);
             });
 
         // Authenticated endpoints
@@ -1340,6 +1390,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
                 // Recovery batch (v2.70.0)
                 Route::post('analytics/recovery/batch', [$controller, 'recoveryBatch']);
+
+                // Sandbox clear (v2.71.0)
+                Route::delete('analytics/sandbox/events', [$controller, 'sandboxClear']);
+
+                // Provider Rate Limits reset (v2.71.0)
+                Route::post('analytics/provider-rate-limits/reset', [$controller, 'providerRateLimitsReset']);
             });
     }
 }

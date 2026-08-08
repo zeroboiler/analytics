@@ -1846,4 +1846,130 @@ final class AnalyticsConfig
 
         return is_array($overrides) ? $overrides : [];
     }
+
+    // ── Sandbox ──────────────────────────────────────────────────────
+
+    /**
+     * Check if analytics sandbox is explicitly enabled.
+     */
+    public function sandboxEnabled(): ?bool
+    {
+        $enabled = $this->get('sandbox.enabled');
+
+        return $enabled !== null ? (bool) $enabled : null;
+    }
+
+    /**
+     * Check if sandbox auto-detection is enabled for local environment.
+     */
+    public function sandboxAutoLocal(): bool
+    {
+        return (bool) $this->get('sandbox.auto_local', true);
+    }
+
+    /**
+     * Check if sandbox auto-detection is enabled for testing environment.
+     */
+    public function sandboxAutoTesting(): bool
+    {
+        return (bool) $this->get('sandbox.auto_testing', true);
+    }
+
+    /**
+     * Check if sandbox staging log-only mode is enabled.
+     */
+    public function sandboxStagingLogOnly(): bool
+    {
+        return (bool) $this->get('sandbox.staging_log_only', true);
+    }
+
+    /**
+     * Get sandbox max events capacity.
+     */
+    public function sandboxMaxEvents(): int
+    {
+        return (int) $this->get('sandbox.max_events', 5000);
+    }
+
+    /**
+     * Get sandbox cache TTL in seconds.
+     */
+    public function sandboxCacheTtl(): int
+    {
+        return (int) $this->get('sandbox.cache_ttl', 86400);
+    }
+
+    // ── Provider Rate Limits ────────────────────────────────────────
+
+    /**
+     * Check if per-provider rate limiting is enabled.
+     */
+    public function providerRateLimitsEnabled(): bool
+    {
+        return (bool) $this->get('provider_rate_limits.enabled', false);
+    }
+
+    /**
+     * Get per-provider rate limit overflow strategy.
+     *
+     * @return 'drop'|'buffer'|'downsample'
+     */
+    public function providerRateLimitsOverflow(): string
+    {
+        return (string) $this->get('provider_rate_limits.overflow_strategy', 'drop');
+    }
+
+    /**
+     * Get rate limit for a specific provider.
+     *
+     * @param  string  $provider  Provider name (ga4, meta, plausible, posthog, webhook)
+     */
+    public function providerRateLimit(string $provider): int
+    {
+        return (int) $this->get("provider_rate_limits.providers.{$provider}.limit", 0);
+    }
+
+    // ── Schema Versioning ────────────────────────────────────────────
+
+    /**
+     * Check if event schema versioning is enabled.
+     */
+    public function schemaVersioningEnabled(): bool
+    {
+        return (bool) $this->get('schema_versioning.enabled', true);
+    }
+
+    /**
+     * Get the schema version parameter name.
+     */
+    public function schemaVersioningParamName(): string
+    {
+        return (string) $this->get('schema_versioning.param_name', '_schema_version');
+    }
+
+    /**
+     * Get the default schema version.
+     */
+    public function schemaVersioningDefault(): string
+    {
+        return (string) $this->get('schema_versioning.default_version', '1.0');
+    }
+
+    // ── Readiness ───────────────────────────────────────────────────
+
+    /**
+     * Check if readiness validation is enabled.
+     */
+    public function readinessEnabled(): bool
+    {
+        return (bool) $this->get('readiness.enabled', true);
+    }
+
+    /**
+     * Get the minimum readiness score for production.
+     */
+    public function readinessMinimumScore(): int
+    {
+        return (int) $this->get('readiness.minimum_score', 80);
+    }
 }
