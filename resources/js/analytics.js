@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.68.0
+ * @version 2.69.0
  */
 
 let trackingId = null;
@@ -145,7 +145,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.68.0';
+    return '2.69.0';
 }
 
 /**
@@ -3080,7 +3080,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '2.68.0';
+    return '2.69.0';
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────
@@ -3635,6 +3635,234 @@ export async function fetchDashboardOverview() {
                 Accept: 'application/json',
             },
         });
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Click Heatmap Tracking (v2.69.0) ─────────────────────────────────
+
+/**
+ * Record a click for heatmap aggregation.
+ *
+ * Sends click coordinates to the server for grid-based heatmap data collection.
+ * Coordinates are bucketed into grid cells on the server (default 50px) for
+ * GDPR data minimization — exact pixel positions are never stored.
+ *
+ * @param {number} x - Click X coordinate (clientX)
+ * @param {number} y - Click Y coordinate (clientY)
+ * @param {object} [options] - Additional options
+ * @param {string} [options.element] - Target element tag or selector
+ * @param {number} [options.viewportWidth] - Viewport width in pixels
+ * @returns {Promise<void>}
+ *
+ * @example
+ * document.addEventListener('click', (e) => {
+ *     recordHeatmapClick(e.clientX, e.clientY, {
+ *         element: e.target.tagName.toLowerCase(),
+ *         viewportWidth: window.innerWidth,
+ *     });
+ * });
+ */
+export async function recordHeatmapClick(x, y, options = {}) {
+    if (!initialized) return;
+
+    try {
+        await fetch(`${apiBaseUrl}/heatmap/click`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Analytics-Client-Id': trackingId,
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                x: Math.round(x),
+                y: Math.round(y),
+                url: window.location.pathname + window.location.search,
+                element: options.element || null,
+                viewport_width: options.viewportWidth || window.innerWidth,
+            }),
+        });
+    } catch {
+        // Silent fail — heatmap is non-critical
+    }
+}
+
+/**
+ * Initialize automatic click heatmap tracking.
+ *
+ * Records all clicks on the page for heatmap visualization.
+ * Coordinates are sent to the server and bucketed into grid cells.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {boolean} [options.trackAll=true] - Track all clicks (not just interactive elements)
+ * @param {string[]} [options.ignoreSelectors] - CSS selectors to ignore
+ * @returns {function} Cleanup function to remove listeners
+ *
+ * @example
+ * const cleanup = initHeatmapTracking({
+ *     ignoreSelectors: ['.no-heatmap', '#toolbar'],
+ * });
+ */
+export function initHeatmapTracking(options = {}) {
+    if (!initialized) return () => {};
+
+    const { trackAll = true, ignoreSelectors = [] } = options;
+
+    function onClick(e) {
+        // Check if click target matches any ignore selector
+        if (ignoreSelectors.length > 0) {
+            for (const selector of ignoreSelectors) {
+                if (e.target.closest(selector)) return;
+            }
+        }
+
+        const tag = e.target.tagName?.toLowerCase() || 'unknown';
+        const isInteractive = ['a', 'button', 'input', 'select', 'textarea', 'label'].includes(tag);
+
+        if (!trackAll && !isInteractive) return;
+
+        recordHeatmapClick(e.clientX, e.clientY, {
+            element: tag,
+            viewportWidth: window.innerWidth,
+        });
+    }
+
+    document.addEventListener('click', onClick, true);
+
+    return () => document.removeEventListener('click', onClick, true);
+}
+
+/**
+ * Fetch heatmap data for a specific URL.
+ *
+ * @param {string} url - Page URL path (defaults to current page)
+ * @returns {Promise<object|null>} Heatmap data with heat zones and hotspots
+ *
+ * @example
+ * const heatmap = await fetchHeatmapData('/pricing');
+ * if (heatmap) {
+ *     console.log('Total clicks:', heatmap.total);
+ *     console.log('Hotspots:', heatmap.hotspots);
+ * }
+ */
+export async function fetchHeatmapData(url) {
+    if (!initialized) return null;
+
+    try {
+        const pageUrl = url || window.location.pathname + window.location.search;
+        const response = await fetch(`${apiBaseUrl}/heatmap/data?${new URLSearchParams({ url: pageUrl })}`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Event Deconfliction Helper (v2.69.0) ─────────────────────────────
+
+/**
+ * Fetch event deconfliction analysis from the server.
+ *
+ * Detects event name collisions across providers, similar event names,
+ * and reverse mapping conflicts. Useful for debugging multi-provider setups.
+ *
+ * @returns {Promise<object|null>} Deconfliction report with conflicts, warnings, and summary
+ *
+ * @example
+ * const report = await fetchDeconflictionReport();
+ * if (report?.summary.total_conflicts > 0) {
+ *     console.warn('Event name conflicts detected:', report.conflicts);
+ * }
+ */
+export async function fetchDeconflictionReport() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/deconfliction`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Schema Inference Helper (v2.69.0) ──────────────────────────────
+
+/**
+ * Fetch inferred event schemas from the server.
+ *
+ * The server scans all event class constructors and generates typed
+ * parameter schemas. Useful for documentation generation and bootstrapping
+ * schema validation.
+ *
+ * @param {object} [options] - Options
+ * @param {boolean} [options.forceRefresh=false] - Force re-inference
+ * @returns {Promise<object|null>} Inferred schemas with counts and errors
+ *
+ * @example
+ * const inference = await fetchInferredSchemas();
+ * if (inference) {
+ *     console.log(`Inferred ${inference.inferred_count} event schemas`);
+ * }
+ */
+export async function fetchInferredSchemas(options = {}) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        if (options.forceRefresh) params.set('refresh', '1');
+
+        const response = await fetch(`${apiBaseUrl}/schemas/infer?${params}`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── Rate Limit Status (v2.69.0) ────────────────────────────────────
+
+/**
+ * Fetch the analytics rate limit dashboard overview.
+ *
+ * @returns {Promise<object|null>} Rate limit dashboard with enabled status, limits, and counts
+ *
+ * @example
+ * const dashboard = await fetchRateLimitDashboard();
+ * console.log('Rate limited events:', dashboard.rate_limited_total);
+ */
+export async function fetchRateLimitDashboard() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/rate-limits`, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) return null;
 
         return await response.json();
     } catch {

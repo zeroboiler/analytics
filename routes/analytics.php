@@ -172,4 +172,21 @@ Route::prefix('analytics')->group(function () {
 
     // Dashboard Overview (v2.67.0)
     Route::get('dashboard', [AnalyticsEventController::class, 'dashboardOverview']);
+
+    // Event Deconfliction (v2.69.0)
+    Route::get('deconfliction', [AnalyticsEventController::class, 'deconfliction']);
+
+    // Event Schema Inference (v2.69.0)
+    Route::get('schemas/infer', [AnalyticsEventController::class, 'schemaInfer']);
+
+    // Click Heatmap (v2.69.0)
+    Route::post('heatmap/click', [AnalyticsEventController::class, 'heatmapClick']);
+    Route::get('heatmap/data', [AnalyticsEventController::class, 'heatmapData']);
+    Route::get('heatmap/urls', [AnalyticsEventController::class, 'heatmapUrls']);
+    Route::delete('heatmap/data', [AnalyticsEventController::class, 'heatmapClear']);
+
+    // Rate Limit Dashboard (v2.69.0)
+    Route::get('rate-limits', [AnalyticsEventController::class, 'rateLimitDashboard']);
+    Route::get('rate-limits/{clientId}', [AnalyticsEventController::class, 'rateLimitClientStatus']);
+    Route::delete('rate-limits/{clientId}', [AnalyticsEventController::class, 'rateLimitResetClient']);
 });

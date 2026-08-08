@@ -1224,6 +1224,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/schemas/summary', [$controller, 'schemaSummary']);
                 Route::post('analytics/schemas/validate', [$controller, 'schemaValidate']);
                 Route::get('analytics/schemas/{eventName}', [$controller, 'schemaDetail']);
+
+                // Event Deconfliction (v2.69.0)
+                Route::get('analytics/deconfliction', [$controller, 'deconfliction']);
+
+                // Event Schema Inference (v2.69.0)
+                Route::get('analytics/schemas/infer', [$controller, 'schemaInfer']);
+
+                // Click Heatmap data endpoints (v2.69.0)
+                Route::post('analytics/heatmap/click', [$controller, 'heatmapClick']);
+                Route::get('analytics/heatmap/data', [$controller, 'heatmapData']);
+                Route::get('analytics/heatmap/urls', [$controller, 'heatmapUrls']);
+
+                // Rate Limit Dashboard (v2.69.0)
+                Route::get('analytics/rate-limits', [$controller, 'rateLimitDashboard']);
+                Route::get('analytics/rate-limits/{clientId}', [$controller, 'rateLimitClientStatus']);
             });
 
         // Authenticated endpoints
@@ -1265,6 +1280,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // Data Minimization / Privacy (v2.62.0)
                 Route::get('analytics/privacy/minimization', [$controller, 'dataMinimizationStatus']);
                 Route::post('analytics/privacy/minimization/preview', [$controller, 'dataMinimizationPreview']);
+
+                // Heatmap clear + Rate Limit reset (v2.69.0)
+                Route::delete('analytics/heatmap/data', [$controller, 'heatmapClear']);
+                Route::delete('analytics/rate-limits/{clientId}', [$controller, 'rateLimitResetClient']);
             });
     }
 }

@@ -4,6 +4,24 @@ All notable changes to the `zeroboiler/analytics` package will be documented in 
 
 ## [Unreleased]
 
+## [2.69.0] - 2026-08-08
+
+### Added
+- **EventDeconflictionService** — Multi-provider event name collision detection & resolution. Analyzes all providers for duplicate event names, similar-name warnings, and reverse mapping conflicts. Methods: `analyze()`, `summary()`.
+- **EventSchemaInferenceService** — Automatic schema inference from event class constructor signatures. Scans all event classes and generates typed parameter schemas. Methods: `inferAll()`, `inferForClass()`, `summary()`.
+- **HeatmapAggregationService** — Click heatmap data collection and aggregation with grid-based bucketing for GDPR data minimization. Methods: `recordClick()`, `getHeatmapData()`, `getTrackedUrls()`, `getSummary()`, `clearUrl()`, `isEnabled()`.
+- **AnalyticsRateLimitDashboardService** — Per-client, per-event-type rate limiting dashboard with cache-backed counters. Methods: `getDashboard()`, `getClientStatus()`, `resetClient()`, `checkLimit()`, `summary()`.
+- **FeatureFlagIntegrationService** — Feature flag ↔ analytics bridge for event gating, annotation, and A/B test correlation. Supports external resolvers (LaunchDarkly, Unleash, Pennant) or config-driven static flags. Methods: `evaluate()`, `shouldDispatchEvent()`, `annotateEvent()`, `trackExposure()`, `trackUsage()`, `getCorrelationPayload()`, `isInRollout()`.
+- **JS: Click heatmap tracking** — `recordHeatmapClick()`, `initHeatmapTracking()`, `fetchHeatmapData()` client-side functions for automatic click data collection with ignore selectors support.
+- **JS: Event deconfliction helper** — `fetchDeconflictionReport()` to retrieve collision analysis from the server.
+- **JS: Schema inference helper** — `fetchInferredSchemas()` to retrieve auto-generated event schemas.
+- **JS: Rate limit dashboard** — `fetchRateLimitDashboard()` to view rate limit overview.
+- **API endpoints** — `GET /api/analytics/deconfliction`, `GET /api/analytics/schemas/infer`, `POST /api/analytics/heatmap/click`, `GET /api/analytics/heatmap/data`, `GET /api/analytics/heatmap/urls`, `DELETE /api/analytics/heatmap/data`, `GET /api/analytics/rate-limits`, `GET /api/analytics/rate-limits/{clientId}`, `DELETE /api/analytics/rate-limits/{clientId}`.
+- **V69HeatmapDeconflictionFeatureFlagTest** — 17 test cases covering HeatmapAggregationService, EventDeconflictionService, EventSchemaInferenceService, AnalyticsRateLimitDashboardService, and FeatureFlagIntegrationService.
+
+### Changed
+- Version bump to 2.69.0 across all source files, controller endpoints, services, JS client, and composer.json (85+ version references).
+
 ## [2.68.0] - 2026-08-08
 
 ### Added
