@@ -1397,7 +1397,7 @@ export function fetchBenchmarkQuickStart(): Promise<{
     };
 } | null>;
 
-// ─── Server-Sent Events (v2.95.0) ──────────────────────────────────
+// ─── Server-Sent Events ──────────────────────────────────
 
 /** SSE server capability info */
 export interface SSEInfo {
@@ -1513,7 +1513,7 @@ export function fetchSSEHealth(): Promise<SSEHealth | null>;
  */
 export function connectSSE(options?: SSEConnectOptions): SSEConnection;
 
-// ─── Feature Adoption (v2.95.0) ──────────────────────────────────────
+// ─── Feature Adoption ──────────────────────────────────────
 
 /** Feature adoption profile for a user */
 export interface FeatureAdoptionProfile {
