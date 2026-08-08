@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [2.94.0] - 2026-08-08
+
+### Added
+- **SchemaDrivenEventBuilder** — Schema-driven event builder service that validates parameters against EventPropertySchema and EventSchemaRegistry for type coercion, required field enforcement, and validation
+- **SchemaDiffReporter** — Schema coverage and diff reporter comparing EventCatalog, EventPropertySchema, and EventSchemaRegistry for gaps, mismatches, and coverage statistics
+- **EventPropertySchema::registerBuiltInSchemas()** — Full catalog schema coverage with typed property schemas for all e-commerce, SaaS, engagement, and lifecycle events
+- **AnalyticsSchemaExportCommand** — Artisan command (`zb:analytics:schema:export`) to export event schemas as JSON, TypeScript, or summary with optional coverage report
+- **V94SchemaDrivenBuilderDiffTest** — Comprehensive test cases for SchemaDrivenEventBuilder, SchemaDiffReporter, EventPropertySchema, and AnalyticsSchemaExportCommand
+
+### Changed
+- Version bump to 2.94.0 across all source files (composer.json, AnalyticsEvent::VERSION, AnalyticsManager::version())
+- Phase 2-3-4 production readiness tests updated: new services added to finality checks, console commands count updated from 7 to 9
+- Phase 5 production readiness tests expanded with v2.94 schema service audit block
+
 ## [2.93.0] - 2026-08-08
 
 ### Added

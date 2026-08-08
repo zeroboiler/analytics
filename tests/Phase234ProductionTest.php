@@ -103,6 +103,8 @@ use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\HeatmapAggregationService;
 use ZeroBoiler\Analytics\Services\EventDeconflictionService;
 use ZeroBoiler\Analytics\Services\RevenueAttributionService;
+use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
+use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
 use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
 use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
@@ -447,6 +449,8 @@ test('Phase 3: enterprise services are final', function (): void {
         EventTaxonomyService::class,
         EventEnvelopeService::class,
         DataWarehouseExportService::class,
+        SchemaDrivenEventBuilder::class,
+        SchemaDiffReporter::class,
     ];
 
     foreach ($services as $service) {
@@ -527,7 +531,7 @@ test('Phase 4: Facade @method annotations cover key methods', function (): void 
     }
 });
 
-test('Phase 4: ServiceProvider registers 7 console commands', function (): void {
+test('Phase 4: ServiceProvider registers 9 console commands', function (): void {
     $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
     expect($content)->toContain('AnalyticsTestCommand');
@@ -537,6 +541,8 @@ test('Phase 4: ServiceProvider registers 7 console commands', function (): void 
     expect($content)->toContain('AnalyticsHealthCommand');
     expect($content)->toContain('AnalyticsDashboardCommand');
     expect($content)->toContain('AnalyticsScheduledReportCommand');
+    expect($content)->toContain('AnalyticsReadinessCommand');
+    expect($content)->toContain('AnalyticsSchemaExportCommand');
 });
 
 test('Phase 4: ServiceProvider has correct singleton count', function (): void {

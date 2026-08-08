@@ -236,7 +236,7 @@ class V93FunnelProgressLifecycleTest extends TestCase
 
     public function test_analytics_manager_version_is_293(): void
     {
-        $this->assertSame('2.93.0', $this->manager->version());
+        $this->assertSame('2.94.0', $this->manager->version());
     }
 
     public function test_analytics_manager_track_funnel_progress(): void

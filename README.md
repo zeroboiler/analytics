@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.93.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-2.94.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.94.0](#whats-new-in-v2940)
 - [What's New in v2.93.0](#whats-new-in-v2930)
 - [What's New in v2.92.0](#whats-new-in-v2920)
 - [What's New in v2.91.0](#whats-new-in-v2910)
@@ -59,6 +60,14 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v2.94.0
+
+- **SchemaDrivenEventBuilder** — Schema-driven event builder that validates parameters against EventPropertySchema and EventSchemaRegistry for type coercion, default values, and required field enforcement
+- **SchemaDiffReporter** — Schema coverage and diff reporter comparing EventCatalog, EventPropertySchema, and EventSchemaRegistry for gap analysis
+- **EventPropertySchema::registerBuiltInSchemas()** — Full catalog schema coverage with typed property schemas for all e-commerce, SaaS, engagement, and lifecycle events
+- **AnalyticsSchemaExportCommand** — `zb:analytics:schema:export` Artisan command to export event schemas as JSON, TypeScript, or summary with optional coverage report
+- **Phase 2-3-4 production readiness audit** — Tests updated for new services and commands (9 console commands, SchemaDrivenEventBuilder, SchemaDiffReporter finality)
 
 ## What's New in v2.93.0
 

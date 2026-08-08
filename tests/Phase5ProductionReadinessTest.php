@@ -35,7 +35,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 // ─── Phase 5: Deep Production Readiness ────────────────────────────────
 
 describe('Phase 5: Version Consistency', function () {
-    test('all versions are 2.90.0', function (): void {
+    test('all versions are 2.94.0', function (): void {
         $composer = json_decode(
             file_get_contents(__DIR__ . '/../composer.json'),
             true,
@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('2.93.0');
-        expect(AnalyticsEvent::VERSION)->toBe('2.93.0');
-        expect((new AnalyticsManager)->version())->toBe('2.93.0');
+        expect($composer['version'])->toBe('2.94.0');
+        expect(AnalyticsEvent::VERSION)->toBe('2.94.0');
+        expect((new AnalyticsManager)->version())->toBe('2.94.0');
     });
 });
 
@@ -436,7 +436,7 @@ describe('Phase 5: ServiceProvider Binding Completeness', function () {
         expect($singletonCount)->toBeGreaterThan(80);
     });
 
-    test('7 console commands registered', function (): void {
+    test('9 console commands registered', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
         expect($content)->toContain('AnalyticsTestCommand');
@@ -446,6 +446,8 @@ describe('Phase 5: ServiceProvider Binding Completeness', function () {
         expect($content)->toContain('AnalyticsHealthCommand');
         expect($content)->toContain('AnalyticsDashboardCommand');
         expect($content)->toContain('AnalyticsScheduledReportCommand');
+        expect($content)->toContain('AnalyticsReadinessCommand');
+        expect($content)->toContain('AnalyticsSchemaExportCommand');
     });
 
     test('routes are registered in boot', function (): void {
@@ -454,5 +456,65 @@ describe('Phase 5: ServiceProvider Binding Completeness', function () {
         expect($content)->toContain('registerRoutes');
         expect($content)->toContain('Route::prefix');
         expect($content)->toContain('auth:sanctum');
+    });
+});
+
+describe('Phase 5: v2.94 Schema Services', function () {
+    test('SchemaDrivenEventBuilder is final with all methods having return types', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder::class);
+        expect($r->isFinal())->toBeTrue();
+
+        $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method) {
+            if (str_starts_with($method->getName(), '__')) {
+                continue;
+            }
+            expect(
+                $method->hasReturnType(),
+                "SchemaDrivenEventBuilder::{$method->getName()}() missing return type",
+            )->toBeTrue();
+        }
+    });
+
+    test('SchemaDiffReporter is final with all methods having return types', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Services\SchemaDiffReporter::class);
+        expect($r->isFinal())->toBeTrue();
+
+        $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method) {
+            if (str_starts_with($method->getName(), '__')) {
+                continue;
+            }
+            expect(
+                $method->hasReturnType(),
+                "SchemaDiffReporter::{$method->getName()}() missing return type",
+            )->toBeTrue();
+        }
+    });
+
+    test('EventPropertySchema is final with all methods having return types', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Schema\EventPropertySchema::class);
+        expect($r->isFinal())->toBeTrue();
+
+        $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+        foreach ($methods as $method) {
+            if (str_starts_with($method->getName(), '__')) {
+                continue;
+            }
+            expect(
+                $method->hasReturnType(),
+                "EventPropertySchema::{$method->getName()}() missing return type",
+            )->toBeTrue();
+        }
+    });
+
+    test('AnalyticsSchemaExportCommand is final', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand::class);
+        expect($r->isFinal())->toBeTrue();
+    });
+
+    test('AnalyticsReadinessCommand is final', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand::class);
+        expect($r->isFinal())->toBeTrue();
     });
 });

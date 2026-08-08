@@ -280,7 +280,7 @@ class V90SaaSLifecycleEventsTest extends TestCase
 
     public function testVersionConsistency(): void
     {
-        $this->assertSame('2.93.0', AnalyticsEvent::VERSION);
+        $this->assertSame('2.94.0', AnalyticsEvent::VERSION);
     }
 
     // ── GDPR Events Helper ───────────────────────────────────────────

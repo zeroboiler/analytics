@@ -187,7 +187,7 @@ it('sendBeacon flush drains queue and creates Blob', function (): void {
 
 it('JS client getVersion() returns 2.35.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-    expect($js)->toContain("return '2.93.0'");
+    expect($js)->toContain("return '2.94.0'");
 });
 
 it('JS client JSDoc version is 2.35.0', function (): void {
@@ -200,7 +200,7 @@ it('Composer version is 2.35.0', function (): void {
         file_get_contents(__DIR__ . '/../../composer.json'),
         true,
     );
-    expect($composer['version'])->toBe('2.93.0');
+    expect($composer['version'])->toBe('2.94.0');
 });
 
 it('No stale 2.34.0 references remain in source files', function (): void {

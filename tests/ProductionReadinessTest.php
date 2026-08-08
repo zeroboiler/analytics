@@ -534,6 +534,8 @@ describe('Structural Checks', function () {
             \ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand::class,
             \ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand::class,
             \ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand::class,
+            \ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand::class,
+            \ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand::class,
         ];
 
         foreach ($commands as $command) {

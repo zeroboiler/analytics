@@ -21,12 +21,12 @@ test('FunnelProgressTracker has correct namespace, strict types, and final', fun
     expect($file)->toContain('This file is part of ZeroBoiler, licensed under the MIT license');
 });
 
-test('FunnelProgressTracker has version 2.93.0 in docblock', function (): void {
+test('FunnelProgressTracker has current version in docblock', function (): void {
     $reflection = new ReflectionClass(FunnelProgressTracker::class);
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('2.93.0');
+    expect($doc)->toContain('2.94.0');
 });
 
 test('FunnelProgressTracker constructor has typed parameters', function (): void {
@@ -459,29 +459,29 @@ test('config has funnel_progress section', function (): void {
 
 // ─── Version Consistency ─────────────────────────────────────────────────────
 
-test('config catalog_version is 2.93.0', function (): void {
+test('config catalog_version is current version', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
-    expect($config)->toContain("'catalog_version' => '2.93.0'");
+    expect($config)->toContain("'catalog_version' => '2.94.0'");
 });
 
-test('composer.json version is 2.93.0', function (): void {
+test('composer.json version is current version', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('2.93.0');
+    expect($composer['version'])->toBe('2.94.0');
 });
 
-test('JS client version is 2.93.0', function (): void {
+test('JS client version is current version', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain("return '2.93.0'");
+    expect($js)->toContain("return '2.94.0'");
 });
 
-test('AnalyticsManager::version() is 2.93.0', function (): void {
+test('AnalyticsManager::version() is current version', function (): void {
     $file = file_get_contents(__DIR__ . '/../src/AnalyticsManager.php');
-    expect($file)->toContain("return '2.93.0'");
+    expect($file)->toContain("return '2.94.0'");
 });
 
-test('AnalyticsEvent::VERSION is 2.93.0', function (): void {
+test('AnalyticsEvent::VERSION is current version', function (): void {
     $file = file_get_contents(__DIR__ . '/../src/DTO/AnalyticsEvent.php');
-    expect($file)->toContain("'2.93.0'");
+    expect($file)->toContain("'2.94.0'");
 });
 
 // ─── EventCatalog Reference ───────────────────────────────────────────────────
