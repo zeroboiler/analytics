@@ -115,7 +115,7 @@ use ZeroBoiler\Analytics\Services\FunnelVelocityService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 
 /**
- * @version 2.82.0
+ * @version 2.84.0
  */
 
 /**
@@ -123,6 +123,8 @@ use ZeroBoiler\Analytics\Services\EventImpactService;
  *
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
+ *
+ * @version 2.85.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {

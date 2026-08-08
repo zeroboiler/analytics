@@ -9,6 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v2.85.0](#whats-new-in-v2850)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Configuration](#configuration)
@@ -55,6 +56,17 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+## What's New in v2.85.0
+
+- **EventCatalog::b2bTeamEvents()** — B2B/team and organization-level events (team_created, team_member_joined, workspace_created, invite_sent, role_changed)
+- **EventCatalog::accountLifecycleEvents()** — Full account lifecycle events (activation, deactivation, security, profile)
+- **EventCatalog::allProviderMappingsMatrix()** — Complete cross-provider mapping matrix for all catalog events (GA4, Meta, PostHog, Plausible)
+- **EventCatalog::industryReadinessScore()** — Industry-standard readiness score (0-100) with tier breakdowns and gap analysis
+- **Identity cookie domain support** — `ANALYTICS_IDENTITY_COOKIE_DOMAIN` for cross-subdomain tracking (`.example.com`)
+- **Inertia middleware cookie domain passthrough** — Respects `identity.cookie_domain` config when setting the tracking ID cookie
+- **45 new tests** — V85IndustryStandardUpgradeTest with comprehensive catalog, funnel, and industry-standard assertions
+- **README accuracy update** — Event counts updated (15 e-commerce, 48 SaaS, 27 engagement, 90 total)
+
 ## Features
 
 ### Multi-Provider Tracking
@@ -66,7 +78,7 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **90 typed event classes** across 3 categories (E-commerce 13, SaaS 50, Engagement 27)
+- **90 typed event classes** across 3 categories (E-commerce 15, SaaS 48, Engagement 27)
 - **EventCatalog** — Unified registry for event lookup, cross-provider name mapping, category filtering, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle)
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **CustomEvent** — Arbitrary event name + params for one-off tracking

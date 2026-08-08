@@ -1149,4 +1149,124 @@ final class EventCatalog
             'next_level' => $nextMap[$safeLevel],
         ];
     }
+
+    /**
+     * Get B2B/team and organization-level events.
+     *
+     * Returns events related to multi-tenant and team collaboration:
+     * team creation, member management, role changes, workspace events,
+     * and invite tracking. Ideal for B2B SaaS products.
+     *
+     * @return list<EventEntry>
+     */
+    public static function b2bTeamEvents(): array
+    {
+        $b2bKeys = [
+            'team_created', 'team_member_joined', 'team_member_removed',
+            'role_changed', 'workspace_created', 'invite_sent',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $b2bKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get account lifecycle events (activation, deactivation, security, profile).
+     *
+     * Returns events tracking the full account lifecycle from activation
+     * through security events, profile changes, and deactivation.
+     * Useful for account health dashboards and security monitoring.
+     *
+     * @return list<EventEntry>
+     */
+    public static function accountLifecycleEvents(): array
+    {
+        $accountKeys = [
+            'account_activated', 'account_deactivated', 'email_verified',
+            'password_changed', 'password_reset', 'profile_updated',
+            'login', 'logout', 'sign_up',
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $accountKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Build a complete cross-provider mapping matrix for all catalog events.
+     *
+     * Returns every event's name mapped to its GA4, Meta, PostHog, and Plausible
+     * equivalents in a single lookup structure. Ideal for admin dashboards
+     * and provider configuration UIs.
+     *
+     * @return array<string, array{ga4: string, meta: string|null, posthog: string, plausible: string|null, category: string}>
+     */
+    public static function allProviderMappingsMatrix(): array
+    {
+        $matrix = [];
+
+        foreach (self::all() as $name => $entry) {
+            $matrix[$name] = [
+                'ga4' => $entry['ga4'] ?? $name,
+                'meta' => $entry['meta'] ?? null,
+                'posthog' => $entry['posthog'] ?? $name,
+                'plausible' => $entry['plausible'] ?? null,
+                'category' => $entry['category'] ?? 'unknown',
+            ];
+        }
+
+        return $matrix;
+    }
+
+    /**
+     * Get the industry-standard SaaS readiness score (0-100).
+     *
+     * Calculates how well-instrumented the current event catalog is
+     * compared to the industry-standard set. Returns a score from 0-100
+     * with category-level breakdowns.
+     *
+     * @return array{score: int, breakdown: array<string, int>, gaps: list<string>, total_standard: int, total_covered: int}
+     */
+    public static function industryReadinessScore(): array
+    {
+        $standard = self::industryStandard();
+        $allEvents = self::names();
+        $eventSet = array_flip($allEvents);
+
+        $breakdown = [
+            'critical' => 0,
+            'high' => 0,
+            'medium' => 0,
+            'low' => 0,
+        ];
+
+        $gaps = [];
+        $covered = 0;
+        $totalStandard = $standard['count'];
+
+        foreach (['critical', 'high', 'medium', 'low'] as $tier) {
+            foreach ($standard[$tier] as $entry) {
+                $name = $entry['name'];
+                if (isset($eventSet[$name])) {
+                    $breakdown[$tier]++;
+                    $covered++;
+                } else {
+                    $gaps[] = $name;
+                }
+            }
+        }
+
+        $score = $totalStandard > 0 ? (int) round(($covered / $totalStandard) * 100) : 0;
+
+        return [
+            'score' => $score,
+            'breakdown' => $breakdown,
+            'gaps' => $gaps,
+            'total_standard' => $totalStandard,
+            'total_covered' => $covered,
+        ];
+    }
 }

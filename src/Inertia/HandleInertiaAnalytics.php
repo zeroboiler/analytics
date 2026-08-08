@@ -275,12 +275,13 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $newId = $this->generateTrackingId();
 
         // Queue cookie for the response
+        $cookieDomain = $this->config->get('zeroboiler.analytics.identity.cookie_domain');
         Cookie::queue(
             $cookieName,
             $newId,
             $this->config->get('zeroboiler.analytics.identity.cookie_ttl', 525600),
             '/',
-            null,
+            is_string($cookieDomain) && $cookieDomain !== '' ? $cookieDomain : null,
             $this->config->get('zeroboiler.analytics.identity.cookie_secure', true),
             true, // httpOnly
             false, // raw

@@ -128,6 +128,7 @@ return [
             'cookie_ttl' => (int) env('ANALYTICS_IDENTITY_COOKIE_TTL', 525600), // 365 days (minutes),
             'cookie_secure' => env('ANALYTICS_IDENTITY_COOKIE_SECURE', true),
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
+            'cookie_domain' => env('ANALYTICS_IDENTITY_COOKIE_DOMAIN'), // null = current domain; '.example.com' for cross-subdomain
             'link_on_auth' => env('ANALYTICS_IDENTITY_LINK_ON_AUTH', true),
         ],
 
