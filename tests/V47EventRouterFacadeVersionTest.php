@@ -251,7 +251,7 @@ describe('AnalyticsEventRouter — v2.47 summary and routing', function (): void
         expect($summary)->toHaveKeys(['enabled', 'rule_count', 'rules', 'version']);
         expect($summary['enabled'])->toBeTrue();
         expect($summary['rule_count'])->toBe(1);
-        expect($summary['version'])->toBe('2.50.0');
+        expect($summary['version'])->toBe('2.88.0');
     });
 
     it('falls through to standard dispatch when routing is disabled', function (): void {
@@ -329,25 +329,25 @@ describe('Facade — v2.47 proxy method completeness', function (): void {
 
 describe('Version — v2.47 consistency', function (): void {
     it('manager version is 2.50.0', function (): void {
-        expect($this->manager->version())->toBe('2.50.0');
+        expect($this->manager->version())->toBe('2.88.0');
     });
 
     it('composer version is 2.50.0', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        expect($composer['version'])->toBe('2.50.0');
+        expect($composer['version'])->toBe('2.88.0');
     });
 
     it('JS client version is 2.50.0', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($js)->toContain("'2.50.0'");
+        expect($js)->toContain("'2.88.0'");
     });
 
     it('TypeScript definitions version is 2.50.0', function (): void {
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
 
-        expect($dts)->toContain('2.50.0');
+        expect($dts)->toContain('2.88.0');
     });
 
     it('no stale version references remain', function (): void {
@@ -362,8 +362,8 @@ describe('Version — v2.47 consistency', function (): void {
 
         foreach ($files as $file) {
             $contents = file_get_contents($file);
-            expect($contents)->not->toContain('2.45.0');
-            expect($contents)->not->toContain('2.46.0');
+            expect($contents)->not->toContain('2.87.0');
+            expect($contents)->not->toContain('2.87.0');
         }
     });
 });

@@ -723,7 +723,7 @@ describe('v2.43.0 Forwarding + Budget + Attribution + 70 Events', function (): v
 
     test('JS client has version 2.45.0', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'2.45.0'");
+        expect($js)->toContain("'2.88.0'");
     });
 
     // ── PHP 8.5 Syntax Compliance ─────────────────────────────────
@@ -749,8 +749,8 @@ describe('v2.43.0 Forwarding + Budget + Attribution + 70 Events', function (): v
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                expect(str_contains($contents, '2.42.0'))
-                    ->toBeFalse("{$file->getFilename()} still contains 2.42.0 version reference");
+                expect(str_contains($contents, '2.88.0'))
+                    ->toBeFalse("{$file->getFilename()} still contains 2.88.0 version reference");
             }
         }
     });
@@ -759,12 +759,12 @@ describe('v2.43.0 Forwarding + Budget + Attribution + 70 Events', function (): v
 
     test('composer.json has version 2.45.0', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.45.0');
+        expect($composer['version'])->toBe('2.88.0');
     });
 
     test('AnalyticsManager version() returns 2.45.0', function (): void {
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-        expect($manager->version())->toBe('2.45.0');
+        expect($manager->version())->toBe('2.88.0');
     });
 
     // ── AnalyticsConfig Summary Coverage ─────────────────────────

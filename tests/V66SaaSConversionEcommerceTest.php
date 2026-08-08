@@ -422,14 +422,14 @@ test('Version consistency — all PHP files use 2.66.0', function (): void {
     foreach ($files as $file) {
         $content = file_get_contents($file);
         // Should not contain old version
-        expect(str_contains($content, '2.65.0'))->toBeFalse("Old version 2.65.0 found in {$file}");
+        expect(str_contains($content, '2.87.0'))->toBeFalse("Old version 2.87.0 found in {$file}");
     }
 });
 
 test('JS client uses version 2.66.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-    expect($js)->toContain("'2.66.0'");
+    expect($js)->toContain("'2.88.0'");
     expect($js)->toContain('@version 2.66.0');
 });
 

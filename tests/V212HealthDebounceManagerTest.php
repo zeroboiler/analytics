@@ -25,12 +25,12 @@ beforeEach(function (): void {
 
 describe('Version Consistency', function (): void {
     test('AnalyticsManager version returns v2.35.0', function (): void {
-        expect($this->manager->version())->toBe('2.41.0');
+        expect($this->manager->version())->toBe('2.88.0');
     });
 
     test('composer.json version matches', function (): void {
         $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-        expect($composer['version'])->toBe('2.41.0');
+        expect($composer['version'])->toBe('2.88.0');
     });
 
     test('JS client version matches', function (): void {

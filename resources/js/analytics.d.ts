@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.87.0
+ * @version 2.88.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -1273,7 +1273,7 @@ export function getFunnelReadiness(): Promise<{ status: string; score: number; g
 /** Get the industry-standard instrumentation checklist from the server */
 export function getIndustryStandard(): Promise<{ status: string; critical: EventEntry[]; high: EventEntry[]; medium: EventEntry[]; low: EventEntry[]; all: EventEntry[]; count: number } | null>;
 
-// ─── SaaS Metrics Benchmarks (v2.87.0) ──────────────────────────────────
+// ─── SaaS Metrics Benchmarks (v2.88.0) ──────────────────────────────────
 
 /** Benchmark metric definition */
 interface BenchmarkMetric {

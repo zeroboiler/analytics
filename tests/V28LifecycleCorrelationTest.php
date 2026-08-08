@@ -499,7 +499,7 @@ describe('EventCorrelationService — clear and cache', function (): void {
 
 describe('v2.28.0 — Version and config consistency', function (): void {
     it('AnalyticsManager returns version 2.28.0', function (): void {
-        expect($manager->version())->toBe('2.41.0');
+        expect($manager->version())->toBe('2.88.0');
     });
 
     it('lifecycle config section has correct structure', function (): void {

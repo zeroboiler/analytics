@@ -549,7 +549,7 @@ describe('v2.45.0 Full Config Coverage', function (): void {
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                expect(str_contains($contents, '2.43.0'))
+                expect(str_contains($contents, '2.87.0'))
                     ->toBeFalse("{$file->getFilename()} still contains 2.43.0 version reference");
             }
         }
@@ -562,7 +562,7 @@ describe('v2.45.0 Full Config Coverage', function (): void {
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                expect(str_contains($contents, '2.44.0'))
+                expect(str_contains($contents, '2.87.0'))
                     ->toBeFalse("{$file->getFilename()} still contains 2.44.0 version reference");
             }
         }
@@ -570,32 +570,32 @@ describe('v2.45.0 Full Config Coverage', function (): void {
 
     test('no stale 2.43.0 version references remain in JS client', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, '2.43.0'))->toBeFalse('JS client still contains 2.43.0');
+        expect(str_contains($js, '2.43.0'))->toBeFalse('JS client still contains 2.87.0');
     });
 
     test('no stale 2.44.0 version references remain in JS client', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, '2.44.0'))->toBeFalse('JS client still contains 2.44.0');
+        expect(str_contains($js, '2.44.0'))->toBeFalse('JS client still contains 2.87.0');
     });
 
     test('version 2.45.0 is consistent across all markers', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.45.0');
+        expect($composer['version'])->toBe('2.88.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, "'2.45.0'"))->toBeTrue();
+        expect(str_contains($js, "'2.88.0'"))->toBeTrue();
 
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect(str_contains($dts, '2.45.0'))->toBeTrue();
+        expect(str_contains($dts, '2.88.0'))->toBeTrue();
 
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-        expect($manager->version())->toBe('2.45.0');
+        expect($manager->version())->toBe('2.88.0');
 
         $tagger = file_get_contents(__DIR__ . '/../src/Services/EventSourceTagger.php');
-        expect(str_contains($tagger, "'2.45.0'"))->toBeTrue();
+        expect(str_contains($tagger, "'2.88.0'"))->toBeTrue();
 
         $forwarder = file_get_contents(__DIR__ . '/../src/Services/EventForwardingService.php');
-        expect(str_contains($forwarder, '2.45.0'))->toBeTrue();
+        expect(str_contains($forwarder, '2.88.0'))->toBeTrue();
     });
 
     // ── Summary Completeness ─────────────────────────────────────

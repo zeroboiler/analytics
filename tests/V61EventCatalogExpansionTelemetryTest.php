@@ -357,7 +357,7 @@ describe('v2.61.0 — Event Catalog Expansion + Telemetry + Svelte Tracker', fun
 
         test('AnalyticsManager version is 2.61.0', function (): void {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-            expect($manager->version())->toBe('2.61.0');
+            expect($manager->version())->toBe('2.88.0');
         });
 
         test('No stale 2.59.0 or 2.60.0 references in src', function (): void {

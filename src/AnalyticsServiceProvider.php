@@ -116,7 +116,7 @@ use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 
 /**
- * @version 2.84.0
+ * @version 2.88.0
  */
 
 /**
@@ -125,7 +125,7 @@ use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.86.0
+ * @version 2.88.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
