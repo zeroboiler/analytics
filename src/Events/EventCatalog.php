@@ -1004,4 +1004,149 @@ final class EventCatalog
 
         return $calculator->getEventPriority($eventName);
     }
+
+    /**
+     * Get the recommended essential SaaS instrumentation set.
+     *
+     * Returns a comprehensive but focused set of events that every SaaS
+     * product should instrument for production-grade analytics. This is
+     * the recommended starting point for new SaaS deployments — broader
+     * than coreSaaS() which only covers the bare minimum.
+     *
+     * Covers authentication, subscription lifecycle, trial, billing,
+     * feature usage, engagement, and key revenue events.
+     *
+     * @return array{events: list<EventEntry>, categories: array<string, int>, count: int, ga4_coverage: int}
+     */
+    public static function saasEssential(): array
+    {
+        $essentialKeys = [
+            // ── Authentication (must-have) ─────────────────
+            'sign_up', 'login', 'logout', 'email_verified',
+            // ── Subscription Lifecycle ──────────────────────
+            'subscribe', 'plan_upgrade', 'plan_downgrade', 'cancellation',
+            'subscription_renewal', 'subscription_paused', 'subscription_resumed',
+            // ── Trial ──────────────────────────────────────
+            'start_trial', 'trial_end', 'trial_converted',
+            // ── Revenue ────────────────────────────────────
+            'payment_succeeded', 'payment_failed', 'invoice_generated',
+            'revenue_tracked', 'credit_applied', 'subscription_value_changed',
+            'billing_retry',
+            // ── Feature & Engagement ────────────────────────
+            'feature_used', 'onboarding_step', 'milestone_reached',
+            'page_view', 'search', 'form_submit', 'share',
+            // ── Account & Team ──────────────────────────────
+            'account_activated', 'account_deactivated', 'profile_updated',
+            'team_created', 'team_member_joined', 'invite_sent',
+            // ── Integration ─────────────────────────────────
+            'integration_connected', 'integration_failed',
+            // ── E-commerce (if applicable) ────────────────
+            'view_item', 'add_to_cart', 'begin_checkout', 'purchase',
+            'refund', 'add_payment_info',
+        ];
+
+        $events = array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $essentialKeys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+
+        $categories = ['ecommerce' => 0, 'saas' => 0, 'engagement' => 0];
+        $ga4Count = 0;
+
+        foreach ($events as $entry) {
+            $cat = $entry['category'] ?? 'engagement';
+            if (isset($categories[$cat])) {
+                $categories[$cat]++;
+            }
+            if (isset($entry['ga4']) && $entry['ga4'] !== '') {
+                $ga4Count++;
+            }
+        }
+
+        return [
+            'events' => $events,
+            'categories' => $categories,
+            'count' => count($events),
+            'ga4_coverage' => $ga4Count,
+        ];
+    }
+
+    /**
+     * Get the recommended instrumentation for a given SaaS maturity target.
+     *
+     * Returns a graded recommendation of events to instrument based on
+     * the desired maturity level. Each level includes all events from
+     * the level below plus additional events.
+     *
+     * Levels: 'starter' (essential 25 events), 'growth' (40 events),
+     * 'enterprise' (60+ events), 'complete' (all catalog events).
+     *
+     * @param  'starter'|'growth'|'enterprise'|'complete'  $level
+     * @return array{level: string, events: list<EventEntry>, count: int, next_level: string|null}
+     */
+    public static function recommendedInstrumentation(string $level = 'starter'): array
+    {
+        $starterKeys = [
+            'sign_up', 'login', 'start_trial', 'subscribe', 'plan_upgrade',
+            'cancellation', 'page_view', 'search', 'form_submit',
+            'payment_succeeded', 'payment_failed', 'purchase',
+            'trial_converted', 'feature_used', 'milestone_reached',
+            'onboarding_step', 'email_verified', 'revenue_tracked',
+            'error', 'subscription_renewal',
+        ];
+
+        $growthKeys = [
+            'logout', 'plan_downgrade', 'subscription_paused', 'subscription_resumed',
+            'trial_end', 'invoice_generated', 'credit_applied', 'billing_retry',
+            'subscription_value_changed', 'add_to_cart', 'begin_checkout',
+            'add_payment_info', 'refund', 'view_item', 'share', 'content_engagement',
+            'team_created', 'team_member_joined', 'invite_sent',
+            'integration_connected', 'account_activated', 'account_deactivated',
+            'scroll_depth', 'time_on_page', 'session_start', 'session_end',
+            'payment_method_added', 'profile_updated',
+        ];
+
+        $enterpriseKeys = [
+            'form_start', 'notification', 'outbound_click', 'file_download',
+            'video_play', 'ab_test_exposure', 'campaign_attribution',
+            'role_changed', 'team_member_removed',
+            'password_changed', 'password_reset', 'feature_limit_reached',
+            'usage_quota_reached', 'feature_request', 'goal_conversion',
+            'view_cart', 'remove_from_cart', 'add_to_wishlist', 'select_item',
+            'select_promotion', 'view_promotion', 'web_vitals', 'timing',
+            'feedback', 'sla_breach', 'payment_method_updated',
+            'workspace_created', 'expansion_revenue', 'feature_adopted',
+            'integration_failed', 'abandoned_cart', 'checkout_abandon',
+        ];
+
+        $levels = [
+            'starter' => $starterKeys,
+            'growth' => [...$starterKeys, ...$growthKeys],
+            'enterprise' => [...$starterKeys, ...$growthKeys, ...$enterpriseKeys],
+            'complete' => self::names(),
+        ];
+
+        $validLevels = ['starter', 'growth', 'enterprise', 'complete'];
+        $safeLevel = in_array($level, $validLevels, true) ? $level : 'starter';
+
+        $keys = $levels[$safeLevel];
+        $events = array_values(array_filter(
+            array_map(fn (string $key): ?array => self::get($key), $keys),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+
+        $nextMap = [
+            'starter' => 'growth',
+            'growth' => 'enterprise',
+            'enterprise' => 'complete',
+            'complete' => null,
+        ];
+
+        return [
+            'level' => $safeLevel,
+            'events' => $events,
+            'count' => count($events),
+            'next_level' => $nextMap[$safeLevel],
+        ];
+    }
 }

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 2.82.0
+ * @version 2.83.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '2.59.0')
  */
 export function getVersion() {
-    return '2.82.0';
+    return '2.83.0';
 }
 
 /**
@@ -4545,6 +4545,157 @@ export async function fetchChurnThresholds() {
 
     try {
         const response = await fetch(`${apiBaseUrl}/churn/thresholds`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── SaaS Readiness & Maturity (v2.83.0) ─────────────────────────
+
+/**
+ * Get the analytics maturity score from the Inertia page props.
+ *
+ * Returns the server-computed maturity score and grade that were
+ * injected into the zbAnalytics config during the Inertia middleware
+ * processing. This is a synchronous call — no API request needed.
+ *
+ * @returns {object|null} Maturity score and grade
+ *
+ * @example
+ * const maturity = getMaturityScore();
+ * console.log(`Score: ${maturity.score}/100, Grade: ${maturity.grade}`);
+ */
+export function getMaturityScore() {
+    if (!initialized || !config?.maturity) return null;
+
+    return {
+        score: config.maturity.score,
+        grade: config.maturity.grade,
+    };
+}
+
+/**
+ * Get the onboarding completion status from the Inertia page props.
+ *
+ * Returns the server-computed onboarding checklist with completion
+ * percentage and gap list. Use this to guide instrumentation.
+ *
+ * @returns {object|null} Onboarding status with completion and gaps
+ *
+ * @example
+ * const status = getOnboardingStatus();
+ * console.log(`${status.completion}% complete, gaps: ${status.gaps.join(', ')}`);
+ */
+export function getOnboardingStatus() {
+    if (!initialized || !config?.onboarding) return null;
+
+    return {
+        completion: config.onboarding.completion,
+        gaps: config.onboarding.gaps,
+    };
+}
+
+/**
+ * Check if analytics instrumentation meets industry-standard SaaS criteria.
+ *
+ * Uses the maturity score from Inertia props to determine if the
+ * current instrumentation is at least "good" level (score >= 60).
+ *
+ * @returns {boolean} True if instrumentation meets SaaS standard
+ *
+ * @example
+ * if (!isSaaSReady()) {
+ *     console.warn('Analytics instrumentation below SaaS standard. Missing:', getOnboardingStatus().gaps);
+ * }
+ */
+export function isSaaSReady() {
+    const maturity = getMaturityScore();
+    if (!maturity) return false;
+
+    return maturity.score >= 60;
+}
+
+/**
+ * Get the event catalog summary from the server.
+ *
+ * Fetches a lightweight summary of the event catalog including
+ * total count, category breakdown, and provider coverage.
+ * Results are cached for 60 seconds to avoid repeated requests.
+ *
+ * @returns {Promise<object|null>} Catalog summary
+ *
+ * @example
+ * const summary = await getEventCatalogSummary();
+ * console.log(`${summary.total} events across ${Object.keys(summary.categories).length} categories`);
+ */
+export async function getEventCatalogSummary() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/catalog`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get the SaaS funnel readiness assessment from the server.
+ *
+ * Fetches the funnel readiness score that indicates how well
+ * the current instrumentation covers the SaaS conversion funnel
+ * (signup → trial → conversion → retention → expansion).
+ *
+ * @returns {Promise<object|null>} Funnel readiness assessment
+ *
+ * @example
+ * const readiness = await getFunnelReadiness();
+ * console.log(`Funnel readiness: ${readiness.score}/100`);
+ */
+export async function getFunnelReadiness() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/funnel-readiness`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get the industry-standard instrumentation checklist from the server.
+ *
+ * Returns categorized events (critical/high/medium/low) that an
+ * industry-standard SaaS product should instrument.
+ *
+ * @returns {Promise<object|null>} Industry standard event classification
+ *
+ * @example
+ * const standard = await getIndustryStandard();
+ * console.log(`${standard.critical.length} critical events required`);
+ */
+export async function getIndustryStandard() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/industry-standard`, {
             headers: { Accept: 'application/json' },
         });
 

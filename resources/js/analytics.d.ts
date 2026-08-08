@@ -5,7 +5,7 @@
  * Provides full IntelliSense/auto-complete support for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 2.82.0
+ * @version 2.83.0
  */
 
 // ─── Core Types ────────────────────────────────────────────────────────────
@@ -42,6 +42,8 @@ export interface ZbAnalyticsConfig {
     version?: string;
     subscriptionTiers?: Record<string, SubscriptionTier>;
     identityAutoLink?: boolean;
+    maturity?: MaturityScore;
+    onboarding?: OnboardingStatus;
 }
 
 /** Consent signals (GDPR Consent Mode v2) */
@@ -107,6 +109,18 @@ export interface SubscriptionTier {
     price?: number;
     billing_cycle?: string;
     features?: string[];
+}
+
+/** Analytics maturity score from server */
+export interface MaturityScore {
+    score: number;
+    grade: string;
+}
+
+/** Onboarding completion status from server */
+export interface OnboardingStatus {
+    completion: number;
+    gaps: string[];
 }
 
 /** Performance budget configuration */
@@ -1214,3 +1228,23 @@ export function fetchRecoveryHealth(): Promise<RecoveryHealth | null>;
 
 /** Fetch recovery history summary (24h) */
 export function fetchRecoveryHistory(): Promise<RecoveryHistory | null>;
+
+// ─── SaaS Readiness & Maturity (v2.83.0) ─────────────────────────
+
+/** Get the analytics maturity score from Inertia props (synchronous) */
+export function getMaturityScore(): MaturityScore | null;
+
+/** Get the onboarding completion status from Inertia props (synchronous) */
+export function getOnboardingStatus(): OnboardingStatus | null;
+
+/** Check if analytics instrumentation meets industry-standard SaaS criteria */
+export function isSaaSReady(): boolean;
+
+/** Get the event catalog summary from the server */
+export function getEventCatalogSummary(): Promise<EventCatalog | null>;
+
+/** Get the SaaS funnel readiness assessment from the server */
+export function getFunnelReadiness(): Promise<{ status: string; score: number; gaps: string[]; funnel_steps: Record<string, unknown> } | null>;
+
+/** Get the industry-standard instrumentation checklist from the server */
+export function getIndustryStandard(): Promise<{ status: string; critical: EventEntry[]; high: EventEntry[]; medium: EventEntry[]; low: EventEntry[]; all: EventEntry[]; count: number } | null>;
