@@ -127,6 +127,9 @@ use ZeroBoiler\Analytics\Services\SessionReplayService;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
+use ZeroBoiler\Analytics\Services\OnboardingWizardService;
+use ZeroBoiler\Analytics\Services\GrowthMetricsService;
+use ZeroBoiler\Analytics\Services\WeeklyDigestService;
 use ZeroBoiler\Analytics\Services\EventOrchestrationService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
 use ZeroBoiler\Analytics\Services\EventContextResolver;
@@ -1404,6 +1407,27 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventDebounceService::class, function (Application $app): EventDebounceService {
             return new EventDebounceService(
                 $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Onboarding Wizard Service (v3.6.0)
+        $this->app->singleton(OnboardingWizardService::class, function (Application $app): OnboardingWizardService {
+            return new OnboardingWizardService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Growth Metrics Service (v3.6.0)
+        $this->app->singleton(GrowthMetricsService::class, function (Application $app): GrowthMetricsService {
+            return new GrowthMetricsService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Weekly Digest Service (v3.6.0)
+        $this->app->singleton(WeeklyDigestService::class, function (Application $app): WeeklyDigestService {
+            return new WeeklyDigestService(
                 $app->make(ConfigRepository::class),
             );
         });

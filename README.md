@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-3.5.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-3.6.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.6.0](#whats-new-in-v3600)
 - [What's New in v3.5.0](#whats-new-in-v3500)
 - [What's New in v3.4.0](#whats-new-in-v3400)
 - [What's New in v3.3.1](#whats-new-in-v3331)
@@ -71,6 +72,30 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.6.0
+
+**Growth Metrics, Onboarding Wizard, and Weekly Digest Services — SaaS Product Analytics Suite**
+
+v3.6.0 adds three production-ready services for SaaS product teams: a Growth Metrics dashboard, a step-by-step Onboarding Wizard for analytics instrumentation, and a Weekly Digest generator for scheduled executive reports.
+
+### New Features
+
+- **GrowthMetricsService** — Product-level growth analytics: activation rate, time-to-activate, D30 stickiness, per-feature stickiness, engagement velocity (events/user/day), cohort health (D1/D7/D30 retention), and a composite growth score (0-100, A-F grade). Cache-backed, no database required. `activationMetrics()`, `stickinessMetrics()`, `engagementVelocity()`, `cohortHealth()`, `dashboard()`, `cliSummary()`
+- **OnboardingWizardService** — Guided 6-step onboarding for analytics instrumentation: Core Setup → Acquisition → Activation → Revenue → Retention → Growth. Provides progress tracking, config readiness checklist, event recommendations by priority, quick-start checklist, and an overall readiness grade (A-F). `getSteps()`, `getDetailedProgress()`, `getRecommendations()`, `getConfigChecklist()`, `getReadinessGrade()`, `getQuickStartChecklist()`, `getState()`
+- **WeeklyDigestService** — Automated weekly analytics digest: event overview, provider health, SaaS funnel metrics, retention & engagement, e-commerce (conditional), growth insights with alerts. Cache-backed for 7 days. `generate()`, `latest()`, `cliSummary()`, `currentIsoWeek()`
+- **EventStreamService API Expansion** — Added `getEventCount()`, `getTotalCount()`, `getRecentEvents()` methods for ring-buffer query compatibility with growth and digest services
+
+### Changes
+
+- Version bump: 3.5.0 → 3.6.0 (`AnalyticsEvent::VERSION`, `AnalyticsHealthCheckService::VERSION`, `composer.json`, README badge)
+- ServiceProvider registrations for all three new services
+
+### Upgrade Notes
+
+- No breaking changes — all new services are opt-in
+- Services are auto-registered via ServiceProvider as singletons
+- Growth metrics and digest rely on `EventStreamService` ring buffer; no database migrations required
 
 ## What's New in v3.5.0
 
@@ -437,6 +462,20 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - `GET /api/analytics/correlation/patterns` — Frequent event patterns
 - `GET /api/analytics/correlation/transitions` — Top event transitions
 - `GET /api/analytics/correlation/predict` — Next-event prediction
+- `GET /api/analytics/growth/dashboard` — Full growth metrics dashboard (activation, stickiness, velocity, cohort health, grade)
+- `GET /api/analytics/growth/activation` — Activation rate and time-to-activate metrics
+- `GET /api/analytics/growth/stickiness` — Feature stickiness and D30 stickiness
+- `GET /api/analytics/growth/velocity` — Engagement velocity (events/user/day)
+- `GET /api/analytics/growth/cohort-health` — Cohort health (D1/D7/D30 retention, churn risk)
+- `GET /api/analytics/onboarding/wizard` — Onboarding wizard state and grade
+- `GET /api/analytics/onboarding/wizard/steps` — 6-step guided onboarding steps
+- `GET /api/analytics/onboarding/wizard/progress` — Detailed per-step progress with coverage
+- `GET /api/analytics/onboarding/wizard/recommendations` — Next events to instrument
+- `GET /api/analytics/onboarding/wizard/config-checklist` — Configuration readiness checklist
+- `GET /api/analytics/onboarding/wizard/readiness` — Overall readiness grade (A-F)
+- `GET /api/analytics/onboarding/wizard/quick-start` — Day-one quick-start checklist
+- `GET /api/analytics/digest` — Weekly digest for a specific period
+- `GET /api/analytics/digest/latest` — Latest weekly digest
 - `GET /api/analytics/correlation/summary` — Correlation analysis summary
 - `GET /api/analytics/buckets` — List all event bucket series
 - `GET /api/analytics/buckets/{series}` — Get time-binned event aggregation (granularity=minute|hour|day|week|month)

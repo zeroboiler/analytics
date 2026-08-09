@@ -294,4 +294,24 @@ Route::prefix('analytics')->group(function () {
     Route::get('cohorts/{identity}', [AnalyticsEventController::class, 'behavioralCohortForUser']);
     Route::get('cohorts/summary/{days}', [AnalyticsEventController::class, 'behavioralCohortSummary']);
     Route::get('cohorts/transitions/{daysAgo}', [AnalyticsEventController::class, 'behavioralCohortTransitions']);
+
+    // Growth Engine (v3.6.0)
+    Route::get('growth/dashboard', [AnalyticsEventController::class, 'growthDashboard']);
+    Route::get('growth/activation', [AnalyticsEventController::class, 'growthActivation']);
+    Route::get('growth/stickiness', [AnalyticsEventController::class, 'growthStickiness']);
+    Route::get('growth/velocity', [AnalyticsEventController::class, 'growthVelocity']);
+    Route::get('growth/cohort-health', [AnalyticsEventController::class, 'growthCohortHealth']);
+
+    // Onboarding Wizard (v3.6.0)
+    Route::get('onboarding/wizard', [AnalyticsEventController::class, 'onboardingWizardState']);
+    Route::get('onboarding/wizard/steps', [AnalyticsEventController::class, 'onboardingWizardSteps']);
+    Route::get('onboarding/wizard/progress', [AnalyticsEventController::class, 'onboardingWizardProgress']);
+    Route::get('onboarding/wizard/recommendations', [AnalyticsEventController::class, 'onboardingWizardRecommendations']);
+    Route::get('onboarding/wizard/config-checklist', [AnalyticsEventController::class, 'onboardingWizardConfigChecklist']);
+    Route::get('onboarding/wizard/readiness', [AnalyticsEventController::class, 'onboardingWizardReadiness']);
+    Route::get('onboarding/wizard/quick-start', [AnalyticsEventController::class, 'onboardingWizardQuickStart']);
+
+    // Weekly Digest (v3.6.0)
+    Route::get('digest', [AnalyticsEventController::class, 'weeklyDigest']);
+    Route::get('digest/latest', [AnalyticsEventController::class, 'weeklyDigestLatest']);
 });

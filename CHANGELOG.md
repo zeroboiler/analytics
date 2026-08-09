@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [3.6.0] - 2026-08-09
+
+### Added
+
+- **GrowthMetricsService** — Product-level growth analytics: activation rate, time-to-activate, D30 stickiness, per-feature stickiness, engagement velocity (events/user/day), cohort health (D1/D7/D30 retention), composite growth score (0-100, A-F grade). `activationMetrics()`, `stickinessMetrics()`, `engagementVelocity()`, `cohortHealth()`, `dashboard()`, `cliSummary()`. Cache-backed, no database required
+- **OnboardingWizardService** — Guided 6-step onboarding for analytics instrumentation: Core Setup → Acquisition → Activation → Revenue → Retention → Growth. Progress tracking, config readiness checklist, event recommendations, quick-start checklist, readiness grade (A-F). `getSteps()`, `getDetailedProgress()`, `getRecommendations()`, `getConfigChecklist()`, `getReadinessGrade()`, `getQuickStartChecklist()`, `getState()`
+- **WeeklyDigestService** — Automated weekly analytics digest: event overview, provider health, SaaS funnel metrics, retention & engagement, e-commerce (conditional), growth insights with alerts. Cache-backed for 7 days. `generate()`, `latest()`, `cliSummary()`, `currentIsoWeek()`
+- **EventStreamService API** — Added `getEventCount()`, `getTotalCount()`, `getRecentEvents()` methods for ring-buffer query compatibility
+- **ServiceProvider registrations** — All three new services registered as singletons
+
+### Changed
+
+- Version bump: 3.5.0 → 3.6.0 (`AnalyticsHealthCheckService::VERSION`, README badge, composer.json)
+- README: Added v3.6.0 section with full feature documentation
+
 ## [3.4.0] - 2026-08-09
 
 ### Added (v3.4.0 — SaaS Starter Level Upgrade)

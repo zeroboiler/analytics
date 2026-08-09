@@ -5490,4 +5490,296 @@ final class AnalyticsEventController extends Controller
             ], 500);
         }
     }
+
+    // ─── Growth Engine Endpoints (v3.6.0) ─────────────────────────────
+
+    /**
+     * Get full growth metrics dashboard.
+     *
+     * GET /api/analytics/growth/dashboard
+     */
+    public function growthDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\GrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\GrowthMetricsService::class);
+
+            return response()->json($service->dashboard());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Growth dashboard failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get activation metrics.
+     *
+     * GET /api/analytics/growth/activation
+     */
+    public function growthActivation(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\GrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\GrowthMetricsService::class);
+
+            return response()->json($service->activationMetrics());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Activation metrics failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get feature stickiness metrics.
+     *
+     * GET /api/analytics/growth/stickiness
+     */
+    public function growthStickiness(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\GrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\GrowthMetricsService::class);
+
+            return response()->json($service->stickinessMetrics());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Stickiness metrics failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get engagement velocity metrics.
+     *
+     * GET /api/analytics/growth/velocity
+     */
+    public function growthVelocity(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\GrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\GrowthMetricsService::class);
+
+            return response()->json($service->engagementVelocity());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Engagement velocity failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get cohort health metrics.
+     *
+     * GET /api/analytics/growth/cohort-health
+     */
+    public function growthCohortHealth(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\GrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\GrowthMetricsService::class);
+
+            return response()->json($service->cohortHealth());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Cohort health failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Onboarding Wizard Endpoints (v3.6.0) ────────────────────────
+
+    /**
+     * Get onboarding wizard state.
+     *
+     * GET /api/analytics/onboarding/wizard
+     */
+    public function onboardingWizardState(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getState());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Wizard state failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard steps.
+     *
+     * GET /api/analytics/onboarding/wizard/steps
+     */
+    public function onboardingWizardSteps(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getSteps());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Wizard steps failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get detailed onboarding wizard progress.
+     *
+     * GET /api/analytics/onboarding/wizard/progress
+     */
+    public function onboardingWizardProgress(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getDetailedProgress());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Wizard progress failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard recommendations.
+     *
+     * GET /api/analytics/onboarding/wizard/recommendations
+     */
+    public function onboardingWizardRecommendations(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            $limit = (int) $request->query('limit', 10);
+
+            return response()->json($service->getRecommendations(min($limit, 50)));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Wizard recommendations failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard config checklist.
+     *
+     * GET /api/analytics/onboarding/wizard/config-checklist
+     */
+    public function onboardingWizardConfigChecklist(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getConfigChecklist());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Config checklist failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard readiness grade.
+     *
+     * GET /api/analytics/onboarding/wizard/readiness
+     */
+    public function onboardingWizardReadiness(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getReadinessGrade());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Readiness grade failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard quick-start checklist.
+     *
+     * GET /api/analytics/onboarding/wizard/quick-start
+     */
+    public function onboardingWizardQuickStart(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\OnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\OnboardingWizardService::class);
+
+            return response()->json($service->getQuickStartChecklist());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Quick-start checklist failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Weekly Digest Endpoints (v3.6.0) ───────────────────────────
+
+    /**
+     * Get weekly digest for a specific period.
+     *
+     * GET /api/analytics/digest?period=2026-W32
+     */
+    public function weeklyDigest(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\WeeklyDigestService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\WeeklyDigestService::class);
+
+            $period = $request->query('period');
+
+            return response()->json($service->generate(
+                is_string($period) && $period !== '' ? $period : null,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Weekly digest failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get latest weekly digest.
+     *
+     * GET /api/analytics/digest/latest
+     */
+    public function weeklyDigestLatest(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\WeeklyDigestService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\WeeklyDigestService::class);
+
+            return response()->json($service->latest());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Latest digest failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -321,6 +321,55 @@ final class EventStreamService
     }
 
     /**
+     * Get the total count of events in the buffer.
+     *
+     * Convenience alias for getCurrentCount(), used by growth metrics
+     * and digest services that expect a getTotalCount() API.
+     */
+    public function getTotalCount(): int
+    {
+        return count($this->buffer);
+    }
+
+    /**
+     * Get the count of events matching a specific event name.
+     *
+     * Scans the ring buffer and counts events whose name matches
+     * the given string exactly.
+     *
+     * @param  string  $eventName  Exact event name to count
+     */
+    public function getEventCount(string $eventName): int
+    {
+        return count(array_filter(
+            $this->buffer,
+            fn (array $entry): bool => $entry['event'] === $eventName,
+        ));
+    }
+
+    /**
+     * Get the most recent events from the buffer.
+     *
+     * Returns the newest events first, up to the specified limit.
+     * Each entry includes the 'name' key for compatibility with
+     * services that expect a simplified event format.
+     *
+     * @param  int  $limit  Maximum events to return (default: 100)
+     * @return list<array{id: int, event: string, name: string, params: array<string, mixed>, client_id: string|null, user_id: string|null, provider: string|null, timestamp: string, dispatched: bool}>
+     */
+    public function getRecentEvents(int $limit = 100): array
+    {
+        $recent = array_slice($this->buffer, -$limit);
+        $recent = array_reverse($recent);
+
+        // Add 'name' key as alias for 'event' for downstream compatibility
+        return array_map(
+            fn (array $entry): array => array_merge($entry, ['name' => $entry['event']]),
+            $recent,
+        );
+    }
+
+    /**
      * Sanitize event parameters for safe streaming.
      *
      * Removes sensitive keys and truncates large values to prevent
