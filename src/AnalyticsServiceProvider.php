@@ -140,9 +140,12 @@ use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
+use ZeroBoiler\Analytics\Services\EventEnrichmentService;
+use ZeroBoiler\Analytics\Services\SubscriptionLifecycleService;
+use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
 
 /**
- * @version 3.5.0
+ * @version 3.7.0
  */
 
 /**
@@ -151,7 +154,7 @@ use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.5.0
+ * @version 3.7.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1428,6 +1431,28 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Weekly Digest Service (v3.6.0)
         $this->app->singleton(WeeklyDigestService::class, function (Application $app): WeeklyDigestService {
             return new WeeklyDigestService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Enrichment Service (v3.7.0)
+        $this->app->singleton(EventEnrichmentService::class, function (Application $app): EventEnrichmentService {
+            return new EventEnrichmentService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Subscription Lifecycle Service (v3.7.0)
+        $this->app->singleton(SubscriptionLifecycleService::class, function (Application $app): SubscriptionLifecycleService {
+            return new SubscriptionLifecycleService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Revenue Intelligence Service (v3.7.0)
+        $this->app->singleton(RevenueIntelligenceService::class, function (Application $app): RevenueIntelligenceService {
+            return new RevenueIntelligenceService(
+                $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
         });

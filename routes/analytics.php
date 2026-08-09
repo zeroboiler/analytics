@@ -314,4 +314,27 @@ Route::prefix('analytics')->group(function () {
     // Weekly Digest (v3.6.0)
     Route::get('digest', [AnalyticsEventController::class, 'weeklyDigest']);
     Route::get('digest/latest', [AnalyticsEventController::class, 'weeklyDigestLatest']);
+
+    // Revenue Intelligence (v3.7.0)
+    Route::get('revenue/intelligence', [AnalyticsEventController::class, 'revenueIntelligence']);
+    Route::get('revenue/quick-summary', [AnalyticsEventController::class, 'revenueQuickSummary']);
+    Route::get('revenue/signals', [AnalyticsEventController::class, 'revenueSignals']);
+
+    // Event Enrichment (v3.7.0)
+    Route::get('enrichment/diagnostics', [AnalyticsEventController::class, 'enrichmentDiagnostics']);
+
+    // Subscription Lifecycle (v3.7.0)
+    Route::post('subscription/trial-started', [AnalyticsEventController::class, 'subscriptionTrialStarted']);
+    Route::post('subscription/trial-converted', [AnalyticsEventController::class, 'subscriptionTrialConverted']);
+    Route::post('subscription/trial-expired', [AnalyticsEventController::class, 'subscriptionTrialExpired']);
+    Route::post('subscription/created', [AnalyticsEventController::class, 'subscriptionCreated']);
+    Route::post('subscription/renewed', [AnalyticsEventController::class, 'subscriptionRenewed']);
+    Route::post('subscription/plan-upgraded', [AnalyticsEventController::class, 'subscriptionPlanUpgraded']);
+    Route::post('subscription/plan-downgraded', [AnalyticsEventController::class, 'subscriptionPlanDowngraded']);
+    Route::post('subscription/cancelled', [AnalyticsEventController::class, 'subscriptionCancelled']);
+    Route::post('subscription/paused', [AnalyticsEventController::class, 'subscriptionPaused']);
+    Route::post('subscription/resumed', [AnalyticsEventController::class, 'subscriptionResumed']);
+    Route::post('subscription/payment-succeeded', [AnalyticsEventController::class, 'subscriptionPaymentSucceeded']);
+    Route::post('subscription/payment-failed', [AnalyticsEventController::class, 'subscriptionPaymentFailed']);
+    Route::post('subscription/billing-retry', [AnalyticsEventController::class, 'subscriptionBillingRetry']);
 });

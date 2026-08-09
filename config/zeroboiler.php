@@ -503,6 +503,38 @@ return [
         ],
 
         /*
+        |--------------------------------------------------------------------------
+        | Event Enrichment (Server-Side Context Attachment)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, all server-side API events are automatically enriched with
+        | request context: IP (GDPR-anonymized), user-agent, locale, referrer,
+        | session ID (hashed), and source type (api vs browser).
+        |
+        | Server context uses the `_server_` prefix and never overwrites
+        | client-sent event parameters.
+        |
+        */
+        'enrichment' => [
+            'enabled' => env('ANALYTICS_ENRICHMENT_ENABLED', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revenue Intelligence (Unified Revenue Dashboard)
+        |--------------------------------------------------------------------------
+        |
+        | Combines revenue forecasting, churn prediction, health scoring,
+        | and unit economics into a single API endpoint for SaaS dashboards.
+        |
+        */
+        'revenue_intelligence' => [
+            'enabled' => env('ANALYTICS_REVENUE_INTELLIGENCE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_REVENUE_INTELLIGENCE_CACHE_TTL', 300), // 5 minutes
+        ],
+
+
+        /*
         |-------------------------------------------------------------------------- 
         | Event Deduplication
         |-------------------------------------------------------------------------- 

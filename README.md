@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-3.6.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-3.7.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.7.0](#whats-new-in-v3700)
 - [What's New in v3.6.0](#whats-new-in-v3600)
 - [What's New in v3.5.0](#whats-new-in-v3500)
 - [What's New in v3.4.0](#whats-new-in-v3400)
@@ -72,6 +73,76 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.7.0
+
+**Event Enrichment, Subscription Lifecycle API, and Revenue Intelligence**
+
+v3.7.0 adds three production-ready services for complete subscription tracking and revenue intelligence:
+
+### Event Enrichment Service (`EventEnrichmentService`)
+- Automatic server-side request context attachment to all API events
+- Enriches events with IP (GDPR-anonymized), user-agent, locale, referrer, session ID (hashed), and source type
+- Uses `_server_` prefix — never overwrites client-sent event parameters
+- Configurable via `zeroboiler.analytics.enrichment`
+- Diagnostics endpoint: `GET /api/analytics/enrichment/diagnostics`
+
+### Subscription Lifecycle Service (`SubscriptionLifecycleService`)
+- Clean API for the complete subscription lifecycle:
+  - `trialStarted()`, `trialConverted()`, `trialExpired()`
+  - `subscriptionCreated()`, `subscriptionRenewed()`, `subscriptionPaused()`, `subscriptionResumed()`
+  - `planUpgraded()`, `planDowngraded()` (with expansion/contraction amounts)
+  - `subscriptionCancelled()` (with cancellation reason and lost MRR)
+  - `paymentSucceeded()`, `paymentFailed()` (with attempt tracking)
+  - `billingRetry()` (with outstanding amount)
+- All methods produce typed `AnalyticsEvent` objects flowing through the standard pipeline
+- 13 dedicated REST endpoints under `POST /api/analytics/subscription/*`
+- Revenue type tagging: `new`, `renewal`, `expansion`, `contraction`, `churn`
+
+### Revenue Intelligence Service (`RevenueIntelligenceService`)
+- Unified revenue analytics dashboard combining all revenue-related data
+- Single endpoint: `GET /api/analytics/revenue/intelligence` returns:
+  - Revenue overview (MRR, ARR, ARPU, subscriber count)
+  - Health score (composite 0–100 with grade)
+  - Churn assessment (monthly/annual rate, risk level, estimated lost MRR)
+  - Forecast (30-day projected MRR/ARR, growth rate, confidence)
+  - Unit economics (LTV, CAC, LTV:CAC ratio, payback period)
+  - Revenue movement (new, expansion, contraction, churn breakdown)
+  - Signals and recommendations (automated insights from metrics)
+- Lightweight quick summary: `GET /api/analytics/revenue/quick-summary`
+- Standalone signals endpoint: `GET /api/analytics/revenue/signals`
+- Configurable via `zeroboiler.analytics.revenue_intelligence`
+
+### Other Improvements
+- Fixed stale version strings in JS client (`getVersion()` and `_getInternalVersion()`) — now correctly returns `3.7.0`
+- Updated ServiceProvider docblock version to `3.7.0`
+- Added `enrichment` and `revenue_intelligence` config sections
+- 18 comprehensive tests for all new services
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// Track subscription lifecycle events
+Analytics::trackEvent('trial_started', [
+    'user_id' => $user->id,
+    'plan' => 'pro',
+    'trial_days' => 14,
+]);
+
+// Or use the lifecycle service directly
+$service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+$event = $service->planUpgraded($user->id, 'starter', 'pro', 19.00, 49.00);
+app(\ZeroBoiler\Analytics\AnalyticsManager::class)->trackEvent($event);
+
+// Get revenue intelligence dashboard data
+$intel = app(\ZeroBoiler\Analytics\Services\RevenueIntelligenceService::class);
+$report = $intel->report([
+    'mrr' => 25000,
+    'active_subscribers' => 500,
+    'churn_rate' => 0.025,
+    'arpu' => 50,
+]);
+```
 
 ## What's New in v3.6.0
 

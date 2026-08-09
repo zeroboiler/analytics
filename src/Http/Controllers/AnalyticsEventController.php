@@ -5782,4 +5782,489 @@ final class AnalyticsEventController extends Controller
             ], 500);
         }
     }
+
+    // ─── Revenue Intelligence Endpoints (v3.7.0) ───────────────────
+
+    /**
+     * Get comprehensive revenue intelligence report.
+     *
+     * Combines revenue, health, churn, forecast, unit economics,
+     * movement, signals, and recommendations into one response.
+     *
+     * @return JsonResponse
+     */
+    public function revenueIntelligence(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueIntelligenceService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueIntelligenceService::class);
+
+            $data = request()->only([
+                'mrr', 'arr', 'active_subscribers', 'churned_subscribers_last_month',
+                'new_mrr_last_month', 'expansion_mrr_last_month', 'churned_mrr_last_month',
+                'contraction_mrr_last_month', 'previous_mrr', 'arpu', 'churn_rate',
+                'trial_conversion_rate', 'cac', 'ltv', 'monthly_expenses',
+            ]);
+
+            return response()->json($service->report($data));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Revenue intelligence report failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get quick revenue summary for widgets/badges.
+     *
+     * @return JsonResponse
+     */
+    public function revenueQuickSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueIntelligenceService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueIntelligenceService::class);
+
+            $data = request()->only(['mrr', 'arr', 'active_subscribers', 'churn_rate']);
+
+            return response()->json($service->quickSummary($data));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Revenue quick summary failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get revenue signals and recommendations.
+     *
+     * @return JsonResponse
+     */
+    public function revenueSignals(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueIntelligenceService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueIntelligenceService::class);
+
+            $data = request()->only([
+                'mrr', 'churn_rate', 'arpu', 'trial_conversion_rate',
+                'cac', 'ltv', 'churned_mrr_last_month', 'new_mrr_last_month',
+                'expansion_mrr_last_month',
+            ]);
+
+            return response()->json($service->signals($data));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Revenue signals failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Event Enrichment Endpoints (v3.7.0) ────────────────────
+
+    /**
+     * Get event enrichment diagnostics.
+     *
+     * @return JsonResponse
+     */
+    public function enrichmentDiagnostics(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventEnrichmentService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventEnrichmentService::class);
+
+            return response()->json(array_merge(
+                $service->diagnostics(),
+                ['request_context' => $service->extractContext(request())],
+            ));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Enrichment diagnostics failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Subscription Lifecycle Endpoints (v3.7.0) ──────────────
+
+    /**
+     * Track trial started.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionTrialStarted(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->trialStarted(
+                userId: request()->input('user_id', ''),
+                plan: request()->input('plan', ''),
+                trialDays: (int) request()->input('trial_days', 14),
+                extra: request()->except(['user_id', 'plan', 'trial_days']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Trial started tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track trial converted.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionTrialConverted(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->trialConverted(
+                userId: request()->input('user_id', ''),
+                plan: request()->input('plan', ''),
+                amount: request()->input('amount') !== null ? (float) request()->input('amount') : null,
+                extra: request()->except(['user_id', 'plan', 'amount']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Trial converted tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track trial expired.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionTrialExpired(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->trialExpired(
+                userId: request()->input('user_id', ''),
+                plan: request()->input('plan', ''),
+                trialDays: (int) request()->input('trial_days', 14),
+                extra: request()->except(['user_id', 'plan', 'trial_days']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Trial expired tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track subscription created.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionCreated(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->subscriptionCreated(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                plan: request()->input('plan', ''),
+                amount: (float) request()->input('amount', 0),
+                billingCycle: request()->input('billing_cycle'),
+                extra: request()->except(['user_id', 'subscription_id', 'plan', 'amount', 'billing_cycle']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Subscription created tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track subscription renewed.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionRenewed(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->subscriptionRenewed(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                plan: request()->input('plan', ''),
+                amount: (float) request()->input('amount', 0),
+                renewalCount: (int) request()->input('renewal_count', 1),
+                extra: request()->except(['user_id', 'subscription_id', 'plan', 'amount', 'renewal_count']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Subscription renewed tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track plan upgrade.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionPlanUpgraded(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->planUpgraded(
+                userId: request()->input('user_id', ''),
+                fromPlan: request()->input('from_plan', ''),
+                toPlan: request()->input('to_plan', ''),
+                previousAmount: request()->input('previous_amount') !== null ? (float) request()->input('previous_amount') : null,
+                newAmount: request()->input('new_amount') !== null ? (float) request()->input('new_amount') : null,
+                extra: request()->except(['user_id', 'from_plan', 'to_plan', 'previous_amount', 'new_amount']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Plan upgrade tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track plan downgrade.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionPlanDowngraded(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->planDowngraded(
+                userId: request()->input('user_id', ''),
+                fromPlan: request()->input('from_plan', ''),
+                toPlan: request()->input('to_plan', ''),
+                previousAmount: request()->input('previous_amount') !== null ? (float) request()->input('previous_amount') : null,
+                newAmount: request()->input('new_amount') !== null ? (float) request()->input('new_amount') : null,
+                extra: request()->except(['user_id', 'from_plan', 'to_plan', 'previous_amount', 'new_amount']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Plan downgrade tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track subscription cancelled.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionCancelled(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->subscriptionCancelled(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                plan: request()->input('plan', ''),
+                lostMrr: request()->input('lost_mrr') !== null ? (float) request()->input('lost_mrr') : null,
+                reason: request()->input('reason'),
+                extra: request()->except(['user_id', 'subscription_id', 'plan', 'lost_mrr', 'reason']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Subscription cancelled tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track subscription paused.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionPaused(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->subscriptionPaused(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                plan: request()->input('plan', ''),
+                extra: request()->except(['user_id', 'subscription_id', 'plan']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Subscription paused tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track subscription resumed.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionResumed(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->subscriptionResumed(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                plan: request()->input('plan', ''),
+                extra: request()->except(['user_id', 'subscription_id', 'plan']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Subscription resumed tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track payment succeeded.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionPaymentSucceeded(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->paymentSucceeded(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                amount: (float) request()->input('amount', 0),
+                paymentMethod: request()->input('payment_method'),
+                extra: request()->except(['user_id', 'subscription_id', 'amount', 'payment_method']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Payment succeeded tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track payment failed.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionPaymentFailed(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->paymentFailed(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                attemptedAmount: (float) request()->input('attempted_amount', 0),
+                attemptNumber: (int) request()->input('attempt_number', 1),
+                failureReason: request()->input('failure_reason'),
+                extra: request()->except(['user_id', 'subscription_id', 'attempted_amount', 'attempt_number', 'failure_reason']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Payment failed tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Track billing retry.
+     *
+     * @return JsonResponse
+     */
+    public function subscriptionBillingRetry(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SubscriptionLifecycleService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SubscriptionLifecycleService::class);
+            $event = $service->billingRetry(
+                userId: request()->input('user_id', ''),
+                subscriptionId: request()->input('subscription_id', ''),
+                retryCount: (int) request()->input('retry_count', 1),
+                outstandingAmount: request()->input('outstanding_amount') !== null ? (float) request()->input('outstanding_amount') : null,
+                extra: request()->except(['user_id', 'subscription_id', 'retry_count', 'outstanding_amount']),
+            );
+
+            $this->manager->trackEvent($event);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Billing retry tracking failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
