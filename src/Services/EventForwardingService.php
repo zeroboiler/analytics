@@ -391,7 +391,7 @@ final class EventForwardingService
             'properties' => $event->params,
             'timestamp' => date('c'),
             'context' => [
-                'library' => ['name' => 'zeroboiler-analytics', 'version' => '3.0.0'],
+                'library' => ['name' => 'zeroboiler-analytics', 'version' => AnalyticsEvent::VERSION],
             ],
         ];
     }
@@ -460,7 +460,7 @@ final class EventForwardingService
             'user_id' => $event->userId,
             'timestamp' => date('c'),
             'source' => 'zeroboiler-analytics',
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
         ];
     }
 

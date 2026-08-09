@@ -11,6 +11,7 @@ namespace ZeroBoiler\Analytics\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\EventStreamService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -136,7 +137,7 @@ final class AnalyticsSSEController extends Controller
     {
         return response()->json([
             'status' => 'ok',
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
             'sse' => [
                 'supported' => true,
                 'endpoint' => '/api/analytics/sse',

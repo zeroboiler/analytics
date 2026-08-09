@@ -362,7 +362,7 @@ final class EventEnvelopeService
         return [
             'enabled' => $this->enabled,
             'sections' => $this->activeSections(),
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
         ];
     }
 }

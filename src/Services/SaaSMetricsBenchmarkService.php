@@ -10,6 +10,7 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
  * SaaS metrics benchmarking engine with industry-standard thresholds.
@@ -776,7 +777,7 @@ final class SaaSMetricsBenchmarkService
             'total_metrics' => $this->benchmarkCount(),
             'categories' => $this->availableCategories(),
             'industry' => $this->industry,
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
         ];
     }
 

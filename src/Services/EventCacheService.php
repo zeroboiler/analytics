@@ -324,7 +324,7 @@ final class EventCacheService
             'memory_max' => $this->memoryMaxItems,
             'l2_enabled' => $this->cacheEnabled,
             'l2_ttl' => $this->cacheTtl,
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
         ];
     }
 

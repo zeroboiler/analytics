@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
@@ -39,7 +40,7 @@ final class EventExporterService
     {
         $byCategory = EventCatalog::byCategory();
         $result = [
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
             'total' => EventCatalog::count(),
             'categories' => [],
         ];

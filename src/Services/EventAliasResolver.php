@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
@@ -206,7 +207,7 @@ final class EventAliasResolver
                 'saas' => count($categories['saas']),
                 'engagement' => count($categories['engagement']),
             ],
-            'version' => '3.0.0',
+            'version' => AnalyticsEvent::VERSION,
         ];
     }
 
