@@ -584,20 +584,20 @@ test('feature 12: test coverage with 150+ test files', function (): void {
     expect(file_exists($testDir . '/V21InertiaAndIdentityTest.php'))->toBeTrue();
 });
 
-test('version consistency: all components report v3.5.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('3.5.0');
+test('version consistency: all components report v4.6.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('4.6.0');
 
     // JS client version
     $jsClient = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($jsClient)->toContain('@version 3.5.0');
+    expect($jsClient)->toContain('@version 4.6.0');
 
     // Svelte composables version
     $composables = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($composables)->toContain('@version 3.5.0');
+    expect($composables)->toContain('@version 4.6.0');
 
     // README version badge
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-3.5.0');
+    expect($readme)->toContain('version-4.6.0');
 });
 
 test('event catalog validation passes', function (): void {
@@ -642,7 +642,7 @@ test('analytics event DTO is immutable and readonly', function (): void {
     expect($event->params)->toBe(['key' => 'value']);
     expect($event->clientId)->toBe('client-123');
     expect($event->userId)->toBe('user-456');
-    expect($event->VERSION)->toBe('3.5.0');
+    expect($event->VERSION)->toBe('4.6.0');
 });
 
 test('analytics manager facade proxy methods cover SaaS lifecycle', function (): void {

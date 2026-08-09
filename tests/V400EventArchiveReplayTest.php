@@ -209,38 +209,38 @@ test('v4.0.0 archive controller methods return JsonResponse', function (): void 
     }
 });
 
-test('version consistency: AnalyticsEvent reports v4.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('4.0.0');
+test('version consistency: AnalyticsEvent reports v4.6.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('4.6.0');
 });
 
-test('version consistency: composer.json is v4.0.0', function (): void {
+test('version consistency: composer.json is v4.6.0', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('4.0.0');
+    expect($composer['version'])->toBe('4.6.0');
 });
 
-test('version consistency: README has version-4.0.0 badge', function (): void {
+test('version consistency: README has version-4.6.0 badge', function (): void {
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-4.0.0');
+    expect($readme)->toContain('version-4.6.0');
 });
 
-test('version consistency: JS client is v4.0.0', function (): void {
+test('version consistency: JS client is v4.6.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 4.0.0');
+    expect($js)->toContain('@version 4.6.0');
 });
 
-test('version consistency: Svelte composables is v4.0.0', function (): void {
+test('version consistency: Svelte composables is v4.6.0', function (): void {
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 4.0.0');
+    expect($svelte)->toContain('@version 4.6.0');
 });
 
-test('version consistency: TypeScript declarations is v4.0.0', function (): void {
+test('version consistency: TypeScript declarations is v4.6.0', function (): void {
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($dts)->toContain('@version 4.0.0');
+    expect($dts)->toContain('@version 4.6.0');
 });
 
-test('version consistency: ServiceProvider is v4.0.0', function (): void {
+test('version consistency: ServiceProvider is v4.6.0', function (): void {
     $sp = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
-    expect($sp)->toContain('@version 4.0.0');
+    expect($sp)->toContain('@version 4.6.0');
 });
 
 test('v4.0.0 event catalog validation passes', function (): void {
