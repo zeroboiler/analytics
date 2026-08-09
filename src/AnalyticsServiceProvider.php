@@ -152,6 +152,9 @@ use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
+use ZeroBoiler\Analytics\Services\EventCostTracker;
+use ZeroBoiler\Analytics\Services\NotificationWebhookService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -159,7 +162,7 @@ use ZeroBoiler\Analytics\Services\EventGovernanceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.2.0
+ * @version 4.4.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1510,6 +1513,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Cost Tracker (v4.4.0) — per-provider cost estimation
+        $this->app->singleton(EventCostTracker::class, function (Application $app): EventCostTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCostTracker($manager, $metrics, $cache, $config);
+        });
+
+        // Notification Webhook Service (v4.4.0) — alert notifications to Slack/Discord/webhook
+        $this->app->singleton(NotificationWebhookService::class, function (Application $app): NotificationWebhookService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new NotificationWebhookService($cache, $config);
+        });
     }
 
     /**
@@ -1537,6 +1564,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsBehavioralCommand::class,
                 AnalyticsArchetypeDriftCommand::class,
                 AnalyticsReplayCommand::class,
+                AnalyticsCostReportCommand::class,
             ]);
         }
 

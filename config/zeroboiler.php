@@ -2550,5 +2550,88 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Cost Tracking (v4.4.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, estimates per-provider analytics costs based on event volume
+        | and configured unit pricing. Supports free tiers, per-event pricing, and
+        | tiered models. Provides projected monthly cost estimates and budget alerts.
+        |
+        | Provider pricing defaults:
+        | - GA4: Free (unlimited)
+        | - GTM: Free (client-side only)
+        | - Meta Pixel: Free (CAPI is free)
+        | - Plausible: $9 per 1M events (tiered)
+        | - PostHog: ~$225 per 1M events (1M free on free tier)
+        | - Webhook: Free (internal cost only)
+        |
+        | Override pricing per provider with the 'providers' key.
+        |
+        */
+        'cost_tracking' => [
+            'enabled' => env('ANALYTICS_COST_TRACKING_ENABLED', false),
+            'currency' => env('ANALYTICS_COST_TRACKING_CURRENCY', 'USD'),
+            'providers' => [
+                // Override default pricing per provider:
+                // 'posthog' => ['unit_cost' => 0.0003, 'free_tier' => 1000000],
+                // 'plausible' => ['unit_cost' => 0.01],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Notification Webhooks (v4.4.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, sends analytics alert notifications to external webhook
+        | endpoints (Slack, Discord, Microsoft Teams, PagerDuty, or generic HTTP).
+        |
+        | Each webhook has:
+        | - url: Webhook URL (required)
+        | - channel: Format type (slack, discord, teams, pagerduty, generic)
+        | - enabled: Enable/disable toggle
+        | - secret: Bearer token for authenticated webhooks
+        | - min_severity: Minimum alert severity to send (debug, info, warning, elevated, critical)
+        | - events: Event name filter (empty = all events, supports wildcards)
+        |
+        | Rate limiting prevents alert fatigue — min seconds between sends per webhook.
+        |
+        | Example:
+        |   'webhooks' => [
+        |       'slack_alerts' => [
+        |           'enabled' => true,
+        |           'url' => env('ANALYTICS_SLACK_WEBHOOK_URL', ''),
+        |           'channel' => 'slack',
+        |           'min_severity' => 'warning',
+        |       ],
+        |       'discord_critical' => [
+        |           'enabled' => true,
+        |           'url' => env('ANALYTICS_DISCORD_WEBHOOK_URL', ''),
+        |           'channel' => 'discord',
+        |           'min_severity' => 'elevated',
+        |       ],
+        |   ],
+        |
+        */
+        'notification_webhooks' => [
+            'enabled' => env('ANALYTICS_NOTIFICATION_WEBHOOKS_ENABLED', false),
+            'rate_limit_seconds' => (int) env('ANALYTICS_NOTIFICATION_RATE_LIMIT', 60),
+            'max_delivery_history' => (int) env('ANALYTICS_NOTIFICATION_MAX_HISTORY', 1000),
+            'webhooks' => [
+                // 'slack_alerts' => [
+                //     'enabled' => true,
+                //     'url' => env('ANALYTICS_SLACK_WEBHOOK_URL', ''),
+                //     'channel' => 'slack',
+                //     'secret' => '',
+                //     'timeout' => 10,
+                //     'retries' => 2,
+                //     'min_severity' => 'warning',
+                //     'events' => ['purchase', 'subscription', 'payment_failed'],
+                // ],
+            ],
+        ],
+
     ],
 ];

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-4.4.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.4.0](#whats-new-in-v4400)
 - [What's New in v4.3.0](#whats-new-in-v4300)
 - [What's New in v4.2.0](#whats-new-in-v4200)
 - [What's New in v4.1.0](#whats-new-in-v4100)
@@ -79,6 +80,177 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.4.0
+
+**Event Cost Tracking & Notification Webhooks**
+
+v4.4.0 adds per-provider cost estimation for analytics spending control and multi-channel webhook notifications for alert delivery.
+
+### Event Cost Tracker
+
+The `EventCostTracker` estimates analytics costs based on event volume and provider pricing. Supports free tiers, per-event pricing, and tiered models. Provides projected monthly cost estimates to help budget your analytics spend.
+
+```php
+use ZeroBoiler\Analytics\Services\EventCostTracker;
+
+$costTracker = app(EventCostTracker::class);
+
+// Full cost report for all providers
+$report = $costTracker->report();
+// ['enabled' => true, 'currency' => 'USD', 'providers' => [...], 'total' => [...]]
+
+// Per-provider cost
+$posthogCost = $costTracker->providerCost('posthog');
+// ['events' => 150000, 'cost' => 0.0, 'projected_monthly' => 33.75, 'model' => 'per_event']
+
+// Check if within free tier
+$costTracker->isWithinFreeTier('posthog'); // true (if under 1M events)
+
+// Most expensive provider
+$expensive = $costTracker->mostExpensiveProvider();
+// ['provider' => 'posthog', 'projected_monthly' => 33.75]
+```
+
+Configuration (`zeroboiler.analytics.cost_tracking`):
+
+```env
+ANALYTICS_COST_TRACKING_ENABLED=true
+ANALYTICS_COST_TRACKING_CURRENCY=USD
+```
+
+Override provider pricing defaults:
+
+```php
+// config/zeroboiler.php
+'cost_tracking' => [
+    'enabled' => true,
+    'currency' => 'USD',
+    'providers' => [
+        'posthog' => ['unit_cost' => 0.0003, 'free_tier' => 500000],
+        'plausible' => ['unit_cost' => 0.009],
+    ],
+],
+```
+
+Built-in pricing defaults:
+| Provider | Model | Free Tier | Cost |
+|---|---|---|---|
+| GA4 | Free | Unlimited | $0 |
+| GTM | Free | N/A | $0 |
+| Meta Pixel | Free | N/A | $0 |
+| Plausible | Tiered | 0 | $9/1M events |
+| PostHog | Per-event | 1M | ~$225/1M events |
+| Webhook | Free | N/A | $0 |
+
+### Cost Report Command
+
+```bash
+php artisan zb:analytics:cost-report
+php artisan zb:analytics:cost-report --provider=posthog
+php artisan zb:analytics:cost-report --json
+```
+
+Output includes per-provider events, current cost, projected monthly cost, model type, and free tier remaining.
+
+### Cost API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/analytics/cost` | GET | Full cost report for all providers |
+| `GET /api/analytics/cost/{provider}` | GET | Cost for a specific provider |
+
+### Notification Webhook Service
+
+The `NotificationWebhookService` sends analytics alert notifications to external channels (Slack, Discord, Microsoft Teams, PagerDuty, or any HTTP webhook). Integrates with the existing EventAlertRulesService for automated alert delivery.
+
+```php
+use ZeroBoiler\Analytics\Services\NotificationWebhookService;
+
+$service = app(NotificationWebhookService::class);
+
+// Send an alert to all matching webhooks
+$result = $service->sendAlert([
+    'rule' => 'high_error_rate',
+    'event' => 'purchase',
+    'severity' => 'warning',
+    'message' => 'Error rate exceeds 5% on purchase events',
+    'triggered_at' => date('c'),
+]);
+// ['sent' => 2, 'failed' => 0, 'skipped' => 1, 'results' => [...]]
+
+// Send custom notification
+$service->sendCustom('slack_alerts', 'Deployment completed successfully', [
+    'severity' => 'info',
+    'event' => 'deploy',
+]);
+
+// Test webhook connection
+$result = $service->testWebhook('slack_alerts');
+// ['status' => 'sent', 'response_code' => 200, 'latency_ms' => 234.5]
+
+// Delivery statistics
+$stats = $service->deliveryStats();
+// ['webhooks' => [...], 'total_sent' => 142, 'total_failed' => 3]
+```
+
+Configuration (`zeroboiler.analytics.notification_webhooks`):
+
+```env
+ANALYTICS_NOTIFICATION_WEBHOOKS_ENABLED=true
+ANALYTICS_NOTIFICATION_RATE_LIMIT=60
+ANALYTICS_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T.../B.../xxx
+ANALYTICS_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/.../...
+```
+
+```php
+// config/zeroboiler.php
+'notification_webhooks' => [
+    'enabled' => true,
+    'rate_limit_seconds' => 60,
+    'webhooks' => [
+        'slack_alerts' => [
+            'enabled' => true,
+            'url' => env('ANALYTICS_SLACK_WEBHOOK_URL', ''),
+            'channel' => 'slack',
+            'min_severity' => 'warning',
+            'events' => ['purchase', 'subscription', 'payment_failed'],
+        ],
+        'discord_critical' => [
+            'enabled' => true,
+            'url' => env('ANALYTICS_DISCORD_WEBHOOK_URL', ''),
+            'channel' => 'discord',
+            'min_severity' => 'elevated',
+        ],
+    ],
+],
+```
+
+Supported channel formats:
+| Channel | Format | Features |
+|---|---|---|
+| `slack` | Block Kit | Header, fields, color-coded severity |
+| `discord` | Embed | Color-coded embeds, timestamp |
+| `teams` | Adaptive Card | Theme colors, facts layout |
+| `pagerduty` | Events API v2 | Severity mapping, routing key |
+| `generic` | Raw JSON | Flexible custom payload |
+
+### Notification API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/analytics/notifications/webhooks` | GET | List configured webhooks |
+| `GET /api/analytics/notifications/stats` | GET | Delivery statistics |
+| `POST /api/analytics/notifications/test/{webhookName}` | POST | Test webhook connection |
+| `POST /api/analytics/notifications/send` | POST | Send custom notification |
+
+### Smart Filtering
+
+Each webhook supports two filters to prevent noise:
+- **Severity threshold**: Only sends alerts at or above the configured minimum severity (debug < info < warning < elevated < critical)
+- **Event filter**: Only sends alerts for matching event names (supports wildcards like `purchase*`)
+
+Rate limiting (configurable per-webhook) prevents alert fatigue during sustained anomalies.
 
 ## What's New in v4.3.0
 

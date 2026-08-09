@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [4.4.0] - 2026-08-09
+
+### Added
+
+- **EventCostTracker** — Per-provider analytics cost estimation service. Supports free tiers, per-event pricing, and tiered cost models. Provides projected monthly cost estimates, per-provider cost breakdown, free tier remaining, and most-expensive-provider detection. `report()`, `providerCost()`, `cliSummary()`, `isWithinFreeTier()`, `mostExpensiveProvider()`. Cache-backed, reads from AnalyticsMetrics.
+- **NotificationWebhookService** — Multi-channel alert notification delivery to Slack (Block Kit), Discord (embeds), Microsoft Teams (Adaptive Cards), PagerDuty (Events API v2), and generic HTTP webhooks. Smart filtering by severity threshold and event name pattern. Rate limiting per webhook. Retry with exponential backoff. Delivery tracking with success/failure stats. `sendAlert()`, `sendCustom()`, `testWebhook()`, `deliveryStats()`, `getWebhooks()`.
+- **AnalyticsCostReportCommand** — `zb:analytics:cost-report` artisan command with full cost table, per-provider view, JSON output, free tier status, budget recommendations. `--json`, `--provider=ga4` options.
+- **Config sections** — `cost_tracking` (enabled, currency, provider pricing overrides) and `notification_webhooks` (enabled, rate_limit_seconds, webhooks with url/channel/severity/events/secret/retries config).
+- **API endpoints** — Cost tracking (GET /api/analytics/cost, GET /api/analytics/cost/{provider}) and Notification webhooks (GET /api/analytics/notifications/webhooks, GET /api/analytics/notifications/stats, POST /api/analytics/notifications/test/{name}, POST /api/analytics/notifications/send).
+- **ServiceProvider registrations** — EventCostTracker and NotificationWebhookService registered as singletons. AnalyticsCostReportCommand registered.
+- **V440CostTrackingNotificationsTest** — 20 test cases covering EventCostTracker (report, providers, free tier, CLI, pricing) and NotificationWebhookService (enabled, empty webhooks, disabled, stats, unknown webhook).
+- **Version bump** — 4.3.0 → 4.4.0 across AnalyticsEvent::VERSION, composer.json, ServiceProvider docblock, README badge.
+
+### Changed
+- **README** — Added v4.4.0 section with full feature documentation, pricing table, code examples, API reference, and channel format guide.
+
 ## [3.6.0] - 2026-08-09
 
 ### Added

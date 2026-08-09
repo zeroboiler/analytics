@@ -7352,4 +7352,112 @@ final class AnalyticsEventController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
+
+    // ─── v4.4.0: Event Cost Tracking ──────────────────────────────────
+
+    /**
+     * Get full cost report for all analytics providers.
+     *
+     * GET /api/analytics/cost
+     *
+     * @return JsonResponse
+     */
+    public function costReport(): JsonResponse
+    {
+        $costTracker = app(\ZeroBoiler\Analytics\Services\EventCostTracker::class);
+
+        return response()->json($costTracker->report());
+    }
+
+    /**
+     * Get cost report for a specific provider.
+     *
+     * GET /api/analytics/cost/{provider}
+     *
+     * @return JsonResponse
+     */
+    public function costProvider(Request $request, string $provider): JsonResponse
+    {
+        $costTracker = app(\ZeroBoiler\Analytics\Services\EventCostTracker::class);
+        $cost = $costTracker->providerCost($provider);
+
+        if ($cost === null) {
+            return response()->json(['error' => "Provider '{$provider}' not found or disabled"], 404);
+        }
+
+        return response()->json($cost);
+    }
+
+    // ─── v4.4.0: Notification Webhooks ──────────────────────────────
+
+    /**
+     * List configured notification webhooks.
+     *
+     * GET /api/analytics/notifications/webhooks
+     *
+     * @return JsonResponse
+     */
+    public function notificationWebhooks(): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\NotificationWebhookService::class);
+
+        return response()->json([
+            'enabled' => $service->isEnabled(),
+            'webhooks' => $service->getWebhooks(),
+        ]);
+    }
+
+    /**
+     * Get notification delivery statistics.
+     *
+     * GET /api/analytics/notifications/stats
+     *
+     * @return JsonResponse
+     */
+    public function notificationStats(): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\NotificationWebhookService::class);
+
+        return response()->json($service->deliveryStats());
+    }
+
+    /**
+     * Test a webhook connection by sending a ping.
+     *
+     * POST /api/analytics/notifications/test/{webhookName}
+     *
+     * @return JsonResponse
+     */
+    public function notificationTest(Request $request, string $webhookName): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\NotificationWebhookService::class);
+
+        return response()->json($service->testWebhook($webhookName));
+    }
+
+    /**
+     * Send a custom notification to a webhook.
+     *
+     * POST /api/analytics/notifications/send
+     *
+     * Body: { webhook: string, message: string, severity?: string }
+     *
+     * @return JsonResponse
+     */
+    public function notificationSend(Request $request): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\NotificationWebhookService::class);
+
+        $webhookName = $request->input('webhook', '');
+        $message = $request->input('message', '');
+        $context = $request->only(['event', 'severity']);
+
+        if ($webhookName === '' || $message === '') {
+            return response()->json(['error' => 'webhook and message are required'], 422);
+        }
+
+        $result = $service->sendCustom($webhookName, $message, $context);
+
+        return response()->json($result);
+    }
 }

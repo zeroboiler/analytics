@@ -400,4 +400,14 @@ Route::prefix('analytics')->group(function () {
     Route::delete('budget', [AnalyticsEventController::class, 'budgetClear']);
     Route::delete('budget/client/{clientId}', [AnalyticsEventController::class, 'budgetResetClient']);
     Route::delete('budget/user/{userId}', [AnalyticsEventController::class, 'budgetResetUser']);
+
+    // Event Cost Tracking (v4.4.0)
+    Route::get('cost', [AnalyticsEventController::class, 'costReport']);
+    Route::get('cost/{provider}', [AnalyticsEventController::class, 'costProvider']);
+
+    // Notification Webhooks (v4.4.0)
+    Route::get('notifications/webhooks', [AnalyticsEventController::class, 'notificationWebhooks']);
+    Route::get('notifications/stats', [AnalyticsEventController::class, 'notificationStats']);
+    Route::post('notifications/test/{webhookName}', [AnalyticsEventController::class, 'notificationTest']);
+    Route::post('notifications/send', [AnalyticsEventController::class, 'notificationSend']);
 });
