@@ -126,9 +126,11 @@ use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
 use ZeroBoiler\Analytics\Services\SessionReplayService;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
+use ZeroBoiler\Analytics\Services\EventOrchestrationService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
 
 /**
- * @version 2.98.0
+ * @version 2.99.0
  */
 
 /**
@@ -137,7 +139,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.98.0
+ * @version 2.99.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -668,6 +670,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $customPatterns = $piiConfig['custom_patterns'] ?? [];
 
             return new AdvancedPIIDetector($threshold, $customPatterns);
+        });
+
+        // Event orchestration service for multi-step lifecycle pipelines (v2.99.0)
+        $this->app->singleton(EventOrchestrationService::class, function (Application $app): EventOrchestrationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventOrchestrationService($manager, $config);
+        });
+
+        // Analytics insight aggregator for automated event intelligence (v2.99.0)
+        $this->app->singleton(AnalyticsInsightAggregator::class, function (Application $app): AnalyticsInsightAggregator {
+            /** @var EventStreamService $stream */
+            $stream = $app->make(EventStreamService::class);
+            /** @var EventAggregationService $aggregation */
+            $aggregation = $app->make(EventAggregationService::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $insightsConfig = $config->get('zeroboiler.analytics.insights', []);
+            /** @var array<string, mixed> $insightsConfig */
+
+            return new AnalyticsInsightAggregator($stream, $aggregation, $insightsConfig);
         });
 
         // Session replay service for user journey reconstruction (v2.98.0)

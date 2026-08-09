@@ -105,6 +105,10 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{score: int, grade: string, details: array{critical_events: array{present: int, total: int, score: int, max_score: int, missing: list<string>}, aarr_categories: int, providers: int, catalog_size: int}} maturityScore()
  * @method static array{checklist: array<string, list<array{event: string, tracked: bool, priority: string}>>, summary: array{total: int, tracked: int, completion: float, gaps: list<string>}} onboardingChecklist()
  * @method static array{signup_funnel: array{steps: int, present: int, missing: list<string>, score: float}, purchase_funnel: array{steps: int, present: int, missing: list<string>, score: float}, subscription_funnel: array{steps: int, present: int, missing: list<string>, score: float}, overall: float} funnelReadiness()
+ * @method static array{pipeline: string, status: string, started_at: string, steps: int, completed_steps: int, identity: string} orchestrate(string $pipelineName, string $clientId, ?string $userId = null, array $params = [])
+ * @method static array{step: string, event: string, pipeline_status: string, completed_steps: list<string>, remaining_steps: int, is_complete: bool} orchestrateAdvance(string $pipelineName, string $stepName, string $clientId, ?string $userId = null, array $params = [])
+ * @method static float orchestrateProgress(string $pipelineName, string $clientId, ?string $userId = null)
+ * @method static array{generated_at: string, insights: list<array{type: string, category: string, title: string, description: string, severity: string, metric: string|null, value: mixed|null, recommendation: string|null}>, summary: array{total: int, by_type: array<string, int>, by_severity: array<string, int>}} insightReport()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  */

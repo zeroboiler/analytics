@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '2.98.0';
+        return '2.99.0';
     }
 
     /**
@@ -1984,5 +1984,133 @@ final class AnalyticsManager
                 $params,
             );
         }
+    }
+
+    // ── Event Orchestration (v2.99.0) ─────────────────────────────────────
+
+    /**
+     * Start a multi-step orchestration pipeline.
+     *
+     * @param  array<string, mixed>  $params
+     * @return array{pipeline: string, status: string, started_at: string, steps: int, completed_steps: int, identity: string}
+     */
+    public function orchestrate(
+        string $pipelineName,
+        string $clientId,
+        ?string $userId = null,
+        array $params = [],
+    ): array {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->startPipeline($pipelineName, $clientId, $userId, $params);
+    }
+
+    /**
+     * Advance to the next step in an orchestration pipeline.
+     *
+     * @param  array<string, mixed>  $params
+     * @return array{step: string, event: string, pipeline_status: string, completed_steps: list<string>, remaining_steps: int, is_complete: bool}
+     */
+    public function orchestrateAdvance(
+        string $pipelineName,
+        string $stepName,
+        string $clientId,
+        ?string $userId = null,
+        array $params = [],
+    ): array {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->advanceStep($pipelineName, $stepName, $clientId, $userId, $params);
+    }
+
+    /**
+     * Get the progress percentage of an orchestration pipeline.
+     */
+    public function orchestrateProgress(
+        string $pipelineName,
+        string $clientId,
+        ?string $userId = null,
+    ): float {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->getProgress($pipelineName, $clientId, $userId);
+    }
+
+    /**
+     * Complete an orchestration pipeline manually.
+     *
+     * @param  array<string, mixed>  $params
+     * @return array{pipeline: string, status: string, completed_at: string, completed_steps: list<string>}
+     */
+    public function orchestrateComplete(
+        string $pipelineName,
+        string $clientId,
+        ?string $userId = null,
+        array $params = [],
+    ): array {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->completePipeline($pipelineName, $clientId, $userId, $params);
+    }
+
+    /**
+     * Cancel an active orchestration pipeline.
+     *
+     * @param  array<string, mixed>  $params
+     */
+    public function orchestrateCancel(
+        string $pipelineName,
+        string $clientId,
+        ?string $userId = null,
+        string $reason = '',
+        array $params = [],
+    ): array {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->cancelPipeline($pipelineName, $clientId, $userId, $reason, $params);
+    }
+
+    /**
+     * Get the next expected step for an active orchestration pipeline.
+     *
+     * @return array{name: string, event: string, required: bool}|null
+     */
+    public function orchestrateNextStep(
+        string $pipelineName,
+        string $clientId,
+        ?string $userId = null,
+    ): ?array {
+        $service = $this->resolveOrchestrationService();
+
+        return $service->getNextStep($pipelineName, $clientId, $userId);
+    }
+
+    // ── Automated Insights (v2.99.0) ────────────────────────────────────────
+
+    /**
+     * Generate a full automated insight report.
+     *
+     * Analyzes tracked events for trends, anomalies, funnel drop-offs,
+     * engagement patterns, and conversion opportunities.
+     *
+     * @return array{generated_at: string, insights: list<array{type: string, category: string, title: string, description: string, severity: string, metric: string|null, value: mixed|null, recommendation: string|null}>, summary: array{total: int, by_type: array<string, int>, by_severity: array<string, int>}}
+     */
+    public function insightReport(): array
+    {
+        $service = $this->resolveInsightAggregator();
+
+        return $service->generateReport();
+    }
+
+    // ── Service Resolvers ─────────────────────────────────────────────────
+
+    private function resolveOrchestrationService(): Services\EventOrchestrationService
+    {
+        return $this->getContainer()->make(Services\EventOrchestrationService::class);
+    }
+
+    private function resolveInsightAggregator(): Services\AnalyticsInsightAggregator
+    {
+        return $this->getContainer()->make(Services\AnalyticsInsightAggregator::class);
     }
 }

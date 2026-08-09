@@ -1695,7 +1695,7 @@ return [
             'param_name' => env('ANALYTICS_SCHEMA_VERSION_PARAM', '_schema_version'),
             'default_version' => env('ANALYTICS_SCHEMA_VERSION_DEFAULT', '1.0'),
             'include_catalog_version' => env('ANALYTICS_SCHEMA_VERSION_CATALOG', true),
-            'catalog_version' => '2.98.0',
+            'catalog_version' => '2.99.0',
         ],
 
         /*
@@ -2080,6 +2080,41 @@ return [
             'enabled' => env('ANALYTICS_PII_DETECTION_ENABLED', false),
             'confidence_threshold' => (float) env('ANALYTICS_PII_DETECTION_THRESHOLD', 0.5),
             'custom_patterns' => [],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Orchestration (Multi-Step Lifecycle Pipelines)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, provides multi-step event orchestration for SaaS lifecycle
+        | pipelines. Tracks sequential event progress across user journeys with
+        | timeout detection, completion events, and rollback support.
+        |
+        | Built-in pipelines: user_acquisition, trial_conversion, ecommerce_checkout,
+        | activation, retention. Custom pipelines can be defined here.
+        |
+        | Example custom pipeline:
+        |   'pipelines' => [
+        |       'onboarding' => [
+        |           'name' => 'onboarding',
+        |           'steps' => [
+        |               ['name' => 'welcome', 'event' => 'page_view', 'required' => true, 'timeout_seconds' => 86400],
+        |               ['name' => 'profile', 'event' => 'profile_updated', 'required' => true, 'timeout_seconds' => 604800],
+        |               ['name' => 'first_action', 'event' => 'feature_used', 'required' => true, 'timeout_seconds' => 604800],
+        |           ],
+        |           'on_complete_event' => 'onboarding_completed',
+        |           'on_timeout_event' => 'onboarding_timeout',
+        |           'on_failure_event' => null,
+        |       ],
+        |   ],
+        |
+        */
+        'orchestration' => [
+            'enabled' => env('ANALYTICS_ORCHESTRATION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_ORCHESTRATION_CACHE_TTL', 86400), // 24 hours
+            'scan_limit' => (int) env('ANALYTICS_ORCHESTRATION_SCAN_LIMIT', 100),
+            'pipelines' => [],
         ],
 
     ],
