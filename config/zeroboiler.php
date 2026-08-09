@@ -2739,5 +2739,34 @@ return [
             'exclude_events' => [], // Event names to exclude from broadcasting
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Regional Consent Detection (v5.4.0)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, automatically applies GDPR-compliant consent defaults
+        | based on the user's geographic region. Users in EU/UK/Brazil/CA/etc
+        | default to consent='denied' (opt-in). Other regions use the
+        | application's configured default.
+        |
+        | Country code is detected from request headers (CF-IPCountry,
+        | X-GeoIP-Country, etc.) or passed explicitly by the application.
+        |
+        */
+        'regional_consent' => [
+            'enabled' => env('ANALYTICS_REGIONAL_CONSENT_ENABLED', false),
+            'default_consent' => env('ANALYTICS_REGIONAL_CONSENT_DEFAULT', 'granted'),
+            'gdpr_default' => env('ANALYTICS_REGIONAL_CONSENT_GDPR_DEFAULT', 'denied'),
+            'gdpr_region_default' => env('ANALYTICS_REGIONAL_CONSENT_GDPR_REGION_DEFAULT', 'denied'),
+            'additional_regions' => [
+                // Additional country codes to treat as GDPR-applicable:
+                // 'AU', // Australia
+            ],
+            'excluded_regions' => [
+                // Country codes to exclude from GDPR rules:
+                // 'CH', // Exclude Switzerland if not applicable
+            ],
+        ],
+
     ],
 ];

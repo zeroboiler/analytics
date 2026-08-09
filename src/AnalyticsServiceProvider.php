@@ -163,6 +163,9 @@ use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataService;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
 use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
+use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
+use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
+use ZeroBoiler\Analytics\Services\RegionalConsentService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -170,7 +173,7 @@ use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 5.3.0
+ * @version 5.4.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1626,6 +1629,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
                 (int) ($tenantConfig['ttl'] ?? 3600),
             );
+        });
+
+        // Event Schema JSON Generator (v5.4.0) — frontend validation schemas
+        $this->app->singleton(EventSchemaJsonGenerator::class);
+
+        // Analytics Event Bus (v5.4.0) — in-process pub/sub for decoupled event processing
+        $this->app->singleton(AnalyticsEventBus::class);
+
+        // Regional Consent Service (v5.4.0) — GDPR-region-aware consent defaults
+        $this->app->singleton(RegionalConsentService::class, function (Application $app): RegionalConsentService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new RegionalConsentService($config);
         });
     }
 

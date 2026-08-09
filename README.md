@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-5.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-5.4.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -54,6 +54,120 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v5.4.0
+
+### Event Schema JSON Generator
+
+The `EventSchemaJsonGenerator` exports the entire event catalog as machine-readable **JSON Schema Draft 2020-12**, enabling frontend clients to validate event payloads before dispatch.
+
+```php
+use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
+
+$generator = app(EventSchemaJsonGenerator::class);
+
+// Full catalog schema (all events)
+$schema = $generator->generateCatalogSchema();
+$json = $generator->toJson();
+
+// Single event schema with typed parameter hints
+$purchaseSchema = $generator->generateEventSchema('purchase');
+// Returns: {title: 'purchase', properties: {params: {transaction_id, value, currency, items...}}}
+
+// Category schema (e.g., 'ecommerce', 'saas', 'engagement')
+$saasSchema = $generator->generateCategorySchema('saas');
+
+// Minimal event names schema (lightweight client validation)
+$namesSchema = $generator->generateEventNamesSchema();
+
+// Provider mapping table
+$mappings = $generator->generateProviderMappingTable();
+// {ga4: {purchase: 'purchase', ...}, meta: {purchase: 'Purchase', ...}, ...}
+```
+
+Parameter types are inferred for well-known events (purchase, sign_up, page_view, etc.) with JSON Schema types, ranges, and patterns.
+
+### Analytics Event Bus (In-Process Pub/Sub)
+
+The `AnalyticsEventBus` provides a lightweight publish/subscribe pattern for decoupled analytics event processing. Subscribers can react to events without coupling to the core tracker.
+
+```php
+use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+$bus = app(AnalyticsEventBus::class);
+
+// Subscribe to specific events
+$bus->subscribe('purchase', function (AnalyticsEvent $event): void {
+    // Trigger CRM sync, webhook, etc.
+    CRM::recordPurchase($event->params['transaction_id'], $event->params['value']);
+});
+
+// Subscribe to all events (wildcard)
+$bus->subscribeAll(function (AnalyticsEvent $event): void {
+    Log::debug('Analytics event dispatched', ['event' => $event->name]);
+});
+
+// Add middleware to modify events before subscribers
+$bus->addMiddleware('*', function (AnalyticsEvent $event): AnalyticsEvent {
+    // Enrich every event with tenant context
+    return new AnalyticsEvent(
+        name: $event->name,
+        params: array_merge($event->params, ['tenant' => currentTenantId()]),
+        clientId: $event->clientId,
+        userId: $event->userId,
+        timestamp: $event->timestamp,
+    );
+});
+
+// Publish events
+$bus->publish(new AnalyticsEvent('purchase', ['value' => 99.99]));
+```
+
+**Features:**
+- Re-entrant safe: nested publishes are queued and flushed after the current event
+- Middleware chain: modify events before they reach subscribers
+- Named + global subscribers
+- Event count inspection and cleanup API
+
+### Regional Consent Detection
+
+The `RegionalConsentService` automatically applies GDPR-compliant consent defaults based on the user's geographic region. EU, UK, Brazil, Canada, and 20+ other privacy-regulated jurisdictions default to `denied` (opt-in).
+
+```php
+use ZeroBoiler\Analytics\Services\RegionalConsentService;
+
+$service = app(RegionalConsentService::class);
+
+// Determine consent default from country code
+$consent = $service->getConsentDefault('DE');  // 'denied' (GDPR)
+$consent = $service->getConsentDefault('US');  // 'granted' (non-GDPR)
+
+// From IP with request headers
+$consent = $service->getConsentDefaultFromIp($ip, [
+    'cf-ipcountry' => 'FR',  // Cloudflare header
+]);
+
+// Check regions
+$service->isGdprRegion('GB');     // true
+$service->isUsPrivacyState('CA'); // true (California)
+$service->getGdprRegions();       // Full list of GDPR-applicable countries
+$service->summary();              // Configuration summary
+```
+
+**Config:**
+```env
+ANALYTICS_REGIONAL_CONSENT_ENABLED=true
+ANALYTICS_REGIONAL_CONSENT_GDPR_DEFAULT=denied
+```
+
+**Region coverage:** EU-27, UK, EEA, Brazil (LGPD), Canada (PIPEDA), India (DPDPA), Japan (APPI), South Korea (PIPA), Switzerland, Argentina, Thailand, Philippines, Indonesia, Vietnam, UAE, Saudi Arabia, Turkey, South Africa, plus 11 US state privacy laws.
+
+### Other Changes
+- Version synchronized across PHP, JS client, Svelte composables, and TypeScript definitions (5.4.0)
+- 3 new services registered in AnalyticsServiceProvider
+- `regional_consent` config section added
+- 3 new PHP classes with strict types, return types, and docblocks
 
 ## What's New in v5.3.0
 
