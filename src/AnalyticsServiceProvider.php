@@ -151,9 +151,10 @@ use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
+use ZeroBoiler\Analytics\Services\EventGovernanceService;
 
 /**
- * @version 4.0.0
+ * @version 4.1.0
  */
 
 /**
@@ -162,7 +163,7 @@ use ZeroBoiler\Analytics\Services\EventArchiveService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.0.0
+ * @version 4.1.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1505,6 +1506,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Governance (v4.1.0)
+        $this->app->singleton(EventGovernanceService::class, function (Application $app): EventGovernanceService {
+            return new EventGovernanceService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -1783,6 +1792,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/archive/{id}', [$controller, 'archiveGet']);
                 Route::post('analytics/archive/{id}/replay', [$controller, 'archiveReplay']);
                 Route::delete('analytics/archive', [$controller, 'archiveClear']);
+
+                // Event Governance (v4.1.0)
+                Route::get('analytics/governance', [$controller, 'governanceReport']);
+                Route::get('analytics/governance/events', [$controller, 'governanceRegistrations']);
+                Route::get('analytics/governance/attention', [$controller, 'governanceAttention']);
+                Route::get('analytics/governance/naming', [$controller, 'governanceNaming']);
+                Route::get('analytics/governance/quality', [$controller, 'governanceQuality']);
+                Route::get('analytics/governance/deprecations', [$controller, 'governanceDeprecations']);
             });
 
         // Authenticated endpoints
@@ -1841,6 +1858,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
                 // Provider Rate Limits reset (v2.71.0)
                 Route::post('analytics/provider-rate-limits/reset', [$controller, 'providerRateLimitsReset']);
+
+                // Event Governance management (v4.1.0)
+                Route::post('analytics/governance/register', [$controller, 'governanceRegister']);
+                Route::post('analytics/governance/activate', [$controller, 'governanceActivate']);
+                Route::post('analytics/governance/deprecate', [$controller, 'governanceDeprecate']);
+                Route::post('analytics/governance/retire', [$controller, 'governanceRetire']);
             });
     }
 }

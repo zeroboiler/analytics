@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.1.0](#whats-new-in-v4100)
 - [What's New in v4.0.0](#whats-new-in-v4000)
 - [What's New in v3.9.0](#whats-new-in-v3900)
 - [What's New in v3.8.0](#whats-new-in-v3800)
@@ -76,6 +77,107 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.1.0
+
+**Event Governance & Data Quality Framework**
+
+v4.1.0 adds industry-standard event governance capabilities inspired by Segment's Tracking Plan and Amplitude's Event Taxonomy. Manage the full lifecycle of analytics events — from registration and naming convention enforcement to deprecation and retirement — with data quality scoring across four dimensions.
+
+### Event Governance Service (`EventGovernanceService`)
+
+Central service for managing event lifecycle governance. Register events with owner, category, required/optional parameters, and track them through draft → active → deprecated → retired lifecycle stages.
+
+Features:
+- **Event registration** with naming convention validation, category enforcement, and owner tracking
+- **Lifecycle management** — draft, active, deprecated, retired status transitions
+- **Dispatch validation** — block or warn on retired/deprecated events, enforce required parameters
+- **Governance reports** — composite governance score, catalog coverage, naming compliance, duplicate risk
+- **Attention dashboard** — lists events needing action (draft or deprecated)
+
+### Event Naming Convention Service (`EventNamingConventionService`)
+
+Configurable event naming validator enforcing consistent event names across the platform.
+
+Features:
+- **Format enforcement** — snake_case (default), camelCase, or custom regex patterns
+- **Length validation** — configurable min/max event name length
+- **Reserved prefix protection** — prevents use of provider-reserved prefixes ($, zb_, amp_, etc.)
+- **Custom prefix requirements** — enforce prefixes for custom (non-catalog) events
+- **Catalog compliance scoring** — percentage of catalog events that pass naming validation
+- **Normalization** — auto-convert event names to configured format
+
+### Data Quality Scorer (`DataQualityScorer`)
+
+Measures analytics data quality across four weighted dimensions with configurable scoring.
+
+Dimensions:
+- **Completeness (35%)** — percentage of events with all required parameters populated
+- **Consistency (30%)** — events conform to registered schemas and naming conventions
+- **Timeliness (15%)** — events dispatched within expected time windows
+- **Validity (20%)** — events pass all validation rules (type, range, enum)
+
+Features:
+- **Overall quality score** (0-100) with letter grade (A/B/C/D/F)
+- **Per-dimension scoring** with issue breakdown
+- **Worst events list** — events sorted by quality issues (worst first)
+- **Configurable weights** — adjust dimension importance per product needs
+
+### Event Deprecation Service (`EventDeprecationService`)
+
+Structured deprecation lifecycle management with sunset periods and replacement tracking.
+
+Features:
+- **Sunset periods** — configurable grace period (default 30 days) before retirement
+- **Replacement suggestions** — specify replacement event names for deprecated events
+- **Dispatch tracking** — count dispatches of deprecated events post-deprecation
+- **Sunset expiry detection** — automatically mark expired deprecations
+- **Undeprecate capability** — reverse a deprecation if needed
+
+### Governance API Endpoints
+
+| Endpoint | Method | Auth | Description |
+|---|---|---|---|
+| `GET /api/analytics/governance` | GET | No | Governance report and scores |
+| `GET /api/analytics/governance/events` | GET | No | List registrations (filter by ?status=draft\|active\|deprecated\|retired) |
+| `GET /api/analytics/governance/attention` | GET | No | Events needing action |
+| `GET /api/analytics/governance/naming` | GET | No | Naming compliance score and summary |
+| `GET /api/analytics/governance/quality` | GET | No | Data quality report with all dimensions |
+| `GET /api/analytics/governance/deprecations` | GET | No | Deprecation warnings and expired events |
+| `POST /api/analytics/governance/register` | POST | Yes | Register a new event |
+| `POST /api/analytics/governance/activate` | POST | Yes | Activate a draft event |
+| `POST /api/analytics/governance/deprecate` | POST | Yes | Deprecate an active event |
+| `POST /api/analytics/governance/retire` | POST | Yes | Retire a deprecated event |
+
+### Configuration
+
+```env
+ANALYTICS_GOVERNANCE_ENABLED=true
+ANALYTICS_GOVERNANCE_ENFORCE=false        # block invalid events on dispatch
+ANALYTICS_GOVERNANCE_NAMING_FORMAT=snake_case
+ANALYTICS_GOVERNANCE_SUNSET_DAYS=30
+ANALYTICS_GOVERNANCE_QUALITY_MIN=10       # min events for quality scoring
+```
+
+```php
+// Register and manage events via code
+use ZeroBoiler\Analytics\Services\EventGovernanceService;
+
+$governance = app(EventGovernanceService::class);
+
+// Register a new custom event
+$governance->register('app_wizard_completed', 'engagement', 'product-team', 'User completed onboarding wizard', ['wizard_id']);
+
+// Activate it
+$governance->activate('app_wizard_completed');
+
+// Deprecate an old event with replacement
+$governance->deprecate('onboarding_done', 'app_wizard_completed');
+
+// Check governance health
+$report = $governance->report();
+// → ['governance_score' => 87.5, 'naming_score' => 98.0, 'quality_score' => 92.3, ...]
+```
 
 ## What's New in v4.0.0
 

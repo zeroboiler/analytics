@@ -362,4 +362,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('archive/{id}', [AnalyticsEventController::class, 'archiveGet']);
     Route::post('archive/{id}/replay', [AnalyticsEventController::class, 'archiveReplay']);
     Route::delete('archive', [AnalyticsEventController::class, 'archiveClear']);
+
+    // Event Governance (v4.1.0)
+    Route::get('governance', [AnalyticsEventController::class, 'governanceReport']);
+    Route::get('governance/events', [AnalyticsEventController::class, 'governanceRegistrations']);
+    Route::get('governance/attention', [AnalyticsEventController::class, 'governanceAttention']);
+    Route::get('governance/naming', [AnalyticsEventController::class, 'governanceNaming']);
+    Route::get('governance/quality', [AnalyticsEventController::class, 'governanceQuality']);
+    Route::get('governance/deprecations', [AnalyticsEventController::class, 'governanceDeprecations']);
 });

@@ -2460,5 +2460,72 @@ return [
             'never_archive' => [], // Event names to never archive
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Governance & Data Quality (v4.1.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Enforces event naming conventions, lifecycle governance (register, activate,
+        | deprecate, retire), and data quality scoring across four dimensions:
+        | completeness, consistency, timeliness, and validity.
+        |
+        | Inspired by Segment's Tracking Plan and Amplitude's Event Taxonomy.
+        |
+        */
+        'governance' => [
+            'enabled' => env('ANALYTICS_GOVERNANCE_ENABLED', false),
+            'enforce_on_dispatch' => env('ANALYTICS_GOVERNANCE_ENFORCE', false), // block invalid events
+            'cache_ttl' => (int) env('ANALYTICS_GOVERNANCE_CACHE_TTL', 3600), // 1 hour
+            'reserved_prefixes' => ['$', 'zb_', 'amp_', 'firebase_', 'ga_'],
+
+            /*
+            | Naming Conventions
+            |
+            | Configure the expected format for event names.
+            | Options: 'snake_case', 'camelCase', or set custom_pattern for regex.
+            |
+            */
+            'naming' => [
+                'format' => env('ANALYTICS_GOVERNANCE_NAMING_FORMAT', 'snake_case'),
+                'max_length' => (int) env('ANALYTICS_GOVERNANCE_NAMING_MAX', 100),
+                'min_length' => (int) env('ANALYTICS_GOVERNANCE_NAMING_MIN', 2),
+                'custom_prefixes' => [], // Required prefixes for custom (non-catalog) events
+                'reserved_prefixes' => ['$', 'zb_', 'amp_', 'firebase_', 'ga_'],
+                'disallowed_patterns' => [
+                    // '/__/',
+                ],
+                'custom_pattern' => null, // Regex override for custom naming
+            ],
+
+            /*
+            | Deprecation Settings
+            |
+            | Default sunset period for deprecated events (in days).
+            | After the sunset period, the event should be retired.
+            |
+            */
+            'deprecation' => [
+                'default_sunset_days' => (int) env('ANALYTICS_GOVERNANCE_SUNSET_DAYS', 30),
+            ],
+
+            /*
+            | Data Quality Scoring
+            |
+            | Configure dimension weights for the composite quality score.
+            | Weights must sum to 1.0.
+            |
+            */
+            'quality' => [
+                'cache_ttl' => (int) env('ANALYTICS_GOVERNANCE_QUALITY_TTL', 3600),
+                'min_sample_size' => (int) env('ANALYTICS_GOVERNANCE_QUALITY_MIN', 10),
+                'weights' => [
+                    'completeness' => 0.35,
+                    'consistency' => 0.30,
+                    'timeliness' => 0.15,
+                    'validity' => 0.20,
+                ],
+            ],
+        ],
+
     ],
 ];

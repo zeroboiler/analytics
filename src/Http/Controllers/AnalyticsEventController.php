@@ -54,6 +54,7 @@ use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\UserJourneyService;
 use ZeroBoiler\Analytics\Services\SaaSConversionService;
+use ZeroBoiler\Analytics\Services\EventGovernanceService;
 
 /**
  * API controller for frontend event tracking.
@@ -149,6 +150,8 @@ final class AnalyticsEventController extends Controller
 
     private ?SaaSConversionService $conversionService;
 
+    private ?EventGovernanceService $governanceService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -205,6 +208,7 @@ final class AnalyticsEventController extends Controller
         ?SaaSHealthScoreService $healthScoreService = null,
         ?UserJourneyService $journeyService = null,
         ?SaaSConversionService $conversionService = null,
+        ?EventGovernanceService $governanceService = null,
     ): void {
         $this->manager = $manager;
         $this->config = $config;
@@ -244,6 +248,7 @@ final class AnalyticsEventController extends Controller
         $this->healthScoreService = $healthScoreService;
         $this->journeyService = $journeyService;
         $this->conversionService = $conversionService;
+        $this->governanceService = $governanceService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -6711,5 +6716,221 @@ final class AnalyticsEventController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // ─── Event Governance (v4.1.0) ────────────────────────────────────────────
+
+    /**
+     * Get governance report.
+     *
+     * GET /api/analytics/governance
+     *
+     * @return JsonResponse
+     */
+    public function governanceReport(): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['enabled' => false, 'message' => 'Governance service not configured']);
+        }
+
+        return response()->json([
+            'enabled' => $this->governanceService->isEnabled(),
+            'enforced' => $this->governanceService->isEnforced(),
+            'report' => $this->governanceService->report(),
+        ]);
+    }
+
+    /**
+     * Get all governance registrations.
+     *
+     * GET /api/analytics/governance/events
+     *
+     * @return JsonResponse
+     */
+    public function governanceRegistrations(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['registrations' => []]);
+        }
+
+        $status = $request->query('status');
+        $status = is_string($status) ? $status : null;
+
+        return response()->json([
+            'registrations' => $this->governanceService->registrations($status),
+        ]);
+    }
+
+    /**
+     * Register a new event for governance.
+     *
+     * POST /api/analytics/governance/register
+     *
+     * @return JsonResponse
+     */
+    public function governanceRegister(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        $name = $request->input('name', '');
+        $category = $request->input('category', 'custom');
+        $owner = $request->input('owner', '');
+        $description = $request->input('description', '');
+        $requiredParams = $request->input('required_params', []);
+        $optionalParams = $request->input('optional_params', []);
+
+        $name = is_string($name) ? $name : '';
+        $category = is_string($category) ? $category : 'custom';
+        $owner = is_string($owner) ? $owner : '';
+        $description = is_string($description) ? $description : '';
+        $requiredParams = is_array($requiredParams) ? $requiredParams : [];
+        $optionalParams = is_array($optionalParams) ? $optionalParams : [];
+
+        $result = $this->governanceService->register($name, $category, $owner, $description, $requiredParams, $optionalParams);
+
+        return response()->json($result, $result['success'] ? 201 : 422);
+    }
+
+    /**
+     * Activate a draft event.
+     *
+     * POST /api/analytics/governance/activate
+     *
+     * @return JsonResponse
+     */
+    public function governanceActivate(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        $name = $request->input('name', '');
+        $name = is_string($name) ? $name : '';
+
+        $result = $this->governanceService->activate($name);
+
+        return response()->json($result, $result['success'] ? 200 : 404);
+    }
+
+    /**
+     * Deprecate an active event.
+     *
+     * POST /api/analytics/governance/deprecate
+     *
+     * @return JsonResponse
+     */
+    public function governanceDeprecate(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        $name = $request->input('name', '');
+        $replacement = $request->input('replacement');
+        $name = is_string($name) ? $name : '';
+        $replacement = is_string($replacement) ? $replacement : null;
+
+        $result = $this->governanceService->deprecate($name, $replacement);
+
+        return response()->json($result, $result['success'] ? 200 : 404);
+    }
+
+    /**
+     * Retire a deprecated event.
+     *
+     * POST /api/analytics/governance/retire
+     *
+     * @return JsonResponse
+     */
+    public function governanceRetire(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        $name = $request->input('name', '');
+        $name = is_string($name) ? $name : '';
+
+        $result = $this->governanceService->retire($name);
+
+        return response()->json($result, $result['success'] ? 200 : 404);
+    }
+
+    /**
+     * Get events needing attention (draft/deprecated).
+     *
+     * GET /api/analytics/governance/attention
+     *
+     * @return JsonResponse
+     */
+    public function governanceAttention(): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['items' => []]);
+        }
+
+        return response()->json([
+            'items' => $this->governanceService->attentionRequired(),
+        ]);
+    }
+
+    /**
+     * Get naming convention compliance details.
+     *
+     * GET /api/analytics/governance/naming
+     *
+     * @return JsonResponse
+     */
+    public function governanceNaming(): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        return response()->json([
+            'format' => $this->governanceService->naming()->getFormat(),
+            'summary' => $this->governanceService->naming()->summary(),
+            'compliance_score' => $this->governanceService->naming()->catalogComplianceScore(),
+        ]);
+    }
+
+    /**
+     * Get data quality report.
+     *
+     * GET /api/analytics/governance/quality
+     *
+     * @return JsonResponse
+     */
+    public function governanceQuality(): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        return response()->json($this->governanceService->quality()->report());
+    }
+
+    /**
+     * Get deprecation warnings and expired events.
+     *
+     * GET /api/analytics/governance/deprecations
+     *
+     * @return JsonResponse
+     */
+    public function governanceDeprecations(Request $request): JsonResponse
+    {
+        if ($this->governanceService === null) {
+            return response()->json(['error' => 'Governance service not configured'], 503);
+        }
+
+        $days = (int) ($request->query('days', 30));
+
+        return response()->json([
+            'warnings' => $this->governanceService->deprecationWarnings($days),
+            'summary' => $this->governanceService->deprecation()->summary(),
+            'expired' => $this->governanceService->deprecation()->expired(),
+        ]);
     }
 }
