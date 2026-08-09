@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-5.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-5.2.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v5.2.0](#whats-new-in-v5200)
 - [What's New in v5.0.0](#whats-new-in-v5000)
 - [What's New in v4.5.0](#whats-new-in-v4500)
 - [What's New in v4.4.0](#whats-new-in-v4400)
@@ -52,6 +53,28 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v5.2.0
+
+### Serializable Queue Jobs (Breaking Improvement)
+
+The `QueuedAnalyticsDispatcher` now dispatches **serializable Job classes** instead of closures. This is a **critical production improvement** — closures cannot be serialized by redis, database, or any persistent queue driver.
+
+**New classes:**
+- `TrackAnalyticsEventJob` — Single event dispatch job with retry (3 attempts, 5s backoff, 30s timeout)
+- `TrackAnalyticsEventBatchJob` — Batch event dispatch with per-event error isolation (3 attempts, 5s backoff, 120s timeout)
+
+**New config option:**
+```env
+ANALYTICS_QUEUE_MAX_BATCH_SIZE=50
+```
+
+**Migration guide:** If you use `sync` queue driver, no changes needed. If you use `redis`/`database` drivers, this update fixes queue serialization errors that may have been silently failing in v5.1.0.
+
+**Other changes:**
+- Version synchronized across PHP, JS client, and Svelte composables (5.2.0)
+- `QueuedAnalyticsDispatcher::getMaxBatchSize()` added for programmatic batch size inspection
+- `EventPipeline` data bus, session analytics, and cohort analytics services now use serializable jobs
 
 ## Quick Start
 

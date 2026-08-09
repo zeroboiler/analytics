@@ -108,7 +108,7 @@ describe('DeviceContextService', function (): void {
     it('detects Chrome browser', function (): void {
         $service = new DeviceContextService;
 
-        expect($service->detectBrowser('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0.0.0'))
+        expect($service->detectBrowser('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.2.0.0'))
             ->toBe('Chrome');
     });
 
@@ -158,7 +158,7 @@ describe('DeviceContextService', function (): void {
     it('detects desktop device', function (): void {
         $service = new DeviceContextService;
 
-        expect($service->isDesktop('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0.0.0'))
+        expect($service->isDesktop('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.2.0.0'))
             ->toBeTrue();
     });
 
@@ -218,7 +218,7 @@ describe('DeviceContextService', function (): void {
     it('detects device type as desktop', function (): void {
         $service = new DeviceContextService;
 
-        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0.0.0';
+        $ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.2.0.0';
         expect($service->detectDeviceType($ua))->toBe('desktop');
     });
 
@@ -243,7 +243,7 @@ describe('DeviceContextService', function (): void {
     it('returns full parsed context', function (): void {
         $service = new DeviceContextService;
 
-        $result = $service->parseUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0.0.0');
+        $result = $service->parseUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.2.0.0');
 
         expect($result)->toHaveKeys([
             'browser', 'browser_version', 'os', 'os_version',

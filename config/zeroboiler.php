@@ -113,6 +113,7 @@ return [
             'enabled' => env('ANALYTICS_QUEUE_ENABLED', true),
             'queue' => env('ANALYTICS_QUEUE', 'analytics'),
             'connection' => env('ANALYTICS_QUEUE_CONNECTION'),
+            'max_batch_size' => (int) env('ANALYTICS_QUEUE_MAX_BATCH_SIZE', 50),
         ],
         /*
         |--------------------------------------------------------------------------

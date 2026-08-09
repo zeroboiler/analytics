@@ -287,14 +287,14 @@ test('ServiceProvider version is current', function (): void {
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('5.0.0');
+    expect($doc)->toContain('5.2.0');
 });
 
 test('config schema_versioning catalog_version is current', function (): void {
     // Verify the config file contains the correct version
     $configContent = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
 
-    expect($configContent)->toContain("'catalog_version' => '5.0.0'");
+    expect($configContent)->toContain("'catalog_version' => '5.2.0'");
 });
 
 test('config has onboarding_tracking section', function (): void {

@@ -20,12 +20,12 @@ use ZeroBoiler\Analytics\Events\Engagement\FeatureRequestEvent;
 describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
     describe('Version consistency', function () {
         it('AnalyticsEvent VERSION is 2.74.0', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('5.0.0');
+            expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
         });
 
         it('composer.json version matches AnalyticsEvent VERSION', function () {
             $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-            expect($composer['version'])->toBe('5.0.0');
+            expect($composer['version'])->toBe('5.2.0');
         });
     });
 
@@ -33,7 +33,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
         it('version returns 2.74.0', function () {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager(null);
 
-            expect($manager->version())->toBe('5.0.0');
+            expect($manager->version())->toBe('5.2.0');
         });
     });
 
@@ -314,15 +314,15 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
     describe('JS client version consistency', function () {
         it('JS client version is 2.74.0', function () {
             $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-            expect(str_contains($js, "'5.0.0'"))->toBeTrue();
+            expect(str_contains($js, "'5.2.0'"))->toBeTrue();
             // Should have 3 version references
-            $count = substr_count($js, "'5.0.0'");
+            $count = substr_count($js, "'5.2.0'");
             expect($count)->toBeGreaterThanOrEqual(3);
         });
 
         it('TypeScript definitions version is 2.74.0', function () {
             $ts = file_get_contents(__DIR__.'/../resources/js/analytics.d.ts');
-            expect(str_contains($ts, '5.0.0'))->toBeTrue();
+            expect(str_contains($ts, '5.2.0'))->toBeTrue();
         });
 
         it('TypeScript definitions have EcommerceConfig interface', function () {

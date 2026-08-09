@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Rate Limit Dashboard, and Feature Flag Integration tests.
  *
  * @license MIT
- * @version 5.0.0
+ * @version 5.2.0
  * @package ZeroBoiler\Analytics
  */
 

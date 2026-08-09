@@ -374,7 +374,7 @@ final class V87SaaSBenchmarkTest extends \PHPUnit\Framework\TestCase
         $this->assertArrayHasKey('industry', $summary);
         $this->assertArrayHasKey('version', $summary);
         $this->assertTrue($summary['enabled']);
-        $this->assertEquals('5.0.0', $summary['version']);
+        $this->assertEquals('5.2.0', $summary['version']);
         $this->assertEquals('saas', $summary['industry']);
     }
 
@@ -466,7 +466,7 @@ final class V87SaaSBenchmarkTest extends \PHPUnit\Framework\TestCase
         $summary = $this->service->summary();
 
         $this->assertArrayHasKey('version', $summary);
-        $this->assertEquals('5.0.0', $summary['version']);
+        $this->assertEquals('5.2.0', $summary['version']);
     }
 
     public function test_benchmark_count_matches_available_metrics(): void

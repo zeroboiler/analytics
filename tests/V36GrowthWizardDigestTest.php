@@ -829,17 +829,17 @@ describe('Version consistency', function (): void {
 
         if (file_exists($path)) {
             $composer = json_decode(file_get_contents($path), true);
-            expect($composer['version'])->toBe('5.0.0');
+            expect($composer['version'])->toBe('5.2.0');
         }
     });
 
-    it('AnalyticsEvent VERSION is 5.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('5.0.0');
+    it('AnalyticsEvent VERSION is 5.2.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
     });
 
-    it('AnalyticsHealthCheckService VERSION is 5.0.0', function (): void {
+    it('AnalyticsHealthCheckService VERSION is 5.2.0', function (): void {
         $ref = new ReflectionClass(ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
         $const = $ref->getConstant('VERSION');
-        expect($const)->toBe('5.0.0');
+        expect($const)->toBe('5.2.0');
     });
 });

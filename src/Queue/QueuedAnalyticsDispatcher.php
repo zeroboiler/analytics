@@ -8,17 +8,24 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Queue;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventBatchJob;
+use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob;
 
 /**
  * Dispatches analytics events asynchronously via Laravel queues.
  *
- * When queue is enabled, events are queued and processed in a background
- * worker instead of blocking the HTTP request. Uses the 'analytics' queue
- * connection by default.
+ * When queue is enabled, events are dispatched as serializable Job classes
+ * (TrackAnalyticsEventJob / TrackAnalyticsEventBatchJob) instead of
+ * closures. This ensures compatibility with redis, database, and all
+ * queue drivers that require serializable jobs.
+ *
+ * Uses the 'analytics' queue connection by default.
+ *
+ * @see \ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob
+ * @see \ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventBatchJob
  */
 final class QueuedAnalyticsDispatcher
 {
@@ -30,19 +37,26 @@ final class QueuedAnalyticsDispatcher
 
     private ?string $connection;
 
+    /** @var int Max events per batch job */
+    private int $maxBatchSize;
+
     public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
     {
         $this->manager = $manager;
 
         $queueConfig = $config->get('zeroboiler.analytics.queue', []);
-        /** @var array{enabled?: bool, queue?: string, connection?: string} $queueConfig */
+        /** @var array{enabled?: bool, queue?: string, connection?: string, max_batch_size?: int} $queueConfig */
         $this->enabled = (bool) ($queueConfig['enabled'] ?? true);
         $this->queueName = $queueConfig['queue'] ?? 'analytics';
         $this->connection = $queueConfig['connection'] ?? null;
+        $this->maxBatchSize = (int) ($queueConfig['max_batch_size'] ?? 50);
     }
 
     /**
      * Dispatch a single analytics event to the queue.
+     *
+     * Uses a serializable job class (TrackAnalyticsEventJob) for
+     * compatibility with all queue drivers.
      */
     public function dispatch(AnalyticsEvent $event): void
     {
@@ -53,9 +67,16 @@ final class QueuedAnalyticsDispatcher
             return;
         }
 
-        $pendingJob = dispatch(function () use ($event): void {
-            $this->safeTrack($event);
-        })
+        $job = new TrackAnalyticsEventJob(
+            name: $event->name,
+            params: $event->params,
+            clientId: $event->clientId,
+            userId: $event->userId,
+            timestamp: $event->timestamp?->getTimestamp(),
+            priority: $event->priority,
+        );
+
+        $pendingJob = dispatch($job)
             ->onQueue($this->queueName)
             ->afterCommit();
 
@@ -65,9 +86,11 @@ final class QueuedAnalyticsDispatcher
     }
 
     /**
-     * Dispatch multiple analytics events as a batch job.
+     * Dispatch multiple analytics events as batched jobs.
      *
-     * All events are processed in a single queue job to reduce overhead.
+     * Events are chunked into batches of maxBatchSize to keep
+     * individual jobs manageable. All events in a batch are processed
+     * in a single queue job to reduce overhead.
      *
      * @param  array<AnalyticsEvent>  $events
      */
@@ -85,16 +108,31 @@ final class QueuedAnalyticsDispatcher
             return;
         }
 
-        $pendingJob = dispatch(function () use ($events): void {
-            foreach ($events as $event) {
-                $this->safeTrack($event);
-            }
-        })
-            ->onQueue($this->queueName)
-            ->afterCommit();
+        // Chunk events into batches to avoid oversized jobs
+        $chunks = array_chunk($events, $this->maxBatchSize);
 
-        if ($this->connection !== null) {
-            $pendingJob->onConnection($this->connection);
+        foreach ($chunks as $chunk) {
+            $eventData = array_map(
+                fn (AnalyticsEvent $event): array => [
+                    'name' => $event->name,
+                    'params' => $event->params,
+                    'client_id' => $event->clientId,
+                    'user_id' => $event->userId,
+                    'timestamp' => $event->timestamp?->getTimestamp(),
+                    'priority' => $event->priority,
+                ],
+                $chunk,
+            );
+
+            $job = new TrackAnalyticsEventBatchJob(events: $eventData);
+
+            $pendingJob = dispatch($job)
+                ->onQueue($this->queueName)
+                ->afterCommit();
+
+            if ($this->connection !== null) {
+                $pendingJob->onConnection($this->connection);
+            }
         }
     }
 
@@ -137,17 +175,10 @@ final class QueuedAnalyticsDispatcher
     }
 
     /**
-     * Track an event with error handling to prevent queue job failures.
+     * Get the configured max batch size.
      */
-    private function safeTrack(AnalyticsEvent $event): void
+    public function getMaxBatchSize(): int
     {
-        try {
-            $this->manager->trackEvent($event);
-        } catch (\Throwable $e) {
-            Log::error('QueuedAnalyticsDispatcher: failed to track event', [
-                'event' => $event->name,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        return $this->maxBatchSize;
     }
 }
