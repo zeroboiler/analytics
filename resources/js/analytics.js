@@ -3193,7 +3193,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '5.9.0';
+    return '6.3.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

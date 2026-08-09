@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.4.0] - 2026-08-09
+
+### Added
+
+- **SaasRevenueEventBuilder** — Static convenience service for building provider-optimized SaaS revenue and subscription events. Provides factory methods for `subscription()`, `planUpgrade()`, `planDowngrade()`, `cancellation()`, `trialStart()`, `trialConversion()`, `paymentSucceeded()`, `paymentFailed()`. Each method returns GA4, Meta Pixel, and PostHog parameter arrays. Includes `buildEvent()` cross-provider factory that creates dispatchable `AnalyticsEvent` instances.
+- **Config: subscription lifecycle toggles** — Added `subscription.resumed` and `subscription.paused` lifecycle event toggles in the config file (previously supported by LifecycleEventMapper but not exposed in the published config).
+- **V640IndustryStandardSaaSUpgradeTest** — 40+ Pest test cases validating: event catalog completeness (90+ events), lifecycle event mapper defaults, e-commerce format conversion (GA4↔Meta items/contents/purchase), SaasRevenueEventBuilder (all 8 factory methods + buildEvent), config section completeness (30+ required sections), version consistency (5 entry points), strict types enforcement across all source files, queue job serialization, cross-provider coverage, identity linking, GDPR consent compliance, and end-to-end SaaS lifecycle flow (signup → trial → subscribe → upgrade → cancellation).
+
+### Changed
+
+- **Version sweep** — 6.3.0 → 6.4.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + @version), Svelte composables (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
 ## [6.2.0] - 2026-08-09
 
 ### Added

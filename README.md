@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.4.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,6 +57,48 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v6.4.0
+
+### SaaS Revenue Event Builder
+
+New `SaasRevenueEventBuilder` service provides static factory methods for building provider-optimized SaaS subscription and revenue events. Each method returns parameter arrays for GA4, Meta Pixel, and PostHog simultaneously.
+
+```php
+use ZeroBoiler\Analytics\Services\SaasRevenueEventBuilder;
+
+// Subscription event (maps to GA4 purchase, Meta Subscribe, PostHog subscription_created)
+$params = SaasRevenueEventBuilder::subscription('Pro', 49.00, 'USD', 'monthly');
+Analytics::trackEvent('subscribe', $params['ga4']);
+
+// Plan upgrade with from/to plan tracking
+$params = SaasRevenueEventBuilder::planUpgrade('Starter', 'Pro', 99.00);
+Analytics::trackEvent('plan_upgrade', $params['ga4']);
+
+// Trial start with duration
+$params = SaasRevenueEventBuilder::trialStart('Pro', 14);
+Analytics::trackEvent('start_trial', $params['ga4']);
+
+// Payment events with invoice tracking
+$params = SaasRevenueEventBuilder::paymentSucceeded(99.00, 'EUR', 'INV-001');
+Analytics::trackEvent('payment_succeeded', $params['ga4']);
+
+// Cancellation with reason tracking
+$params = SaasRevenueEventBuilder::cancellation('Pro', 'too_expensive');
+Analytics::trackEvent('cancellation', $params['ga4']);
+
+// Cross-provider event factory
+$event = SaasRevenueEventBuilder::buildEvent('subscribe', 'ga4', ['value' => 49], $clientId, $userId);
+Analytics::getManager()->trackEvent($event);
+```
+
+### Subscription Lifecycle Config Toggles
+
+Added `subscription.resumed` and `subscription.paused` lifecycle event toggles in the published config, enabling automatic server-side tracking when these events occur.
+
+### Industry-Standard Compliance Test Suite
+
+New `V640IndustryStandardSaaSUpgradeTest` with 40+ test cases validating all 12 feature areas: event catalog coverage (90+ events), lifecycle mapper defaults, cross-provider format conversion, SaaS revenue event builder, config section completeness, version consistency, strict types enforcement, queue serialization, identity linking, GDPR consent, and end-to-end SaaS lifecycle flow.
 
 ## What's New in v6.3.0
 

@@ -181,7 +181,7 @@ use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.3.0
+ * @version 6.4.0
  *
  * @since 1.0.0
  */
