@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.2.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.3.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,6 +57,81 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v6.3.0
+
+### TypeScript Type Definitions
+
+Full TypeScript type definitions (`resources/js/analytics.d.ts`) for the JS client library. Provides IntelliSense support in VS Code, WebStorm, and other TypeScript-aware editors for Svelte, Vue, React, and vanilla TS projects.
+
+```typescript
+import {
+  init,
+  trackEvent,
+  trackPageView,
+  trackEcommerce,
+  identify,
+  updateConsent,
+  connectSSE,
+  // ... 100+ typed exports
+} from '@zeroboiler/analytics';
+
+// All functions are fully typed with parameter hints
+const props = page.props.zbAnalytics as ZbAnalyticsProps;
+if (props.enabled) {
+  init(page.props);
+  await trackEvent('button_click', { element: 'cta' });
+}
+```
+
+- **ZbAnalyticsProps interface** — Complete type for Inertia page props
+- **100+ exported function signatures** — Every public API function typed
+- **EcommerceItem, ConsentState, PriorityLevel** — Shared types for structured data
+- **SSEConnectOptions, SSEConnection** — Type-safe SSE stream connections
+- **WebVitalMetric, CatalogResponse** — Response types for all API calls
+
+### First-Touch UTM Attribution Middleware
+
+New `FirstTouchUTMMiddleware` captures UTM parameters from the user's first visit and persists them in a long-lived cookie (365 days). Subsequent visits inherit the original acquisition source, enabling accurate cross-session attribution.
+
+```php
+// app/Http/Kernel.php — Register as global middleware
+protected $middleware = [
+    // ... existing middleware
+    \ZeroBoiler\Analytics\Middleware\FirstTouchUTMMiddleware::class,
+    // analytics.inertia should come after first-touch
+    \ZeroBoiler\Analytics\Middleware\FirstTouchUTMMiddleware::class,
+];
+
+// Or use the alias
+protected $middleware = [
+    'analytics.first-touch',
+];
+```
+
+```php
+// Access first-touch data in your controllers/services
+$firstTouch = $request->attributes->get('_zb_first_touch');
+// $firstTouch['data']['utm_source'] → 'google'
+// $firstTouch['data']['utm_medium'] → 'cpc'
+// $firstTouch['data']['_first_seen_at'] → '2025-01-15T10:30:00Z'
+// $firstTouch['data']['_landing_page'] → '/pricing'
+```
+
+```env
+# .env configuration
+ANALYTICS_FIRST_TOUCH_ENABLED=true
+ANALYTICS_FIRST_TOUCH_COOKIE=zb_first_touch
+ANALYTICS_FIRST_TOUCH_COOKIE_TTL=525600
+ANALYTICS_FIRST_TOUCH_COOKIE_SECURE=true
+ANALYTICS_FIRST_TOUCH_COOKIE_DOMAIN=          # null = current domain
+```
+
+- **First-touch persistence** — UTM params stored in 365-day httpOnly cookie
+- **No overwrite** — Original attribution preserved across all subsequent visits
+- **Landing page capture** — First landing page URL and timestamp recorded
+- **Request attributes** — `_zb_first_touch` available to all downstream middleware
+- **Graceful degradation** — Invalid cookie data silently ignored, no exceptions
 
 ## What's New in v6.2.0
 

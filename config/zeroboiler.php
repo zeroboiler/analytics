@@ -586,6 +586,27 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | First-Touch UTM Attribution (v6.3.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Persists UTM parameters from the user's first visit in a long-lived cookie.
+        | Enables cross-session attribution by preserving the original acquisition
+        | source even when subsequent visits have different or no UTM parameters.
+        |
+        | The FirstTouchUTMMiddleware reads/writes this cookie and stores the
+        | resolved first-touch data on request attributes as `_zb_first_touch`.
+        |
+        */
+        'first_touch' => [
+            'enabled' => env('ANALYTICS_FIRST_TOUCH_ENABLED', true),
+            'cookie_name' => env('ANALYTICS_FIRST_TOUCH_COOKIE', 'zb_first_touch'),
+            'cookie_ttl' => (int) env('ANALYTICS_FIRST_TOUCH_COOKIE_TTL', 525600), // 365 days (minutes)
+            'cookie_secure' => env('ANALYTICS_FIRST_TOUCH_COOKIE_SECURE', true),
+            'cookie_domain' => env('ANALYTICS_FIRST_TOUCH_COOKIE_DOMAIN'), // null = current domain
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Dispatcher (v3.4.0)
         |-------------------------------------------------------------------------- 
         |

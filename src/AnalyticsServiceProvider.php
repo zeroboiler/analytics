@@ -1780,6 +1780,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 'analytics.referrer',
                 \ZeroBoiler\Analytics\Middleware\AnalyticsReferrerMiddleware::class,
             );
+            $router->aliasMiddleware(
+                'analytics.first-touch',
+                \ZeroBoiler\Analytics\Middleware\FirstTouchUTMMiddleware::class,
+            );
         }
     }
 
