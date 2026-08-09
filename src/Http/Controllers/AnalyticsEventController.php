@@ -55,6 +55,8 @@ use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\UserJourneyService;
 use ZeroBoiler\Analytics\Services\SaaSConversionService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
+use ZeroBoiler\Analytics\Services\EventImpactService;
+use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 
 /**
  * API controller for frontend event tracking.
@@ -152,6 +154,10 @@ final class AnalyticsEventController extends Controller
 
     private ?EventGovernanceService $governanceService;
 
+    private ?EventImpactService $eventImpactService;
+
+    private ?FeatureAdoptionTracker $featureAdoptionTracker;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -209,6 +215,8 @@ final class AnalyticsEventController extends Controller
         ?UserJourneyService $journeyService = null,
         ?SaaSConversionService $conversionService = null,
         ?EventGovernanceService $governanceService = null,
+        ?EventImpactService $eventImpactService = null,
+        ?FeatureAdoptionTracker $featureAdoptionTracker = null,
     ): void {
         $this->manager = $manager;
         $this->config = $config;
@@ -249,6 +257,8 @@ final class AnalyticsEventController extends Controller
         $this->journeyService = $journeyService;
         $this->conversionService = $conversionService;
         $this->governanceService = $governanceService;
+        $this->eventImpactService = $eventImpactService;
+        $this->featureAdoptionTracker = $featureAdoptionTracker;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -6932,5 +6942,232 @@ final class AnalyticsEventController extends Controller
             'summary' => $this->governanceService->deprecation()->summary(),
             'expired' => $this->governanceService->deprecation()->expired(),
         ]);
+    }
+
+    // ─── Event Impact Analytics (v4.2.0) ─────────────────────────────────
+
+    /**
+     * Calculate event impact scores.
+     *
+     * POST /api/analytics/impact/calculate
+     *
+     * Accepts user behavior data and returns impact scores for each event type,
+     * ranking events by their correlation with conversion, retention, and revenue.
+     *
+     * @return JsonResponse
+     */
+    public function eventImpactCalculate(Request $request): JsonResponse
+    {
+        if ($this->eventImpactService === null) {
+            return response()->json(['error' => 'Event Impact service not configured'], 503);
+        }
+
+        $request->validate([
+            'users' => 'required|array|min:1',
+            'users.*.user_id' => 'required|string',
+            'users.*.events' => 'required|array',
+            'users.*.events.*' => 'string',
+            'users.*.converted' => 'boolean',
+            'users.*.retained' => 'boolean',
+            'users.*.revenue' => 'numeric',
+        ]);
+
+        $users = $request->input('users', []);
+
+        return response()->json($this->eventImpactService->calculateImpacts($users));
+    }
+
+    /**
+     * Get top conversion driver events.
+     *
+     * GET /api/analytics/impact/conversion-drivers?limit=10
+     *
+     * @return JsonResponse
+     */
+    public function eventImpactConversionDrivers(Request $request): JsonResponse
+    {
+        if ($this->eventImpactService === null) {
+            return response()->json(['error' => 'Event Impact service not configured'], 503);
+        }
+
+        $request->validate([
+            'users' => 'required|array|min:1',
+            'users.*.user_id' => 'required|string',
+            'users.*.events' => 'required|array',
+            'users.*.events.*' => 'string',
+            'users.*.converted' => 'boolean',
+            'users.*.retained' => 'boolean',
+            'users.*.revenue' => 'numeric',
+        ]);
+
+        $limit = (int) ($request->query('limit', 10));
+
+        return response()->json([
+            'drivers' => $this->eventImpactService->conversionDrivers($request->input('users', []), $limit),
+        ]);
+    }
+
+    /**
+     * Get top retention driver events.
+     *
+     * GET /api/analytics/impact/retention-drivers?limit=10
+     *
+     * @return JsonResponse
+     */
+    public function eventImpactRetentionDrivers(Request $request): JsonResponse
+    {
+        if ($this->eventImpactService === null) {
+            return response()->json(['error' => 'Event Impact service not configured'], 503);
+        }
+
+        $request->validate([
+            'users' => 'required|array|min:1',
+            'users.*.user_id' => 'required|string',
+            'users.*.events' => 'required|array',
+            'users.*.events.*' => 'string',
+            'users.*.converted' => 'boolean',
+            'users.*.retained' => 'boolean',
+            'users.*.revenue' => 'numeric',
+        ]);
+
+        $limit = (int) ($request->query('limit', 10));
+
+        return response()->json([
+            'drivers' => $this->eventImpactService->retentionDrivers($request->input('users', []), $limit),
+        ]);
+    }
+
+    // ─── Feature Adoption Analytics (v4.2.0) ────────────────────────────
+
+    /**
+     * Get a user's feature adoption profile.
+     *
+     * GET /api/analytics/adoption/profile/{userId}
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionProfile(Request $request, string $userId): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        return response()->json($this->featureAdoptionTracker->getProfile($userId));
+    }
+
+    /**
+     * Record a feature adoption event.
+     *
+     * POST /api/analytics/adoption/record
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionRecord(Request $request): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        $request->validate([
+            'user_id' => 'required|string',
+            'feature_name' => 'required|string|max:100',
+            'context' => 'array',
+        ]);
+
+        $this->featureAdoptionTracker->recordAdoption(
+            $request->input('user_id'),
+            $request->input('feature_name'),
+            $request->input('context', []),
+        );
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Get feature adoption funnel.
+     *
+     * POST /api/analytics/adoption/funnel
+     *
+     * Accepts ordered feature names and user IDs, returns adoption rates per feature.
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionFunnel(Request $request): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        $request->validate([
+            'features' => 'required|array|min:1',
+            'features.*' => 'string',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'string',
+        ]);
+
+        return response()->json([
+            'funnel' => $this->featureAdoptionTracker->adoptionFunnel(
+                $request->input('features', []),
+                $request->input('user_ids', []),
+            ),
+        ]);
+    }
+
+    /**
+     * Get recently adopted features for a user.
+     *
+     * GET /api/analytics/adoption/recent/{userId}?limit=10
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionRecent(Request $request, string $userId): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        $limit = (int) ($request->query('limit', 10));
+
+        return response()->json([
+            'features' => $this->featureAdoptionTracker->recentFeatures($userId, $limit),
+        ]);
+    }
+
+    /**
+     * Get adoption streak for a user's feature.
+     *
+     * GET /api/analytics/adoption/streak/{userId}/{featureName}
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionStreak(Request $request, string $userId, string $featureName): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        return response()->json([
+            'feature' => $featureName,
+            'user_id' => $userId,
+            'streak_days' => $this->featureAdoptionTracker->getStreak($userId, $featureName),
+        ]);
+    }
+
+    /**
+     * Clear a user's adoption profile.
+     *
+     * DELETE /api/analytics/adoption/profile/{userId}
+     *
+     * @return JsonResponse
+     */
+    public function featureAdoptionClear(Request $request, string $userId): JsonResponse
+    {
+        if ($this->featureAdoptionTracker === null) {
+            return response()->json(['error' => 'Feature Adoption service not configured'], 503);
+        }
+
+        $this->featureAdoptionTracker->clearProfile($userId);
+
+        return response()->json(['status' => 'ok']);
     }
 }

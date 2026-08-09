@@ -370,4 +370,21 @@ Route::prefix('analytics')->group(function () {
     Route::get('governance/naming', [AnalyticsEventController::class, 'governanceNaming']);
     Route::get('governance/quality', [AnalyticsEventController::class, 'governanceQuality']);
     Route::get('governance/deprecations', [AnalyticsEventController::class, 'governanceDeprecations']);
+    Route::post('governance/register', [AnalyticsEventController::class, 'governanceRegister']);
+    Route::post('governance/activate', [AnalyticsEventController::class, 'governanceActivate']);
+    Route::post('governance/deprecate', [AnalyticsEventController::class, 'governanceDeprecate']);
+    Route::post('governance/retire', [AnalyticsEventController::class, 'governanceRetire']);
+
+    // Event Impact Analytics (v4.2.0)
+    Route::post('impact/calculate', [AnalyticsEventController::class, 'eventImpactCalculate']);
+    Route::post('impact/conversion-drivers', [AnalyticsEventController::class, 'eventImpactConversionDrivers']);
+    Route::post('impact/retention-drivers', [AnalyticsEventController::class, 'eventImpactRetentionDrivers']);
+
+    // Feature Adoption Analytics (v4.2.0)
+    Route::get('adoption/profile/{userId}', [AnalyticsEventController::class, 'featureAdoptionProfile']);
+    Route::post('adoption/record', [AnalyticsEventController::class, 'featureAdoptionRecord']);
+    Route::post('adoption/funnel', [AnalyticsEventController::class, 'featureAdoptionFunnel']);
+    Route::get('adoption/recent/{userId}', [AnalyticsEventController::class, 'featureAdoptionRecent']);
+    Route::get('adoption/streak/{userId}/{featureName}', [AnalyticsEventController::class, 'featureAdoptionStreak']);
+    Route::delete('adoption/profile/{userId}', [AnalyticsEventController::class, 'featureAdoptionClear']);
 });

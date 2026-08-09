@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 4.1.0
+ * @version 4.2.0
  */
 
 let trackingId = null;
@@ -147,10 +147,10 @@ export function isInitialized() {
  *
  * Useful for diagnostics, debugging, and API compatibility checks.
  *
- * @returns {string} Semantic version (e.g. '3.9.0')
+ * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '3.9.0';
+    return '4.2.0';
 }
 
 /**
@@ -3121,7 +3121,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '3.9.0';
+    return '4.2.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

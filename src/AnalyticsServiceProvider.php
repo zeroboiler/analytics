@@ -1864,6 +1864,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/governance/activate', [$controller, 'governanceActivate']);
                 Route::post('analytics/governance/deprecate', [$controller, 'governanceDeprecate']);
                 Route::post('analytics/governance/retire', [$controller, 'governanceRetire']);
+
+                // Event Impact Analytics (v4.2.0)
+                Route::post('analytics/impact/calculate', [$controller, 'eventImpactCalculate']);
+                Route::post('analytics/impact/conversion-drivers', [$controller, 'eventImpactConversionDrivers']);
+                Route::post('analytics/impact/retention-drivers', [$controller, 'eventImpactRetentionDrivers']);
+
+                // Feature Adoption Analytics (v4.2.0)
+                Route::get('analytics/adoption/profile/{userId}', [$controller, 'featureAdoptionProfile']);
+                Route::post('analytics/adoption/record', [$controller, 'featureAdoptionRecord']);
+                Route::post('analytics/adoption/funnel', [$controller, 'featureAdoptionFunnel']);
+                Route::get('analytics/adoption/recent/{userId}', [$controller, 'featureAdoptionRecent']);
+                Route::get('analytics/adoption/streak/{userId}/{featureName}', [$controller, 'featureAdoptionStreak']);
+                Route::delete('analytics/adoption/profile/{userId}', [$controller, 'featureAdoptionClear']);
             });
     }
 }

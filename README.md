@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-4.2.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.2.0](#whats-new-in-v4200)
 - [What's New in v4.1.0](#whats-new-in-v4100)
 - [What's New in v4.0.0](#whats-new-in-v4000)
 - [What's New in v3.9.0](#whats-new-in-v3900)
@@ -77,6 +78,102 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.2.0
+
+**Event Impact Analytics, Feature Adoption API, Governance Mutation Endpoints, JS Client Version Sync**
+
+v4.2.0 bridges critical gaps between existing backend services and the API layer, adds missing governance write endpoints, and fixes stale JS client version strings.
+
+### Event Impact Analytics API
+
+The existing `EventImpactService` (point-biserial correlation scoring) now has dedicated REST endpoints for measuring which events most strongly predict conversion, retention, and revenue outcomes.
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `POST /api/analytics/impact/calculate` | POST | Full impact analysis — accepts user behavior data, returns per-event impact scores |
+| `POST /api/analytics/impact/conversion-drivers` | POST | Ranked conversion driver events (top N) |
+| `POST /api/analytics/impact/retention-drivers` | POST | Ranked retention driver events (top N) |
+
+```php
+use ZeroBoiler\Analytics\Services\EventImpactService;
+
+$service = app(EventImpactService::class);
+
+$impact = $service->calculateImpacts([
+    ['user_id' => 'u1', 'events' => ['sign_up', 'feature_used', 'page_view'], 'converted' => true, 'retained' => true, 'revenue' => 99.0],
+    ['user_id' => 'u2', 'events' => ['sign_up'], 'converted' => false, 'retained' => false, 'revenue' => 0],
+    // ... more users
+]);
+
+// → scores sorted by impact_score, with top_conversion and top_retention identified
+$converters = $service->conversionDrivers($users, 5);
+$retainers = $service->retentionDrivers($users, 5);
+```
+
+### Feature Adoption Analytics API
+
+The existing `FeatureAdoptionTracker` now exposes 6 REST endpoints for recording and querying user feature adoption profiles, funnels, streaks, and recent features.
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/analytics/adoption/profile/{userId}` | GET | Full adoption profile for a user |
+| `POST /api/analytics/adoption/record` | POST | Record a feature adoption event |
+| `POST /api/analytics/adoption/funnel` | POST | Adoption funnel across features and users |
+| `GET /api/analytics/adoption/recent/{userId}` | GET | Recently adopted features |
+| `GET /api/analytics/adoption/streak/{userId}/{featureName}` | GET | Current adoption streak in days |
+| `DELETE /api/analytics/adoption/profile/{userId}` | DELETE | Clear user adoption profile |
+
+```php
+use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
+
+$tracker = app(FeatureAdoptionTracker::class);
+
+// Record feature adoption
+$tracker->recordAdoption('u1', 'dashboard_export', ['plan' => 'pro']);
+
+// Get adoption profile
+$profile = $tracker->getProfile('u1');
+// → total_features, features[], streaks[], last_activity
+
+// Adoption funnel
+$funnel = $tracker->adoptionFunnel(
+    ['search', 'dashboard_export', 'api_integration', 'team_collaboration'],
+    ['u1', 'u2', 'u3', 'u4', 'u5'],
+);
+
+// Streak tracking
+$streak = $tracker->getStreak('u1', 'dashboard_export');
+```
+
+### Governance Mutation Endpoints
+
+The 4 governance write endpoints that were documented in v4.1.0 but missing from route registration are now live:
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `POST /api/analytics/governance/register` | POST | Register a new event for governance tracking |
+| `POST /api/analytics/governance/activate` | POST | Activate a draft event |
+| `POST /api/analytics/governance/deprecate` | POST | Deprecate an active event |
+| `POST /api/analytics/governance/retire` | POST | Retire a deprecated event |
+
+### Bug Fixes
+
+- **JS client version sync** — `getVersion()` and `_getInternalVersion()` now correctly return `'4.2.0'` (was stale at `'3.9.0'`)
+- **TypeScript definitions version** — `analytics.d.ts` `@version` updated from `4.0.0` to `4.2.0`
+
+### Configuration
+
+New config section for Event Impact (optional, uses sensible defaults):
+
+```env
+ANALYTICS_EVENT_IMPACT_ENABLED=true
+ANALYTICS_EVENT_IMPACT_MIN_SAMPLE_SIZE=30
+```
+
+### Tests
+
+New tests in `V42ImpactAdoptionGovernanceRoutesTest.php` covering Event Impact API, Feature Adoption API, and Governance mutation endpoints.
 
 ## What's New in v4.1.0
 
