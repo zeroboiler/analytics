@@ -322,7 +322,7 @@ final class AnalyticsGateService
             try {
                 $model = $this->config->get('auth.providers.users.model');
                 if ($model !== null && is_string($model) && class_exists($model)) {
-                    $user = $model::find($userId);
+                    $user = (new $model)->newQuery()->find($userId);
                 }
             } catch (\Throwable) {
                 return $this->defaultPlan;

@@ -2,6 +2,11 @@
 
 All notable changes to the package will be documented in this file.
 
+## [5.8.0] - 2026-08-09
+
+### Fixed
+- Replace static Eloquent call in `AnalyticsGateService::resolvePlan()` with `(new $model)->newQuery()->find()` pattern for testability
+
 ## [5.7.0] - 2026-08-09
 
 ### Added
