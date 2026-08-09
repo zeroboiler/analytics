@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.2.0] - 2026-08-09
+
+### Added
+
+- **AARRRFrameworkService** — Unified AARRR (Pirate Metrics) framework service for measuring SaaS growth across five pillars: Acquisition, Activation, Retention, Revenue, and Referral. Provides weighted health scoring (0-100), coverage analysis per pillar, weakest/strongest pillar detection, unmapped event discovery, and cache-backed dashboard summary.
+- **AnalyticsQuickSetupCommand** — `zb:analytics:setup` console command for quick project configuration analysis. Supports `--env` (print required .env variables), `--aarrr` (AARRR framework analysis), `--catalog` (event catalog summary), and `--fix` (common configuration issue detection).
+- **AARRR config section** — New `zeroboiler.analytics.aarrr` configuration with `enabled` and `cache_ttl` settings.
+- **V62AARRRFrameworkServiceTest** — 25+ Pest test cases covering: pillar definitions, weight validation, health scoring, cache behavior, weakest/strongest pillar detection, coverage analysis, unmapped events, dashboard summary, catalog integration, and score grading.
+
+### Changed
+
+- **Version sweep** — 6.1.0 → 6.2.0 across composer.json, README badge, CHANGELOG.
+- **ServiceProvider** — Registered `AnalyticsQuickSetupCommand` in the console commands list.
+
 ## [6.1.0] - 2026-08-09
 
 ### Added

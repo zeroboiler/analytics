@@ -172,6 +172,7 @@ use ZeroBoiler\Analytics\Services\PLGScoringService;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -1726,6 +1727,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCostReportCommand::class,
                 AnalyticsPLGScoreCommand::class,
                 AnalyticsTimeSeriesCommand::class,
+                AnalyticsQuickSetupCommand::class,
             ]);
         }
 

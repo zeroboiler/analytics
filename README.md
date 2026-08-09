@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.2.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.2.0](#whats-new-in-v6200)
 - [What's New in v6.1.0](#whats-new-in-v6100)
 - [What's New in v5.9.0](#whats-new-in-v5900)
 - [What's New in v5.8.0](#whats-new-in-v5800)
@@ -56,6 +57,71 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v6.2.0
+
+### AARRR Framework (SaaS Growth Metrics)
+
+Unified AARRR (Pirate Metrics) framework for measuring the five key SaaS growth pillars:
+
+```php
+use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
+
+// Health score: weighted score across all 5 pillars (0-100)
+$health = $aarrr->healthScore();
+// $health->score → 78.5
+// $health->grade → 'B'
+// $health->pillars → {acquisition: {score: 85.7, grade: 'A'}, ...}
+
+// Coverage analysis: which events are tracked per pillar
+$coverage = $aarrr->coverageAnalysis();
+
+// Dashboard summary: single response for SaaS growth dashboards
+$dashboard = $aarrr->dashboard();
+
+// Convenience tracking per pillar
+$aarrr->trackAcquisition('sign_up', ['source' => 'organic']);
+$aarrr->trackActivation('feature_used', ['feature' => 'dashboard']);
+$aarrr->trackRetention('login', ['method' => 'email']);
+$aarrr->trackRevenue('purchase', ['value' => 99.99]);
+$aarrr->trackReferral('share', ['platform' => 'twitter']);
+```
+
+- **AARRRFrameworkService** — Single source of truth for Acquisition, Activation, Retention, Revenue, Referral metrics
+- **Weighted health scoring** — Each pillar contributes proportionally (20/25/25/20/10) to overall score
+- **Coverage analysis** — Identifies which AARRR events are tracked vs. missing per pillar
+- **Weakest/strongest pillar detection** — Actionable recommendations for growth improvement
+- **Unmapped event discovery** — Find catalog events not yet assigned to any AARRR pillar
+- **Cache-backed health scoring** — 5-minute TTL for dashboard performance
+
+### Quick Setup Command
+
+```bash
+# Full setup wizard with configuration analysis
+php artisan zb:analytics:setup
+
+# With AARRR framework analysis
+php artisan zb:analytics:setup --aarrr
+
+# Print required .env variables
+php artisan zb:analytics:setup --env
+
+# Show event catalog summary
+php artisan zb:analytics:setup --catalog
+
+# Check for common configuration issues
+php artisan zb:analytics:setup --fix
+```
+
+### New Config Section
+
+```php
+// config/zeroboiler.php
+'aarrr' => [
+    'enabled' => true,
+    'cache_ttl' => 300, // 5 minutes
+],
+```
 
 ## What's New in v6.1.0
 

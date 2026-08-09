@@ -536,6 +536,22 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | AARRR Framework (SaaS Growth Metrics)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, AARRRFrameworkService provides a unified framework for
+        | measuring the five key SaaS growth pillars: Acquisition, Activation,
+        | Retention, Revenue, and Referral. Health scores are cached for
+        | dashboard performance.
+        |
+        */
+        'aarrr' => [
+            'enabled' => env('ANALYTICS_AARRR_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_AARRR_CACHE_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Event Tracing (End-to-End Correlation)
         |--------------------------------------------------------------------------
         |
