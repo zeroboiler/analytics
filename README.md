@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-5.9.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.1.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.1.0](#whats-new-in-v6100)
 - [What's New in v5.9.0](#whats-new-in-v5900)
 - [What's New in v5.8.0](#whats-new-in-v5800)
 - [What's New in v5.2.0](#whats-new-in-v5200)
@@ -55,6 +56,35 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v6.1.0
+
+### Typed Event Parameter Schemas
+
+Industry-standard typed parameter definitions for every event in the catalog. Each schema defines required parameters, optional parameters with types, and validation constraints.
+
+```php
+use ZeroBoiler\Analytics\Schema\EventParameterSchemas;
+
+// Get schema for any event
+$schema = EventParameterSchemas::forEvent('purchase');
+// $schema->required  → ['transaction_id', 'currency', 'value']
+// $schema->optional  → ['tax' => 'float', 'shipping' => 'float', ...]
+// $schema->itemParams → true
+
+// Validate event parameters at runtime
+$errors = EventParameterSchemas::validate('purchase', [
+    'transaction_id' => 'ORD-123',
+    'currency' => 'USD',
+    'value' => 99.99,
+]);
+// [] → valid (empty errors)
+```
+
+- **EventParameterSchema** — Immutable readonly value object with `name`, `category`, `required`, `optional`, `itemParams`
+- **EventParameterSchemas** — Static registry with 65+ schemas covering all Ecommerce, SaaS, and Engagement events
+- **Runtime validation** — `validate()` returns typed errors for missing required params and type mismatches
+- **Full coverage** — All 15 ecommerce events, 50+ SaaS lifecycle events, 30+ engagement events
 
 ## What's New in v5.9.0
 

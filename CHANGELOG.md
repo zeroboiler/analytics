@@ -2,6 +2,19 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.1.0] - 2026-08-09
+
+### Added
+
+- **EventParameterSchema** — Immutable readonly value object representing a single event's parameter schema (name, category, required params, optional params with types, itemParams flag).
+- **EventParameterSchemas** — Static registry with 65+ typed parameter schemas covering all Ecommerce (15 events), SaaS Lifecycle (50+ events), and Engagement (30+ events) categories. Provides `forEvent()`, `validate()`, `byCategory()`, `hasSchema()`, `schemaEventNames()`, and `count()` methods.
+- **Runtime parameter validation** — `EventParameterSchemas::validate()` checks required parameters, type-checks optional parameters (string, integer, float, boolean, array), and returns descriptive error messages. Custom events without schemas bypass validation.
+- **V61EventParameterSchemasTest** — 25+ test cases covering: schema coverage for all ecommerce, engagement, and core SaaS events; schema count threshold; category validation; specific schema structure validation (purchase, refund, sign_up, plan_upgrade, page_view, search, share); null handling for optional params; unknown event passthrough; type mismatch detection; category grouping; toArray serialization; itemParams consistency; and three end-to-end funnel validations (SaaS lifecycle, e-commerce purchase, engagement flow, and cohort analytics).
+
+### Changed
+
+- **Version sweep** — 6.0.0 → 6.1.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + @version), Svelte composables (@version), TypeScript definitions (@version), README badge, CHANGELOG.
+
 ## [5.9.0] - 2026-08-09
 
 ### Added
