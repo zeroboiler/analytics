@@ -52,7 +52,7 @@ final class SessionReplayService
         CacheRepository $cache,
         int $maxEvents = self::DEFAULT_MAX_EVENTS,
         int $ttl = self::DEFAULT_TTL,
-    ) {
+    ): void  {
         $this->cache = $cache;
         $this->maxEvents = $maxEvents;
         $this->ttl = $ttl;
