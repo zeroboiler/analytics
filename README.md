@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.4.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-4.5.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.5.0](#whats-new-in-v4500)
 - [What's New in v4.4.0](#whats-new-in-v4400)
 - [What's New in v4.3.0](#whats-new-in-v4300)
 - [What's New in v4.2.0](#whats-new-in-v4200)
@@ -80,6 +81,95 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.5.0
+
+**Config Audit API, Catalog Validator, Version Sync, Code Quality Fixes**
+
+v4.5.0 adds admin-facing configuration audit tools, catalog-aware event validation, fixes stale JS client version strings, and resolves a duplicate docblock issue.
+
+### Analytics Config Audit Service
+
+The `AnalyticsConfigAuditService` provides a safe, masked dump of the current analytics configuration for debugging, admin dashboards, and compliance audits. All sensitive values (API keys, secrets, tokens) are automatically masked.
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
+
+$audit = app(AnalyticsConfigAuditService::class);
+
+// Full masked config dump
+$report = $audit->audit();
+// ['version' => '4.5.0', 'timestamp' => '...', 'config' => [...], 'sections' => 22, 'masked_keys' => 8]
+
+// Provider and feature status summary
+$summary = $audit->summary();
+// ['providers' => ['ga4' => true, 'gtm' => false, ...], 'features' => [...], 'summary' => [...]]
+
+// Save a snapshot for future comparison
+$audit->saveSnapshot('pre-deployment');
+
+// Load and diff against current
+$snapshot = $audit->loadSnapshot('pre-deployment');
+$diff = $audit->diff($snapshot['snapshot']);
+// ['added' => [...], 'removed' => [...], 'changed' => [...], 'unchanged' => [...]]
+```
+
+### Config Audit API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/analytics/config/audit` | GET | Full masked configuration dump |
+| `GET /api/analytics/config/summary` | GET | Provider and feature status summary |
+| `POST /api/analytics/config/snapshot` | POST | Save config snapshot (`{ "label": "pre-deploy" }`) |
+| `GET /api/analytics/config/snapshot/{label}` | GET | Load saved snapshot |
+| `POST /api/analytics/config/diff` | POST | Compare current against snapshot |
+
+### Event Catalog Validator
+
+The `EventCatalogValidator` validates incoming events against the registered EventCatalog. Provides structured error messages for invalid events, unknown names, missing required parameters, and type mismatches.
+
+```php
+use ZeroBoiler\Analytics\Services\EventCatalogValidator;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+$validator = app(EventCatalogValidator::class);
+
+// Validate a single event
+$result = $validator->validate(new AnalyticsEvent('purchase', ['currency' => 'USD', 'value' => 99.0]));
+// ['valid' => true, 'event' => 'purchase', 'errors' => []]
+
+// Validate unknown event
+$result = $validator->validate(new AnalyticsEvent('my_custom_event', []));
+// ['valid' => true, 'event' => 'my_custom_event', 'errors' => []] — custom events are allowed
+
+// Catalog stats
+$stats = $validator->catalogStats();
+// ['total' => 130, 'ecommerce' => 15, 'saas' => 65, 'engagement' => 50, 'providers' => [...]]
+
+// Fuzzy search suggestions
+$suggestions = $validator->suggest('pur');
+// [['name' => 'purchase', 'category' => 'ecommerce'], ['name' => 'refund', 'category' => 'ecommerce']]
+```
+
+### Catalog Validation API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `POST /api/analytics/catalog/validate` | POST | Validate event against catalog |
+| `GET /api/analytics/catalog/stats` | GET | Catalog statistics |
+| `GET /api/analytics/catalog/suggest?q=pur&limit=5` | GET | Fuzzy search suggestions |
+
+### Bug Fixes
+
+- **JS client version sync** — `getVersion()` now returns `'4.5.0'` (was stale at `'4.2.0'`)
+- **Duplicate docblock removed** — Orphaned `trackSaaSAcquisition` docblock in AnalyticsManager cleaned up
+- **TypeScript definitions version** — `@version` updated from `4.4.0` to `4.5.0`
+
+### Service Provider Registrations
+
+- `AnalyticsConfigAuditService` registered as singleton
+- `EventCatalogValidator` registered as singleton
+- Both injected into `AnalyticsEventController` for API access
 
 ## What's New in v4.4.0
 

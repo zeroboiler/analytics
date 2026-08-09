@@ -1901,19 +1901,6 @@ final class AnalyticsManager
     }
 
     /**
-     * Track a complete SaaS signup-to-paid conversion funnel.
-     *
-     * Convenience method that dispatches the full SaaS acquisition
-     * sequence: sign_up → start_trial → subscribe in a single call.
-     * Useful for landing pages and onboarding flows.
-     *
-     * @param  string|null  $planName  Plan name
-     * @param  float|null  $amount  Subscription amount
-     * @param  string  $currency  Currency code
-     * @param  array{method?: string|null, trial_days?: int|null, billing_cycle?: string|null, skip_trial?: bool}  $options  Options
-     * @param  array<string, mixed>  $params  Additional parameters
-     */
-    /**
      * Run a comprehensive health check diagnostic.
      *
      * Returns a full diagnostic report covering provider configuration,

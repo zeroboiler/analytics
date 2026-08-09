@@ -58,6 +58,8 @@ use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
+use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 
 /**
  * API controller for frontend event tracking.
@@ -161,6 +163,10 @@ final class AnalyticsEventController extends Controller
 
     private ?EventBudgetService $budgetService;
 
+    private ?AnalyticsConfigAuditService $configAuditService;
+
+    private ?EventCatalogValidator $catalogValidator;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -221,6 +227,8 @@ final class AnalyticsEventController extends Controller
         ?EventImpactService $eventImpactService = null,
         ?FeatureAdoptionTracker $featureAdoptionTracker = null,
         ?EventBudgetService $budgetService = null,
+        ?AnalyticsConfigAuditService $configAuditService = null,
+        ?EventCatalogValidator $catalogValidator = null,
     ): void {
         $this->manager = $manager;
         $this->config = $config;
@@ -264,6 +272,8 @@ final class AnalyticsEventController extends Controller
         $this->eventImpactService = $eventImpactService;
         $this->featureAdoptionTracker = $featureAdoptionTracker;
         $this->budgetService = $budgetService;
+        $this->configAuditService = $configAuditService;
+        $this->catalogValidator = $catalogValidator;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -7459,5 +7469,178 @@ final class AnalyticsEventController extends Controller
         $result = $service->sendCustom($webhookName, $message, $context);
 
         return response()->json($result);
+    }
+
+    // ── Config Audit API (v4.5.0) ──────────────────────────────────────────
+
+    /**
+     * Get masked analytics configuration audit dump.
+     *
+     * GET /api/analytics/config/audit
+     *
+     * Returns the full analytics configuration with sensitive values masked.
+     * Useful for admin dashboards and debugging.
+     *
+     * @return JsonResponse
+     */
+    public function configAudit(): JsonResponse
+    {
+        if ($this->configAuditService === null) {
+            return response()->json(['error' => 'Config audit service not available'], 503);
+        }
+
+        return response()->json($this->configAuditService->audit());
+    }
+
+    /**
+     * Get analytics provider and feature status summary.
+     *
+     * GET /api/analytics/config/summary
+     *
+     * Returns enabled/disabled status for all providers and features.
+     *
+     * @return JsonResponse
+     */
+    public function configSummary(): JsonResponse
+    {
+        if ($this->configAuditService === null) {
+            return response()->json(['error' => 'Config audit service not available'], 503);
+        }
+
+        return response()->json($this->configAuditService->summary());
+    }
+
+    /**
+     * Save a configuration snapshot for future diff comparison.
+     *
+     * POST /api/analytics/config/snapshot
+     *
+     * Body: { "label": "pre-deployment" }
+     *
+     * @return JsonResponse
+     */
+    public function configSnapshotSave(Request $request): JsonResponse
+    {
+        if ($this->configAuditService === null) {
+            return response()->json(['error' => 'Config audit service not available'], 503);
+        }
+
+        $label = $request->input('label');
+
+        return response()->json($this->configAuditService->saveSnapshot(
+            is_string($label) ? $label : null,
+        ));
+    }
+
+    /**
+     * Load a previously saved configuration snapshot.
+     *
+     * GET /api/analytics/config/snapshot/{label}
+     *
+     * @return JsonResponse
+     */
+    public function configSnapshotLoad(Request $request, string $label): JsonResponse
+    {
+        if ($this->configAuditService === null) {
+            return response()->json(['error' => 'Config audit service not available'], 503);
+        }
+
+        return response()->json($this->configAuditService->loadSnapshot($label));
+    }
+
+    /**
+     * Compare current config against a snapshot.
+     *
+     * POST /api/analytics/config/diff
+     *
+     * Body: { "snapshot": { "ga4": { "enabled": true } } }
+     *
+     * @return JsonResponse
+     */
+    public function configDiff(Request $request): JsonResponse
+    {
+        if ($this->configAuditService === null) {
+            return response()->json(['error' => 'Config audit service not available'], 503);
+        }
+
+        $snapshot = $request->input('snapshot', []);
+        $snapshot = is_array($snapshot) ? $snapshot : [];
+
+        return response()->json($this->configAuditService->diff($snapshot));
+    }
+
+    // ── Event Catalog Validation API (v4.5.0) ─────────────────────────────
+
+    /**
+     * Validate an event name against the catalog.
+     *
+     * POST /api/analytics/catalog/validate
+     *
+     * Body: { "name": "purchase", "params": { "currency": "USD", "value": 99.0 } }
+     *
+     * @return JsonResponse
+     */
+    public function catalogValidate(Request $request): JsonResponse
+    {
+        if ($this->catalogValidator === null) {
+            return response()->json(['error' => 'Catalog validator not available'], 503);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'params' => 'array',
+        ]);
+
+        $name = $request->input('name', '');
+        $params = $request->input('params', []);
+        $params = is_array($params) ? $params : [];
+
+        $event = new AnalyticsEvent(
+            name: is_string($name) ? $name : '',
+            params: $params,
+        );
+
+        return response()->json($this->catalogValidator->validate($event));
+    }
+
+    /**
+     * Get catalog statistics.
+     *
+     * GET /api/analytics/catalog/stats
+     *
+     * @return JsonResponse
+     */
+    public function catalogStats(): JsonResponse
+    {
+        if ($this->catalogValidator === null) {
+            return response()->json(['error' => 'Catalog validator not available'], 503);
+        }
+
+        return response()->json($this->catalogValidator->catalogStats());
+    }
+
+    /**
+     * Suggest catalog events for a partial name.
+     *
+     * GET /api/analytics/catalog/suggest?q=pur&limit=5
+     *
+     * @return JsonResponse
+     */
+    public function catalogSuggest(Request $request): JsonResponse
+    {
+        if ($this->catalogValidator === null) {
+            return response()->json(['error' => 'Catalog validator not available'], 503);
+        }
+
+        $query = $request->query('q', '');
+        $limit = min((int) $request->query('limit', 5), 20);
+
+        return response()->json([
+            'query' => $query,
+            'suggestions' => $this->catalogValidator->suggest(
+                is_string($query) ? $query : '',
+                $limit,
+            ),
+        ]);
     }
 }

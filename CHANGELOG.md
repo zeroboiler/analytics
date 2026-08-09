@@ -2,6 +2,26 @@
 
 All notable changes to the package will be documented in this file.
 
+## [4.5.0] - 2026-08-09
+
+### Added
+
+- **AnalyticsConfigAuditService** — Safe, masked dump of analytics configuration for debugging, admin dashboards, and compliance audits. Recursively masks sensitive values (API keys, secrets, tokens). URL masking preserves domain. `audit()`, `summary()`, `diff()`, `saveSnapshot()`, `loadSnapshot()`.
+- **EventCatalogValidator** — Catalog-aware event validation service. Validates incoming events against the registered EventCatalog with structured error messages for invalid names, format violations, and length issues. `validate()`, `validateBatch()`, `isCatalogEvent()`, `getCategory()`, `catalogStats()`, `suggest()`.
+- **Config Audit API endpoints** — `GET /api/analytics/config/audit` (full masked dump), `GET /api/analytics/config/summary` (provider/feature status), `POST /api/analytics/config/snapshot` (save snapshot), `GET /api/analytics/config/snapshot/{label}` (load snapshot), `POST /api/analytics/config/diff` (compare against snapshot).
+- **Catalog Validation API endpoints** — `POST /api/analytics/catalog/validate` (validate event), `GET /api/analytics/catalog/stats` (catalog statistics), `GET /api/analytics/catalog/suggest?q=pur&limit=5` (fuzzy search).
+- **ServiceProvider registrations** — `AnalyticsConfigAuditService` and `EventCatalogValidator` registered as singletons, injected into `AnalyticsEventController`.
+- **V450ConfigAuditCatalogValidatorTest** — 25 test cases covering config audit (masking, summary, diff, snapshot), catalog validator (validation, batch, stats, suggestions, membership), version consistency across all files, route/controller/registration checks, and README documentation.
+
+### Changed
+
+- **Version bump** — 4.4.0 → 4.5.0 across `AnalyticsEvent::VERSION`, composer.json, ServiceProvider docblock, README badge, JS client header, JS `getVersion()`, TypeScript `@version`, Svelte composables `@version`.
+
+### Fixed
+
+- **JS client `getVersion()`** — Now correctly returns `'4.5.0'` (was stale at `'4.2.0'`).
+- **Duplicate docblock** — Removed orphaned `trackSaaSAcquisition` docblock in `AnalyticsManager.php` that appeared between `cancellation()` and `healthCheck()`.
+
 ## [4.4.0] - 2026-08-09
 
 ### Added

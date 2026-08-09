@@ -154,6 +154,8 @@ use ZeroBoiler\Analytics\Services\EventArchiveService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventCostTracker;
 use ZeroBoiler\Analytics\Services\NotificationWebhookService;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
+use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 
 /**
@@ -162,7 +164,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.4.0
+ * @version 4.5.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1537,6 +1539,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new NotificationWebhookService($cache, $config);
         });
+
+        // Analytics Config Audit Service (v4.5.0) — masked config dump, diff, snapshot
+        $this->app->singleton(AnalyticsConfigAuditService::class, function (Application $app): AnalyticsConfigAuditService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsConfigAuditService($config);
+        });
+
+        // Event Catalog Validator (v4.5.0) — catalog-aware event validation
+        $this->app->singleton(EventCatalogValidator::class);
     }
 
     /**

@@ -410,4 +410,16 @@ Route::prefix('analytics')->group(function () {
     Route::get('notifications/stats', [AnalyticsEventController::class, 'notificationStats']);
     Route::post('notifications/test/{webhookName}', [AnalyticsEventController::class, 'notificationTest']);
     Route::post('notifications/send', [AnalyticsEventController::class, 'notificationSend']);
+
+    // Config Audit API (v4.5.0)
+    Route::get('config/audit', [AnalyticsEventController::class, 'configAudit']);
+    Route::get('config/summary', [AnalyticsEventController::class, 'configSummary']);
+    Route::post('config/snapshot', [AnalyticsEventController::class, 'configSnapshotSave']);
+    Route::get('config/snapshot/{label}', [AnalyticsEventController::class, 'configSnapshotLoad']);
+    Route::post('config/diff', [AnalyticsEventController::class, 'configDiff']);
+
+    // Event Catalog Validation API (v4.5.0)
+    Route::post('catalog/validate', [AnalyticsEventController::class, 'catalogValidate']);
+    Route::get('catalog/stats', [AnalyticsEventController::class, 'catalogStats']);
+    Route::get('catalog/suggest', [AnalyticsEventController::class, 'catalogSuggest']);
 });
