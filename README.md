@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-3.8.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-3.9.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.9.0](#whats-new-in-v3900)
 - [What's New in v3.8.0](#whats-new-in-v3800)
 - [What's New in v3.7.0](#whats-new-in-v3700)
 - [What's New in v3.6.0](#whats-new-in-v3600)
@@ -74,6 +75,89 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.9.0
+
+**Event Archetype System, Config Drift Detection, k-Anonymity Aggregation**
+
+v3.9.0 adds three production-ready services for SaaS funnel instrumentation, configuration integrity monitoring, and GDPR-compliant analytics dashboards.
+
+### Event Archetype System (`EventArchetypeService`)
+
+Pre-defined SaaS funnel blueprints for instrumentation gap detection, completion scoring, and industry benchmarking. Six built-in archetypes covering the complete SaaS lifecycle:
+
+- **Signup Funnel** — Landing page → pricing view → form start → account creation → email verification → first login (acquisition)
+- **Activation Funnel** — Profile completed → first feature used → search → share → integration → team created → return visit (activation)
+- **Trial Conversion** — Trial started → active usage → checkout → payment info → purchase (conversion)
+- **E-Commerce Checkout** — Product viewed → add to cart → cart viewed → checkout → payment → purchase (ecommerce)
+- **Expansion Funnel** — Feature limit reached → pricing page → plan comparison → checkout → upgrade (growth)
+- **Retention Loop** — Login → core feature → content engagement → search → goal conversion → return next week (retention)
+
+Each archetype defines expected events with weighted scoring, timing thresholds, and optional/required flags.
+
+**API Endpoints:**
+- `GET /api/analytics/archetypes` — List all archetypes with summary
+- `GET /api/analytics/archetypes/{key}` — Detailed archetype with lifecycle config
+- `GET /api/analytics/archetypes/gaps` — Instrumentation gap analysis vs EventCatalog
+- `POST /api/analytics/archetypes/{key}/score` — Completion score for a user's events
+
+**Methods:** `all()`, `get()`, `keys()`, `byCategory()`, `allEventNames()`, `detectGaps()`, `completionScore()`, `toLifecycleConfig()`, `summary()`
+
+### Config Drift Detection Service (`ConfigDriftDetectionService`)
+
+Captures a snapshot of the analytics configuration as a baseline and compares it against the current config to detect drift between deployments.
+
+- **Use cases:** CI/CD config validation gates, post-deployment verification, ops monitoring for accidental config changes, multi-environment consistency
+- **Detection:** Added keys, removed keys, changed values, unchanged count — with full diff reporting
+- **Monitoring:** Configurable `monitored_sections` to focus on specific config areas, `exclude_keys` to ignore volatile values
+
+**API Endpoints:**
+- `GET /api/analytics/config-drift` — Detect drift against stored baseline
+- `GET /api/analytics/config-drift/baseline` — Get stored baseline metadata
+- `POST /api/analytics/config-drift/capture` — Capture current config as baseline
+- `DELETE /api/analytics/config-drift/baseline` — Clear stored baseline
+
+**Methods:** `captureBaseline()`, `detectDrift()`, `clearBaseline()`, `hasBaseline()`, `baselineInfo()`
+
+### Event Anonymization Aggregation Service (`EventAnonymizationAggregationService`)
+
+k-Anonymity-safe event aggregation for GDPR-compliant public dashboards. Groups with fewer than k events are suppressed, preventing individual user identification from sparse data.
+
+- **Aggregation levels:** By event name, by category, by time bucket (hourly/daily)
+- **Privacy guarantees:** k-anonymity threshold (default k=5), optional Laplace noise injection for differential privacy, configurable timestamp rounding
+- **Dashboard summary:** Single endpoint combining all aggregation levels
+
+**API Endpoints:**
+- `GET /api/analytics/anonymized/summary` — Full GDPR-safe dashboard summary
+- `GET /api/analytics/anonymized/by-event` — Per-event k-anonymized counts
+- `GET /api/analytics/anonymized/by-category` — Per-category k-anonymized counts
+- `GET /api/analytics/anonymized/by-time` — Time-bucketed k-anonymized counts
+
+### Admin Command
+
+`zb:analytics:archetype-drift` — Unified command for both systems:
+- `baseline` — Capture config baseline
+- `drift` — Detect config drift
+- `clear` — Clear baseline
+- `archetypes` — List all archetypes
+- `gaps` — Detect instrumentation gaps
+- `score --archetype=<key> --events=*` — Calculate completion score
+
+### Config Expansion
+
+New config sections in `zeroboiler.php`:
+- `archetypes` — Enable/disable, cache TTL, custom archetype definitions
+- `config_drift` — Enable/disable, cache TTL, exclude keys, monitored sections
+- `anonymized_aggregation` — Enable/disable, k-threshold, cache TTL, Laplace noise, time granularity, max event age
+
+### Tests
+
+30+ new tests in `V39ArchetypeDriftAnonymizationTest.php` covering all three services.
+
+### Bug Fixes
+
+- Fixed missing controller methods for v3.9.0 API routes (archetype, anonymized aggregation, config drift endpoints) — all 11 route handler methods added to `AnalyticsEventController`
+- Fixed version inconsistency: `composer.json`, README badge, and test assertions updated to `3.9.0`
 
 ## What's New in v3.8.0
 
@@ -624,6 +708,18 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - `GET /api/analytics/journeys/search?pattern=...` — Find journeys matching a pattern
 - `POST /api/analytics/journeys/funnel` — Funnel conversion within journeys
 - `GET /api/analytics/journeys/{id}` — Full journey timeline with page flow
+- `GET /api/analytics/archetypes` — List event archetypes with summary (v3.9.0)
+- `GET /api/analytics/archetypes/{key}` — Detailed archetype with lifecycle config (v3.9.0)
+- `GET /api/analytics/archetypes/gaps` — Instrumentation gap analysis vs EventCatalog (v3.9.0)
+- `POST /api/analytics/archetypes/{key}/score` — Archetype completion score (v3.9.0)
+- `GET /api/analytics/anonymized/summary` — GDPR-safe k-anonymized dashboard summary (v3.9.0)
+- `GET /api/analytics/anonymized/by-event` — Per-event k-anonymized counts (v3.9.0)
+- `GET /api/analytics/anonymized/by-category` — Per-category k-anonymized counts (v3.9.0)
+- `GET /api/analytics/anonymized/by-time` — Time-bucketed k-anonymized counts (v3.9.0)
+- `GET /api/analytics/config-drift` — Detect config drift against baseline (v3.9.0)
+- `GET /api/analytics/config-drift/baseline` — Baseline metadata (v3.9.0)
+- `POST /api/analytics/config-drift/capture` — Capture config baseline (v3.9.0)
+- `DELETE /api/analytics/config-drift/baseline` — Clear config baseline (v3.9.0)
 
 ### JS Client Library (`resources/js/analytics.js`)
 - **Init** — Reads config from Inertia `zbAnalytics` prop, auto-initializes all enabled providers
@@ -669,6 +765,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - `zb:analytics:revenue-report` — Revenue analytics configuration overview with dry-run preview
 - `zb:analytics:health` — Comprehensive health diagnostic with warnings, recommendations, JSON output (`--json`)
 - `zb:analytics:dashboard` — Export dashboard data as structured JSON/table (`--include-metrics`, `--include-health`, `--pretty`)
+- `zb:analytics:archetype-drift` — Config drift detection + event archetypes: `baseline`, `drift`, `clear`, `archetypes`, `gaps`, `score`
 
 ### Blade Integration
 - `@analyticsHead` — GA4/GTM/Meta/Plausible/PostHog head script tags
@@ -715,6 +812,9 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Event Correlation** — Pattern detection, transition analysis, and next-event prediction
 - **Config Validator** — AnalyticsConfigValidator for runtime config integrity checks
 - **Event Source Tagger** — Source identification (server, client, api, webhook) on events
+- **Event Archetypes** — 6 built-in SaaS funnel blueprints (signup, activation, trial, ecommerce, expansion, retention) with gap detection and completion scoring (v3.9.0)
+- **Config Drift Detection** — Baseline capture and drift detection for CI/CD validation gates (v3.9.0)
+- **k-Anonymity Aggregation** — GDPR-safe event aggregation with Laplace noise injection and k-threshold suppression (v3.9.0)
 
 ## Architecture
 
@@ -806,8 +906,9 @@ src/
 │   ├── AnalyticsTestCommand.php     # Test event dispatch
 │   ├── AnalyticsExportCommand.php   # Export catalog as JSON/CSV/Markdown
 │   ├── RevenueReportCommand.php      # Revenue analytics report
-│   └── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
-│   └── AnalyticsDashboardCommand.php # Dashboard data export (JSON/table)
+│   ├── AnalyticsHealthCommand.php    # Comprehensive health diagnostic
+│   ├── AnalyticsDashboardCommand.php # Dashboard data export (JSON/table)
+│   ├── AnalyticsArchetypeDriftCommand.php # Archetypes + config drift (v3.9.0)
 ├── Support/
 │   ├── AnalyticsConfig.php              # Type-safe config accessor (120+ methods)
 │   ├── AnalyticsEventNameRule.php       # Laravel validation rule for event names

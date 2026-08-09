@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics;
 
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -127,6 +128,7 @@ use ZeroBoiler\Analytics\Services\SessionReplayService;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsArchetypeDriftCommand;
 use ZeroBoiler\Analytics\Services\OnboardingWizardService;
 use ZeroBoiler\Analytics\Services\GrowthMetricsService;
 use ZeroBoiler\Analytics\Services\WeeklyDigestService;
@@ -144,6 +146,9 @@ use ZeroBoiler\Analytics\Services\EventEnrichmentService;
 use ZeroBoiler\Analytics\Services\SubscriptionLifecycleService;
 use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventTraceService;
+use ZeroBoiler\Analytics\Services\EventArchetypeService;
+use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
+use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 
 /**
  * @version 3.9.0
@@ -1464,6 +1469,31 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Archetype Service (v3.9.0)
+        $this->app->singleton(EventArchetypeService::class, function (Application $app): EventArchetypeService {
+            return new EventArchetypeService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Config Drift Detection Service (v3.9.0)
+        $this->app->singleton(ConfigDriftDetectionService::class, function (Application $app): ConfigDriftDetectionService {
+            return new ConfigDriftDetectionService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Anonymization Aggregation Service (v3.9.0)
+        $this->app->singleton(EventAnonymizationAggregationService::class, function (Application $app): EventAnonymizationAggregationService {
+            return new EventAnonymizationAggregationService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+                $app->make(AnalyticsMetrics::class),
+            );
+        });
     }
 
     /**
@@ -1489,6 +1519,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsReadinessCommand::class,
                 AnalyticsSchemaExportCommand::class,
                 AnalyticsBehavioralCommand::class,
+                AnalyticsArchetypeDriftCommand::class,
             ]);
         }
 

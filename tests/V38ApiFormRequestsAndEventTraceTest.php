@@ -562,8 +562,8 @@ describe('PageViewRequest', function () {
 // ─── Cross-cutting Integration Tests ───────────────────────────────
 
 describe('v3.8.0 Integration', function () {
-    test('version constant is 3.8.0', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('3.8.0');
+    test('version constant is 3.9.0', function () {
+        expect(AnalyticsEvent::VERSION)->toBe('3.9.0');
     });
 
     test('TraceContext generates unique IDs per call', function () {

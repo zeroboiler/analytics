@@ -6267,4 +6267,287 @@ final class AnalyticsEventController extends Controller
             ], 500);
         }
     }
+
+    // ─── Event Archetype Endpoints (v3.9.0) ─────────────────────────
+
+    /**
+     * List all event archetypes with summary info.
+     *
+     * @return JsonResponse
+     */
+    public function archetypeList(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchetypeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchetypeService::class);
+
+            return response()->json([
+                'archetypes' => $service->summary(),
+                'total' => count($service->keys()),
+                'version' => AnalyticsEvent::VERSION,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archetype list failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get detailed archetype by key.
+     *
+     * @param  string  $key
+     * @return JsonResponse
+     */
+    public function archetypeDetail(string $key): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchetypeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchetypeService::class);
+            $archetype = $service->get($key);
+
+            if ($archetype === null) {
+                return response()->json([
+                    'error' => 'Archetype not found',
+                    'available' => $service->keys(),
+                ], 404);
+            }
+
+            return response()->json([
+                'key' => $key,
+                'archetype' => $archetype,
+                'lifecycle_config' => $service->toLifecycleConfig($key),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archetype detail failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Detect instrumentation gaps between archetypes and EventCatalog.
+     *
+     * @return JsonResponse
+     */
+    public function archetypeGaps(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchetypeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchetypeService::class);
+
+            return response()->json($service->detectGaps());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Gap detection failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Calculate archetype completion score for a set of completed events.
+     *
+     * @param  string  $key
+     * @return JsonResponse
+     */
+    public function archetypeScore(string $key): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchetypeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchetypeService::class);
+
+            $events = request()->input('events', []);
+
+            if (! is_array($events)) {
+                return response()->json([
+                    'error' => 'events must be an array of event name strings',
+                ], 422);
+            }
+
+            $score = $service->completionScore($key, $events);
+
+            return response()->json([
+                'archetype' => $key,
+                'score' => $score,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Score calculation failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Anonymized Aggregation Endpoints (v3.9.0) ──────────────────
+
+    /**
+     * Privacy-safe dashboard summary with k-anonymity.
+     *
+     * @return JsonResponse
+     */
+    public function anonymizedSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService::class);
+
+            return response()->json($service->dashboardSummary());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Anonymized summary failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Anonymized aggregation by event name.
+     *
+     * @return JsonResponse
+     */
+    public function anonymizedByEvent(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService::class);
+
+            return response()->json($service->aggregateByEvent());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Anonymized event aggregation failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Anonymized aggregation by category.
+     *
+     * @return JsonResponse
+     */
+    public function anonymizedByCategory(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService::class);
+
+            return response()->json($service->aggregateByCategory());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Anonymized category aggregation failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Anonymized aggregation by time bucket.
+     *
+     * @return JsonResponse
+     */
+    public function anonymizedByTime(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService::class);
+
+            $granularity = request()->input('granularity', 'hour');
+            $limit = (int) request()->input('limit', 24);
+
+            return response()->json($service->aggregateByTime($granularity, $limit));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Anonymized time aggregation failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ─── Config Drift Endpoints (v3.9.0) ────────────────────────────
+
+    /**
+     * Detect config drift against stored baseline.
+     *
+     * @return JsonResponse
+     */
+    public function configDriftDetect(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConfigDriftDetectionService::class);
+
+            return response()->json($service->detectDrift());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Config drift detection failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get stored baseline metadata.
+     *
+     * @return JsonResponse
+     */
+    public function configDriftBaselineInfo(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConfigDriftDetectionService::class);
+
+            return response()->json($service->baselineInfo());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Baseline info failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Capture current config as baseline.
+     *
+     * @return JsonResponse
+     */
+    public function configDriftCapture(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConfigDriftDetectionService::class);
+
+            return response()->json($service->captureBaseline());
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Baseline capture failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear stored config baseline.
+     *
+     * @return JsonResponse
+     */
+    public function configDriftClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConfigDriftDetectionService::class);
+            $cleared = $service->clearBaseline();
+
+            return response()->json([
+                'status' => $cleared ? 'cleared' : 'nothing_to_clear',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Baseline clear failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
