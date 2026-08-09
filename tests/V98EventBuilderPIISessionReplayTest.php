@@ -482,8 +482,8 @@ test('SessionReplayService::empty session returns empty timeline', function (): 
 test('version is 2.98.0', function (): void {
     $manager = new \ZeroBoiler\Analytics\AnalyticsManager;
 
-    expect($manager->version())->toBe('2.98.0');
-    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('2.98.0');
+    expect($manager->version())->toBe('4.6.0');
+    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('4.6.0');
 });
 
 test('EventBuilder VERSION matches package version', function (): void {
@@ -491,9 +491,9 @@ test('EventBuilder VERSION matches package version', function (): void {
 });
 
 test('SessionReplayService VERSION matches package version', function (): void {
-    expect(SessionReplayService::VERSION)->toBe('2.98.0');
+    expect(SessionReplayService::VERSION)->toBe('4.6.0');
 });
 
 test('AdvancedPIIDetector VERSION matches package version', function (): void {
-    expect(AdvancedPIIDetector::VERSION)->toBe('2.98.0');
+    expect(AdvancedPIIDetector::VERSION)->toBe('4.6.0');
 });

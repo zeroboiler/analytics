@@ -22,28 +22,28 @@ beforeEach(function (): void {
 describe('v2.42.0 Version Consistency', function (): void {
     test('version is 2.42.0 in AnalyticsManager', function (): void {
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager(null);
-        expect($manager->version())->toBe('2.95.0');
+        expect($manager->version())->toBe('4.6.0');
     });
 
     test('version is 2.42.0 in composer.json', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('2.95.0');
+        expect($composer['version'])->toBe('4.6.0');
     });
 
     test('version is 2.42.0 in JS client', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'2.95.0'");
-        expect($js)->toContain('@version 2.42.0');
+        expect($js)->toContain("'4.6.0'");
+        expect($js)->toContain('@version 4.6.0');
     });
 
     test('version is 2.42.0 in TypeScript definitions', function (): void {
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect($dts)->toContain('2.95.0');
+        expect($dts)->toContain('4.6.0');
     });
 
     test('version is 2.42.0 in controller catalog endpoint', function (): void {
         $controller = file_get_contents(__DIR__ . '/../src/Http/Controllers/AnalyticsEventController.php');
-        $count = substr_count($controller, "'version' => '2.95.0'");
+        $count = substr_count($controller, "'version' => '4.6.0'");
         expect($count)->toBeGreaterThan(0);
     });
 });
