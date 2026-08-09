@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-5.6.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-5.7.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [What's New in v5.3.0](#whats-new-in-v5300)
+- [What's New in v5.7.0](#whats-new-in-v5300)
 - [What's New in v5.2.0](#whats-new-in-v5200)
 - [What's New in v5.0.0](#whats-new-in-v5000)
 - [What's New in v4.5.0](#whats-new-in-v4500)
@@ -54,6 +54,81 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v5.7.0
+
+### Provider Health Monitor
+
+Real-time per-provider health monitoring tracks dispatch success/failure rates over a sliding window and computes health scores (0-100). Unhealthy providers are automatically flagged for bypass.
+
+```php
+use ZeroBoiler\Analytics\Services\ProviderHealthMonitor;
+
+$monitor = app(ProviderHealthMonitor::class);
+
+// Record dispatch results (called automatically by the event router)
+$monitor->recordSuccess('ga4');
+$monitor->recordFailure('meta', 'Connection timeout');
+
+// Check health
+$monitor->isHealthy('ga4');   // true
+$monitor->getScore('meta');   // 87
+$monitor->activeProviders();  // ['ga4', 'plausible', 'posthog', 'webhook']
+
+// Dashboard summary
+$monitor->summary();
+// { overall_score: 95, healthy_count: 5, unhealthy_providers: ['meta'], version: '5.7.0' }
+```
+
+### Event Routing Configuration
+
+Route specific events to designated providers only. Supports exact match, wildcard prefix, and suffix patterns.
+
+```php
+// config/zeroboiler.php
+'routing' => [
+    'enabled' => true,
+    'rules' => [
+        'purchase' => ['ga4', 'meta'],           // Exact match
+        'refund' => ['ga4', 'meta'],              // Exact match
+        'add_to_*' => ['ga4', 'meta', 'posthog'], // Wildcard prefix
+        'page_view' => ['ga4', 'plausible'],      // Plausible for pageviews
+    ],
+],
+```
+
+Events with no matching rules fall through to all enabled providers.
+
+### Provider-Targeted JS Client
+
+Target specific providers from the client library:
+
+```javascript
+import { trackEventWithProviders, trackEcommerceWithProviders } from '@zeroboiler/analytics';
+
+// Send purchase only to GA4 and Meta
+await trackEventWithProviders('purchase', { value: 99.99 }, ['ga4', 'meta']);
+
+// E-commerce with provider targeting
+await trackEcommerceWithProviders('purchase', {
+    transaction_id: 'ORD-123',
+    value: 99.99,
+    currency: 'USD',
+    items: [{ item_id: 'SKU-1', price: 49.99, quantity: 2 }],
+}, ['ga4', 'meta']);
+```
+
+### New API Endpoints
+
+- `GET /api/analytics/routing` — Event routing summary
+- `GET /api/analytics/routing/rules` — List routing rules
+- `POST /api/analytics/routing/rules` — Add a routing rule
+- `DELETE /api/analytics/routing/rules/{pattern}` — Remove a rule
+- `POST /api/analytics/routing/match` — Match event name against rules
+- `POST /api/analytics/routing/test` — Test a pattern against event names
+- `GET /api/analytics/provider-health` — All provider health scores
+- `GET /api/analytics/provider-health/{provider}` — Single provider health detail
+- `POST /api/analytics/provider-health/reset` — Reset health stats
 
 ## What's New in v5.4.0
 
@@ -169,7 +244,7 @@ ANALYTICS_REGIONAL_CONSENT_GDPR_DEFAULT=denied
 - `regional_consent` config section added
 - 3 new PHP classes with strict types, return types, and docblocks
 
-## What's New in v5.3.0
+## What's New in v5.7.0
 
 ### Universal Cross-Provider Format Conversion
 
@@ -195,7 +270,7 @@ $ga4 = EcommerceFormatConverter::fromGa4Format('meta', 'Purchase', $metaParams);
 ```
 
 **Other changes:**
-- Version synchronized across PHP, JS client, Svelte composables, and TypeScript definitions (5.3.0)
+- Version synchronized across PHP, JS client, Svelte composables, and TypeScript definitions (5.7.0)
 - `EcommerceFormatConverter` now imports `EventCatalog` for provider name resolution
 
 ## What's New in v5.2.0

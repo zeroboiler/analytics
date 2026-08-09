@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
  */
 describe('V2.85.0 — Industry Standard Upgrade', function () {
     it('has version 2.86.0 in DTO', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
+        expect(AnalyticsEvent::VERSION)->toBe('5.7.0');
     });
 
     it('has 90+ events in the full catalog', function () {

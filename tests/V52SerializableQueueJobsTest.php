@@ -11,7 +11,7 @@ use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventBatchJob;
 use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 
-describe('Serializable Queue Jobs (v5.3.0)', function () {
+describe('Serializable Queue Jobs (v5.7.0)', function () {
     describe('TrackAnalyticsEventJob', function () {
         it('is serializable (required for redis/database queue drivers)', function () {
             $job = new TrackAnalyticsEventJob(

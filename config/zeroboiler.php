@@ -2687,7 +2687,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Event Query Engine (v5.5.0)
+        | Event Query Engine (v5.7.0)
         |--------------------------------------------------------------------------
         |
         | Cache-backed structured query engine for dashboard analytics.
@@ -2759,7 +2759,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Regional Consent Detection (v5.4.0)
+        | Regional Consent Detection (v5.7.0)
         |--------------------------------------------------------------------------
         |
         | When enabled, automatically applies GDPR-compliant consent defaults
@@ -2784,6 +2784,52 @@ return [
                 // Country codes to exclude from GDPR rules:
                 // 'CH', // Exclude Switzerland if not applicable
             ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Routing (v5.7.0)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, routes specific events to designated providers only.
+        | Supports exact match, wildcard prefix (add_to_*), and suffix (*_click).
+        | Events with no matching rules fall through to all enabled providers.
+        |
+        | Example:
+        |   'routing' => [
+        |       'enabled' => true,
+        |       'rules' => [
+        |           'purchase' => ['ga4', 'meta'],
+        |           'add_to_*' => ['ga4', 'meta', 'posthog'],
+        |           'page_view' => ['ga4', 'plausible'],
+        |       ],
+        |   ],
+        |
+        */
+        'routing' => [
+            'enabled' => env('ANALYTICS_ROUTING_ENABLED', false),
+            'rules' => [
+                // Example rules (uncomment to enable):
+                // 'purchase' => ['ga4', 'meta'],
+                // 'refund' => ['ga4', 'meta'],
+                // 'page_view' => ['ga4', 'plausible'],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Provider Health Monitor (v5.7.0)
+        |--------------------------------------------------------------------------
+        |
+        | Monitors per-provider dispatch success/failure rates and computes
+        | health scores (0-100). Unhealthy providers can be automatically
+        | bypassed during routing. Integrates with the circuit breaker.
+        |
+        */
+        'provider_health' => [
+            'enabled' => env('ANALYTICS_PROVIDER_HEALTH_ENABLED', true),
+            'window_duration' => (int) env('ANALYTICS_PROVIDER_HEALTH_WINDOW', 300), // 5 minutes sliding window
+            'unhealthy_threshold' => (int) env('ANALYTICS_PROVIDER_HEALTH_THRESHOLD', 50), // Score below this = unhealthy
         ],
 
     ],

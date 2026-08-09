@@ -230,28 +230,28 @@ test('config has scheduled_reports section', function (): void {
 test('version 2.57.0 is consistent across all source files', function (): void {
     // Composer
     $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-    expect($composer['version'])->toBe('5.3.0');
+    expect($composer['version'])->toBe('5.7.0');
 
     // AnalyticsManager
     $manager = new AnalyticsManager;
-    expect($manager->version())->toBe('5.3.0');
+    expect($manager->version())->toBe('5.7.0');
 
     // JS client
     $js = file_get_contents(base_path('resources/js/analytics.js'));
-    expect($js)->toContain("'5.3.0'");
-    expect($js)->toContain('@version 5.3.0');
+    expect($js)->toContain("'5.7.0'");
+    expect($js)->toContain('@version 5.7.0');
 
     // TypeScript definitions
     $ts = file_get_contents(base_path('resources/js/analytics.d.ts'));
-    expect($ts)->toContain('@version 5.3.0');
+    expect($ts)->toContain('@version 5.7.0');
 
     // EventSourceTagger
     $tagger = file_get_contents(base_path('src/Services/EventSourceTagger.php'));
-    expect($tagger)->toContain('5.3.0');
+    expect($tagger)->toContain('5.7.0');
 
     // EventEnvelopeService
     $envelope = file_get_contents(base_path('src/Services/EventEnvelopeService.php'));
-    expect($envelope)->toContain('5.3.0');
+    expect($envelope)->toContain('5.7.0');
 });
 
 // ── Filesystem Integrity ────────────────────────────────────────

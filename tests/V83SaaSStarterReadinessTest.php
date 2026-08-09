@@ -14,7 +14,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 // ─── Version Consistency ─────────────────────────────────────────────
 
 test('AnalyticsEvent VERSION is 2.83.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
+    expect(AnalyticsEvent::VERSION)->toBe('5.7.0');
 });
 
 test('AnalyticsEvent VERSION is a valid semver string', function (): void {

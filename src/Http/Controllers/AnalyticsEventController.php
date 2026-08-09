@@ -7645,4 +7645,262 @@ final class AnalyticsEventController extends Controller
             ),
         ]);
     }
+
+    // ─── Event Routing Endpoints (v5.7.0) ──────────────────────────────
+
+    /**
+     * Get event routing summary.
+     *
+     * GET /api/analytics/routing
+     *
+     * @return JsonResponse
+     */
+    public function routingSummary(): JsonResponse
+    {
+        $router = $this->lifecycleMapper ?? null;
+
+        if ($router === null) {
+            return response()->json([
+                'enabled' => false,
+                'rule_count' => 0,
+                'rules' => [],
+                'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+            ]);
+        }
+
+        try {
+            $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
+
+            return response()->json($routerService->summary());
+        } catch (\Throwable) {
+            return response()->json([
+                'enabled' => false,
+                'rule_count' => 0,
+                'rules' => [],
+                'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+            ]);
+        }
+    }
+
+    /**
+     * List all routing rules.
+     *
+     * GET /api/analytics/routing/rules
+     *
+     * @return JsonResponse
+     */
+    public function routingRules(): JsonResponse
+    {
+        try {
+            $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
+
+            return response()->json([
+                'rules' => $routerService->getRules(),
+                'count' => $routerService->ruleCount(),
+            ]);
+        } catch (\Throwable) {
+            return response()->json(['rules' => [], 'count' => 0]);
+        }
+    }
+
+    /**
+     * Add a routing rule.
+     *
+     * POST /api/analytics/routing/rules
+     *
+     * @return JsonResponse
+     */
+    public function routingAddRule(Request $request): JsonResponse
+    {
+        $request->validate([
+            'pattern' => 'required|string',
+            'providers' => 'required|array|min:1',
+            'providers.*' => 'string|in:ga4,gtm,meta,plausible,posthog,webhook',
+        ]);
+
+        try {
+            $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
+            $routerService->addRule(
+                $request->input('pattern'),
+                $request->input('providers'),
+            );
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Remove a routing rule.
+     *
+     * DELETE /api/analytics/routing/rules/{pattern}
+     *
+     * @return JsonResponse
+     */
+    public function routingRemoveRule(string $pattern): JsonResponse
+    {
+        try {
+            $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
+            $routerService->removeRule($pattern);
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Match an event name against routing rules.
+     *
+     * POST /api/analytics/routing/match
+     *
+     * @return JsonResponse
+     */
+    public function routingMatch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'event_name' => 'required|string',
+        ]);
+
+        try {
+            $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
+
+            return response()->json([
+                'event_name' => $request->input('event_name'),
+                'matched_providers' => $routerService->matchProviders($request->input('event_name')),
+            ]);
+        } catch (\Throwable) {
+            return response()->json([
+                'event_name' => $request->input('event_name'),
+                'matched_providers' => [],
+            ]);
+        }
+    }
+
+    /**
+     * Test a routing rule against event names.
+     *
+     * POST /api/analytics/routing/test
+     *
+     * @return JsonResponse
+     */
+    public function routingTest(Request $request): JsonResponse
+    {
+        $request->validate([
+            'pattern' => 'required|string',
+            'event_names' => 'required|array',
+            'event_names.*' => 'string',
+        ]);
+
+        $pattern = $request->input('pattern');
+        $eventNames = $request->input('event_names');
+        $results = [];
+
+        foreach ($eventNames as $eventName) {
+            $results[$eventName] = preg_match(
+                '/' . str_replace('\*', '.*', preg_quote($pattern, '/')) . '/',
+                is_string($eventName) ? $eventName : '',
+            ) === 1;
+        }
+
+        return response()->json([
+            'pattern' => $pattern,
+            'results' => $results,
+        ]);
+    }
+
+    // ─── Provider Health Endpoints (v5.7.0) ───────────────────────────
+
+    /**
+     * Get provider health summary.
+     *
+     * GET /api/analytics/provider-health
+     *
+     * @return JsonResponse
+     */
+    public function providerHealth(): JsonResponse
+    {
+        try {
+            $monitor = app(\ZeroBoiler\Analytics\Services\ProviderHealthMonitor::class);
+
+            return response()->json([
+                'status' => $monitor->getStatus(),
+                'summary' => $monitor->summary(),
+            ]);
+        } catch (\Throwable) {
+            return response()->json([
+                'status' => [],
+                'summary' => [
+                    'overall_score' => 100,
+                    'healthy_count' => 0,
+                    'unhealthy_providers' => [],
+                    'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+                ],
+            ]);
+        }
+    }
+
+    /**
+     * Get detailed health for a specific provider.
+     *
+     * GET /api/analytics/provider-health/{provider}
+     *
+     * @return JsonResponse
+     */
+    public function providerHealthDetail(string $provider): JsonResponse
+    {
+        $validProviders = ['ga4', 'gtm', 'meta', 'plausible', 'posthog', 'webhook'];
+
+        if (! in_array($provider, $validProviders, true)) {
+            return response()->json(['error' => "Invalid provider: {$provider}"], 422);
+        }
+
+        try {
+            $monitor = app(\ZeroBoiler\Analytics\Services\ProviderHealthMonitor::class);
+            $status = $monitor->getStatus();
+
+            return response()->json($status[$provider] ?? [
+                'score' => 100,
+                'healthy' => true,
+                'successes' => 0,
+                'failures' => 0,
+                'rate' => 100.0,
+            ]);
+        } catch (\Throwable) {
+            return response()->json([
+                'score' => 100,
+                'healthy' => true,
+                'successes' => 0,
+                'failures' => 0,
+                'rate' => 100.0,
+            ]);
+        }
+    }
+
+    /**
+     * Reset provider health stats.
+     *
+     * POST /api/analytics/provider-health/reset
+     *
+     * @return JsonResponse
+     */
+    public function providerHealthReset(Request $request): JsonResponse
+    {
+        $provider = $request->input('provider');
+
+        try {
+            $monitor = app(\ZeroBoiler\Analytics\Services\ProviderHealthMonitor::class);
+
+            if (is_string($provider) && $provider !== '') {
+                $monitor->reset($provider);
+            } else {
+                $monitor->resetAll();
+            }
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Unlike AnalyticsDataService (which focuses on recording/writing),
  * this engine focuses on reading and composing complex queries.
  *
- * @version 5.5.0
+ * @version 5.7.0
  *
  * @since 1.0.0
  */

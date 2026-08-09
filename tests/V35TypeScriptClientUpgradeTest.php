@@ -145,7 +145,7 @@ it('TypeScript definitions contain EventCatalog response type', function (): voi
 
 it('TypeScript definitions contain version 2.35.0', function (): void {
     $content = file_get_contents(__DIR__ . '/../../resources/js/analytics.d.ts');
-    expect($content)->toContain('@version 5.3.0');
+    expect($content)->toContain('@version 5.7.0');
 });
 
 it('TypeScript definitions extend Inertia PageProps with zbAnalytics', function (): void {
@@ -187,12 +187,12 @@ it('sendBeacon flush drains queue and creates Blob', function (): void {
 
 it('JS client getVersion() returns 2.35.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-    expect($js)->toContain("return '5.3.0'");
+    expect($js)->toContain("return '5.7.0'");
 });
 
 it('JS client JSDoc version is 2.35.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-    expect($js)->toContain('@version 5.3.0');
+    expect($js)->toContain('@version 5.7.0');
 });
 
 it('Composer version is 2.35.0', function (): void {
@@ -200,7 +200,7 @@ it('Composer version is 2.35.0', function (): void {
         file_get_contents(__DIR__ . '/../../composer.json'),
         true,
     );
-    expect($composer['version'])->toBe('5.3.0');
+    expect($composer['version'])->toBe('5.7.0');
 });
 
 it('No stale 2.34.0 references remain in source files', function (): void {

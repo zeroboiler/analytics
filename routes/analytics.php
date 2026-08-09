@@ -444,4 +444,17 @@ Route::prefix('analytics')->group(function () {
     // Multi-Tenant Analytics (v5.0.0)
     Route::get('tenant/{tenantId}/stats', [AnalyticsEventController::class, 'tenantStats']);
     Route::get('tenant/{tenantId}/revenue', [AnalyticsEventController::class, 'tenantRevenue']);
+
+    // Event Routing (v5.7.0)
+    Route::get('routing', [AnalyticsEventController::class, 'routingSummary']);
+    Route::get('routing/rules', [AnalyticsEventController::class, 'routingRules']);
+    Route::post('routing/rules', [AnalyticsEventController::class, 'routingAddRule']);
+    Route::delete('routing/rules/{pattern}', [AnalyticsEventController::class, 'routingRemoveRule']);
+    Route::post('routing/match', [AnalyticsEventController::class, 'routingMatch']);
+    Route::post('routing/test', [AnalyticsEventController::class, 'routingTest']);
+
+    // Provider Health Monitor (v5.7.0)
+    Route::get('provider-health', [AnalyticsEventController::class, 'providerHealth']);
+    Route::get('provider-health/{provider}', [AnalyticsEventController::class, 'providerHealthDetail']);
+    Route::post('provider-health/reset', [AnalyticsEventController::class, 'providerHealthReset']);
 });

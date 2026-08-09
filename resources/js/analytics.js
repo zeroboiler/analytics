@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 5.4.0
+ * @version 5.7.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '5.3.0';
+    return '5.7.0';
 }
 
 /**
@@ -570,6 +570,78 @@ export async function trackEcommerce(name, data = {}) {
 
     // Server-side dispatch (immediate — don't batch ecommerce)
     await trackEvent(name, data, { immediate: true });
+}
+
+/**
+ * Track an event targeting specific providers only.
+ *
+ * Allows fine-grained control over which analytics providers receive
+ * a specific event. Useful when certain events should only go to
+ * specific providers (e.g., purchase events to GA4 + Meta but not Plausible).
+ *
+ * @param {string} name - Event name
+ * @param {Record<string, unknown>} [params={}] - Event parameters
+ * @param {string[]} providers - Provider names: ['ga4', 'meta', 'posthog', 'plausible', 'gtm', 'webhook']
+ * @param {object} [options] - Additional options
+ * @param {boolean} [options.immediate=false] - Bypass batch queue
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackEventWithProviders('purchase', { value: 99.99 }, ['ga4', 'meta']);
+ */
+export async function trackEventWithProviders(name, params = {}, providers = [], options = {}) {
+    if (!initialized) return;
+
+    const enrichedParams = {
+        ...params,
+        _target_providers: providers,
+    };
+
+    const event = { name, params: enrichedParams };
+
+    if (options.immediate) {
+        return sendEvent(event);
+    }
+
+    eventQueue.push(event);
+
+    if (eventQueue.length >= MAX_QUEUE_SIZE) {
+        await flushQueue();
+    }
+}
+
+/**
+ * Track an e-commerce event targeting specific providers only.
+ *
+ * @param {string} name - E-commerce event name (e.g. 'purchase', 'add_to_cart')
+ * @param {object} data - Event data
+ * @param {string[]} providers - Target providers
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackEcommerceWithProviders('purchase', { transaction_id: 'ORD-1', value: 99.99 }, ['ga4', 'meta']);
+ */
+export async function trackEcommerceWithProviders(name, data = {}, providers = []) {
+    if (!initialized) return;
+
+    // Client-side pushes for enabled providers
+    const ga4Targeted = providers.includes('ga4') && config?.ga4MeasurementId && window.gtag;
+    const metaTargeted = providers.includes('meta') && config?.metaPixelId && window.fbq;
+
+    if (ga4Targeted) {
+        window.gtag('event', name, data);
+    }
+
+    if (metaTargeted) {
+        const metaEvent = mapToMetaEvent(name);
+        if (metaEvent) {
+            const metaParams = mapToMetaParams(name, data);
+            window.fbq('track', metaEvent, metaParams);
+        }
+    }
+
+    // Server-side dispatch with provider targeting
+    await trackEventWithProviders(name, data, providers, { immediate: true });
 }
 
 /**
@@ -3121,7 +3193,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '5.3.0';
+    return '5.7.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

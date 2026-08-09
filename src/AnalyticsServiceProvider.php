@@ -175,7 +175,7 @@ use ZeroBoiler\Analytics\Services\RegionalConsentService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 5.4.0
+ * @version 5.7.0
  *
  * @since 1.0.0
  */
@@ -1606,7 +1606,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event Query Engine (v5.5.0) — structured analytics data queries
+        // Event Query Engine (v5.7.0) — structured analytics data queries
         $this->app->singleton(EventQueryEngine::class, function (Application $app): EventQueryEngine {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
@@ -1623,7 +1623,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Analytics Query Builder (v5.5.0) — fluent query DSL
+        // Analytics Query Builder (v5.7.0) — fluent query DSL
         $this->app->bind(AnalyticsQueryBuilder::class);
 
         // Event Taxonomy Service (v5.0.0) — tag-based event classification
@@ -1655,13 +1655,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event Schema JSON Generator (v5.4.0) — frontend validation schemas
+        // Event Schema JSON Generator (v5.7.0) — frontend validation schemas
         $this->app->singleton(EventSchemaJsonGenerator::class);
 
-        // Analytics Event Bus (v5.4.0) — in-process pub/sub for decoupled event processing
+        // Analytics Event Bus (v5.7.0) — in-process pub/sub for decoupled event processing
         $this->app->singleton(AnalyticsEventBus::class);
 
-        // Regional Consent Service (v5.4.0) — GDPR-region-aware consent defaults
+        // Regional Consent Service (v5.7.0) — GDPR-region-aware consent defaults
         $this->app->singleton(RegionalConsentService::class, function (Application $app): RegionalConsentService {
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);

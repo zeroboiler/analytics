@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [5.7.0] - 2026-08-09
+
+### Added
+
+- **ProviderHealthMonitor** — Per-provider dispatch health monitoring with sliding window success/failure tracking and computed health scores (0-100). Unhealthy providers (score < 50) are flagged and can be bypassed during routing. Integrates with ProviderCircuitBreaker for coordinated failover. `isHealthy()`, `getScore()`, `getStatus()`, `summary()`, `activeProviders()`, `providersByHealth()`, `recordSuccess()`, `recordFailure()`, `reset()`.
+- **Config section: `routing`** — Declarative event → provider routing rules. Supports exact match (`purchase`), wildcard prefix (`add_to_*`), and suffix (`*_click`) patterns. Events with no matching rules fall through to all enabled providers.
+- **Config section: `provider_health`** — Provider health monitor settings: `enabled`, `window_duration`, `unhealthy_threshold`.
+- **API: Event Routing** — 6 new endpoints: `GET /api/analytics/routing` (summary), `GET /routing/rules` (list), `POST /routing/rules` (add), `DELETE /routing/rules/{pattern}` (remove), `POST /routing/match` (match event), `POST /routing/test` (test pattern).
+- **API: Provider Health** — 3 new endpoints: `GET /api/analytics/provider-health` (all providers), `GET /provider-health/{provider}` (detail), `POST /provider-health/reset` (reset stats).
+- **JS client: `trackEventWithProviders()`** — Target specific providers for a single event. Pass provider names as third argument (e.g., `['ga4', 'meta']`).
+- **JS client: `trackEcommerceWithProviders()`** — Provider-targeted e-commerce event dispatch with client-side GA4/Meta push filtering.
+- **V570EventRoutingAndVersionSweepTest** — 14 test cases covering version sweep, routing pattern matching, runtime rule management, provider health tracking, config sections, routes, and backward compatibility.
+
+### Changed
+
+- **Version sweep** — 5.6.0 → 5.7.0 across all PHP source files, JS client, Svelte composables, TypeScript definitions, test files (436+ version assertions), composer.json, and README badge.
+- **Route count** — 459+ → 468+ registered API routes.
+
 ## [5.6.0] - 2026-08-09
 
 ### Added

@@ -26,7 +26,7 @@ test('FunnelProgressTracker has current version in docblock', function (): void 
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('5.3.0');
+    expect($doc)->toContain('5.7.0');
 });
 
 test('FunnelProgressTracker constructor has typed parameters', function (): void {
@@ -461,27 +461,27 @@ test('config has funnel_progress section', function (): void {
 
 test('config catalog_version is current version', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
-    expect($config)->toContain("'catalog_version' => '5.3.0'");
+    expect($config)->toContain("'catalog_version' => '5.7.0'");
 });
 
 test('composer.json version is current version', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('5.3.0');
+    expect($composer['version'])->toBe('5.7.0');
 });
 
 test('JS client version is current version', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain("return '5.3.0'");
+    expect($js)->toContain("return '5.7.0'");
 });
 
 test('AnalyticsManager::version() is current version', function (): void {
     $file = file_get_contents(__DIR__ . '/../src/AnalyticsManager.php');
-    expect($file)->toContain("return '5.3.0'");
+    expect($file)->toContain("return '5.7.0'");
 });
 
 test('AnalyticsEvent::VERSION is current version', function (): void {
     $file = file_get_contents(__DIR__ . '/../src/DTO/AnalyticsEvent.php');
-    expect($file)->toContain("'5.3.0'");
+    expect($file)->toContain("'5.7.0'");
 });
 
 // ─── EventCatalog Reference ───────────────────────────────────────────────────

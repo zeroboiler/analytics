@@ -81,86 +81,86 @@ test('AnalyticsReadinessCommand handle returns int', function (): void {
 test('version consistency across all sources is 2.90.0', function (): void {
     // Composer
     $composer = json_decode(file_get_contents(dirname(__DIR__, 2).'/composer.json'), true);
-    expect($composer['version'])->toBe('5.3.0');
+    expect($composer['version'])->toBe('5.7.0');
 
     // AnalyticsEvent DTO
-    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('5.3.0');
+    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('5.7.0');
 
     // Manager
     $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
-    expect($manager->version())->toBe('5.3.0');
+    expect($manager->version())->toBe('5.7.0');
 
     // JS Client
     $js = file_get_contents(dirname(__DIR__, 2).'/resources/js/analytics.js');
-    expect(str_contains($js, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($js, "'5.7.0'"))->toBeTrue();
 
     // TypeScript
     $dts = file_get_contents(dirname(__DIR__, 2).'/resources/js/analytics.d.ts');
-    expect(str_contains($dts, '5.3.0'))->toBeTrue();
+    expect(str_contains($dts, '5.7.0'))->toBeTrue();
 
     // Config
     $config = include dirname(__DIR__, 2).'/config/zeroboiler.php';
-    expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('5.3.0');
+    expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('5.7.0');
 
     // Event Schema Versioning Service
     $source = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventSchemaVersioningService.php'
     );
-    expect(str_contains($source, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($source, "'5.7.0'"))->toBeTrue();
 
     // AnalyticsEventRouter
     $router = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/AnalyticsEventRouter.php'
     );
-    expect(str_contains($router, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($router, "'5.7.0'"))->toBeTrue();
 
     // EventCacheService
     $cache = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventCacheService.php'
     );
-    expect(str_contains($cache, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($cache, "'5.7.0'"))->toBeTrue();
 
     // EventExporterService
     $exporter = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventExporterService.php'
     );
-    expect(str_contains($exporter, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($exporter, "'5.7.0'"))->toBeTrue();
 
     // EventSourceTagger
     $tagger = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventSourceTagger.php'
     );
-    expect(str_contains($tagger, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($tagger, "'5.7.0'"))->toBeTrue();
 
     // EventForwardingService
     $forwarding = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventForwardingService.php'
     );
-    expect(str_contains($forwarding, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($forwarding, "'5.7.0'"))->toBeTrue();
 
     // EventAliasResolver
     $resolver = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventAliasResolver.php'
     );
-    expect(str_contains($resolver, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($resolver, "'5.7.0'"))->toBeTrue();
 
     // EventEnvelopeService
     $envelope = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/EventEnvelopeService.php'
     );
-    expect(str_contains($envelope, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($envelope, "'5.7.0'"))->toBeTrue();
 
     // SaaSMetricsBenchmarkService
     $benchmark = file_get_contents(
         dirname(__DIR__, 2).'/src/Services/SaaSMetricsBenchmarkService.php'
     );
-    expect(str_contains($benchmark, "'5.3.0'"))->toBeTrue();
+    expect(str_contains($benchmark, "'5.7.0'"))->toBeTrue();
 
     // ServiceProvider
     $provider = file_get_contents(
         dirname(__DIR__, 2).'/src/AnalyticsServiceProvider.php'
     );
-    expect(str_contains($provider, '5.3.0'))->toBeTrue();
+    expect(str_contains($provider, '5.7.0'))->toBeTrue();
 });
 
 test('no stale 2.88.0 version references remain in src', function (): void {

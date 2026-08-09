@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Output follows JSON Schema Draft 2020-12 format.
  *
  * @see https://json-schema.org/draft/2020-12/json-schema-validation.html
- * @version 5.4.0
+ * @version 5.7.0
  *
  * @since 1.0.0
  */
