@@ -7,8 +7,6 @@
 declare(strict_types=1);
 
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\AnalyticsMetrics;
-use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
@@ -20,13 +18,9 @@ use ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Services\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
-use ZeroBoiler\Analytics\Support\EventBuilder;
 
 beforeEach(function (): void {
-    // Reset static catalogs for isolated test runs
-    EcommerceEvents::flushCatalog();
-    SaaSEvents::flushCatalog();
-    EngagementEvents::flushCatalog();
+    // Static catalogs use lazy initialization — no reset needed
 });
 
 // ─── Industry Standard Version Integrity ──────────────────────────────
@@ -209,7 +203,6 @@ describe('Lifecycle Event Mapper — Config-Driven', function (): void {
         // Verify the mapper can resolve core lifecycle events
         $reflection = new ReflectionClass($mapper);
         $property = $reflection->getProperty('activeMappings');
-        $property->setAccessible(true);
         $mappings = $property->getValue($mapper);
 
         $requiredMappings = [
@@ -309,25 +302,34 @@ describe('Analytics Manager — SaaS Convenience API', function (): void {
 // ─── Consent Mode v2 ─────────────────────────────────────────────────────
 
 describe('Consent Mode v2 — GDPR Compliance', function (): void {
-    test('ConsentState is immutable and defaults correctly', function (): void {
-        $state = new ConsentState;
+    test('ConsentState defaults to granted via helper', function (): void {
+        $state = ConsentState::granted();
 
-        expect($state->analyticsStorage)->toBe('granted');
-        expect($state->adStorage)->toBe('granted');
-        expect($state->adUserData)->toBe('granted');
-        expect($state->adPersonalization)->toBe('granted');
-        expect($state->functionalityStorage)->toBe('granted');
-        expect($state->securityStorage)->toBe('granted');
+        expect($state->isGranted('analytics_storage'))->toBeTrue();
+        expect($state->isGranted('ad_storage'))->toBeTrue();
+        expect($state->isGranted('ad_user_data'))->toBeTrue();
+        expect($state->isGranted('ad_personalization'))->toBeTrue();
+        expect($state->isGranted('functionality_storage'))->toBeTrue();
+        expect($state->isGranted('security_storage'))->toBeTrue();
+        expect($state->hasAnalyticsConsent())->toBeTrue();
+        expect($state->hasAdConsent())->toBeTrue();
     });
 
     test('ConsentState can be created with denied state', function (): void {
-        $state = new ConsentState(
-            analyticsStorage: 'denied',
-            adStorage: 'denied',
-        );
+        $state = ConsentState::denied();
 
-        expect($state->analyticsStorage)->toBe('denied');
-        expect($state->adStorage)->toBe('denied');
+        expect($state->isDenied('analytics_storage'))->toBeTrue();
+        expect($state->isDenied('ad_storage'))->toBeTrue();
+        expect($state->hasAnalyticsConsent())->toBeFalse();
+    });
+
+    test('ConsentState can override individual signals', function (): void {
+        $state = ConsentState::granted()->with([
+            'analytics_storage' => 'denied',
+        ]);
+
+        expect($state->isDenied('analytics_storage'))->toBeTrue();
+        expect($state->isGranted('ad_storage'))->toBeTrue();
     });
 });
 
@@ -384,10 +386,10 @@ describe('Optional Providers — Plausible & PostHog', function (): void {
     });
 
     test('both providers implement TrackerInterface', function (): void {
-        expect(\ZeroBoiler\Analytics\Trackers\PlausibleTracker::class)
-            ->toImplement(\ZeroBoiler\Analytics\Trackers\TrackerInterface::class);
-        expect(\ZeroBoiler\Analytics\Trackers\PosthogTracker::class)
-            ->toImplement(\ZeroBoiler\Analytics\Trackers\TrackerInterface::class);
+        expect((new ReflectionClass(\ZeroBoiler\Analytics\Trackers\PlausibleTracker::class)))
+            ->implementsInterface(\ZeroBoiler\Analytics\Trackers\TrackerInterface::class);
+        expect((new ReflectionClass(\ZeroBoiler\Analytics\Trackers\PosthogTracker::class)))
+            ->implementsInterface(\ZeroBoiler\Analytics\Trackers\TrackerInterface::class);
     });
 });
 
