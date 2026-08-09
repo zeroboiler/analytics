@@ -126,12 +126,17 @@ use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
 use ZeroBoiler\Analytics\Services\SessionReplayService;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
 use ZeroBoiler\Analytics\Services\EventOrchestrationService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
 use ZeroBoiler\Analytics\Services\EventContextResolver;
+use ZeroBoiler\Analytics\Services\EventRulesEngine;
+use ZeroBoiler\Analytics\Services\UserPropertiesStore;
+use ZeroBoiler\Analytics\Services\RetentionCalculator;
+use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 
 /**
- * @version 3.0.0
+ * @version 3.1.0
  */
 
 /**
@@ -140,7 +145,7 @@ use ZeroBoiler\Analytics\Services\EventContextResolver;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.0.0
+ * @version 3.1.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -689,6 +694,48 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventContextResolver($config);
+        });
+
+        // Event rules engine for behavioral automation (v3.1.0)
+        $this->app->singleton(EventRulesEngine::class, function (Application $app): EventRulesEngine {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventRulesEngine($manager, $cache, $config);
+        });
+
+        // User properties store for identity enrichment (v3.1.0)
+        $this->app->singleton(UserPropertiesStore::class, function (Application $app): UserPropertiesStore {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new UserPropertiesStore($cache, $config);
+        });
+
+        // N-Day retention & stickiness calculator (v3.1.0)
+        $this->app->singleton(RetentionCalculator::class, function (Application $app): RetentionCalculator {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new RetentionCalculator($cache, $config);
+        });
+
+        // Behavioral cohort builder for user segmentation (v3.1.0)
+        $this->app->singleton(BehavioralCohortBuilder::class, function (Application $app): BehavioralCohortBuilder {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new BehavioralCohortBuilder($cache, $config);
         });
 
         // Analytics insight aggregator for automated event intelligence (v2.99.0)
@@ -1353,6 +1400,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsScheduledReportCommand::class,
                 AnalyticsReadinessCommand::class,
                 AnalyticsSchemaExportCommand::class,
+                AnalyticsBehavioralCommand::class,
             ]);
         }
 

@@ -2117,5 +2117,124 @@ return [
             'pipelines' => [],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Rules Engine (Behavioral Automation)
+        |-------------------------------------------------------------------------- 
+        |
+        | Config-driven behavioral rules that trigger automated analytics events.
+        | Three rule types:
+        |
+        |   event_trigger:    When event X fires, also fire event Y
+        |   absence_trigger:  When event X has NOT fired for user in N seconds, fire Y
+        |   property_trigger: When a user property reaches threshold, fire Y
+        |
+        | Example rules:
+        |   'rules' => [
+        |       'trial_conversion_reminder' => [
+        |           'type' => 'absence_trigger',
+        |           'event' => 'subscribe',
+        |           'absent_for' => 604800, // 7 days
+        |           'trigger' => 'trial_conversion_reminder',
+        |           'params' => ['reminder_type' => 'trial_expiring'],
+        |       ],
+        |       'auto_enrich_signup' => [
+        |           'type' => 'event_trigger',
+        |           'on' => 'sign_up',
+        |           'then' => 'signup_enriched',
+        |           'enrich' => ['signup_method' => 'method'],
+        |       ],
+        |       'high_value_alert' => [
+        |           'type' => 'property_trigger',
+        |           'property' => 'total_revenue',
+        |           'operator' => 'gte',
+        |           'value' => 1000,
+        |           'trigger' => 'high_value_customer',
+        |       ],
+        |   ],
+        |
+        */
+        'rules' => [
+            'enabled' => env('ANALYTICS_RULES_ENABLED', false),
+            'debug' => env('ANALYTICS_RULES_DEBUG', false),
+            'rules' => [],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | User Properties Store
+        |-------------------------------------------------------------------------- 
+        |
+        | Persists and aggregates user traits across events. Used for identity
+        | enrichment, cohort building, and property-triggered rules.
+        |
+        | Schema defines property types and aggregation strategies:
+        |   type: string, int, float, bool, array
+        |   aggregation: sum, min, max, last, set (unique list), count
+        |
+        */
+        'user_properties' => [
+            'enabled' => env('ANALYTICS_USER_PROPS_ENABLED', true),
+            'debug' => env('ANALYTICS_USER_PROPS_DEBUG', false),
+            'ttl' => (int) env('ANALYTICS_USER_PROPS_TTL', 2592000), // 30 days
+            'schema' => [
+                'total_revenue' => ['type' => 'float', 'default' => 0.0, 'aggregation' => 'sum'],
+                'session_count' => ['type' => 'int', 'default' => 0, 'aggregation' => 'sum'],
+                'events_fired' => ['type' => 'int', 'default' => 0, 'aggregation' => 'count'],
+                'plan' => ['type' => 'string', 'default' => '', 'aggregation' => 'last'],
+                'signup_method' => ['type' => 'string', 'default' => '', 'aggregation' => 'last'],
+                'features_used' => ['type' => 'array', 'default' => [], 'aggregation' => 'set'],
+                'last_active_at' => ['type' => 'string', 'default' => '', 'aggregation' => 'last'],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | N-Day Retention & Stickiness Calculator
+        |-------------------------------------------------------------------------- 
+        |
+        | Computes industry-standard retention metrics:
+        | - N-Day Retention (D1, D3, D7, D14, D30)
+        | - Rolling Retention (cumulative)
+        | - Stickiness (DAU/MAU ratio)
+        | - Retention Curve (day-by-day for charts)
+        |
+        | Uses cache-backed event tracking. No database required.
+        |
+        */
+        'retention_analytics' => [
+            'enabled' => env('ANALYTICS_RETENTION_CALC_ENABLED', true),
+            'debug' => env('ANALYTICS_RETENTION_CALC_DEBUG', false),
+            'ttl' => (int) env('ANALYTICS_RETENTION_CALC_TTL', 7776000), // 90 days
+            'retention_days' => [1, 3, 7, 14, 30],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Behavioral Cohort Builder
+        |-------------------------------------------------------------------------- 
+        |
+        | Groups users into behavioral segments based on activity patterns.
+        | Built-in segments: Power, Regular, Casual, At-Risk, Dormant, New, Resurrected.
+        | Supports custom cohort definitions via config.
+        |
+        | Custom cohort example:
+        |   'custom_cohorts' => [
+        |       'high_value' => [
+        |           'label' => 'High Value',
+        |           'rules' => [
+        |               ['property' => 'total_revenue', 'operator' => 'gte', 'value' => 100],
+        |           ],
+        |       ],
+        |   ],
+        |
+        */
+        'cohorts' => [
+            'enabled' => env('ANALYTICS_COHORTS_ENABLED', true),
+            'debug' => env('ANALYTICS_COHORTS_DEBUG', false),
+            'result_ttl' => (int) env('ANALYTICS_COHORTS_RESULT_TTL', 3600), // 1 hour
+            'custom_cohorts' => [],
+        ],
+
     ],
 ];

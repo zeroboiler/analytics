@@ -259,4 +259,32 @@ Route::prefix('analytics')->group(function () {
     // Comprehensive Health Check (v2.98.0)
     Route::get('health-check', [AnalyticsEventController::class, 'healthCheck']);
     Route::get('ping', [AnalyticsEventController::class, 'ping']);
+
+    // Event Rules Engine (v3.1.0)
+    Route::get('rules', [AnalyticsEventController::class, 'rulesList']);
+    Route::post('rules/evaluate', [AnalyticsEventController::class, 'rulesEvaluate']);
+    Route::get('rules/absence', [AnalyticsEventController::class, 'rulesEvaluateAbsence']);
+    Route::get('rules/counts', [AnalyticsEventController::class, 'rulesTriggerCounts']);
+
+    // User Properties (v3.1.0)
+    Route::get('user-properties/{identity}', [AnalyticsEventController::class, 'userPropertiesGet']);
+    Route::post('user-properties/{identity}', [AnalyticsEventController::class, 'userPropertiesSet']);
+    Route::post('user-properties/{identity}/merge', [AnalyticsEventController::class, 'userPropertiesMerge']);
+    Route::post('user-properties/{identity}/increment', [AnalyticsEventController::class, 'userPropertiesIncrement']);
+    Route::post('user-properties/link', [AnalyticsEventController::class, 'userPropertiesLink']);
+    Route::delete('user-properties/{identity}', [AnalyticsEventController::class, 'userPropertiesDelete']);
+
+    // Retention & Stickiness (v3.1.0)
+    Route::get('retention', [AnalyticsEventController::class, 'retentionOverview']);
+    Route::get('retention/{date}', [AnalyticsEventController::class, 'retentionForCohort']);
+    Route::get('retention/{date}/rolling/{days}', [AnalyticsEventController::class, 'rollingRetention']);
+    Route::get('retention/{date}/curve', [AnalyticsEventController::class, 'retentionCurve']);
+    Route::get('retention/cohorts/{days}', [AnalyticsEventController::class, 'retentionCohortComparison']);
+    Route::get('stickiness', [AnalyticsEventController::class, 'stickiness']);
+
+    // Behavioral Cohorts (v3.1.0)
+    Route::get('cohorts', [AnalyticsEventController::class, 'behavioralCohorts']);
+    Route::get('cohorts/{identity}', [AnalyticsEventController::class, 'behavioralCohortForUser']);
+    Route::get('cohorts/summary/{days}', [AnalyticsEventController::class, 'behavioralCohortSummary']);
+    Route::get('cohorts/transitions/{daysAgo}', [AnalyticsEventController::class, 'behavioralCohortTransitions']);
 });

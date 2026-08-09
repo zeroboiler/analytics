@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-3.1.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -65,6 +65,59 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.1.0
+
+**Behavioral Analytics Engine — Product Intelligence for SaaS**
+
+v3.1.0 adds industry-standard behavioral analytics: event rules engine, user properties store, N-Day retention calculator, and behavioral cohort builder. These features bring ZeroBoiler Analytics to parity with dedicated product analytics platforms like Amplitude and Mixpanel.
+
+### New Features
+
+- **Event Rules Engine** (`EventRulesEngine`) — Config-driven behavioral automation with three rule types: event_trigger (when X fires, also fire Y), absence_trigger (when X hasn't fired in N seconds, fire Y), property_trigger (when user property reaches threshold, fire Y). Evaluated on every event dispatch. Configure in `zeroboiler.analytics.rules`
+- **User Properties Store** (`UserPropertiesStore`) — Cache-backed persistent user traits with schema-defined types and aggregation strategies (sum, min, max, last, set, count). Supports identity linking (client_id ↔ user_id) with automatic property merge on authentication. Config-driven schema in `zeroboiler.analytics.user_properties`
+- **N-Day Retention & Stickiness Calculator** (`RetentionCalculator`) — Industry-standard retention metrics: N-Day Retention (D1/D3/D7/D14/D30), Rolling Retention (cumulative within window), Stickiness (DAU/WAU/MAU ratios with letter grades), Retention Curve (day-by-day data for charts), Cohort Comparison (multi-cohort retention averages). Cache-backed, no database required
+- **Behavioral Cohort Builder** (`BehavioralCohortBuilder`) — Automatic user segmentation by behavioral patterns: Power Users (5+ days/week), Regular (3-4 days), Casual (1-2 days), At-Risk (inactive 7+ days), Dormant (inactive 30+ days), New Users (first seen ≤7 days), Resurrected (were dormant, returned). Supports custom cohort definitions via config. Cached results for performance
+- **Admin Command** (`zb:analytics:behavioral`) — Displays retention metrics, stickiness grades, cohort distribution with visual bars, rules engine status, and user properties schema. Supports section filtering: `--retention`, `--stickiness`, `--cohorts`, `--rules`, `--properties`
+
+### New API Endpoints (28 new routes)
+
+- `GET /api/analytics/rules` — List event rules and trigger counts
+- `POST /api/analytics/rules/evaluate` — Evaluate rules against a test event
+- `GET /api/analytics/rules/absence` — Evaluate absence-trigger rules
+- `GET /api/analytics/rules/counts` — Rule trigger counts
+- `GET|POST|DELETE /api/analytics/user-properties/{identity}` — CRUD user properties
+- `POST /api/analytics/user-properties/{identity}/merge` — Batch merge
+- `POST /api/analytics/user-properties/{identity}/increment` — Increment counter
+- `POST /api/analytics/user-properties/link` — Link client ↔ user identity
+- `GET /api/analytics/retention` — Overall N-Day retention
+- `GET /api/analytics/retention/{date}` — Cohort-specific retention
+- `GET /api/analytics/retention/{date}/rolling/{days}` — Rolling retention
+- `GET /api/analytics/retention/{date}/curve` — Full retention curve
+- `GET /api/analytics/retention/cohorts/{days}` — Multi-cohort comparison
+- `GET /api/analytics/stickiness` — DAU/WAU/MAU stickiness
+- `GET /api/analytics/cohorts` — Full behavioral cohort classification
+- `GET /api/analytics/cohorts/{identity}` — Per-user cohort assignment
+- `GET /api/analytics/cohorts/summary/{days}` — Cohort summary
+- `GET /api/analytics/cohorts/transitions/{daysAgo}` — Cohort transitions
+
+### New Config Sections
+
+- `zeroboiler.analytics.rules` — Event rules engine (enabled, debug, rules)
+- `zeroboiler.analytics.user_properties` — User properties store (enabled, debug, ttl, schema)
+- `zeroboiler.analytics.retention_analytics` — Retention calculator (enabled, debug, ttl, retention_days)
+- `zeroboiler.analytics.cohorts` — Cohort builder (enabled, debug, result_ttl, custom_cohorts)
+
+### Tests
+
+- **28 new tests** in `V301BehavioralAnalyticsTest.php` covering all four new services
+
+### Upgrade Notes
+
+- No breaking changes — all existing APIs remain backward compatible
+- New services are registered as singletons in the service provider
+- Config sections are optional — sensible defaults provided
+- Event rules engine is disabled by default — enable with `ANALYTICS_RULES_ENABLED=true`
 
 ## What's New in v3.0.0
 

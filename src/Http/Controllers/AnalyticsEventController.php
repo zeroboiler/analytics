@@ -4991,4 +4991,373 @@ final class AnalyticsEventController extends Controller
 
         return response()->json($service->ping());
     }
+
+    // ─── Event Rules Engine (v3.1.0) ─────────────────────────────────
+
+    /**
+     * List all configured event rules.
+     *
+     * GET /api/analytics/rules
+     */
+    public function rulesList(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\EventRulesEngine $engine */
+        $engine = app(\ZeroBoiler\Analytics\Services\EventRulesEngine::class);
+
+        return response()->json([
+            'enabled' => $engine->isEnabled(),
+            'rules' => $engine->rules(),
+            'trigger_counts' => $engine->triggerCounts(),
+        ]);
+    }
+
+    /**
+     * Evaluate event-trigger rules against a submitted event.
+     *
+     * POST /api/analytics/rules/evaluate
+     *
+     * Body: { "name": "sign_up", "params": { "method": "email" } }
+     */
+    public function rulesEvaluate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'params' => 'array',
+        ]);
+
+        /** @var \ZeroBoiler\Analytics\Services\EventRulesEngine $engine */
+        $engine = app(\ZeroBoiler\Analytics\Services\EventRulesEngine::class);
+
+        $event = new AnalyticsEvent(
+            name: $request->input('name'),
+            params: $request->input('params', []),
+        );
+
+        $triggered = $engine->evaluate($event);
+
+        return response()->json([
+            'status' => 'ok',
+            'evaluated_event' => $event->name,
+            'triggered_events' => count($triggered),
+            'triggered' => array_map(
+                fn (AnalyticsEvent $e): array => ['name' => $e->name, 'params' => $e->params],
+                $triggered,
+            ),
+        ]);
+    }
+
+    /**
+     * Evaluate absence-trigger rules.
+     *
+     * GET /api/analytics/rules/absence
+     */
+    public function rulesEvaluateAbsence(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\EventRulesEngine $engine */
+        $engine = app(\ZeroBoiler\Analytics\Services\EventRulesEngine::class);
+
+        $triggered = $engine->evaluateAbsenceRules();
+
+        return response()->json([
+            'status' => 'ok',
+            'triggered_events' => count($triggered),
+            'triggered' => array_map(
+                fn (AnalyticsEvent $e): array => ['name' => $e->name, 'params' => $e->params, 'client_id' => $e->clientId],
+                $triggered,
+            ),
+        ]);
+    }
+
+    /**
+     * Get rule trigger counts since last reset.
+     *
+     * GET /api/analytics/rules/counts
+     */
+    public function rulesTriggerCounts(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\EventRulesEngine $engine */
+        $engine = app(\ZeroBoiler\Analytics\Services\EventRulesEngine::class);
+
+        return response()->json([
+            'trigger_counts' => $engine->triggerCounts(),
+        ]);
+    }
+
+    // ─── User Properties (v3.1.0) ─────────────────────────────────
+
+    /**
+     * Get all properties for an identity.
+     *
+     * GET /api/analytics/user-properties/{identity}
+     */
+    public function userPropertiesGet(string $identity): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        return response()->json([
+            'identity' => $identity,
+            'resolved_identity' => $store->resolveIdentity($identity),
+            'properties' => $store->all($identity),
+        ]);
+    }
+
+    /**
+     * Set a single user property.
+     *
+     * POST /api/analytics/user-properties/{identity}
+     *
+     * Body: { "key": "plan", "value": "pro" }
+     */
+    public function userPropertiesSet(Request $request, string $identity): JsonResponse
+    {
+        $request->validate([
+            'key' => 'required|string|max:100',
+            'value' => 'required',
+        ]);
+
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        $store->set($identity, $request->input('key'), $request->input('value'));
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Merge multiple user properties.
+     *
+     * POST /api/analytics/user-properties/{identity}/merge
+     *
+     * Body: { "properties": { "plan": "pro", "team_size": 5 } }
+     */
+    public function userPropertiesMerge(Request $request, string $identity): JsonResponse
+    {
+        $request->validate([
+            'properties' => 'required|array',
+            'properties.*' => 'mixed',
+        ]);
+
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        $store->merge($identity, $request->input('properties', []));
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Increment a numeric user property.
+     *
+     * POST /api/analytics/user-properties/{identity}/increment
+     *
+     * Body: { "key": "session_count", "by": 1 }
+     */
+    public function userPropertiesIncrement(Request $request, string $identity): JsonResponse
+    {
+        $request->validate([
+            'key' => 'required|string|max:100',
+            'by' => 'sometimes|numeric',
+        ]);
+
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        $by = $request->input('by', 1);
+
+        $store->increment(
+            $identity,
+            $request->input('key'),
+            is_int($by) ? (int) $by : (float) $by,
+        );
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Link a client ID to a user ID (identity merge).
+     *
+     * POST /api/analytics/user-properties/link
+     *
+     * Body: { "client_id": "uuid-...", "user_id": "42" }
+     */
+    public function userPropertiesLink(Request $request): JsonResponse
+    {
+        $request->validate([
+            'client_id' => 'required|string',
+            'user_id' => 'required|string',
+        ]);
+
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        $store->linkIdentity(
+            $request->input('client_id'),
+            $request->input('user_id'),
+        );
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Delete all properties for an identity (GDPR).
+     *
+     * DELETE /api/analytics/user-properties/{identity}
+     */
+    public function userPropertiesDelete(string $identity): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\UserPropertiesStore $store */
+        $store = app(\ZeroBoiler\Analytics\Services\UserPropertiesStore::class);
+
+        $store->delete($identity);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    // ─── Retention & Stickiness (v3.1.0) ──────────────────────────
+
+    /**
+     * Get overall retention metrics.
+     *
+     * GET /api/analytics/retention
+     */
+    public function retentionOverview(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json([
+            'enabled' => $calc->isEnabled(),
+            'retention_days' => $calc->retentionDays(),
+            'retention' => $calc->retention(),
+        ]);
+    }
+
+    /**
+     * Get N-Day retention for a specific cohort date.
+     *
+     * GET /api/analytics/retention/{date}
+     */
+    public function retentionForCohort(string $date): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json($calc->retention($date));
+    }
+
+    /**
+     * Get rolling retention for a specific cohort.
+     *
+     * GET /api/analytics/retention/{date}/rolling/{days}
+     */
+    public function rollingRetention(string $date, int $days = 30): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json($calc->rollingRetention($date, $days));
+    }
+
+    /**
+     * Get full retention curve for a cohort (chart data).
+     *
+     * GET /api/analytics/retention/{date}/curve
+     */
+    public function retentionCurve(Request $request, string $date): JsonResponse
+    {
+        $maxDays = (int) $request->query('max_days', 30);
+
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json($calc->retentionCurve($date, $maxDays));
+    }
+
+    /**
+     * Compare retention across multiple cohorts.
+     *
+     * GET /api/analytics/retention/cohorts/{days}
+     */
+    public function retentionCohortComparison(int $days = 7): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json($calc->cohortComparison($days));
+    }
+
+    /**
+     * Get stickiness metrics (DAU/MAU ratio).
+     *
+     * GET /api/analytics/stickiness
+     */
+    public function stickiness(Request $request): JsonResponse
+    {
+        $referenceDate = $request->query('date');
+
+        /** @var \ZeroBoiler\Analytics\Services\RetentionCalculator $calc */
+        $calc = app(\ZeroBoiler\Analytics\Services\RetentionCalculator::class);
+
+        return response()->json($calc->stickiness(
+            is_string($referenceDate) ? $referenceDate : null,
+        ));
+    }
+
+    // ─── Behavioral Cohorts (v3.1.0) ──────────────────────────────
+
+    /**
+     * Classify all users into behavioral cohorts.
+     *
+     * GET /api/analytics/cohorts
+     */
+    public function behavioralCohorts(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\BehavioralCohortBuilder $builder */
+        $builder = app(\ZeroBoiler\Analytics\Services\BehavioralCohortBuilder::class);
+
+        return response()->json($builder->classify());
+    }
+
+    /**
+     * Get cohort assignment for a specific user.
+     *
+     * GET /api/analytics/cohorts/{identity}
+     */
+    public function behavioralCohortForUser(string $identity): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\BehavioralCohortBuilder $builder */
+        $builder = app(\ZeroBoiler\Analytics\Services\BehavioralCohortBuilder::class);
+
+        return response()->json([
+            'identity' => $identity,
+            'cohort' => $builder->classifyUser($identity),
+        ]);
+    }
+
+    /**
+     * Get cohort summary for the last N days.
+     *
+     * GET /api/analytics/cohorts/summary/{days}
+     */
+    public function behavioralCohortSummary(int $days = 30): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\BehavioralCohortBuilder $builder */
+        $builder = app(\ZeroBoiler\Analytics\Services\BehavioralCohortBuilder::class);
+
+        return response()->json($builder->summary($days));
+    }
+
+    /**
+     * Get cohort transition data.
+     *
+     * GET /api/analytics/cohorts/transitions/{daysAgo}
+     */
+    public function behavioralCohortTransitions(int $daysAgo = 7): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\BehavioralCohortBuilder $builder */
+        $builder = app(\ZeroBoiler\Analytics\Services\BehavioralCohortBuilder::class);
+
+        return response()->json($builder->transitions($daysAgo));
+    }
 }
