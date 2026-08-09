@@ -67,6 +67,8 @@ use ZeroBoiler\Analytics\Services\AttributionService;
 use ZeroBoiler\Analytics\Services\GdprErasureService;
 use ZeroBoiler\Analytics\Services\AnalyticsStatsService;
 use ZeroBoiler\Analytics\Services\InboundWebhookService;
+use ZeroBoiler\Analytics\Services\EventQueryEngine;
+use ZeroBoiler\Analytics\Services\AnalyticsQueryBuilder;
 use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
@@ -1601,6 +1603,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 (int) ($dataConfig['daily_ttl'] ?? 86400),
             );
         });
+
+        // Event Query Engine (v5.5.0) — structured analytics data queries
+        $this->app->singleton(EventQueryEngine::class, function (Application $app): EventQueryEngine {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $dataConfig = $config->get('zeroboiler.analytics.data_service', []);
+            /** @var array{ttl?: int} $dataConfig */
+
+            return new EventQueryEngine(
+                $app->make('cache'),
+                $manager->metrics(),
+                (int) ($dataConfig['ttl'] ?? 300),
+            );
+        });
+
+        // Analytics Query Builder (v5.5.0) — fluent query DSL
+        $this->app->bind(AnalyticsQueryBuilder::class);
 
         // Event Taxonomy Service (v5.0.0) — tag-based event classification
         $this->app->singleton(EventTaxonomyService::class, function (Application $app): EventTaxonomyService {

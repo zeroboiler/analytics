@@ -2687,6 +2687,24 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Query Engine (v5.5.0)
+        |--------------------------------------------------------------------------
+        |
+        | Cache-backed structured query engine for dashboard analytics.
+        | Provides time-series, funnel, cohort, and conversion queries
+        | without requiring a database. Used by AnalyticsQueryBuilder DSL.
+        |
+        */
+        'query_engine' => [
+            'enabled' => env('ANALYTICS_QUERY_ENGINE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_QUERY_ENGINE_TTL', 300), // 5 minutes
+            'default_period_days' => (int) env('ANALYTICS_QUERY_ENGINE_PERIOD', 7),
+            'max_period_days' => (int) env('ANALYTICS_QUERY_ENGINE_MAX_PERIOD', 90),
+            'max_results' => (int) env('ANALYTICS_QUERY_ENGINE_MAX_RESULTS', 50),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Event Taxonomy (v5.0.0)
         |--------------------------------------------------------------------------
         |
