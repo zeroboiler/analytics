@@ -151,11 +151,8 @@ final class AnalyticsQuickSetupCommand extends Command
     private function showAARRRAnalysis(): void
     {
         try {
-            $aarrr = new AARRRFrameworkService(
-                app(\ZeroBoiler\Analytics\AnalyticsManager::class),
-                app(\Illuminate\Contracts\Cache\Repository::class),
-                app(\Illuminate\Contracts\Config\Repository::class),
-            );
+            /** @var AARRRFrameworkService $aarrr */
+            $aarrr = app(AARRRFrameworkService::class);
 
             $health = $aarrr->healthScore();
 

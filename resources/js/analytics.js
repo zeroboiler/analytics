@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '6.1.0';
+    return '6.2.0';
 }
 
 /**

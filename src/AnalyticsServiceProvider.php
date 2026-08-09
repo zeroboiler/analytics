@@ -173,6 +173,7 @@ use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
+use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -1220,6 +1221,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSConversionService($manager, $cache, $config);
+        });
+
+        // AARRR framework service (v6.2.0) — unified SaaS growth metrics
+        $this->app->singleton(AARRRFrameworkService::class, function (Application $app): AARRRFrameworkService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AARRRFrameworkService($manager, $cache, $config);
         });
 
         // Data warehouse export service (v2.67.0)
