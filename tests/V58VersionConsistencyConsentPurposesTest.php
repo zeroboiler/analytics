@@ -43,7 +43,6 @@ describe('V58 Version Consistency & Consent Purposes', function (): void {
         test('EventSourceTagger uses version 2.58.0', function (): void {
             $reflection = new ReflectionClass(EventSourceTagger::class);
             $method = $reflection->getMethod('tag');
-            $method->setAccessible(true);
 
             $instance = new EventSourceTagger;
             // Call tag() to get a tagged event

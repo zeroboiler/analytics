@@ -260,7 +260,6 @@ test('AnalyticsManager funnelReadiness returns high scores', function (): void {
 test('EventPriorityCalculator critical events include all 8 required events', function (): void {
     $reflection = new ReflectionClass(EventPriorityCalculator::class);
     $property = $reflection->getProperty('CRITICAL_SAAS_EVENTS');
-    $property->setAccessible(true);
     $critical = $property->getValue();
 
     expect($critical)->toBe([

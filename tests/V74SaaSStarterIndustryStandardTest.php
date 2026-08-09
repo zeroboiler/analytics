@@ -278,7 +278,6 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
                 \ZeroBoiler\Analytics\Tracking\ServerSideTracker::class,
                 'customEventMap',
             );
-            $mapProperty->setAccessible(true);
 
             $tracker = new \ZeroBoiler\Analytics\Tracking\ServerSideTracker(
                 new \ZeroBoiler\Analytics\AnalyticsManager(null),

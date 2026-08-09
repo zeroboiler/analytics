@@ -17,7 +17,6 @@ test('AnalyticsReadinessCommand class exists and is final', function (): void {
 test('AnalyticsReadinessCommand has correct signature', function (): void {
     $class = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand::class);
     $property = $class->getProperty('signature');
-    $property->setAccessible(true);
 
     expect($property->getValue())->toBe('zb:analytics:readiness
         {--json : Output as JSON}

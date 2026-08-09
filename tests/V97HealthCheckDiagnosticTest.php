@@ -290,7 +290,6 @@ test('AnalyticsHealthCheckService::run overall status reflects subsystem health'
 test('AnalyticsHealthCheckService VERSION is 2.98.0', function (): void {
     $reflection = new ReflectionClass(AnalyticsHealthCheckService::class);
     $property = $reflection->getProperty('VERSION');
-    $property->setAccessible(true);
 
     expect($property->getValue())->toBe('5.0.0');
 });

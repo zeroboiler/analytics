@@ -146,7 +146,6 @@ test('v4.0.0 AnalyticsReplayCommand class exists and is final', function (): voi
 test('v4.0.0 AnalyticsReplayCommand has correct signature', function (): void {
     $ref = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayCommand::class);
     $prop = $ref->getProperty('signature');
-    $prop->setAccessible(true);
 
     // Create a mock EventArchiveService
     $cache = new class implements \Illuminate\Contracts\Cache\Repository {

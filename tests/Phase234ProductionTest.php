@@ -860,7 +860,6 @@ test('Phase 4: ServiceProvider has provides method', function (): void {
 test('Phase 4: Facade accessor matches container binding', function (): void {
     $r = new ReflectionClass(Analytics::class);
     $m = $r->getMethod('getFacadeAccessor');
-    $m->setAccessible(true);
     expect($m->invoke(null))->toBe('zeroboiler.analytics');
 });
 

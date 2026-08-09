@@ -16,7 +16,7 @@
         "consent",
         "ecommerce"
     ],
-    "version": "5.0.0",
+    "version": "5.1.0",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
