@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.2.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-4.3.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.3.0](#whats-new-in-v4300)
 - [What's New in v4.2.0](#whats-new-in-v4200)
 - [What's New in v4.1.0](#whats-new-in-v4100)
 - [What's New in v4.0.0](#whats-new-in-v4000)
@@ -78,6 +79,75 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.3.0
+
+**Event Budget & Throttling, Analytics Diagnostics Command, Event Sequencing Analysis**
+
+v4.3.0 adds abuse prevention with per-client/per-user event budgets, a comprehensive diagnostics command for debugging, and expanded event sequencing analysis endpoints.
+
+### Event Budget Service
+
+The `EventBudgetService` enforces configurable per-client and per-user event limits with sliding windows. Prevents abuse, controls costs, and ensures fair usage across your SaaS analytics pipeline.
+
+```php
+use ZeroBoiler\Analytics\Services\EventBudgetService;
+
+$budget = new EventBudgetService($cache, clientLimit: 1000, userLimit: 500);
+
+// Check if an event is allowed
+$result = $budget->check('client-id', 'user-id');
+// ['allowed' => true, 'reason' => 'within_budget', 'policy' => 'accept', 'remaining' => [...]]
+
+// Record an event
+$budget->record('client-id', 'user-id');
+
+// Get stats
+$budget->stats();
+// ['client_count' => 5, 'user_count' => 3, 'global_total' => 42, ...]
+```
+
+Configuration (`zeroboiler.analytics.budget`):
+
+```env
+ANALYTICS_BUDGET_ENABLED=true
+ANALYTICS_BUDGET_CLIENT_LIMIT=1000
+ANALYTICS_BUDGET_USER_LIMIT=500
+ANALYTICS_BUDGET_GLOBAL_LIMIT=100000
+ANALYTICS_BUDGET_OVERFLOW=reject  # or 'sample'
+ANALYTICS_BUDGET_SAMPLE_RATE=0.1  # 10% when sampling
+```
+
+### Budget API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /api/analytics/budget` | GET | Budget statistics overview |
+| `GET /api/analytics/budget/client/{clientId}` | GET | Per-client budget status |
+| `GET /api/analytics/budget/user/{userId}` | GET | Per-user budget status |
+| `GET /api/analytics/budget/top-clients` | GET | Top clients by event volume |
+| `DELETE /api/analytics/budget` | DELETE | Clear all budget counters |
+| `DELETE /api/analytics/budget/client/{clientId}` | DELETE | Reset specific client budget |
+| `DELETE /api/analytics/budget/user/{userId}` | DELETE | Reset specific user budget |
+
+### Event Sequencing Analysis Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `POST /api/analytics/correlation/matrix` | POST | Event co-occurrence matrix |
+| `POST /api/analytics/correlation/conversion-rate` | POST | Sequence funnel conversion analysis |
+
+### Analytics Diagnostics Command
+
+A comprehensive system health check covering provider config, catalog integrity, cache, queue, identity, GDPR, consent, budget, and middleware registration.
+
+```bash
+php artisan zb:analytics:diagnostics
+php artisan zb:analytics:diagnostics --check-providers
+php artisan zb:analytics:diagnostics --json
+```
+
+Output shows pass/warn/fail for each check with actionable messages.
 
 ## What's New in v4.2.0
 

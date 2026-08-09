@@ -57,6 +57,7 @@ use ZeroBoiler\Analytics\Services\SaaSConversionService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
+use ZeroBoiler\Analytics\Services\EventBudgetService;
 
 /**
  * API controller for frontend event tracking.
@@ -158,6 +159,8 @@ final class AnalyticsEventController extends Controller
 
     private ?FeatureAdoptionTracker $featureAdoptionTracker;
 
+    private ?EventBudgetService $budgetService;
+
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
@@ -217,6 +220,7 @@ final class AnalyticsEventController extends Controller
         ?EventGovernanceService $governanceService = null,
         ?EventImpactService $eventImpactService = null,
         ?FeatureAdoptionTracker $featureAdoptionTracker = null,
+        ?EventBudgetService $budgetService = null,
     ): void {
         $this->manager = $manager;
         $this->config = $config;
@@ -259,6 +263,7 @@ final class AnalyticsEventController extends Controller
         $this->governanceService = $governanceService;
         $this->eventImpactService = $eventImpactService;
         $this->featureAdoptionTracker = $featureAdoptionTracker;
+        $this->budgetService = $budgetService;
 
         $pipelineConfig = $config->get('zeroboiler.analytics.pipeline', []);
         /** @var array{auto_utm?: bool, auto_timestamp?: bool, auto_metadata?: bool, schema_enrichment?: bool} $pipelineConfig */
@@ -7167,6 +7172,183 @@ final class AnalyticsEventController extends Controller
         }
 
         $this->featureAdoptionTracker->clearProfile($userId);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    // ─── Event Sequencing Analysis (v4.3.0) ────────────────────────────
+
+    /**
+     * Get event correlation matrix.
+     *
+     * POST /api/analytics/correlation/matrix
+     *
+     * Accepts an optional list of event names. Returns a co-occurrence
+     * matrix showing how often events appear together in user journeys.
+     *
+     * @return JsonResponse
+     */
+    public function correlationMatrix(Request $request): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not configured'], 503);
+        }
+
+        $request->validate([
+            'events' => 'array',
+            'events.*' => 'string',
+        ]);
+
+        $events = $request->input('events', []);
+
+        return response()->json($this->correlationService->correlationMatrix($events));
+    }
+
+    /**
+     * Get sequence conversion funnel analysis.
+     *
+     * POST /api/analytics/correlation/conversion-rate
+     *
+     * Body: { "sequence": ["sign_up", "start_trial", "subscribe"] }
+     *
+     * @return JsonResponse
+     */
+    public function correlationConversionRate(Request $request): JsonResponse
+    {
+        if ($this->correlationService === null) {
+            return response()->json(['error' => 'Correlation service not configured'], 503);
+        }
+
+        $request->validate([
+            'sequence' => 'required|array|min:2',
+            'sequence.*' => 'string',
+        ]);
+
+        return response()->json(
+            $this->correlationService->conversionRate($request->input('sequence', []))
+        );
+    }
+
+    // ─── Event Budget & Throttling (v4.3.0) ────────────────────────────
+
+    /**
+     * Get event budget statistics.
+     *
+     * GET /api/analytics/budget
+     *
+     * @return JsonResponse
+     */
+    public function budgetStats(): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        return response()->json($this->budgetService->stats());
+    }
+
+    /**
+     * Get budget status for a specific client.
+     *
+     * GET /api/analytics/budget/client/{clientId}
+     *
+     * @return JsonResponse
+     */
+    public function budgetClientStatus(Request $request, string $clientId): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        return response()->json($this->budgetService->clientStatus($clientId));
+    }
+
+    /**
+     * Get budget status for a specific user.
+     *
+     * GET /api/analytics/budget/user/{userId}
+     *
+     * @return JsonResponse
+     */
+    public function budgetUserStatus(Request $request, string $userId): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        return response()->json($this->budgetService->userStatus($userId));
+    }
+
+    /**
+     * Get top clients by event count.
+     *
+     * GET /api/analytics/budget/top-clients?limit=10
+     *
+     * @return JsonResponse
+     */
+    public function budgetTopClients(Request $request): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        $limit = (int) ($request->query('limit', 10));
+
+        return response()->json([
+            'top_clients' => $this->budgetService->topClients($limit),
+        ]);
+    }
+
+    /**
+     * Reset budget for a specific client.
+     *
+     * DELETE /api/analytics/budget/client/{clientId}
+     *
+     * @return JsonResponse
+     */
+    public function budgetResetClient(Request $request, string $clientId): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        $this->budgetService->resetClient($clientId);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Reset budget for a specific user.
+     *
+     * DELETE /api/analytics/budget/user/{userId}
+     *
+     * @return JsonResponse
+     */
+    public function budgetResetUser(Request $request, string $userId): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        $this->budgetService->resetUser($userId);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Clear all budget counters.
+     *
+     * DELETE /api/analytics/budget
+     *
+     * @return JsonResponse
+     */
+    public function budgetClear(): JsonResponse
+    {
+        if ($this->budgetService === null) {
+            return response()->json(['error' => 'Budget service not configured'], 503);
+        }
+
+        $this->budgetService->clear();
 
         return response()->json(['status' => 'ok']);
     }

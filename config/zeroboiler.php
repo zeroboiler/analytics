@@ -997,6 +997,29 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Budget & Throttling (v4.3.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, enforces per-client and per-user event budgets to prevent
+        | abuse and control costs. Supports configurable limits, sliding windows,
+        | and overflow policies (reject, sample, throttle).
+        |
+        | Budgets are tracked in-memory with optional cache persistence.
+        |
+        */
+        'budget' => [
+            'enabled' => env('ANALYTICS_BUDGET_ENABLED', false),
+            'client_limit' => (int) env('ANALYTICS_BUDGET_CLIENT_LIMIT', 1000),   // per hour
+            'user_limit' => (int) env('ANALYTICS_BUDGET_USER_LIMIT', 500),       // per hour
+            'global_limit' => (int) env('ANALYTICS_BUDGET_GLOBAL_LIMIT', 100000), // per hour
+            'window_seconds' => (int) env('ANALYTICS_BUDGET_WINDOW', 3600),     // 1 hour
+            'overflow_policy' => env('ANALYTICS_BUDGET_OVERFLOW', 'reject'),    // reject, sample
+            'sample_rate' => (float) env('ANALYTICS_BUDGET_SAMPLE_RATE', 0.1), // 10% when sampling
+            'cache_enabled' => env('ANALYTICS_BUDGET_CACHE_ENABLED', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Reporting (Periodic Analytics Summaries)
         |-------------------------------------------------------------------------- 
         |

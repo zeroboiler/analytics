@@ -387,4 +387,17 @@ Route::prefix('analytics')->group(function () {
     Route::get('adoption/recent/{userId}', [AnalyticsEventController::class, 'featureAdoptionRecent']);
     Route::get('adoption/streak/{userId}/{featureName}', [AnalyticsEventController::class, 'featureAdoptionStreak']);
     Route::delete('adoption/profile/{userId}', [AnalyticsEventController::class, 'featureAdoptionClear']);
+
+    // Event Sequencing Analysis (v4.3.0)
+    Route::post('correlation/matrix', [AnalyticsEventController::class, 'correlationMatrix']);
+    Route::post('correlation/conversion-rate', [AnalyticsEventController::class, 'correlationConversionRate']);
+
+    // Event Budget & Throttling (v4.3.0)
+    Route::get('budget', [AnalyticsEventController::class, 'budgetStats']);
+    Route::get('budget/client/{clientId}', [AnalyticsEventController::class, 'budgetClientStatus']);
+    Route::get('budget/user/{userId}', [AnalyticsEventController::class, 'budgetUserStatus']);
+    Route::get('budget/top-clients', [AnalyticsEventController::class, 'budgetTopClients']);
+    Route::delete('budget', [AnalyticsEventController::class, 'budgetClear']);
+    Route::delete('budget/client/{clientId}', [AnalyticsEventController::class, 'budgetResetClient']);
+    Route::delete('budget/user/{userId}', [AnalyticsEventController::class, 'budgetResetUser']);
 });
