@@ -6550,4 +6550,166 @@ final class AnalyticsEventController extends Controller
             ], 500);
         }
     }
+
+    // ─── Event Archive (v4.0.0) ────────────────────────────────────────
+
+    /**
+     * Search archived events with filters.
+     *
+     * Query parameters: name, client_id, user_id, dispatched, since, until, limit, offset
+     *
+     * @return JsonResponse
+     */
+    public function archiveSearch(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveService $archive */
+            $archive = app(\ZeroBoiler\Analytics\Services\EventArchiveService::class);
+
+            $filters = [];
+            $request = request();
+
+            if ($request->filled('name')) {
+                $filters['name'] = (string) $request->query('name');
+            }
+            if ($request->filled('client_id')) {
+                $filters['client_id'] = (string) $request->query('client_id');
+            }
+            if ($request->filled('user_id')) {
+                $filters['user_id'] = (string) $request->query('user_id');
+            }
+            if ($request->filled('dispatched')) {
+                $filters['dispatched'] = $request->boolean('dispatched');
+            }
+            if ($request->filled('since')) {
+                $filters['since'] = (string) $request->query('since');
+            }
+            if ($request->filled('until')) {
+                $filters['until'] = (string) $request->query('until');
+            }
+
+            $limit = (int) $request->query('limit', 50);
+            $offset = (int) $request->query('offset', 0);
+
+            $results = $archive->search($filters, min($limit, 200), $offset);
+
+            return response()->json($results);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archive search failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get event archive statistics (per-event-name counts).
+     *
+     * @return JsonResponse
+     */
+    public function archiveStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveService $archive */
+            $archive = app(\ZeroBoiler\Analytics\Services\EventArchiveService::class);
+
+            return response()->json([
+                'total' => $archive->totalArchived(),
+                'event_counts' => $archive->eventCounts(20),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archive stats failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get a single archived event by ID.
+     *
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function archiveGet(int $id): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveService $archive */
+            $archive = app(\ZeroBoiler\Analytics\Services\EventArchiveService::class);
+
+            $event = $archive->get($id);
+
+            if ($event === null) {
+                return response()->json([
+                    'error' => 'Event not found',
+                    'id' => $id,
+                ], 404);
+            }
+
+            return response()->json($event);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archive get failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Replay a single archived event to all active providers.
+     *
+     * @param  int  $id
+     * @return JsonResponse
+     */
+    public function archiveReplay(int $id): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveService $archive */
+            $archive = app(\ZeroBoiler\Analytics\Services\EventArchiveService::class);
+
+            $success = $archive->replay($id);
+
+            if (! $success) {
+                return response()->json([
+                    'error' => 'Replay failed',
+                    'id' => $id,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'replayed',
+                'id' => $id,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archive replay failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear the entire event archive.
+     *
+     * @return JsonResponse
+     */
+    public function archiveClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveService $archive */
+            $archive = app(\ZeroBoiler\Analytics\Services\EventArchiveService::class);
+
+            $cleared = $archive->clear();
+
+            return response()->json([
+                'status' => 'cleared',
+                'events_removed' => $cleared,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Archive clear failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

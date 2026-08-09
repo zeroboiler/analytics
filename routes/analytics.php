@@ -355,4 +355,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('config-drift/baseline', [AnalyticsEventController::class, 'configDriftBaselineInfo']);
     Route::post('config-drift/capture', [AnalyticsEventController::class, 'configDriftCapture']);
     Route::delete('config-drift/baseline', [AnalyticsEventController::class, 'configDriftClear']);
+
+    // Event Archive (v4.0.0)
+    Route::get('archive', [AnalyticsEventController::class, 'archiveSearch']);
+    Route::get('archive/stats', [AnalyticsEventController::class, 'archiveStats']);
+    Route::get('archive/{id}', [AnalyticsEventController::class, 'archiveGet']);
+    Route::post('archive/{id}/replay', [AnalyticsEventController::class, 'archiveReplay']);
+    Route::delete('archive', [AnalyticsEventController::class, 'archiveClear']);
 });

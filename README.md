@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-3.9.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.0.0](#whats-new-in-v4000)
 - [What's New in v3.9.0](#whats-new-in-v3900)
 - [What's New in v3.8.0](#whats-new-in-v3800)
 - [What's New in v3.7.0](#whats-new-in-v3700)
@@ -75,6 +76,68 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.0.0
+
+**Event Archive Service, Analytics Replay Command, Archive API Endpoints**
+
+v4.0.0 adds persistent event archiving for SaaS analytics debugging, replay, and compliance auditing.
+
+### Event Archive Service (`EventArchiveService`)
+
+Cache-backed persistent archive of all dispatched analytics events with full search, filter, and pagination support. Archives are stored using the configured cache driver (file, redis, database) with configurable TTL and FIFO eviction.
+
+Features:
+- **Search** by event name (partial match), client ID, user ID, dispatch status, time range
+- **Pagination** with cursor-based offset and configurable page size
+- **Event replay** — re-dispatch archived events to all active providers
+- **Bulk replay** — replay all events matching filters
+- **Event statistics** — per-event-name counts for admin dashboards
+- **Archive management** — single event delete, full archive clear
+- **Filter rules** — always/never archive lists, automatic param sanitization
+
+**API Endpoints:**
+- `GET /api/analytics/archive` — Search archived events (query params: `name`, `client_id`, `user_id`, `dispatched`, `since`, `until`, `limit`, `offset`)
+- `GET /api/analytics/archive/stats` — Archive statistics (total count, per-event-name breakdown)
+- `GET /api/analytics/archive/{id}` — Get single archived event details
+- `POST /api/analytics/archive/{id}/replay` — Replay a single archived event
+- `DELETE /api/analytics/archive` — Clear the entire archive
+
+### Analytics Replay Command (`zb:analytics:replay`)
+
+Artisan command for searching, inspecting, and replaying archived events from the CLI.
+
+```bash
+# List recent archived events
+php artisan zb:analytics:replay list --limit=50
+
+# Search events by name
+php artisan zb:analytics:replay search --name=purchase
+
+# Show detailed event info
+php artisan zb:analytics:replay show --id=42
+
+# Replay a single event
+php artisan zb:analytics:replay replay --id=42
+
+# Bulk replay failed events
+php artisan zb:analytics:replay bulk-replay --failed-only --force
+
+# View archive statistics
+php artisan zb:analytics:replay stats
+
+# Clear archive
+php artisan zb:analytics:replay clear --force
+```
+
+### Configuration
+
+```env
+ANALYTICS_ARCHIVE_ENABLED=true
+ANALYTICS_ARCHIVE_RETENTION_TTL=86400     # 24 hours
+ANALYTICS_ARCHIVE_MAX_EVENTS=10000
+ANALYTICS_ARCHIVE_CACHE_PREFIX=zb_archive_
+```
 
 ## What's New in v3.9.0
 

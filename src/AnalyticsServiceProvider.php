@@ -129,6 +129,7 @@ use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsArchetypeDriftCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayCommand;
 use ZeroBoiler\Analytics\Services\OnboardingWizardService;
 use ZeroBoiler\Analytics\Services\GrowthMetricsService;
 use ZeroBoiler\Analytics\Services\WeeklyDigestService;
@@ -149,9 +150,10 @@ use ZeroBoiler\Analytics\Services\EventTraceService;
 use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
+use ZeroBoiler\Analytics\Services\EventArchiveService;
 
 /**
- * @version 3.9.0
+ * @version 4.0.0
  */
 
 /**
@@ -160,7 +162,7 @@ use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.9.0
+ * @version 4.0.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1494,6 +1496,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(AnalyticsMetrics::class),
             );
         });
+
+        // Event Archive Service (v4.0.0) — persistent dispatched event archive
+        $this->app->singleton(EventArchiveService::class, function (Application $app): EventArchiveService {
+            return new EventArchiveService(
+                $app->make(CacheRepository::class),
+                $app->make('zeroboiler.analytics'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -1520,6 +1531,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSchemaExportCommand::class,
                 AnalyticsBehavioralCommand::class,
                 AnalyticsArchetypeDriftCommand::class,
+                AnalyticsReplayCommand::class,
             ]);
         }
 
@@ -1764,6 +1776,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/sse', [$sseController, 'stream']);
                 Route::get('analytics/sse/info', [$sseController, 'info']);
                 Route::get('analytics/sse/health', [$sseController, 'health']);
+
+                // Event Archive (v4.0.0)
+                Route::get('analytics/archive', [$controller, 'archiveSearch']);
+                Route::get('analytics/archive/stats', [$controller, 'archiveStats']);
+                Route::get('analytics/archive/{id}', [$controller, 'archiveGet']);
+                Route::post('analytics/archive/{id}/replay', [$controller, 'archiveReplay']);
+                Route::delete('analytics/archive', [$controller, 'archiveClear']);
             });
 
         // Authenticated endpoints

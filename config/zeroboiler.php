@@ -2433,5 +2433,32 @@ return [
             'max_event_age' => (int) env('ANALYTICS_ANON_AGG_MAX_AGE', 86400), // 24 hours
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Archive (Persistent Dispatch History)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, all dispatched analytics events are stored in a cache-backed
+        | archive with search, filter, and pagination support. Enables admin dashboards
+        | to inspect recent event activity, debug dispatch issues, and replay events
+        | for reprocessing.
+        |
+        | Archive is accessible via:
+        | - API endpoints: GET /api/analytics/archive, GET /api/analytics/archive/{id}
+        | - Artisan command: php artisan zb:analytics:replay list|search|show|replay|stats|clear
+        |
+        | Storage uses the configured cache driver (file, redis, database).
+        | Events are evicted (FIFO) when max_events is reached.
+        |
+        */
+        'archive' => [
+            'enabled' => env('ANALYTICS_ARCHIVE_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_ARCHIVE_CACHE_PREFIX', 'zb_archive_'),
+            'retention_ttl' => (int) env('ANALYTICS_ARCHIVE_RETENTION_TTL', 86400), // 24 hours
+            'max_events' => (int) env('ANALYTICS_ARCHIVE_MAX_EVENTS', 10000),
+            'always_archive' => [], // Event names to always archive (empty = all)
+            'never_archive' => [], // Event names to never archive
+        ],
+
     ],
 ];
