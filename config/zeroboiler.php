@@ -533,6 +533,22 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_REVENUE_INTELLIGENCE_CACHE_TTL', 300), // 5 minutes
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Event Tracing (End-to-End Correlation)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, all API events receive a trace context (trace ID, span ID)
+        | for end-to-end correlation. Batch events share the same trace ID with
+        | unique span IDs. Trace metadata uses the `_trace_` prefix and is
+        | automatically stripped before forwarding to external providers.
+        |
+        */
+        'tracing' => [
+            'enabled' => env('ANALYTICS_TRACING_ENABLED', true),
+            'source' => env('ANALYTICS_TRACING_SOURCE', 'server'),
+        ],
+
 
         /*
         |-------------------------------------------------------------------------- 

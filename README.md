@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-3.7.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-3.8.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.8.0](#whats-new-in-v3800)
 - [What's New in v3.7.0](#whats-new-in-v3700)
 - [What's New in v3.6.0](#whats-new-in-v3600)
 - [What's New in v3.5.0](#whats-new-in-v3500)
@@ -73,6 +74,68 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.8.0
+
+**API Form Requests & Event Tracing**
+
+v3.8.0 adds production-grade API input validation and end-to-end event correlation tracing for the analytics pipeline.
+
+### API FormRequest Validation Classes
+
+Five typed FormRequest classes replace inline validation in the controller, providing proper separation of concerns, auto-generated API documentation, and structured error responses:
+
+- **TrackEventRequest** — validates `POST /api/analytics/events` (name, params, client_id, timestamp)
+- **BatchEventRequest** — validates `POST /api/analytics/batch` (events array, max 25, per-event params)
+- **IdentifyRequest** — validates `POST /api/analytics/identify` (client_id required, traits optional, auth check)
+- **UpdateConsentRequest** — validates `POST /api/analytics/consent` (signals in granted/denied, source tracking)
+- **PageViewRequest** — validates `POST /api/analytics/pageview` (title max 500, location/referrer max 2048)
+
+Each FormRequest includes:
+- Laravel validation rules with type constraints
+- Custom attribute names for user-friendly error messages
+- Typed accessor methods (`eventName()`, `eventParams()`, `clientId()`, etc.)
+- Consent Mode v2 signal validation (`granted`/`denied` only)
+
+### Event Trace Context & Service
+
+- **TraceContext DTO** — immutable readonly value object carrying a trace ID (32 hex), span ID (16 hex), optional parent span ID, and source tag
+- **EventTraceService** — injects trace context into single events and batches, extracts trace from events, strips trace metadata before provider forwarding
+- Batch tracing: all events in a single `POST /batch` share the same trace ID but get unique span IDs
+- Child span creation preserves parent context for nested operations (queue → provider)
+- Configurable via `zeroboiler.analytics.tracing` (enabled, source)
+
+```php
+use ZeroBoiler\Analytics\DTO\TraceContext;
+use ZeroBoiler\Analytics\Services\EventTraceService;
+
+// Automatic injection (done by controller if tracing enabled)
+$service = app(EventTraceService::class);
+$traced = $service->inject($event, 'api');
+
+// Manual tracing
+$trace = TraceContext::generate('custom_source');
+$event->params = array_merge($event->params, $trace->toParams());
+
+// Batch: all events share same trace ID
+$tracedBatch = $service->injectBatch($events, 'queue');
+
+// Extract for debugging
+$context = $service->extract($traced);
+echo $context->toString(); // "abc123.../def456 (parent: ...) [queue]"
+
+// Strip before forwarding to providers
+$cleanParams = $service->strip($traced->params);
+```
+
+### Other Changes
+- Version sweep: `composer.json` updated from 3.6.0 → 3.8.0
+- Added `tracing` config section to `zeroboiler.php`
+- Registered `EventTraceService` as singleton in `AnalyticsServiceProvider`
+- Updated JS client version strings (`getVersion()`, `_getInternalVersion()`)
+- Updated TypeScript definitions version
+- Updated Svelte composable version
+- 30+ comprehensive tests for TraceContext, EventTraceService, and all FormRequest classes
 
 ## What's New in v3.7.0
 

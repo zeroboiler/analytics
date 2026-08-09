@@ -143,9 +143,10 @@ use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 use ZeroBoiler\Analytics\Services\EventEnrichmentService;
 use ZeroBoiler\Analytics\Services\SubscriptionLifecycleService;
 use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
+use ZeroBoiler\Analytics\Services\EventTraceService;
 
 /**
- * @version 3.7.0
+ * @version 3.8.0
  */
 
 /**
@@ -154,7 +155,7 @@ use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.7.0
+ * @version 3.8.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1453,6 +1454,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(RevenueIntelligenceService::class, function (Application $app): RevenueIntelligenceService {
             return new RevenueIntelligenceService(
                 $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Trace Service (v3.8.0)
+        $this->app->singleton(EventTraceService::class, function (Application $app): EventTraceService {
+            return new EventTraceService(
                 $app->make(ConfigRepository::class),
             );
         });
