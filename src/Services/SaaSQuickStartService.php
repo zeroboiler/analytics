@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * authentication, subscription lifecycle, trial, and engagement events
  * with sensible defaults.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class SaaSQuickStartService
 {

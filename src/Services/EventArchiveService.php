@@ -33,7 +33,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Configuration is read from `zeroboiler.analytics.archive`.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class EventArchiveService
 {

@@ -29,7 +29,7 @@ final class SessionReplayService
     /**
      * Version for cache key compatibility.
      */
-    public const VERSION = '4.6.0';
+    public const VERSION = '5.0.0';
 
     private const CACHE_PREFIX = 'zb_session_replay_';
 

@@ -287,7 +287,7 @@ describe('AnalyticsManager v2.4', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('4.6.0');
+        expect($manager->version())->toBe('5.0.0');
     });
 
     it('providerSummary includes webhook', function () {

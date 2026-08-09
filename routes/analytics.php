@@ -422,4 +422,26 @@ Route::prefix('analytics')->group(function () {
     Route::post('catalog/validate', [AnalyticsEventController::class, 'catalogValidate']);
     Route::get('catalog/stats', [AnalyticsEventController::class, 'catalogStats']);
     Route::get('catalog/suggest', [AnalyticsEventController::class, 'catalogSuggest']);
+
+    // Analytics Data Service — Dashboard Queries (v5.0.0)
+    Route::get('dashboard', [AnalyticsEventController::class, 'dashboardSummary']);
+    Route::get('dashboard/dau', [AnalyticsEventController::class, 'dashboardDAU']);
+    Route::get('dashboard/mau', [AnalyticsEventController::class, 'dashboardMAU']);
+    Route::get('dashboard/stickiness', [AnalyticsEventController::class, 'dashboardStickiness']);
+    Route::get('dashboard/revenue', [AnalyticsEventController::class, 'dashboardRevenue']);
+    Route::get('dashboard/top-events', [AnalyticsEventController::class, 'dashboardTopEvents']);
+    Route::get('dashboard/providers', [AnalyticsEventController::class, 'dashboardProviders']);
+    Route::get('dashboard/funnel/{funnelName}', [AnalyticsEventController::class, 'dashboardFunnel']);
+
+    // Event Taxonomy API (v5.0.0)
+    Route::get('taxonomy/tags', [AnalyticsEventController::class, 'taxonomyTags']);
+    Route::get('taxonomy/groups', [AnalyticsEventController::class, 'taxonomyGroups']);
+    Route::get('taxonomy/summary', [AnalyticsEventController::class, 'taxonomySummary']);
+    Route::post('taxonomy/classify', [AnalyticsEventController::class, 'taxonomyAutoClassify']);
+    Route::get('taxonomy/event/{eventName}', [AnalyticsEventController::class, 'taxonomyEventTags']);
+    Route::get('taxonomy/tag/{tagName}/events', [AnalyticsEventController::class, 'taxonomyTagEvents']);
+
+    // Multi-Tenant Analytics (v5.0.0)
+    Route::get('tenant/{tenantId}/stats', [AnalyticsEventController::class, 'tenantStats']);
+    Route::get('tenant/{tenantId}/revenue', [AnalyticsEventController::class, 'tenantRevenue']);
 });

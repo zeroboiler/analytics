@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Services\EventPriorityCalculator;
  */
 final class AnalyticsHealthCheckService
 {
-    private const VERSION = '4.6.0';
+    private const VERSION = '5.0.0';
 
     /**
      * @param  ConfigRepository  $config

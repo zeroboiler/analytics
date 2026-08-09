@@ -2,6 +2,31 @@
 
 All notable changes to the package will be documented in this file.
 
+## [5.0.0] - 2026-08-09
+
+### Added
+
+- **AnalyticsDataService** — Cache-backed time-series analytics data for dashboard queries. Provides DAU/MAU, stickiness ratio, daily/monthly revenue, top events, provider dispatch stats, conversion funnels, retention metrics, and cohort analysis. No database required — uses the application cache driver. `getDAU()`, `getMAU()`, `getStickiness()`, `getDailyRevenue()`, `getMonthlyRevenue()`, `getRevenueBySource()`, `getTopEvents()`, `getProviderStats()`, `getFunnelConversion()`, `getRetentionMetrics()`, `getDashboardSummary()`.
+- **EventTaxonomyService** — Tag-based event classification beyond the existing category system. Events are auto-classified into tags by domain: `revenue`, `conversion`, `acquisition`, `authentication`, `engagement`, `onboarding`, `retention`, `billing`, `compliance`, `analytics`. Supports multi-dimensional filtering (AND/OR logic), tag groups, tag hierarchy, and search. `getTags()`, `addTags()`, `removeTags()`, `getEventsWithTag()`, `getEventsWithAllTags()`, `getEventsWithAnyTag()`, `getTagSummary()`, `autoClassify()`.
+- **AnalyticsEventOccurred** — Laravel event dispatched after every analytics event is tracked. Contains the analytics event DTO, provider dispatch results, and request context. Enables application code and third-party packages to react to analytics events without modifying core dispatch logic. Config-gated via `broadcast.enabled`.
+- **TenantAnalyticsContext** — Multi-tenant analytics context for workspace-aware event tracking. Supports manual, subdomain, header-based, or callback-based tenant resolution. Provides tenant-scoped event counting, revenue tracking, and context enrichment via `eventContext()`. Safe `withinTenant()` scope automatically restores previous context. `setTenant()`, `clearTenant()`, `getTenantId()`, `eventContext()`, `withinTenant()`, `incrementTenantEventCount()`, `getTenantStats()`, `recordTenantRevenue()`.
+- **Config section: `data_service`** — Dashboard analytics data settings: `enabled`, `cache_ttl`, `daily_ttl`.
+- **Config section: `taxonomy`** — Event taxonomy settings: `enabled`, `cache_ttl`, `auto_classify`, `tags` (config-driven event → tags mapping).
+- **Config section: `tenant`** — Multi-tenant analytics settings: `enabled`, `resolver` (manual/subdomain/header/callback), `header`, `subdomain_prefix`, `cache_ttl`, `auto_tag_events`.
+- **Config section: `broadcast`** — Event broadcasting settings: `enabled`, `exclude_events`.
+- **Dashboard API endpoints** — `GET /api/analytics/dashboard` (full summary), `GET /dashboard/dau`, `GET /dashboard/mau`, `GET /dashboard/stickiness`, `GET /dashboard/revenue`, `GET /dashboard/top-events`, `GET /dashboard/providers`, `GET /dashboard/funnel/{funnelName}`.
+- **Event Taxonomy API endpoints** — `GET /api/analytics/taxonomy/tags`, `GET /taxonomy/groups`, `GET /taxonomy/summary`, `POST /taxonomy/classify`, `GET /taxonomy/event/{eventName}`, `GET /taxonomy/tag/{tagName}/events`.
+- **Multi-Tenant API endpoints** — `GET /api/analytics/tenant/{tenantId}/stats`, `GET /tenant/{tenantId}/revenue`.
+- **ServiceProvider registrations** — `AnalyticsDataService`, `EventTaxonomyService`, `TenantAnalyticsContext` registered as singletons.
+- **V500IndustryStandardUpgradeTest** — 28 test cases covering all v5.0.0 features: version sweep, data service DAU/MAU/stickiness/revenue/providers/funnel, taxonomy auto-classification/tag-groups/filtering, tenant context scoping, Laravel event structure, config sections, route additions, and service layer size checks.
+
+### Changed
+
+- **Version bump** — 4.6.0 → 5.0.0 across all PHP source files (33 files), JS client (3 version strings), Svelte composables, TypeScript definitions, tests (81 files), composer.json, README badge. Full @version docblock sweep.
+- **Route count** — 130+ → 150+ registered API routes.
+- **PHP requirement** — Now requires PHP 8.5+ (Laravel 13 compatibility).
+- **LOC** — 150K+ → 160K+ across 340+ PHP source files and 165+ test files.
+
 ## [4.6.0] - 2026-08-09
 
 ### Added

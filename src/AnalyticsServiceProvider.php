@@ -160,6 +160,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsAIService;
 use ZeroBoiler\Analytics\Services\EventExperimentTracker;
 use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
+use ZeroBoiler\Analytics\Services\AnalyticsDataService;
+use ZeroBoiler\Analytics\Services\EventTaxonomyService;
+use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -167,7 +170,7 @@ use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1554,7 +1557,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Catalog Validator (v4.5.0) — catalog-aware event validation
         $this->app->singleton(EventCatalogValidator::class);
 
-        // AI-Powered Analytics Intelligence Service (v4.6.0)
+        // AI-Powered Analytics Intelligence Service (v5.0.0)
         $this->app->singleton(AnalyticsAIService::class, function (Application $app): AnalyticsAIService {
             return new AnalyticsAIService(
                 $app->make(ConfigRepository::class),
@@ -1562,7 +1565,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event Experiment Tracker — A/B test tracking & significance (v4.6.0)
+        // Event Experiment Tracker — A/B test tracking & significance (v5.0.0)
         $this->app->singleton(EventExperimentTracker::class, function (Application $app): EventExperimentTracker {
             return new EventExperimentTracker(
                 $app->make(ConfigRepository::class),
@@ -1570,12 +1573,59 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // SaaS QuickStart Service (v4.6.0)
+        // SaaS QuickStart Service (v5.0.0)
         $this->app->singleton(SaaSQuickStartService::class, function (Application $app): SaaSQuickStartService {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSQuickStartService($manager);
+        });
+
+        // Analytics Data Service (v5.0.0) — cache-backed dashboard queries
+        $this->app->singleton(AnalyticsDataService::class, function (Application $app): AnalyticsDataService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $dataConfig = $config->get('zeroboiler.analytics.data_service', []);
+            /** @var array{ttl?: int, daily_ttl?: int} $dataConfig */
+
+            return new AnalyticsDataService(
+                $app->make('cache'),
+                $manager->metrics(),
+                (int) ($dataConfig['ttl'] ?? 3600),
+                (int) ($dataConfig['daily_ttl'] ?? 86400),
+            );
+        });
+
+        // Event Taxonomy Service (v5.0.0) — tag-based event classification
+        $this->app->singleton(EventTaxonomyService::class, function (Application $app): EventTaxonomyService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $taxonomyConfig = $config->get('zeroboiler.analytics.taxonomy', []);
+            /** @var array{ttl?: int, tags?: array<string, list<string>>} $taxonomyConfig */
+
+            return new EventTaxonomyService(
+                $app->make('cache'),
+                (array) ($taxonomyConfig['tags'] ?? []),
+                (int) ($taxonomyConfig['ttl'] ?? 3600),
+            );
+        });
+
+        // Multi-Tenant Analytics Context (v5.0.0) — workspace-aware tracking
+        $this->app->singleton(TenantAnalyticsContext::class, function (Application $app): TenantAnalyticsContext {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $tenantConfig = $config->get('zeroboiler.analytics.tenant', []);
+            /** @var array{ttl?: int} $tenantConfig */
+
+            return new TenantAnalyticsContext(
+                $app->make('cache'),
+                (int) ($tenantConfig['ttl'] ?? 3600),
+            );
         });
     }
 

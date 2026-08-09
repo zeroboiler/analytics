@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\DTO\EventContext;
  * `zeroboiler.analytics.identity`, `zeroboiler.analytics.consent`,
  * and `zeroboiler.analytics.geolocation`.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class EventContextResolver
 {

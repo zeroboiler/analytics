@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  * - full_coverage: Events covered by all three sources
  * - partial_coverage: Events covered by catalog + one validator
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class SchemaDiffReporter
 {

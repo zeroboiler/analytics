@@ -529,7 +529,7 @@ test('config has health_score section', function (): void {
 
 test('composer.json version is 2.55.0', function (): void {
     $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-    expect($composer['version'])->toBe('4.6.0');
+    expect($composer['version'])->toBe('5.0.0');
 });
 
 test('EventBucketsService records value tracking', function (): void {

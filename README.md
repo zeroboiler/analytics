@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.6.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-5.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [What's New in v4.6.0](#whats-new-in-v4600)
+- [What's New in v5.0.0](#whats-new-in-v5000)
 - [What's New in v4.5.0](#whats-new-in-v4500)
 - [What's New in v4.4.0](#whats-new-in-v4400)
 - [What's New in v4.3.0](#whats-new-in-v4300)
@@ -83,11 +83,11 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-## What's New in v4.6.0
+## What's New in v5.0.0
 
 **AI Analytics Intelligence, A/B Experiment Tracking, SaaS QuickStart, Full Version Sweep**
 
-v4.6.0 adds three new industry-standard services, config expansion, and completes a full version consistency sweep across 150K+ LOC.
+v5.0.0 adds three new industry-standard services, config expansion, and completes a full version consistency sweep across 150K+ LOC.
 
 ### AI-Powered Analytics Intelligence
 
@@ -183,6 +183,100 @@ $quick->trackOnboardingSequence($userId, [
     'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_MIN_SAMPLE', 100),
 ],
 ```
+
+## What's New in v5.0.0
+
+**Industry Standard SaaS Analytics Maturity — Dashboard, Taxonomy, Multi-Tenant, Event Broadcasting**
+
+v5.0.0 brings true SaaS-grade analytics capabilities with cache-backed dashboard queries, tag-based event classification, multi-tenant workspace tracking, and a Laravel event bridge for analytics events.
+
+### Analytics Data Service (Dashboard Queries)
+
+The `AnalyticsDataService` provides cache-backed time-series analytics for dashboard queries — no database required. Get DAU/MAU, stickiness, revenue trends, provider stats, funnel conversion, and retention in a single API call.
+
+```php
+// Full dashboard summary
+$summary = app(AnalyticsDataService::class)->getDashboardSummary();
+// Returns: dau, mau, stickiness, daily_revenue, monthly_revenue,
+//          top_events, total_events_today, provider_stats, generated_at
+
+// Individual queries
+$dau = $dataService->getDAU();           // Active users today
+$mau = $dataService->getMAU();           // Active users this month
+$stickiness = $dataService->getStickiness(); // DAU/MAU ratio
+$revenue = $dataService->getMonthlyRevenue('USD');
+$funnel = $dataService->getFunnelConversion('signup', ['landed', 'registered', 'confirmed']);
+```
+
+### Event Taxonomy (Tag-Based Classification)
+
+The `EventTaxonomyService` adds tag-based event classification beyond the existing category system. Events are auto-classified into tags like `revenue`, `conversion`, `acquisition`, `authentication`, `engagement`, `onboarding`, `retention`, `billing`, `compliance`.
+
+```php
+$taxonomy = app(EventTaxonomyService::class);
+$taxonomy->autoClassify(); // Auto-classify all catalog events
+
+// Query by tags
+$tags = $taxonomy->getTags('purchase');           // ['revenue', 'conversion', 'ecommerce', 'billing']
+$events = $taxonomy->getEventsWithAllTags(['revenue', 'conversion']); // AND filter
+$events = $taxonomy->getEventsWithAnyTag(['revenue', 'compliance']);  // OR filter
+
+// Dynamic tagging
+$taxonomy->addTags('my_custom_event', ['team_alpha', 'feature_v2']);
+```
+
+### Multi-Tenant Analytics Context
+
+Workspace-aware event tracking for multi-tenant SaaS applications. Events are automatically tagged with tenant context.
+
+```php
+$tenant = app(TenantAnalyticsContext::class);
+$tenant->setTenant('workspace-123', 'Acme Corp', ['plan' => 'pro']);
+
+// Events dispatched within this context get tenant_id, tenant_name, tenant_plan params
+$eventParams = $tenant->eventContext();
+// ['tenant_id' => 'workspace-123', 'tenant_name' => 'Acme Corp', 'tenant_plan' => 'pro']
+
+// Safe scoping
+$result = $tenant->withinTenant('other-workspace', 'Other', fn () => /* ... */);
+// Previous context automatically restored
+
+// Per-tenant stats
+$stats = $tenant->getTenantStats('workspace-123');
+$revenue = $tenant->getTenantRevenue('workspace-123');
+```
+
+### AnalyticsEventOccurred (Laravel Event Bridge)
+
+A Laravel event dispatched after every analytics event is tracked, enabling application code to react:
+
+```php
+// Listen to all analytics events
+Event::listen(AnalyticsEventOccurred::class, function (AnalyticsEventOccurred $event) {
+    if ($event->analyticsEvent->name === 'purchase') {
+        // Trigger webhook, update CRM, etc.
+    }
+});
+
+// Enable via config
+'broadcast' => ['enabled' => true, 'exclude_events' => ['page_view']],
+```
+
+### New API Endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/analytics/dashboard` | Full dashboard summary |
+| `GET /api/analytics/dashboard/dau` | Daily active users |
+| `GET /api/analytics/dashboard/mau` | Monthly active users |
+| `GET /api/analytics/dashboard/stickiness` | DAU/MAU ratio |
+| `GET /api/analytics/dashboard/revenue` | Revenue trends |
+| `GET /api/analytics/dashboard/top-events` | Top events by count |
+| `GET /api/analytics/dashboard/providers` | Provider dispatch stats |
+| `GET /api/analytics/taxonomy/tags` | All taxonomy tags |
+| `GET /api/analytics/taxonomy/event/{name}` | Tags for an event |
+| `GET /api/analytics/tenant/{id}/stats` | Tenant statistics |
+| `GET /api/analytics/tenant/{id}/revenue` | Tenant revenue |
 
 ## What's New in v4.5.0
 

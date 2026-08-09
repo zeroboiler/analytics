@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * required field checks, and type-safe param extraction. Promotes DRY
  * across the 90+ event classes in the catalog.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 trait HasEventSchema
 {

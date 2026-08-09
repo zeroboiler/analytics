@@ -22,7 +22,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * Data is stored in the application cache with configurable TTL.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class FeatureAdoptionTracker
 {

@@ -24,7 +24,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * Configuration: `zeroboiler.analytics.enrichment`
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class EventEnrichmentService
 {

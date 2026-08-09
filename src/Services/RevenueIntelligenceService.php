@@ -28,7 +28,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * Configuration: `zeroboiler.analytics.revenue_intelligence`
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class RevenueIntelligenceService
 {

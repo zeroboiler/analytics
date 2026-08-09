@@ -2668,5 +2668,75 @@ return [
             'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_MIN_SAMPLE', 100), // per variant
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Data Service (v5.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Cache-backed time-series analytics data for dashboard queries.
+        | Provides DAU/MAU, revenue trends, event counters, provider stats,
+        | and conversion funnels without requiring a database.
+        |
+        */
+        'data_service' => [
+            'enabled' => env('ANALYTICS_DATA_SERVICE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_DATA_SERVICE_TTL', 3600), // 1 hour
+            'daily_ttl' => (int) env('ANALYTICS_DATA_SERVICE_DAILY_TTL', 86400), // 24 hours
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Taxonomy (v5.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Tag-based event classification beyond categories. Events can be tagged
+        | by business unit, feature area, product line, or custom tags.
+        | Used by dashboards for filtered views and reporting.
+        |
+        */
+        'taxonomy' => [
+            'enabled' => env('ANALYTICS_TAXONOMY_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_TAXONOMY_CACHE_TTL', 3600), // 1 hour
+            'auto_classify' => env('ANALYTICS_TAXONOMY_AUTO_CLASSIFY', true),
+            'tags' => [
+                // Config-driven event → tags mapping:
+                // 'purchase' => ['revenue', 'conversion', 'billing'],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Multi-Tenant Analytics (v5.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, analytics events are automatically tagged with the
+        | current tenant context for workspace-aware isolation and reporting.
+        | Supports subdomain-based, header-based, or callback-based tenant resolution.
+        |
+        */
+        'tenant' => [
+            'enabled' => env('ANALYTICS_TENANT_ENABLED', false),
+            'resolver' => env('ANALYTICS_TENANT_RESOLVER', 'manual'), // manual, subdomain, header, callback
+            'header' => env('ANALYTICS_TENANT_HEADER', 'X-Tenant-ID'),
+            'subdomain_prefix' => env('ANALYTICS_TENANT_SUBDOMAIN', 'app'), // strip this prefix from subdomain
+            'cache_ttl' => (int) env('ANALYTICS_TENANT_CACHE_TTL', 3600), // 1 hour
+            'auto_tag_events' => env('ANALYTICS_TENANT_AUTO_TAG', true), // auto-tag events with tenant_id
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Broadcasting (v5.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | When enabled, dispatches a Laravel event (AnalyticsEventOccurred) after
+        | every analytics event is tracked. Enables other packages and application
+        | code to react to analytics events without modifying core logic.
+        |
+        */
+        'broadcast' => [
+            'enabled' => env('ANALYTICS_BROADCAST_ENABLED', false),
+            'exclude_events' => [], // Event names to exclude from broadcasting
+        ],
+
     ],
 ];

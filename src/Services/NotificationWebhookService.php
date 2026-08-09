@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Log;
  * Configuration: `zeroboiler.analytics.notification_webhooks`
  *
  * @see \ZeroBoiler\Analytics\Services\EventAlertRulesService
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class NotificationWebhookService
 {

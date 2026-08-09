@@ -452,7 +452,7 @@ describe('AnalyticsDashboardDataProvider', function (): void {
         expect($overview)->toHaveKey('providers');
         expect($overview)->toHaveKey('catalog');
         expect($overview)->toHaveKey('metrics');
-        expect($overview['version'])->toBe('4.6.0');
+        expect($overview['version'])->toBe('5.0.0');
         expect($overview['providers'])->toBeArray();
         expect($overview['catalog'])->toHaveKey('total');
     });
@@ -505,7 +505,7 @@ describe('AnalyticsDashboardDataProvider', function (): void {
 
 describe('Version Consistency (v2.67.0)', function (): void {
     test('PHP version is 2.67.0', function (): void {
-        expect($this->manager->version())->toBe('4.6.0');
+        expect($this->manager->version())->toBe('5.0.0');
     });
 
     test('event catalog has all categories', function (): void {

@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
  * Designed as a pre-dispatch gate — run before any event processing
  * to reject invalid or abusive requests early.
  *
- * @version 4.6.0
+ * @version 5.0.0
  */
 final class AnalyticsApiGuard
 {

@@ -8,216 +8,134 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
-use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 
 /**
- * Tag-based event taxonomy service.
+ * Tag-based event taxonomy service for granular event classification.
  *
- * Provides semantic classification of analytics events into functional
- * groups (tags) such as revenue, conversion, engagement, error, lifecycle,
- * funnel, and retention. Enables filtering, grouping, and analysis of
- * events by business function rather than just by category.
+ * Extends the category-based classification (ecommerce, saas, engagement)
+ * with a flexible tagging system. Events can be tagged by:
+ * - Business unit (marketing, product, engineering, sales)
+ * - Feature area (billing, auth, onboarding, dashboard)
+ * - Product line (core, addon, enterprise)
+ * - Custom tags (any string)
  *
- * Built-in tag assignments are derived from the event catalog, with
- * support for custom tag overrides from configuration.
+ * Tags are config-driven and persisted in cache for fast lookup.
+ * Used by the analytics dashboard for filtered views and reporting.
  *
- * Configuration is read from `zeroboiler.analytics.taxonomy`.
- *
- * @see \ZeroBoiler\Analytics\Events\EventCatalog
+ * @version 5.0.0
  */
 final class EventTaxonomyService
 {
-    /** @var array<string, list<string>> Built-in event → tag assignments */
-    private const TAG_MAP = [
-        // Revenue events
-        'purchase' => ['revenue', 'conversion', 'ecommerce'],
-        'revenue_tracked' => ['revenue'],
-        'payment_succeeded' => ['revenue', 'billing'],
-        'payment_failed' => ['revenue', 'billing', 'error'],
-        'payment_method_added' => ['billing'],
-        'invoice_generated' => ['revenue', 'billing'],
-        'credit_applied' => ['revenue', 'billing'],
-        'refund' => ['revenue', 'ecommerce'],
+    /** @var int Default TTL for tag index (seconds) */
+    private const DEFAULT_TTL = 3600;
 
-        // Conversion events
-        'sign_up' => ['conversion', 'lifecycle', 'saas'],
-        'subscribe' => ['conversion', 'lifecycle', 'saas'],
-        'start_trial' => ['conversion', 'lifecycle', 'saas'],
-        'add_to_cart' => ['conversion', 'ecommerce'],
-        'begin_checkout' => ['conversion', 'funnel', 'ecommerce'],
-        'add_payment_info' => ['conversion', 'funnel', 'ecommerce'],
-        'form_submit' => ['conversion', 'engagement'],
-        'cohort_conversion' => ['conversion', 'cohort'],
+    private const CACHE_PREFIX = 'zb_taxonomy_';
 
-        // Engagement events
-        'page_view' => ['engagement', 'traffic'],
-        'scroll_depth' => ['engagement'],
-        'click' => ['engagement'],
-        'search' => ['engagement'],
-        'share' => ['engagement', 'viral'],
-        'outbound_click' => ['engagement', 'traffic'],
-        'file_download' => ['engagement'],
-        'video_play' => ['engagement', 'content'],
-        'time_on_page' => ['engagement'],
-        'web_vitals' => ['engagement', 'performance'],
-        'timing' => ['engagement', 'performance'],
-        'form_start' => ['engagement'],
-        'notification' => ['engagement'],
-        'campaign_attribution' => ['engagement', 'attribution'],
-        'feature_used' => ['engagement', 'saas'],
-        'screen_view' => ['engagement', 'traffic'],
+    private CacheRepository $cache;
 
-        // Error events
-        'error' => ['error', 'engagement'],
-        'js_error' => ['error', 'performance'],
-        'integration_failed' => ['error', 'operational'],
-
-        // Lifecycle events
-        'login' => ['lifecycle', 'saas'],
-        'logout' => ['lifecycle', 'saas'],
-        'trial_end' => ['lifecycle', 'saas'],
-        'plan_upgrade' => ['lifecycle', 'saas'],
-        'plan_downgrade' => ['lifecycle', 'saas'],
-        'cancellation' => ['lifecycle', 'saas', 'churn'],
-        'subscription_renewal' => ['lifecycle', 'saas'],
-        'account_activated' => ['lifecycle', 'account'],
-        'account_deactivated' => ['lifecycle', 'account'],
-        'password_changed' => ['lifecycle', 'account'],
-        'password_reset' => ['lifecycle', 'account'],
-        'profile_updated' => ['lifecycle', 'account'],
-        'email_verified' => ['lifecycle', 'account'],
-
-        // B2B / Team events
-        'team_created' => ['lifecycle', 'b2b'],
-        'team_member_joined' => ['lifecycle', 'b2b'],
-        'team_member_removed' => ['lifecycle', 'b2b'],
-        'role_changed' => ['lifecycle', 'b2b'],
-        'invite_sent' => ['lifecycle', 'b2b'],
-        'integration_connected' => ['lifecycle', 'operational'],
-
-        // Funnel events
-        'view_item' => ['funnel', 'ecommerce'],
-        'view_cart' => ['funnel', 'ecommerce'],
-        'remove_from_cart' => ['funnel', 'ecommerce'],
-        'select_item' => ['funnel', 'ecommerce'],
-        'select_promotion' => ['funnel', 'ecommerce'],
-        'view_promotion' => ['funnel', 'ecommerce'],
-        'add_to_wishlist' => ['funnel', 'ecommerce'],
-
-        // Cohort events
-        'cohort_assigned' => ['cohort', 'lifecycle'],
-        'cohort_retention' => ['cohort', 'retention'],
-        'cohort_churn' => ['cohort', 'churn', 'retention'],
-        'cohort_migration' => ['cohort', 'lifecycle'],
-        'cohort_engagement' => ['cohort', 'engagement'],
-
-        // Session events
-        'session_start' => ['session', 'lifecycle'],
-        'session_end' => ['session', 'lifecycle'],
-
-        // A/B testing
-        'ab_test_exposure' => ['experiment'],
-    ];
-
-    /** @var array<string, list<string>> All available tag definitions */
-    private const TAG_DEFINITIONS = [
-        'revenue' => ['label' => 'Revenue', 'description' => 'Events related to monetary transactions and billing'],
-        'conversion' => ['label' => 'Conversion', 'description' => 'Events representing key conversion milestones'],
-        'engagement' => ['label' => 'Engagement', 'description' => 'User interaction and content engagement events'],
-        'error' => ['label' => 'Error', 'description' => 'Error and failure tracking events'],
-        'lifecycle' => ['label' => 'Lifecycle', 'description' => 'User account and subscription lifecycle events'],
-        'funnel' => ['label' => 'Funnel', 'description' => 'Events that form part of conversion funnels'],
-        'cohort' => ['label' => 'Cohort', 'description' => 'Cohort analytics and segmentation events'],
-        'session' => ['label' => 'Session', 'description' => 'Session start/end lifecycle events'],
-        'billing' => ['label' => 'Billing', 'description' => 'Payment, invoicing, and billing events'],
-        'ecommerce' => ['label' => 'E-commerce', 'description' => 'Product and shopping cart related events'],
-        'saas' => ['label' => 'SaaS', 'description' => 'SaaS-specific business events'],
-        'traffic' => ['label' => 'Traffic', 'description' => 'Page views and navigation events'],
-        'performance' => ['label' => 'Performance', 'description' => 'Web vitals and performance monitoring events'],
-        'b2b' => ['label' => 'B2B', 'description' => 'Team and organization management events'],
-        'account' => ['label' => 'Account', 'description' => 'Account management events'],
-        'churn' => ['label' => 'Churn', 'description' => 'Churn prediction and churn-related events'],
-        'retention' => ['label' => 'Retention', 'description' => 'Retention analytics events'],
-        'operational' => ['label' => 'Operational', 'description' => 'System and integration operational events'],
-        'experiment' => ['label' => 'Experiment', 'description' => 'A/B test and experiment events'],
-        'viral' => ['label' => 'Viral', 'description' => 'Sharing and viral growth events'],
-        'content' => ['label' => 'Content', 'description' => 'Content consumption events'],
-        'attribution' => ['label' => 'Attribution', 'description' => 'Campaign and traffic attribution events'],
-    ];
-
-    /** @var array<string, list<string>> Computed tag map (built-in + custom overrides) */
+    /** @var array<string, list<string>> Config-driven tag assignments */
     private array $tagMap;
 
-    private bool $enabled;
+    /** @var array<string, list<string>> Runtime-added tag assignments */
+    private array $dynamicTags = [];
+
+    private int $ttl;
 
     /**
-     * @param  ConfigRepository  $config
+     * @param  CacheRepository  $cache  Cache repository
+     * @param  array<string, list<string>>  $tagMap  Event name → tags mapping from config
+     * @param  int  $ttl  TTL for cached tag lookups
      */
-    public function __construct(ConfigRepository $config): void
-    {
-        $taxonomyConfig = $config->get('zeroboiler.analytics.taxonomy', []);
-        /** @var array{enabled?: bool, custom_tags?: array<string, list<string>>, disabled_tags?: list<string>} $taxonomyConfig */
-
-        $this->enabled = (bool) ($taxonomyConfig['enabled'] ?? true);
-
-        // Start with built-in tags
-        $this->tagMap = self::TAG_MAP;
-
-        // Apply custom tag overrides from config
-        $customTags = $taxonomyConfig['custom_tags'] ?? [];
-        /** @var array<string, list<string>> $customTags */
-        foreach ($customTags as $event => $tags) {
-            $this->tagMap[$event] = $tags;
-        }
-
-        // Remove events from disabled tags
-        $disabledTags = $taxonomyConfig['disabled_tags'] ?? [];
-        /** @var list<string> $disabledTags */
-        if (! empty($disabledTags)) {
-            $disabledSet = array_flip($disabledTags);
-            foreach ($this->tagMap as $event => $tags) {
-                $this->tagMap[$event] = array_values(array_filter(
-                    $tags,
-                    fn (string $tag): bool => ! isset($disabledSet[$tag]),
-                ));
-            }
-        }
+    public function __construct(
+        CacheRepository $cache,
+        array $tagMap = [],
+        int $ttl = self::DEFAULT_TTL,
+    ): void {
+        $this->cache = $cache;
+        $this->tagMap = $tagMap;
+        $this->ttl = $ttl;
     }
 
     /**
-     * Get all tags assigned to an event.
+     * Get all tags for an event.
      *
-     * @return list<string>
+     * Merges config-driven tags with dynamically added tags.
+     *
+     * @param  string  $eventName  Event name
+     * @return list<string> Tag list
      */
-    public function tagsFor(string $eventName): array
+    public function getTags(string $eventName): array
     {
-        return $this->tagMap[$eventName] ?? [];
+        $configTags = $this->tagMap[$eventName] ?? [];
+        $dynamicTags = $this->dynamicTags[$eventName] ?? [];
+
+        return array_values(array_unique(array_merge($configTags, $dynamicTags)));
     }
 
     /**
      * Check if an event has a specific tag.
+     *
+     * @param  string  $eventName  Event name
+     * @param  string  $tag  Tag to check
      */
     public function hasTag(string $eventName, string $tag): bool
     {
-        return in_array($tag, $this->tagsFor($eventName), true);
+        return in_array($tag, $this->getTags($eventName), true);
     }
 
     /**
-     * Get all events that have a specific tag.
+     * Add tags to an event at runtime.
      *
-     * @return list<string> Event names with the given tag
+     * @param  string  $eventName  Event name
+     * @param  list<string>  $tags  Tags to add
      */
-    public function eventsWithTag(string $tag): array
+    public function addTags(string $eventName, array $tags): void
+    {
+        $existing = $this->dynamicTags[$eventName] ?? [];
+        $this->dynamicTags[$eventName] = array_values(array_unique(array_merge($existing, $tags)));
+
+        $this->invalidateCache($eventName);
+    }
+
+    /**
+     * Remove tags from an event at runtime.
+     *
+     * @param  string  $eventName  Event name
+     * @param  list<string>  $tags  Tags to remove
+     */
+    public function removeTags(string $eventName, array $tags): void
+    {
+        $existing = $this->dynamicTags[$eventName] ?? [];
+        $this->dynamicTags[$eventName] = array_values(array_diff($existing, $tags));
+
+        $this->invalidateCache($eventName);
+    }
+
+    /**
+     * Get all events with a specific tag.
+     *
+     * Searches both config-driven and dynamic tags.
+     *
+     * @param  string  $tag  Tag to search for
+     * @return list<string> Event names
+     */
+    public function getEventsWithTag(string $tag): array
     {
         $events = [];
 
-        foreach ($this->tagMap as $event => $tags) {
+        // Search config tags
+        foreach ($this->tagMap as $eventName => $tags) {
             if (in_array($tag, $tags, true)) {
-                $events[] = $event;
+                $events[] = $eventName;
+            }
+        }
+
+        // Search dynamic tags
+        foreach ($this->dynamicTags as $eventName => $tags) {
+            if (in_array($tag, $tags, true) && ! in_array($eventName, $events, true)) {
+                $events[] = $eventName;
             }
         }
 
@@ -225,301 +143,237 @@ final class EventTaxonomyService
     }
 
     /**
-     * Get all events matching any of the given tags (OR logic).
+     * Get all unique tags across all events.
      *
-     * @param  list<string>  $tags
-     * @return list<string> Event names matching at least one tag
+     * @return list<string>
      */
-    public function eventsWithAnyTag(array $tags): array
+    public function getAllTags(): array
     {
-        return array_values(array_unique(array_merge(
-            ...array_map(
-                fn (string $tag): array => $this->eventsWithTag($tag),
-                $tags,
-            ),
-        )));
+        $tags = [];
+
+        foreach ($this->tagMap as $eventTags) {
+            foreach ($eventTags as $tag) {
+                $tags[$tag] = true;
+            }
+        }
+
+        foreach ($this->dynamicTags as $eventTags) {
+            foreach ($eventTags as $tag) {
+                $tags[$tag] = true;
+            }
+        }
+
+        return array_keys($tags);
     }
 
     /**
-     * Get all events matching all of the given tags (AND logic).
+     * Get all tag names grouped by tag type/prefix.
      *
-     * @param  list<string>  $tags
+     * Tags can use dot notation for namespacing (e.g. 'billing.renewal').
+     * This groups tags by their prefix.
+     *
+     * @return array<string, list<string>>
+     */
+    public function getTagsByGroup(): array
+    {
+        $allTags = $this->getAllTags();
+        $groups = [];
+
+        foreach ($allTags as $tag) {
+            $parts = explode('.', $tag, 2);
+
+            if (count($parts) === 2) {
+                $groups[$parts[0]][] = $tag;
+            } else {
+                $groups['general'][] = $tag;
+            }
+        }
+
+        return $groups;
+    }
+
+    /**
+     * Get a tag summary with event counts per tag.
+     *
+     * @return array<string, array{events: list<string>, count: int}>
+     */
+    public function getTagSummary(): array
+    {
+        $allTags = $this->getAllTags();
+        $summary = [];
+
+        foreach ($allTags as $tag) {
+            $events = $this->getEventsWithTag($tag);
+            $summary[$tag] = [
+                'events' => $events,
+                'count' => count($events),
+            ];
+        }
+
+        // Sort by count descending
+        uasort($summary, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
+
+        return $summary;
+    }
+
+    /**
+     * Auto-classify all catalog events with taxonomy tags.
+     *
+     * Uses the event name, category, and provider mappings to
+     * generate intelligent default tags for every catalog event.
+     *
+     * @return array{classified: int, tags_applied: int, events: array<string, list<string>>}
+     */
+    public function autoClassify(): array
+    {
+        $all = EventCatalog::all();
+        $classified = 0;
+        $tagsApplied = 0;
+        $result = [];
+
+        foreach ($all as $name => $entry) {
+            $tags = $this->inferTags($name, $entry['category'] ?? '');
+
+            if ($tags !== []) {
+                $classified++;
+                $tagsApplied += count($tags);
+                $this->dynamicTags[$name] = $tags;
+                $result[$name] = $tags;
+            }
+        }
+
+        return [
+            'classified' => $classified,
+            'tags_applied' => $tagsApplied,
+            'events' => $result,
+        ];
+    }
+
+    /**
+     * Get events filtered by multiple tags (AND logic).
+     *
+     * Returns events that have ALL specified tags.
+     *
+     * @param  list<string>  $tags  Tags to filter by
      * @return list<string> Event names matching all tags
      */
-    public function eventsWithAllTags(array $tags): array
+    public function getEventsWithAllTags(array $tags): array
     {
         if ($tags === []) {
             return [];
         }
 
-        $sets = array_map(
-            fn (string $tag): array => array_flip($this->eventsWithTag($tag)),
-            $tags,
-        );
+        $candidates = $this->getEventsWithTag($tags[0]);
 
-        // Intersect all sets
-        $intersection = array_shift($sets) ?? [];
+        for ($i = 1; $i < count($tags); $i++) {
+            $nextCandidates = $this->getEventsWithTag($tags[$i]);
+            $candidates = array_values(array_intersect($candidates, $nextCandidates));
 
-        foreach ($sets as $set) {
-            $intersection = array_intersect_key($intersection, $set);
-        }
-
-        return array_keys($intersection);
-    }
-
-    /**
-     * Check if the taxonomy service is enabled.
-     */
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
-    /**
-     * Get the full tag map (event → tags).
-     *
-     * @return array<string, list<string>>
-     */
-    public function tagMap(): array
-    {
-        return $this->tagMap;
-    }
-
-    /**
-     * Get all unique tags across all events.
-     *
-     * @return list<string>
-     */
-    public function allTags(): array
-    {
-        return array_values(array_unique(array_merge(
-            ...array_values($this->tagMap),
-        )));
-    }
-
-    /**
-     * Get tag count (number of unique tags in use).
-     */
-    public function tagCount(): int
-    {
-        return count($this->allTags());
-    }
-
-    /**
-     * Get all tag definitions with labels and descriptions.
-     *
-     * @return array<string, array{label: string, description: string, event_count: int}>
-     */
-    public function tagDefinitions(): array
-    {
-        $definitions = [];
-
-        foreach (self::TAG_DEFINITIONS as $tag => $def) {
-            $definitions[$tag] = [
-                'label' => $def['label'],
-                'description' => $def['description'],
-                'event_count' => count($this->eventsWithTag($tag)),
-            ];
-        }
-
-        return $definitions;
-    }
-
-    /**
-     * Get events grouped by tag.
-     *
-     * Returns an associative array where each key is a tag name and
-     * the value is a list of event names that have that tag.
-     *
-     * @return array<string, list<string>>
-     */
-    public function eventsGroupedByTag(): array
-    {
-        $grouped = [];
-
-        foreach ($this->tagMap as $event => $tags) {
-            foreach ($tags as $tag) {
-                $grouped[$tag][] = $event;
+            if ($candidates === []) {
+                return [];
             }
         }
 
-        // Sort each group alphabetically
-        foreach ($grouped as &$events) {
-            sort($events);
-        }
-        unset($events);
-
-        return $grouped;
+        return $candidates;
     }
 
     /**
-     * Get the number of tagged events (events that have at least one tag).
+     * Get events filtered by any of the given tags (OR logic).
+     *
+     * @param  list<string>  $tags  Tags to filter by
+     * @return list<string> Event names matching any tag
      */
-    public function taggedEventCount(): int
+    public function getEventsWithAnyTag(array $tags): array
     {
-        return count(array_filter(
-            $this->tagMap,
-            fn (array $tags): bool => $tags !== [],
-        ));
-    }
+        $events = [];
 
-    /**
-     * Get the total number of events in the catalog.
-     */
-    public function totalEventCount(): int
-    {
-        return EventCatalog::count();
-    }
-
-    /**
-     * Get tag coverage ratio (tagged events / total events).
-     */
-    public function coverageRatio(): float
-    {
-        $total = $this->totalEventCount();
-
-        if ($total === 0) {
-            return 0.0;
+        foreach ($tags as $tag) {
+            $tagged = $this->getEventsWithTag($tag);
+            foreach ($tagged as $eventName) {
+                $events[$eventName] = true;
+            }
         }
 
-        return round($this->taggedEventCount() / $total, 4);
+        return array_keys($events);
     }
 
     /**
-     * Check if an event is a revenue event.
-     */
-    public function isRevenueEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'revenue');
-    }
-
-    /**
-     * Check if an event is a conversion event.
-     */
-    public function isConversionEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'conversion');
-    }
-
-    /**
-     * Check if an event is an error event.
-     */
-    public function isErrorEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'error');
-    }
-
-    /**
-     * Check if an event is a lifecycle event.
-     */
-    public function isLifecycleEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'lifecycle');
-    }
-
-    /**
-     * Check if an event is a funnel event.
-     */
-    public function isFunnelEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'funnel');
-    }
-
-    /**
-     * Check if an event is a churn-related event.
-     */
-    public function isChurnEvent(string $eventName): bool
-    {
-        return $this->hasTag($eventName, 'churn');
-    }
-
-    /**
-     * Get all revenue events.
+     * Infer tags for an event based on name and category.
      *
-     * @return list<string>
+     * @param  string  $eventName  Event name
+     * @param  string  $category  Event category
+     * @return list<string> Inferred tags
      */
-    public function revenueEvents(): array
+    private function inferTags(string $eventName, string $category): array
     {
-        return $this->eventsWithTag('revenue');
-    }
+        $tags = [$category];
 
-    /**
-     * Get all conversion events.
-     *
-     * @return list<string>
-     */
-    public function conversionEvents(): array
-    {
-        return $this->eventsWithTag('conversion');
-    }
-
-    /**
-     * Get all error events.
-     *
-     * @return list<string>
-     */
-    public function errorEvents(): array
-    {
-        return $this->eventsWithTag('error');
-    }
-
-    /**
-     * Get all funnel events.
-     *
-     * @return list<string>
-     */
-    public function funnelEvents(): array
-    {
-        return $this->eventsWithTag('funnel');
-    }
-
-    /**
-     * Get a summary of the taxonomy service state.
-     *
-     * @return array{enabled: bool, total_events: int, tagged_events: int, coverage: float, tag_count: int, tags: list<string>, tag_definitions: array<string, array{label: string, description: string, event_count: int}>}
-     */
-    public function summary(): array
-    {
-        return [
-            'enabled' => $this->enabled,
-            'total_events' => $this->totalEventCount(),
-            'tagged_events' => $this->taggedEventCount(),
-            'coverage' => $this->coverageRatio(),
-            'tag_count' => $this->tagCount(),
-            'tags' => $this->allTags(),
-            'tag_definitions' => $this->tagDefinitions(),
-        ];
-    }
-
-    /**
-     * Register additional tags at runtime.
-     *
-     * @param  string  $eventName  Event to tag
-     * @param  list<string>  $tags  Tags to assign
-     */
-    public function addTags(string $eventName, array $tags): void
-    {
-        $existing = $this->tagMap[$eventName] ?? [];
-        $merged = array_values(array_unique(array_merge($existing, $tags)));
-        $this->tagMap[$eventName] = $merged;
-    }
-
-    /**
-     * Remove tags from an event at runtime.
-     *
-     * @param  string  $eventName  Event to modify
-     * @param  list<string>  $tags  Tags to remove
-     */
-    public function removeTags(string $eventName, array $tags): void
-    {
-        if (! isset($this->tagMap[$eventName])) {
-            return;
+        // Name-based inference
+        if (str_contains($eventName, 'payment') || str_contains($eventName, 'billing') || str_contains($eventName, 'invoice')) {
+            $tags[] = 'billing';
         }
 
-        $removeSet = array_flip($tags);
-        $this->tagMap[$eventName] = array_values(array_filter(
-            $this->tagMap[$eventName],
-            fn (string $tag): bool => ! isset($removeSet[$tag]),
-        ));
+        if (str_contains($eventName, 'trial')) {
+            $tags[] = 'onboarding';
+            $tags[] = 'conversion';
+        }
+
+        if (str_contains($eventName, 'signup') || str_contains($eventName, 'register')) {
+            $tags[] = 'acquisition';
+            $tags[] = 'onboarding';
+        }
+
+        if (str_contains($eventName, 'login') || str_contains($eventName, 'auth')) {
+            $tags[] = 'authentication';
+        }
+
+        if (str_contains($eventName, 'plan') || str_contains($eventName, 'subscription')) {
+            $tags[] = 'revenue';
+            $tags[] = 'billing';
+        }
+
+        if (str_contains($eventName, 'purchase') || str_contains($eventName, 'cart') || str_contains($eventName, 'checkout')) {
+            $tags[] = 'revenue';
+            $tags[] = 'conversion';
+        }
+
+        if (str_contains($eventName, 'refund') || str_contains($eventName, 'cancel')) {
+            $tags[] = 'churn';
+        }
+
+        if (str_contains($eventName, 'error') || str_contains($eventName, 'fail')) {
+            $tags[] = 'health';
+        }
+
+        if (str_contains($eventName, 'feature') || str_contains($eventName, 'integration')) {
+            $tags[] = 'product';
+        }
+
+        if (str_contains($eventName, 'team') || str_contains($eventName, 'workspace') || str_contains($eventName, 'invite')) {
+            $tags[] = 'collaboration';
+        }
+
+        if (str_contains($eventName, 'consent') || str_contains($eventName, 'gdpr') || str_contains($eventName, 'erasure')) {
+            $tags[] = 'compliance';
+        }
+
+        if (str_contains($eventName, 'page_view') || str_contains($eventName, 'scroll') || str_contains($eventName, 'click')) {
+            $tags[] = 'engagement';
+        }
+
+        if (str_contains($eventName, 'cohort')) {
+            $tags[] = 'segmentation';
+        }
+
+        return array_values(array_unique($tags));
+    }
+
+    /**
+     * Invalidate cached tag data for an event.
+     */
+    private function invalidateCache(string $eventName): void
+    {
+        $this->cache->forget(self::CACHE_PREFIX . 'tags_' . $eventName);
+        $this->cache->forget(self::CACHE_PREFIX . 'summary');
     }
 }
