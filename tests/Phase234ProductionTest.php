@@ -126,6 +126,14 @@ use ZeroBoiler\Analytics\Services\EventPriorityGate;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
 use ZeroBoiler\Analytics\Services\DataWarehouseExportService;
+use ZeroBoiler\Analytics\Services\EventRulesEngine;
+use ZeroBoiler\Analytics\Services\UserPropertiesStore;
+use ZeroBoiler\Analytics\Services\RetentionCalculator;
+use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
+use ZeroBoiler\Analytics\Services\IdentityResolutionService;
+use ZeroBoiler\Analytics\Services\EventDebounceService;
+use ZeroBoiler\Analytics\Services\EventOrchestrationService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
 use ZeroBoiler\Analytics\Support\AnalyticsRateLimiter;
 use ZeroBoiler\Analytics\Support\EventTransformer;
 use ZeroBoiler\Analytics\Support\WebhookSignatureValidator;
@@ -462,6 +470,50 @@ test('Phase 3: enterprise services are final', function (): void {
     }
 });
 
+test('Phase 3: v3.1+ services are final', function (): void {
+    $services = [
+        EventRulesEngine::class,
+        UserPropertiesStore::class,
+        RetentionCalculator::class,
+        BehavioralCohortBuilder::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v3.2+ services are final', function (): void {
+    $services = [
+        IdentityResolutionService::class,
+        EventDebounceService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v3.3+ services are final', function (): void {
+    $services = [
+        EventOrchestrationService::class,
+        AnalyticsInsightAggregator::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
 // ─── Phase 4: Version & Config Consistency ─────────────────────────────
 
 test('Phase 4: version consistency', function (): void {
@@ -531,7 +583,7 @@ test('Phase 4: Facade @method annotations cover key methods', function (): void 
     }
 });
 
-test('Phase 4: ServiceProvider registers 9 console commands', function (): void {
+test('Phase 4: ServiceProvider registers 10 console commands', function (): void {
     $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
     expect($content)->toContain('AnalyticsTestCommand');
@@ -543,6 +595,7 @@ test('Phase 4: ServiceProvider registers 9 console commands', function (): void 
     expect($content)->toContain('AnalyticsScheduledReportCommand');
     expect($content)->toContain('AnalyticsReadinessCommand');
     expect($content)->toContain('AnalyticsSchemaExportCommand');
+    expect($content)->toContain('AnalyticsBehavioralCommand');
 });
 
 test('Phase 4: ServiceProvider has correct singleton count', function (): void {

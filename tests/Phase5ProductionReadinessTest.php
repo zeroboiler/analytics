@@ -35,7 +35,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 // ─── Phase 5: Deep Production Readiness ────────────────────────────────
 
 describe('Phase 5: Version Consistency', function () {
-    test('all versions are 2.95.0', function (): void {
+    test('all versions are 3.3.1', function (): void {
         $composer = json_decode(
             file_get_contents(__DIR__ . '/../composer.json'),
             true,
@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('2.95.0');
-        expect(AnalyticsEvent::VERSION)->toBe('2.95.0');
-        expect((new AnalyticsManager)->version())->toBe('2.95.0');
+        expect($composer['version'])->toBe('3.3.1');
+        expect(AnalyticsEvent::VERSION)->toBe('3.3.1');
+        expect((new AnalyticsManager)->version())->toBe('3.3.1');
     });
 });
 
@@ -436,7 +436,7 @@ describe('Phase 5: ServiceProvider Binding Completeness', function () {
         expect($singletonCount)->toBeGreaterThan(80);
     });
 
-    test('9 console commands registered', function (): void {
+    test('10 console commands registered', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
         expect($content)->toContain('AnalyticsTestCommand');
@@ -448,6 +448,7 @@ describe('Phase 5: ServiceProvider Binding Completeness', function () {
         expect($content)->toContain('AnalyticsScheduledReportCommand');
         expect($content)->toContain('AnalyticsReadinessCommand');
         expect($content)->toContain('AnalyticsSchemaExportCommand');
+        expect($content)->toContain('AnalyticsBehavioralCommand');
     });
 
     test('routes are registered in boot', function (): void {
@@ -516,5 +517,91 @@ describe('Phase 5: v2.94 Schema Services', function () {
     test('AnalyticsReadinessCommand is final', function (): void {
         $r = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand::class);
         expect($r->isFinal())->toBeTrue();
+    });
+
+    test('AnalyticsBehavioralCommand is final', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand::class);
+        expect($r->isFinal())->toBeTrue();
+    });
+});
+
+describe('Phase 5: v3.1-v3.3 Service Audit', function () {
+    test('v3.1 services (EventRulesEngine, UserPropertiesStore, RetentionCalculator, BehavioralCohortBuilder) are final', function (): void {
+        $services = [
+            \ZeroBoiler\Analytics\Services\EventRulesEngine::class,
+            \ZeroBoiler\Analytics\Services\UserPropertiesStore::class,
+            \ZeroBoiler\Analytics\Services\RetentionCalculator::class,
+            \ZeroBoiler\Analytics\Services\BehavioralCohortBuilder::class,
+        ];
+
+        foreach ($services as $service) {
+            $r = new ReflectionClass($service);
+            expect($r->isFinal(), "{$service} should be final")->toBeTrue();
+
+            $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+            foreach ($methods as $method) {
+                if (str_starts_with($method->getName(), '__')) {
+                    continue;
+                }
+                expect(
+                    $method->hasReturnType(),
+                    "{$service}::{$method->getName()}() missing return type",
+                )->toBeTrue();
+            }
+        }
+    });
+
+    test('v3.2 services (IdentityResolutionService, EventDebounceService) are final', function (): void {
+        $services = [
+            \ZeroBoiler\Analytics\Services\IdentityResolutionService::class,
+            \ZeroBoiler\Analytics\Services\EventDebounceService::class,
+        ];
+
+        foreach ($services as $service) {
+            $r = new ReflectionClass($service);
+            expect($r->isFinal(), "{$service} should be final")->toBeTrue();
+
+            $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+            foreach ($methods as $method) {
+                if (str_starts_with($method->getName(), '__')) {
+                    continue;
+                }
+                expect(
+                    $method->hasReturnType(),
+                    "{$service}::{$method->getName()}() missing return type",
+                )->toBeTrue();
+            }
+        }
+    });
+
+    test('v3.3 services (EventOrchestrationService, AnalyticsInsightAggregator) are final', function (): void {
+        $services = [
+            \ZeroBoiler\Analytics\Services\EventOrchestrationService::class,
+            \ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator::class,
+        ];
+
+        foreach ($services as $service) {
+            $r = new ReflectionClass($service);
+            expect($r->isFinal(), "{$service} should be final")->toBeTrue();
+
+            $methods = $r->getMethods(ReflectionMethod::IS_PUBLIC);
+            foreach ($methods as $method) {
+                if (str_starts_with($method->getName(), '__')) {
+                    continue;
+                }
+                expect(
+                    $method->hasReturnType(),
+                    "{$service}::{$method->getName()}() missing return type",
+                )->toBeTrue();
+            }
+        }
+    });
+
+    test('AnalyticsHealthCheckService version is 3.3.1', function (): void {
+        $r = new ReflectionClass(\ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
+        expect($r->isFinal())->toBeTrue();
+
+        $versionConstant = $r->getConstant('VERSION');
+        expect($versionConstant)->toBe('3.3.1');
     });
 });

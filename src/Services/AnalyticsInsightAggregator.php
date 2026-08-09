@@ -46,7 +46,7 @@ final class AnalyticsInsightAggregator
         ?EventStreamService $streamService = null,
         ?EventAggregationService $aggregationService = null,
         ?array $config = null,
-    ) void {
+    ): void {
         $this->streamService = $streamService;
         $this->aggregationService = $aggregationService;
         $this->config = $config ?? [];

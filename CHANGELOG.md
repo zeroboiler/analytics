@@ -2,6 +2,25 @@
 
 All notable changes to the package will be documented in this file.
 
+## [3.3.1] - 2026-08-09
+
+### Fixed
+- **AnalyticsInsightAggregator constructor** — Fixed syntax error: `) void {` → `): void {` (PHP parse error)
+- **Phase 5 version test** — Updated hardcoded version check from `2.95.0` to `3.3.0`
+- **Console command count** — Updated from 9 to 10 in Phase 2-3-4 and Phase 5 tests (missing `AnalyticsBehavioralCommand`)
+- **README version badge** — Updated from `3.1.0` to `3.3.0`
+
+### Added
+- **Phase 2-3-4 finality checks** — Added v3.1 (EventRulesEngine, UserPropertiesStore, RetentionCalculator, BehavioralCohortBuilder), v3.2 (IdentityResolutionService, EventDebounceService), and v3.3 (EventOrchestrationService, AnalyticsInsightAggregator) to finality tests
+- **Phase 5 v3.1-v3.3 service audit** — Deep return-type and finality checks for all new services
+- **AnalyticsBehavioralCommand finality check** — Added to Phase 5 console command tests
+
+## [3.3.0] - 2026-08-09
+
+### Added (v3.3.0)
+
+See [3.2.0] for previous changes.
+
 ## [3.0.0] - 2026-08-09
 
 ### Added

@@ -138,7 +138,7 @@ use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
 
 /**
- * @version 3.3.0
+ * @version 3.3.1
  */
 
 /**
@@ -147,7 +147,7 @@ use ZeroBoiler\Analytics\Services\EventDebounceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.3.0
+ * @version 3.3.1
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
