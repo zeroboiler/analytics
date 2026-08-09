@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager::funnelProgress()
  *
- * @version 2.93.0
+ * @version 4.6.0
  */
 final class FunnelProgressTracker
 {

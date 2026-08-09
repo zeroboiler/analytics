@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\Services\EventArchiveService;
  * - View event count statistics
  * - Clear the event archive
  *
- * @version 4.0.0
+ * @version 4.6.0
  */
 final class AnalyticsReplayCommand extends Command
 {

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-4.5.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-4.6.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v4.6.0](#whats-new-in-v4600)
 - [What's New in v4.5.0](#whats-new-in-v4500)
 - [What's New in v4.4.0](#whats-new-in-v4400)
 - [What's New in v4.3.0](#whats-new-in-v4300)
@@ -81,6 +82,107 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v4.6.0
+
+**AI Analytics Intelligence, A/B Experiment Tracking, SaaS QuickStart, Full Version Sweep**
+
+v4.6.0 adds three new industry-standard services, config expansion, and completes a full version consistency sweep across 150K+ LOC.
+
+### AI-Powered Analytics Intelligence
+
+The `AnalyticsAIService` provides intelligent event analysis without any external AI API dependency. Uses statistical methods: z-score anomaly detection, linear regression trend analysis, and pattern recognition.
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsAIService;
+
+$ai = app(AnalyticsAIService::class);
+
+// Detect anomalies in event streams
+$anomaly = $ai->detectAnomaly('purchase', 500.0);
+// Returns: { event_name, expected, actual, z_score, severity, detected_at }
+
+// Generate smart insights from event data
+$insights = $ai->generateInsights([
+    'events' => ['page_view' => 1000, 'sign_up' => 50, 'purchase' => 5],
+]);
+// Returns volume spikes, low engagement, missing lifecycle events
+
+// Analyze trend direction
+$trend = $ai->analyzeTrend([10, 12, 15, 18, 22, 27]);
+// Returns: { direction: 'up', slope, velocity_percent, confidence }
+
+// Suggest which events to track next
+$suggestions = $ai->suggestEvents(['page_view', 'click', 'sign_up'], 'saas');
+// Returns: { recommended, coverage_percent, total_catalog, tracked_count }
+```
+
+### A/B Experiment Tracking
+
+The `EventExperimentTracker` provides full experiment lifecycle management with statistical significance calculation using two-proportion z-test.
+
+```php
+use ZeroBoiler\Analytics\Services\EventExperimentTracker;
+
+$exp = app(EventExperimentTracker::class);
+
+// Create experiment
+$exp->createExperiment('cta_color', 'CTA Button Color', ['control', 'blue', 'green']);
+
+// Track events
+$exp->trackEvent('cta_color', 'blue', converted: true);
+$exp->trackEvent('cta_color', 'control', converted: false);
+
+// Check significance
+$result = $exp->calculateSignificance('cta_color');
+// Returns: { is_significant, confidence, p_value, z_score, winner, recommendation }
+
+// Complete experiment
+$exp->completeExperiment('cta_color', 'blue');
+```
+
+### SaaS QuickStart Service
+
+One-call setup for standard SaaS event tracking — perfect for new Laravel projects.
+
+```php
+use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
+
+$quick = app(SaaSQuickStartService::class);
+
+// Track individual events
+$quick->trackSignUp($userId, method: 'email', referral: 'twitter');
+$quick->trackTrialStart($userId, plan: 'pro', trialDays: 14);
+$quick->trackSubscription($userId, plan: 'pro', revenue: 49.00);
+$quick->trackPlanUpgrade($userId, fromPlan: 'starter', toPlan: 'pro');
+$quick->trackCancellation($userId, reason: 'too_expensive');
+
+// Or track the entire onboarding sequence
+$quick->trackOnboardingSequence($userId, [
+    'method' => 'google',
+    'referral' => 'hacker_news',
+    'plan' => 'pro',
+    'trial_days' => 14,
+]);
+```
+
+### New Config Sections
+
+```php
+// config/zeroboiler.php — AI Intelligence
+'ai' => [
+    'enabled' => env('ANALYTICS_AI_ENABLED', true),
+    'anomaly_threshold' => (float) env('ANALYTICS_AI_ANOMALY_THRESHOLD', 2.0),
+    'rolling_window' => (int) env('ANALYTICS_AI_ROLLING_WINDOW', 60),
+],
+
+// config/zeroboiler.php — Experiment Tracking
+'experiment' => [
+    'enabled' => env('ANALYTICS_EXPERIMENT_ENABLED', true),
+    'significance_threshold' => (float) env('ANALYTICS_EXPERIMENT_SIGNIFICANCE', 0.95),
+    'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_MIN_SAMPLE', 100),
+],
+```
 
 ## What's New in v4.5.0
 

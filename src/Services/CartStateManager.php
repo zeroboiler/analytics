@@ -30,7 +30,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * - Cart value history for trend tracking
  *
  * @see \ZeroBoiler\Analytics\Services\EcommerceAnalyticsService
- * @version 2.93.0
+ * @version 4.6.0
  */
 final class CartStateManager
 {

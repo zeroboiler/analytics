@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [4.6.0] - 2026-08-09
+
+### Added
+
+- **AnalyticsAIService** — AI-powered analytics intelligence with z-score anomaly detection, smart event suggestions, trend analysis (linear regression), and automated insight generation. All self-contained — no external AI API required. `detectAnomaly()`, `detectBatchAnomalies()`, `generateInsights()`, `analyzeTrend()`, `suggestEvents()`.
+- **EventExperimentTracker** — A/B test experiment tracking with statistical significance calculation using two-proportion z-test. Cache-backed experiment lifecycle management. `createExperiment()`, `trackEvent()`, `calculateSignificance()`, `completeExperiment()`, `pauseExperiment()`, `resumeExperiment()`.
+- **SaaSQuickStartService** — One-call SaaS event tracking setup. `trackSignUp()`, `trackLogin()`, `trackTrialStart()`, `trackTrialConversion()`, `trackSubscription()`, `trackPlanUpgrade()`, `trackCancellation()`, `trackPurchase()`, `trackFeatureUsed()`, `trackError()`, `trackOnboardingSequence()`.
+- **Config section: `ai`** — AI intelligence settings: `enabled`, `cache_ttl`, `anomaly_threshold` (z-score), `anomaly_window`, `rolling_window`.
+- **Config section: `experiment`** — A/B test settings: `enabled`, `cache_ttl`, `significance_threshold` (default 95%), `min_sample_size` per variant.
+- **ServiceProvider registrations** — `AnalyticsAIService`, `EventExperimentTracker`, `SaaSQuickStartService` registered as singletons.
+- **V460IndustryStandardSaaSUpgradeTest** — 40+ test cases covering all new services, version consistency sweep, config expansion, and catalog integrity.
+
+### Changed
+
+- **Version bump** — 4.5.0 → 4.6.0 across all PHP source files, JS client, Svelte composables, TypeScript definitions, composer.json, README badge. Full @version docblock sweep (27 files updated).
+- **Stale VERSION constants** — `SessionReplayService`, `AdvancedPIIDetector`, `AnalyticsHealthCheckService` constants updated to 4.6.0.
+
 ## [4.5.0] - 2026-08-09
 
 ### Added

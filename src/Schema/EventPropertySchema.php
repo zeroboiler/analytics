@@ -275,7 +275,7 @@ final class EventPropertySchema
      * industry-standard type requirements. Covers all EventCatalog events
      * with typed property schemas.
      *
-     * @version 2.94.0 — Expanded to cover full EventCatalog
+     * @version 4.6.0 — Expanded to cover full EventCatalog
      */
     public function registerBuiltInSchemas(): self
     {

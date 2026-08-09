@@ -23,7 +23,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * concepts, allowing gradual migration from cookie-based to privacy-preserving tracking.
  *
  * @see https://developer.chrome.com/docs/privacy-sandbox
- * @version 2.93.0
+ * @version 4.6.0
  */
 final class PrivacySandboxService
 {

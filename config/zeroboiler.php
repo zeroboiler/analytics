@@ -2633,5 +2633,40 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | AI-Powered Analytics Intelligence (v4.6.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, provides intelligent anomaly detection, smart event
+        | suggestions, trend analysis, and automated insights. Uses statistical
+        | methods (z-score, linear regression) — no external AI API required.
+        |
+        */
+        'ai' => [
+            'enabled' => env('ANALYTICS_AI_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_AI_CACHE_TTL', 300), // 5 minutes
+            'anomaly_threshold' => (float) env('ANALYTICS_AI_ANOMALY_THRESHOLD', 2.0), // z-score threshold
+            'anomaly_window' => (int) env('ANALYTICS_AI_ANOMALY_WINDOW', 30), // data points
+            'rolling_window' => (int) env('ANALYTICS_AI_ROLLING_WINDOW', 60), // max buffer size
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Experiment Tracking (A/B Tests) (v4.6.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Track A/B test experiments with statistical significance calculation.
+        | Uses two-proportion z-test for conversion rate comparison.
+        | All experiment data is cache-backed — no database required.
+        |
+        */
+        'experiment' => [
+            'enabled' => env('ANALYTICS_EXPERIMENT_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_EXPERIMENT_CACHE_TTL', 86400), // 24 hours
+            'significance_threshold' => (float) env('ANALYTICS_EXPERIMENT_SIGNIFICANCE', 0.95), // 95% confidence
+            'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_MIN_SAMPLE', 100), // per variant
+        ],
+
     ],
 ];

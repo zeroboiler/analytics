@@ -19,7 +19,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * Configuration is read from `zeroboiler.analytics`.
  *
- * @version 4.5.0
+ * @version 4.6.0
  */
 final class AnalyticsConfigAuditService
 {

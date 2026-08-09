@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * missing required parameters, and type mismatches. Designed for use
  * in API controllers and event gate services.
  *
- * @version 4.5.0
+ * @version 4.6.0
  */
 final class EventCatalogValidator
 {

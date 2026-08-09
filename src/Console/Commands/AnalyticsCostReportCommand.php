@@ -23,7 +23,7 @@ use ZeroBoiler\Analytics\Services\NotificationWebhookService;
  *   php artisan zb:analytics:cost-report --json
  *   php artisan zb:analytics:cost-report --provider=ga4
  *
- * @version 4.4.0
+ * @version 4.6.0
  */
 final class AnalyticsCostReportCommand extends Command
 {

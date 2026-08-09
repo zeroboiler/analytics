@@ -157,6 +157,9 @@ use ZeroBoiler\Analytics\Services\NotificationWebhookService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
+use ZeroBoiler\Analytics\Services\AnalyticsAIService;
+use ZeroBoiler\Analytics\Services\EventExperimentTracker;
+use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -164,7 +167,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.5.0
+ * @version 4.6.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1550,6 +1553,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Event Catalog Validator (v4.5.0) — catalog-aware event validation
         $this->app->singleton(EventCatalogValidator::class);
+
+        // AI-Powered Analytics Intelligence Service (v4.6.0)
+        $this->app->singleton(AnalyticsAIService::class, function (Application $app): AnalyticsAIService {
+            return new AnalyticsAIService(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
+
+        // Event Experiment Tracker — A/B test tracking & significance (v4.6.0)
+        $this->app->singleton(EventExperimentTracker::class, function (Application $app): EventExperimentTracker {
+            return new EventExperimentTracker(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
+
+        // SaaS QuickStart Service (v4.6.0)
+        $this->app->singleton(SaaSQuickStartService::class, function (Application $app): SaaSQuickStartService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SaaSQuickStartService($manager);
+        });
     }
 
     /**
