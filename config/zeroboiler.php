@@ -2349,5 +2349,89 @@ return [
             ],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Archetypes (SaaS Funnel Blueprints)
+        |-------------------------------------------------------------------------- 
+        |
+        | Pre-defined SaaS funnel blueprints for instrumentation guidance,
+        | gap detection, and completion scoring. Built-in archetypes cover:
+        | signup_funnel, activation, trial_conversion, ecommerce_checkout,
+        | expansion, and retention_loop.
+        |
+        | Add custom archetypes to match your product's unique funnels.
+        | Each archetype defines steps with event names, weights, and
+        | expected time windows.
+        |
+        */
+        'archetypes' => [
+            'enabled' => env('ANALYTICS_ARCHETYPES_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_ARCHETYPES_CACHE_TTL', 3600),
+            'custom' => [
+                // 'my_funnel' => [
+                //     'name' => 'My Custom Funnel',
+                //     'description' => 'Custom conversion funnel',
+                //     'category' => 'custom',
+                //     'completion_event' => 'my_funnel_completed',
+                //     'steps' => [
+                //         ['name' => 'step_1', 'event' => 'page_view', 'required' => true, 'weight' => 0.3, 'expected_window_seconds' => 3600],
+                //         ['name' => 'step_2', 'event' => 'sign_up', 'required' => true, 'weight' => 0.7, 'expected_window_seconds' => 86400],
+                //     ],
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Config Drift Detection (Deployment Monitoring)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, captures config baselines and detects drift between
+        | deployments. Useful for CI/CD validation gates and ops monitoring.
+        |
+        | Capture a baseline after each verified deployment:
+        |   php artisan zb:analytics:config-baseline
+        |
+        | Detect drift:
+        |   php artisan zb:analytics:config-drift
+        |
+        */
+        'config_drift' => [
+            'enabled' => env('ANALYTICS_CONFIG_DRIFT_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_CONFIG_DRIFT_CACHE_TTL', 2592000), // 30 days
+            'exclude_keys' => [
+                // Keys to exclude from drift comparison (e.g., secrets, tokens)
+                // 'ga4.api_secret',
+                // 'meta_pixel.access_token',
+            ],
+            'monitored_sections' => [
+                // Empty = monitor all sections. Specify to narrow scope:
+                // 'ga4', 'gtm', 'meta_pixel', 'consent', 'queue',
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Anonymized Event Aggregation (k-Anonymity Privacy)
+        |-------------------------------------------------------------------------- 
+        |
+        | Provides k-anonymity-safe event aggregation for GDPR-compliant
+        | dashboards and public analytics. Groups with fewer than k events
+        | are suppressed to prevent individual user identification.
+        |
+        | Optional Laplace noise injection provides mathematical differential
+        | privacy guarantees for shared/aggregated data.
+        |
+        */
+        'anonymized_aggregation' => [
+            'enabled' => env('ANALYTICS_ANON_AGG_ENABLED', true),
+            'k_threshold' => (int) env('ANALYTICS_ANON_AGG_K', 5), // minimum 5 events per group
+            'cache_ttl' => (int) env('ANALYTICS_ANON_AGG_CACHE_TTL', 3600), // 1 hour
+            'laplace_noise' => env('ANALYTICS_ANON_AGG_LAPLACE', false), // differential privacy
+            'noise_scale' => (float) env('ANALYTICS_ANON_AGG_NOISE_SCALE', 1.0),
+            'time_granularity' => env('ANALYTICS_ANON_AGG_TIME_GRANULARITY', 'hour'), // hour, day
+            'max_event_age' => (int) env('ANALYTICS_ANON_AGG_MAX_AGE', 86400), // 24 hours
+        ],
+
     ],
 ];

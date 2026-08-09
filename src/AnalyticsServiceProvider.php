@@ -146,7 +146,7 @@ use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventTraceService;
 
 /**
- * @version 3.8.0
+ * @version 3.9.0
  */
 
 /**
@@ -155,7 +155,7 @@ use ZeroBoiler\Analytics\Services\EventTraceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.8.0
+ * @version 3.9.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {

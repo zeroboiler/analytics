@@ -337,4 +337,22 @@ Route::prefix('analytics')->group(function () {
     Route::post('subscription/payment-succeeded', [AnalyticsEventController::class, 'subscriptionPaymentSucceeded']);
     Route::post('subscription/payment-failed', [AnalyticsEventController::class, 'subscriptionPaymentFailed']);
     Route::post('subscription/billing-retry', [AnalyticsEventController::class, 'subscriptionBillingRetry']);
+
+    // Event Archetypes (v3.9.0)
+    Route::get('archetypes', [AnalyticsEventController::class, 'archetypeList']);
+    Route::get('archetypes/{key}', [AnalyticsEventController::class, 'archetypeDetail']);
+    Route::get('archetypes/gaps', [AnalyticsEventController::class, 'archetypeGaps']);
+    Route::post('archetypes/{key}/score', [AnalyticsEventController::class, 'archetypeScore']);
+
+    // Anonymized Aggregation (v3.9.0)
+    Route::get('anonymized/summary', [AnalyticsEventController::class, 'anonymizedSummary']);
+    Route::get('anonymized/by-event', [AnalyticsEventController::class, 'anonymizedByEvent']);
+    Route::get('anonymized/by-category', [AnalyticsEventController::class, 'anonymizedByCategory']);
+    Route::get('anonymized/by-time', [AnalyticsEventController::class, 'anonymizedByTime']);
+
+    // Config Drift (v3.9.0)
+    Route::get('config-drift', [AnalyticsEventController::class, 'configDriftDetect']);
+    Route::get('config-drift/baseline', [AnalyticsEventController::class, 'configDriftBaselineInfo']);
+    Route::post('config-drift/capture', [AnalyticsEventController::class, 'configDriftCapture']);
+    Route::delete('config-drift/baseline', [AnalyticsEventController::class, 'configDriftClear']);
 });
