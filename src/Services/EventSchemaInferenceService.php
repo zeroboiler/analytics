@@ -31,7 +31,7 @@ final class EventSchemaInferenceService
     /** @var list<string> */
     private array $errors = [];
 
-    public function __construct(EventPropertySchema $schemaBuilder)
+    public function __construct(EventPropertySchema $schemaBuilder): void
     {
         $this->schemaBuilder = $schemaBuilder;
     }

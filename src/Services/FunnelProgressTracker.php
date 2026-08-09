@@ -54,7 +54,7 @@ final class FunnelProgressTracker
         private readonly AnalyticsManager $manager,
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $funnelConfig = $config->get('zeroboiler.analytics.funnel_progress', []);
         /** @var array{known_funnels?: list<string>, default_ttl?: int} $funnelConfig */
 

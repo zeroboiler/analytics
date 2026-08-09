@@ -35,7 +35,7 @@ final readonly class OnboardingStepEvent extends AnalyticsEvent
         ?bool $completed = null,
         ?int $durationSeconds = null,
         ?string $skippedReason = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'onboarding_step',
             params: array_filter([

@@ -36,7 +36,7 @@ final readonly class AdClickEvent extends AnalyticsEvent
         ?string $placement = null,
         ?string $keyword = null,
         ?float $cost = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'ad_click',
             params: array_filter([

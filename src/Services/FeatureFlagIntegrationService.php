@@ -68,7 +68,7 @@ final class FeatureFlagIntegrationService
         array $flags = [],
         bool $enabled = true,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
-    ) {
+    ): void {
         $this->manager = $manager;
         $this->cache = $cache;
         $this->flags = $flags;

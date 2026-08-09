@@ -48,7 +48,7 @@ final class AnalyticsTelemetryService
         private readonly AnalyticsManager $manager,
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $telemetryConfig = $config->get('zeroboiler.analytics.telemetry', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string} $telemetryConfig */
 

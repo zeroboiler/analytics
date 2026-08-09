@@ -46,7 +46,7 @@ final class IdentityResolutionService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config)
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
         $this->cache = $cache;
 

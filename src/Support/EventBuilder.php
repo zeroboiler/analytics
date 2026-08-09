@@ -49,7 +49,7 @@ final class EventBuilder
 
     private bool $validate = true;
 
-    private function __construct(string $name)
+    private function __construct(string $name): void
     {
         $this->name = $name;
     }

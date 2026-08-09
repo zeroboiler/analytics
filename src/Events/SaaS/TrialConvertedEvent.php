@@ -32,7 +32,7 @@ final class TrialConvertedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
         ?string $userId = null,
         ?string $clientId = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'trial_converted',
             params: array_filter([

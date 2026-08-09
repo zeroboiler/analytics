@@ -39,7 +39,7 @@ final readonly class TraceContext
         private string $spanId,
         private ?string $parentSpanId = null,
         private string $source = 'server',
-    ) {}
+    ): void {}
 
     /**
      * Generate a new TraceContext with random IDs.

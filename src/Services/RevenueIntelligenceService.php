@@ -45,7 +45,7 @@ final class RevenueIntelligenceService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $this->cache = $cache;
 
         $intelConfig = $config->get('zeroboiler.analytics.revenue_intelligence', []);

@@ -30,7 +30,7 @@ final class DataSubjectAccessRequestEvent extends AnalyticsEvent
         ?string $userId = null,
         ?string $requestType = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'data_subject_access_request',
             params: array_merge([

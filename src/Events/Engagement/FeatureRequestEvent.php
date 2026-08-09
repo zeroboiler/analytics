@@ -33,7 +33,7 @@ final readonly class FeatureRequestEvent extends AnalyticsEvent
         ?int $voteCount = null,
         ?string $requestId = null,
         ?string $pageUrl = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'feature_request',
             params: array_filter([

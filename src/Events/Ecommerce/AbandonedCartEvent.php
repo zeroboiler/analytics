@@ -33,7 +33,7 @@ final readonly class AbandonedCartEvent extends AnalyticsEvent
         ?string $abandonmentReason = null,
         ?int $timeOnCart = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'abandoned_cart',
             params: array_filter(array_merge([

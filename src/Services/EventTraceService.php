@@ -39,7 +39,7 @@ final class EventTraceService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $traceConfig = $config->get('zeroboiler.analytics.tracing', []);
         /** @var array{enabled?: bool, source?: string} $traceConfig */

@@ -57,7 +57,7 @@ final class AnalyticsSandboxService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $sandboxConfig = $config->get('zeroboiler.analytics.sandbox', []);
         /** @var array{enabled?: bool|null, auto_local?: bool, auto_testing?: bool, staging_log_only?: bool, max_events?: int, cache_ttl?: int, cache_prefix?: string, include_context?: bool, allow_replay?: bool} $sandboxConfig */
 

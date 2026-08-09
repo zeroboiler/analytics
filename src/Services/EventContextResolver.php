@@ -37,7 +37,7 @@ final class EventContextResolver
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $this->config = $config;
     }

@@ -55,7 +55,7 @@ final class ProviderRateLimitService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $prlConfig = $config->get('zeroboiler.analytics.provider_rate_limits', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string, providers?: array<string, array{limit?: int, enabled?: bool}>, overflow_strategy?: string, log_violations?: bool} $prlConfig */
 

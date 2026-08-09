@@ -31,7 +31,7 @@ final class AnalyticsReadinessCommand extends Command
 
     private readonly AnalyticsReadinessService $service;
 
-    public function __construct(AnalyticsReadinessService $service)
+    public function __construct(AnalyticsReadinessService $service): void
     {
         parent::__construct();
         $this->service = $service;

@@ -39,7 +39,7 @@ final readonly class SubscriptionValueChangedEvent extends AnalyticsEvent
         ?string $reason = null,
         ?string $userId = null,
         ?string $clientId = null,
-    ) {
+    ): void {
         $delta = round($newValue - $previousValue, 2);
 
         parent::__construct(

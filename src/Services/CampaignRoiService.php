@@ -38,7 +38,7 @@ final class CampaignRoiService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $roiConfig = $config->get('zeroboiler.analytics.campaign_roi', []);
         /** @var array{enabled?: bool, cache_ttl?: int} $roiConfig */
 

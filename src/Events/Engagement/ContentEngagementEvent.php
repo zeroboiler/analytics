@@ -36,7 +36,7 @@ final readonly class ContentEngagementEvent extends AnalyticsEvent
         ?int $engagementPercent = null,
         ?int $timeSpentSeconds = null,
         ?bool $completed = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'content_engagement',
             params: array_filter([

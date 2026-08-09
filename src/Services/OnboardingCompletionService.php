@@ -49,7 +49,7 @@ final class OnboardingCompletionService
         private readonly QueuedAnalyticsDispatcher $queue,
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $onboardingConfig = $config->get('zeroboiler.analytics.onboarding_tracking', []);
         /** @var array{required_steps?: list<string>, optional_steps?: list<string>, cache_ttl?: int, cache_prefix?: string} $onboardingConfig */
 

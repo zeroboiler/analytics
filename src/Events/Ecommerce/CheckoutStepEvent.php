@@ -32,7 +32,7 @@ final readonly class CheckoutStepEvent extends AnalyticsEvent
         ?float $orderTotal = null,
         ?string $currency = null,
         ?array $items = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'checkout_step',
             params: array_filter([

@@ -29,7 +29,7 @@ final readonly class WorkspaceCreatedEvent extends AnalyticsEvent
         ?string $plan = null,
         ?string $industry = null,
         ?string $size = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'workspace_created',
             params: array_filter([

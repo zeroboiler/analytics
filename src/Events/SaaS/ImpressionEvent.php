@@ -31,7 +31,7 @@ final readonly class ImpressionEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $variant = null,
         ?string $context = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'feature_impression',
             params: array_filter([

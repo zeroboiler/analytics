@@ -38,7 +38,7 @@ final class GoalConversionEvent extends AnalyticsEvent
         ?string $goalCategory = null,
         ?float $goalValue = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'goal_conversion',
             params: array_merge([

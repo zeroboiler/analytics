@@ -33,7 +33,7 @@ final class AnalyticsHealthCheckService
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ) {}
+    ): void {}
 
     /**
      * Run the full health check diagnostic.

@@ -48,7 +48,7 @@ final class SchemaDrivenEventBuilder
         ?EventPropertySchema $propertySchema = null,
         ?EventSchemaRegistry $schemaRegistry = null,
         bool $strictMode = false,
-    ) {
+    ): void {
         $this->propertySchema = $propertySchema;
         $this->schemaRegistry = $schemaRegistry;
         $this->strictMode = $strictMode;

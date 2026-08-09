@@ -50,7 +50,7 @@ final class EventSchemaVersioningService
     public function __construct(
         ConfigRepository $config,
         private readonly ?EventSchemaRegistry $schemaRegistry = null,
-    ) {
+    ): void {
         $svConfig = $config->get('zeroboiler.analytics.schema_versioning', []);
         /** @var array{enabled?: bool, param_name?: string, default_version?: string, include_catalog_version?: bool, catalog_version?: string} $svConfig */
 

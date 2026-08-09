@@ -52,7 +52,7 @@ final class HeatmapAggregationService
         int $maxClicksPerUrl = 10000,
         string $cachePrefix = 'zb_heatmap_',
         bool $enabled = true,
-    ) {
+    ): void {
         $this->cache = $cache;
         $this->gridSize = $gridSize;
         $this->cacheTtl = $cacheTtl;

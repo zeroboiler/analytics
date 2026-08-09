@@ -43,7 +43,7 @@ final class SlaBreachEvent extends AnalyticsEvent
         string $unit = '%',
         ?string $severity = null,
         array $params = [],
-    ) {
+    ): void {
         parent::__construct(
             name: 'sla_breach',
             params: array_merge([

@@ -47,7 +47,7 @@ final class AnalyticsReadinessService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $readinessConfig = $config->get('zeroboiler.analytics.readiness', []);
         /** @var array{enabled?: bool, minimum_score?: int, cache_ttl?: int, required_checks?: list<string>, recommended_checks?: list<string>} $readinessConfig */
 
@@ -600,7 +600,7 @@ final class ReadinessCheck
         public readonly string $name,
         public readonly string $label,
         public readonly mixed $evaluator,
-    ) {}
+    ): void {}
 
     /**
      * Execute the readiness check.
@@ -634,7 +634,7 @@ final class CheckResult
     public function __construct(
         public readonly string $status,
         public readonly string $message,
-    ) {}
+    ): void {}
 
     /**
      * Convert to array representation.
@@ -682,7 +682,7 @@ final class ReadinessReport
         public readonly int $requiredChecks,
         public readonly int $requiredFails,
         public readonly array $results,
-    ) {}
+    ): void {}
 
     /**
      * Convert to array representation for API/JSON responses.

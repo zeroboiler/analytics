@@ -148,7 +148,7 @@ final class AdvancedPIIDetector
     public function __construct(
         float $confidenceThreshold = 0.5,
         array $customPatterns = [],
-    ) {
+    ): void {
         $this->confidenceThreshold = $confidenceThreshold;
 
         foreach ($customPatterns as $name => $pattern) {
