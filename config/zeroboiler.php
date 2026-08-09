@@ -521,6 +521,24 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Dispatcher (v3.4.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Unified event dispatch configuration for AnalyticsEventDispatcher.
+        | Controls consent awareness, deduplication, sampling rate, and debug mode
+        | at the dispatch layer. This is the recommended entry point for all
+        | application code event dispatching.
+        |
+        */
+        'dispatcher' => [
+            'consent_aware' => env('ANALYTICS_DISPATCHER_CONSENT_AWARE', true),
+            'dedup_enabled' => env('ANALYTICS_DISPATCHER_DEDUP_ENABLED', true),
+            'sampling_rate' => (float) env('ANALYTICS_DISPATCHER_SAMPLING_RATE', 1.0),
+            'debug' => env('ANALYTICS_DISPATCHER_DEBUG', false),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | GDPR Compliance
         |-------------------------------------------------------------------------- 
         |

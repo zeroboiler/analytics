@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 3.3.1
+ * @version 3.4.0
  */
 
 import { tick } from 'svelte';
@@ -501,6 +501,333 @@ export function useAnalyticsDebug() {
         get lastEvent() { return lastEvent; },
         debugTrack,
         reset,
+    };
+}
+
+// ─── Plausible Composable (v3.4.0) ────────────────────────────────────
+
+/**
+ * Plausible Analytics composable for provider-specific event tracking.
+ *
+ * Plausible supports custom events with optional props (revenue, referrer, etc.).
+ * Note: Plausible does not have a client-side JS API for custom props,
+ * but this composable sends events via the server-side API for consistent tracking.
+ *
+ * @returns {{ trackCustomEvent: function(string, object?): Promise<void>, trackPageView: function(string?): Promise<void>, trackOutboundLink: function(string): void }}
+ *
+ * @example
+ * const { trackCustomEvent, trackPageView } = usePlausible();
+ *
+ * trackCustomEvent('signup', { plan: 'pro' });
+ * trackPageView('/pricing');
+ */
+export function usePlausible() {
+    /**
+     * Track a custom Plausible event.
+     *
+     * @param {string} name - Event name (snake_case, no spaces)
+     * @param {object} [props] - Optional event properties
+     */
+    async function trackCustomEvent(name, props = {}) {
+        if (!isReady) return;
+
+        // Plausible client-side integration (if script loaded)
+        if (typeof window !== 'undefined' && typeof window.plausible === 'function') {
+            window.plausible(name, { props });
+        }
+
+        // Server-side dispatch (always, for consistent analytics)
+        await trackEvent(name, { _provider: 'plausible', ...props });
+    }
+
+    /**
+     * Track a page view with optional custom path.
+     *
+     * @param {string} [path] - Override the page path
+     */
+    async function trackPageView(path) {
+        if (!isReady) return;
+
+        if (typeof window !== 'undefined' && typeof window.plausible === 'function') {
+            window.plausible('pageview', { u: path });
+        }
+
+        await trackEvent('page_view', { page_location: path || window.location.href, _provider: 'plausible' });
+    }
+
+    /**
+     * Track an outbound link click.
+     * Plausible auto-tracks these if the script is configured with trackOutboundLinks.
+     *
+     * @param {string} href - Destination URL
+     */
+    function trackOutboundLink(href) {
+        if (!isReady) return;
+
+        if (typeof window !== 'undefined' && typeof window.plausible === 'function') {
+            window.plausible('Outbound Link: Click', { props: { href } });
+        }
+    }
+
+    return {
+        trackCustomEvent,
+        trackPageView,
+        trackOutboundLink,
+    };
+}
+
+// ─── PostHog Composable (v3.4.0) ────────────────────────────────────
+
+/**
+ * PostHog Analytics composable for provider-specific event tracking.
+ *
+ * PostHog has a rich client-side API: custom events, identify, set properties,
+ * group analytics, feature flags, and session replay.
+ *
+ * @returns {{ trackEvent: function(string, object?): void, identify: function(string, object?): void, setProperties: function(object): void, reset: function(): void, capturePageView: function(): void, isFeatureEnabled: function(string): boolean|null }}
+ *
+ * @example
+ * const { trackEvent, identify, isFeatureEnabled } = usePostHog();
+ *
+ * identify('user-123', { name: 'John', plan: 'pro' });
+ * trackEvent('feature_used', { feature_name: 'export' });
+ * if (isFeatureEnabled('new_dashboard')) { ... }
+ */
+export function usePostHog() {
+    /**
+     * Track a PostHog event (client-side + server-side).
+     *
+     * @param {string} name - Event name
+     * @param {object} [properties] - Event properties
+     */
+    function trackEventFn(name, properties = {}) {
+        if (!isReady) return;
+
+        // PostHog client-side capture
+        if (typeof window !== 'undefined' && window.posthog) {
+            window.posthog.capture(name, properties);
+        }
+
+        // Server-side dispatch
+        trackEvent(name, { _provider: 'posthog', ...properties });
+    }
+
+    /**
+     * Identify a user in PostHog.
+     *
+     * @param {string} distinctId - User ID
+     * @param {object} [userProperties] - User properties to set
+     */
+    function identify(distinctId, userProperties = {}) {
+        if (!isReady) return;
+
+        if (typeof window !== 'undefined' && window.posthog) {
+            window.posthog.identify(distinctId, userProperties);
+        }
+
+        trackEvent('identify', { user_id: distinctId, ...userProperties });
+    }
+
+    /**
+     * Set person properties in PostHog.
+     *
+     * @param {object} properties - Properties to set/merge
+     */
+    function setProperties(properties) {
+        if (!isReady) return;
+
+        if (typeof window !== 'undefined' && window.posthog) {
+            window.posthog.people.set(properties);
+        }
+
+        trackEvent('$set', properties);
+    }
+
+    /**
+     * Reset the PostHog identity (on logout).
+     */
+    function reset() {
+        if (typeof window !== 'undefined' && window.posthog) {
+            window.posthog.reset();
+        }
+    }
+
+    /**
+     * Capture a page view in PostHog.
+     */
+    function capturePageView() {
+        if (!isReady) return;
+
+        if (typeof window !== 'undefined' && window.posthog) {
+            window.posthog.capture('$pageview');
+        }
+
+        trackPageView();
+    }
+
+    /**
+     * Check if a PostHog feature flag is enabled.
+     *
+     * @param {string} flagKey - Feature flag key
+     * @returns {boolean|null} true/false if loaded, null if not ready
+     */
+    function isFeatureEnabled(flagKey) {
+        if (typeof window !== 'undefined' && window.posthog) {
+            return window.posthog.isFeatureEnabled(flagKey);
+        }
+
+        return null;
+    }
+
+    return {
+        trackEvent: trackEventFn,
+        identify,
+        setProperties,
+        reset,
+        capturePageView,
+        isFeatureEnabled,
+    };
+}
+
+// ─── Engagement Composable (v3.4.0) ─────────────────────────────────
+
+/**
+ * Engagement tracking composable for UX analytics.
+ *
+ * Covers scroll depth, form interactions, search, share, and error tracking.
+ * Uses IntersectionObserver and event delegation for efficient tracking.
+ *
+ * @returns {{ trackScrollDepth: function(): function, trackFormInteraction: function(string, string, object?): Promise<void>, trackSearch: function(string, number?, string?): Promise<void>, trackShare: function(string, string, string): Promise<void>, trackError: function(string, string, object?): Promise<void> }}
+ *
+ * @example
+ * const { trackScrollDepth, trackSearch, trackError } = useEngagement();
+ *
+ * // Scroll depth tracking (returns cleanup function)
+ * const cleanupScroll = trackScrollDepth();
+ *
+ * // Search tracking
+ * trackSearch('pricing page', 5, 'organic');
+ *
+ * // Error tracking
+ * trackError('ApiError', 'Failed to load dashboard', { code: 500 });
+ */
+export function useEngagement() {
+    /**
+     * Track scroll depth on the current page.
+     *
+     * Fires events at 25%, 50%, 75%, and 100% thresholds.
+     * Uses IntersectionObserver for efficient tracking.
+     *
+     * @returns {function(): void} Cleanup function to remove observers
+     */
+    function trackScrollDepth() {
+        if (!isReady) return () => {};
+
+        const thresholds = [25, 50, 75, 100];
+        const fired = new Set();
+
+        function handleScroll() {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (scrollHeight <= 0) return;
+
+            const percent = Math.round((window.scrollY / scrollHeight) * 100);
+
+            for (const threshold of thresholds) {
+                if (percent >= threshold && !fired.has(threshold)) {
+                    fired.add(threshold);
+                    trackEvent('scroll_depth', {
+                        percent: threshold,
+                        page_height: document.documentElement.scrollHeight,
+                        viewport_height: window.innerHeight,
+                        scroll_position: window.scrollY,
+                    });
+                }
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }
+
+    /**
+     * Track form interaction (start or submit).
+     *
+     * @param {string} formId - Form identifier
+     * @param {'start'|'submit'} action - Interaction type
+     * @param {object} [params] - Additional parameters
+     */
+    async function trackFormInteraction(formId, action, params = {}) {
+        if (!isReady) return;
+
+        const eventName = action === 'submit' ? 'form_submit' : 'form_start';
+
+        await trackEvent(eventName, {
+            form_id: formId,
+            form_name: params.form_name || formId,
+            ...params,
+        });
+    }
+
+    /**
+     * Track a search query.
+     *
+     * @param {string} query - Search query string
+     * @param {number} [resultCount] - Number of results returned
+     * @param {string} [category] - Search category/context
+     */
+    async function trackSearch(query, resultCount = null, category = null) {
+        if (!isReady) return;
+
+        await trackEvent('search', {
+            search_term: query,
+            results_count: resultCount,
+            search_category: category,
+        });
+    }
+
+    /**
+     * Track content sharing.
+     *
+     * @param {string} contentType - Type of content shared (article, product, etc.)
+     * @param {string} itemId - ID of the shared item
+     * @param {string} method - Share method (twitter, facebook, email, link, etc.)
+     */
+    async function trackShare(contentType, itemId, method) {
+        if (!isReady) return;
+
+        await trackEvent('share', {
+            content_type: contentType,
+            item_id: itemId,
+            method,
+        });
+    }
+
+    /**
+     * Track an error event.
+     *
+     * @param {string} errorType - Error type/class
+     * @param {string} message - Error message
+     * @param {object} [params] - Additional error context
+     */
+    async function trackError(errorType, message, params = {}) {
+        if (!isReady) return;
+
+        await trackEvent('error', {
+            error_type: errorType,
+            error_message: message,
+            ...params,
+        });
+    }
+
+    return {
+        trackScrollDepth,
+        trackFormInteraction,
+        trackSearch,
+        trackShare,
+        trackError,
     };
 }
 

@@ -35,7 +35,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 // ─── Phase 5: Deep Production Readiness ────────────────────────────────
 
 describe('Phase 5: Version Consistency', function () {
-    test('all versions are 3.3.1', function (): void {
+    test('all versions are 3.4.0', function (): void {
         $composer = json_decode(
             file_get_contents(__DIR__ . '/../composer.json'),
             true,
@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('3.3.1');
-        expect(AnalyticsEvent::VERSION)->toBe('3.3.1');
-        expect((new AnalyticsManager)->version())->toBe('3.3.1');
+        expect($composer['version'])->toBe('3.4.0');
+        expect(AnalyticsEvent::VERSION)->toBe('3.4.0');
+        expect((new AnalyticsManager)->version())->toBe('3.4.0');
     });
 });
 
@@ -597,11 +597,11 @@ describe('Phase 5: v3.1-v3.3 Service Audit', function () {
         }
     });
 
-    test('AnalyticsHealthCheckService version is 3.3.1', function (): void {
+    test('AnalyticsHealthCheckService version is 3.4.0', function (): void {
         $r = new ReflectionClass(\ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
         expect($r->isFinal())->toBeTrue();
 
         $versionConstant = $r->getConstant('VERSION');
-        expect($versionConstant)->toBe('3.3.1');
+        expect($versionConstant)->toBe('3.4.0');
     });
 });

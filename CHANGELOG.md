@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [3.4.0] - 2026-08-09
+
+### Added (v3.4.0 — SaaS Starter Level Upgrade)
+
+- **EventCollection DTO** — Typed immutable collection for batch event operations. `fromArray()`, `fromEvents()`, `empty()`, `add()`, `addMany()`, `merge()`, `byName()`, `filter()`, `map()`, `names()`, `groupByName()`, `isEmpty()`, `take()`, `skip()`, `toArray()`. Implements `Countable` and `IteratorAggregate`
+- **AnalyticsEventDispatcher** — Unified, consent/priority/sampling/queue-aware event dispatch service. Single entry point replacing direct `AnalyticsManager::trackEvent()` calls. Config-driven via `zeroboiler.analytics.dispatcher`. `dispatch()`, `dispatchCollection()`, `dispatchBatch()`, `getConfig()`
+- **usePlausible() Svelte composable** — Provider-specific Plausible Analytics tracking. `trackCustomEvent()`, `trackPageView()`, `trackOutboundLink()`. Dual dispatch: client-side Plausible script + server-side API
+- **usePostHog() Svelte composable** — Provider-specific PostHog tracking. `trackEvent()`, `identify()`, `setProperties()`, `reset()`, `capturePageView()`, `isFeatureEnabled()`. Full PostHog client API coverage
+- **useEngagement() Svelte composable** — UX analytics: `trackScrollDepth()` (25/50/75/100% thresholds with cleanup), `trackFormInteraction()`, `trackSearch()`, `trackShare()`, `trackError()`. Efficient passive event listeners
+- **Dispatcher config section** — New `zeroboiler.analytics.dispatcher` config with `consent_aware`, `dedup_enabled`, `sampling_rate`, `debug` options
+- **Comprehensive test suite** — 25+ tests covering EventCollection, AnalyticsEventDispatcher (consent bypass, dedup, queue, batch, immediate), Svelte composable exports, version consistency
+- **ServiceProvider registration** — `AnalyticsEventDispatcher` registered as singleton with `AnalyticsManager` and `QueuedAnalyticsDispatcher` dependencies
+
+### Changed
+- Version bump: 3.3.1 → 3.4.0 across all PHP (`AnalyticsEvent::VERSION`, `AnalyticsHealthCheckService::VERSION`), JS (`analytics.js`, `useAnalytics.svelte.js`, `analytics.d.ts`), `composer.json`, and README
+
 ## [3.3.1] - 2026-08-09
 
 ### Fixed

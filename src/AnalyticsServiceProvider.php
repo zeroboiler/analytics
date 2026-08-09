@@ -136,9 +136,10 @@ use ZeroBoiler\Analytics\Services\RetentionCalculator;
 use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
+use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 
 /**
- * @version 3.3.1
+ * @version 3.4.0
  */
 
 /**
@@ -147,7 +148,7 @@ use ZeroBoiler\Analytics\Services\EventDebounceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.3.1
+ * @version 3.4.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -209,6 +210,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new QueuedAnalyticsDispatcher($manager, $config);
+        });
+
+        // Unified event dispatcher (v3.4.0) — consent/priority/sampling/queue-aware
+        $this->app->singleton(AnalyticsEventDispatcher::class, function (Application $app): AnalyticsEventDispatcher {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsEventDispatcher($manager, $queue, $config);
         });
 
         $this->app->singleton(UserIdentityTracker::class, function (Application $app): UserIdentityTracker {
