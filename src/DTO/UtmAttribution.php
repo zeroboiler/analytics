@@ -22,6 +22,8 @@ namespace ZeroBoiler\Analytics\DTO;
  *     first_touch?: bool,
  *     timestamp?: string,
  * }
+ *
+ * @since 1.0.0
  */
 final readonly class UtmAttribution
 {

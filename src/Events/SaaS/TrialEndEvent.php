@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: trial_end (custom)
  * Meta: (custom event)
+ *
+ * @since 1.0.0
  */
 final readonly class TrialEndEvent extends AnalyticsEvent
 {

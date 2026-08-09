@@ -34,6 +34,8 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
  *
  * Maps Illuminate\Auth\Events and custom application events to typed
  * ZeroBoiler analytics events. Configurable via zeroboiler.analytics.auto_track.
+ *
+ * @since 1.0.0
  */
 final class ServerSideTracker
 {

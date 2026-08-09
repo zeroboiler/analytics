@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Used for GDPR Article 30 record of processing activities.
  *
  * @see https://zeroboiler.dev/docs/analytics/gdpr
+ *
+ * @since 1.0.0
  */
 final class DataSubjectAccessRequestEvent extends AnalyticsEvent
 {

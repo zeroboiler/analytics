@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Designed as the backend for admin dashboard widgets.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController
+ *
+ * @since 1.0.0
  */
 final class AnalyticsDashboardDataProvider
 {

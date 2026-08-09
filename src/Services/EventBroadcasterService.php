@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Channel-based routing (per-tenant, per-category, global)
  * - Event enrichment with metrics data
  * - Private and public channel support
+ *
+ * @since 1.0.0
  */
 final class EventBroadcasterService
 {

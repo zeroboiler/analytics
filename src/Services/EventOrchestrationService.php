@@ -32,6 +32,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *   $orchestrator->startPipeline('user_acquisition', 'client-uuid', 'user-42');
  *   $orchestrator->advanceStep('user_acquisition', 'trial_started', 'client-uuid', 'user-42');
  *   $orchestrator->completePipeline('user_acquisition', 'client-uuid', 'user-42');
+ *
+ * @since 1.0.0
  */
 final class EventOrchestrationService
 {

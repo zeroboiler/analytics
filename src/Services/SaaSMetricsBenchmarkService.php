@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Configuration: `zeroboiler.analytics.benchmarks`
  *
  * @see \ZeroBoiler\Analytics\Services\SaaSHealthScoreService
+ *
+ * @since 1.0.0
  */
 final class SaaSMetricsBenchmarkService
 {

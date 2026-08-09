@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Carries the plan name, billing amount, and billing cycle for revenue analytics.
  *
  * @phpstan-import-type EventParams from AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final class SubscriptionRenewalEvent extends AnalyticsEvent
 {

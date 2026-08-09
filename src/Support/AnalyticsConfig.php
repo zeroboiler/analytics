@@ -16,6 +16,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * with explicit return types, sensible defaults, and no raw array access.
  * Designed for use in services, middleware, and controllers that need
  * structured access to analytics settings.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsConfig
 {

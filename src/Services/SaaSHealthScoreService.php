@@ -24,6 +24,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Health trends are tracked over time for dashboard visualization.
  *
  * Configuration: `zeroboiler.analytics.health_score`
+ *
+ * @since 1.0.0
  */
 final class SaaSHealthScoreService
 {

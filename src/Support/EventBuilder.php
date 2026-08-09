@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *       ->user($userId)
  *       ->priority('critical')
  *       ->build();
+ *
+ * @since 1.0.0
  */
 final class EventBuilder
 {

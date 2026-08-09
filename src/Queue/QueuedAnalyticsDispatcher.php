@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob;
  *
  * @see \ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob
  * @see \ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventBatchJob
+ *
+ * @since 1.0.0
  */
 final class QueuedAnalyticsDispatcher
 {

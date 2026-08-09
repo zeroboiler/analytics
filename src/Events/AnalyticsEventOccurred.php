@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *         // Trigger fulfillment, send email, update CRM...
  *     }
  * });
+ *
+ * @since 1.0.0
  */
 final class AnalyticsEventOccurred
 {

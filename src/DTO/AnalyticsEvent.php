@@ -9,6 +9,8 @@ namespace ZeroBoiler\Analytics\DTO;
 
 /**
  * Immutable DTO representing an analytics event to be tracked.
+ *
+ * @since 1.0.0
  */
 final readonly class AnalyticsEvent
 {

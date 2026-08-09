@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: generate_lead (standard) or custom form_submit
  * Meta: Lead (standard)
+ *
+ * @since 1.0.0
  */
 final readonly class FormSubmitEvent extends AnalyticsEvent
 {

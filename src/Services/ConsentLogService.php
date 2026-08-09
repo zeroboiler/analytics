@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Use this service to demonstrate compliance with GDPR Article 7 (conditions for consent)
  * and to provide audit trails for data subject access requests (DSAR).
+ *
+ * @since 1.0.0
  */
 final class ConsentLogService
 {

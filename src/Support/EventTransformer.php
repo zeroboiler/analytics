@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Centralizes all event name and parameter transformations between
  * GA4, Meta Pixel, PostHog, Plausible, and generic formats.
  * Provides both individual transforms and bulk conversion helpers.
+ *
+ * @since 1.0.0
  */
 final class EventTransformer
 {

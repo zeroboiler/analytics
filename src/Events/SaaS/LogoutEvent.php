@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: (custom event)
  * Meta: (custom event)
+ *
+ * @since 1.0.0
  */
 final readonly class LogoutEvent extends AnalyticsEvent
 {

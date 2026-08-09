@@ -19,6 +19,8 @@ namespace ZeroBoiler\Analytics\Services;
  * are flagged. Custom patterns can be added via configuration.
  *
  * @see \ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService
+ *
+ * @since 1.0.0
  */
 final class AdvancedPIIDetector
 {

@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Log;
  * to compare the current config against that baseline.
  *
  * @see \ZeroBoiler\Analytics\Services\AnalyticsConfigValidator
+ *
+ * @since 1.0.0
  */
 final class ConfigDriftDetectionService
 {

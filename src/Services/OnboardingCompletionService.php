@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * and drop-off analysis at each step.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class OnboardingCompletionService
 {

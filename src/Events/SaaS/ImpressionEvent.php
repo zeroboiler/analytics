@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks when a user views or is exposed to a product feature, UI element,
  * or upgrade prompt. Useful for feature adoption funnels and A/B testing
  * baseline measurements.
+ *
+ * @since 1.0.0
  */
 final readonly class ImpressionEvent extends AnalyticsEvent
 {

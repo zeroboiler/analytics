@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Use this to track document engagement, whitepaper downloads,
  * invoice PDF access, and export actions in SaaS dashboards.
+ *
+ * @since 1.0.0
  */
 final readonly class FileDownloadEvent extends AnalyticsEvent
 {

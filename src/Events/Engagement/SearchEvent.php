@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: search (standard)
  * Meta: Search (standard)
+ *
+ * @since 1.0.0
  */
 final readonly class SearchEvent extends AnalyticsEvent
 {

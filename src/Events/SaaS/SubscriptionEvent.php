@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: purchase (mapped to subscription)
  * Meta: Subscribe (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class SubscriptionEvent extends AnalyticsEvent
 {

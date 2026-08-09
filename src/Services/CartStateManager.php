@@ -31,6 +31,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  *
  * @see \ZeroBoiler\Analytics\Services\EcommerceAnalyticsService
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class CartStateManager
 {

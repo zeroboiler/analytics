@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
  * or third-party analytics services not natively supported.
  *
  * @see \ZeroBoiler\Analytics\Trackers\TrackerInterface
+ *
+ * @since 1.0.0
  */
 final class WebhookTracker implements TrackerInterface
 {

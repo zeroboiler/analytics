@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
  * and schema validation in downstream systems.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class AnalyticsSchemaExportCommand extends Command
 {

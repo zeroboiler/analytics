@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *     source?: string|null,
  *     ...array<string, mixed>
  * }
+ *
+ * @since 1.0.0
  */
 final class FeedbackEvent extends AnalyticsEvent
 {

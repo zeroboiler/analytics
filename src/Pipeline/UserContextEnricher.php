@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Attaches authenticated user properties (id, email, name, plan) to events
  * when available, enabling user-level segmentation in analytics providers.
+ *
+ * @since 1.0.0
  */
 final readonly class UserContextEnricher
 {

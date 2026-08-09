@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsInsight;
  * Configuration is read from `zeroboiler.analytics.insights`.
  *
  * @phpstan-type InsightConfig array{enabled?: bool, cache_ttl?: int, min_events_for_trend?: int, anomaly_threshold?: float, max_insights?: int, trend_window_hours?: int}
+ *
+ * @since 1.0.0
  */
 final class AnalyticsInsightsService
 {

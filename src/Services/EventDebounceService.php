@@ -30,6 +30,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *   // Returns true only if the event hasn't been dispatched within the TTL
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class EventDebounceService
 {

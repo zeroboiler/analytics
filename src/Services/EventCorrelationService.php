@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * This service does NOT dispatch events — it reads from the event stream
  * and metrics to build correlation data for dashboards and insights.
+ *
+ * @since 1.0.0
  */
 final class EventCorrelationService
 {

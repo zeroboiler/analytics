@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - 'null': Silently discard (not recommended for production)
  *
  * Supports manual replay of individual events or bulk replay of all DLQ events.
+ *
+ * @since 1.0.0
  */
 final class DeadLetterQueueService
 {

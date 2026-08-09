@@ -26,6 +26,8 @@ namespace ZeroBoiler\Analytics\Services;
  *       ->steps(['sign_up', 'email_verified', 'subscribe'])
  *       ->period(30)
  *       ->execute();
+ *
+ * @since 1.0.0
  */
 final class AnalyticsQueryBuilder
 {

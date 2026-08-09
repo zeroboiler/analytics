@@ -111,6 +111,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{generated_at: string, insights: list<array{type: string, category: string, title: string, description: string, severity: string, metric: string|null, value: mixed|null, recommendation: string|null}>, summary: array{total: int, by_type: array<string, int>, by_severity: array<string, int>}} insightReport()
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class Analytics extends Facade
 {

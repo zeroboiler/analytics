@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
  *
  * Designed for GDPR "right to be forgotten" compliance.
  * Call AnalyticsManager::resetIdentity() separately for provider-side resets.
+ *
+ * @since 1.0.0
  */
 final class GdprErasureService
 {

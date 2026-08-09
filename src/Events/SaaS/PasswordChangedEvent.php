@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: password_changed (custom)
  * Meta: PasswordChanged (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class PasswordChangedEvent extends AnalyticsEvent
 {

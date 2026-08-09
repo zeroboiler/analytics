@@ -25,6 +25,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * The fingerprint is computed from the event name, client ID, user ID, and
  * a hash of the params. This ensures that truly identical events are
  * deduplicated while allowing events with different params through.
+ *
+ * @since 1.0.0
  */
 final class EventDeduplicationService
 {

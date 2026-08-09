@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\UtmAttribution;
  *
  * Designed for SaaS applications that need to understand which campaigns,
  * channels, and content brought users to signup and conversion events.
+ *
+ * @since 1.0.0
  */
 final class AttributionService
 {

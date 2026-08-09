@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * Provides session start/end tracking, page view counting, session duration,
  * and conversion funnel tracking. Works with the QueuedAnalyticsDispatcher
  * for async, non-blocking event dispatch.
+ *
+ * @since 1.0.0
  */
 final class SessionTracker
 {

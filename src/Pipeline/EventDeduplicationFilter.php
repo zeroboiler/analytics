@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Services\EventDeduplicationService;
  * or race conditions in batch processing.
  *
  * @see \ZeroBoiler\Analytics\Services\EventDeduplicationService
+ *
+ * @since 1.0.0
  */
 final class EventDeduplicationFilter
 {

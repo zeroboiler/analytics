@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * @phpstan-type WizardStep array{key: string, label: string, description: string, events: list<string>, required: bool, estimated_minutes: int}
  * @phpstan-type WizardProgress array{step: string, completed: bool, events_instrumented: list<string>, skipped: bool}
  * @phpstan-type WizardState array{started_at: string|null, current_step: string|null, completed_steps: list<string>, total_events_instrumented: int, completion_percentage: float, grade: string}
+ *
+ * @since 1.0.0
  */
 final class OnboardingWizardService
 {

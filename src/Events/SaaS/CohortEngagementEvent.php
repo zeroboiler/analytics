@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * total users, and time period.
  *
  * GA4: cohort_engagement
+ *
+ * @since 1.0.0
  */
 final readonly class CohortEngagementEvent extends AnalyticsEvent
 {

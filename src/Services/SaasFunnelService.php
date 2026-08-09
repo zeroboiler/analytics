@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  *
  * Configuration:
  *   zeroboiler.analytics.funnels.enabled (default: true)
+ *
+ * @since 1.0.0
  */
 final class SaasFunnelService
 {

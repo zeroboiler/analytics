@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Configure in zeroboiler.analytics.audit_log.enabled.
  *
  * @see \ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareInterface
+ *
+ * @since 1.0.0
  */
 final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
 {

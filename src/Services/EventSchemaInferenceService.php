@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Schema\EventPropertySchema;
  *
  * Useful for bootstrapping schema validation when migrating from untyped
  * event tracking to schema-validated tracking.
+ *
+ * @since 1.0.0
  */
 final class EventSchemaInferenceService
 {

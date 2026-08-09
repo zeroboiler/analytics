@@ -20,6 +20,8 @@ use Illuminate\Http\Request;
  * Designed for zero-allocation reads — all properties are readonly.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final readonly class EventContext
 {

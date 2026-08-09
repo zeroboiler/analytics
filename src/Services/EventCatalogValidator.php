@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * in API controllers and event gate services.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventCatalogValidator
 {

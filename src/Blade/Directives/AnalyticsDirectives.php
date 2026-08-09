@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Blade;
  *
  * Provides `@analyticsHead`, `@analyticsBody`, `@analyticsTrack`, and
  * `@dataLayerPush` directives for traditional Laravel Blade templates.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsDirectives
 {

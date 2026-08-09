@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  * - `downsample`: Allow through with configurable probability
  *
  * @see \ZeroBoiler\Analytics\Services\ProviderCircuitBreaker
+ *
+ * @since 1.0.0
  */
 final class ProviderRateLimitService
 {

@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Tracks individual checkout steps (shipping, payment, review) with
  * step index for funnel analysis and optional payment method info.
+ *
+ * @since 1.0.0
  */
 final readonly class CheckoutStepEvent extends AnalyticsEvent
 {

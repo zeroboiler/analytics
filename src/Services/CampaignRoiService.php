@@ -21,6 +21,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Config-driven via `zeroboiler.analytics.campaign_roi`.
  *
  * @see \ZeroBoiler\Analytics\Services\UTMAttributionService
+ *
+ * @since 1.0.0
  */
 final class CampaignRoiService
 {

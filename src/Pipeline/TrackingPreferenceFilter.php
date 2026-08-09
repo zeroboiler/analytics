@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
  * consent is granted.
  *
  * @see \ZeroBoiler\Analytics\Services\TrackingPreferenceService
+ *
+ * @since 1.0.0
  */
 final class TrackingPreferenceFilter
 {

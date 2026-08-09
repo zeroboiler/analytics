@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: plan_downgrade (custom)
  * Meta: (custom event)
+ *
+ * @since 1.0.0
  */
 final readonly class PlanDowngradeEvent extends AnalyticsEvent
 {

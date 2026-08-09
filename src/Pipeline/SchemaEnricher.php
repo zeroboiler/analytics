@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  * not break the user experience.
  *
  * @see EventSchemaRegistry
+ *
+ * @since 1.0.0
  */
 final class SchemaEnricher
 {

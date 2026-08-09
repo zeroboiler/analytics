@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Log;
  * to compute metrics.
  *
  * Time bucket precision: 1 day (midnight UTC-aligned).
+ *
+ * @since 1.0.0
  */
 final class RetentionCalculator
 {

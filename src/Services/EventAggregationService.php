@@ -18,6 +18,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Provides time-windowed event counting, top events ranking, provider
  * health monitoring, and a comprehensive health check report. Designed
  * for admin dashboards and monitoring integrations.
+ *
+ * @since 1.0.0
  */
 final class EventAggregationService
 {

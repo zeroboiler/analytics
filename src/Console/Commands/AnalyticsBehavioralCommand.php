@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Services\UserPropertiesStore;
  * distribution, event rules engine status, and user properties store schema.
  *
  * Useful for monitoring product health and identifying at-risk users.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsBehavioralCommand extends Command
 {

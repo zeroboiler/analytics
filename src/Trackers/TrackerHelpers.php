@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
  *
  * Provides consent rendering (used by GA4 and GTM trackers) and
  * safe HTTP dispatch with error logging (used by GA4 and Meta Pixel trackers).
+ *
+ * @since 1.0.0
  */
 trait TrackerHelpers
 {

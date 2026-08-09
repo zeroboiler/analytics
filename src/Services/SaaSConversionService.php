@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\Events\SaaS\MilestoneReachedEvent;
  *
  * @see \ZeroBoiler\Analytics\Services\RevenueAnalyticsService
  * @see \ZeroBoiler\Analytics\Services\SaasKpiTracker
+ *
+ * @since 1.0.0
  */
 final class SaaSConversionService
 {

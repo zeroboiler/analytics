@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *   if ($result !== null) {
  *       Analytics::trackEvent($result);
  *   }
+ *
+ * @since 1.0.0
  */
 final class EventDebounceFilter
 {

@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks individual steps in a multi-step onboarding flow (profile setup,
  * team creation, integration connect, first action). Use step_index for
  * ordering and completed to detect abandonment.
+ *
+ * @since 1.0.0
  */
 final readonly class OnboardingStepEvent extends AnalyticsEvent
 {

@@ -31,6 +31,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * - Admin diagnostics summary
  *
  * @see \ZeroBoiler\Analytics\DTO\EventPriority
+ *
+ * @since 1.0.0
  */
 final class EventPriorityGate
 {

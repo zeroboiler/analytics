@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: page_view
  * Meta: PageView
+ *
+ * @since 1.0.0
  */
 final readonly class PageViewEvent extends AnalyticsEvent
 {

@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Captures when a user requests a new feature, votes on existing requests,
  * or interacts with a feature request board. Essential for product-roadmap
  * alignment and prioritization analytics.
+ *
+ * @since 1.0.0
  */
 final readonly class FeatureRequestEvent extends AnalyticsEvent
 {

@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Log;
  * identity tracking, validation settings, GDPR compliance, and more.
  *
  * @see \ZeroBoiler\Analytics\Services\AnalyticsHealthService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsReadinessService
 {

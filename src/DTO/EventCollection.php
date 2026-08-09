@@ -19,6 +19,8 @@ use Traversable;
  * and event pipeline for batch operations.
  *
  * @implements IteratorAggregate<int, AnalyticsEvent>
+ *
+ * @since 1.0.0
  */
 final readonly class EventCollection implements Countable, IteratorAggregate
 {

@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Shows the current configuration for revenue tracking, event catalog
  * revenue-related events, and provides a diagnostic summary for verifying
  * that revenue analytics is properly configured.
+ *
+ * @since 1.0.0
  */
 final class RevenueReportCommand extends Command
 {

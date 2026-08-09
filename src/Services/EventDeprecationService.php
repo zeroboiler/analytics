@@ -26,6 +26,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Configuration is read from `zeroboiler.analytics.governance.deprecation`.
  *
  * @phpstan-type DeprecationEntry array{event: string, replacement: string|null, deprecated_at: string, sunset_days: int, dispatch_count: int, status: 'active'|'expired'}
+ *
+ * @since 1.0.0
  */
 final class EventDeprecationService
 {

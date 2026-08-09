@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - `event_timestamp`: ISO 8601 timestamp
  * - `event_epoch`: Unix epoch (seconds)
  * - `session_id`: Custom session identifier (if provided)
+ *
+ * @since 1.0.0
  */
 final readonly class TimestampEnricher
 {

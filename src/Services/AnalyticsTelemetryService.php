@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * Results are cached to avoid hammering providers on every request.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsHealthService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsTelemetryService
 {

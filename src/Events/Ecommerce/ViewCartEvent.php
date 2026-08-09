@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: view_cart
  * Meta: (no standard equivalent)
+ *
+ * @since 1.0.0
  */
 final readonly class ViewCartEvent extends AnalyticsEvent
 {

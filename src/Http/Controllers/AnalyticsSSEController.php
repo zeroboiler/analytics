@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * notifications without client-side polling overhead.
  *
  * @see \ZeroBoiler\Analytics\Services\EventStreamService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsSSEController extends Controller
 {

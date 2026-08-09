@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: plan_upgrade (custom)
  * Meta: (custom event)
+ *
+ * @since 1.0.0
  */
 final readonly class PlanUpgradeEvent extends AnalyticsEvent
 {

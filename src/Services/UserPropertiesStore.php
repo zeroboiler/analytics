@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Log;
  * When a client_id is linked to a user_id, properties are merged.
  *
  * @phpstan-type PropertyDefinition array{type: 'string'|'int'|'float'|'bool'|'array', default: mixed, aggregation?: 'sum'|'min'|'max'|'last'|'set'|'count', ttl?: int}
+ *
+ * @since 1.0.0
  */
 final class UserPropertiesStore
 {

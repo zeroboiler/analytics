@@ -23,6 +23,8 @@ use Illuminate\Support\Str;
  *   $event->params['_trace_id'] = $trace->traceId();
  *
  * @see \ZeroBoiler\Analytics\Services\EventTraceService
+ *
+ * @since 1.0.0
  */
 final readonly class TraceContext
 {

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Designed for production-grade SaaS deployments where misconfigured analytics
  * can silently lose tracking data.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsConfigValidator
 {

@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Indicates which data categories were erased.
  *
  * @see https://zeroboiler.dev/docs/analytics/gdpr
+ *
+ * @since 1.0.0
  */
 final class DataErasureCompletedEvent extends AnalyticsEvent
 {

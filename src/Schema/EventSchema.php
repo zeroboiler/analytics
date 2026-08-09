@@ -13,6 +13,8 @@ namespace ZeroBoiler\Analytics\Schema;
  * Schemas declare required and optional parameters, their types,
  * and maximum string lengths. Used by EventSchemaRegistry for
  * automatic event validation and sanitization.
+ *
+ * @since 1.0.0
  */
 final readonly class EventSchema
 {

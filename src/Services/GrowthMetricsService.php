@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * @phpstan-type StickinessMetrics array{d30_stickiness: float, feature_stickiness: array<string, float>, top_sticky_features: list<array{name: string, score: float}>}
  * @phpstan-type EngagementVelocity array{events_per_user_per_day: float, engagement_acceleration: float, weekly_active_users: int, monthly_active_users: int}
  * @phpstan-type CohortHealthMetrics array{d1_retention: float, d7_retention: float, d30_retention: float, cohort_health_grade: string, churn_risk_users: int}
+ *
+ * @since 1.0.0
  */
 final class GrowthMetricsService
 {

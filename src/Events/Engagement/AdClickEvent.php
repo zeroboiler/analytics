@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * with ad metadata for ROI attribution.
  *
  * @see https://support.google.com/analytics/answer/7475744
+ *
+ * @since 1.0.0
  */
 final readonly class AdClickEvent extends AnalyticsEvent
 {

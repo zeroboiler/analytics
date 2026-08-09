@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Services\SubscriptionMetricsCalculator;
  *
  * @phpstan-type ForecastPoint array{date: string, mrr: float, arr: float, churned_mrr: float, net_new_mrr: float, churn_rate: float}
  * @phpstan-type ForecastSummary array{current_mrr: float, current_arr: float, projected_mrr_30d: float, projected_arr_30d: float, mrr_growth_rate: float, churn_rate: float, net_revenue_retention: float, ltv_estimate: float, runway_months: int, confidence: string}
+ *
+ * @since 1.0.0
  */
 final class RevenueForecastService
 {

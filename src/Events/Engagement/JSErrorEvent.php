@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: js_error (custom)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class JSErrorEvent extends AnalyticsEvent
 {

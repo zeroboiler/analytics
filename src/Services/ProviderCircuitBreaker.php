@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
  * Provides dashboard data for monitoring circuit breaker states across all providers.
  *
  * @see https://martinfowler.com/articles/circuitBreaker.html
+ *
+ * @since 1.0.0
  */
 final class ProviderCircuitBreaker
 {

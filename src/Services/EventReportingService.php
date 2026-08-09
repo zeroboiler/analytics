@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Reports are cached for configurable TTL and can be retrieved
  * via the API or artisan commands.
+ *
+ * @since 1.0.0
  */
 final class EventReportingService
 {

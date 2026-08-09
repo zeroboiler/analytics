@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * feature gating dashboards, and churn prediction models.
  *
  * @phpstan-import-type EventParams from AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final readonly class UsageQuotaReachedEvent extends AnalyticsEvent
 {

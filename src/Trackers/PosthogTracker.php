@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
  *
  * Tracks events server-side via the PostHog capture endpoint.
  * Supports event properties and user identification.
+ *
+ * @since 1.0.0
  */
 final class PosthogTracker implements TrackerInterface
 {

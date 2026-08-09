@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaRegistry
  * @see \ZeroBoiler\Analytics\Events\EventCatalog
+ *
+ * @since 1.0.0
  */
 final class EventSchemaVersioningService
 {

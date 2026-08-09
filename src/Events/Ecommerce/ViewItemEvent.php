@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: view_item
  * Meta: ViewContent
+ *
+ * @since 1.0.0
  */
 final readonly class ViewItemEvent extends AnalyticsEvent
 {

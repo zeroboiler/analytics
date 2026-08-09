@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Typical use case: receiving payment events from Stripe, subscription events
  * from billing systems, or custom events from partner integrations.
+ *
+ * @since 1.0.0
  */
 final class InboundWebhookService
 {

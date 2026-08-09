@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: time_on_page (custom engagement timing)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class TimeOnPageEvent extends AnalyticsEvent
 {

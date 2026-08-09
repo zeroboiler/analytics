@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * @phpstan-type DigestSection array{title: string, data: array<string, mixed>, grade?: string}
  * @phpstan-type WeeklyDigest array{period: string, generated_at: string, version: string, sections: list<DigestSection>, summary: array{total_events: int, active_providers: int, overall_grade: string, highlights: list<string>, alerts: list<string>}}
+ *
+ * @since 1.0.0
  */
 final class WeeklyDigestService
 {

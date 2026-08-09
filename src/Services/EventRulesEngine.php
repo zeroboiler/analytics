@@ -31,6 +31,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * @phpstan-type AbsenceTriggerRule array{type: 'absence_trigger', event: string, absent_for: int, trigger: string, params?: array<string, mixed>}
  * @phpstan-type PropertyTriggerRule array{type: 'property_trigger', property: string, operator: 'gte'|'gt'|'lte'|'lt'|'eq', value: int|float, trigger: string, params?: array<string, mixed>}
  * @phpstan-type Rule EventTriggerRule|AbsenceTriggerRule|PropertyTriggerRule
+ *
+ * @since 1.0.0
  */
 final class EventRulesEngine
 {

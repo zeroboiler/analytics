@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: outbound_click (custom)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class OutboundClickEvent extends AnalyticsEvent
 {

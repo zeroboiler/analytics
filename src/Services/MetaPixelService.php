@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
  *
  * Resolved from the container as a singleton; receives the MetaPixelTracker
  * instance from the AnalyticsManager.
+ *
+ * @since 1.0.0
  */
 final class MetaPixelService
 {

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
  * All counters are stored in memory (per-request) and can be flushed
  * to the log or retrieved programmatically. In queued dispatch, each
  * queue job maintains its own counter instance.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsMetrics
 {

@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: feature_limit_reached (custom)
  * Meta: FeatureLimitReached (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class FeatureLimitReachedEvent extends AnalyticsEvent
 {

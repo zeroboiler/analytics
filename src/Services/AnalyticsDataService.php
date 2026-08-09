@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * real-time dashboards, admin panels, and SaaS analytics widgets.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class AnalyticsDataService
 {

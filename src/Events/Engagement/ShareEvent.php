@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: share (standard)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class ShareEvent extends AnalyticsEvent
 {

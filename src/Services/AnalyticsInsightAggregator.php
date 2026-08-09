@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Services\EventAggregationService;
  * Insights are cached for performance and refreshed on configurable TTL.
  *
  * Used by admin dashboards, scheduled reports, and the analytics overview command.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsInsightAggregator
 {

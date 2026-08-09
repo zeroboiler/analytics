@@ -16,6 +16,8 @@ namespace ZeroBoiler\Analytics\Schema;
  *
  * @see EventSchema
  * @see EventParam
+ *
+ * @since 1.0.0
  */
 final class EventSchemaRegistry implements \Countable
 {

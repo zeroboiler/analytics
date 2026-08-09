@@ -24,6 +24,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * @phpstan-type Experiment array{id: string, name: string, variants: list<array{name: string, events: int, conversions: int, conversion_rate: float}>, status: 'running'|'paused'|'completed', winner: string|null, created_at: string, updated_at: string}
  * @phpstan-type SignificanceResult array{is_significant: bool, confidence: float, p_value: float, z_score: float, winner: string|null, recommendation: string}
+ *
+ * @since 1.0.0
  */
 final class EventExperimentTracker
 {

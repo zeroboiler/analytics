@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: purchase
  * Meta: Purchase
+ *
+ * @since 1.0.0
  */
 final readonly class PurchaseEvent extends AnalyticsEvent
 {

@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Unlike EventTransformer (which focuses on event names), this service
  * focuses on the detailed parameter structure differences between providers.
+ *
+ * @since 1.0.0
  */
 final class EcommerceFormatConverter
 {

@@ -25,6 +25,8 @@ namespace ZeroBoiler\Analytics\Services;
  *
  * @see \ZeroBoiler\Analytics\Services\EventPriorityGate
  * @see \ZeroBoiler\Analytics\Support\EcommerceFormatConverter
+ *
+ * @since 1.0.0
  */
 final class EventClassificationService
 {

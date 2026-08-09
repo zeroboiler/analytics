@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * this engine focuses on reading and composing complex queries.
  *
  * @version 5.5.0
+ *
+ * @since 1.0.0
  */
 final class EventQueryEngine
 {

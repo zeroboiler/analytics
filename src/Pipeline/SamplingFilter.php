@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Supports deterministic sampling by event name for consistent results
  * across requests.
+ *
+ * @since 1.0.0
  */
 final class SamplingFilter
 {

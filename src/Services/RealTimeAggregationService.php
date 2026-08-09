@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Redis, Memcached, or database cache backends.
  *
  * Configuration: `zeroboiler.analytics.realtime`
+ *
+ * @since 1.0.0
  */
 final class RealTimeAggregationService
 {

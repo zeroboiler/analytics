@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  * retried automatically without losing analytics data.
  *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
+ *
+ * @since 1.0.0
  */
 final class EventReplayQueue
 {

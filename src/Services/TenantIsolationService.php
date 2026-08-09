@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Cross-tenant event isolation (prevent data leakage)
  * - Per-tenant rate limiting and quotas
  * - Tenant context propagation to all analytics events
+ *
+ * @since 1.0.0
  */
 final class TenantIsolationService
 {

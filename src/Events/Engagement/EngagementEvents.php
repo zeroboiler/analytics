@@ -14,6 +14,8 @@ namespace ZeroBoiler\Analytics\Events\Engagement;
  * Use for validation, lookup, and bulk operations.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ *
+ * @since 1.0.0
  */
 final class EngagementEvents
 {

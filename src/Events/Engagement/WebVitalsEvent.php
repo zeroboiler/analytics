@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: web_vitals (custom)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class WebVitalsEvent extends AnalyticsEvent
 {

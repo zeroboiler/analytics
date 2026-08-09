@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Provides event name validation against a whitelist,
  * parameter sanitization, and event deduplication.
+ *
+ * @since 1.0.0
  */
 final class EventValidationService
 {

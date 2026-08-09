@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: add_to_cart
  * Meta: AddToCart
+ *
+ * @since 1.0.0
  */
 final readonly class AddToCartEvent extends AnalyticsEvent
 {

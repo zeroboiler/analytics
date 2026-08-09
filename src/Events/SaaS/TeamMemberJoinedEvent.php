@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: team_member_joined (custom)
  * Meta: TeamMemberJoined (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class TeamMemberJoinedEvent extends AnalyticsEvent
 {

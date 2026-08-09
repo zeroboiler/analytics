@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Queue\EventReplayQueue;
  * Checks all providers, queue, replay, consent, validation, sampling,
  * PII sanitization, metrics, and provides actionable warnings and
  * recommendations. Use for monitoring, CI checks, and debugging.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsHealthCommand extends Command
 {

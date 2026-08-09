@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: payment_method_added (custom)
  * Meta: PaymentMethodAdded (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class PaymentMethodAddedEvent extends AnalyticsEvent
 {

@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * Configuration: `zeroboiler.analytics.cost_tracking`
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventCostTracker
 {

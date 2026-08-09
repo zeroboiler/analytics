@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * across the 90+ event classes in the catalog.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 trait HasEventSchema
 {

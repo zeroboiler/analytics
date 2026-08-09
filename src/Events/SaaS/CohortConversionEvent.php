@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * free → premium) within cohort-based analytics.
  *
  * GA4: cohort_conversion
+ *
+ * @since 1.0.0
  */
 final readonly class CohortConversionEvent extends AnalyticsEvent
 {

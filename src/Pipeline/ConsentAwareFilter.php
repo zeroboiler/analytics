@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Services\ConsentLogService;
  * - error events → 'necessary' (always allowed)
  *
  * @see \ZeroBoiler\Analytics\DTO\ConsentState
+ *
+ * @since 1.0.0
  */
 final class ConsentAwareFilter
 {

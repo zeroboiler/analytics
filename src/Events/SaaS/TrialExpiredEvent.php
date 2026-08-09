@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * GA4: trial_expired
  * Meta: CustomEvent
  * PostHog: trial_expired
+ *
+ * @since 1.0.0
  */
 final readonly class TrialExpiredEvent extends AnalyticsEvent
 {

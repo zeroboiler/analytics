@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * queue drivers where closures cannot be serialized.
  *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
+ *
+ * @since 1.0.0
  */
 final readonly class TrackAnalyticsEventJob implements ShouldQueue
 {

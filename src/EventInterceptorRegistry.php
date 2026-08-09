@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Transform event params for specific providers
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class EventInterceptorRegistry
 {

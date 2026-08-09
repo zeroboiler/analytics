@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Support\AnalyticsConfig;
  * Produces a comprehensive JSON payload containing provider status,
  * event catalog, config summary, metrics, and health information.
  * Ideal for external dashboards, monitoring systems, and CI pipelines.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsDashboardCommand extends Command
 {

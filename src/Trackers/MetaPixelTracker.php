@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
+/**
+ * @since 1.0.0
+ */
 final class MetaPixelTracker implements TrackerInterface
 {
     private const GRAPH_API_URL = 'https://graph.facebook.com/v18.0';

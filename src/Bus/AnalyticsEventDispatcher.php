@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * replacing direct calls to AnalyticsManager::trackEvent().
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class AnalyticsEventDispatcher
 {

@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * remaining events from being processed.
  *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
+ *
+ * @since 1.0.0
  */
 final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
 {

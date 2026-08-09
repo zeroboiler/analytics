@@ -29,6 +29,8 @@ use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
  * via `zeroboiler.analytics.envelope` config.
  *
  * @see \ZeroBoiler\Analytics\DTO\EventContextEvent
+ *
+ * @since 1.0.0
  */
 final class EventEnvelopeService
 {

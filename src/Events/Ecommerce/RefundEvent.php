@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: refund
  * Meta: (no standard equivalent — sent as custom event)
+ *
+ * @since 1.0.0
  */
 final readonly class RefundEvent extends AnalyticsEvent
 {

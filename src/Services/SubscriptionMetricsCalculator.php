@@ -22,6 +22,8 @@ namespace ZeroBoiler\Analytics\Services;
  *
  * @see \ZeroBoiler\Analytics\Services\RevenueAnalyticsService
  * @see \ZeroBoiler\Analytics\Services\SaaSHealthScoreService
+ *
+ * @since 1.0.0
  */
 final class SubscriptionMetricsCalculator
 {

@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Drops events when analytics_storage consent is denied.
  * Returns null to signal the pipeline to abort the event.
+ *
+ * @since 1.0.0
  */
 final readonly class ConsentFilter
 {

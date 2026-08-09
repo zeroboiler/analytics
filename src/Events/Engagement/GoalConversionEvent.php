@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *     funnel_step?: int|null,
  *     ...array<string, mixed>
  * }
+ *
+ * @since 1.0.0
  */
 final class GoalConversionEvent extends AnalyticsEvent
 {

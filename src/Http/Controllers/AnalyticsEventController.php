@@ -66,6 +66,8 @@ use ZeroBoiler\Analytics\Services\EventCatalogValidator;
  *
  * Receives events from the JS client library and dispatches them
  * through the analytics pipeline to all configured providers.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsEventController extends Controller
 {

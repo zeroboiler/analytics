@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: invoice_generated (custom)
  * Meta: InvoiceGenerated (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class InvoiceGeneratedEvent extends AnalyticsEvent
 {

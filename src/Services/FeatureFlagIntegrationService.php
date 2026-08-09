@@ -24,6 +24,9 @@ use Closure;
 use Illuminate\Contracts\Cache\Repository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 
+/**
+ * @since 1.0.0
+ */
 final class FeatureFlagIntegrationService
 {
     /** @var AnalyticsManager */

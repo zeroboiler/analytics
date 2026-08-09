@@ -16,6 +16,8 @@ use Illuminate\Foundation\Http\FormRequest;
  * Used by SPA/SSR apps that want server-side page view tracking.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::pageview()
+ *
+ * @since 1.0.0
  */
 final class PageViewRequest extends FormRequest
 {

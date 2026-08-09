@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks when a user creates a new workspace or organization.
  * Differentiates from team_created (which is adding to existing workspace).
  * Important for measuring product-led growth and account expansion.
+ *
+ * @since 1.0.0
  */
 final readonly class WorkspaceCreatedEvent extends AnalyticsEvent
 {

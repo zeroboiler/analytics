@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\Services\EventPriorityGate;
  *
  * @see \ZeroBoiler\Analytics\Services\EventPriorityGate
  * @see \ZeroBoiler\Analytics\DTO\EventPriority
+ *
+ * @since 1.0.0
  */
 final class PriorityAwareFilter
 {

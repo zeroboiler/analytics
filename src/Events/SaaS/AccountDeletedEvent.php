@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * GA4: account_deleted
  * Meta: CustomEvent
  * PostHog: account_deleted
+ *
+ * @since 1.0.0
  */
 final readonly class AccountDeletedEvent extends AnalyticsEvent
 {

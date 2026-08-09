@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
  *       ->pipe(new ConsentFilter(true))
  *       ->pipe(new TimestampEnricher($sessionId))
  *       ->process($event);
+ *
+ * @since 1.0.0
  */
 final class EventPipeline
 {

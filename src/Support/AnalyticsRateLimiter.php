@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\RateLimiter;
  * Provides rate limiting for analytics API endpoints based on
  * client ID or IP address. Uses Laravel's built-in RateLimiter
  * with configurable keys, limits, and decay windows.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsRateLimiter
 {

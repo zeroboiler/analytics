@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
  * and provider mappings across Ecommerce, SaaS (including cohort), and Engagement categories.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, category: string}
+ *
+ * @since 1.0.0
  */
 final class EventCatalog
 {

@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Services\EventReportingService;
  * Optionally writes reports to disk for archival or integration with notification systems.
  *
  * @see \ZeroBoiler\Analytics\Services\EventReportingService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsScheduledReportCommand extends Command
 {

@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * this service validates the actual parameter values and types.
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaRegistry
+ *
+ * @since 1.0.0
  */
 final class EventPropertySchema
 {

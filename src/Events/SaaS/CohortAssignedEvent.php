@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * behavior, or other criteria.
  *
  * GA4: cohort_assigned
+ *
+ * @since 1.0.0
  */
 final readonly class CohortAssignedEvent extends AnalyticsEvent
 {

@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  * to detect anomalies without requiring external ML dependencies.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsMetrics
+ *
+ * @since 1.0.0
  */
 final class AnomalyDetectionService
 {

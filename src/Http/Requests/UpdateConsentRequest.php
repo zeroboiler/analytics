@@ -16,6 +16,8 @@ use Illuminate\Foundation\Http\FormRequest;
  * Accepts consent signals in Google Consent Mode v2 format.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::updateConsent()
+ *
+ * @since 1.0.0
  */
 final class UpdateConsentRequest extends FormRequest
 {

@@ -14,6 +14,8 @@ use Illuminate\Console\Command;
  *
  * Shows which providers are enabled, consent state, config values,
  * and registered event types — useful for debugging and monitoring.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsOverviewCommand extends Command
 {

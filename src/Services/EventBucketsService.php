@@ -22,6 +22,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * cache-based storage. Designed for real-time dashboard widgets.
  *
  * Configuration: `zeroboiler.analytics.event_buckets`
+ *
+ * @since 1.0.0
  */
 final class EventBucketsService
 {

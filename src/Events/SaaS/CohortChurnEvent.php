@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Essential for cohort-based churn analysis.
  *
  * GA4: cohort_churn
+ *
+ * @since 1.0.0
  */
 final readonly class CohortChurnEvent extends AnalyticsEvent
 {

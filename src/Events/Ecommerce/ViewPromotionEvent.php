@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: view_promotion
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class ViewPromotionEvent extends AnalyticsEvent
 {

@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Track when a user is exposed to a specific experiment variant.
  * Use this to feed experiment data into GA4, PostHog, or any A/B testing platform.
+ *
+ * @since 1.0.0
  */
 final class AbTestExposureEvent extends AnalyticsEvent
 {

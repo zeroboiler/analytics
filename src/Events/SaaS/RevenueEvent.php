@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Meta: Purchase (mapped)
  *
  * Use this to track MRR, ARR, one-time revenue, or any monetary event.
+ *
+ * @since 1.0.0
  */
 final readonly class RevenueEvent extends AnalyticsEvent
 {

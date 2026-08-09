@@ -22,6 +22,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * with atomic increment operations for thread-safe counting.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventWindowAggregator
 {

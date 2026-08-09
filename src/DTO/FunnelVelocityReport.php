@@ -16,6 +16,8 @@ namespace ZeroBoiler\Analytics\DTO;
  *
  * @phpstan-type VelocityStep array{step: string, count: int, drop_off_count: int, drop_off_rate: float, avg_seconds: float, median_seconds: float, p75_seconds: float, p90_seconds: float}
  * @phpstan-type VelocityTransition array{from: string, to: string, count: int, avg_seconds: float, median_seconds: float, conversion_rate: float}
+ *
+ * @since 1.0.0
  */
 final readonly class FunnelVelocityReport
 {

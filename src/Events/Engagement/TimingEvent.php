@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: timing (custom)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class TimingEvent extends AnalyticsEvent
 {

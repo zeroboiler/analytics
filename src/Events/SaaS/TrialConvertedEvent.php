@@ -12,6 +12,8 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  *
  * Captures the trial-to-paid conversion moment with trial duration,
  * plan details, and conversion source for cohort analysis.
+ *
+ * @since 1.0.0
  */
 final class TrialConvertedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {

@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Use with FunnelVelocityService to identify the slowest checkout step and optimize.
  *
  * @see \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents
+ *
+ * @since 1.0.0
  */
 final readonly class CheckoutAbandonEvent extends AnalyticsEvent
 {

@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * checkout flow bottlenecks.
  *
  * @see \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents
+ *
+ * @since 1.0.0
  */
 final readonly class AbandonedCartEvent extends AnalyticsEvent
 {

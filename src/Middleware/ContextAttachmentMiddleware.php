@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Merges a fixed set of properties (e.g. user_id, session_id, UTM params)
  * into every event's params before dispatch.
+ *
+ * @since 1.0.0
  */
 final readonly class ContextAttachmentMiddleware implements AnalyticsMiddlewareInterface
 {

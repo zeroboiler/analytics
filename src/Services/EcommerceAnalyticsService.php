@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\WishlistEvent;
  * Provides convenience methods for common ecommerce tracking scenarios.
  * Formats items correctly for both GA4 and Meta Pixel, then dispatches
  * to all enabled providers.
+ *
+ * @since 1.0.0
  */
 final class EcommerceAnalyticsService
 {

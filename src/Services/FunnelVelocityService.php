@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\FunnelVelocityReport;
  *
  * @phpstan-type FunnelStepData array{user_id: string, step: string, timestamp: float}
  * @phpstan-type UserJourneyData array{user_id: string, steps: list<array{step: string, timestamp: float}>}
+ *
+ * @since 1.0.0
  */
 final class FunnelVelocityService
 {

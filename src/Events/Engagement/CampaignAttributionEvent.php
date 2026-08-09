@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * of downstream conversion events to specific campaigns.
  *
  * GA4: campaign_attribution
+ *
+ * @since 1.0.0
  */
 final readonly class CampaignAttributionEvent extends AnalyticsEvent
 {

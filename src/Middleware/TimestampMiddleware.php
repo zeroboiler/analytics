@@ -13,6 +13,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Middleware that adds an auto-generated timestamp to events.
  *
  * Optionally overwrites any existing timestamp param.
+ *
+ * @since 1.0.0
  */
 final readonly class TimestampMiddleware implements AnalyticsMiddlewareInterface
 {

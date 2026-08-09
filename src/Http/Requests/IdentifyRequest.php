@@ -16,6 +16,8 @@ use Illuminate\Foundation\Http\FormRequest;
  * Links a client ID to an authenticated user and optionally sets user traits/properties.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::identify()
+ *
+ * @since 1.0.0
  */
 final class IdentifyRequest extends FormRequest
 {

@@ -176,6 +176,8 @@ use ZeroBoiler\Analytics\Services\RegionalConsentService;
  * schema registry, Blade directives, middleware, and API routes.
  *
  * @version 5.4.0
+ *
+ * @since 1.0.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {

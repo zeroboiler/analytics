@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * for path analysis, most common journeys, and journey comparison.
  *
  * @see \ZeroBoiler\Analytics\Services\FunnelAnalyticsService
+ *
+ * @since 1.0.0
  */
 final class UserJourneyService
 {

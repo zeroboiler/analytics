@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Use this to track navigation between distinct screens or views
  * within a single-page app (e.g. "Dashboard", "Settings", "Billing").
  * Complements page_view which tracks URL-based navigation.
+ *
+ * @since 1.0.0
  */
 final class ScreenViewEvent extends AnalyticsEvent
 {

@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Services\EventPriorityCalculator;
  * mapper, auto-tracking, and dedup configuration.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::healthCheck()
+ *
+ * @since 1.0.0
  */
 final class AnalyticsHealthCheckService
 {

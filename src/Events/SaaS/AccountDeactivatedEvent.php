@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: account_deactivated (custom)
  * Meta: AccountDeactivated (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class AccountDeactivatedEvent extends AnalyticsEvent
 {

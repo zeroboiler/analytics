@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  * Outputs the full event catalog with names, categories, classes, and
  * cross-provider mappings. Useful for generating client-side type definitions,
  * API documentation, or data dictionary exports.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsExportCommand extends Command
 {

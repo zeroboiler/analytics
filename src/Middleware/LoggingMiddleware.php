@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Middleware that logs all events passing through (for debugging).
  *
  * Typically used in debug/development mode. Always passes events through.
+ *
+ * @since 1.0.0
  */
 final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
 {

@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * payment recovery rate calculations.
  *
  * @phpstan-import-type EventParams from AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final readonly class BillingRetryEvent extends AnalyticsEvent
 {

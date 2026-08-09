@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * GA4: subscription_cancelled
  * Meta: CancelSubscription
  * PostHog: subscription_cancelled
+ *
+ * @since 1.0.0
  */
 final readonly class SubscriptionCancelledEvent extends AnalyticsEvent
 {

@@ -22,6 +22,8 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
  * actions: reject, sample, or throttle events.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController
+ *
+ * @since 1.0.0
  */
 final class EventBudgetService
 {

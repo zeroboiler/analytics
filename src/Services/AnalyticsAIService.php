@@ -26,6 +26,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * @phpstan-type AnomalyRecord array{event_name: string, expected: float, actual: float, z_score: float, severity: 'low'|'medium'|'high'|'critical', detected_at: string}
  * @phpstan-type SmartInsight array{type: string, title: string, description: string, confidence: float, action_items: list<string>, affected_events?: list<string>, metric?: string}
  * @phpstan-type TrendPoint array{timestamp: string, value: float, moving_avg: float, lower_bound: float, upper_bound: float}
+ *
+ * @since 1.0.0
  */
 final class AnalyticsAIService
 {

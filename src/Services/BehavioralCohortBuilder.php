@@ -41,6 +41,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Cohorts are computed on-demand and cached for configurable TTL.
  * Ideal for powering in-product admin dashboards and marketing automation.
+ *
+ * @since 1.0.0
  */
 final class BehavioralCohortBuilder
 {

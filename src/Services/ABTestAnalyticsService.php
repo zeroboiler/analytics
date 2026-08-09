@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * Configuration: `zeroboiler.analytics.ab_tests`
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager::abTestExposure()
+ *
+ * @since 1.0.0
  */
 final class ABTestAnalyticsService
 {

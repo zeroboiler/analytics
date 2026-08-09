@@ -29,6 +29,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *   zeroboiler.analytics.anonymization.event_rules (per-event field rules)
  *
  * @see \ZeroBoiler\Analytics\DTO\AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final class AnalyticsAnonymizationService
 {

@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * ring buffer with cursor-based consumption.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController
+ *
+ * @since 1.0.0
  */
 final class EventStreamService
 {

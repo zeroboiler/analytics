@@ -33,6 +33,8 @@ use Illuminate\Support\Facades\Log;
  *
  * @see \ZeroBoiler\Analytics\Services\EventAlertRulesService
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class NotificationWebhookService
 {

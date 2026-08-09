@@ -16,6 +16,8 @@ use Illuminate\Foundation\Http\FormRequest;
  * Accepts up to 25 events in a single request for efficient bulk tracking.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::batch()
+ *
+ * @since 1.0.0
  */
 final class BatchEventRequest extends FormRequest
 {

@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
  *
  * @see \ZeroBoiler\Analytics\Events\EventCatalog
  * @see \ZeroBoiler\Analytics\Support\EcommerceFormatConverter
+ *
+ * @since 1.0.0
  */
 final class EventCacheService
 {

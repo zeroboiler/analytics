@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * plan change that affects cohort assignment).
  *
  * GA4: cohort_migration
+ *
+ * @since 1.0.0
  */
 final readonly class CohortMigrationEvent extends AnalyticsEvent
 {

@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Used by the analytics dashboard for filtered views and reporting.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventTaxonomyService
 {

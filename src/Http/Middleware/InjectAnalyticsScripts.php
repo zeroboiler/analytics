@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  * successful status codes and non-JSON content types.
  *
  * Register as route middleware: `analytics.scripts`
+ *
+ * @since 1.0.0
  */
 final class InjectAnalyticsScripts implements HttpMiddlewareContract
 {

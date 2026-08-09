@@ -16,6 +16,8 @@ use Closure;
  * without requiring the full Illuminate framework to be present.
  * This interface mirrors Illuminate\Contracts\Http\Middleware but
  * uses simple types so standalone syntax checking succeeds.
+ *
+ * @since 1.0.0
  */
 interface HttpMiddlewareContract
 {

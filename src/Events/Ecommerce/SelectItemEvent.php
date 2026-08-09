@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: select_item
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class SelectItemEvent extends AnalyticsEvent
 {

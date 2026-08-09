@@ -19,6 +19,8 @@ namespace ZeroBoiler\Analytics\DTO;
  * from request context, or create manually for server-side tracking.
  *
  * @see \ZeroBoiler\Analytics\Services\EventEnvelopeService
+ *
+ * @since 1.0.0
  */
 final readonly class EventContextEvent
 {

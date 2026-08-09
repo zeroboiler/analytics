@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: file_download
  * Meta: ExportData
+ *
+ * @since 1.0.0
  */
 final readonly class ExportEvent extends AnalyticsEvent
 {

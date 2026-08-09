@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * and any downstream data warehouse for cohort analysis.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class CohortAnalyticsService
 {

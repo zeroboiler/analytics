@@ -10,6 +10,9 @@ namespace ZeroBoiler\Analytics\Trackers;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
 
+/**
+ * @since 1.0.0
+ */
 interface TrackerInterface
 {
     /**

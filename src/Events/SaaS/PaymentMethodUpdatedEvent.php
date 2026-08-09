@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *     is_default?: bool,
  *     ...array<string, mixed>
  * }
+ *
+ * @since 1.0.0
  */
 final class PaymentMethodUpdatedEvent extends AnalyticsEvent
 {

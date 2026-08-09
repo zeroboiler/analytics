@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: custom event with the given name
  * Meta: custom event with the given name
+ *
+ * @since 1.0.0
  */
 final readonly class CustomEvent extends AnalyticsEvent
 {

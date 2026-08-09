@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * GA4: subscription_created
  * Meta: Subscribe
  * PostHog: subscription_created
+ *
+ * @since 1.0.0
  */
 final readonly class SubscriptionCreatedEvent extends AnalyticsEvent
 {

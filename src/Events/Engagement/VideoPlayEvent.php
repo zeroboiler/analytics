@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Use this to track onboarding video engagement, tutorial completion,
  * and product demo views in SaaS applications.
+ *
+ * @since 1.0.0
  */
 final readonly class VideoPlayEvent extends AnalyticsEvent
 {

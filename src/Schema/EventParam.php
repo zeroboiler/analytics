@@ -12,6 +12,8 @@ namespace ZeroBoiler\Analytics\Schema;
  *
  * Used within EventSchema to describe required and optional
  * event parameters with type validation and sanitization.
+ *
+ * @since 1.0.0
  */
 final readonly class EventParam
 {

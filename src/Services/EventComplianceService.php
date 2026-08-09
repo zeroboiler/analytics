@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Reports are cached for configurable TTL. Designed for compliance officers,
  * auditors, and privacy dashboards.
+ *
+ * @since 1.0.0
  */
 final class EventComplianceService
 {

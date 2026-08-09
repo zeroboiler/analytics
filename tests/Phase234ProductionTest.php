@@ -920,3 +920,27 @@ test('Phase 4: routes file has v4.2 adoption endpoints', function (): void {
     expect($content)->toContain('adoption/funnel');
     expect($content)->toContain('adoption/streak/{userId}/{featureName}');
 });
+
+test('Phase 4: all source files with class/interface/trait/enum declarations have @since annotation', function (): void {
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(__DIR__.'/../src', RecursiveDirectoryIterator::SKIP_DOTS),
+    );
+    $files = [];
+    foreach ($iterator as $file) {
+        if ($file->isFile() && $file->getExtension() === 'php') {
+            $files[] = $file->getPathname();
+        }
+    }
+
+    expect($files)->not->toBeEmpty();
+
+    foreach ($files as $file) {
+        $content = file_get_contents($file);
+        // Check if file declares a class, interface, trait, or enum
+        if (! preg_match('/(?:final\s+|abstract\s+|readonly\s+)?(?:class|interface|enum|trait)\s+\w+/', $content)) {
+            continue;
+        }
+        $relative = str_replace(__DIR__.'/../src/', '', $file);
+        expect($content, "@since annotation missing in {$relative}")->toContain('@since');
+    }
+});

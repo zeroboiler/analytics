@@ -22,6 +22,8 @@ namespace ZeroBoiler\Analytics\DTO;
  *
  * @see \ZeroBoiler\Analytics\Services\EventPriorityGate
  * @see \ZeroBoiler\Analytics\Pipeline\PriorityAwareFilter
+ *
+ * @since 1.0.0
  */
 enum EventPriority: string
 {

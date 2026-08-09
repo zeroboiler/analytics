@@ -19,6 +19,8 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
  * last-touch (conversion source), and linear multi-touch (weighted credit across all touchpoints).
  *
  * Configuration is read from `zeroboiler.analytics.attribution`.
+ *
+ * @since 1.0.0
  */
 final class UTMAttributionService
 {

@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * (positive for upgrades, negative for downgrades) and the reason.
  *
  * @phpstan-import-type EventParams from AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final readonly class SubscriptionValueChangedEvent extends AnalyticsEvent
 {

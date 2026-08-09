@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Log;
  * Supports retrieval as a timeline with ordering and metadata.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController
+ *
+ * @since 1.0.0
  */
 final class SessionReplayService
 {

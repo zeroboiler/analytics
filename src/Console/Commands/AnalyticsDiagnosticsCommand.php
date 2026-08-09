@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * provider setup, and validate the analytics pipeline integrity.
  *
  * @see \ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand
+ *
+ * @since 1.0.0
  */
 final class AnalyticsDiagnosticsCommand extends Command
 {

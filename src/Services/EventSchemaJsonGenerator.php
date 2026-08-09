@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * @see https://json-schema.org/draft/2020-12/json-schema-validation.html
  * @version 5.4.0
+ *
+ * @since 1.0.0
  */
 final class EventSchemaJsonGenerator
 {

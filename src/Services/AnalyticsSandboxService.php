@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Debugging: replay captured events against live providers
  *
  * @see \ZeroBoiler\Analytics\Services\AnalyticsReadinessService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsSandboxService
 {

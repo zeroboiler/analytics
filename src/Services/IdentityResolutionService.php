@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Log;
  *   5. On GDPR erasure request → forgetUser() removes all links
  *
  * @see \ZeroBoiler\Analytics\Tracking\UserIdentityTracker
+ *
+ * @since 1.0.0
  */
 final class IdentityResolutionService
 {

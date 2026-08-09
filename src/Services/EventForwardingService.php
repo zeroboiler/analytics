@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Configuration is read from `zeroboiler.analytics.forwarding`.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class EventForwardingService
 {

@@ -11,6 +11,8 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  * Fired when a previously cancelled subscription is resumed.
  *
  * Tracks reactivation patterns for churn analysis and win-back metrics.
+ *
+ * @since 1.0.0
  */
 final class SubscriptionResumedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {

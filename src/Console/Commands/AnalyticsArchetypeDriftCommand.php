@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Services\EventArchetypeService;
  *
  * @see \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService
  * @see \ZeroBoiler\Analytics\Services\EventArchetypeService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsArchetypeDriftCommand extends Command
 {

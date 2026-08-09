@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Complements RevenueEvent (which tracks total revenue) by specifically
  * capturing expansion signals for net revenue retention analysis.
+ *
+ * @since 1.0.0
  */
 final class ExpansionRevenueEvent extends AnalyticsEvent
 {

@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Configuration: `zeroboiler.analytics.revenue`, `zeroboiler.analytics.ecommerce`
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class SubscriptionLifecycleService
 {

@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Profile data is updated on every tracked event and can be used for
  * personalization, segmentation, and analytics dashboards.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsProfileService
 {

@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * (lower number = higher priority, executed first).
  *
  * @see AnalyticsMiddlewareStack
+ *
+ * @since 1.0.0
  */
 interface AnalyticsMiddlewareInterface
 {

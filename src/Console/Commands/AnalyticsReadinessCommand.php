@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
  *
  * Returns 0 if all required checks pass and score meets minimum threshold.
  * Returns 1 if any required check fails or score is below threshold.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsReadinessCommand extends Command
 {

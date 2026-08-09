@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Cache;
  *
  * @phpstan-type RiskSignal array{name: string, weight: float, value: float, max_value: float, score: float}
  * @phpstan-type ChurnRiskProfile array{user_id: string, overall_score: float, risk_level: 'low'|'medium'|'high'|'critical', signals: list<RiskSignal>, recommendation: string, probability_percent: float}
+ *
+ * @since 1.0.0
  */
 final class ChurnPredictionService
 {

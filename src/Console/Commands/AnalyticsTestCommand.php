@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Useful for verifying that API keys, measurement IDs, and access tokens
  * are correctly configured.Validates the response from each provider.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsTestCommand extends Command
 {

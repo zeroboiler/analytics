@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Only adds metadata if the key doesn't already exist on the event,
  * allowing client-sent values to take precedence.
+ *
+ * @since 1.0.0
  */
 final class EventMetadataEnricher
 {

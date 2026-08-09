@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\Log;
  * as analytics events, logged, or sent via webhook.
  *
  * @see \ZeroBoiler\Analytics\Services\AnomalyDetectionService
+ *
+ * @since 1.0.0
  */
 final class EventAlertRulesService
 {

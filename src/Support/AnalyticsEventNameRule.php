@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * checks against the event catalog and/or strict whitelist.
  *
  * @see \ZeroBoiler\Analytics\Events\EventCatalog
+ *
+ * @since 1.0.0
  */
 final class AnalyticsEventNameRule implements Rule
 {

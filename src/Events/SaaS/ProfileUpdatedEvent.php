@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: profile_updated (custom)
  * Meta: ProfileUpdated (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class ProfileUpdatedEvent extends AnalyticsEvent
 {

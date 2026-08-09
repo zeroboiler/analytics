@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * 'webhook_inbound' (external webhooks), 'lifecycle' (auto-mapped), 'test' (tests).
  *
  * Tags are prefixed with `_` to avoid collision with user params.
+ *
+ * @since 1.0.0
  */
 final class EventSourceTagger
 {

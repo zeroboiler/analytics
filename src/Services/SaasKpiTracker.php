@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * use a Redis or database cache driver.
  *
  * Configuration: `zeroboiler.analytics.saas_kpi`
+ *
+ * @since 1.0.0
  */
 final class SaasKpiTracker
 {

@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  *
  * In strict mode, events with invalid params are dropped.
  * In permissive mode, events are sanitized but still dispatched.
+ *
+ * @since 1.0.0
  */
 final readonly class SchemaValidationMiddleware implements AnalyticsMiddlewareInterface
 {

@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  *
  * Suitable for SaaS deployments that need to control analytics volume
  * per customer or per API consumer.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsRateLimitDashboardService
 {

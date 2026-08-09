@@ -20,6 +20,8 @@ use Illuminate\Support\Str;
  * attribution persistently for conversion funnel analysis.
  *
  * Used by the AnalyticsReferrerMiddleware for automatic referrer capture.
+ *
+ * @since 1.0.0
  */
 final class ReferrerTrackingService
 {

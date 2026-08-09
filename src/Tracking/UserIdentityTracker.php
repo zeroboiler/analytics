@@ -19,6 +19,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * When a user logs in or registers, this tracker associates their
  * authenticated user ID with their client tracking ID (from cookie/header).
  * This enables cross-device user identification in analytics providers.
+ *
+ * @since 1.0.0
  */
 final class UserIdentityTracker
 {

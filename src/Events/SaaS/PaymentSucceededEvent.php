@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: payment_succeeded (custom)
  * Meta: PaymentSucceeded (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class PaymentSucceededEvent extends AnalyticsEvent
 {

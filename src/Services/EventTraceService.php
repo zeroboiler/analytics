@@ -29,6 +29,8 @@ use ZeroBoiler\Analytics\DTO\TraceContext;
  * to avoid collision with user-provided parameters.
  *
  * @see \ZeroBoiler\Analytics\DTO\TraceContext
+ *
+ * @since 1.0.0
  */
 final class EventTraceService
 {

@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * Privacy-first: coordinates are bucketed into grid cells (default 50px)
  * to prevent tracking exact click positions, complying with GDPR data
  * minimization principles.
+ *
+ * @since 1.0.0
  */
 final class HeatmapAggregationService
 {

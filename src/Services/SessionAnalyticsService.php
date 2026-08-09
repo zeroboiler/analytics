@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * Provides session-based event counting, session summaries, and
  * session-level engagement metrics. Designed for dashboards and
  * real-time monitoring of user sessions.
+ *
+ * @since 1.0.0
  */
 final class SessionAnalyticsService
 {

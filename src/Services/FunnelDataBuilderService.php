@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * and builds pre-computed data structures for dashboard rendering.
  *
  * @see \ZeroBoiler\Analytics\Services\FunnelAnalyticsService
+ *
+ * @since 1.0.0
  */
 final class FunnelDataBuilderService
 {

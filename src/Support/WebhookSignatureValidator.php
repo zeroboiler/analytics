@@ -13,6 +13,8 @@ namespace ZeroBoiler\Analytics\Support;
  * Validates incoming webhook payloads against an expected signature
  * using the configured secret. Supports both raw body and JSON payload
  * verification. Used by the WebhookTracker and for incoming webhook routes.
+ *
+ * @since 1.0.0
  */
 final class WebhookSignatureValidator
 {

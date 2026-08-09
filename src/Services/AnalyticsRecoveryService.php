@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * - Automatic recovery eligibility scoring for DLQ events
  *
  * Wraps DeadLetterQueueService with enterprise-grade recovery management.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsRecoveryService
 {

@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * with custom step names and metadata.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class FunnelAnalyticsService
 {

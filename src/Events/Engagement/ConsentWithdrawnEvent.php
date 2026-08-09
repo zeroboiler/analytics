@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * server should immediately stop tracking the user for withdrawn purposes.
  *
  * @see https://zeroboiler.dev/docs/analytics/privacy
+ *
+ * @since 1.0.0
  */
 final class ConsentWithdrawnEvent extends AnalyticsEvent
 {

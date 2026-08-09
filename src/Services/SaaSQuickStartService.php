@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * with sensible defaults.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class SaaSQuickStartService
 {

@@ -18,6 +18,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * event totals, and unique users per UTM combination.
  *
  * Configuration: `zeroboiler.analytics.utm_aggregation`
+ *
+ * @since 1.0.0
  */
 final class UtmAggregationService
 {

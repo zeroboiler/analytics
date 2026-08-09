@@ -27,6 +27,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Per-user overrides
  * - Feature dependency enforcement
  * - Runtime gate checking with caching
+ *
+ * @since 1.0.0
  */
 final class AnalyticsGateService
 {

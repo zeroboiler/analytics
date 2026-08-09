@@ -15,6 +15,8 @@ namespace ZeroBoiler\Analytics\DTO;
  * trending events, conversion opportunities, and anomaly detection results.
  *
  * @phpstan-type InsightType 'trending'|'anomaly'|'funnel_drop'|'opportunity'|'warning'
+ *
+ * @since 1.0.0
  */
 final readonly class AnalyticsInsight
 {

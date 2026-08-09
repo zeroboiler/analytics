@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
  *
  * Tracks events server-side via the Plausible API event endpoint.
  * Supports custom events with properties.
+ *
+ * @since 1.0.0
  */
 final class PlausibleTracker implements TrackerInterface
 {

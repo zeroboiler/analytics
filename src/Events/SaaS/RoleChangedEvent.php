@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: role_changed (custom)
  * Meta: RoleChanged (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class RoleChangedEvent extends AnalyticsEvent
 {

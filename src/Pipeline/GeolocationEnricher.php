@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\Services\DeviceContextService;
  * - `ip2country`: Simple IP → country lookup (low overhead)
  * - `maxmind`: MaxMind GeoLite2 database (high accuracy, requires extension)
  * - `header`: Read pre-computed geo from reverse proxy headers (e.g., Cloudflare CF-IPCountry)
+ *
+ * @since 1.0.0
  */
 final class GeolocationEnricher
 {

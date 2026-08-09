@@ -24,6 +24,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * this service exports the static event catalog metadata and mappings.
  *
  * @see \ZeroBoiler\Analytics\Services\ExportService
+ *
+ * @since 1.0.0
  */
 final class EventExporterService
 {

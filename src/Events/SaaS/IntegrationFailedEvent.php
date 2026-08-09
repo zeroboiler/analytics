@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: integration_failed (custom)
  * Meta: IntegrationFailed (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class IntegrationFailedEvent extends AnalyticsEvent
 {

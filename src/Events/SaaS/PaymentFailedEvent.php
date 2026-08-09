@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: payment_failed (custom)
  * Meta: PaymentFailed (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class PaymentFailedEvent extends AnalyticsEvent
 {

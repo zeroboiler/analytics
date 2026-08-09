@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
  * GA4 and Meta Pixel formatting support.
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ *
+ * @since 1.0.0
  */
 final class RevenueAttributionService
 {

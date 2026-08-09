@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *   zeroboiler.analytics.journeys.definitions (array of journey configs)
  *
  * @see \ZeroBoiler\Analytics\DTO\AnalyticsEvent
+ *
+ * @since 1.0.0
  */
 final class SaaSJourneyService
 {

@@ -40,6 +40,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *   ],
  *
  * @see \ZeroBoiler\Analytics\Bus\AnalyticsDataBus
+ *
+ * @since 1.0.0
  */
 final class AnalyticsEventRouter
 {

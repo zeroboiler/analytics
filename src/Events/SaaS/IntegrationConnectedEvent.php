@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Meta: IntegrationConnected (custom)
  *
  * Use this to track ecosystem engagement and feature activation funnels.
+ *
+ * @since 1.0.0
  */
 final readonly class IntegrationConnectedEvent extends AnalyticsEvent
 {

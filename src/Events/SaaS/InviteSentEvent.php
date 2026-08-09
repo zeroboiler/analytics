@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Meta: InviteSent (custom)
  *
  * Use this to track team growth, collaboration activation, and viral loops.
+ *
+ * @since 1.0.0
  */
 final readonly class InviteSentEvent extends AnalyticsEvent
 {

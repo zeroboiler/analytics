@@ -13,6 +13,8 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  * Tracks pause patterns for retention analysis and revenue forecasting.
  * Common in SaaS with pause-resume functionality (e.g., seasonal businesses,
  * freelancers between projects).
+ *
+ * @since 1.0.0
  */
 final readonly class SubscriptionPausedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {

@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * analytics from impacting application performance or incurring excessive costs.
  *
  * Configuration is read from `zeroboiler.analytics.performance_budget`.
+ *
+ * @since 1.0.0
  */
 final class PerformanceBudgetService
 {

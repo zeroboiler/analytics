@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Trackers\GA4Tracker;
  *
  * Resolved from the container as a singleton; receives the GA4Tracker
  * instance from the AnalyticsManager.
+ *
+ * @since 1.0.0
  */
 final class GoogleAnalyticsService
 {

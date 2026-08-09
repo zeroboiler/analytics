@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: (custom error event)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class ErrorEvent extends AnalyticsEvent
 {

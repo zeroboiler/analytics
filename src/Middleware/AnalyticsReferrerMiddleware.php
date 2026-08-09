@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
  *   ->middleware(\ZeroBoiler\Analytics\Middleware\AnalyticsReferrerMiddleware::class)
  *
  * @see \ZeroBoiler\Analytics\Services\ReferrerTrackingService
+ *
+ * @since 1.0.0
  */
 final class AnalyticsReferrerMiddleware
 {

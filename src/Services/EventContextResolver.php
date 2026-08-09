@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\DTO\EventContext;
  * and `zeroboiler.analytics.geolocation`.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventContextResolver
 {

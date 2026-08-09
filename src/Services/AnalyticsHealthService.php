@@ -21,6 +21,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * console command by offering a reusable PHP API.
  *
  * @see \ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand
+ *
+ * @since 1.0.0
  */
 final class AnalyticsHealthService
 {

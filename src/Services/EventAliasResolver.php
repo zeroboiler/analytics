@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * (JS client, server-side, third-party integrations) before dispatch.
  *
  * @see \ZeroBoiler\Analytics\Events\EventCatalog
+ *
+ * @since 1.0.0
  */
 final class EventAliasResolver
 {

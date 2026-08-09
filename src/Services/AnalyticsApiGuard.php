@@ -23,6 +23,8 @@ use Illuminate\Http\Request;
  * to reject invalid or abusive requests early.
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class AnalyticsApiGuard
 {

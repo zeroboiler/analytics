@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Log;
  * - Explicit tenant ID in event params
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class TenantAnalyticsContext
 {

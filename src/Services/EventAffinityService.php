@@ -32,6 +32,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  *   Score = 1.0 = independent events (no correlation)
  *
  * @version 5.0.0
+ *
+ * @since 1.0.0
  */
 final class EventAffinityService
 {

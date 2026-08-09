@@ -19,6 +19,8 @@ use Illuminate\Support\Str;
  *
  * Complements the UserIdentityTracker by handling anonymous → authenticated
  * identity transitions and providing a stable identifier before login.
+ *
+ * @since 1.0.0
  */
 final class AnonymousIdTracker
 {

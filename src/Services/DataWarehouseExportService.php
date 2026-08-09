@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * and output to file or stream.
  *
  * @see \ZeroBoiler\Analytics\Services\ExportService
+ *
+ * @since 1.0.0
  */
 final class DataWarehouseExportService
 {

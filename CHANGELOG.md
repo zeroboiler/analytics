@@ -2,6 +2,15 @@
 
 All notable changes to the package will be documented in this file.
 
+## [5.6.0] - 2026-08-09
+
+### Added
+- `@since 1.0.0` annotations on all 343 source files with class/interface/trait/enum declarations
+- Phase 2-3-4 production test: glob-based `@since` verification across entire source tree
+
+### Changed
+- README version badge updated to 5.6.0
+
 ## [5.0.0] - 2026-08-09
 
 ### Added

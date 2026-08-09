@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: team_member_removed (custom)
  * Meta: TeamMemberRemoved (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class TeamMemberRemovedEvent extends AnalyticsEvent
 {

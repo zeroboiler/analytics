@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * GA4: plan_changed
  * Meta: CustomEvent
  * PostHog: plan_changed
+ *
+ * @since 1.0.0
  */
 final readonly class PlanChangedEvent extends AnalyticsEvent
 {

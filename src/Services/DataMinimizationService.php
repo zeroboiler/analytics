@@ -27,6 +27,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * @see \ZeroBoiler\Analytics\Middleware\PiiSanitizationMiddleware
  * @see \ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService
+ *
+ * @since 1.0.0
  */
 final class DataMinimizationService
 {

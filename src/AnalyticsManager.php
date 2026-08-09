@@ -33,6 +33,8 @@ use ZeroBoiler\Analytics\EventInterceptorRegistry;
  * as `zeroboiler.analytics`.
  *
  * @see \ZeroBoiler\Analytics\Facades\Analytics
+ *
+ * @since 1.0.0
  */
 final class AnalyticsManager
 {

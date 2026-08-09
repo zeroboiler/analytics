@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Tracks meaningful content consumption: reading percentage, time spent,
  * scroll milestones, and completion status for content-driven SaaS apps.
+ *
+ * @since 1.0.0
  */
 final readonly class ContentEngagementEvent extends AnalyticsEvent
 {

@@ -21,6 +21,8 @@ use Illuminate\Http\Request;
  *
  * All parsing is done without external dependencies — using regex
  * patterns for lightweight, zero-dependency User-Agent parsing.
+ *
+ * @since 1.0.0
  */
 final class DeviceContextService
 {

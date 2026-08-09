@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: click (custom)
  * Meta: (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class ClickEvent extends AnalyticsEvent
 {

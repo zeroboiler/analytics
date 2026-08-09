@@ -16,6 +16,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * were granted and the method of consent (banner, settings page, API).
  *
  * @see https://zeroboiler.dev/docs/analytics/privacy
+ *
+ * @since 1.0.0
  */
 final class ConsentGrantedEvent extends AnalyticsEvent
 {

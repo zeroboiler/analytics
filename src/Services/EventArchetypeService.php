@@ -30,6 +30,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * @see \ZeroBoiler\Analytics\Services\EventCorrelationService
  * @see \ZeroBoiler\Analytics\Services\FunnelAnalyticsService
+ *
+ * @since 1.0.0
  */
 final class EventArchetypeService
 {

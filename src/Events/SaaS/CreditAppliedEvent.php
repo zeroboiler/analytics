@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: credit_applied (custom)
  * Meta: CreditApplied (custom)
+ *
+ * @since 1.0.0
  */
 final readonly class CreditAppliedEvent extends AnalyticsEvent
 {

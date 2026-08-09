@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Used for D7, D14, D30, D60, D90 retention tracking.
  *
  * GA4: cohort_retention
+ *
+ * @since 1.0.0
  */
 final readonly class CohortRetentionEvent extends AnalyticsEvent
 {

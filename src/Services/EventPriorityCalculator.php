@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * gaps exist in their analytics instrumentation.
  *
  * @see https://en.wikipedia.org/wiki/AARRR
+ *
+ * @since 1.0.0
  */
 final class EventPriorityCalculator
 {

@@ -23,6 +23,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  *
  * @phpstan-type ImpactScore array{event_name: string, impact_score: float, correlation: float, sample_size: int, category: string, label: string}
  * @phpstan-type UserBehavior array{user_id: string, events: list<string>, converted: bool, retained: bool, revenue: float}
+ *
+ * @since 1.0.0
  */
 final class EventImpactService
 {

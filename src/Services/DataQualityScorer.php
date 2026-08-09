@@ -28,6 +28,8 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  *
  * @phpstan-type QualityDimension array{name: string, score: float, weight: float, issues: list<string>, max_score: float}
  * @phpstan-type QualityReport array{overall_score: float, dimensions: array<string, QualityDimension>, total_events_scored: int, last_updated: string, grade: string}
+ *
+ * @since 1.0.0
  */
 final class DataQualityScorer
 {

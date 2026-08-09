@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Auth;
  * - Custom properties
  *
  * This context can be merged into any analytics event before dispatch.
+ *
+ * @since 1.0.0
  */
 final class EventContextBuilder
 {

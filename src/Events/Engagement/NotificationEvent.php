@@ -15,6 +15,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Supports email, push, in-app, and SMS notification channels.
  * Useful for measuring notification engagement and deliverability.
+ *
+ * @since 1.0.0
  */
 final class NotificationEvent extends AnalyticsEvent
 {

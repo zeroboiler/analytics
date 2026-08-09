@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\Trackers\GTMTracker;
  *
  * Resolved from the container as a singleton; receives the GTMTracker
  * instance from the AnalyticsManager.
+ *
+ * @since 1.0.0
  */
 final class GoogleTagManagerService
 {

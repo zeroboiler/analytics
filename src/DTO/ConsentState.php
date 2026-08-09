@@ -15,6 +15,8 @@ namespace ZeroBoiler\Analytics\DTO;
  * personalization_storage, security_storage.
  *
  * Each signal is one of: 'granted', 'denied', or null (not set / provider default).
+ *
+ * @since 1.0.0
  */
 final readonly class ConsentState
 {

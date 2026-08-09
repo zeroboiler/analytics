@@ -16,6 +16,8 @@ use Illuminate\Foundation\Http\FormRequest;
  * Uses Laravel's FormRequest for proper separation of validation logic.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::track()
+ *
+ * @since 1.0.0
  */
 final class TrackEventRequest extends FormRequest
 {

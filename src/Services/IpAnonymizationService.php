@@ -25,6 +25,8 @@ use Illuminate\Http\Request;
  *   zeroboiler.analytics.gdpr.anonymize_ip (default: false)
  *   zeroboiler.analytics.gdpr.ip_mask_v4 (default: 2) — octets to preserve (e.g., 2 = keep 255.255.X.X)
  *   zeroboiler.analytics.gdpr.ip_mask_v6 (default: 48) — bits to preserve
+ *
+ * @since 1.0.0
  */
 final class IpAnonymizationService
 {

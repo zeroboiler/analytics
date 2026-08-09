@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  * - Provider IDs (GA4, GTM, Meta) — only if enabled
  * - Server-generated tracking ID (cookie-stored for client/server matching)
  * - Authenticated user ID (when available)
+ *
+ * @since 1.0.0
  */
 final class HandleInertiaAnalytics implements HttpMiddlewareContract
 {

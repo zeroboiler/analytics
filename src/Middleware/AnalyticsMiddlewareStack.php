@@ -32,6 +32,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *   }
  *
  * @see AnalyticsMiddlewareInterface
+ *
+ * @since 1.0.0
  */
 final class AnalyticsMiddlewareStack implements \Countable
 {

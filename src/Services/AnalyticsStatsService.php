@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Queue\EventReplayQueue;
  * dispatch/failure counters from AnalyticsMetrics and replay queue status.
  *
  * Designed to power the GET /api/analytics/stats endpoint.
+ *
+ * @since 1.0.0
  */
 final class AnalyticsStatsService
 {

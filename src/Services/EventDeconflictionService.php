@@ -20,6 +20,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Useful in multi-provider deployments to ensure consistent tracking
  * across GA4, GTM, Meta Pixel, Plausible, and PostHog.
+ *
+ * @since 1.0.0
  */
 final class EventDeconflictionService
 {

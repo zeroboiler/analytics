@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * data warehouse integration pipelines.
  *
  * @see \ZeroBoiler\Analytics\Services\EventStreamService
+ *
+ * @since 1.0.0
  */
 final class ExportService
 {

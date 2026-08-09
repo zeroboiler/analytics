@@ -19,6 +19,8 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Uses a region-to-regulation mapping with configurable override lists.
  *
  * @version 5.4.0
+ *
+ * @since 1.0.0
  */
 final class RegionalConsentService
 {

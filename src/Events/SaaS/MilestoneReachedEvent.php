@@ -13,6 +13,8 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  * Examples: first project created, 100th login, 1-year anniversary,
  * team size reached 10, API calls exceeded threshold.
  * Used for activation analysis and engagement scoring.
+ *
+ * @since 1.0.0
  */
 final class MilestoneReachedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {

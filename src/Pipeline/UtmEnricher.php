@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * These are attached as `utm_source`, `utm_medium`, `utm_campaign`,
  * `utm_term`, and `utm_content` parameters on every event.
+ *
+ * @since 1.0.0
  */
 final readonly class UtmEnricher
 {

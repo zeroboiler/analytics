@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\AnalyticsMetrics;
  * For persistent storage, use a Redis or database cache driver.
  *
  * Configuration: `zeroboiler.analytics.snapshots`
+ *
+ * @since 1.0.0
  */
 final class AnalyticsSnapshotService
 {

@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * When analytics consent is denied, all events are dropped.
  * When ad consent is denied, advertising-related events are dropped.
+ *
+ * @since 1.0.0
  */
 final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterface
 {

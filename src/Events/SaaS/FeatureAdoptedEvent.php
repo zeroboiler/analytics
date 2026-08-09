@@ -17,6 +17,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * that correlates with activation, retention, or expansion revenue.
  *
  * Use for tracking product-led growth activation milestones.
+ *
+ * @since 1.0.0
  */
 final class FeatureAdoptedEvent extends AnalyticsEvent
 {

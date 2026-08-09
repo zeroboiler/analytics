@@ -69,6 +69,8 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent;
  * Configuration is read from `zeroboiler.analytics.lifecycle`.
  *
  * @see \ZeroBoiler\Analytics\Tracking\ServerSideTracker
+ *
+ * @since 1.0.0
  */
 final class LifecycleEventMapper
 {

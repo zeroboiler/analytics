@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Useful for tracking product interest and retargeting campaigns.
  * Maps to GA4 'add_to_wishlist' and Meta 'AddToWishlist'.
+ *
+ * @since 1.0.0
  */
 final class WishlistEvent extends AnalyticsEvent
 {

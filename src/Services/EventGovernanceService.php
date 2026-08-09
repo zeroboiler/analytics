@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * @phpstan-type EventRegistration array{name: string, category: string, owner: string, description: string, status: 'draft'|'active'|'deprecated'|'retired', required_params: list<string>, optional_params: list<string>, created_at: string|null, deprecated_at: string|null, retired_at: string|null, version: int, schema_hash: string|null}
  * @phpstan-type GovernanceReport array{total_events: int, active: int, draft: int, deprecated: int, retired: int, naming_score: float, schema_coverage: float, duplicate_risk: int, governance_score: float}
+ *
+ * @since 1.0.0
  */
 final class EventGovernanceService
 {

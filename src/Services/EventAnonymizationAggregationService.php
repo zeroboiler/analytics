@@ -42,6 +42,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @see \ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService
  * @see \ZeroBoiler\Analytics\Services\DataMinimizationService
+ *
+ * @since 1.0.0
  */
 final class EventAnonymizationAggregationService
 {

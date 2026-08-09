@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\Log;
  * all event dispatch, even when consent is granted.
  *
  * @see https://hermes-agent.nousresearch.com/docs
+ *
+ * @since 1.0.0
  */
 final class TrackingPreferenceService
 {

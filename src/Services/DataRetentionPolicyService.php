@@ -26,6 +26,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - SaaS lifecycle events: 90 days
  * - E-commerce events: 365 days (for tax/legal compliance)
  * - PII data: 0 days (no storage — use immediate processing)
+ *
+ * @since 1.0.0
  */
 final class DataRetentionPolicyService
 {

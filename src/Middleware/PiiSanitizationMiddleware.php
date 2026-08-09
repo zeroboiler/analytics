@@ -18,6 +18,8 @@ use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareInterface;
  * and sanitization strategies (hash, remove, mask).
  *
  * @see \ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareInterface
+ *
+ * @since 1.0.0
  */
 final class PiiSanitizationMiddleware implements AnalyticsMiddlewareInterface
 {

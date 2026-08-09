@@ -22,6 +22,8 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * - Disallowed patterns
  *
  * Configuration is read from `zeroboiler.analytics.governance.naming`.
+ *
+ * @since 1.0.0
  */
 final class EventNamingConventionService
 {

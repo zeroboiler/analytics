@@ -25,6 +25,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *     customer_id?: string|null,
  *     ...array<string, mixed>
  * }
+ *
+ * @since 1.0.0
  */
 final class SlaBreachEvent extends AnalyticsEvent
 {

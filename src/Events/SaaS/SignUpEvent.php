@@ -14,6 +14,8 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * GA4: sign_up
  * Meta: CompleteRegistration
+ *
+ * @since 1.0.0
  */
 final readonly class SignUpEvent extends AnalyticsEvent
 {
