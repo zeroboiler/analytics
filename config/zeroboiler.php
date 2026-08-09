@@ -728,10 +728,32 @@ return [
                 // ── GDPR & Account Deletion (v2.90.0) ────────
                 'account.deleted' => true,
 
-                // ── Subscription & Trial (v2.90.0) ────────────
-                'subscription.created' => true,
-                'subscription.cancelled' => true,
+                // ── GDPR Consent Lifecycle (v2.93.0) ─────────
+                'consent.granted' => true,
+                'consent.withdrawn' => true,
+                'gdpr.data_subject_access_request' => true,
+                'gdpr.data_erasure_completed' => true,
+
+                // ── Plan Management (v2.93.0) ────────────────
+                'plan.changed' => true,
+                'billing.payment_method_updated' => false,
+
+                // ── Subscription & Trial Expansion (v2.93.0) ─
+                'subscription.created_new' => true,
+                'subscription.cancelled_new' => true,
+                'subscription.resumed' => true,
                 'trial.expired' => true,
+
+                // ── Conversion & Growth (v2.76) ─────────────
+                'trial.converted' => true,
+                'subscription.value_changed' => true,
+                'usage.quota_reached' => true,
+                'billing.retry' => true,
+                'subscription.paused' => true,
+                'workspace.created' => true,
+                'milestone.reached' => true,
+                'team.invite_accepted' => true,
+                'subscription.trial_end_reminder' => false,
             ],
             /*
             | Custom event mappings (merged with or override defaults).
