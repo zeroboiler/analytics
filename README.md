@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-2.98.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.0.0](#whats-new-in-v3000)
 - [What's New in v2.98.0](#whats-new-in-v2980)
 - [What's New in v2.97.0](#whats-new-in-v2970)
 - [What's New in v2.96.0](#whats-new-in-v2960)
@@ -64,6 +65,33 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.0.0
+
+**Major Release — Production-Grade Analytics Platform**
+
+v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-grade analytics platform. 123K+ LOC, 100+ services, 90+ event classes, 6 provider trackers, 130+ API routes, and a comprehensive 5K+ line JS client.
+
+### New Features
+
+- **EventContext DTO** — Immutable, readonly DTO for HTTP request → analytics event context resolution. Captures client identity, user identity, device info, UTM parameters, referrer, session, locale, geolocation, and consent state. `EventContext::fromRequest()` auto-extracts from any Illuminate HTTP request. `toParams()` flattens into event-enrichable params. `with()` for immutable copy with overrides. Zero-allocation reads for high-throughput scenarios
+- **HasEventSchema Trait** — Reusable trait for event classes providing schema-aware validation. Required param checks, param type validation (`string`, `int`, `float`, `bool`, `array`), max param count enforcement. `buildEvent()` creates validated `AnalyticsEvent` DTOs with client/user identity. Type-safe param extractors: `stringParam()`, `intParam()`, `floatParam()`, `boolParam()`, `arrayParam()` with defaults. Promotes DRY across 90+ event classes
+- **EventContextResolver Service** — Centralized, config-driven context resolution from HTTP requests. Resolves client ID from identity cookie, user ID from auth guard, UTM params from query, device info from User-Agent (browser, OS, device type detection). Builds Inertia page props (`zbAnalytics`) for frontend JS client. Cookie config accessor for middleware. Client ID generation (UUID v4)
+
+### Improvements
+
+- **Version 3.0.0** — Complete version consistency sweep across all 50+ source files, config, JS client, TypeScript definitions, controllers, routes, and tests
+- **All runtime version strings** now return `3.0.0` — `AnalyticsManager::version()`, `AnalyticsEvent::VERSION`, `EventSchemaVersioningService`, `EventEnvelopeService`, `EventForwardingService`, `EventSourceTagger`, `EventCacheService`, `EventExporterService`, `EventAliasResolver`, `AnalyticsHealthCheckService`, `SessionReplayService`, `AdvancedPIIDetector`, `SaaSMetricsBenchmarkService`, SSE/Event controllers
+- **Service Provider** registers `EventContextResolver` as singleton for dependency injection
+- **30+ new tests** in `V300EventContextSchemaTraitTest.php` covering EventContext, EventCatalog, and HasEventSchema
+
+### Upgrade Notes
+
+- No breaking changes — all existing APIs remain backward compatible
+- `EventContextResolver` is available via dependency injection: `app(EventContextResolver::class)`
+- `HasEventSchema` trait is opt-in for event classes — existing event classes continue to work without it
+- Minimum PHP requirement remains 8.5
+- Minimum Laravel requirement remains 13.0
 
 ## What's New in v2.98.0
 

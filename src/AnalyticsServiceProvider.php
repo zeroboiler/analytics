@@ -128,9 +128,10 @@ use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 use ZeroBoiler\Analytics\Services\EventOrchestrationService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
+use ZeroBoiler\Analytics\Services\EventContextResolver;
 
 /**
- * @version 2.99.0
+ * @version 3.0.0
  */
 
 /**
@@ -139,7 +140,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 2.99.0
+ * @version 3.0.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -680,6 +681,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventOrchestrationService($manager, $config);
+        });
+
+        // Event context resolver for centralized request → context extraction (v3.0.0)
+        $this->app->singleton(EventContextResolver::class, function (Application $app): EventContextResolver {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventContextResolver($config);
         });
 
         // Analytics insight aggregator for automated event intelligence (v2.99.0)

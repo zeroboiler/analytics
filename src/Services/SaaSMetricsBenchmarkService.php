@@ -776,7 +776,7 @@ final class SaaSMetricsBenchmarkService
             'total_metrics' => $this->benchmarkCount(),
             'categories' => $this->availableCategories(),
             'industry' => $this->industry,
-            'version' => '2.98.0',
+            'version' => '3.0.0',
         ];
     }
 

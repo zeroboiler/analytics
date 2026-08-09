@@ -25,7 +25,7 @@ final class AdvancedPIIDetector
     /**
      * Version for internal tracking.
      */
-    public const VERSION = '2.98.0';
+    public const VERSION = '3.0.0';
 
     /**
      * Built-in regex patterns for common PII types.

@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [3.0.0] - 2026-08-09
+
+### Added
+- **EventContext DTO** — Immutable readonly DTO for HTTP request → analytics event context resolution. Client/user identity, device info, UTM params, referrer, session, locale, geolocation, consent state. `fromRequest()`, `toParams()`, `with()`, `identity()`, `hasUser()`, `hasClientId()`, `hasUtm()`, `hasConsent()`
+- **HasEventSchema Trait** — Reusable schema-aware validation trait for event classes. Required params, type checking (`string/int/float/bool/array`), max param enforcement. `validateParams()`, `isValid()`, `buildEvent()`, type-safe param extractors with defaults
+- **EventContextResolver Service** — Centralized config-driven context resolution. Client ID from cookie, user ID from auth, UTM from query, device detection (browser/OS/type), Inertia props builder, cookie config accessor, UUID v4 client ID generation
+- **V300EventContextSchemaTraitTest** — 30+ tests covering EventContext, EventCatalog, and HasEventSchema
+
+### Changed
+- **Version 3.0.0** — Complete version consistency sweep across 50+ source files: AnalyticsManager, ServiceProvider, config, JS client, TypeScript definitions, all controllers, all services, routes, README, CHANGELOG
+- **No breaking changes** — All existing APIs remain backward compatible
+
 ## [2.98.0] - 2026-08-08
 
 ### Added
