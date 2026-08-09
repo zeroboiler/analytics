@@ -522,7 +522,7 @@ describe('AnalyticsQueryBuilder', function (): void {
     });
 });
 
-describe('v5.7.0 Integration', function (): void {
+describe('v5.9.0 Integration', function (): void {
     it('EventQueryEngine and AnalyticsQueryBuilder are both registered', function (): void {
         expect(app()->bound(EventQueryEngine::class))->toBeTrue();
         expect(app()->bound(AnalyticsQueryBuilder::class))->toBeTrue();

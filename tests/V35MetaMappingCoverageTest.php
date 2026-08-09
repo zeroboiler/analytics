@@ -130,7 +130,7 @@ describe('V35 Meta Pixel Mapping Coverage', function () {
                 JSON_THROW_ON_ERROR,
             );
 
-            expect($composer['version'])->toBe('5.7.0');
+            expect($composer['version'])->toBe('5.9.0');
         });
     });
 });

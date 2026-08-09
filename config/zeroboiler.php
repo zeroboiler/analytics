@@ -2687,7 +2687,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Event Query Engine (v5.7.0)
+        | Event Query Engine (v5.9.0)
         |--------------------------------------------------------------------------
         |
         | Cache-backed structured query engine for dashboard analytics.
@@ -2759,7 +2759,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Regional Consent Detection (v5.7.0)
+        | Regional Consent Detection (v5.9.0)
         |--------------------------------------------------------------------------
         |
         | When enabled, automatically applies GDPR-compliant consent defaults
@@ -2788,7 +2788,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Event Routing (v5.7.0)
+        | Event Routing (v5.9.0)
         |--------------------------------------------------------------------------
         |
         | When enabled, routes specific events to designated providers only.
@@ -2818,7 +2818,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Provider Health Monitor (v5.7.0)
+        | Provider Health Monitor (v5.9.0)
         |--------------------------------------------------------------------------
         |
         | Monitors per-provider dispatch success/failure rates and computes

@@ -390,22 +390,22 @@ describe('v2.62.0 — Campaign ROI, Data Minimization, Telemetry API, Privacy-Fi
     describe('Version consistency', function (): void {
         test('composer.json version is 2.62.0', function (): void {
             $json = json_decode(file_get_contents(__DIR__.'/../../composer.json'), true);
-            expect($json['version'])->toBe('5.7.0');
+            expect($json['version'])->toBe('5.9.0');
         });
 
         test('JS client version is 2.62.0', function (): void {
             $js = file_get_contents(__DIR__.'/../../resources/js/analytics.js');
-            expect($js)->toContain("return '5.7.0';");
+            expect($js)->toContain("return '5.9.0';");
         });
 
         test('TypeScript definitions version is 2.62.0', function (): void {
             $ts = file_get_contents(__DIR__.'/../../resources/js/analytics.d.ts');
-            expect($ts)->toContain('@version 5.7.0');
+            expect($ts)->toContain('@version 5.9.0');
         });
 
         test('AnalyticsManager version is 2.62.0', function (): void {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-            expect($manager->version())->toBe('5.7.0');
+            expect($manager->version())->toBe('5.9.0');
         });
 
         test('no stale 2.61.0 references in src', function (): void {

@@ -7646,7 +7646,7 @@ final class AnalyticsEventController extends Controller
         ]);
     }
 
-    // ─── Event Routing Endpoints (v5.7.0) ──────────────────────────────
+    // ─── Event Routing Endpoints (v5.9.0) ──────────────────────────────
 
     /**
      * Get event routing summary.
@@ -7810,7 +7810,7 @@ final class AnalyticsEventController extends Controller
         ]);
     }
 
-    // ─── Provider Health Endpoints (v5.7.0) ───────────────────────────
+    // ─── Provider Health Endpoints (v5.9.0) ───────────────────────────
 
     /**
      * Get provider health summary.

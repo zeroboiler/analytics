@@ -854,7 +854,7 @@ final class EcommerceFormatConverter
         );
     }
 
-    // ── Universal GA4 → Plausible Converter (v5.7.0) ─────────────────
+    // ── Universal GA4 → Plausible Converter (v5.9.0) ─────────────────
 
     /**
      * Universal GA4 → Plausible converter for any e-commerce event.
@@ -891,7 +891,7 @@ final class EcommerceFormatConverter
         };
     }
 
-    // ── Universal Provider Format Conversion (v5.7.0) ────────────────
+    // ── Universal Provider Format Conversion (v5.9.0) ────────────────
 
     /**
      * Convert any e-commerce event from GA4 format to a target provider format.

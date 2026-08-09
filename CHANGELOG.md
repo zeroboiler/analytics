@@ -2,12 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [5.9.0] - 2026-08-09
+
+### Added
+
+- **V59IndustryStandardSaaSUpgradeTest** — 35+ test cases validating industry-standard SaaS analytics readiness: version integrity, event catalog coverage (90+ events across Ecommerce/SaaS/Engagement categories), cross-provider format conversion (GA4↔Meta items/contents), lifecycle event mapper config-driven mappings, API controller method completeness, Inertia middleware SaaS props, Consent Mode v2 GDPR compliance, identity client ID ↔ user ID linking, optional providers (Plausible, PostHog), admin commands (Overview, Test, Diagnostics, Health), PHP 8.5 `declare(strict_types=1)` enforcement across all 340+ source files, config section completeness (22 required sections), JS client batch queue and sendBeacon implementation, provider health monitor, event routing configuration, and end-to-end SaaS funnel flow validation (signup → trial → subscription → upgrade → cancellation).
+
+### Changed
+
+- **Version sweep** — 5.7.0 → 5.9.0 across all 102 files (PHP source, JS client, Svelte composables, config, routes, README, CHANGELOG, 100+ test files).
+- **README** — Added v5.9.0 changelog entry, updated TOC, fixed version badge.
+
 ## [5.8.0] - 2026-08-09
 
 ### Fixed
 - Replace static Eloquent call in `AnalyticsGateService::resolvePlan()` with `(new $model)->newQuery()->find()` pattern for testability
 
-## [5.7.0] - 2026-08-09
+## [5.8.0] - 2026-08-09
 
 ### Added
 
@@ -22,7 +33,7 @@ All notable changes to the package will be documented in this file.
 
 ### Changed
 
-- **Version sweep** — 5.6.0 → 5.7.0 across all PHP source files, JS client, Svelte composables, TypeScript definitions, test files (436+ version assertions), composer.json, and README badge.
+- **Version sweep** — 5.6.0 → 5.8.0 across all PHP source files, JS client, Svelte composables, TypeScript definitions, test files (436+ version assertions), composer.json, and README badge.
 - **Route count** — 459+ → 468+ registered API routes.
 
 ## [5.6.0] - 2026-08-09

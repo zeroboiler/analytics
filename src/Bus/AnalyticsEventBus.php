@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Thread-safe for single-process PHP execution (not for multi-process/shared-memory).
  *
- * @version 5.7.0
+ * @version 5.9.0
  *
  * @since 1.0.0
  */

@@ -245,7 +245,7 @@ test('EventCatalog validate passes with new events', function (): void {
 // ─── Version Consistency ───
 
 test('Version consistency across all files', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.7.0');
+    expect(AnalyticsEvent::VERSION)->toBe('5.9.0');
 
     // Event count consistency
     expect(EventCatalog::count())->toBe(90);
