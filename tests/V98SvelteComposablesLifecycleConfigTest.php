@@ -12,8 +12,8 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
-test('v3.4.0 version is set correctly', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('3.4.0');
+test('v3.5.0 version is set correctly', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('3.5.0');
 });
 
 test('lifecycle config contains all DEFAULT_MAPPINGS event toggles', function (): void {
@@ -175,14 +175,14 @@ test('Svelte composables use $state and $derived runes', function (): void {
     expect($content)->toContain('$effect(');
 });
 
-test('JS client version is 3.4.0', function (): void {
+test('JS client version is 3.5.0', function (): void {
     $content = file_get_contents(__DIR__.'/../resources/js/analytics.js');
 
-    expect($content)->toContain("'3.4.0'");
+    expect($content)->toContain("'3.5.0'");
 });
 
-test('composer.json version is 3.4.0', function (): void {
+test('composer.json version is 3.5.0', function (): void {
     $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 
-    expect($composer['version'])->toBe('3.4.0');
+    expect($composer['version'])->toBe('3.5.0');
 });

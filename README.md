@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-3.4.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-3.5.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,12 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v3.5.0](#whats-new-in-v3500)
+- [What's New in v3.4.0](#whats-new-in-v3400)
+- [What's New in v3.3.1](#whats-new-in-v3331)
+- [What's New in v3.3.0](#whats-new-in-v3300)
+- [What's New in v3.2.0](#whats-new-in-v3200)
+- [What's New in v3.1.0](#whats-new-in-v3100)
 - [What's New in v3.0.0](#whats-new-in-v3000)
 - [What's New in v2.98.0](#whats-new-in-v2980)
 - [What's New in v2.97.0](#whats-new-in-v2970)
@@ -65,6 +71,87 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+## What's New in v3.5.0
+
+**SaaS Starter Industry Standard Final Upgrade — Full 12-Point Checklist Closure**
+
+v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete, industry-standard SaaS analytics platform. All 12 features from the original SaaS starter upgrade roadmap are fully implemented, tested, and documented. This release adds the final missing README documentation for v3.2–v3.4 and a comprehensive validation test suite.
+
+### Changes
+
+- **README Documentation** — Added complete "What's New" sections for v3.2.0 (Identity Resolution + Event Debounce), v3.3.0 (Svelte 5 Composables + Lifecycle Config Sync), v3.3.1 (Production Readiness Audit), and v3.4.0 (EventCollection DTO + AnalyticsEventDispatcher + Plausible/PostHog Composables). Updated Table of Contents with all version entries
+- **Comprehensive Validation Test** (`V98SaaSStarterIndustryStandardFinalTest.php`) — 60+ assertions validating all 12 SaaS starter features: Event Catalog completeness (100+ events across 3 categories), Server-Side Lifecycle Mapper (40+ config-driven mappings), Inertia middleware prop injection (18+ prop groups), API controller coverage (130+ routes), JS client API (trackEvent, trackPageView, identify, consent, ecommerce, batch), Event Queue async dispatch, User Identity Linking (client ↔ user), E-commerce format conversion (GA4 ↔ Meta), Admin commands (overview, test, health, behavioral, dashboard), Config expansion (20+ sections), Optional providers (Plausible + PostHog), and Test coverage (150 test files)
+- **Version Bump** — `AnalyticsEvent::VERSION` updated to `3.5.0` across all source files, JS client, and Svelte composables
+
+### Upgrade Notes
+
+- No breaking changes — all existing APIs remain backward compatible
+- README now fully documents all releases from v2.88.0 through v3.5.0
+- Total: 73.5K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 150 test files, 130+ API routes, 100+ event classes, 6 provider trackers
+
+## What's New in v3.4.0
+
+**EventCollection DTO, AnalyticsEventDispatcher, Plausible/PostHog Svelte Composables**
+
+v3.4.0 adds batch-oriented event processing, a dedicated dispatcher service, and Svelte 5 composable expansions for optional analytics providers.
+
+### New Features
+
+- **EventCollection DTO** — Immutable, readonly DTO for grouping multiple `AnalyticsEvent` instances for batch processing. `fromEvents()`, `count()`, `names()`, `toArray()`, `filterByPriority()`, `merge()`. Type-safe batch operations for API controller and queue workers
+- **AnalyticsEventDispatcher** — Dedicated service for dispatching single events and event collections with pipeline processing. `dispatch()`, `dispatchCollection()`, `dispatchAsync()`. Configurable async/sync dispatch via queue settings
+- **Plausible Svelte Composables** — `usePlausible()`, `trackPlausibleEvent()`, `trackPlausiblePageView()`, `trackPlausibleCustomEvent()` — Reactive Svelte 5 composables for Plausible Analytics integration
+- **PostHog Svelte Composables** — `usePostHog()`, `trackPostHogEvent()`, `trackPostHogIdentify()`, `trackPostHogAlias()`, `trackPostHogCapture()` — Reactive Svelte 5 composables for PostHog integration with feature flag support
+- **Dispatcher Config** — `zeroboiler.analytics.dispatcher` config section for async/sync mode, pipeline toggles, and batch size limits
+
+### Tests
+
+- New tests in `V340EventDispatcherCollectionComposablesTest.php` covering EventCollection, AnalyticsEventDispatcher, and all new Svelte composables
+
+## What's New in v3.3.1
+
+**Phase 2-3-4 Production Readiness Audit**
+
+v3.3.1 is a maintenance release addressing production readiness across the entire platform.
+
+### Changes
+
+- Fixed syntax error in `AnalyticsInsightAggregator` (malformed array closing bracket)
+- Updated 119 stale version string references from `3.0.0` to current version across all source files
+- Production readiness audit across Phase 2 (identity, consent, GDPR), Phase 3 (pipeline, queue, replay), and Phase 4 (observability, monitoring)
+- All version assertions in tests corrected to match current version
+
+## What's New in v3.3.0
+
+**Svelte 5 Composables, Lifecycle Config Sync, Version Sweep**
+
+v3.3.0 adds a comprehensive Svelte 5 reactive composable layer and lifecycle configuration synchronization.
+
+### New Features
+
+- **Svelte 5 Composables** (`useAnalytics.svelte.js`) — Full reactive analytics layer using Svelte 5 runes (`$state`, `$derived`, `$effect`). `useAnalytics(page)` — auto-initializing composable with Inertia page prop sync. `isReady`, `trackingId`, `userId`, `isAuthenticated`, `debug` derived states. Auto-cleanup on component unmount via `$effect` garbage collection
+- **Ecommerce Composable** — `useEcommerce()` — Reactive e-commerce tracking with `trackViewItem()`, `trackAddToCart()`, `trackBeginCheckout()`, `trackPurchase()`. Currency and brand awareness from Inertia props
+- **Consent Composable** — `useConsent()` — Reactive consent management with `grant()`, `deny()`, `update()`, `isGranted()`, `purposes()` derived states. Auto-sync with Inertia consent props
+- **Lifecycle Config Sync** — Server-side lifecycle event mapper configuration automatically exposed to Inertia props for client-side event name awareness. Version hash for change detection
+- **Version Bump to 3.3.0** — All version strings swept across PHP source, JS client, Svelte composables, and tests
+
+## What's New in v3.2.0
+
+**Identity Resolution Service + Event Debounce Service**
+
+v3.2.0 adds two critical production services for user identity management and event volume control.
+
+### New Features
+
+- **Identity Resolution Service** (`IdentityResolutionService`) — Cache-backed persistent mapping between client IDs and user IDs. `link()`, `resolve()`, `forget()`, `getUser()`, `getClient()`, `getHistory()`. Supports multiple client IDs per user (cross-device tracking) with configurable TTL and max links. Automatic cleanup of expired mappings
+- **Event Debounce Service** (`EventDebounceService`) — Prevents duplicate rapid-fire events within configurable time windows. Per-event-name debounce with separate windows for different event types. `shouldDebounce()`, `record()`, `reset()`, `getStats()`. Cache-backed, no database required
+- **Identity API Endpoints** — `GET /api/analytics/identity/{clientId}`, `GET /api/analytics/identity/user/{userId}`, `POST /api/analytics/identity/resolve`, `DELETE /api/analytics/identity/{clientId}`, `DELETE /api/analytics/identity/user/{userId}`
+- **Identity Config** — `zeroboiler.analytics.identity` expanded with `cache_prefix`, `link_ttl`, `max_links_per_user`, `max_links_per_client`
+- **Debounce Config** — `zeroboiler.analytics.debounce` section with `enabled`, `window_seconds`
+
+### Tests
+
+- New tests in `Feature/Services/IdentityResolutionServiceTest.php` and `Feature/Services/EventDebounceServiceTest.php`
 
 ## What's New in v3.1.0
 

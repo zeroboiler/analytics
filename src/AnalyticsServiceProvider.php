@@ -139,7 +139,7 @@ use ZeroBoiler\Analytics\Services\EventDebounceService;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 
 /**
- * @version 3.4.0
+ * @version 3.5.0
  */
 
 /**
@@ -148,7 +148,7 @@ use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.4.0
+ * @version 3.5.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -212,7 +212,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new QueuedAnalyticsDispatcher($manager, $config);
         });
 
-        // Unified event dispatcher (v3.4.0) — consent/priority/sampling/queue-aware
+        // Unified event dispatcher (v3.5.0) — consent/priority/sampling/queue-aware
         $this->app->singleton(AnalyticsEventDispatcher::class, function (Application $app): AnalyticsEventDispatcher {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
