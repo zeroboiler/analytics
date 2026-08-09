@@ -255,17 +255,17 @@ describe('v2.95.0 — SSE, Windowed Aggregation, Feature Adoption, API Guard', f
 
     describe('Version consistency', function (): void {
         it('AnalyticsEvent VERSION is 2.95.0', function (): void {
-            expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
+            expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
         });
 
         it('composer.json version is 2.95.0', function (): void {
             $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
-            expect($composer['version'])->toBe('5.2.0');
+            expect($composer['version'])->toBe('5.3.0');
         });
 
         it('config schema_versioning.catalog_version is 2.95.0', function (): void {
             $config = include __DIR__ . '/../../config/zeroboiler.php';
-            expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('5.2.0');
+            expect($config['analytics']['schema_versioning']['catalog_version'])->toBe('5.3.0');
         });
 
         it('no stale 2.94.0 references in source files', function (): void {

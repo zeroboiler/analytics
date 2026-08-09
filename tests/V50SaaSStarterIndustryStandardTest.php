@@ -666,7 +666,7 @@ describe('v2.50.0 SaaS Starter Industry-Standard Validation', function (): void 
         });
 
         test('JS client version is 2.50.0', function () use ($jsContent): void {
-            expect(str_contains($jsContent, "'5.2.0'"))->toBeTrue('JS version should be 2.90.0');
+            expect(str_contains($jsContent, "'5.3.0'"))->toBeTrue('JS version should be 2.90.0');
         });
     });
 

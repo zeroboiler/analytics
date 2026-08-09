@@ -170,7 +170,7 @@ use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 5.2.0
+ * @version 5.3.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {

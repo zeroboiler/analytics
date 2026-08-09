@@ -21,22 +21,22 @@ describe('V68 Package Integrity', function (): void {
     // ─── Version Consistency ─────────────────────────────────────────
     describe('Version Consistency', function (): void {
         test('AnalyticsManager returns 2.68.0', function (): void {
-            expect($this->manager->version())->toBe('5.2.0');
+            expect($this->manager->version())->toBe('5.3.0');
         });
 
         test('composer.json version is 2.68.0', function (): void {
             $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-            expect($composer['version'])->toBe('5.2.0');
+            expect($composer['version'])->toBe('5.3.0');
         });
 
         test('JS client header version is 2.68.0', function (): void {
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->toContain('@version 5.2.0');
+            expect($js)->toContain('@version 5.3.0');
         });
 
         test('JS client getVersion returns 2.68.0', function (): void {
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->toContain("return '5.2.0'");
+            expect($js)->toContain("return '5.3.0'");
         });
 
         test('JS client _getInternalVersion returns 2.68.0', function (): void {
@@ -53,7 +53,7 @@ describe('V68 Package Integrity', function (): void {
 
         test('TypeScript definitions version is 2.68.0', function (): void {
             $ts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-            expect($ts)->toContain('@version 5.2.0');
+            expect($ts)->toContain('@version 5.3.0');
         });
 
         test('no stale 2.67.0 version references in source files', function (): void {
@@ -63,17 +63,17 @@ describe('V68 Package Integrity', function (): void {
 
         test('no stale 2.67.0 version references in JS client', function (): void {
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->not->toContain('5.2.0');
+            expect($js)->not->toContain('5.3.0');
         });
 
         test('no stale 2.67.0 version references in TypeScript definitions', function (): void {
             $ts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-            expect($ts)->not->toContain('5.2.0');
+            expect($ts)->not->toContain('5.3.0');
         });
 
         test('no stale 2.67.0 in composer.json', function (): void {
             $composer = file_get_contents(__DIR__ . '/../composer.json');
-            expect($composer)->not->toContain('5.2.0');
+            expect($composer)->not->toContain('5.3.0');
         });
     });
 

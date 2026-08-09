@@ -21,38 +21,38 @@ use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
 
 /**
- * V5.2.0 — Industry Standard SaaS Analytics Maturity Test.
+ * V5.3.0 — Industry Standard SaaS Analytics Maturity Test.
  *
- * Validates v5.2.0 features: AnalyticsDataService (DAU/MAU, revenue trends,
+ * Validates v5.3.0 features: AnalyticsDataService (DAU/MAU, revenue trends,
  * dashboard queries), EventTaxonomyService (tag-based classification),
  * TenantAnalyticsContext (multi-tenant isolation), AnalyticsEventOccurred
  * Laravel event, config expansion, route additions, and full version sweep.
  */
-test('v5.2.0: version is 5.2.0 everywhere', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
+test('v5.3.0: version is 5.3.0 everywhere', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
 
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('5.2.0');
+    expect($composer['version'])->toBe('5.3.0');
 
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 5.2.0');
-    expect($js)->toContain("'5.2.0'");
+    expect($js)->toContain('@version 5.3.0');
+    expect($js)->toContain("'5.3.0'");
 
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 5.2.0');
+    expect($svelte)->toContain('@version 5.3.0');
 
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-5.2.0');
+    expect($readme)->toContain('version-5.3.0');
 });
 
-test('v5.2.0: composer.json requires PHP 8.5+ and Laravel 13', function (): void {
+test('v5.3.0: composer.json requires PHP 8.5+ and Laravel 13', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
     expect($composer['require']['php'])->toBe('^8.5');
     expect($composer['require']['illuminate/contracts'])->toContain('^13');
 });
 
-test('v5.2.0: AnalyticsDataService class exists with required methods', function (): void {
+test('v5.3.0: AnalyticsDataService class exists with required methods', function (): void {
     expect(class_exists(AnalyticsDataService::class))->toBeTrue();
 
     $ref = new ReflectionClass(AnalyticsDataService::class);
@@ -89,7 +89,7 @@ test('v5.2.0: AnalyticsDataService class exists with required methods', function
     expect($methods)->toContain('getDashboardSummary');
 });
 
-test('v5.2.0: AnalyticsDataService DAU/MAU structure', function (): void {
+test('v5.3.0: AnalyticsDataService DAU/MAU structure', function (): void {
     $cache = app('cache');
     $metrics = new AnalyticsMetrics;
     $service = new AnalyticsDataService($cache, $metrics, 3600, 86400);
@@ -107,7 +107,7 @@ test('v5.2.0: AnalyticsDataService DAU/MAU structure', function (): void {
     expect($stickiness['stickiness'])->toBeFloat();
 });
 
-test('v5.2.0: AnalyticsDataService dashboard summary structure', function (): void {
+test('v5.3.0: AnalyticsDataService dashboard summary structure', function (): void {
     $cache = app('cache');
     $metrics = new AnalyticsMetrics;
     $service = new AnalyticsDataService($cache, $metrics);
@@ -121,7 +121,7 @@ test('v5.2.0: AnalyticsDataService dashboard summary structure', function (): vo
     ]);
 });
 
-test('v5.2.0: AnalyticsDataService revenue tracking', function (): void {
+test('v5.3.0: AnalyticsDataService revenue tracking', function (): void {
     $cache = app('cache');
     $metrics = new AnalyticsMetrics;
     $service = new AnalyticsDataService($cache, $metrics);
@@ -137,7 +137,7 @@ test('v5.2.0: AnalyticsDataService revenue tracking', function (): void {
     expect($bySource)->toBeArray();
 });
 
-test('v5.2.0: AnalyticsDataService provider stats structure', function (): void {
+test('v5.3.0: AnalyticsDataService provider stats structure', function (): void {
     $cache = app('cache');
     $metrics = new AnalyticsMetrics;
     $service = new AnalyticsDataService($cache, $metrics);
@@ -151,7 +151,7 @@ test('v5.2.0: AnalyticsDataService provider stats structure', function (): void 
     }
 });
 
-test('v5.2.0: AnalyticsDataService funnel conversion', function (): void {
+test('v5.3.0: AnalyticsDataService funnel conversion', function (): void {
     $cache = app('cache');
     $metrics = new AnalyticsMetrics;
     $service = new AnalyticsDataService($cache, $metrics);
@@ -162,7 +162,7 @@ test('v5.2.0: AnalyticsDataService funnel conversion', function (): void {
     expect($funnel['overall_conversion'])->toBeFloat();
 });
 
-test('v5.2.0: EventTaxonomyService class exists with required methods', function (): void {
+test('v5.3.0: EventTaxonomyService class exists with required methods', function (): void {
     expect(class_exists(EventTaxonomyService::class))->toBeTrue();
 
     $ref = new ReflectionClass(EventTaxonomyService::class);
@@ -182,7 +182,7 @@ test('v5.2.0: EventTaxonomyService class exists with required methods', function
     expect($methods)->toContain('getEventsWithAnyTag');
 });
 
-test('v5.2.0: EventTaxonomyService auto-classification', function (): void {
+test('v5.3.0: EventTaxonomyService auto-classification', function (): void {
     $cache = app('cache');
     $service = new EventTaxonomyService($cache);
 
@@ -207,7 +207,7 @@ test('v5.2.0: EventTaxonomyService auto-classification', function (): void {
     expect($trialTags)->toContain('conversion');
 });
 
-test('v5.2.0: EventTaxonomyService tag groups', function (): void {
+test('v5.3.0: EventTaxonomyService tag groups', function (): void {
     $cache = app('cache');
     $service = new EventTaxonomyService($cache);
     $service->autoClassify();
@@ -223,7 +223,7 @@ test('v5.2.0: EventTaxonomyService tag groups', function (): void {
     expect($allTags)->not->toBeEmpty();
 });
 
-test('v5.2.0: EventTaxonomyService dynamic tags', function (): void {
+test('v5.3.0: EventTaxonomyService dynamic tags', function (): void {
     $cache = app('cache');
     $service = new EventTaxonomyService($cache);
 
@@ -238,7 +238,7 @@ test('v5.2.0: EventTaxonomyService dynamic tags', function (): void {
     expect($tagEvents)->toContain('custom_event');
 });
 
-test('v5.2.0: EventTaxonomyService multi-tag filtering', function (): void {
+test('v5.3.0: EventTaxonomyService multi-tag filtering', function (): void {
     $cache = app('cache');
     $service = new EventTaxonomyService($cache);
     $service->autoClassify();
@@ -255,7 +255,7 @@ test('v5.2.0: EventTaxonomyService multi-tag filtering', function (): void {
     expect(count($orResult))->toBeGreaterThanOrEqual(count($allRevenue));
 });
 
-test('v5.2.0: AnalyticsEventOccurred Laravel event exists', function (): void {
+test('v5.3.0: AnalyticsEventOccurred Laravel event exists', function (): void {
     expect(class_exists(AnalyticsEventOccurred::class))->toBeTrue();
 
     $ref = new ReflectionClass(AnalyticsEventOccurred::class);
@@ -277,7 +277,7 @@ test('v5.2.0: AnalyticsEventOccurred Laravel event exists', function (): void {
     expect($occurred->context)->toHaveKey('request_id');
 });
 
-test('v5.2.0: TenantAnalyticsContext class exists with required methods', function (): void {
+test('v5.3.0: TenantAnalyticsContext class exists with required methods', function (): void {
     expect(class_exists(TenantAnalyticsContext::class))->toBeTrue();
 
     $ref = new ReflectionClass(TenantAnalyticsContext::class);
@@ -298,7 +298,7 @@ ReflectionMethod $m): string => $m->getName(), $ref->getMethods(ReflectionMethod
     expect($methods)->toContain('getTenantRevenue');
 });
 
-test('v5.2.0: TenantAnalyticsContext basic operations', function (): void {
+test('v5.3.0: TenantAnalyticsContext basic operations', function (): void {
     $cache = app('cache');
     $context = new TenantAnalyticsContext($cache);
 
@@ -321,7 +321,7 @@ test('v5.2.0: TenantAnalyticsContext basic operations', function (): void {
     expect($context->eventContext())->toBeEmpty();
 });
 
-test('v5.2.0: TenantAnalyticsContext withinTenant scope', function (): void {
+test('v5.3.0: TenantAnalyticsContext withinTenant scope', function (): void {
     $cache = app('cache');
     $context = new TenantAnalyticsContext($cache);
 
@@ -336,7 +336,7 @@ test('v5.2.0: TenantAnalyticsContext withinTenant scope', function (): void {
     expect($context->getTenantId())->toBe('original-tenant');
 });
 
-test('v5.2.0: config has new sections', function (): void {
+test('v5.3.0: config has new sections', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
 
@@ -349,7 +349,7 @@ test('v5.2.0: config has new sections', function (): void {
     }
 });
 
-test('v5.2.0: routes include dashboard, taxonomy, and tenant endpoints', function (): void {
+test('v5.3.0: routes include dashboard, taxonomy, and tenant endpoints', function (): void {
     $routes = file_get_contents(__DIR__ . '/../routes/analytics.php');
     expect($routes)->not->toBeFalse();
 
@@ -376,7 +376,7 @@ test('v5.2.0: routes include dashboard, taxonomy, and tenant endpoints', functio
     expect(count($matches[0]))->toBeGreaterThanOrEqual(150);
 });
 
-test('v5.2.0: ServiceProvider registers new services', function (): void {
+test('v5.3.0: ServiceProvider registers new services', function (): void {
     $provider = new ReflectionClass(\ZeroBoiler\Analytics\AnalyticsServiceProvider::class);
 
     expect($provider)->toHaveMethod('register');
@@ -387,12 +387,12 @@ test('v5.2.0: ServiceProvider registers new services', function (): void {
     expect($content)->toContain('TenantAnalyticsContext::class');
 });
 
-test('v5.2.0: Inertia middleware still implements HttpMiddlewareContract', function (): void {
+test('v5.3.0: Inertia middleware still implements HttpMiddlewareContract', function (): void {
     $ref = new ReflectionClass(HandleInertiaAnalytics::class);
     expect($ref->implementsInterface(HttpMiddlewareContract::class))->toBeTrue();
 });
 
-test('v5.2.0: event catalog still validates cleanly', function (): void {
+test('v5.3.0: event catalog still validates cleanly', function (): void {
     $result = EventCatalog::validate();
     expect($result['valid'])->toBeTrue();
     expect($result['errors'])->toBeEmpty();
@@ -401,14 +401,14 @@ test('v5.2.0: event catalog still validates cleanly', function (): void {
     expect($summary['total'])->toBeGreaterThanOrEqual(100);
 });
 
-test('v5.2.0: services layer has 85+ files', function (): void {
+test('v5.3.0: services layer has 85+ files', function (): void {
     $servicesDir = __DIR__ . '/../src/Services';
     $serviceFiles = glob($servicesDir . '/*.php');
     expect($serviceFiles)->not->toBeEmpty();
     expect(count($serviceFiles))->toBeGreaterThanOrEqual(85);
 });
 
-test('v5.2.0: test file count is 165+', function (): void {
+test('v5.3.0: test file count is 165+', function (): void {
     $testDir = __DIR__;
     $testFiles = glob($testDir . '/*Test.php');
     $featureTestFiles = glob($testDir . '/Feature/**/*.php', GLOB_ERR);

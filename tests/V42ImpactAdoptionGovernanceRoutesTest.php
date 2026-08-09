@@ -26,11 +26,11 @@ final class V42ImpactAdoptionGovernanceRoutesTest extends TestCase
     // ─── Version Synchronization ────────────────────────────────────────
 
     /**
-     * AnalyticsEvent::VERSION must be 5.2.0.
+     * AnalyticsEvent::VERSION must be 5.3.0.
      */
     public function testVersionConstant(): void
     {
-        $this->assertSame('5.2.0', AnalyticsEvent::VERSION);
+        $this->assertSame('5.3.0', AnalyticsEvent::VERSION);
     }
 
     // ─── Event Catalog Integrity ────────────────────────────────────────
@@ -283,50 +283,50 @@ final class V42ImpactAdoptionGovernanceRoutesTest extends TestCase
     // ─── JS Client Version ──────────────────────────────────────────────
 
     /**
-     * JS client getVersion() returns 5.2.0.
+     * JS client getVersion() returns 5.3.0.
      */
     public function testJsClientVersion(): void
     {
         $jsContent = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        // getVersion should return '5.2.0'
-        $this->assertStringContainsString("'5.2.0'", $jsContent);
-        $this->assertStringContainsString("return '5.2.0';", $jsContent);
+        // getVersion should return '5.3.0'
+        $this->assertStringContainsString("'5.3.0'", $jsContent);
+        $this->assertStringContainsString("return '5.3.0';", $jsContent);
 
         // Old version should NOT appear
         $this->assertStringNotContainsString("'3.9.0'", $jsContent);
     }
 
     /**
-     * JS client header version is 5.2.0.
+     * JS client header version is 5.3.0.
      */
     public function testJsClientHeaderVersion(): void
     {
         $jsContent = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        $this->assertStringContainsString('@version 5.2.0', $jsContent);
+        $this->assertStringContainsString('@version 5.3.0', $jsContent);
     }
 
     /**
-     * TypeScript definitions version is 5.2.0.
+     * TypeScript definitions version is 5.3.0.
      */
     public function testTypeScriptDefinitionsVersion(): void
     {
         $tsContent = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
 
-        $this->assertStringContainsString('@version 5.2.0', $tsContent);
+        $this->assertStringContainsString('@version 5.3.0', $tsContent);
     }
 
     // ─── Composer Version ──────────────────────────────────────────────
 
     /**
-     * composer.json version is 5.2.0.
+     * composer.json version is 5.3.0.
      */
     public function testComposerJsonVersion(): void
     {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        $this->assertSame('5.2.0', $composer['version']);
+        $this->assertSame('5.3.0', $composer['version']);
     }
 
     // ─── Catalog Provider Coverage ─────────────────────────────────────

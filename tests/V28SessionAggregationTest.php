@@ -446,6 +446,6 @@ describe('Version consistency', function () {
             ],
         ]));
 
-        expect($manager->version())->toBe('5.2.0');
+        expect($manager->version())->toBe('5.3.0');
     });
 });

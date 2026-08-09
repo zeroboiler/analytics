@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Support;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * E-commerce format converter for cross-provider data transformation.
@@ -849,5 +850,116 @@ final class EcommerceFormatConverter
             name: $plausible['event_name'],
             params: $plausible['props'],
         );
+    }
+
+    // ── Universal GA4 → Plausible Converter (v5.3.0) ─────────────────
+
+    /**
+     * Universal GA4 → Plausible converter for any e-commerce event.
+     *
+     * Automatically selects the correct Plausible event name and formats
+     * parameters based on the GA4 event name.
+     *
+     * Supported events: purchase, refund, add_to_cart, begin_checkout.
+     *
+     * @param  string  $ga4EventName  GA4 event name
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{plausible_event: string, plausible_params: array<string, string>}|null  Plausible event data, or null if not supported
+     */
+    public static function ga4ToPlausibleAuto(string $ga4EventName, array $ga4Params): ?array
+    {
+        return match ($ga4EventName) {
+            'purchase' => [
+                'plausible_event' => 'purchase',
+                'plausible_params' => self::ga4ToPlausiblePurchase($ga4Params)['props'],
+            ],
+            'refund' => [
+                'plausible_event' => 'refund',
+                'plausible_params' => self::ga4ToPlausibleRefund($ga4Params)['props'],
+            ],
+            'add_to_cart' => [
+                'plausible_event' => 'add_to_cart',
+                'plausible_params' => self::ga4ToPlausibleAddToCart($ga4Params)['props'],
+            ],
+            'begin_checkout' => [
+                'plausible_event' => 'begin_checkout',
+                'plausible_params' => self::ga4ToPlausibleBeginCheckout($ga4Params)['props'],
+            ],
+            default => null,
+        };
+    }
+
+    // ── Universal Provider Format Conversion (v5.3.0) ────────────────
+
+    /**
+     * Convert any e-commerce event from GA4 format to a target provider format.
+     *
+     * Dispatches to the correct provider-specific converter based on the target
+     * provider name. Supports 'meta', 'posthog', and 'plausible' targets.
+     * For 'ga4', returns the input unchanged.
+     *
+     * @param  string  $targetProvider  Target provider ('meta', 'posthog', 'plausible', 'ga4')
+     * @param  string  $ga4EventName  GA4 event name (e.g. 'purchase', 'add_to_cart')
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{provider_event: string|null, provider_params: array<string, mixed>}  Converted event data, or original if no conversion needed
+     */
+    public static function toGa4Format(
+        string $targetProvider,
+        string $ga4EventName,
+        array $ga4Params,
+    ): array {
+        return match ($targetProvider) {
+            'meta' => self::ga4ToMetaAuto($ga4EventName, $ga4Params)
+                ?? ['provider_event' => null, 'provider_params' => $ga4Params],
+            'posthog' => [
+                'provider_event' => EventCatalog::posthogNameFor($ga4EventName),
+                'provider_params' => self::ga4ToPosthogPurchase($ga4Params),
+            ],
+            'plausible' => self::ga4ToPlausibleAuto($ga4EventName, $ga4Params)
+                ?? ['plausible_event' => null, 'plausible_params' => []],
+            default => ['provider_event' => $ga4EventName, 'provider_params' => $ga4Params],
+        };
+    }
+
+    /**
+     * Convert any e-commerce event from a source provider back to GA4 format.
+     *
+     * Supports 'meta' and 'posthog' as source providers. For other providers
+     * or unknown event types, returns the input unchanged.
+     *
+     * @param  string  $sourceProvider  Source provider ('meta', 'posthog', 'ga4')
+     * @param  string  $eventName  Source provider's event name
+     * @param  array<string, mixed>  $params  Source provider's event parameters
+     * @return array{ga4_event: string, ga4_params: array<string, mixed>}  GA4-format event data
+     */
+    public static function fromGa4Format(
+        string $sourceProvider,
+        string $eventName,
+        array $params,
+    ): array {
+        return match ($sourceProvider) {
+            'meta' => match ($eventName) {
+                'Purchase' => [
+                    'ga4_event' => 'purchase',
+                    'ga4_params' => self::metaToGa4Purchase($params),
+                ],
+                'AddToCart' => [
+                    'ga4_event' => 'add_to_cart',
+                    'ga4_params' => array_merge(
+                        self::metaToGa4Items($params['contents'] ?? []),
+                        [
+                            'currency' => (string) ($params['currency'] ?? 'USD'),
+                            'value' => (float) ($params['value'] ?? 0),
+                        ],
+                    ),
+                ],
+                default => ['ga4_event' => $eventName, 'ga4_params' => $params],
+            },
+            'posthog' => [
+                'ga4_event' => $eventName,
+                'ga4_params' => $params,
+            ],
+            default => ['ga4_event' => $eventName, 'ga4_params' => $params],
+        };
     }
 }

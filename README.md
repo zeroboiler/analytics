@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-5.2.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-5.3.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v5.3.0](#whats-new-in-v5300)
 - [What's New in v5.2.0](#whats-new-in-v5200)
 - [What's New in v5.0.0](#whats-new-in-v5000)
 - [What's New in v4.5.0](#whats-new-in-v4500)
@@ -53,6 +54,35 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v5.3.0
+
+### Universal Cross-Provider Format Conversion
+
+The `EcommerceFormatConverter` now provides **universal bidirectional conversion** between GA4 and all supported providers (Meta Pixel, PostHog, Plausible).
+
+**New methods:**
+- `toGa4Format($targetProvider, $ga4EventName, $ga4Params)` — Convert any GA4 e-commerce event to Meta, PostHog, or Plausible format in a single call
+- `fromGa4Format($sourceProvider, $eventName, $params)` — Convert Meta/PostHog events back to GA4 format
+- `ga4ToPlausibleAuto($ga4EventName, $ga4Params)` — Universal GA4 → Plausible auto-converter (analogous to `ga4ToMetaAuto`)
+
+**Usage:**
+```php
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
+
+// GA4 → Meta (universal)
+$result = EcommerceFormatConverter::toGa4Format('meta', 'purchase', $ga4Params);
+
+// GA4 → Plausible (universal)
+$result = EcommerceFormatConverter::toGa4Format('plausible', 'add_to_cart', $ga4Params);
+
+// Meta → GA4 (reverse)
+$ga4 = EcommerceFormatConverter::fromGa4Format('meta', 'Purchase', $metaParams);
+```
+
+**Other changes:**
+- Version synchronized across PHP, JS client, Svelte composables, and TypeScript definitions (5.3.0)
+- `EcommerceFormatConverter` now imports `EventCatalog` for provider name resolution
 
 ## What's New in v5.2.0
 

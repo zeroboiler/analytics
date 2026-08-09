@@ -658,7 +658,7 @@ describe('Version v2.7.0 consistency', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('5.2.0');
+        expect($manager->version())->toBe('5.3.0');
     });
 
     it('event catalog summary reflects expanded SaaS', function () {

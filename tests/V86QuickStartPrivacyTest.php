@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\Services\EventPriorityCalculator;
  */
 describe('V2.86.0 — Quick-Start, Privacy & Data Portability', function () {
     it('has version 2.86.0 in DTO', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
+        expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
     });
 
     it('has 92+ events in the full catalog', function () {

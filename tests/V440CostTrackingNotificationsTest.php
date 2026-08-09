@@ -182,14 +182,14 @@ describe('NotificationWebhookService', function (): void {
     });
 });
 
-describe('v5.2.0 Version Consistency', function (): void {
+describe('v5.3.0 Version Consistency', function (): void {
     it('has correct version in AnalyticsEvent', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
+        expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
     });
 
     it('composer.json version matches', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
 
-        expect($composer['version'])->toBe('5.2.0');
+        expect($composer['version'])->toBe('5.3.0');
     });
 });

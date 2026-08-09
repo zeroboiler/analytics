@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\Services\EventBudgetService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDiagnosticsCommand;
 
 test('v4.3.0 version is set correctly', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.2.0');
+    expect(AnalyticsEvent::VERSION)->toBe('5.3.0');
 });
 
 test('composer.json version matches AnalyticsEvent::VERSION', function (): void {

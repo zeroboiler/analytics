@@ -25,17 +25,17 @@ beforeEach(function (): void {
 
 describe('Version Consistency', function (): void {
     test('AnalyticsManager version returns v2.35.0', function (): void {
-        expect($this->manager->version())->toBe('5.2.0');
+        expect($this->manager->version())->toBe('5.3.0');
     });
 
     test('composer.json version matches', function (): void {
         $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-        expect($composer['version'])->toBe('5.2.0');
+        expect($composer['version'])->toBe('5.3.0');
     });
 
     test('JS client version matches', function (): void {
         $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-        expect($js)->toContain('@version 5.2.0');
+        expect($js)->toContain('@version 5.3.0');
     });
 });
 
