@@ -1275,7 +1275,7 @@ final class AnalyticsManager
      */
     public function version(): string
     {
-        return '3.0.0';
+        return AnalyticsEvent::VERSION;
     }
 
     /**

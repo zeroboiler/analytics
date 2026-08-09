@@ -5360,4 +5360,134 @@ final class AnalyticsEventController extends Controller
 
         return response()->json($builder->transitions($daysAgo));
     }
+
+    // ─── Identity Resolution (v3.2.0) ──────────────────────────
+
+    /**
+     * Look up user ID for a client ID.
+     *
+     * GET /api/analytics/identity/{clientId}
+     */
+    public function identityLookup(string $clientId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\IdentityResolutionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class);
+
+            $userId = $service->getUserIdForClient($clientId);
+
+            return response()->json([
+                'client_id' => $clientId,
+                'user_id' => $userId,
+                'linked' => $userId !== null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Identity resolution service unavailable',
+                'message' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Look up all client IDs for a user ID.
+     *
+     * GET /api/analytics/identity/user/{userId}
+     */
+    public function identityUserLookup(string $userId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\IdentityResolutionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class);
+
+            return response()->json($service->identitySummary($userId));
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Identity resolution service unavailable',
+                'message' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Resolve (link) a client ID with a user ID.
+     *
+     * POST /api/analytics/identity/resolve
+     *
+     * Body: { "client_id": "uuid", "user_id": "123" }
+     */
+    public function identityResolve(Request $request): JsonResponse
+    {
+        $request->validate([
+            'client_id' => 'required|string',
+            'user_id' => 'required|string',
+        ]);
+
+        $clientId = $request->input('client_id');
+        $userId = $request->input('user_id');
+
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\IdentityResolutionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class);
+
+            $result = $service->resolve($clientId, $userId);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Identity resolution failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Forget (unlink) a client ID.
+     *
+     * DELETE /api/analytics/identity/{clientId}
+     */
+    public function identityForgetClient(string $clientId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\IdentityResolutionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class);
+
+            $removed = $service->forgetClient($clientId);
+
+            return response()->json([
+                'client_id' => $clientId,
+                'removed' => $removed,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Identity removal failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Forget (unlink) all client IDs for a user (GDPR erasure).
+     *
+     * DELETE /api/analytics/identity/user/{userId}
+     */
+    public function identityForgetUser(string $userId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\IdentityResolutionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class);
+
+            $count = $service->forgetUser($userId);
+
+            return response()->json([
+                'user_id' => $userId,
+                'links_removed' => $count,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Identity erasure failed',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

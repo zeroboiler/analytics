@@ -130,6 +130,13 @@ return [
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
             'cookie_domain' => env('ANALYTICS_IDENTITY_COOKIE_DOMAIN'), // null = current domain; '.example.com' for cross-subdomain
             'link_on_auth' => env('ANALYTICS_IDENTITY_LINK_ON_AUTH', true),
+
+            // Identity Resolution Service (v3.2.0)
+            // Cache-backed client_id ↔ user_id persistent mapping
+            'cache_prefix' => env('ANALYTICS_IDENTITY_CACHE_PREFIX', 'zb_identity_'),
+            'link_ttl' => (int) env('ANALYTICS_IDENTITY_LINK_TTL', 7776000), // 90 days (seconds)
+            'max_links_per_user' => (int) env('ANALYTICS_IDENTITY_MAX_LINKS_USER', 50),
+            'max_links_per_client' => (int) env('ANALYTICS_IDENTITY_MAX_LINKS_CLIENT', 10),
         ],
 
         /*
@@ -2234,6 +2241,24 @@ return [
             'debug' => env('ANALYTICS_COHORTS_DEBUG', false),
             'result_ttl' => (int) env('ANALYTICS_COHORTS_RESULT_TTL', 3600), // 1 hour
             'custom_cohorts' => [],
+        ],
+
+        // Event Debounce (v3.2.0)
+        // Prevents duplicate event dispatches within a time window.
+        // Useful for scroll depth, input tracking, mouse move events.
+        'debounce' => [
+            'enabled' => env('ANALYTICS_DEBOUNCE_ENABLED', true),
+            'default_ttl' => (int) env('ANALYTICS_DEBOUNCE_DEFAULT_TTL', 5000), // 5 seconds (ms)
+            'cache_prefix' => env('ANALYTICS_DEBOUNCE_CACHE_PREFIX', 'zb_debounce_'),
+
+            // Per-event debounce rules (TTL in milliseconds)
+            // Override the default TTL for specific events
+            'rules' => [
+                'scroll_depth' => (int) env('ANALYTICS_DEBOUNCE_SCROLL_DEPTH', 10000),
+                'page_view' => (int) env('ANALYTICS_DEBOUNCE_PAGE_VIEW', 5000),
+                'input_focus' => (int) env('ANALYTICS_DEBOUNCE_INPUT_FOCUS', 2000),
+                'search_query' => (int) env('ANALYTICS_DEBOUNCE_SEARCH_QUERY', 3000),
+            ],
         ],
 
     ],

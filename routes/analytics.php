@@ -282,6 +282,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('retention/cohorts/{days}', [AnalyticsEventController::class, 'retentionCohortComparison']);
     Route::get('stickiness', [AnalyticsEventController::class, 'stickiness']);
 
+    // Identity Resolution (v3.2.0)
+    Route::get('identity/{clientId}', [AnalyticsEventController::class, 'identityLookup']);
+    Route::get('identity/user/{userId}', [AnalyticsEventController::class, 'identityUserLookup']);
+    Route::post('identity/resolve', [AnalyticsEventController::class, 'identityResolve']);
+    Route::delete('identity/{clientId}', [AnalyticsEventController::class, 'identityForgetClient']);
+    Route::delete('identity/user/{userId}', [AnalyticsEventController::class, 'identityForgetUser']);
+
     // Behavioral Cohorts (v3.1.0)
     Route::get('cohorts', [AnalyticsEventController::class, 'behavioralCohorts']);
     Route::get('cohorts/{identity}', [AnalyticsEventController::class, 'behavioralCohortForUser']);

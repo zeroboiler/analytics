@@ -134,9 +134,11 @@ use ZeroBoiler\Analytics\Services\EventRulesEngine;
 use ZeroBoiler\Analytics\Services\UserPropertiesStore;
 use ZeroBoiler\Analytics\Services\RetentionCalculator;
 use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
+use ZeroBoiler\Analytics\Services\IdentityResolutionService;
+use ZeroBoiler\Analytics\Services\EventDebounceService;
 
 /**
- * @version 3.1.0
+ * @version 3.2.0
  */
 
 /**
@@ -145,7 +147,7 @@ use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 3.1.0
+ * @version 3.2.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1372,6 +1374,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics API Guard (v2.95.0)
         $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
             return new AnalyticsApiGuard(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Identity Resolution Service (v3.2.0)
+        $this->app->singleton(IdentityResolutionService::class, function (Application $app): IdentityResolutionService {
+            return new IdentityResolutionService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Debounce Service (v3.2.0)
+        $this->app->singleton(EventDebounceService::class, function (Application $app): EventDebounceService {
+            return new EventDebounceService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
