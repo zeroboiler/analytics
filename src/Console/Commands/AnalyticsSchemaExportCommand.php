@@ -40,6 +40,7 @@ final class AnalyticsSchemaExportCommand extends Command
     /**
      * Execute the console command.
      */
+    #[\Override]
     public function handle(EventPropertySchema $propertySchema): int
     {
         $format = $this->option('format');

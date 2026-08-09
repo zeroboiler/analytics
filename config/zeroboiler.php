@@ -785,6 +785,8 @@ return [
                 'subscription.downgraded' => true,
                 'subscription.cancelled' => true,
                 'subscription.renewal' => true,
+                'subscription.resumed' => true,
+                'subscription.paused' => true,
 
                 // ── Trial ───────────────────────────────────────
                 'trial.started' => true,

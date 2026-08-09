@@ -944,3 +944,61 @@ test('Phase 4: all source files with class/interface/trait/enum declarations hav
         expect($content, "@since annotation missing in {$relative}")->toContain('@since');
     }
 });
+
+// ─── Phase 4: v6.2.0/v6.3.0 Additions ──────────────────────────────────
+
+test('Phase 4: all console commands have #[Override] on handle()', function (): void {
+    $commands = glob(__DIR__.'/../src/Console/Commands/*.php');
+    expect($commands)->not->toBeEmpty();
+
+    foreach ($commands as $file) {
+        $content = file_get_contents($file);
+        $name = basename($file);
+
+        // Every command extends Illuminate\Console\Command, so handle() should have #[Override]
+        expect(
+            preg_match('/#\s*\[\\\\Override\]\s*\n\s*public function handle\(/', $content) === 1
+            || preg_match('/public function handle\(.*\): int/s', $content) === 0, // skip if no handle()
+            "{$name} handle() missing #[Override]",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 4: AARRRFrameworkService is registered in ServiceProvider', function (): void {
+    $content = file_get_contents(__DIR__.'/../src/AnalyticsServiceProvider.php');
+    expect($content)->toContain('AARRRFrameworkService');
+});
+
+test('Phase 4: FirstTouchUTMMiddleware exists and is final', function (): void {
+    $r = new ReflectionClass(\ZeroBoiler\Analytics\Middleware\FirstTouchUTMMiddleware::class);
+    expect($r->isFinal())->toBeTrue();
+    expect($r->hasMethod('handle'))->toBeTrue();
+});
+
+test('Phase 4: JS client version matches composer version', function (): void {
+    $composer = json_decode(
+        file_get_contents(__DIR__.'/../composer.json'),
+        true,
+        512,
+        JSON_THROW_ON_ERROR,
+    );
+
+    $jsContent = file_get_contents(__DIR__.'/../resources/js/analytics.js');
+    expect($jsContent)->toContain("'{$composer['version']}'");
+
+    $svelteContent = file_get_contents(__DIR__.'/../resources/js/useAnalytics.svelte.js');
+    expect($svelteContent)->toContain("@version {$composer['version']}");
+
+    $tsContent = file_get_contents(__DIR__.'/../resources/js/analytics.d.ts');
+    expect($tsContent)->toContain("@version {$composer['version']}");
+});
+
+test('Phase 4: config has aarrr section', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    expect(array_key_exists('aarrr', $config['analytics']))->toBeTrue();
+});
+
+test('Phase 4: config has first_touch section', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    expect(array_key_exists('first_touch', $config['analytics']))->toBeTrue();
+});
