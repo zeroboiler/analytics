@@ -2832,5 +2832,43 @@ return [
             'unhealthy_threshold' => (int) env('ANALYTICS_PROVIDER_HEALTH_THRESHOLD', 50), // Score below this = unhealthy
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | PLG Scoring Engine (v6.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Product-Led Growth scoring engine computes per-identity PLG scores
+        | based on activation, engagement, retention, and feature breadth.
+        | Scores are cache-backed and used for user segmentation, dashboards,
+        | and automated lifecycle triggers.
+        |
+        | Dimension weights must sum to 1.0. Default: activation 30%,
+        | engagement 30%, retention 25%, feature breadth 15%.
+        |
+        */
+        'plg_scoring' => [
+            'weights' => [
+                'activation' => 0.30,
+                'engagement' => 0.30,
+                'retention' => 0.25,
+                'feature_breadth' => 0.15,
+            ],
+            'cache_ttl' => (int) env('ANALYTICS_PLG_CACHE_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Time-Series Aggregation (v6.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Time-series event aggregation engine for dashboard analytics.
+        | Computes per-event and per-category aggregated statistics over
+        | configurable time windows with trend analysis and moving averages.
+        |
+        */
+        'time_series' => [
+            'cache_ttl' => (int) env('ANALYTICS_TS_CACHE_TTL', 300), // 5 minutes
+        ],
+
     ],
 ];

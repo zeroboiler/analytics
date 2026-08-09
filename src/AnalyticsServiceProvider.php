@@ -168,6 +168,10 @@ use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
 use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\Services\RegionalConsentService;
+use ZeroBoiler\Analytics\Services\PLGScoringService;
+use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -175,7 +179,7 @@ use ZeroBoiler\Analytics\Services\RegionalConsentService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 5.9.0
+ * @version 6.0.0
  *
  * @since 1.0.0
  */
@@ -415,6 +419,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $ecommerce['currency'] ?? 'USD',
                 (bool) ($queueConfig['enabled'] ?? true),
             );
+        });
+
+        // PLG scoring engine (v6.0.0)
+        $this->app->singleton(PLGScoringService::class, function (Application $app): PLGScoringService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PLGScoringService($manager, $cache, $config);
+        });
+
+        // Event time-series aggregation engine (v6.0.0)
+        $this->app->singleton(EventTimeSeriesService::class, function (Application $app): EventTimeSeriesService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventTimeSeriesService($manager, $cache, $config);
         });
 
         // Analytics data bus for conditional routing
@@ -1696,6 +1724,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsArchetypeDriftCommand::class,
                 AnalyticsReplayCommand::class,
                 AnalyticsCostReportCommand::class,
+                AnalyticsPLGScoreCommand::class,
+                AnalyticsTimeSeriesCommand::class,
             ]);
         }
 

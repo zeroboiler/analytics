@@ -2102,4 +2102,93 @@ final class AnalyticsManager
     {
         return $this->getContainer()->make(Services\AnalyticsInsightAggregator::class);
     }
+
+    // ── PLG Scoring (v6.0.0) ──────────────────────────────────────────────
+
+    /**
+     * Compute PLG score for an identity.
+     *
+     * Returns a composite Product-Led Growth score with activation,
+     * engagement, retention, and feature breadth dimensions.
+     *
+     * @param  string  $identity  User ID or client tracking ID
+     * @return array{score: float, grade: string, activation: float, engagement: float, retention: float, feature_breadth: float, segment: string, signals: list<string>, identity: string, computed_at: string}
+     */
+    public function plgScore(string $identity): array
+    {
+        /** @var Services\PLGScoringService $service */
+        $service = $this->getContainer()->make(Services\PLGScoringService::class);
+
+        return $service->score($identity);
+    }
+
+    /**
+     * Get PLG aggregate statistics (average score, grade distribution).
+     *
+     * @return array{avg_score: float, total_cached: int, grade_distribution: array<string, int>}
+     */
+    public function plgAggregate(): array
+    {
+        /** @var Services\PLGScoringService $service */
+        $service = $this->getContainer()->make(Services\PLGScoringService::class);
+
+        return $service->aggregateStats();
+    }
+
+    /**
+     * Invalidate cached PLG score for an identity.
+     */
+    public function plgInvalidate(string $identity): void
+    {
+        /** @var Services\PLGScoringService $service */
+        $service = $this->getContainer()->make(Services\PLGScoringService::class);
+        $service->invalidateScore($identity);
+    }
+
+    // ── Event Time-Series (v6.0.0) ────────────────────────────────────────
+
+    /**
+     * Get aggregated event time-series data for a period.
+     *
+     * Returns event counts, top events, category breakdown,
+     * trend direction, and moving averages.
+     *
+     * @param  string  $period  Time period ('5m', '15m', '1h', '6h', '1d', '7d', '30d')
+     * @return array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array{direction: string, change_pct: float, current: int, previous: int}, moving_avg: float, period: string, computed_at: string}
+     */
+    public function timeSeries(string $period = '1h'): array
+    {
+        /** @var Services\EventTimeSeriesService $service */
+        $service = $this->getContainer()->make(Services\EventTimeSeriesService::class);
+
+        return $service->aggregate($period);
+    }
+
+    /**
+     * Get full time-series dashboard data across all periods.
+     *
+     * @return array<string, array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array, moving_avg: float, period: string}>
+     */
+    public function timeSeriesDashboard(): array
+    {
+        /** @var Services\EventTimeSeriesService $service */
+        $service = $this->getContainer()->make(Services\EventTimeSeriesService::class);
+
+        return $service->dashboard();
+    }
+
+    /**
+     * Compare two time periods side-by-side.
+     *
+     * @param  string  $currentPeriod  Current period
+     * @param  string  $previousPeriod  Previous comparison period
+     * @return array{current: array, previous: array, delta: array{events: int, identities: int, pct_change: float}}
+     */
+    public function timeSeriesCompare(string $currentPeriod, string $previousPeriod): array
+    {
+        /** @var Services\EventTimeSeriesService $service */
+        $service = $this->getContainer()->make(Services\EventTimeSeriesService::class);
+
+        return $service->compare($currentPeriod, $previousPeriod);
+    }
 }

@@ -109,6 +109,12 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{step: string, event: string, pipeline_status: string, completed_steps: list<string>, remaining_steps: int, is_complete: bool} orchestrateAdvance(string $pipelineName, string $stepName, string $clientId, ?string $userId = null, array $params = [])
  * @method static float orchestrateProgress(string $pipelineName, string $clientId, ?string $userId = null)
  * @method static array{generated_at: string, insights: list<array{type: string, category: string, title: string, description: string, severity: string, metric: string|null, value: mixed|null, recommendation: string|null}>, summary: array{total: int, by_type: array<string, int>, by_severity: array<string, int>}} insightReport()
+ * @method static array{score: float, grade: string, activation: float, engagement: float, retention: float, feature_breadth: float, segment: string, signals: list<string>, identity: string, computed_at: string} plgScore(string $identity)
+ * @method static array{avg_score: float, total_cached: int, grade_distribution: array<string, int>} plgAggregate()
+ * @method static void plgInvalidate(string $identity)
+ * @method static array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array{direction: string, change_pct: float, current: int, previous: int}, moving_avg: float, period: string, computed_at: string} timeSeries(string $period = '1h')
+ * @method static array<string, array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array, moving_avg: float, period: string}> timeSeriesDashboard()
+ * @method static array{current: array, previous: array, delta: array{events: int, identities: int, pct_change: float}} timeSeriesCompare(string $currentPeriod, string $previousPeriod)
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  *
