@@ -17,11 +17,14 @@ use ZeroBoiler\Analytics\AnalyticsServiceProvider;
 use ZeroBoiler\Analytics\EventInterceptorRegistry;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
+use ZeroBoiler\Analytics\DTO\EventCollection;
+use ZeroBoiler\Analytics\DTO\EventContext;
 use ZeroBoiler\Analytics\DTO\EventContextEvent;
 use ZeroBoiler\Analytics\DTO\EventPriority;
 use ZeroBoiler\Analytics\DTO\FunnelVelocityReport;
 use ZeroBoiler\Analytics\DTO\AnalyticsInsight;
 use ZeroBoiler\Analytics\DTO\UtmAttribution;
+use ZeroBoiler\Analytics\DTO\TraceContext;
 use ZeroBoiler\Analytics\Facades\Analytics;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
@@ -134,11 +137,41 @@ use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
 use ZeroBoiler\Analytics\Services\EventOrchestrationService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightAggregator;
+use ZeroBoiler\Analytics\Services\EventContextResolver;
+use ZeroBoiler\Analytics\Services\EventGovernanceService;
+use ZeroBoiler\Analytics\Services\EventNamingConventionService;
+use ZeroBoiler\Analytics\Services\DataQualityScorer;
+use ZeroBoiler\Analytics\Services\EventDeprecationService;
+use ZeroBoiler\Analytics\Services\EventArchiveService;
+use ZeroBoiler\Analytics\Services\EventTraceService;
+use ZeroBoiler\Analytics\Services\EventArchetypeService;
+use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
+use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
+use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
+use ZeroBoiler\Analytics\Services\EventEnrichmentService;
+use ZeroBoiler\Analytics\Services\SubscriptionLifecycleService;
+use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
+use ZeroBoiler\Analytics\Services\PrivacySandboxService;
+use ZeroBoiler\Analytics\Services\CartStateManager;
+use ZeroBoiler\Analytics\Services\EventAffinityService;
+use ZeroBoiler\Analytics\Services\FunnelProgressTracker;
+use ZeroBoiler\Analytics\Services\OnboardingCompletionService;
+use ZeroBoiler\Analytics\Services\OnboardingWizardService;
+use ZeroBoiler\Analytics\Services\GrowthMetricsService;
+use ZeroBoiler\Analytics\Services\WeeklyDigestService;
+use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
+use ZeroBoiler\Analytics\Services\AnalyticsApiGuard;
+use ZeroBoiler\Analytics\Services\SaaSJourneyService;
+use ZeroBoiler\Analytics\Services\SessionReplayService;
+use ZeroBoiler\Analytics\Services\EventWindowAggregator;
+use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
 use ZeroBoiler\Analytics\Support\AnalyticsRateLimiter;
 use ZeroBoiler\Analytics\Support\EventTransformer;
 use ZeroBoiler\Analytics\Support\WebhookSignatureValidator;
-use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter as SupportEcommerceFormatConverter;
 use ZeroBoiler\Analytics\Support\AnalyticsEventNameRule;
+use ZeroBoiler\Analytics\Support\EventBuilder;
+use ZeroBoiler\Analytics\Support\HasEventSchema;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
@@ -146,11 +179,18 @@ use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Queue\EventReplayQueue;
 use ZeroBoiler\Analytics\Bus\AnalyticsDataBus;
+use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 use ZeroBoiler\Analytics\Context\EventContextBuilder;
 use ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
+use ZeroBoiler\Analytics\Pipeline\SamplingFilter;
+use ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter;
+use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
+use ZeroBoiler\Analytics\Schema\EventParam;
+use ZeroBoiler\Analytics\Schema\EventSchema;
+use ZeroBoiler\Analytics\Schema\EventPropertySchema;
 
 // ─── Phase 2: Code Quality ────────────────────────────────────────────
 
@@ -249,6 +289,18 @@ test('Phase 2: ConsentState DTO is readonly', function (): void {
     expect((new ReflectionClass(ConsentState::class))->isReadOnly())->toBeTrue();
 });
 
+test('Phase 2: TraceContext DTO is readonly', function (): void {
+    expect((new ReflectionClass(TraceContext::class))->isReadOnly())->toBeTrue();
+});
+
+test('Phase 2: EventContext DTO is readonly', function (): void {
+    expect((new ReflectionClass(EventContext::class))->isReadOnly())->toBeTrue();
+});
+
+test('Phase 2: EventCollection DTO is readonly', function (): void {
+    expect((new ReflectionClass(EventCollection::class))->isReadOnly())->toBeTrue();
+});
+
 test('Phase 2: EventPriority enum has all 4 cases with weight ordering', function (): void {
     $cases = EventPriority::cases();
     expect($cases)->toHaveCount(4);
@@ -285,24 +337,24 @@ test('Phase 3: Facade final with #[Override]', function (): void {
 });
 
 test('Phase 3: AnalyticsManager is final', function (): void {
-    $r = new ReflectionClass(AnalyticsManager::class);
-    expect($r->isFinal())->toBeTrue();
+    expect((new ReflectionClass(AnalyticsManager::class))->isFinal())->toBeTrue();
 });
 
 test('Phase 3: AnalyticsMetrics is final', function (): void {
-    $r = new ReflectionClass(AnalyticsMetrics::class);
-    expect($r->isFinal())->toBeTrue();
+    expect((new ReflectionClass(AnalyticsMetrics::class))->isFinal())->toBeTrue();
 });
 
 test('Phase 3: EventInterceptorRegistry is final', function (): void {
-    $r = new ReflectionClass(EventInterceptorRegistry::class);
-    expect($r->isFinal())->toBeTrue();
+    expect((new ReflectionClass(EventInterceptorRegistry::class))->isFinal())->toBeTrue();
 });
 
 test('Phase 3: core DTOs are final readonly', function (): void {
     $dtos = [
         AnalyticsEvent::class,
         ConsentState::class,
+        TraceContext::class,
+        EventContext::class,
+        EventCollection::class,
         EventContextEvent::class,
         EventPriority::class,
         FunnelVelocityReport::class,
@@ -514,6 +566,117 @@ test('Phase 3: v3.3+ services are final', function (): void {
     }
 });
 
+test('Phase 3: v3.7+ services are final', function (): void {
+    $services = [
+        EventEnrichmentService::class,
+        SubscriptionLifecycleService::class,
+        RevenueIntelligenceService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v3.8+ services are final', function (): void {
+    $services = [
+        EventTraceService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v3.9+ services are final', function (): void {
+    $services = [
+        EventArchetypeService::class,
+        ConfigDriftDetectionService::class,
+        EventAnonymizationAggregationService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v4.0+ services are final', function (): void {
+    $services = [
+        EventArchiveService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v4.1+ services are final', function (): void {
+    $services = [
+        EventGovernanceService::class,
+        EventNamingConventionService::class,
+        DataQualityScorer::class,
+        EventDeprecationService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: v4.2+ services are final', function (): void {
+    $services = [
+        FeatureAdoptionTracker::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 3: other v2.93+ services are final', function (): void {
+    $services = [
+        PrivacySandboxService::class,
+        CartStateManager::class,
+        EventAffinityService::class,
+        FunnelProgressTracker::class,
+        OnboardingCompletionService::class,
+        OnboardingWizardService::class,
+        GrowthMetricsService::class,
+        WeeklyDigestService::class,
+        AdvancedPIIDetector::class,
+        AnalyticsApiGuard::class,
+        SessionReplayService::class,
+        EventWindowAggregator::class,
+        AnalyticsHealthCheckService::class,
+        EventContextResolver::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
 // ─── Phase 4: Version & Config Consistency ─────────────────────────────
 
 test('Phase 4: version consistency', function (): void {
@@ -566,6 +729,76 @@ test('Phase 4: config has all required top-level sections', function (): void {
     }
 });
 
+test('Phase 4: config has v3.8+ sections', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    $analytics = $config['analytics'];
+
+    $v38Keys = ['tracing', 'enrichment'];
+
+    foreach ($v38Keys as $key) {
+        expect(
+            array_key_exists($key, $analytics),
+            "Missing v3.8 config key: analytics.{$key}",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 4: config has v3.9+ sections', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    $analytics = $config['analytics'];
+
+    $v39Keys = ['archetypes', 'config_drift', 'anonymized_aggregation'];
+
+    foreach ($v39Keys as $key) {
+        expect(
+            array_key_exists($key, $analytics),
+            "Missing v3.9 config key: analytics.{$key}",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 4: config has v4.0+ sections', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    $analytics = $config['analytics'];
+
+    $v40Keys = ['archive'];
+
+    foreach ($v40Keys as $key) {
+        expect(
+            array_key_exists($key, $analytics),
+            "Missing v4.0 config key: analytics.{$key}",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 4: config has v4.1+ sections', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    $analytics = $config['analytics'];
+
+    $v41Keys = ['governance'];
+
+    foreach ($v41Keys as $key) {
+        expect(
+            array_key_exists($key, $analytics),
+            "Missing v4.1 config key: analytics.{$key}",
+        )->toBeTrue();
+    }
+});
+
+test('Phase 4: config has v4.2+ sections', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    $analytics = $config['analytics'];
+
+    $v42Keys = ['event_impact', 'feature_adoption'];
+
+    foreach ($v42Keys as $key) {
+        expect(
+            array_key_exists($key, $analytics),
+            "Missing v4.2 config key: analytics.{$key}",
+        )->toBeTrue();
+    }
+});
+
 test('Phase 4: Facade @method annotations cover key methods', function (): void {
     $facadeContent = file_get_contents(__DIR__ . '/../src/Facades/Analytics.php');
 
@@ -583,7 +816,7 @@ test('Phase 4: Facade @method annotations cover key methods', function (): void 
     }
 });
 
-test('Phase 4: ServiceProvider registers 10 console commands', function (): void {
+test('Phase 4: ServiceProvider registers 10+ console commands', function (): void {
     $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
     expect($content)->toContain('AnalyticsTestCommand');
@@ -658,7 +891,7 @@ test('Phase 4: Support classes are instantiable', function (): void {
         AnalyticsRateLimiter::class,
         EventTransformer::class,
         WebhookSignatureValidator::class,
-        EcommerceFormatConverter::class,
+        SupportEcommerceFormatConverter::class,
         AnalyticsEventNameRule::class,
     ];
 
@@ -666,4 +899,25 @@ test('Phase 4: Support classes are instantiable', function (): void {
         $r = new ReflectionClass($cls);
         expect($r->isInstantiable(), "{$cls} should be instantiable")->toBeTrue();
     }
+});
+
+test('Phase 4: ServiceProvider version docblock matches composer', function (): void {
+    $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
+    $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true, 512, JSON_THROW_ON_ERROR);
+    expect($content)->toContain("@version {$composer['version']}");
+});
+
+test('Phase 4: routes file has v4.2 impact endpoints', function (): void {
+    $content = file_get_contents(__DIR__ . '/../routes/analytics.php');
+    expect($content)->toContain('impact/calculate');
+    expect($content)->toContain('impact/conversion-drivers');
+    expect($content)->toContain('impact/retention-drivers');
+});
+
+test('Phase 4: routes file has v4.2 adoption endpoints', function (): void {
+    $content = file_get_contents(__DIR__ . '/../routes/analytics.php');
+    expect($content)->toContain('adoption/profile/{userId}');
+    expect($content)->toContain('adoption/record');
+    expect($content)->toContain('adoption/funnel');
+    expect($content)->toContain('adoption/streak/{userId}/{featureName}');
 });

@@ -154,16 +154,12 @@ use ZeroBoiler\Analytics\Services\EventArchiveService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
 
 /**
- * @version 4.1.0
- */
-
-/**
  * Laravel service provider for the ZeroBoiler Analytics package.
  *
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 4.1.0
+ * @version 4.2.0
  */
 final class AnalyticsServiceProvider extends ServiceProvider
 {
@@ -1878,5 +1874,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/adoption/streak/{userId}/{featureName}', [$controller, 'featureAdoptionStreak']);
                 Route::delete('analytics/adoption/profile/{userId}', [$controller, 'featureAdoptionClear']);
             });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return list<string>
+     */
+    #[\Override]
+    public function provides(): array
+    {
+        return [
+            'zeroboiler.analytics',
+            AnalyticsManager::class,
+            AnalyticsConfig::class,
+        ];
     }
 }
