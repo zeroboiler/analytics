@@ -47,6 +47,7 @@ final class AnalyticsSSEController extends Controller
      *   cursor — resume from cursor (default: 0)
      *   filter — event name filter (supports * wildcard)
      *   category — category filter (ecommerce|saas|engagement)
+     *   provider — provider filter (ga4|meta|posthog|plausible) — v8.2.0
      *   heartbeat — heartbeat interval in seconds (default: 30)
      *
      * @return StreamedResponse
@@ -56,11 +57,13 @@ final class AnalyticsSSEController extends Controller
         $cursor = (int) ($request->query('cursor', 0));
         $filter = $request->query('filter');
         $category = $request->query('category');
+        $provider = $request->query('provider');
         $heartbeatInterval = min(60, max(5, (int) ($request->query('heartbeat', 30))));
         $filter = is_string($filter) ? $filter : null;
         $category = is_string($category) ? $category : null;
+        $provider = is_string($provider) ? $provider : null;
 
-        $response = new StreamedResponse(function () use ($cursor, $filter, $category, $heartbeatInterval): void {
+        $response = new StreamedResponse(function () use ($cursor, $filter, $category, $provider, $heartbeatInterval): void {
             // Set SSE headers
             if (! headers_sent()) {
                 header('Content-Type: text/event-stream');
@@ -100,6 +103,12 @@ final class AnalyticsSSEController extends Controller
                     }
 
                     if ($category !== null && !$this->matchesCategory($eventData['event'] ?? '', $category)) {
+                        $lastCursor = $eventData['id'] ?? $lastCursor;
+                        continue;
+                    }
+
+                    // Provider filtering (v8.2.0) — skip events not mapped to the requested provider
+                    if ($provider !== null && !$this->matchesProvider($eventData['event'] ?? '', $provider)) {
                         $lastCursor = $eventData['id'] ?? $lastCursor;
                         continue;
                     }
@@ -150,6 +159,7 @@ final class AnalyticsSSEController extends Controller
                 'supports_cursor_resume' => true,
                 'supports_filtering' => true,
                 'supports_category_filter' => true,
+                'supports_provider_filter' => true,
             ],
             'buffer' => [
                 'size' => $this->streamService->getBufferSize(),
@@ -245,5 +255,33 @@ final class AnalyticsSSEController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Check if an event name is mapped to a specific provider.
+     *
+     * Uses the EventCatalog to look up the provider-specific event name.
+     * An event matches if it has a non-null mapping for the requested provider.
+     *
+     * @param  string  $eventName  The catalog event name
+     * @param  string  $provider  The target provider (ga4|meta|posthog|plausible)
+     *
+     * @since 8.2.0
+     */
+    private function matchesProvider(string $eventName, string $provider): bool
+    {
+        $entry = \ZeroBoiler\Analytics\Events\EventCatalog::get($eventName);
+
+        if ($entry === null) {
+            return false;
+        }
+
+        return match ($provider) {
+            'ga4' => isset($entry['ga4']),
+            'meta' => ($entry['meta'] ?? null) !== null,
+            'posthog' => isset($entry['posthog']),
+            'plausible' => ($entry['plausible'] ?? null) !== null,
+            default => false,
+        };
     }
 }

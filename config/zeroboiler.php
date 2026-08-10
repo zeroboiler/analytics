@@ -501,6 +501,28 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Fingerprinting (v8.2.0)
+        |--------------------------------------------------------------------------
+        |
+        | Content-addressed event fingerprinting for deduplication and replay.
+        | Computes stable SHA-256 hashes based on event name, params, client/user
+        | identity, and a configurable time bucket. Events sharing a fingerprint
+        | within the TTL window are treated as duplicates.
+        |
+        | time_bucket options: 'second', 'minute' (default), 'hour', 'day'
+        |
+        */
+        'fingerprint' => [
+            'enabled' => env('ANALYTICS_FINGERPRINT_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_FINGERPRINT_CACHE_PREFIX', 'zb_fp_'),
+            'ttl' => (int) env('ANALYTICS_FINGERPRINT_TTL', 86400), // 24 hours
+            'time_bucket' => env('ANALYTICS_FINGERPRINT_TIME_BUCKET', 'minute'),
+            'exclude_timestamp' => env('ANALYTICS_FINGERPRINT_EXCLUDE_TIMESTAMP', false),
+            'exclude_params' => env('ANALYTICS_FINGERPRINT_EXCLUDE_PARAMS', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Debug Mode
         |--------------------------------------------------------------------------
         |

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.2.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.2.0](#whats-new-in-v820)
 - [What's New in v8.0.0](#whats-new-in-v8000)
 - [What's New in v7.9.0](#whats-new-in-v790)
 - [What's New in v7.8.0](#whats-new-in-v780)
@@ -70,6 +71,38 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.2.0
+
+### Event Fingerprinting & SSE Provider Filtering
+
+**EventFingerprintService** — Content-addressed event identity for deduplication and replay identification. Computes stable SHA-256 hashes based on event name, sorted parameter signature, client/user identity, and a configurable time bucket. Events sharing a fingerprint within the TTL window are treated as duplicates. Supports configurable time granularity (second/minute/hour/day), param exclusion modes, and atomic check-and-mark operations. Inspired by Segment's messageId, RudderStack's batchId, and Mixpanel's event dedup fingerprinting.
+
+```php
+use ZeroBoiler\Analytics\Services\EventFingerprintService;
+
+$service = app(EventFingerprintService::class);
+
+// Compute fingerprint for an event
+$event = new AnalyticsEvent('purchase', ['value' => 29.99], 'client_1', 'user_1');
+$fp = $service->fingerprint($event); // 64-char SHA-256 hex string
+
+// Atomic dedup check: returns is_duplicate + fingerprint
+$result = $service->checkAndMark($event);
+// $result['is_duplicate'] // false on first call, true on subsequent
+// $result['fingerprint']  // the SHA-256 hash
+
+// Batch fingerprinting
+$batchFp = $service->batchFingerprint([$event1, $event2]);
+$service->markBatchSeen([$event1, $event2]);
+$seen = $service->hasSeenBatch([$event1, $event2]); // true
+```
+
+**SSE Provider Filtering** — The SSE streaming endpoint now supports a `provider` query parameter for filtering events by provider mapping. Connect to `/api/analytics/sse?provider=ga4` to receive only events that have a GA4 mapping, or `?provider=meta` for Meta Pixel-only events. Also supports `category` (ecommerce|saas|engagement) and `filter` (wildcard event name) simultaneously.
+
+**Config: `fingerprint` section** — New `zeroboiler.analytics.fingerprint` with `enabled`, `cache_prefix`, `ttl`, `time_bucket`, `exclude_timestamp`, `exclude_params` settings.
+
+**Version sweep** — 8.0.0/8.1.0 → 8.2.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + header), Svelte composable, TypeScript definitions, ServiceProvider, README badge.
 
 ## What's New in v8.0.0
 

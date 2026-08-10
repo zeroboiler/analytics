@@ -219,7 +219,7 @@ final class AnalyticsReportCommand extends Command
     private function renderTable(array $report, string $section): void
     {
         $this->info('╔══════════════════════════════════════════════════════════╗');
-        $this->info('║          ZeroBoiler Analytics Report — v8.0.0          ║');
+        $this->info('║          ZeroBoiler Analytics Report — v8.2.0          ║');
         $this->info('╚══════════════════════════════════════════════════════════╝');
         $this->newLine();
 

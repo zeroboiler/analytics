@@ -189,6 +189,7 @@ use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
+use ZeroBoiler\Analytics\Services\EventFingerprintService;
 use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSignalIntelligenceCommand;
@@ -205,7 +206,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.8.0
+ * @version 8.2.0
  *
  * @since 1.0.0
  */
@@ -615,6 +616,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventCooccurrenceService(
                 $app->make('cache'),
                 $app->make(AnalyticsMetrics::class),
+            );
+        });
+
+        // Event Fingerprinting Service (v8.2.0) — content-addressed event identity
+        $this->app->singleton(EventFingerprintService::class, function (Application $app): EventFingerprintService {
+            $fpConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.fingerprint', []);
+            /** @var array{cache_prefix?: string, ttl?: int, time_bucket?: string, exclude_timestamp?: bool, exclude_params?: bool} $fpConfig */
+
+            return new EventFingerprintService(
+                $app->make('cache'),
+                $fpConfig,
             );
         });
 
