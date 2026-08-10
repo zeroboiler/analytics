@@ -6,6 +6,23 @@ All notable changes to the package will be documented in this file.
 
 ### Added
 
+- **EventDataMartService** — Pre-aggregated OLAP-style event rollup cubes for instant dashboard queries. Materializes raw analytics events into time-binned summary cells stored in the Laravel cache, enabling fast top-N queries without scanning raw event streams. Supports 5 granularity levels (minute, hour, day, week, month) and 6 aggregation dimensions (event_name, category, provider, client_id, user_id, source). Features: unique client tracking with HyperLogLog-inspired probabilistic counting fallback, dimension cardinality limits, batch ingestion, category filtering, cube export, dimension comparison for drift detection, and full clear. Registered as singleton in ServiceProvider.
+- **AnalyticsInsightEngineService** — Automated analytics insight generation combining data mart rollups, catalog coverage analysis, and health signals. Inspired by Amplitude Compass and Mixpanel Signal. Generates structured insight reports with severity levels (info, warning, critical), covering: category distribution analysis, core SaaS catalog completeness, revenue event coverage, provider mapping coverage (GA4/Meta/PostHog), growth signals, GDPR compliance gaps, and data mart freshness. Quick health assessment for dashboards. Registered as singleton in ServiceProvider.
+- **AnalyticsInsightsCommand** — New `php artisan analytics:insights` console command. Generates comprehensive insight reports combining data mart status, category distribution, top events, catalog coverage, and health signals. Supports three output formats: table (default), json, summary. Severity filtering with `--severity` flag. Ideal for daily cron jobs and monitoring.
+- **Config: `data_mart` section** — New `zeroboiler.analytics.data_mart` with `enabled`, `cache_ttl`, `default_granularity`, `max_dimensions`, `auto_dimensions`, `tracked_categories` settings. All configurable via environment variables.
+- **Config: `insight_engine` section** — New `zeroboiler.analytics.insight_engine` with `enabled`, `cache_ttl`, `top_movers_count`, `drift_threshold`, `growth_threshold`, `decline_threshold` settings.
+- **API endpoints: Event Data Mart** — 8 new REST endpoints: `GET /api/analytics/data-mart/summary`, `/top/{dimension}`, `/by-category`, `/by-event`, `/by-provider`, `/export`, `/compare`, `DELETE /api/analytics/data-mart`. Public, rate-limited.
+- **API endpoints: Insight Engine** — 4 new REST endpoints: `GET /api/analytics/insights` (full report), `/insights/latest` (cached), `/insights/health` (quick), `/insights/severity/{severity}` (filtered). Public, rate-limited.
+- **V700DataMartInsightEngineTest** — 30+ Pest test cases covering: EventDataMartService instantiation, strict types, final class, supported granularities/dimensions, event ingestion with cache cell updates, batch ingestion, unique client tracking, disabled state, category filtering, summary output, data queries, cube export, dimension comparison, clear. AnalyticsInsightEngineService instantiation, strict types, report generation, disabled state, severity filtering, quick health assessment, latest cached report, insight structure validation. Version consistency (7.0.0 across all entry points), config sections, controller methods, routes, ServiceProvider registration.
+
+### Changed
+
+- **Version sweep** — 6.9.0 → 7.0.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composables (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
+## [6.9.0] - 2026-08-10
+
+### Added
+
 - **EventDataMartService** — OLAP-style pre-aggregated event rollup cubes for instant dashboard queries. Materializes raw analytics events into time-binned summary tables stored in the Laravel cache, inspired by Amplitude/Mixpanel/PostHog data marts. Features: multi-granularity support (minute/hour/day/week/month), configurable auto-dimensions (event_name, category, provider, client_id, user_id), cardinality-limited cells, unique client tracking with HyperLogLog-inspired probabilistic counting cap, batch ingestion, dimension comparison for anomaly detection, full cube export, summary statistics. Registered as singleton in ServiceProvider.
 - **Config: `data_mart` section** — New `zeroboiler.analytics.data_mart` with `enabled`, `cache_ttl`, `default_granularity`, `max_dimensions`, `auto_dimensions`, `tracked_categories` settings.
 

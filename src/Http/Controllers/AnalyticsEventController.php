@@ -60,6 +60,8 @@ use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
+use ZeroBoiler\Analytics\Services\EventDataMartService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
 
 /**
  * API controller for frontend event tracking.
@@ -7968,5 +7970,117 @@ final class AnalyticsEventController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    // ─── Event Data Mart (v7.0.0) ────────────────────────────────────────
+
+    /**
+     * Get data mart summary status.
+     */
+    public function dataMartSummary(Request $request, EventDataMartService $mart): JsonResponse
+    {
+        return response()->json($mart->summary());
+    }
+
+    /**
+     * Get top N values for a given dimension.
+     */
+    public function dataMartTop(Request $request, EventDataMartService $mart, string $dimension): JsonResponse
+    {
+        $limit = (int) $request->query('limit', 10);
+        $granularity = $request->query('granularity', 'hour');
+
+        return response()->json($mart->top($dimension, min($limit, 100), $granularity));
+    }
+
+    /**
+     * Get event counts grouped by category.
+     */
+    public function dataMartByCategory(EventDataMartService $mart): JsonResponse
+    {
+        return response()->json($mart->byCategory());
+    }
+
+    /**
+     * Get event counts grouped by event name.
+     */
+    public function dataMartByEvent(EventDataMartService $mart): JsonResponse
+    {
+        return response()->json($mart->byEventName());
+    }
+
+    /**
+     * Get event counts grouped by provider.
+     */
+    public function dataMartByProvider(EventDataMartService $mart): JsonResponse
+    {
+        return response()->json($mart->byProvider());
+    }
+
+    /**
+     * Export a full data mart cube.
+     */
+    public function dataMartExport(Request $request, EventDataMartService $mart): JsonResponse
+    {
+        $dimension = $request->query('dimension', 'event_name');
+        $granularity = $request->query('granularity', 'hour');
+
+        return response()->json($mart->exportCube($dimension, $granularity));
+    }
+
+    /**
+     * Compare two dimensions' distributions.
+     */
+    public function dataMartCompare(Request $request, EventDataMartService $mart): JsonResponse
+    {
+        $dimensionA = $request->query('dimension_a', 'event_name');
+        $dimensionB = $request->query('dimension_b', 'category');
+        $granularity = $request->query('granularity', 'hour');
+
+        return response()->json($mart->compareDimensions($dimensionA, $dimensionB, $granularity));
+    }
+
+    /**
+     * Clear all data mart caches.
+     */
+    public function dataMartClear(EventDataMartService $mart): JsonResponse
+    {
+        $mart->clear();
+
+        return response()->json(['cleared' => true]);
+    }
+
+    // ─── Insight Engine (v7.0.0) ───────────────────────────────────────
+
+    /**
+     * Generate a full insight report.
+     */
+    public function insightReport(AnalyticsInsightEngineService $engine): JsonResponse
+    {
+        return response()->json($engine->generateReport());
+    }
+
+    /**
+     * Get the latest cached insight report.
+     */
+    public function insightLatest(AnalyticsInsightEngineService $engine): JsonResponse
+    {
+        return response()->json($engine->latestReport());
+    }
+
+    /**
+     * Get quick health summary.
+     */
+    public function insightHealth(AnalyticsInsightEngineService $engine): JsonResponse
+    {
+        return response()->json($engine->quickHealth());
+    }
+
+    /**
+     * Get insights filtered by severity.
+     */
+    public function insightBySeverity(AnalyticsInsightEngineService $engine, string $severity): JsonResponse
+    {
+        return response()->json($engine->bySeverity($severity));
     }
 }

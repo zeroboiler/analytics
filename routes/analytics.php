@@ -462,4 +462,20 @@ Route::prefix('analytics')->group(function () {
     Route::get('config/export', [AnalyticsEventController::class, 'configExport']);
     Route::get('config/status', [AnalyticsEventController::class, 'configStatus']);
     Route::get('config/section/{section}', [AnalyticsEventController::class, 'configSection']);
+
+    // Event Data Mart (v7.0.0)
+    Route::get('data-mart/summary', [AnalyticsEventController::class, 'dataMartSummary']);
+    Route::get('data-mart/top/{dimension}', [AnalyticsEventController::class, 'dataMartTop']);
+    Route::get('data-mart/by-category', [AnalyticsEventController::class, 'dataMartByCategory']);
+    Route::get('data-mart/by-event', [AnalyticsEventController::class, 'dataMartByEvent']);
+    Route::get('data-mart/by-provider', [AnalyticsEventController::class, 'dataMartByProvider']);
+    Route::get('data-mart/export', [AnalyticsEventController::class, 'dataMartExport']);
+    Route::get('data-mart/compare', [AnalyticsEventController::class, 'dataMartCompare']);
+    Route::delete('data-mart', [AnalyticsEventController::class, 'dataMartClear']);
+
+    // Insight Engine (v7.0.0)
+    Route::get('insights', [AnalyticsEventController::class, 'insightReport']);
+    Route::get('insights/latest', [AnalyticsEventController::class, 'insightLatest']);
+    Route::get('insights/health', [AnalyticsEventController::class, 'insightHealth']);
+    Route::get('insights/severity/{severity}', [AnalyticsEventController::class, 'insightBySeverity']);
 });

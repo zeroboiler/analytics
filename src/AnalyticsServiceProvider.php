@@ -559,14 +559,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SaaSEventTemplateService($manager);
         });
 
-        // Event Data Mart (v7.0.0) — pre-aggregated OLAP-style event rollup cubes
-        $this->app->singleton(EventDataMartService::class, function (Application $app): EventDataMartService {
-            return new EventDataMartService(
-                $app->make('cache'),
-                $app->make(ConfigRepository::class),
-            );
-        });
-
         // Analytics Insight Engine (v7.0.0) — automated insight generation
         $this->app->singleton(AnalyticsInsightEngineService::class, function (Application $app): AnalyticsInsightEngineService {
             return new AnalyticsInsightEngineService(
