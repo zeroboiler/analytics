@@ -157,6 +157,22 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Checkout Flow Tracking (v6.8.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Multi-step checkout funnel tracking configuration.
+        | Tracks users through cart_review → shipping_info → payment_info →
+        | order_review → confirmation with step-level conversion analytics.
+        |
+        */
+        'checkout_tracking' => [
+            'enabled' => env('ANALYTICS_CHECKOUT_TRACKING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CHECKOUT_CACHE_TTL', 86400), // 24 hours
+            'currency' => env('ANALYTICS_CHECKOUT_CURRENCY', 'USD'),
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | SaaS Revenue Defaults
         |--------------------------------------------------------------------------
@@ -205,6 +221,26 @@ return [
                 //     'features' => ['sso', 'audit_log', 'dedicated_support', 'sla'],
                 // ],
             ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | SaaS KPI Calculator (v6.8.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Industry-standard SaaS metrics computation service.
+        | Computes MRR, ARR, LTV, NRR, churn rate, Rule of 40, Quick Ratio,
+        | trial conversion, and activation rate from raw billing data.
+        |
+        */
+        'saas_kpi_calc' => [
+            'enabled' => env('ANALYTICS_SAAS_KPI_CALC_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_SAAS_KPI_CACHE_TTL', 300), // 5 minutes
+            'mrr_goal' => (float) env('ANALYTICS_SAAS_KPI_MRR_GOAL', 10000),
+            'churn_warning' => (float) env('ANALYTICS_SAAS_KPI_CHURN_WARNING', 0.05),
+            'ltv_cac_target' => (float) env('ANALYTICS_SAAS_KPI_LTV_CAC_TARGET', 3.0),
+            'quick_ratio_target' => (float) env('ANALYTICS_SAAS_KPI_QUICK_RATIO_TARGET', 4.0),
+            'rule_of_40_target' => (float) env('ANALYTICS_SAAS_KPI_RULE_OF_40_TARGET', 40.0),
         ],
 
         /*

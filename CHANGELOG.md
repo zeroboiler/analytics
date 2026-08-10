@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.8.0] - 2026-08-10
+
+### Added
+
+- **CheckoutFlowTracker** — Multi-step checkout funnel tracking service with 5-step flow (cart_review → shipping_info → payment_info → order_review → confirmation). Features: step-level event dispatch (begin_checkout, checkout_step, purchase, checkout_abandon), step timing analysis, cart value computation via EcommerceFormatConverter, cache-backed state persistence, abandonment scoring integration. Registered as singleton in ServiceProvider.
+- **SaaSKpiCalculatorService** — Industry-standard SaaS metrics computation service aligned with OpenView/Bessemer/KeyBanc benchmarks. Computes: MRR (mixed billing cycles), ARR, ARPU, churn rate (customer + revenue), LTV (ARPU ÷ churn), LTV:CAC ratio, payback period, Net Revenue Retention (NRR), Gross Revenue Retention (GRR), Quick Ratio, Rule of 40, trial-to-paid conversion rate, activation rate. Full `computeDashboard()` method with health assessment (healthy/warning/critical). Registered as singleton in ServiceProvider.
+- **ProviderEventValidator** — Provider-specific event parameter validator. Validates GA4 items schema (required fields, max 25 items, ISO 4217 currency, numeric values, transaction_id for purchases), Meta Pixel (content_ids types, num_items consistency, content_type), PostHog (reserved $properties detection, $currency format), Plausible (no spaces in names, max length). `validateAll()` for cross-provider validation with per-provider error reports.
+- **Config: `checkout_tracking` section** — New `zeroboiler.analytics.checkout_tracking` with `enabled`, `cache_ttl`, `currency` settings.
+- **Config: `saas_kpi_calc` section** — New `zeroboiler.analytics.saas_kpi_calc` with `enabled`, `cache_ttl`, benchmark targets (MRR goal, churn warning, LTV:CAC target, Quick Ratio target, Rule of 40 target).
+- **V68CheckoutKpiProviderValidatorTest** — 35+ Pest test cases covering: CheckoutFlowTracker start/advance/complete/abandon flow, step ordering validation, disabled state, step timing computation, funnel steps definition, step constants. SaaSKpiCalculatorService MRR (mixed billing cycles), ARR, ARPU, churn rate, LTV, LTV:CAC, payback, NRR, GRR, Quick Ratio, Rule of 40, trial conversion, activation rate, full dashboard computation, health assessment, benchmarks. ProviderEventValidator GA4 items schema, Meta Pixel params, PostHog reserved properties, Plausible event names, cross-provider validation.
+
+### Changed
+
+- **Version sweep** — 6.7.0 → 6.8.0 across composer.json, JS client (getVersion + _getInternalVersion + @version), Svelte composables (@version), CHANGELOG, README badge.
+
 ## [6.7.0] - 2026-08-10
 
 ### Added

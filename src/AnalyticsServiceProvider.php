@@ -122,6 +122,9 @@ use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\SaaSMetricsBenchmarkService;
 use ZeroBoiler\Analytics\Services\PrivacySandboxService;
 use ZeroBoiler\Analytics\Services\CartStateManager;
+use ZeroBoiler\Analytics\Services\CheckoutFlowTracker;
+use ZeroBoiler\Analytics\Services\SaaSKpiCalculatorService;
+use ZeroBoiler\Analytics\Services\ProviderEventValidator;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
 use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
 use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
@@ -183,7 +186,7 @@ use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.7.0
+ * @version 6.8.0
  *
  * @since 1.0.0
  */
@@ -1394,6 +1397,29 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Checkout Flow Tracker (v6.8.0)
+        $this->app->singleton(CheckoutFlowTracker::class, function (Application $app): CheckoutFlowTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new CheckoutFlowTracker(
+                $manager,
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // SaaS KPI Calculator Service (v6.8.0)
+        $this->app->singleton(SaaSKpiCalculatorService::class, function (Application $app): SaaSKpiCalculatorService {
+            return new SaaSKpiCalculatorService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Provider Event Validator (v6.8.0)
+        $this->app->singleton(ProviderEventValidator::class);
 
         // Event Affinity Service (v2.93.0)
         $this->app->singleton(EventAffinityService::class, function (Application $app): EventAffinityService {

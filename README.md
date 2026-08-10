@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.7.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.8.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.8.0](#whats-new-in-v6800)
 - [What's New in v6.7.0](#whats-new-in-v6700)
 - [What's New in v6.5.0](#whats-new-in-v6500)
 - [What's New in v6.2.0](#whats-new-in-v6200)
@@ -600,6 +601,107 @@ ANALYTICS_QUEUE_MAX_BATCH_SIZE=50
 - Version synchronized across PHP, JS client, and Svelte composables (5.2.0)
 - `QueuedAnalyticsDispatcher::getMaxBatchSize()` added for programmatic batch size inspection
 - `EventPipeline` data bus, session analytics, and cohort analytics services now use serializable jobs
+
+## What's New in v6.8.0
+
+### Checkout Flow Tracker
+
+New `CheckoutFlowTracker` service provides multi-step checkout funnel tracking with step-level conversion analytics.
+
+```php
+use ZeroBoiler\Analytics\Services\CheckoutFlowTracker;
+
+/** @var CheckoutFlowTracker $tracker */
+
+// Start checkout
+$result = $tracker->startCheckout($clientId, $items, 'USD', 'SAVE10');
+// → ['checkout_id' => 'cko_...', 'step' => 'cart_review', 'step_index' => 1, 'value' => 69.97]
+
+// Advance through steps
+$tracker->advanceStep($clientId, 'shipping_info', ['shipping_method' => 'express']);
+$tracker->advanceStep($clientId, 'payment_info', ['payment_type' => 'credit_card']);
+$tracker->advanceStep($clientId, 'order_review');
+
+// Complete purchase
+$result = $tracker->completeCheckout($clientId, 'TXN-001', 69.97, 'USD', ['tax' => 5.99, 'shipping' => 4.99]);
+// → ['transaction_id' => 'TXN-001', 'total_steps' => 5, 'total_time' => 342, 'completed' => true]
+
+// Or abandon
+$result = $tracker->abandonCheckout($clientId, 'payment_failed');
+// → ['abandoned_at_step' => 'payment_info', 'value' => 69.97]
+
+// Get step timing analysis
+$timings = $tracker->getStepTiming($clientId);
+// → [['step' => 'cart_review', 'duration_seconds' => 120, 'duration_formatted' => '2m'], ...]
+
+// Get funnel steps definition
+$funnel = $tracker->funnelSteps();
+```
+
+**Checkout steps**: `cart_review` → `shipping_info` → `payment_info` → `order_review` → `confirmation`
+
+Configuration:
+```env
+ANALYTICS_CHECKOUT_TRACKING_ENABLED=true
+ANALYTICS_CHECKOUT_CACHE_TTL=86400
+```
+
+### SaaS KPI Calculator
+
+New `SaaSKpiCalculatorService` computes industry-standard SaaS metrics from raw billing data. Formulas aligned with OpenView, Bessemer, and KeyBanc benchmarks.
+
+```php
+use ZeroBoiler\Analytics\Services\SaaSKpiCalculatorService;
+
+/** @var SaaSKpiCalculatorService $kpi */
+
+// Individual metrics
+$mrr = $kpi->mrr($subscriptions);        // Monthly Recurring Revenue
+$arr = $kpi->arr($mrr);                  // Annual Recurring Revenue
+$arpu = $kpi->arpu($mrr, $activeCount); // Average Revenue Per User
+$churn = $kpi->churnRate(5, 100);        // 5% monthly churn
+$ltv = $kpi->ltv($arpu, $churn);        // Customer Lifetime Value
+$ltvCac = $kpi->ltvCacRatio($ltv, $cac);// LTV:CAC ratio (benchmark: > 3:1)
+$payback = $kpi->paybackPeriod($cac, $arpu); // Months to recover CAC
+$nrr = $kpi->netRevenueRetention($start, $expansion, $contraction, $churn); // NRR (benchmark: > 100%)
+$grr = $kpi->grossRevenueRetention($start, $contraction, $churn);           // GRR (benchmark: > 90%)
+$quickRatio = $kpi->quickRatio($new, $expansion, $contraction, $churn);    // Benchmark: > 4.0
+$ruleOf40 = $kpi->ruleOf40(50.0, -5.0); // Growth rate + profit margin (target: ≥ 40)
+
+// Full dashboard
+$dashboard = $kpi->computeDashboard([
+    'subscriptions' => [...],
+    'active_subscribers' => 500,
+    'churned_customers' => 15,
+    'start_customers' => 485,
+    // ... full billing data
+]);
+// → ['mrr' => 15000, 'arr' => 180000, 'churn_rate' => 0.03, 'nrr' => 1.12, 'health' => [...]]
+```
+
+### Provider Event Validator
+
+New `ProviderEventValidator` validates event parameters against provider-specific schemas before dispatch — catching malformed data early to prevent API rejections.
+
+```php
+use ZeroBoiler\Analytics\Services\ProviderEventValidator;
+
+$validator = new ProviderEventValidator;
+
+// Validate for a specific provider
+$ga4Result = $validator->validateGa4($event);
+// → ['valid' => true/false, 'errors' => [...], 'warnings' => [...]]
+
+// Validate across all providers
+$result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
+// → ['valid' => true, 'providers' => ['ga4' => ['valid' => true, ...], ...]]
+```
+
+**Validations per provider:**
+- **GA4**: Required item fields (`item_id`, `price`), max 25 items, ISO 4217 currency, numeric values, `transaction_id` for purchases
+- **Meta Pixel**: `content_ids` array types, `num_items` consistency, `content_type` for e-commerce events
+- **PostHog**: Reserved `$properties` detection, `$currency` format warning
+- **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
 
 ## Quick Start
 
