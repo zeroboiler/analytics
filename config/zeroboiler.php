@@ -3594,5 +3594,64 @@ return [
                 'go-http', 'node-fetch', 'axios', 'postmanruntime', 'insomnia',
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Identity Graph — Cross-Device Identity Resolution (v8.7.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Builds a graph of identity relationships between client IDs, user IDs,
+        | device fingerprints, and session IDs. Enables cross-device user stitching —
+        | correlating anonymous browsing behavior across devices with authenticated
+        | user profiles.
+        |
+        | Confidence scoring:
+        |   - Explicit login/register: 1.0 (100%)
+        |   - Same device fingerprint + linked client: 0.8
+        |   - Same IP + same user agent: 0.5
+        |   - Same cookie pair on different sessions: 0.3
+        |
+        | All graph data is stored in cache (same driver as identity resolution).
+        | Set 'enabled' to false to disable cross-device stitching entirely.
+        |
+        */
+        'identity_graph' => [
+            'enabled' => env('ANALYTICS_IDENTITY_GRAPH_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_IDENTITY_GRAPH_CACHE_PREFIX', 'zb_ig_'),
+            'graph_ttl' => (int) env('ANALYTICS_IDENTITY_GRAPH_TTL', 7776000), // 90 days (seconds)
+            'max_clients_per_user' => (int) env('ANALYTICS_IDENTITY_GRAPH_MAX_CLIENTS', 100),
+            'max_devices_per_user' => (int) env('ANALYTICS_IDENTITY_GRAPH_MAX_DEVICES', 50),
+            'max_edges_per_node' => (int) env('ANALYTICS_IDENTITY_GRAPH_MAX_EDGES', 200),
+            'min_confidence_stitching' => (float) env('ANALYTICS_IDENTITY_GRAPH_MIN_CONFIDENCE', 0.5),
+            'min_confidence_merge' => (float) env('ANALYTICS_IDENTITY_GRAPH_MERGE_CONFIDENCE', 0.9),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Device Fingerprinting (v8.7.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Server-side device fingerprint generation from HTTP request headers.
+        | Used by IdentityGraphService for cross-device user stitching.
+        | Fingerprints are SHA-256 hashes — no raw headers are stored.
+        |
+        | Components: user_agent, accept_language, sec_ch_platform, sec_ch_mobile,
+        | viewport_width, viewport_height (from client hints or JS-reported).
+        |
+        | Set 'include_ip' to true to include IP address in fingerprint
+        | (not recommended for GDPR compliance).
+        |
+        */
+        'device_fingerprint' => [
+            'enabled' => env('ANALYTICS_DEVICE_FINGERPRINT_ENABLED', true),
+            'hash_algo' => env('ANALYTICS_DEVICE_FINGERPRINT_ALGO', 'sha256'),
+            'include_ip' => env('ANALYTICS_DEVICE_FINGERPRINT_INCLUDE_IP', false),
+            'components' => [
+                'user_agent',
+                'accept_language',
+                'sec_ch_platform',
+                'sec_ch_mobile',
+            ],
+        ],
     ],
 ];

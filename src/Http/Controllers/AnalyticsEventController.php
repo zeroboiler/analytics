@@ -75,6 +75,8 @@ use ZeroBoiler\Analytics\Services\EventSessionizer;
 use ZeroBoiler\Analytics\Services\EventFunnelAggregator;
 use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
 use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
+use ZeroBoiler\Analytics\Services\IdentityGraphService;
+use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
 
 /**
  * API controller for frontend event tracking.
@@ -9102,6 +9104,154 @@ final class AnalyticsEventController extends Controller
         return response()->json([
             'status' => 'ok',
             'insights' => $profiler->cohortInsights($cohort, $userEvents),
+        ]);
+    }
+
+    // ─── Identity Graph — Cross-Device Identity Resolution (v8.7.0) ──
+
+    /**
+     * GET /api/analytics/identity-graph/user/{userId}
+     *
+     * Get the full identity graph for a user (all linked clients, devices, confidence scores).
+     */
+    public function identityGraphGet(Request $request, string $userId, IdentityGraphService $graph): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            'graph' => $graph->getGraph($userId),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/identity-graph/link
+     *
+     * Explicitly link a client ID to a user ID (typically after login/register).
+     *
+     * Body: { "client_id": "uuid", "device_id": "optional-fingerprint" }
+     */
+    public function identityGraphLink(Request $request, IdentityGraphService $graph): JsonResponse
+    {
+        $request->validate([
+            'client_id' => 'required|string',
+            'device_id' => 'nullable|string',
+        ]);
+
+        $user = $request->user();
+        if ($user === null) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $userId = $user->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+        $clientId = $request->input('client_id');
+        $deviceId = $request->input('device_id');
+
+        if ($userIdStr === null || $clientId === null) {
+            return response()->json(['error' => 'Invalid identity data'], 422);
+        }
+
+        $result = $graph->linkExplicit($clientId, $userIdStr, $deviceId);
+
+        return response()->json([
+            'status' => 'ok',
+            'link' => $result,
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/identity-graph/infer
+     *
+     * Infer identity link based on device fingerprint (cross-device stitching).
+     *
+     * Body: { "client_id": "uuid", "device_id": "fingerprint" }
+     */
+    public function identityGraphInfer(Request $request, IdentityGraphService $graph): JsonResponse
+    {
+        $request->validate([
+            'client_id' => 'required|string',
+            'device_id' => 'required|string',
+            'ip' => 'nullable|string',
+            'user_agent' => 'nullable|string',
+        ]);
+
+        $result = $graph->inferIdentity(
+            $request->input('client_id'),
+            $request->input('device_id'),
+            $request->input('ip'),
+            $request->input('user_agent'),
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'inference' => $result,
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/identity-graph/merge
+     *
+     * Merge two user identity graphs (e.g., when merging accounts).
+     *
+     * Body: { "source_user_id": "id1", "target_user_id": "id2" }
+     */
+    public function identityGraphMerge(Request $request, IdentityGraphService $graph): JsonResponse
+    {
+        $request->validate([
+            'source_user_id' => 'required|string',
+            'target_user_id' => 'required|string',
+        ]);
+
+        $result = $graph->mergeUsers(
+            $request->input('source_user_id'),
+            $request->input('target_user_id'),
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'merge' => $result,
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/identity-graph/same-user
+     *
+     * Check if two client IDs belong to the same user (cross-device stitching).
+     *
+     * Body: { "client_id_a": "uuid1", "client_id_b": "uuid2" }
+     */
+    public function identityGraphSameUser(Request $request, IdentityGraphService $graph): JsonResponse
+    {
+        $request->validate([
+            'client_id_a' => 'required|string',
+            'client_id_b' => 'required|string',
+        ]);
+
+        $result = $graph->areSameUser(
+            $request->input('client_id_a'),
+            $request->input('client_id_b'),
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'comparison' => $result,
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/identity-graph/fingerprint
+     *
+     * Generate a device fingerprint from the current request.
+     * Returns SHA-256 hash of normalized request components.
+     */
+    public function identityGraphFingerprint(Request $request, DeviceFingerprintService $fingerprint): JsonResponse
+    {
+        $fp = $fingerprint->fingerprint($request);
+
+        return response()->json([
+            'status' => 'ok',
+            'fingerprint' => $fp,
+            'components' => $fingerprint->getComponents(),
+            'enabled' => $fingerprint->isEnabled(),
         ]);
     }
 }

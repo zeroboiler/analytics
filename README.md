@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.6.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.7.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.7.0](#whats-new-in-v870)
 - [What's New in v8.6.0](#whats-new-in-v860)
 - [What's New in v8.5.0](#whats-new-in-v850)
 - [What's New in v8.4.0](#whats-new-in-v840)
@@ -75,6 +76,49 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.7.0
+
+### Cross-Device Identity Graph
+
+Industry-standard identity resolution for multi-device user stitching. The new `IdentityGraphService` builds a graph of identity relationships between client IDs, user IDs, device fingerprints, and session IDs — enabling cross-device correlation of anonymous and authenticated user behavior.
+
+**Key capabilities:**
+- **Explicit linking** — Login/register creates 1.0 confidence links (client ↔ user ↔ device)
+- **Inferred stitching** — Unknown clients linked to known users via shared device fingerprint (0.8 confidence)
+- **Same-user detection** — `areSameUser(clientA, clientB)` checks graph connectivity
+- **User graph merging** — Merge identity graphs when users link accounts
+- **Event enrichment** — Auto-enrich events with `_identity_user_id`, `_identity_device_id`, `_identity_confidence`
+
+### Device Fingerprinting
+
+New `DeviceFingerprintService` generates server-side SHA-256 fingerprints from HTTP request headers (User-Agent, Accept-Language, Sec-CH-Platform). GDPR-safe by default — no IP address included. Used automatically by `IdentityGraphService` for cross-device matching.
+
+### API Endpoints
+
+```
+GET  /api/analytics/identity-graph/user/{userId}    — Get full identity graph
+POST /api/analytics/identity-graph/link             — Explicit client→user link
+POST /api/analytics/identity-graph/infer            — Infer identity from device
+POST /api/analytics/identity-graph/merge            — Merge user graphs
+POST /api/analytics/identity-graph/same-user        — Cross-device stitching check
+GET  /api/analytics/identity-graph/fingerprint      — Generate device fingerprint
+```
+
+### Configuration
+
+```php
+// config/zeroboiler.php
+'identity_graph' => [
+    'enabled' => env('ANALYTICS_IDENTITY_GRAPH_ENABLED', true),
+    'min_confidence_stitching' => 0.5,
+    'min_confidence_merge' => 0.9,
+],
+'device_fingerprint' => [
+    'enabled' => env('ANALYTICS_DEVICE_FINGERPRINT_ENABLED', true),
+    'include_ip' => false, // GDPR-safe default
+],
+```
 
 ## What's New in v8.6.0
 

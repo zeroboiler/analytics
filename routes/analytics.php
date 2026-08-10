@@ -561,4 +561,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('dashboard/widgets', [AnalyticsEventController::class, 'dashboardWidgets']);
     Route::get('dashboard/widgets/{widgetName}', [AnalyticsEventController::class, 'dashboardWidgets']);
     Route::post('dashboard/widgets/invalidate', [AnalyticsEventController::class, 'dashboardWidgetsInvalidate']);
+
+    // Identity Graph — Cross-Device Identity Resolution (v8.7.0)
+    Route::get('identity-graph/user/{userId}', [AnalyticsEventController::class, 'identityGraphGet']);
+    Route::post('identity-graph/link', [AnalyticsEventController::class, 'identityGraphLink']);
+    Route::post('identity-graph/infer', [AnalyticsEventController::class, 'identityGraphInfer']);
+    Route::post('identity-graph/merge', [AnalyticsEventController::class, 'identityGraphMerge']);
+    Route::post('identity-graph/same-user', [AnalyticsEventController::class, 'identityGraphSameUser']);
+    Route::get('identity-graph/fingerprint', [AnalyticsEventController::class, 'identityGraphFingerprint']);
 });

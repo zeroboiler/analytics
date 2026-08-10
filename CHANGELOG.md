@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [8.7.0] - 2026-08-10
+
+### Added
+
+- **Cross-Device Identity Graph Service** (`IdentityGraphService`) — Builds and maintains a graph of identity relationships between client IDs, user IDs, device fingerprints, and session IDs. Enables cross-device user stitching with confidence scoring (1.0 for explicit login/register, 0.8 for device match, 0.5 for IP/UA match, 0.3 for session inference).
+- **Device Fingerprint Service** (`DeviceFingerprintService`) — Server-side device fingerprint generation from HTTP request headers (User-Agent, Accept-Language, Sec-CH-Platform, viewport dimensions). SHA-256 hashed — no raw headers stored. GDPR-safe by default (IP excluded).
+- **Identity Graph API endpoints** — `GET /api/analytics/identity-graph/user/{userId}`, `POST .../link`, `POST .../infer`, `POST .../merge`, `POST .../same-user`, `GET .../fingerprint` — full CRUD for cross-device identity management.
+- **Identity graph config section** — `zeroboiler.analytics.identity_graph` with configurable TTL, max clients/devices per user, confidence thresholds for stitching and merging.
+- **Device fingerprint config section** — `zeroboiler.analytics.device_fingerprint` with configurable hash algorithm, components, and IP inclusion toggle.
+- **Event enrichment integration** — `IdentityGraphService::enrichEvent()` auto-attaches `_identity_user_id`, `_identity_device_id`, and `_identity_confidence` to events from the pipeline.
+- **Identity graph service registration** — Both services registered as singletons in `AnalyticsServiceProvider`.
+- **Test suite** — `V870IdentityGraphServiceTest.php` with 17 tests covering explicit linking, inference, graph retrieval, same-user detection, user merging, fingerprinting, stats, and event enrichment.
+- Full version sweep to 8.7.0 across all entry points.
+
 ## [8.6.0] - 2026-08-10
 
 ### Added

@@ -147,6 +147,8 @@ use ZeroBoiler\Analytics\Services\UserPropertiesStore;
 use ZeroBoiler\Analytics\Services\RetentionCalculator;
 use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
+use ZeroBoiler\Analytics\Services\IdentityGraphService;
+use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
 use ZeroBoiler\Analytics\Services\EventContextSnapshotService;
 use ZeroBoiler\Analytics\Services\UserJourneyReconstructionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
@@ -212,7 +214,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 8.6.0
+ * @version 8.7.0
  *
  * @since 1.0.0
  */
@@ -1623,6 +1625,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
+        });
+
+        // Identity Graph Service — Cross-Device Identity Resolution (v8.7.0)
+        $this->app->singleton(IdentityGraphService::class, function (Application $app): IdentityGraphService {
+            return new IdentityGraphService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Device Fingerprint Service (v8.7.0)
+        $this->app->singleton(DeviceFingerprintService::class, function (Application $app): DeviceFingerprintService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $fpConfig = $config->get('zeroboiler.analytics.device_fingerprint', []);
+            /** @var array{enabled?: bool, hash_algo?: string, include_ip?: bool, components?: list<string>} $fpConfig */
+
+            return new DeviceFingerprintService($fpConfig);
         });
 
         // Event Context Snapshot Service (v8.5.0)
