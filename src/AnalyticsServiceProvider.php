@@ -175,6 +175,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
 use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
+use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -182,7 +183,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.5.0
+ * @version 6.6.0
  *
  * @since 1.0.0
  */
@@ -527,6 +528,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $queue,
                 (bool) ($queueConfig['enabled'] ?? true),
             );
+        });
+
+        // Cohort revenue attribution service (v6.6.0)
+        $this->app->singleton(CohortRevenueAttributionService::class, function (Application $app): CohortRevenueAttributionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $manager->metrics();
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new CohortRevenueAttributionService($manager, $metrics, $cache, $config);
         });
 
         // User journey mapping service

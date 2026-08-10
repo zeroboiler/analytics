@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 6.5.0
+ * @version 6.6.0
  */
 
 import { tick } from 'svelte';
@@ -855,7 +855,7 @@ export function cleanupAnalytics() {
     destroy();
 }
 
-// ─── Config Export Composable (v6.5.0) ──────────────────────────────
+// ─── Config Export Composable (v6.6.0) ──────────────────────────────
 
 /**
  * Config export composable for admin dashboards.

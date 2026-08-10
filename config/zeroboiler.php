@@ -2947,5 +2947,28 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_CONFIG_EXPORT_CACHE_TTL', 60), // 1 minute
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Cohort Revenue Attribution (v6.6.0)
+        |--------------------------------------------------------------------------
+        |
+        | Correlates cohort membership with revenue events to produce LTV-by-cohort
+        | analysis, cumulative revenue curves, and payback period estimation.
+        | Revenue data is aggregated in cache — no database required.
+        |
+        | Used by SaaS teams measuring the economic value of user cohorts over time.
+        | Supports weekly (YYYY-WXX), monthly (YYYY-MM), and yearly (YYYY) cohorts.
+        |
+        */
+        'cohort_revenue' => [
+            'enabled' => env('ANALYTICS_COHORT_REVENUE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_COHORT_REVENUE_CACHE_TTL', 3600), // 1 hour
+            'monthly_churn_rate' => (float) env('ANALYTICS_COHORT_REVENUE_CHURN', 0.05), // 5% monthly churn
+            'arpu' => (float) env('ANALYTICS_COHORT_REVENUE_ARPU', 49.0), // Default ARPU for payback calc
+            'max_cohorts' => (int) env('ANALYTICS_COHORT_REVENUE_MAX_COHORTS', 24),
+            'projection_months' => (int) env('ANALYTICS_COHORT_REVENUE_PROJECTION', 12),
+            'currency' => env('ANALYTICS_COHORT_REVENUE_CURRENCY', 'USD'),
+        ],
+
     ],
 ];

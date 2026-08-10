@@ -2,6 +2,19 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.6.0] - 2026-08-10
+
+### Added
+
+- **CohortRevenueAttributionService** — Correlates cohort membership with revenue events to produce industry-standard LTV-by-cohort analysis, cumulative revenue curves, payback period estimation, and cohort-based revenue attribution. Cache-backed, no database required. Supports weekly (YYYY-WXX), monthly (YYYY-MM), and yearly (YYYY) cohort formats with configurable churn-based decay modeling.
+- **Config: `cohort_revenue` section** — New `zeroboiler.analytics.cohort_revenue` with `enabled`, `cache_ttl`, `monthly_churn_rate`, `arpu`, `max_cohorts`, `projection_months`, `currency` settings.
+- **Methods**: `recordRevenue()`, `recordCohortMember()`, `matrix()`, `compare()`, `projectLtv()`, `byType()`, `topCohorts()`, `summary()`, `healthScore()`, `getCohort()`, `cohortIds()`, `revenueByEvent()`, `clear()`.
+- **V660CohortRevenueAttributionTest** — 30+ Pest test cases validating: service instantiation, config section, PHP 8.5 patterns (final class, strict types, return types), revenue recording, cohort member deduplication, matrix structure, cohort comparison, LTV projection curves, revenue by type, top cohort ranking, health score, individual cohort lookups, revenue by event breakdown, end-to-end lifecycle flow, LTV formula verification, retention decay, and ServiceProvider registration.
+
+### Changed
+
+- **Version sweep** — 6.5.0 → 6.6.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + @version), Svelte composables (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG.
+
 ## [6.5.0] - 2026-08-10
 
 ### Added

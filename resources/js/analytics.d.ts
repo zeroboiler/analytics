@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 6.5.0
+ * @version 6.6.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -1342,7 +1342,7 @@ export function initSvelteTracker(
  */
 export function _getInternalVersion(): string;
 
-// ─── Config Export (v6.5.0) ──────────────────────────────────────────
+// ─── Config Export (v6.6.0) ──────────────────────────────────────────
 
 /**
  * Fetch the full analytics configuration export (secrets redacted).

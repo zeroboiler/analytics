@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 6.5.0
+ * @version 6.6.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '6.5.0';
+    return '6.6.0';
 }
 
 /**
@@ -3193,7 +3193,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '6.5.0';
+    return '6.6.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -5342,7 +5342,7 @@ export function connectSSE(options = {}) {
     };
 }
 
-// ─── Config Export Helpers (v6.5.0) ─────────────────────────────────
+// ─── Config Export Helpers (v6.6.0) ─────────────────────────────────
 
 /**
  * Fetch the full analytics configuration export (secrets redacted).
@@ -5382,7 +5382,7 @@ export async function fetchConfigExport() {
  * const status = await fetchConfigStatus();
  * console.log(status.providers.ga4); // true
  * console.log(status.features.queue); // true
- * console.log(status.version); // '6.5.0'
+ * console.log(status.version); // '6.6.0'
  */
 export async function fetchConfigStatus() {
     if (!initialized) return null;
