@@ -182,6 +182,8 @@ use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
 use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
 use ZeroBoiler\Analytics\Services\EventDataMartService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
+use ZeroBoiler\Analytics\Services\EventRecommendationService;
+use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 
 /**
@@ -190,7 +192,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.0.0
+ * @version 7.1.0
  *
  * @since 1.0.0
  */
@@ -564,6 +566,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsInsightEngineService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Recommendation Engine (v7.1.0) — gap analysis & instrumentation guidance
+        $this->app->singleton(EventRecommendationService::class, function (Application $app): EventRecommendationService {
+            return new EventRecommendationService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Provider Gap Analyzer (v7.1.0) — cross-provider coverage analysis
+        $this->app->singleton(ProviderGapAnalyzer::class, function (Application $app): ProviderGapAnalyzer {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new ProviderGapAnalyzer(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+                $manager,
             );
         });
 

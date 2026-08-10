@@ -304,6 +304,28 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Recommendations & Intelligence (v7.1.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configures the EventRecommendationService and ProviderGapAnalyzer.
+        | These services analyze your tracked events against the full catalog
+        | and recommend instrumentation gaps ranked by business impact.
+        |
+        | Use excluded_events to suppress recommendations for events your
+        | app intentionally does not track (e.g., video_play if you have
+        | no video content).
+        |
+        */
+        'recommendations' => [
+            'enabled' => env('ANALYTICS_RECOMMENDATIONS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_RECOMMENDATIONS_CACHE_TTL', 300), // 5 minutes
+            'excluded_events' => [
+                // 'video_play', // Uncomment to exclude if no video content
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Auto-Track Links (Client-Side)
         |--------------------------------------------------------------------------
         |

@@ -62,6 +62,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Services\EventDataMartService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
+use ZeroBoiler\Analytics\Services\EventRecommendationService;
+use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 
 /**
  * API controller for frontend event tracking.
@@ -8082,5 +8084,108 @@ final class AnalyticsEventController extends Controller
     public function insightBySeverity(AnalyticsInsightEngineService $engine, string $severity): JsonResponse
     {
         return response()->json($engine->bySeverity($severity));
+    }
+
+    // ── Event Recommendations & Provider Gap Analysis (v7.1.0) ──────────
+
+    /**
+     * Get event instrumentation recommendations.
+     *
+     * Analyzes tracked events against the full catalog and returns gaps
+     * grouped by priority tier (critical, high, medium, low).
+     */
+    public function eventRecommendations(
+        EventRecommendationService $service,
+        Request $request,
+    ): JsonResponse {
+        $tracked = $request->query('tracked', '');
+        $trackedEvents = is_string($tracked) && $tracked !== ''
+            ? explode(',', $tracked)
+            : EventCatalog::names();
+
+        return response()->json($service->recommend($trackedEvents));
+    }
+
+    /**
+     * Get top N recommended events to add next.
+     */
+    public function topEventRecommendations(
+        EventRecommendationService $service,
+        Request $request,
+    ): JsonResponse {
+        $tracked = $request->query('tracked', '');
+        $trackedEvents = is_string($tracked) && $tracked !== ''
+            ? explode(',', $tracked)
+            : EventCatalog::names();
+        $limit = (int) $request->query('limit', 10);
+
+        return response()->json($service->topRecommendations($trackedEvents, $limit));
+    }
+
+    /**
+     * Get AARRR framework coverage breakdown.
+     */
+    public function aarrrBreakdown(
+        EventRecommendationService $service,
+        Request $request,
+    ): JsonResponse {
+        $tracked = $request->query('tracked', '');
+        $trackedEvents = is_string($tracked) && $tracked !== ''
+            ? explode(',', $tracked)
+            : EventCatalog::names();
+
+        return response()->json($service->aarrrBreakdown($trackedEvents));
+    }
+
+    /**
+     * Get priority tier configuration for recommendations.
+     */
+    public function recommendationTiers(EventRecommendationService $service): JsonResponse
+    {
+        return response()->json($service->tiers());
+    }
+
+    /**
+     * Analyze provider coverage gaps for tracked events.
+     */
+    public function providerGapAnalysis(
+        ProviderGapAnalyzer $analyzer,
+        Request $request,
+    ): JsonResponse {
+        $tracked = $request->query('tracked', '');
+        $trackedEvents = is_string($tracked) && $tracked !== ''
+            ? explode(',', $tracked)
+            : EventCatalog::names();
+
+        return response()->json($analyzer->analyze($trackedEvents));
+    }
+
+    /**
+     * Get provider gap detail for a specific provider.
+     */
+    public function providerGapDetail(
+        ProviderGapAnalyzer $analyzer,
+        Request $request,
+        string $provider,
+    ): JsonResponse {
+        $tracked = $request->query('tracked', '');
+        $trackedEvents = is_string($tracked) && $tracked !== ''
+            ? explode(',', $tracked)
+            : EventCatalog::names();
+
+        if (! in_array($provider, $analyzer->supportedProviders(), true)) {
+            return response()->json([
+                'error' => "Unsupported provider: {$provider}",
+                'supported' => $analyzer->supportedProviders(),
+            ], 400);
+        }
+
+        return response()->json([
+            'provider' => $provider,
+            'mapped' => $analyzer->mappedEvents($trackedEvents, $provider),
+            'gaps' => $analyzer->gapEvents($trackedEvents, $provider),
+            'mapped_count' => count($analyzer->mappedEvents($trackedEvents, $provider)),
+            'gap_count' => count($analyzer->gapEvents($trackedEvents, $provider)),
+        ]);
     }
 }

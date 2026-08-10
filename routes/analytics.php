@@ -478,4 +478,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('insights/latest', [AnalyticsEventController::class, 'insightLatest']);
     Route::get('insights/health', [AnalyticsEventController::class, 'insightHealth']);
     Route::get('insights/severity/{severity}', [AnalyticsEventController::class, 'insightBySeverity']);
+
+    // Event Recommendations & Provider Gap Analysis (v7.1.0)
+    Route::get('recommendations', [AnalyticsEventController::class, 'eventRecommendations']);
+    Route::get('recommendations/top', [AnalyticsEventController::class, 'topEventRecommendations']);
+    Route::get('recommendations/aarrr', [AnalyticsEventController::class, 'aarrrBreakdown']);
+    Route::get('recommendations/tiers', [AnalyticsEventController::class, 'recommendationTiers']);
+    Route::get('provider-gaps', [AnalyticsEventController::class, 'providerGapAnalysis']);
+    Route::get('provider-gaps/{provider}', [AnalyticsEventController::class, 'providerGapDetail']);
 });

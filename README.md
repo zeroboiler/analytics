@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-7.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-7.1.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.1.0](#whats-new-in-v7100)
 - [What's New in v7.0.0](#whats-new-in-v7000)
 - [What's New in v6.9.0](#whats-new-in-v6900)
 - [What's New in v6.8.0](#whats-new-in-v6800)
@@ -62,6 +63,71 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.1.0
+
+### Event Recommendation Engine
+
+New `EventRecommendationService` analyzes your tracked events against the full event catalog and recommends instrumentation gaps ranked by business impact. Uses a four-tier priority model (Critical → High → Medium → Low) to guide your analytics implementation.
+
+```php
+use ZeroBoiler\Analytics\Services\EventRecommendationService;
+
+$service = app(EventRecommendationService::class);
+
+// Get full gap analysis with coverage score
+$result = $service->recommend(['sign_up', 'login', 'page_view']);
+// Returns: gaps by priority, coverage percent, score (0-100), grade (A-F)
+
+// Get top 10 recommended events
+$top = $service->topRecommendations(['sign_up', 'login'], 10);
+
+// Get AARRR framework coverage breakdown
+$aarrr = $service->aarrrBreakdown(['sign_up', 'purchase', 'login']);
+// Returns: acquisition, activation, retention, revenue, referral coverage
+```
+
+### Provider Gap Analyzer
+
+New `ProviderGapAnalyzer` identifies which tracked events lack provider-specific mappings (GA4, Meta, PostHog, Plausible). Events without mappings are silently dropped by those providers.
+
+```php
+use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
+
+$analyzer = app(ProviderGapAnalyzer::class);
+
+// Full cross-provider gap analysis
+$gaps = $analyzer->analyze(['sign_up', 'custom_event', 'purchase']);
+// Returns: per-provider coverage, cross-provider gaps, overall summary
+
+// Check specific provider
+$ga4Gaps = $analyzer->gapEvents(['sign_up', 'custom_event'], 'ga4');
+$metaMapped = $analyzer->mappedEvents(['sign_up', 'purchase'], 'meta');
+```
+
+### New API Endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/analytics/recommendations?tracked=sign_up,login` | Event gap analysis with coverage score |
+| `GET /api/analytics/recommendations/top?limit=10` | Top N recommended events |
+| `GET /api/analytics/recommendations/aarrr` | AARRR framework coverage breakdown |
+| `GET /api/analytics/recommendations/tiers` | Priority tier configuration |
+| `GET /api/analytics/provider-gaps` | Cross-provider coverage analysis |
+| `GET /api/analytics/provider-gaps/{provider}` | Provider-specific gap detail |
+
+### New Config: `recommendations`
+
+```php
+// config/zeroboiler.php -> analytics.recommendations
+'recommendations' => [
+    'enabled' => env('ANALYTICS_RECOMMENDATIONS_ENABLED', true),
+    'cache_ttl' => env('ANALYTICS_RECOMMENDATIONS_CACHE_TTL', 300),
+    'excluded_events' => [
+        // 'video_play', // Exclude if no video content
+    ],
+],
+```
 
 ## What's New in v7.0.0
 
