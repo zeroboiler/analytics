@@ -68,6 +68,7 @@ use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
+use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
 
 /**
  * API controller for frontend event tracking.
@@ -8409,5 +8410,91 @@ final class AnalyticsEventController extends Controller
         $periodB = $request->json('period_b', []);
 
         return response()->json($service->comparePeriods($steps, $periodA, $periodB));
+    }
+
+    // ── Event Signal Intelligence (v7.7.0) ─────────────────────────
+
+    /**
+     * GET /api/analytics/signal — Full signal intelligence report.
+     */
+    public function signalIntelligenceReport(EventSignalIntelligenceService $service): JsonResponse
+    {
+        return response()->json($service->report());
+    }
+
+    /**
+     * GET /api/analytics/signal/score — Composite signal score only.
+     */
+    public function signalIntelligenceScore(EventSignalIntelligenceService $service): JsonResponse
+    {
+        $report = $service->report();
+
+        return response()->json([
+            'score' => $report['signal_score'],
+            'grade' => $report['grade'],
+            'computed_at' => $report['computed_at'],
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/signal/anomalies — Detected anomalies only.
+     */
+    public function signalIntelligenceAnomalies(EventSignalIntelligenceService $service): JsonResponse
+    {
+        return response()->json([
+            'anomalies' => $service->anomalies(),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/signal/providers — Provider health signals.
+     */
+    public function signalIntelligenceProviders(EventSignalIntelligenceService $service): JsonResponse
+    {
+        return response()->json([
+            'providers' => $service->providerSignals(),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/signal/categories — Category coverage signals.
+     */
+    public function signalIntelligenceCategories(EventSignalIntelligenceService $service): JsonResponse
+    {
+        return response()->json([
+            'categories' => $service->categorySignals(),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/signal/staleness — Staleness summary.
+     */
+    public function signalIntelligenceStaleness(EventSignalIntelligenceService $service): JsonResponse
+    {
+        $report = $service->report();
+
+        return response()->json($report['staleness_summary']);
+    }
+
+    /**
+     * GET /api/analytics/signal/signal-to-noise — Signal-to-noise ratio.
+     */
+    public function signalIntelligenceSignalToNoise(EventSignalIntelligenceService $service): JsonResponse
+    {
+        return response()->json([
+            'signal_to_noise' => $service->calculateSignalToNoise(),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/signal/dispatch-balance — Dispatch balance score.
+     */
+    public function signalIntelligenceDispatchBalance(EventSignalIntelligenceService $service): JsonResponse
+    {
+        $providerSignals = $service->providerSignals();
+
+        return response()->json([
+            'dispatch_balance' => $service->calculateDispatchBalance($providerSignals),
+        ]);
     }
 }

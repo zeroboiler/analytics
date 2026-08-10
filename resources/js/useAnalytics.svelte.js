@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 7.6.0
+ * @version 7.7.0
  */
 
 import { tick } from 'svelte';
@@ -875,5 +875,51 @@ export function useAnalyticsConfig() {
         get geolocation() { return getGeolocationStatus(); },
         get sampling() { return getSamplingConfig(); },
         get regionalConsent() { return getRegionalConsentStatus(); },
+    };
+}
+
+// ─── Signal Intelligence Composable (v7.7.0) ────────────────────────
+
+/**
+ * Signal Intelligence composable for pipeline observability.
+ *
+ * Provides reactive access to provider health signals, anomaly detection,
+ * and composite signal scoring from the server-side Signal Intelligence API.
+ *
+ * @returns {{ fetchReport: function(): Promise<Object|null>, fetchScore: function(): Promise<Object|null>, fetchAnomalies: function(): Promise<Array|null>, fetchProviders: function(): Promise<Object|null> }}
+ *
+ * @example
+ * import { useSignalIntelligence } from '@zeroboiler/analytics';
+ *
+ * const { fetchReport, fetchScore } = useSignalIntelligence();
+ * const report = await fetchReport();
+ * console.log(report.signal_score, report.grade);
+ */
+export function useSignalIntelligence() {
+    async function fetchReport() {
+        const { fetchSignalReport } = await import('./analytics.js');
+        return fetchSignalReport();
+    }
+
+    async function fetchScore() {
+        const { fetchSignalScore } = await import('./analytics.js');
+        return fetchSignalScore();
+    }
+
+    async function fetchAnomalies() {
+        const { fetchSignalAnomalies } = await import('./analytics.js');
+        return fetchSignalAnomalies();
+    }
+
+    async function fetchProviders() {
+        const { fetchSignalProviders } = await import('./analytics.js');
+        return fetchSignalProviders();
+    }
+
+    return {
+        fetchReport,
+        fetchScore,
+        fetchAnomalies,
+        fetchProviders,
     };
 }

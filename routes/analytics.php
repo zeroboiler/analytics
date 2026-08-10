@@ -508,4 +508,14 @@ Route::prefix('analytics')->group(function () {
     // Funnel Drop-off Intelligence (v7.5.0)
     Route::post('funnel-intelligence', [AnalyticsEventController::class, 'funnelIntelligence']);
     Route::post('funnel-intelligence/compare', [AnalyticsEventController::class, 'funnelIntelligenceCompare']);
+
+    // Event Signal Intelligence (v7.7.0)
+    Route::get('signal', [AnalyticsEventController::class, 'signalIntelligenceReport']);
+    Route::get('signal/score', [AnalyticsEventController::class, 'signalIntelligenceScore']);
+    Route::get('signal/anomalies', [AnalyticsEventController::class, 'signalIntelligenceAnomalies']);
+    Route::get('signal/providers', [AnalyticsEventController::class, 'signalIntelligenceProviders']);
+    Route::get('signal/categories', [AnalyticsEventController::class, 'signalIntelligenceCategories']);
+    Route::get('signal/staleness', [AnalyticsEventController::class, 'signalIntelligenceStaleness']);
+    Route::get('signal/signal-to-noise', [AnalyticsEventController::class, 'signalIntelligenceSignalToNoise']);
+    Route::get('signal/dispatch-balance', [AnalyticsEventController::class, 'signalIntelligenceDispatchBalance']);
 });

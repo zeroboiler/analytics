@@ -188,8 +188,10 @@ use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSignalIntelligenceCommand;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
+use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -1861,6 +1863,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new FunnelDropoffIntelligenceService($cache, $config);
         });
+
+        $this->app->singleton(EventSignalIntelligenceService::class, function (Application $app): EventSignalIntelligenceService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $app->make(AnalyticsMetrics::class);
+
+            return new EventSignalIntelligenceService($cache, $config, $metrics);
+        });
     }
 
     /**
@@ -1893,6 +1906,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsTimeSeriesCommand::class,
                 AnalyticsQuickSetupCommand::class,
                 AnalyticsInsightsCommand::class,
+                AnalyticsSignalIntelligenceCommand::class,
             ]);
         }
 

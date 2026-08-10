@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-7.6.0-blue)](https://github.com/zeroboiler/analytics)|
+|||[![Latest Version](https://img.shields.io/badge/version-7.7.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.7.0](#whats-new-in-v770)
 - [What's New in v7.6.0](#whats-new-in-v760)
 - [What's New in v7.4.0](#whats-new-in-v740)
 - [What's New in v7.3.0](#whats-new-in-v730)
@@ -66,6 +67,37 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.7.0
+
+### Event Signal Intelligence
+
+Pipeline observability layer — monitors event dispatch patterns across all providers, detects anomalies (staleness, high failure rates, dispatch rate spikes), computes signal-to-noise ratio, and provides dispatch balance scoring. Inspired by Datadog Signal Intelligence and Honeycomb BubbleUp.
+
+```php
+use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
+
+$service = app(EventSignalIntelligenceService::class);
+$report = $service->report();
+
+// $report['signal_score']    // 0-100 composite score
+// $report['grade']           // A+ through F- grade label
+// $report['providers']       // Per-provider health signals
+// $report['anomalies']       // Detected anomalies (critical/warning/info)
+// $report['signal_to_noise'] // 0.0-1.0 catalog coverage ratio
+// $report['dispatch_balance']// 0-100 entropy-based provider balance
+```
+
+**Artisan Command**: `php artisan analytics:signal [--json] [--anomalies-only] [--providers-only]`
+
+**API Endpoints**:
+- `GET /api/analytics/signal` — Full intelligence report
+- `GET /api/analytics/signal/score` — Composite signal score
+- `GET /api/analytics/signal/anomalies` — Detected anomalies
+- `GET /api/analytics/signal/providers` — Provider health signals
+- `GET /api/analytics/signal/staleness` — Staleness summary
+
+**Config**: `zeroboiler.analytics.signal_intelligence`
 
 ## What's New in v7.6.0
 

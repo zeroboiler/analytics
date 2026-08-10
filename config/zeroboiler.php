@@ -345,9 +345,9 @@ return [
         ],
 
         /*
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
         | Funnel Drop-off Intelligence (v7.5.0)
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
         |
         | Smart funnel analysis with bottleneck detection, anomaly detection,
         | time-to-convert analysis, and actionable recommendations.
@@ -361,6 +361,27 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_FUNNEL_INTELLIGENCE_CACHE_TTL', 300), // 5 minutes
             'bottleneck_threshold' => (float) env('ANALYTICS_FUNNEL_BOTTLENECK_THRESHOLD', 50.0), // % drop-off to flag
             'anomaly_threshold' => (float) env('ANALYTICS_FUNNEL_ANOMALY_THRESHOLD', 2.0), // spike multiplier
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Signal Intelligence (v7.7.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Observability layer for the analytics pipeline. Monitors event dispatch
+        | patterns across all providers, detects anomalies, tracks staleness,
+        | and computes signal-to-noise ratio and dispatch balance scores.
+        |
+        | Provides a composite "signal score" (0-100) for dashboards and alerting.
+        | Inspired by Datadog Signal Intelligence and Honeycomb BubbleUp.
+        |
+        */
+        'signal_intelligence' => [
+            'enabled' => env('ANALYTICS_SIGNAL_INTELLIGENCE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_SIGNAL_INTELLIGENCE_CACHE_TTL', 300), // 5 minutes
+            'staleness_threshold' => (int) env('ANALYTICS_SIGNAL_STALENESS_THRESHOLD', 3600), // 1 hour (seconds)
+            'anomaly_window' => (int) env('ANALYTICS_SIGNAL_ANOMALY_WINDOW', 600), // 10 minutes (seconds)
+            'anomaly_deviation' => (float) env('ANALYTICS_SIGNAL_ANOMALY_DEVIATION', 2.0), // 2x baseline = anomaly
         ],
 
         /*

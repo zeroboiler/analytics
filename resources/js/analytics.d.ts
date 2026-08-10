@@ -1437,3 +1437,79 @@ export function fetchCooccurrenceWith(eventName: string, limit?: number): Promis
  * Fetch co-occurrence dashboard summary (v7.2.0).
  */
 export function fetchCooccurrenceDashboard(): Promise<Record<string, unknown> | null>;
+
+// ─── Signal Intelligence (v7.7.0) ───────────────────────────────────
+
+/**
+ * Signal Intelligence report type.
+ */
+export interface SignalIntelligenceReport {
+  signal_score: number;
+  grade: string;
+  providers: Record<string, ProviderSignal>;
+  categories: Record<string, CategorySignal>;
+  anomalies: SignalAnomaly[];
+  staleness_summary: { stale: string[]; healthy: string[] };
+  signal_to_noise: number;
+  dispatch_balance: number;
+  recommendations: string[];
+  computed_at: string;
+}
+
+/**
+ * Provider health signal type.
+ */
+export interface ProviderSignal {
+  name: string;
+  status: 'healthy' | 'degraded' | 'stale' | 'down';
+  events_dispatched: number;
+  events_failed: number;
+  failure_rate: number;
+  last_dispatch_at: string | null;
+  staleness_seconds: number | null;
+  anomaly_score: number;
+  health_decay: number;
+}
+
+/**
+ * Category coverage signal type.
+ */
+export interface CategorySignal {
+  name: string;
+  events: number;
+  percentage: number;
+  top_events: string[];
+  trend: 'stable' | 'rising' | 'falling' | 'flat';
+}
+
+/**
+ * Signal anomaly type.
+ */
+export interface SignalAnomaly {
+  type: string;
+  provider: string | null;
+  message: string;
+  severity: 'info' | 'warning' | 'critical';
+  detected_at: string;
+  context: Record<string, unknown>;
+}
+
+/**
+ * Fetch full signal intelligence report (v7.7.0).
+ */
+export function fetchSignalReport(): Promise<SignalIntelligenceReport | null>;
+
+/**
+ * Fetch composite signal score (v7.7.0).
+ */
+export function fetchSignalScore(): Promise<{ score: number; grade: string; computed_at: string } | null>;
+
+/**
+ * Fetch detected anomalies only (v7.7.0).
+ */
+export function fetchSignalAnomalies(): Promise<{ anomalies: SignalAnomaly[] } | null>;
+
+/**
+ * Fetch provider health signals (v7.7.0).
+ */
+export function fetchSignalProviders(): Promise<{ providers: Record<string, ProviderSignal> } | null>;

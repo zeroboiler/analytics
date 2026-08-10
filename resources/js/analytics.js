@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 7.6.0
+ * @version 7.7.0
  */
 
 let trackingId = null;
@@ -5699,6 +5699,76 @@ export async function fetchCooccurrenceDashboard() {
     if (!initialized) return null;
     try {
         const res = await fetch(`${apiBaseUrl}/cooccurrence/dashboard`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+// ─── Event Signal Intelligence API (v7.7.0) ──────────────────────
+
+/**
+ * Fetch full signal intelligence report.
+ *
+ * @returns {Promise<Object|null>}
+ *
+ * @example
+ * const report = await fetchSignalReport();
+ * console.log(report.signal_score, report.grade);
+ * // report.providers, report.anomalies, report.signal_to_noise
+ */
+export async function fetchSignalReport() {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/signal`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch composite signal score (0-100) with grade.
+ *
+ * @returns {Promise<Object|null>}
+ *
+ * @example
+ * const { score, grade } = await fetchSignalScore();
+ */
+export async function fetchSignalScore() {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/signal/score`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch detected anomalies only.
+ *
+ * @returns {Promise<Array|null>}
+ */
+export async function fetchSignalAnomalies() {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/signal/anomalies`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch provider health signals.
+ *
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchSignalProviders() {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/signal/providers`, {
             headers: { Accept: 'application/json' },
         });
         return res.ok ? await res.json() : null;
