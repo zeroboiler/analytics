@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 8.4.0
+ * @version 8.6.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -299,6 +299,62 @@ export function trackEcommerceWithProviders(
  * Track add-to-wishlist event.
  */
 export function trackWishlist(item: EcommerceItem): Promise<void>;
+
+// ─── High-Level E-Commerce Shorthands (v8.6.0) ───────────────────
+
+/**
+ * Track a purchase event with full e-commerce data across all providers.
+ */
+export function trackPurchase(order: PurchaseData): Promise<void>;
+
+export interface PurchaseData {
+  transaction_id: string;
+  value: number;
+  currency?: string;
+  coupon?: string;
+  shipping?: number;
+  tax?: number;
+  items?: EcommerceItem[];
+}
+
+/**
+ * Track a refund event.
+ */
+export function trackRefund(refund: RefundData): Promise<void>;
+
+export interface RefundData {
+  transaction_id: string;
+  value?: number;
+  currency?: string;
+  items?: EcommerceItem[];
+}
+
+/**
+ * Track a view item event (product detail page view).
+ */
+export function trackViewItem(item: EcommerceItem): Promise<void>;
+
+/**
+ * Track an add to cart event.
+ */
+export function trackAddToCart(item: EcommerceItem): Promise<void>;
+
+/**
+ * Track a remove from cart event.
+ */
+export function trackRemoveFromCart(item: EcommerceItem): Promise<void>;
+
+/**
+ * Track a begin checkout event.
+ */
+export function trackBeginCheckout(checkout: CheckoutData): Promise<void>;
+
+export interface CheckoutData {
+  value: number;
+  items?: EcommerceItem[];
+  currency?: string;
+  coupon?: string;
+}
 
 /**
  * Track select item event.

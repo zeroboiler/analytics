@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 8.5.0
+ * @version 8.6.0
  */
 
 let trackingId = null;
@@ -162,7 +162,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-     return '8.4.0';
+     return '8.6.0';
 }
 
 /**
@@ -752,6 +752,312 @@ export async function trackWishlist(item) {
     await trackEvent('add_to_wishlist', params, { immediate: true });
 }
 
+// ─── High-Level E-Commerce Shorthands (v8.6.0) ───────────────────
+
+/**
+ * Track a purchase event with full e-commerce data.
+ *
+ * Convenience shorthand that formats data for GA4, Meta Pixel, PostHog,
+ * and Plausible simultaneously with the correct parameter format for each.
+ *
+ * @param {object} order - Order data
+ * @param {string} order.transaction_id - Unique transaction ID
+ * @param {number} order.value - Total revenue
+ * @param {string} [order.currency='USD'] - ISO 4217 currency code
+ * @param {string} [order.coupon] - Coupon code applied
+ * @param {number} [order.shipping] - Shipping cost
+ * @param {number} [order.tax] - Tax amount
+ * @param {Array} [order.items] - Array of item objects
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPurchase({
+ *     transaction_id: 'ORD-12345',
+ *     value: 149.99,
+ *     currency: 'USD',
+ *     tax: 12.50,
+ *     shipping: 5.99,
+ *     items: [
+ *         { item_id: 'SKU-001', item_name: 'Widget', price: 49.99, quantity: 2 },
+ *     ],
+ * });
+ */
+export async function trackPurchase(order) {
+    if (!initialized) return;
+
+    const params = {
+        transaction_id: order.transaction_id,
+        value: order.value,
+        currency: order.currency || config?.ecommerce?.currency || 'USD',
+        coupon: order.coupon || undefined,
+        shipping: order.shipping || undefined,
+        tax: order.tax || undefined,
+        items: order.items || [],
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'purchase', params);
+    }
+
+    // Meta Pixel Purchase
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'Purchase', {
+            value: order.value,
+            currency: params.currency,
+            content_ids: order.items?.map((i) => i.item_id) || [],
+            content_type: 'product',
+            num_items: order.items?.reduce((sum, i) => sum + (i.quantity || 1), 0) || 0,
+            ...(order.coupon ? { coupon: order.coupon } : {}),
+        });
+    }
+
+    // PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('purchase', {
+            ...params,
+            $set: { last_purchase: new Date().toISOString() },
+        });
+    }
+
+    // Plausible custom event
+    if (config?.plausibleDomain && typeof window.plausible === 'function') {
+        window.plausible('purchase', { props: { value: order.value, currency: params.currency } });
+    }
+
+    // Server-side dispatch
+    await trackEvent('purchase', params, { immediate: true });
+}
+
+/**
+ * Track a refund event.
+ *
+ * @param {object} refund - Refund data
+ * @param {string} refund.transaction_id - Original transaction ID
+ * @param {number} [refund.value] - Refund amount (partial refund)
+ * @param {string} [refund.currency='USD'] - Currency code
+ * @param {Array} [refund.items] - Refunded items
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackRefund({ transaction_id: 'ORD-12345', value: 49.99, currency: 'USD' });
+ */
+export async function trackRefund(refund) {
+    if (!initialized) return;
+
+    const params = {
+        transaction_id: refund.transaction_id,
+        value: refund.value,
+        currency: refund.currency || config?.ecommerce?.currency || 'USD',
+        items: refund.items || [],
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'refund', params);
+    }
+
+    // PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('refund', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('refund', params, { immediate: true });
+}
+
+/**
+ * Track a view item event (product detail page view).
+ *
+ * @param {object} item - Item data
+ * @param {string} item.item_id - Item ID/SKU
+ * @param {string} [item.item_name] - Item name
+ * @param {string} [item.item_category] - Item category
+ * @param {string} [item.item_brand] - Item brand
+ * @param {string} [item.item_variant] - Item variant
+ * @param {number} [item.price] - Item price
+ * @param {string} [item.currency] - Currency code
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackViewItem({ item_id: 'SKU-001', item_name: 'Widget', price: 49.99 });
+ */
+export async function trackViewItem(item) {
+    if (!initialized) return;
+
+    const params = {
+        item_id: item.item_id,
+        item_name: item.item_name || null,
+        item_category: item.item_category || null,
+        item_brand: item.item_brand || null,
+        item_variant: item.item_variant || null,
+        price: item.price || null,
+        currency: item.currency || config?.ecommerce?.currency || 'USD',
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'view_item', { items: [params] });
+    }
+
+    // Meta Pixel ViewContent
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'ViewContent', {
+            content_ids: [item.item_id],
+            content_name: item.item_name,
+            content_type: 'product',
+            currency: params.currency,
+            value: item.price || 0,
+        });
+    }
+
+    // PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('$view_item', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('view_item', params, { immediate: true });
+}
+
+/**
+ * Track an add to cart event.
+ *
+ * @param {object} item - Cart item data
+ * @param {string} item.item_id - Item ID/SKU
+ * @param {string} [item.item_name] - Item name
+ * @param {string} [item.item_category] - Item category
+ * @param {number} [item.price] - Item price
+ * @param {number} [item.quantity=1] - Quantity added
+ * @param {string} [item.currency] - Currency code
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackAddToCart({ item_id: 'SKU-001', item_name: 'Widget', price: 49.99, quantity: 2 });
+ */
+export async function trackAddToCart(item) {
+    if (!initialized) return;
+
+    const params = {
+        item_id: item.item_id,
+        item_name: item.item_name || null,
+        item_category: item.item_category || null,
+        price: item.price || null,
+        quantity: item.quantity || 1,
+        currency: item.currency || config?.ecommerce?.currency || 'USD',
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'add_to_cart', { items: [params], value: (item.price || 0) * (item.quantity || 1), currency: params.currency });
+    }
+
+    // Meta Pixel AddToCart
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'AddToCart', {
+            content_ids: [item.item_id],
+            content_name: item.item_name,
+            content_type: 'product',
+            currency: params.currency,
+            value: (item.price || 0) * (item.quantity || 1),
+        });
+    }
+
+    // PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('add_to_cart', params);
+    }
+
+    // Plausible custom event
+    if (config?.plausibleDomain && typeof window.plausible === 'function') {
+        window.plausible('add_to_cart');
+    }
+
+    // Server-side dispatch
+    await trackEvent('add_to_cart', params, { immediate: true });
+}
+
+/**
+ * Track a remove from cart event.
+ *
+ * @param {object} item - Cart item data
+ * @param {string} item.item_id - Item ID/SKU
+ * @param {string} [item.item_name] - Item name
+ * @param {number} [item.price] - Item price
+ * @param {number} [item.quantity=1] - Quantity removed
+ * @param {string} [item.currency] - Currency code
+ * @returns {Promise<void>}
+ */
+export async function trackRemoveFromCart(item) {
+    if (!initialized) return;
+
+    const params = {
+        item_id: item.item_id,
+        item_name: item.item_name || null,
+        price: item.price || null,
+        quantity: item.quantity || 1,
+        currency: item.currency || config?.ecommerce?.currency || 'USD',
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'remove_from_cart', { items: [params] });
+    }
+
+    // PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('remove_from_cart', params);
+    }
+
+    // Server-side dispatch
+    await trackEvent('remove_from_cart', params, { immediate: true });
+}
+
+/**
+ * Track a begin checkout event.
+ *
+ * @param {object} checkout - Checkout data
+ * @param {number} checkout.value - Cart total
+ * @param {Array} [checkout.items] - Cart items
+ * @param {string} [checkout.currency='USD'] - Currency code
+ * @param {string} [checkout.coupon] - Coupon code
+ * @returns {Promise<void>}
+ */
+export async function trackBeginCheckout(checkout) {
+    if (!initialized) return;
+
+    const params = {
+        value: checkout.value,
+        currency: checkout.currency || config?.ecommerce?.currency || 'USD',
+        items: checkout.items || [],
+        coupon: checkout.coupon || undefined,
+    };
+
+    // GA4 client-side
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'begin_checkout', params);
+    }
+
+    // Meta Pixel InitiateCheckout
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'InitiateCheckout', {
+            value: checkout.value,
+            currency: params.currency,
+            content_ids: checkout.items?.map((i) => i.item_id) || [],
+            num_items: checkout.items?.reduce((sum, i) => sum + (i.quantity || 1), 0) || 0,
+            ...(checkout.coupon ? { coupon: checkout.coupon } : {}),
+        });
+    }
+
+    // Plausible custom event
+    if (config?.plausibleDomain && typeof window.plausible === 'function') {
+        window.plausible('begin_checkout');
+    }
+
+    // Server-side dispatch
+    await trackEvent('begin_checkout', params, { immediate: true });
+}
+
 /**
  * Track an item selection from a list (GA4 select_item).
  *
@@ -1126,8 +1432,8 @@ export function initScrollDepth() {
 /**
  * Initialize automatic page view tracking for Inertia.js.
  *
- * Listens to Inertia navigation events and auto-tracks page_view
- * on every successful navigation.
+ * @deprecated Use initInertiaPageViewTracker(options) instead.
+ * This is a backward-compatible wrapper that delegates to the full implementation.
  *
  * @returns {function} Cleanup function to remove listeners
  *
@@ -1136,7 +1442,7 @@ export function initScrollDepth() {
  * import { initInertiaPageViewTracker } from '@zeroboiler/analytics';
  * onMount(() => initInertiaPageViewTracker());
  */
-export function initInertiaPageViewTracker() {
+export function initInertiaPageViewTrackerLegacy() {
     if (!initialized) return () => {};
 
     // Inertia emits 'navigate' events on the page when navigating
@@ -2041,15 +2347,7 @@ function getAuthToken() {
     return token;
 }
 
-/**
- * Get a cookie value by name.
- */
-function getCookie(name) {
-    if (typeof document === 'undefined') return '';
-
-    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-    return match ? match[2] : '';
-}
+// getCookie is defined in the utility section below
 
 /**
  * Get content of a meta tag by name.
@@ -3305,8 +3603,8 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-     return '8.4.0';
-}
+     return '8.6.0';
+ }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
 
@@ -3934,7 +4232,7 @@ export async function exportToDataWarehouse(options = {}) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
         });
@@ -3966,7 +4264,7 @@ export async function fetchDashboardOverview() {
     try {
         const response = await fetch(`${apiBaseUrl}/dashboard`, {
             headers: {
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
         });

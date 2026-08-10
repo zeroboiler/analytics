@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 8.5.0
+ * @version 8.6.0
  */
 
 import { tick } from 'svelte';
@@ -17,6 +17,12 @@ import {
     trackPageView,
     trackScreenView,
     trackEcommerce,
+    trackPurchase,
+    trackRefund,
+    trackViewItem,
+    trackAddToCart,
+    trackRemoveFromCart,
+    trackBeginCheckout,
     trackIdentify,
     updateConsent,
     flushQueue,
@@ -219,54 +225,48 @@ export function useTrackEvents() {
  * @typedef {function(string, number, string, object[]): Promise<void>} TrackRefundFunction
  */
 export function useEcommerce() {
-    async function trackViewItem(item, currency = 'USD') {
+    async function trackViewItemComposable(item, currency = 'USD') {
         if (!isReady) return;
 
-        await trackEvent('view_item', {
-            currency,
-            value: item.price || 0,
-            items: [item],
-        });
+        await trackViewItem({ ...item, currency });
     }
 
-    async function trackAddToCart(item, currency = 'USD') {
+    async function trackAddToCartComposable(item, currency = 'USD') {
         if (!isReady) return;
 
-        await trackEvent('add_to_cart', {
-            currency,
-            value: (item.price || 0) * (item.quantity || 1),
-            items: [item],
-        });
+        await trackAddToCart({ ...item, currency });
     }
 
-    async function trackBeginCheckout(items, currency = 'USD') {
+    async function trackRemoveFromCartComposable(item, currency = 'USD') {
+        if (!isReady) return;
+
+        await trackRemoveFromCart({ ...item, currency });
+    }
+
+    async function trackBeginCheckoutComposable(items, currency = 'USD') {
         if (!isReady) return;
 
         const totalValue = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
 
-        await trackEvent('begin_checkout', {
-            currency,
-            value: totalValue,
-            items,
-        });
+        await trackBeginCheckout({ value: totalValue, items, currency });
     }
 
-    async function trackPurchase(transactionId, value, currency, items, options = {}) {
+    async function trackPurchaseComposable(transactionId, value, currency, items, options = {}) {
         if (!isReady) return;
 
-        await trackEvent('purchase', {
+        await trackPurchase({
             transaction_id: transactionId,
             value,
             currency,
             items,
             ...options,
-        }, { immediate: true });
+        });
     }
 
-    async function trackRefund(transactionId, value, currency, items = []) {
+    async function trackRefundComposable(transactionId, value, currency, items = []) {
         if (!isReady) return;
 
-        await trackEvent('refund', {
+        await trackRefund({
             transaction_id: transactionId,
             value,
             currency,
@@ -275,11 +275,12 @@ export function useEcommerce() {
     }
 
     return {
-        trackViewItem,
-        trackAddToCart,
-        trackBeginCheckout,
-        trackPurchase,
-        trackRefund,
+        trackViewItem: trackViewItemComposable,
+        trackAddToCart: trackAddToCartComposable,
+        trackRemoveFromCart: trackRemoveFromCartComposable,
+        trackBeginCheckout: trackBeginCheckoutComposable,
+        trackPurchase: trackPurchaseComposable,
+        trackRefund: trackRefundComposable,
     };
 }
 
