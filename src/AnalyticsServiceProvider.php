@@ -161,6 +161,8 @@ use ZeroBoiler\Analytics\Services\EventCostTracker;
 use ZeroBoiler\Analytics\Services\NotificationWebhookService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
+use ZeroBoiler\Analytics\Events\EventPluginRegistry;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsAIService;
 use ZeroBoiler\Analytics\Services\EventExperimentTracker;
@@ -199,7 +201,7 @@ use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.6.0
+ * @version 7.8.0
  *
  * @since 1.0.0
  */
@@ -1721,6 +1723,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Catalog Validator (v4.5.0) — catalog-aware event validation
         $this->app->singleton(EventCatalogValidator::class);
 
+        // Event Plugin Registry (v7.8.0) — third-party package event discovery
+        $this->app->singleton(EventPluginRegistry::class, function (Application $app): EventPluginRegistry {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventPluginRegistry($config);
+        });
+
         // AI-Powered Analytics Intelligence Service (v5.0.0)
         $this->app->singleton(AnalyticsAIService::class, function (Application $app): AnalyticsAIService {
             return new AnalyticsAIService(
@@ -1907,6 +1917,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsQuickSetupCommand::class,
                 AnalyticsInsightsCommand::class,
                 AnalyticsSignalIntelligenceCommand::class,
+                AnalyticsIntegrityCommand::class,
             ]);
         }
 

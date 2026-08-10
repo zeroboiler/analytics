@@ -3202,7 +3202,45 @@ return [
         ],
 
         /*
-        |-------------------------------------------------------------------------- 
+        |--------------------------------------------------------------------------
+        | Event Plugin Registry (v7.8.0)
+        |--------------------------------------------------------------------------
+        |
+        | Allows third-party Laravel packages to register their analytics events
+        | with the ZeroBoiler event catalog at runtime. Plugin events are merged
+        | into the main catalog via EventCatalog::allWithPlugins().
+        |
+        | Register plugins in config (static) or via EventPluginRegistry::registerPlugin()
+        | during ServiceProvider boot (dynamic). Built-in events always take precedence
+        | over plugin events with the same name.
+        |
+        | Example:
+        |   'plugins' => [
+        |       'acme/billing' => [
+        |           'package' => 'acme/billing',
+        |           'version' => '2.0.0',
+        |           'priority' => 10,
+        |           'events' => [
+        |               [
+        |                   'name' => 'invoice_paid',
+        |                   'class' => \Acme\Billing\Analytics\InvoicePaidEvent::class,
+        |                   'ga4' => 'invoice_paid',
+        |                   'meta' => 'Purchase',
+        |                   'category' => 'billing',
+        |               ],
+        |           ],
+        |       ],
+        |   ],
+        |
+        */
+        'event_plugins' => [
+            'enabled' => env('ANALYTICS_EVENT_PLUGINS_ENABLED', true),
+            'debug' => env('ANALYTICS_EVENT_PLUGINS_DEBUG', false),
+            'plugins' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Event Co-occurrence Matrix (v7.2.0)
         |-------------------------------------------------------------------------- 
         |

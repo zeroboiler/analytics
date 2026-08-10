@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-7.7.0-blue)](https://github.com/zeroboiler/analytics)||
+|||[![Latest Version](https://img.shields.io/badge/version-7.8.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.8.0](#whats-new-in-v780)
 - [What's New in v7.7.0](#whats-new-in-v770)
 - [What's New in v7.6.0](#whats-new-in-v760)
 - [What's New in v7.4.0](#whats-new-in-v740)
@@ -67,6 +68,18 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.8.0
+
+### Event Plugin Registry & Integrity Check
+
+Third-party Laravel packages can now register their analytics events with the ZeroBoiler event catalog at runtime via the `EventPluginRegistry`. Plugin events merge into the catalog via `EventCatalog::allWithPlugins()` without conflicting with built-in events (built-in wins on name collision).
+
+- **EventPluginRegistry** — Config-driven and runtime plugin registration with validation. Accepts manifests with `package`, `version`, `events` (name, class, ga4, meta, category), and `priority`. Supports `registerPlugin()`, `validate()`, `summary()`, `eventsByPlugin()`, `eventsByCategory()`, `unregisterPlugin()`.
+- **EventCatalog::allWithPlugins()** — New static method that merges plugin-registered events into the built-in catalog. Built-in events take precedence on name conflicts.
+- **AnalyticsIntegrityCommand** — New `zb:analytics:integrity` artisan command. Validates version consistency across all entry points (composer.json, DTO VERSION, JS/Svelte/d.ts), event catalog completeness (core SaaS lifecycle, ecommerce, engagement events), config integrity (consent, auto-track, queue, providers), and plugin registry health (validation, name conflicts). Supports `--json`, `--verbose`, `--fix` flags. Designed for CI pipelines.
+- **Config: `event_plugins` section** — New `zeroboiler.analytics.event_plugins` with `enabled`, `debug`, `plugins` settings.
+- **Version sweep** — 7.6.0/7.7.0 → 7.8.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, ServiceProvider, README badge.
 
 ## What's New in v7.7.0
 

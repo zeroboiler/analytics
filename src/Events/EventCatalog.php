@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
@@ -15,16 +16,17 @@ use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
  * Unified event catalog aggregating all event categories.
  *
  * Provides a single entry point for looking up event names, classes,
- * and provider mappings across Ecommerce, SaaS (including cohort), and Engagement categories.
+ * and provider mappings across Ecommerce, SaaS (including cohort), Engagement,
+ * and registered plugin categories.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, category: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}
  *
  * @since 1.0.0
  */
 final class EventCatalog
 {
     /**
-     * Get all events from all categories.
+     * Get all events from all categories (built-in only, no plugins).
      *
      * @return array<string, EventEntry>
      */
@@ -35,6 +37,36 @@ final class EventCatalog
             self::withCategory(SaaSEvents::all(), 'saas'),
             self::withCategory(EngagementEvents::all(), 'engagement'),
         );
+    }
+
+    /**
+     * Get all events including those registered via EventPluginRegistry.
+     *
+     * Accepts an optional array of plugin events to merge into the catalog.
+     * Plugin events with names matching built-in events are skipped (built-in wins).
+     *
+     * @param  array<string, EventEntry>  $pluginEvents  Events from EventPluginRegistry::catalogEvents()
+     * @return array<string, EventEntry>
+     *
+     * @since 7.8.0
+     */
+    public static function allWithPlugins(array $pluginEvents = []): array
+    {
+        $builtin = self::all();
+
+        if ($pluginEvents === []) {
+            return $builtin;
+        }
+
+        // Plugin events that don't conflict with built-in names
+        $merged = $builtin;
+        foreach ($pluginEvents as $name => $entry) {
+            if (! isset($builtin[$name])) {
+                $merged[$name] = $entry;
+            }
+        }
+
+        return $merged;
     }
 
     /**

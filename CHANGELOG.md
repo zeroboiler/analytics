@@ -2,6 +2,32 @@
 
 All notable changes to the package will be documented in this file.
 
+## [7.8.0] - 2026-08-10
+
+### Added
+
+- **EventPluginRegistry** — Third-party package event discovery and registration system. Allows other Laravel packages to register their analytics events with the ZeroBoiler event catalog at runtime. Features: `registerPlugin()` for runtime registration, config-driven loading via `zeroboiler.analytics.event_plugins`, event validation against AnalyticsEvent contract, `summary()` for dashboard data, `eventsByPlugin()` / `eventsByCategory()` for grouped views, `unregisterPlugin()` for cleanup. Registered as singleton in ServiceProvider.
+- **EventCatalog::allWithPlugins()** — New static method that merges plugin-registered events into the built-in catalog. Built-in events take precedence on name conflicts. Accepts optional plugin events array from `EventPluginRegistry::catalogEvents()`.
+- **AnalyticsIntegrityCommand** — New `zb:analytics:integrity` artisan command. Comprehensive integrity check covering: version consistency (composer.json, AnalyticsEvent::VERSION), event catalog completeness (core SaaS lifecycle, ecommerce, engagement events), config integrity (consent, auto-track, queue, providers), and plugin registry health (validation, name conflicts). Supports `--json` (machine-readable output), `--verbose` (individual check details), `--fix` (future auto-fix). Designed for CI pipelines and pre-release validation.
+- **Config: `event_plugins` section** — New `zeroboiler.analytics.event_plugins` with `enabled`, `debug`, `plugins` settings. All configurable via environment variables.
+
+### Changed
+
+- **Version sweep** — 7.6.0/7.7.0 → 7.8.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
+## [7.7.0] - 2026-08-10
+
+### Added
+
+- **EventSignalIntelligenceService** — Pipeline observability layer for monitoring event dispatch patterns across all providers. Detects anomalies (staleness, high failure rates, dispatch rate spikes), computes signal-to-noise ratio, and provides dispatch balance scoring. Inspired by Datadog Signal Intelligence and Honeycomb BubbleUp.
+- **AnalyticsSignalIntelligenceCommand** — New `zb:analytics:signal` console command for signal intelligence reporting.
+- **Signal Intelligence API** — New client-side functions: `fetchSignalReport()`, `fetchSignalScore()`, `fetchSignalAnomalies()`, `fetchSignalProviderHealth()` in JS client and Svelte composable.
+- **Signal Intelligence composable** — New `useSignalIntelligence()` in Svelte composable.
+
+### Changed
+
+- **Version sweep** — 7.6.0 → 7.7.0 across JS client, Svelte composable, TypeScript definitions.
+
 ## [7.6.0] - 2026-08-10
 
 ### Added
