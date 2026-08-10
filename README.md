@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.2.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.3.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.3.0](#whats-new-in-v830)
 - [What's New in v8.2.0](#whats-new-in-v820)
 - [What's New in v8.0.0](#whats-new-in-v8000)
 - [What's New in v7.9.0](#whats-new-in-v790)
@@ -71,6 +72,54 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.3.0
+
+### Dashboard Widget Service + npm Package Configuration
+
+**DashboardWidgetService** — Pre-computed, cache-backed dashboard data widgets for instant SaaS analytics dashboard rendering. Returns all dashboard widget data in a single API call with sub-100ms response times from cache. Widgets are lazily computed on first access and cached with configurable TTL (default 5 minutes). Designed for headless admin panels, Svelte/Vue/React dashboards, and server-rendered analytics views.
+
+Eight built-in widgets:
+- **overview** — Event count, catalog size, success rate, version
+- **events_top** — Top N events by frequency with percentage breakdown
+- **events_timeline** — Time-series event counts (hourly buckets)
+- **revenue_summary** — Revenue event counts, currency, top revenue events
+- **saas_funnel** — Signup → Trial → Conversion funnel with step-by-step conversion rates
+- **engagement** — Session metrics, engagement rate, unique event types
+- **providers** — Per-provider dispatch/failure counts and success rates
+- **ecommerce** — Purchase funnel (view_item → add_to_cart → purchase)
+
+```php
+use ZeroBoiler\Analytics\Services\DashboardWidgetService;
+
+$service = app(DashboardWidgetService::class);
+
+// Get all widgets in one call
+$dashboard = $service->allWidgets();
+// $dashboard['widgets']['overview']['total_events']
+// $dashboard['widgets']['saas_funnel']['steps']
+
+// Get a specific widget
+$funnel = $service->getWidget('saas_funnel');
+
+// Invalidate cache on new events
+$service->invalidateAll();
+$service->invalidateWidget('overview');
+
+// Get service statistics
+$stats = $service->stats();
+```
+
+**API Endpoints:**
+- `GET /api/analytics/dashboard/widgets` — All enabled widgets
+- `GET /api/analytics/dashboard/widgets/{widgetName}` — Single widget
+- `POST /api/analytics/dashboard/widgets/invalidate` — Cache invalidation
+
+**Config: `dashboard_widgets` section** — `enabled`, `cache_ttl`, `max_top_events`, `timeline_points`, `widgets` (null = all)
+
+**package.json** — Added npm package configuration for the JS client library with proper `exports` map, `types` declarations, and Svelte composable support. Enables future standalone npm publishing.
+
+**Version sweep** — 8.2.0 → 8.3.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + header), Svelte composable, TypeScript definitions.
 
 ## What's New in v8.2.0
 

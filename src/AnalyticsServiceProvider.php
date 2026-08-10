@@ -189,6 +189,7 @@ use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
+use ZeroBoiler\Analytics\Services\DashboardWidgetService;
 use ZeroBoiler\Analytics\Services\EventFingerprintService;
 use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
@@ -627,6 +628,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventFingerprintService(
                 $app->make('cache'),
                 $fpConfig,
+            );
+        });
+
+        // Dashboard Widget Service (v8.3.0) — cache-backed dashboard data widgets
+        $this->app->singleton(DashboardWidgetService::class, function (Application $app): DashboardWidgetService {
+            $widgetConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.dashboard_widgets', []);
+            /** @var array{enabled?: bool, cache_ttl?: int, max_top_events?: int, timeline_points?: int, widgets?: list<string>} $widgetConfig */
+
+            $streamService = $app->make(EventStreamService::class);
+
+            return new DashboardWidgetService(
+                $app->make('cache'),
+                $app->make(AnalyticsMetrics::class),
+                $widgetConfig,
+                $streamService,
             );
         });
 

@@ -1587,6 +1587,61 @@ final class AnalyticsEventController extends Controller
     }
 
     /**
+     * Get all dashboard widgets data in a single request.
+     *
+     * Returns pre-computed, cache-backed widget data for all enabled
+     * dashboard widgets. Designed for headless SaaS admin dashboards.
+     *
+     * GET /api/analytics/dashboard/widgets
+     * GET /api/analytics/dashboard/widgets/{widgetName}
+     *
+     * @since 8.3.0
+     */
+    public function dashboardWidgets(Request $request, ?string $widgetName = null): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\DashboardWidgetService::class);
+
+        if ($widgetName !== null) {
+            return response()->json([
+                'status' => 'ok',
+                'widget' => $widgetName,
+                'data' => $service->getWidget($widgetName),
+            ]);
+        }
+
+        return response()->json($service->allWidgets());
+    }
+
+    /**
+     * Invalidate dashboard widget caches.
+     *
+     * POST /api/analytics/dashboard/widgets/invalidate
+     *
+     * @since 8.3.0
+     */
+    public function dashboardWidgetsInvalidate(Request $request): JsonResponse
+    {
+        $service = app(\ZeroBoiler\Analytics\Services\DashboardWidgetService::class);
+        $widget = $request->input('widget');
+
+        if (is_string($widget) && $widget !== '') {
+            $service->invalidateWidget($widget);
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => "Widget '{$widget}' cache invalidated",
+            ]);
+        }
+
+        $service->invalidateAll();
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'All widget caches invalidated',
+        ]);
+    }
+
+    /**
      * Get tenant isolation status and rate limit info.
      *
      * GET /api/analytics/tenant

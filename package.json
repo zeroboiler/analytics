@@ -1,0 +1,69 @@
+{
+    "name": "@zeroboiler/analytics",
+    "version": "8.3.0",
+    "description": "Client-side analytics library for ZeroBoiler Analytics — Svelte/Inertia/Laravel apps",
+    "type": "module",
+    "main": "./dist/analytics.js",
+    "module": "./dist/analytics.js",
+    "types": "./dist/analytics.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/analytics.d.ts",
+            "import": "./dist/analytics.js",
+            "default": "./dist/analytics.js"
+        },
+        "./svelte": {
+            "types": "./dist/useAnalytics.svelte.d.ts",
+            "import": "./dist/useAnalytics.svelte.js",
+            "default": "./dist/useAnalytics.svelte.js"
+        },
+        "./analytics.css": "./dist/analytics.css"
+    },
+    "files": [
+        "dist/"
+    ],
+    "sideEffects": false,
+    "keywords": [
+        "analytics",
+        "ga4",
+        "gtm",
+        "meta-pixel",
+        "plausible",
+        "posthog",
+        "svelte",
+        "inertia",
+        "laravel",
+        "consent",
+        "gdpr",
+        "ecommerce",
+        "saas",
+        "event-tracking"
+    ],
+    "license": "MIT",
+    "author": "ZeroBoiler <hello@zeroboiler.dev>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zeroboiler/analytics.git",
+        "directory": "packages/analytics-js"
+    },
+    "homepage": "https://github.com/zeroboiler/analytics",
+    "bugs": "https://github.com/zeroboiler/analytics/issues",
+    "peerDependencies": {
+        "@sveltejs/adapter-auto": "^3.0.0"
+    },
+    "peerDependenciesMeta": {
+        "@sveltejs/adapter-auto": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "eslint": "^9.0.0"
+    },
+    "scripts": {
+        "build": "echo 'Build handled by consuming app — ZeroBoiler Analytics is a library'",
+        "typecheck": "echo 'No build step — types defined in analytics.d.ts'",
+        "lint": "echo 'Lint handled by consuming app'",
+        "prepublishOnly": "echo 'This package is distributed via the Laravel PHP package. Copy resources/js/ to your project.'"
+    }
+}

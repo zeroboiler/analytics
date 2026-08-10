@@ -556,4 +556,9 @@ Route::prefix('analytics')->group(function () {
     Route::post('cohort-intelligence/churn-top', [AnalyticsEventController::class, 'cohortIntelligenceChurnTop']);
     Route::post('cohort-intelligence/expansion-top', [AnalyticsEventController::class, 'cohortIntelligenceExpansionTop']);
     Route::get('cohort-intelligence/insights/{cohort}', [AnalyticsEventController::class, 'cohortIntelligenceInsights']);
+
+    // Dashboard Widgets (v8.3.0)
+    Route::get('dashboard/widgets', [AnalyticsEventController::class, 'dashboardWidgets']);
+    Route::get('dashboard/widgets/{widgetName}', [AnalyticsEventController::class, 'dashboardWidgets']);
+    Route::post('dashboard/widgets/invalidate', [AnalyticsEventController::class, 'dashboardWidgetsInvalidate']);
 });

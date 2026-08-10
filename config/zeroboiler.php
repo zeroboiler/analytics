@@ -523,6 +523,30 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Dashboard Widgets (v8.3.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-computed, cache-backed dashboard widget data for instant
+        | SaaS analytics dashboard rendering. Widgets are lazily computed
+        | on first access and cached until invalidated.
+        |
+        | Available widgets: overview, events_top, events_timeline,
+        | revenue_summary, saas_funnel, engagement, providers, ecommerce
+        |
+        | Set 'widgets' to a list of widget names to enable only specific ones.
+        | Leave empty or null to enable all widgets.
+        |
+        */
+        'dashboard_widgets' => [
+            'enabled' => env('ANALYTICS_DASHBOARD_WIDGETS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_DASHBOARD_WIDGETS_CACHE_TTL', 300), // 5 minutes
+            'max_top_events' => (int) env('ANALYTICS_DASHBOARD_WIDGETS_MAX_TOP', 20),
+            'timeline_points' => (int) env('ANALYTICS_DASHBOARD_WIDGETS_TIMELINE_POINTS', 24),
+            'widgets' => null, // null = all widgets, or list: ['overview', 'events_top', 'providers']
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Debug Mode
         |--------------------------------------------------------------------------
         |
