@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.5.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.6.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.6.0](#whats-new-in-v860)
 - [What's New in v8.5.0](#whats-new-in-v850)
 - [What's New in v8.4.0](#whats-new-in-v840)
 - [What's New in v8.3.0](#whats-new-in-v830)
@@ -74,6 +75,32 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.6.0
+
+### High-Level E-Commerce Shorthands
+
+New convenience methods on the `Analytics` facade for common SaaS e-commerce events — zero-config tracking with sensible defaults:
+
+- **`trackPurchase()`** — Order completed, revenue tracked
+- **`trackRefund()`** — Refund processed, revenue reversed
+- **`trackViewItem()`** — Product detail page viewed
+- **`trackAddToCart()`** — Item added to shopping cart
+- **`trackRemoveFromCart()`** — Item removed from shopping cart
+- **`trackBeginCheckout()`** — Checkout flow initiated
+
+All shorthands automatically dispatch to all active providers (GA4, Meta Pixel, PostHog, Plausible) with provider-specific parameter mapping via `EcommerceFormatConverter`.
+
+### Dual-Provider E-Commerce Push
+
+PostHog and Plausible providers now support full e-commerce event parameter conversion — items, currency, value, transaction_id, and coupon are properly mapped for both providers simultaneously.
+
+### Bug Fixes
+
+- Fixed duplicate `initInertiaPageViewTracker` declaration in JS client
+- Fixed `getCookie()` helper duplication
+- Fixed Bearer token template literal in streaming endpoint
+- Full version sweep to 8.6.0 across all entry points (composer.json, package.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, ServiceProvider, README badge)
 
 ## What's New in v8.5.0
 

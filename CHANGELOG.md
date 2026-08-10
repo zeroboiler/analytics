@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [8.6.0] - 2026-08-10
+
+### Added
+
+- **High-level e-commerce shorthands** — `trackPurchase()`, `trackRefund()`, `trackViewItem()`, `trackAddToCart()`, `trackRemoveFromCart()`, `trackBeginCheckout()` on the Analytics facade for zero-config SaaS e-commerce tracking.
+- **Dual-provider e-commerce push** — PostHog and Plausible providers now support full e-commerce event parameter conversion (items, currency, value, transaction_id, coupon).
+
+### Fixed
+
+- Duplicate `initInertiaPageViewTracker` declaration in JS client
+- `getCookie()` helper duplication
+- Bearer token template literal in streaming endpoint
+- Full version sweep to 8.6.0 across all entry points (composer.json, package.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, ServiceProvider, README badge, IntegrityCommand::EXPECTED_VERSION)
+
 ## [8.0.0] - 2026-08-10
 
 ### Added
