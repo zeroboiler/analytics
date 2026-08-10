@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-9.0.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-9.1.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v9.1.0](#whats-new-in-v910)
 - [What's New in v9.0.0](#whats-new-in-v900)
 - [What's New in v8.9.0](#whats-new-in-v890)
 - [What's New in v8.8.0](#whats-new-in-v880)
@@ -79,6 +80,26 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.1.0
+
+### 🏗️ Architecture: AnalyticsServiceRegistry
+- New `AnalyticsServiceRegistry` — lightweight service locator for the analytics controller
+- Reduces controller constructor complexity from 80+ nullable parameters to container-based lazy resolution
+- Fully testable: bind mock services into the container before resolving the controller
+
+### 🛤️ API: Guard Rails Endpoints
+- `POST /api/analytics/guard-rails/check` — validate event quality against guard rails rules
+- `GET /api/analytics/guard-rails/score` — overall tracking quality score
+- `GET /api/analytics/guard-rails/violations` — list active guard rails violations
+- `GET /api/analytics/guard-rails/coverage` — guard rails coverage analysis
+- `POST /api/analytics/guard-rails/validate-name` — validate a single event name against rules
+
+### 📡 API: SSE (Server-Sent Events) Routes
+- `GET /api/analytics/sse` — real-time analytics event streaming via SSE
+- `GET /api/analytics/sse/info` — SSE endpoint metadata and capabilities
+- `GET /api/analytics/sse/health` — SSE buffer health check
+- Supports cursor-based resume, event name filtering, category filtering, and provider filtering
 
 ## What's New in v9.0.0
 

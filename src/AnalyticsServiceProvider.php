@@ -186,6 +186,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
 use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
+use ZeroBoiler\Analytics\Support\AnalyticsServiceRegistry;
 use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
 use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
 use ZeroBoiler\Analytics\Services\EventDataMartService;
@@ -221,7 +222,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.0.0
+ * @version 9.1.0
  *
  * @since 1.0.0
  */
@@ -1933,6 +1934,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventDataMartService($cache, $config);
+        });
+
+        // Analytics Service Registry (v9.1.0) — lazy service locator for controller dependencies
+        $this->app->singleton(AnalyticsServiceRegistry::class, function (Application $app): AnalyticsServiceRegistry {
+            return new AnalyticsServiceRegistry($app);
         });
 
         // Cohort Waterfall Analysis Service (v7.5.0)

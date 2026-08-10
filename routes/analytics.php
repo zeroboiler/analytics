@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController;
+use ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController;
 
 /*
 |--------------------------------------------------------------------------
@@ -578,4 +579,16 @@ Route::prefix('analytics')->group(function () {
     Route::get('delivery/{provider}/recent', [AnalyticsEventController::class, 'deliveryRecentDeliveries']);
     Route::get('delivery/{provider}/outage', [AnalyticsEventController::class, 'deliveryOutageStatus']);
     Route::delete('delivery', [AnalyticsEventController::class, 'deliveryClearStats']);
+
+    // Tracking Guard Rails (v9.1.0)
+    Route::post('guard-rails/check', [AnalyticsEventController::class, 'guardRailsCheck']);
+    Route::get('guard-rails/score', [AnalyticsEventController::class, 'guardRailsScore']);
+    Route::get('guard-rails/violations', [AnalyticsEventController::class, 'guardRailsViolations']);
+    Route::get('guard-rails/coverage', [AnalyticsEventController::class, 'guardRailsCoverage']);
+    Route::post('guard-rails/validate-name', [AnalyticsEventController::class, 'guardRailsValidateName']);
+
+    // Server-Sent Events (v9.1.0)
+    Route::get('sse', [AnalyticsSSEController::class, 'stream']);
+    Route::get('sse/info', [AnalyticsSSEController::class, 'info']);
+    Route::get('sse/health', [AnalyticsSSEController::class, 'health']);
 });
