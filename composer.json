@@ -3,6 +3,12 @@
     "description": "Industry-standard SaaS analytics for Laravel \u2014 GA4, GTM, Meta Pixel, Plausible, PostHog",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "ZeroBoiler",
+            "email": "hello@zeroboiler.dev"
+        }
+    ],
     "keywords": [
         "analytics",
         "ga4",
