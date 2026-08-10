@@ -191,6 +191,8 @@ use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Schema\EventParam;
 use ZeroBoiler\Analytics\Schema\EventSchema;
 use ZeroBoiler\Analytics\Schema\EventPropertySchema;
+use ZeroBoiler\Analytics\Services\EventDataMartService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
 
 // ─── Phase 2: Code Quality ────────────────────────────────────────────
 
@@ -1001,4 +1003,55 @@ test('Phase 4: config has aarrr section', function (): void {
 test('Phase 4: config has first_touch section', function (): void {
     $config = include __DIR__ . '/../config/zeroboiler.php';
     expect(array_key_exists('first_touch', $config['analytics']))->toBeTrue();
+});
+
+// ─── Phase 3: v7.0.0 services ──────────────────────────────────────────
+
+test('Phase 3: v7.0.0 services are final', function (): void {
+    $services = [
+        EventDataMartService::class,
+        AnalyticsInsightEngineService::class,
+    ];
+
+    foreach ($services as $service) {
+        expect(
+            (new ReflectionClass($service))->isFinal(),
+            "{$service} should be final",
+        )->toBeTrue();
+    }
+});
+
+// ─── Phase 4: v7.0.0 config sections ──────────────────────────────────
+
+test('Phase 4: config has v7.0.0 data_mart section', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    expect(array_key_exists('data_mart', $config['analytics']))->toBeTrue();
+
+    $dm = $config['analytics']['data_mart'];
+    expect($dm)->toHaveKeys(['enabled', 'cache_ttl', 'default_granularity', 'max_dimensions', 'auto_dimensions', 'tracked_categories']);
+});
+
+test('Phase 4: config has v7.0.0 insight_engine section', function (): void {
+    $config = include __DIR__ . '/../config/zeroboiler.php';
+    expect(array_key_exists('insight_engine', $config['analytics']))->toBeTrue();
+
+    $ie = $config['analytics']['insight_engine'];
+    expect($ie)->toHaveKeys(['enabled', 'cache_ttl', 'top_movers_count', 'drift_threshold', 'growth_threshold', 'decline_threshold']);
+});
+
+test('Phase 4: v7.0.0 services are registered in ServiceProvider', function (): void {
+    $content = file_get_contents(__DIR__.'/../src/AnalyticsServiceProvider.php');
+    expect($content)->toContain('EventDataMartService');
+    expect($content)->toContain('AnalyticsInsightEngineService');
+    expect($content)->toContain('AnalyticsInsightsCommand');
+});
+
+test('Phase 4: EventDataMartService has @since annotation', function (): void {
+    $content = file_get_contents(__DIR__.'/../src/Services/EventDataMartService.php');
+    expect($content)->toContain('@since 7.0.0');
+});
+
+test('Phase 4: AnalyticsInsightEngineService has @since annotation', function (): void {
+    $content = file_get_contents(__DIR__.'/../src/Services/AnalyticsInsightEngineService.php');
+    expect($content)->toContain('@since 7.0.0');
 });

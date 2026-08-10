@@ -42,6 +42,7 @@ final class AnalyticsInsightsCommand extends Command
     /**
      * Execute the console command.
      */
+    #[\Override]
     public function handle(
         AnalyticsInsightEngineService $insightEngine,
         EventDataMartService $dataMart,
