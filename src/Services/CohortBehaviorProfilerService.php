@@ -122,7 +122,7 @@ final class CohortBehaviorProfilerService
      * @param  CacheRepository  $cache
      * @param  array{enabled?: bool, cache_ttl?: int, lookback_days?: int, cohort_definitions?: array<string, mixed>, min_events_for_profiling?: int}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = [])
+    public function __construct(CacheRepository $cache, array $config = []): void
     {
         $this->cache = $cache;
         $this->config = [

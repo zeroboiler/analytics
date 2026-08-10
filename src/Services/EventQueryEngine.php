@@ -46,7 +46,7 @@ final class EventQueryEngine
         CacheRepository $cache,
         AnalyticsMetrics $metrics,
         int $ttl = self::DEFAULT_TTL,
-    ) {
+    ): void {
         $this->cache = $cache;
         $this->metrics = $metrics;
         $this->ttl = $ttl;

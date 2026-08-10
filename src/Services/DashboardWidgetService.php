@@ -69,7 +69,7 @@ final class DashboardWidgetService
         AnalyticsMetrics $metrics,
         array $config = [],
         ?EventStreamService $streamService = null,
-    ) {
+    ): void {
         $this->cache = $cache;
         $this->metrics = $metrics;
         $this->streamService = $streamService;

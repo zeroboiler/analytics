@@ -65,7 +65,7 @@ final class EventDataMartService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {
+    ): void {
         $martConfig = $config->get('zeroboiler.analytics.data_mart', []);
         /** @var array{enabled?: bool, cache_ttl?: int, default_granularity?: string, max_dimensions?: int, auto_dimensions?: list<string>, tracked_categories?: list<string>} $martConfig */
 

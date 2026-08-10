@@ -51,7 +51,7 @@ final class EventExperimentTracker
      * @param  ConfigRepository  $config  Analytics configuration
      * @param  CacheRepository  $cache  Application cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache)
+    public function __construct(ConfigRepository $config, CacheRepository $cache): void
     {
         $expConfig = $config->get('zeroboiler.analytics.experiment', []);
         /** @var array{enabled?: bool, cache_ttl?: int, significance_threshold?: float, min_sample_size?: int} $expConfig */

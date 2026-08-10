@@ -70,7 +70,7 @@ final class EventFunnelAggregator
      * @param  CacheRepository  $cache
      * @param  array{funnels?: array<string, array{steps: list<string>, conversion_event: string, time_window?: int}>, cache_prefix?: string, cache_ttl?: int}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = [])
+    public function __construct(CacheRepository $cache, array $config = []): void
     {
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_funnel_';

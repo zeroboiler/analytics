@@ -44,7 +44,7 @@ final class SaaSEventTemplateService
      */
     public function __construct(
         private readonly AnalyticsManager $manager,
-    ) {}
+    ): void {}
 
     // ─── Authentication Templates ────────────────────────────────────
 

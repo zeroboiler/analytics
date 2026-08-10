@@ -28,7 +28,7 @@ final class SaaSQuickStartService
      */
     public function __construct(
         private readonly AnalyticsManager $manager,
-    ) {}
+    ): void {}
 
     /**
      * Track a user sign-up event.

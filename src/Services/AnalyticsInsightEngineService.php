@@ -53,7 +53,7 @@ final class AnalyticsInsightEngineService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {
+    ): void {
         $engineConfig = $config->get('zeroboiler.analytics.insight_engine', []);
         /** @var array{enabled?: bool, cache_ttl?: int, top_movers_count?: int, drift_threshold?: float, growth_threshold?: float, decline_threshold?: float} $engineConfig */
 

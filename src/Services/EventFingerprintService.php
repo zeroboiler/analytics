@@ -61,7 +61,7 @@ final class EventFingerprintService
      * @param  CacheRepository  $cache
      * @param  array{cache_prefix?: string, ttl?: int, time_bucket?: string, exclude_timestamp?: bool, exclude_params?: bool}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = [])
+    public function __construct(CacheRepository $cache, array $config = []): void
     {
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_fp_';

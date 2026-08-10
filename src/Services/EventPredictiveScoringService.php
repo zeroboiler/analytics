@@ -92,7 +92,7 @@ final class EventPredictiveScoringService
      * @param  CacheRepository  $cache
      * @param  array{enabled?: bool, cache_ttl?: int, lookback_days?: int, custom_weights?: array<string, array<string, float>>, decay_factor?: float}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = [])
+    public function __construct(CacheRepository $cache, array $config = []): void
     {
         $this->cache = $cache;
         $this->config = [

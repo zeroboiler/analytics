@@ -42,7 +42,7 @@ final class EventSessionizer
      * @param  CacheRepository  $cache
      * @param  array{cache_prefix?: string, session_ttl?: int, max_sessions_per_client?: int}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = [])
+    public function __construct(CacheRepository $cache, array $config = []): void
     {
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_session_';

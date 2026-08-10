@@ -45,7 +45,7 @@ final class AnalyticsReplayCommand extends Command
     /**
      * Create a new command instance.
      */
-    public function __construct(EventArchiveService $archive)
+    public function __construct(EventArchiveService $archive): void
     {
         parent::__construct();
         $this->archive = $archive;

@@ -58,7 +58,7 @@ final class AnalyticsAIService
      * @param  ConfigRepository  $config  Analytics configuration
      * @param  CacheRepository  $cache  Application cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache)
+    public function __construct(ConfigRepository $config, CacheRepository $cache): void
     {
         $aiConfig = $config->get('zeroboiler.analytics.ai', []);
         /** @var array{enabled?: bool, cache_ttl?: int, anomaly_threshold?: float, anomaly_window?: int, rolling_window?: int} $aiConfig */
