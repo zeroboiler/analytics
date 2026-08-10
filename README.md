@@ -2,14 +2,15 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.9.0-blue)](https://github.com/zeroboiler/analytics)|
-[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
+|[![Latest Version](https://img.shields.io/badge/version-7.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.0.0](#whats-new-in-v7000)
 - [What's New in v6.9.0](#whats-new-in-v6900)
 - [What's New in v6.8.0](#whats-new-in-v6800)
 - [What's New in v6.7.0](#whats-new-in-v6700)
@@ -61,6 +62,38 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.0.0
+
+### Event Data Mart Service
+
+New `EventDataMartService` provides OLAP-style pre-aggregated event rollup cubes for instant dashboard queries. Materializes raw analytics events into time-binned summary tables stored in the Laravel cache, inspired by Amplitude, Mixpanel, and PostHog data marts.
+
+```php
+use ZeroBoiler\Analytics\Services\EventDataMartService;
+
+$mart = app(EventDataMartService::class);
+
+// Ingest events
+$mart->ingest(['name' => 'page_view', 'category' => 'engagement', 'client_id' => 'abc']);
+$mart->ingestBatch([...]);
+
+// Query
+$topEvents = $mart->top('event_name', 10);
+$byCategory = $mart->byCategory();
+$summary = $mart->summary();
+
+// Advanced
+$cube = $mart->exportCube('event_name', 'day');
+$drift = $mart->compareDimensions('category', 'provider');
+
+// Management
+$mart->clear();
+```
+
+**Config:** `zeroboiler.analytics.data_mart` with `enabled`, `cache_ttl`, `default_granularity`, `max_dimensions`, `auto_dimensions`, `tracked_categories`.
+
+**Test suite:** `V700EventDataMartServiceTest` — 25+ Pest test cases.
 
 ## What's New in v6.9.0
 

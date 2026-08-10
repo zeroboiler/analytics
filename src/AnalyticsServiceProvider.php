@@ -180,6 +180,9 @@ use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
 use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
 use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
+use ZeroBoiler\Analytics\Services\EventDataMartService;
+use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -187,7 +190,7 @@ use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.9.0
+ * @version 7.0.0
  *
  * @since 1.0.0
  */
@@ -554,6 +557,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSEventTemplateService($manager);
+        });
+
+        // Event Data Mart (v7.0.0) — pre-aggregated OLAP-style event rollup cubes
+        $this->app->singleton(EventDataMartService::class, function (Application $app): EventDataMartService {
+            return new EventDataMartService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Insight Engine (v7.0.0) — automated insight generation
+        $this->app->singleton(AnalyticsInsightEngineService::class, function (Application $app): AnalyticsInsightEngineService {
+            return new AnalyticsInsightEngineService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
         });
 
         // User journey mapping service
@@ -1769,6 +1788,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsConfigExportService($config);
         });
+
+        // Event Data Mart Service (v7.0.0) — OLAP-style pre-aggregated event rollup cubes
+        $this->app->singleton(EventDataMartService::class, function (Application $app): EventDataMartService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventDataMartService($cache, $config);
+        });
     }
 
     /**
@@ -1800,6 +1829,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsPLGScoreCommand::class,
                 AnalyticsTimeSeriesCommand::class,
                 AnalyticsQuickSetupCommand::class,
+                AnalyticsInsightsCommand::class,
             ]);
         }
 
@@ -2042,6 +2072,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/benchmarks/compare', [$controller, 'benchmarksCompare']);
                 Route::get('analytics/benchmarks/report-card', [$controller, 'benchmarksReportCard']);
                 Route::get('analytics/benchmarks/quick-start', [$controller, 'benchmarksQuickStart']);
+
+                // Event Data Mart (v7.0.0)
+                Route::get('analytics/data-mart/summary', [$controller, 'dataMartSummary']);
+                Route::get('analytics/data-mart/top/{dimension}', [$controller, 'dataMartTop']);
+                Route::get('analytics/data-mart/by-category', [$controller, 'dataMartByCategory']);
+                Route::get('analytics/data-mart/by-event', [$controller, 'dataMartByEvent']);
+                Route::get('analytics/data-mart/by-provider', [$controller, 'dataMartByProvider']);
+                Route::get('analytics/data-mart/export', [$controller, 'dataMartExport']);
+                Route::get('analytics/data-mart/compare', [$controller, 'dataMartCompare']);
+                Route::delete('analytics/data-mart', [$controller, 'dataMartClear']);
+
+                // Insight Engine (v7.0.0)
+                Route::get('analytics/insights', [$controller, 'insightReport']);
+                Route::get('analytics/insights/latest', [$controller, 'insightLatest']);
+                Route::get('analytics/insights/health', [$controller, 'insightHealth']);
+                Route::get('analytics/insights/severity/{severity}', [$controller, 'insightBySeverity']);
 
                 // SSE Streaming (v2.95.0)
                 $sseController = \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class;

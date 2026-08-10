@@ -262,6 +262,47 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Event Data Mart (v7.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Pre-aggregated OLAP-style event rollup cubes for instant dashboard queries.
+        | Materializes raw events into time-binned summary cells stored in the cache,
+        | enabling fast top-N queries without scanning raw event streams.
+        |
+        | Inspired by the data mart pattern used by Amplitude, Mixpanel, and PostHog.
+        |
+        */
+        'data_mart' => [
+            'enabled' => env('ANALYTICS_DATA_MART_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_DATA_MART_CACHE_TTL', 86400), // 24 hours
+            'default_granularity' => env('ANALYTICS_DATA_MART_GRANULARITY', 'hour'), // minute, hour, day, week, month
+            'max_dimensions' => (int) env('ANALYTICS_DATA_MART_MAX_DIMENSIONS', 50),
+            'auto_dimensions' => ['event_name', 'category', 'provider'],
+            'tracked_categories' => [], // empty = all categories
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Insight Engine (v7.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Automated analytics insight generation combining data mart rollups,
+        | catalog coverage analysis, and statistical health signals.
+        |
+        | Inspired by Amplitude Compass and Mixpanel Signal.
+        |
+        */
+        'insight_engine' => [
+            'enabled' => env('ANALYTICS_INSIGHT_ENGINE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_INSIGHT_ENGINE_CACHE_TTL', 300), // 5 minutes
+            'top_movers_count' => (int) env('ANALYTICS_INSIGHT_ENGINE_TOP_MOVERS', 10),
+            'drift_threshold' => (float) env('ANALYTICS_INSIGHT_ENGINE_DRIFT_THRESHOLD', 0.3),
+            'growth_threshold' => (float) env('ANALYTICS_INSIGHT_ENGINE_GROWTH_THRESHOLD', 0.2),
+            'decline_threshold' => (float) env('ANALYTICS_INSIGHT_ENGINE_DECLINE_THRESHOLD', -0.15),
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | Auto-Track Links (Client-Side)
         |--------------------------------------------------------------------------
@@ -3022,6 +3063,29 @@ return [
             'max_cohorts' => (int) env('ANALYTICS_COHORT_REVENUE_MAX_COHORTS', 24),
             'projection_months' => (int) env('ANALYTICS_COHORT_REVENUE_PROJECTION', 12),
             'currency' => env('ANALYTICS_COHORT_REVENUE_CURRENCY', 'USD'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Data Mart (v7.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-aggregated OLAP-style event rollup cubes for instant dashboard queries.
+        | Materializes raw analytics events into time-binned summary tables stored
+        | in the Laravel cache, inspired by Amplitude/Mixpanel/PostHog data marts.
+        |
+        | Supports multiple granularity levels (minute, hour, day, week, month)
+        | and aggregation dimensions (event_name, category, provider, client_id, user_id).
+        | Each cell stores count, unique_count, first_seen, last_seen, and metadata.
+        |
+        */
+        'data_mart' => [
+            'enabled' => env('ANALYTICS_DATA_MART_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_DATA_MART_CACHE_TTL', 86400), // 24 hours
+            'default_granularity' => env('ANALYTICS_DATA_MART_GRANULARITY', 'hour'),
+            'max_dimensions' => (int) env('ANALYTICS_DATA_MART_MAX_DIMENSIONS', 50),
+            'auto_dimensions' => ['event_name', 'category'],
+            'tracked_categories' => [],
         ],
 
     ],

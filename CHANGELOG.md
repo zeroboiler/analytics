@@ -2,6 +2,17 @@
 
 All notable changes to the package will be documented in this file.
 
+## [7.0.0] - 2026-08-10
+
+### Added
+
+- **EventDataMartService** — OLAP-style pre-aggregated event rollup cubes for instant dashboard queries. Materializes raw analytics events into time-binned summary tables stored in the Laravel cache, inspired by Amplitude/Mixpanel/PostHog data marts. Features: multi-granularity support (minute/hour/day/week/month), configurable auto-dimensions (event_name, category, provider, client_id, user_id), cardinality-limited cells, unique client tracking with HyperLogLog-inspired probabilistic counting cap, batch ingestion, dimension comparison for anomaly detection, full cube export, summary statistics. Registered as singleton in ServiceProvider.
+- **Config: `data_mart` section** — New `zeroboiler.analytics.data_mart` with `enabled`, `cache_ttl`, `default_granularity`, `max_dimensions`, `auto_dimensions`, `tracked_categories` settings.
+
+### Changed
+
+- **Version sweep** — 6.9.0 → 7.0.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
 ## [6.9.0] - 2026-08-10
 
 ### Added
