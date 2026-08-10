@@ -498,4 +498,14 @@ Route::prefix('analytics')->group(function () {
     Route::get('cooccurrence/top', [AnalyticsEventController::class, 'cooccurrenceTopPairs']);
     Route::get('cooccurrence/{eventName}', [AnalyticsEventController::class, 'cooccurrenceWith']);
     Route::get('cooccurrence/dashboard', [AnalyticsEventController::class, 'cooccurrenceDashboard']);
+
+    // Cohort Waterfall Analysis (v7.5.0)
+    Route::post('cohort-waterfall', [AnalyticsEventController::class, 'cohortWaterfall']);
+    Route::post('cohort-waterfall/summary', [AnalyticsEventController::class, 'cohortWaterfallSummary']);
+    Route::post('cohort-waterfall/compare', [AnalyticsEventController::class, 'cohortWaterfallCompare']);
+    Route::get('cohort-waterfall/stages', [AnalyticsEventController::class, 'cohortWaterfallStages']);
+
+    // Funnel Drop-off Intelligence (v7.5.0)
+    Route::post('funnel-intelligence', [AnalyticsEventController::class, 'funnelIntelligence']);
+    Route::post('funnel-intelligence/compare', [AnalyticsEventController::class, 'funnelIntelligenceCompare']);
 });

@@ -66,6 +66,8 @@ use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
+use ZeroBoiler\Analytics\Services\CohortWaterfallService;
+use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 
 /**
  * API controller for frontend event tracking.
@@ -8299,5 +8301,113 @@ final class AnalyticsEventController extends Controller
         EventCooccurrenceService $service,
     ): JsonResponse {
         return response()->json($service->dashboardSummary());
+    }
+
+    // ─── Cohort Waterfall Analysis (v7.5.0) ──────────────────────────────
+
+    /**
+     * Generate full cohort waterfall report.
+     *
+     * POST /api/analytics/cohort-waterfall
+     *
+     * @bodyParam cohorts array Cohort data keyed by period
+     * @bodyParam period string Granularity (weekly|monthly)
+     */
+    public function cohortWaterfall(
+        CohortWaterfallService $service,
+        Request $request,
+    ): JsonResponse {
+        $data = $request->json()->all() ?? [];
+
+        return response()->json($service->report($data));
+    }
+
+    /**
+     * Get quick cohort waterfall summary.
+     *
+     * POST /api/analytics/cohort-waterfall/summary
+     *
+     * @bodyParam cohorts array Cohort data keyed by period
+     */
+    public function cohortWaterfallSummary(
+        CohortWaterfallService $service,
+        Request $request,
+    ): JsonResponse {
+        $data = $request->json()->all() ?? [];
+
+        return response()->json($service->quickSummary($data));
+    }
+
+    /**
+     * Compare two cohort periods side-by-side.
+     *
+     * POST /api/analytics/cohort-waterfall/compare
+     *
+     * @bodyParam cohort_a array Cohort A data
+     * @bodyParam cohort_b array Cohort B data
+     */
+    public function cohortWaterfallCompare(
+        CohortWaterfallService $service,
+        Request $request,
+    ): JsonResponse {
+        $cohortA = $request->json('cohort_a', []);
+        $cohortB = $request->json('cohort_b', []);
+
+        return response()->json($service->compare($cohortA, $cohortB));
+    }
+
+    /**
+     * Get the default waterfall stages.
+     *
+     * GET /api/analytics/cohort-waterfall/stages
+     */
+    public function cohortWaterfallStages(
+        CohortWaterfallService $service,
+    ): JsonResponse {
+        return response()->json([
+            'stages' => $service->stages(),
+            'enabled' => $service->isEnabled(),
+        ]);
+    }
+
+    // ─── Funnel Drop-off Intelligence (v7.5.0) ──────────────────────────
+
+    /**
+     * Analyze a funnel with drop-off intelligence.
+     *
+     * POST /api/analytics/funnel-intelligence
+     *
+     * @bodyParam steps array Ordered funnel step names
+     * @bodyParam step_counts array Per-step visitor counts
+     * @bodyParam step_times array Per-step average time in seconds
+     */
+    public function funnelIntelligence(
+        FunnelDropoffIntelligenceService $service,
+        Request $request,
+    ): JsonResponse {
+        $steps = $request->json('steps', []);
+        $data = $request->json()->all() ?? [];
+
+        return response()->json($service->analyze($steps, $data));
+    }
+
+    /**
+     * Compare funnel performance across two time periods.
+     *
+     * POST /api/analytics/funnel-intelligence/compare
+     *
+     * @bodyParam steps array Ordered funnel step names
+     * @bodyParam period_a array Data for period A
+     * @bodyParam period_b array Data for period B
+     */
+    public function funnelIntelligenceCompare(
+        FunnelDropoffIntelligenceService $service,
+        Request $request,
+    ): JsonResponse {
+        $steps = $request->json('steps', []);
+        $periodA = $request->json('period_a', []);
+        $periodB = $request->json('period_b', []);
+
+        return response()->json($service->comparePeriods($steps, $periodA, $periodB));
     }
 }

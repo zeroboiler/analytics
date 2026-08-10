@@ -2,6 +2,14 @@
 
 All notable changes to the package will be documented in this file.
 
+## [7.6.0] - 2026-08-10
+
+### Added
+- `pestphp/pest-plugin-type-coverage` to require-dev
+
+### Changed
+- Version bump to 7.6.0
+
 ## [7.0.0] - 2026-08-10
 
 ### Added

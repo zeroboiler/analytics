@@ -16,7 +16,7 @@
         "consent",
         "ecommerce"
     ],
-    "version": "7.4.0",
+    "version": "7.6.0",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
@@ -28,6 +28,7 @@
     },
     "require-dev": {
         "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-type-coverage": "^3.0",
         "phpstan/phpstan": "^2.0",
         "laravel/pint": "^1.0",
         "rector/rector": "^2.0",

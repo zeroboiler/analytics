@@ -326,6 +326,45 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Cohort Waterfall Analysis (v7.5.0)
+        |--------------------------------------------------------------------------
+        |
+        | Revenue flow decomposition by cohort period. Visualizes how users
+        | flow through signup → trial → conversion → active → churn stages.
+        | Produces waterfall-style data for dashboard chart rendering.
+        |
+        | Inspired by ChartMogul, ProfitWell, and Baremetrics revenue waterfall.
+        |
+        */
+        'cohort_waterfall' => [
+            'enabled' => env('ANALYTICS_COHORT_WATERFALL_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_COHORT_WATERFALL_CACHE_TTL', 600), // 10 minutes
+            'granularity' => env('ANALYTICS_COHORT_WATERFALL_GRANULARITY', 'monthly'), // weekly, monthly
+            'currency' => env('ANALYTICS_COHORT_WATERFALL_CURRENCY', 'USD'),
+            'projection_months' => (int) env('ANALYTICS_COHORT_WATERFALL_PROJECTION', 6),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Funnel Drop-off Intelligence (v7.5.0)
+        |--------------------------------------------------------------------------
+        |
+        | Smart funnel analysis with bottleneck detection, anomaly detection,
+        | time-to-convert analysis, and actionable recommendations.
+        | Produces structured data for funnel visualization dashboards.
+        |
+        | Inspired by Mixpanel Funnel Analysis and Amplitude Pathfinder.
+        |
+        */
+        'funnel_intelligence' => [
+            'enabled' => env('ANALYTICS_FUNNEL_INTELLIGENCE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FUNNEL_INTELLIGENCE_CACHE_TTL', 300), // 5 minutes
+            'bottleneck_threshold' => (float) env('ANALYTICS_FUNNEL_BOTTLENECK_THRESHOLD', 50.0), // % drop-off to flag
+            'anomaly_threshold' => (float) env('ANALYTICS_FUNNEL_ANOMALY_THRESHOLD', 2.0), // spike multiplier
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Auto-Track Links (Client-Side)
         |--------------------------------------------------------------------------
         |

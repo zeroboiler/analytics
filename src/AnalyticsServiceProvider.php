@@ -188,6 +188,8 @@ use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
+use ZeroBoiler\Analytics\Services\CohortWaterfallService;
+use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -195,7 +197,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.4.0
+ * @version 7.5.0
  *
  * @since 1.0.0
  */
@@ -1839,6 +1841,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new EventDataMartService($cache, $config);
         });
+
+        // Cohort Waterfall Analysis Service (v7.5.0)
+        $this->app->singleton(CohortWaterfallService::class, function (Application $app): CohortWaterfallService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new CohortWaterfallService($cache, $config);
+        });
+
+        // Funnel Drop-off Intelligence Service (v7.5.0)
+        $this->app->singleton(FunnelDropoffIntelligenceService::class, function (Application $app): FunnelDropoffIntelligenceService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelDropoffIntelligenceService($cache, $config);
+        });
     }
 
     /**
@@ -2135,6 +2157,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/sse', [$sseController, 'stream']);
                 Route::get('analytics/sse/info', [$sseController, 'info']);
                 Route::get('analytics/sse/health', [$sseController, 'health']);
+
+                // Cohort Waterfall Analysis (v7.5.0)
+                Route::post('analytics/cohort-waterfall', [$controller, 'cohortWaterfall']);
+                Route::post('analytics/cohort-waterfall/summary', [$controller, 'cohortWaterfallSummary']);
+                Route::post('analytics/cohort-waterfall/compare', [$controller, 'cohortWaterfallCompare']);
+                Route::get('analytics/cohort-waterfall/stages', [$controller, 'cohortWaterfallStages']);
+
+                // Funnel Drop-off Intelligence (v7.5.0)
+                Route::post('analytics/funnel-intelligence', [$controller, 'funnelIntelligence']);
+                Route::post('analytics/funnel-intelligence/compare', [$controller, 'funnelIntelligenceCompare']);
 
                 // Event Archive (v4.0.0)
                 Route::get('analytics/archive', [$controller, 'archiveSearch']);
