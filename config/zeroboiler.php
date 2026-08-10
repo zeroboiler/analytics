@@ -245,6 +245,24 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | SaaS Event Templates (v6.9.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-configured event templates for common SaaS patterns.
+        | When SaaSEventTemplateService is used, these settings control
+        | default values for currency, UTM tracking, and auto-attachment
+        | of attribution context.
+        |
+        */
+        'event_templates' => [
+            'default_currency' => env('ANALYTICS_TEMPLATES_CURRENCY', 'USD'),
+            'auto_utm_attach' => env('ANALYTICS_TEMPLATES_AUTO_UTM', true),
+            'auto_user_id_attach' => env('ANALYTICS_TEMPLATES_AUTO_USER_ID', true),
+            'include_provider_params' => env('ANALYTICS_TEMPLATES_PROVIDER_PARAMS', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Auto-Track Links (Client-Side)
         |--------------------------------------------------------------------------
         |

@@ -179,6 +179,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
 use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
 use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
+use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -186,7 +187,7 @@ use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.8.0
+ * @version 6.9.0
  *
  * @since 1.0.0
  */
@@ -545,6 +546,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new CohortRevenueAttributionService($manager, $metrics, $cache, $config);
+        });
+
+        // SaaS Event Template Service (v6.9.0)
+        $this->app->singleton(SaaSEventTemplateService::class, function (Application $app): SaaSEventTemplateService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SaaSEventTemplateService($manager);
         });
 
         // User journey mapping service

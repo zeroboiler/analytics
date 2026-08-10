@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.9.0] - 2026-08-10
+
+### Added
+
+- **SaaSEventTemplateService** — Industry-standard SaaS event template service providing pre-configured templates for authentication (signup, login, logout with UTM attribution), subscription lifecycle (create with MRR/ARR, upgrade/downgrade with revenue impact, cancellation with churn context), trial management (start, convert with TTV, expire), revenue tracking (MRR movement framework, provider-optimized purchase with GA4+Meta+PostHog params), onboarding milestones (step completion with progress percent, flow completion), feature adoption (first use, power user milestones), account management (email verification, profile update), and e-commerce shortcuts (view item, add to cart with cross-provider params). Registered as singleton in ServiceProvider.
+- **Catalog-Aware API Validation** — `TrackEventRequest` now validates event names against the EventCatalog in strict mode (`zeroboiler.analytics.validation.strict`). Invalid names receive fuzzy suggestions using Levenshtein distance and Jaccard word overlap scoring. Added `priority` parameter validation (critical|normal|low|background) to `TrackEventRequest`.
+- **Auth State Change Detection** — Inertia middleware (`HandleInertiaAnalytics`) detects authentication state changes (login/logout) mid-session via session-stored previous user ID comparison. Exposes `authStateChanged` and `previousUserId` Inertia props for client-side identity stitching.
+- **JS Client Auth Stitching** — JS client auto-detects auth state changes from Inertia props and fires identify + login events to stitch client_id ↔ user_id on login.
+- **Config: `event_templates` section** — New `zeroboiler.analytics.event_templates` with `default_currency`, `auto_utm_attach`, `auto_user_id_attach`, `include_provider_params` settings.
+- **V690SaaSEventTemplatesAndStrictValidationTest** — 35+ Pest test cases covering: SaaSEventTemplateService signup/login/logout, subscription with MRR/ARR calculation, plan upgrade/downgrade with revenue impact, cancellation with churn context, trial start/convert/expire, MRR movement (new/expansion/churn), revenue with provider-optimized params, onboarding step completion with progress, onboarding completion, feature first use and power user milestones, view item and add to cart with GA4+Meta params, UTM extraction (present/null), DTO creation without dispatch. TrackEventRequest catalog-aware validation, priority parameter, custom messages, accessor methods. EventCatalog integration for all template events, version consistency (6.9.0), catalog validation, revenue/GDPR events.
+
+### Changed
+
+- **Version sweep** — 6.8.0 → 6.9.0 across AnalyticsEvent::VERSION, JS client (getVersion + @version), ServiceProvider (@version), CHANGELOG, README badge.
+
 ## [6.8.0] - 2026-08-10
 
 ### Added

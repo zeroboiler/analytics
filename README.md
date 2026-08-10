@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.8.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.9.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.9.0](#whats-new-in-v6900)
 - [What's New in v6.8.0](#whats-new-in-v6800)
 - [What's New in v6.7.0](#whats-new-in-v6700)
 - [What's New in v6.5.0](#whats-new-in-v6500)
@@ -60,6 +61,101 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v6.9.0
+
+### SaaS Event Template Service
+
+New `SaaSEventTemplateService` provides industry-standard pre-configured event templates for common SaaS patterns. Each template generates provider-optimized parameters following GA4, Meta Pixel, and PostHog schemas.
+
+```php
+use ZeroBoiler\Analytics\Services\SaaSEventTemplateService;
+
+$template = app(SaaSEventTemplateService::class);
+
+// Authentication
+$template->signup($userId, ['method' => 'oauth_google', 'utm_source' => 'google']);
+$template->login($userId, ['method' => 'sso', 'session_count' => 5]);
+
+// Subscription Lifecycle
+$template->subscriptionCreated($userId, 'Pro', 49.00, ['billing_cycle' => 'monthly']);
+$template->planUpgrade($userId, 'Starter', 'Pro', [
+    'from_revenue' => 20.00,
+    'to_revenue' => 50.00,
+    'catalyst' => 'feature_limit',
+]);
+$template->cancellation($userId, [
+    'plan' => 'Pro',
+    'reason' => 'too_expensive',
+    'ltv' => 1200.00,
+    'months_active' => 24,
+]);
+
+// Trial Management
+$template->trialStart($userId, 'Pro', 14, ['monthly_value' => 49.00]);
+$template->trialConverted($userId, 'Pro', [
+    'days_to_convert' => 7,
+    'features_used_during_trial' => ['dashboard', 'reports'],
+]);
+
+// Revenue — generates GA4 + Meta + PostHog params
+$template->revenue('TXN-001', 99.99, 'USD', [
+    ['item_id' => 'SKU-1', 'item_name' => 'Widget', 'price' => 99.99, 'quantity' => 1],
+], ['tax' => 8.00]);
+
+// MRR Movement Tracking
+$template->mrrMovement('expansion', 30.00, ['previous_mrr' => 50.0, 'new_mrr' => 80.0]);
+
+// Onboarding
+$template->onboardingStepCompleted($userId, 'profile_setup', 1, 5);
+$template->onboardingCompleted($userId, 5, ['time_to_complete' => 300]);
+
+// Feature Adoption
+$template->featureFirstUse($userId, 'reports', ['days_since_signup' => 3]);
+$template->featurePowerUser($userId, 'api', 100);
+
+// E-Commerce Shortcuts
+$template->viewItem(['item_id' => 'SKU-1', 'price' => 29.99]);
+$template->addToCart(['item_id' => 'SKU-2', 'price' => 19.99, 'quantity' => 2], 'EUR');
+```
+
+### Catalog-Aware API Validation
+
+`TrackEventRequest` now supports catalog-aware validation in strict mode. When `zeroboiler.analytics.validation.strict` is enabled, only catalog-registered event names are accepted. Invalid names receive fuzzy suggestions:
+
+```php
+// config/zeroboiler.php
+'analytics' => [
+    'validation' => [
+        'strict' => env('ANALYTICS_VALIDATION_STRICT', false),
+    ],
+],
+```
+
+Request error response includes fuzzy suggestions:
+```json
+{
+    "errors": {
+        "name": ["The event name 'sign_ups' is not registered in the event catalog. Did you mean: sign_up, login?"]
+    }
+}
+```
+
+### Auth State Change Detection (Client ID Stitching)
+
+The Inertia middleware now detects authentication state changes (login/logout) mid-session and exposes `authStateChanged` and `previousUserId` props. The JS client automatically fires identify events on login to stitch the client ID to the new user ID.
+
+### Configuration
+
+New `event_templates` config section:
+```php
+'event_templates' => [
+    'default_currency' => env('ANALYTICS_TEMPLATES_CURRENCY', 'USD'),
+    'auto_utm_attach' => env('ANALYTICS_TEMPLATES_AUTO_UTM', true),
+    'auto_user_id_attach' => env('ANALYTICS_TEMPLATES_AUTO_USER_ID', true),
+    'include_provider_params' => env('ANALYTICS_TEMPLATES_PROVIDER_PARAMS', true),
+],
+```
 
 ## What's New in v6.4.0
 

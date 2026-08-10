@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
+use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 
 /**
  * Inertia middleware that injects analytics configuration into page props.
@@ -25,6 +26,7 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  * - Provider IDs (GA4, GTM, Meta) — only if enabled
  * - Server-generated tracking ID (cookie-stored for client/server matching)
  * - Authenticated user ID (when available)
+ * - Auth state change flag (when user just logged in/out) for client ID stitching
  *
  * @since 1.0.0
  */
@@ -185,6 +187,12 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $identityConfig = $this->config->get('zeroboiler.analytics.identity', []);
         /** @var array{link_on_auth?: bool} $identityConfig */
         $analyticsProps['identityAutoLink'] = (bool) ($identityConfig['link_on_auth'] ?? true);
+
+        // Auth state change detection for client-side identity stitching (v6.9.0)
+        // When the user authenticates mid-session, the client JS needs to
+        // detect the change and fire an identify call to link client_id ↔ user_id
+        $analyticsProps['authStateChanged'] = $this->detectAuthStateChange($request);
+        $analyticsProps['previousUserId'] = $this->getPreviousUserId($request);
 
         // SaaS analytics maturity score (computed on every request — lightweight)
         try {
@@ -355,5 +363,44 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             || $this->manager->meta()->isEnabled()
             || $this->manager->plausible()->isEnabled()
             || $this->manager->posthog()->isEnabled();
+    }
+
+    /**
+     * Detect if the authentication state changed during this request.
+     *
+     * Compares the current authenticated user ID against the previous user ID
+     * stored in the session. Returns true if the user just logged in or out.
+     *
+     * Used by the JS client to trigger identity stitching (client ID ↔ user ID).
+     *
+     * @return bool
+     */
+    private function detectAuthStateChange(Request $request): bool
+    {
+        $currentUserId = $this->getUserId();
+        $previousUserId = $this->getPreviousUserId($request);
+
+        // Auth state changed if they differ and at least one is non-null
+        return $currentUserId !== $previousUserId;
+    }
+
+    /**
+     * Get the previous authenticated user ID from the session.
+     *
+     * On the first request after login/logout, the session still contains
+     * the previous user ID from the prior request cycle.
+     *
+     * @return string|null
+     */
+    private function getPreviousUserId(Request $request): ?string
+    {
+        $key = 'zb_analytics_previous_user_id';
+        $previousUserId = $request->session()->get($key);
+        $currentUserId = $this->getUserId();
+
+        // Update the session for the next request comparison
+        $request->session()->put($key, $currentUserId);
+
+        return is_string($previousUserId) && $previousUserId !== '' ? $previousUserId : null;
     }
 }

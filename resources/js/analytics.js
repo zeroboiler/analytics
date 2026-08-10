@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 6.8.0
+ * @version 6.9.0
  */
 
 let trackingId = null;
@@ -92,6 +92,18 @@ export function init(pageProps) {
     if (analytics.identityAutoLink && analytics.userId && trackingId) {
         autoIdentify(analytics.userId, trackingId);
     }
+
+    // Auth state change detection (v6.9.0) — stitch client ID to new user on login/logout
+    if (analytics.authStateChanged && analytics.userId && trackingId) {
+        // User just logged in — fire identify to link client_id ↔ user_id
+        autoIdentify(analytics.userId, trackingId);
+        // Also track the login event for lifecycle continuity
+        trackEvent('login', {
+            user_id: analytics.userId,
+            auth_state_change: true,
+            previous_user_id: analytics.previousUserId || null,
+        }, { immediate: true });
+    }
 }
 
 /**
@@ -150,7 +162,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '6.8.0';
+    return '6.9.0';
 }
 
 /**
@@ -3193,7 +3205,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '6.8.0';
+    return '6.9.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
@@ -7,13 +8,19 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Http\Requests;
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Foundation\Http\FormRequest;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * Form request for tracking a single analytics event.
  *
  * Validates the POST /api/analytics/events endpoint.
  * Uses Laravel's FormRequest for proper separation of validation logic.
+ *
+ * In strict validation mode (config: zeroboiler.analytics.validation.strict),
+ * event names are validated against the event catalog. Only catalog-registered
+ * event names are accepted. This prevents typos and unauthorized event injection.
  *
  * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController::track()
  *
@@ -45,7 +52,61 @@ final class TrackEventRequest extends FormRequest
             'params.*' => 'mixed',
             'client_id' => 'sometimes|string|max:64',
             'timestamp' => 'sometimes|date|before:now',
+            'priority' => 'sometimes|string|in:critical,normal,low,background',
         ];
+    }
+
+    /**
+     * Configure the validator instance with catalog-aware validation.
+     *
+     * When strict validation is enabled, checks that the event name exists
+     * in the event catalog. Adds a user-friendly error message suggesting
+     * similar event names if the name is not found.
+     */
+    public function withValidator(\Illuminate\Validation\Validator $validator): void
+    {
+        $validator->after(function (\Illuminate\Validation\Validator $validator): void {
+            $name = $this->input('name');
+
+            if (! is_string($name) || $name === '') {
+                return;
+            }
+
+            // Check max length from config
+            $maxLength = $this->getMaxEventNameLength();
+            if (mb_strlen($name) > $maxLength) {
+                $validator->errors()->add(
+                    'name',
+                    "The event name must not exceed {$maxLength} characters.",
+                );
+            }
+
+            // Check whitelist (independent of strict mode)
+            $whitelist = $this->getEventWhitelist();
+            if (! empty($whitelist) && ! in_array($name, $whitelist, true)) {
+                $validator->errors()->add(
+                    'name',
+                    "The event name '{$name}' is not in the allowed whitelist.",
+                );
+
+                return;
+            }
+
+            // Catalog validation in strict mode
+            if ($this->isStrictValidation()) {
+                if (! EventCatalog::has($name)) {
+                    $suggestions = $this->suggestEventNames($name);
+                    $suggestionText = ! empty($suggestions)
+                        ? ' Did you mean: ' . implode(', ', $suggestions) . '?'
+                        : '';
+
+                    $validator->errors()->add(
+                        'name',
+                        "The event name '{$name}' is not registered in the event catalog.{$suggestionText}",
+                    );
+                }
+            }
+        });
     }
 
     /**
@@ -60,6 +121,7 @@ final class TrackEventRequest extends FormRequest
             'params' => 'event parameters',
             'client_id' => 'client ID',
             'timestamp' => 'event timestamp',
+            'priority' => 'event priority',
         ];
     }
 
@@ -76,6 +138,7 @@ final class TrackEventRequest extends FormRequest
             'name.string' => 'The event name must be a string.',
             'params.array' => 'Event parameters must be an object/array.',
             'client_id.max' => 'The client ID must not exceed 64 characters.',
+            'priority.in' => 'The priority must be one of: critical, normal, low, background.',
         ];
     }
 
@@ -119,5 +182,114 @@ final class TrackEventRequest extends FormRequest
         $timestamp = $this->input('timestamp');
 
         return is_string($timestamp) && $timestamp !== '' ? $timestamp : null;
+    }
+
+    /**
+     * Get the event priority from the request.
+     */
+    public function priority(): ?string
+    {
+        $priority = $this->input('priority');
+
+        if (! is_string($priority) || $priority === '') {
+            return null;
+        }
+
+        $validPriorities = ['critical', 'normal', 'low', 'background'];
+
+        return in_array($priority, $validPriorities, true) ? $priority : null;
+    }
+
+    /**
+     * Check if strict event validation is enabled.
+     *
+     * Reads from the analytics validation config section.
+     */
+    private function isStrictValidation(): bool
+    {
+        try {
+            /** @var ConfigRepository $config */
+            $config = app(ConfigRepository::class);
+
+            return (bool) $config->get('zeroboiler.analytics.validation.strict', false);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * Get the configured event name whitelist.
+     *
+     * @return list<string>
+     */
+    private function getEventWhitelist(): array
+    {
+        try {
+            /** @var ConfigRepository $config */
+            $config = app(ConfigRepository::class);
+            $whitelist = $config->get('zeroboiler.analytics.validation.whitelist', []);
+
+            return is_array($whitelist) ? $whitelist : [];
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Get the configured max event name length.
+     */
+    private function getMaxEventNameLength(): int
+    {
+        try {
+            /** @var ConfigRepository $config */
+            $config = app(ConfigRepository::class);
+
+            return (int) $config->get('zeroboiler.analytics.validation.max_event_name_length', 100);
+        } catch (\Throwable) {
+            return 100;
+        }
+    }
+
+    /**
+     * Suggest similar event names from the catalog based on Levenshtein distance.
+     *
+     * Returns up to 3 closest matching event names sorted by similarity.
+     *
+     * @return list<string>
+     */
+    private function suggestEventNames(string $name): array
+    {
+        $catalogNames = EventCatalog::names();
+
+        // Extract words from the search name for fuzzy matching
+        $searchParts = explode('_', strtolower($name));
+        $scores = [];
+
+        foreach ($catalogNames as $catalogName) {
+            $catalogLower = strtolower($catalogName);
+
+            // Exact substring match (high priority)
+            if (str_contains($catalogLower, strtolower($name)) || str_contains(strtolower($name), $catalogLower)) {
+                $scores[$catalogName] = 10;
+                continue;
+            }
+
+            // Word overlap scoring
+            $catalogParts = explode('_', $catalogLower);
+            $overlap = count(array_intersect($searchParts, $catalogParts));
+            $totalParts = count(array_unique(array_merge($searchParts, $catalogParts)));
+            $jaccard = $totalParts > 0 ? $overlap / $totalParts : 0;
+
+            // Levenshtein distance for edit distance
+            $distance = levenshtein(strtolower($name), $catalogLower);
+            $maxLen = max(mb_strlen($name), mb_strlen($catalogName), 1);
+            $normalizedDistance = 1 - ($distance / $maxLen);
+
+            $scores[$catalogName] = $jaccard * 5 + $normalizedDistance * 3;
+        }
+
+        arsort($scores);
+
+        return array_slice(array_keys($scores), 0, 3);
     }
 }
