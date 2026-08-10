@@ -222,7 +222,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.1.0
+ * @version 9.2.0
  *
  * @since 1.0.0
  */

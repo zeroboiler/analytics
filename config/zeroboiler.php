@@ -3772,5 +3772,49 @@ return [
             'outage_threshold' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_OUTAGE_THRESHOLD', 10), // Consecutive failures before outage alert
             'sla_target' => (float) env('ANALYTICS_DELIVERY_CONFIRMATION_SLA_TARGET', 99.5), // SLA target percentage
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Lifecycle Observer (v9.2.0)
+        |--------------------------------------------------------------------------
+        |
+        | Real-time SaaS health monitoring via computed lifecycle signals.
+        | Tracks trial activation scores, churn risk indicators, expansion
+        | revenue momentum, feature adoption depth, and conversion funnel
+        | progress for each user identity.
+        |
+        | Computed signals are cached for dashboard queries and admin commands.
+        |
+        */
+        'lifecycle_observer' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_OBSERVER_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_LIFECYCLE_OBSERVER_CACHE_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Readiness Score (v9.2.0)
+        |--------------------------------------------------------------------------
+        |
+        | Comprehensive self-assessment scoring system that evaluates your
+        | analytics setup across 8 dimensions:
+        | - Provider configuration
+        | - Event catalog coverage
+        | - Identity tracking
+        | - Consent compliance
+        | - Queue infrastructure
+        | - E-commerce tracking
+        | - SaaS lifecycle tracking
+        | - Client-side integration
+        |
+        | Use via artisan: zb:analytics:readiness
+        | Or via API: GET /analytics/readiness
+        | Or programmatically: AnalyticsReadinessScoreService::compute()
+        |
+        */
+        'readiness_score' => [
+            'enabled' => env('ANALYTICS_READINESS_SCORE_ENABLED', true),
+            'passing_threshold' => (int) env('ANALYTICS_READINESS_THRESHOLD', 60), // Score >= 60 = "ready"
+        ],
     ],
 ];

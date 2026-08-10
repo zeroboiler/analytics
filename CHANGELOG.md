@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [9.2.0] - 2026-08-10
+
+### Added
+
+- **SaaS Lifecycle Observer** (`SaaSLifecycleObserver`) — Real-time SaaS health monitoring service that tracks trial activation scores (0-100 with weighted step progression), churn risk indicators (weighted scoring with diminishing returns), expansion revenue momentum, feature adoption depth, session engagement metrics, and conversion funnel progress (7 stages). Cache-backed with configurable TTL. GDPR-compliant with `forget()` method. Aggregate metrics API for admin dashboards.
+- **Analytics Readiness Score** (`AnalyticsReadinessScoreService`) — Comprehensive 8-dimension self-assessment scoring system (0-100) evaluating Provider Configuration, Event Catalog Coverage, Identity Tracking, Consent Compliance, Queue Infrastructure, E-commerce Tracking, SaaS Lifecycle Tracking, and Client-Side Integration. Returns letter grades (A+ through F), actionable recommendations sorted by priority, and `isReady()` quick check.
+- **Config: `lifecycle_observer` section** — New `zeroboiler.analytics.lifecycle_observer` with configurable enabled flag and cache TTL.
+- **Config: `readiness_score` section** — New `zeroboiler.analytics.readiness_score` with configurable enabled flag and passing threshold (default: 60).
+- **Test suite** — `V920SaaSLifecycleAndReadinessTest.php` with 20+ tests covering lifecycle observer activation tracking, churn risk computation, expansion momentum, funnel progress, activation score assessment, churn risk assessment, GDPR erasure, static helpers, aggregate metrics, and readiness score computation across all 8 dimensions.
+
+### Changed
+
+- **Version sweep** — 9.1.0 → 9.2.0 across package.json, JS client (getVersion + _getInternalVersion + @version), README badge, and CHANGELOG.
+
 ## [9.0.0] - 2026-08-10
 
 ### Added

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-9.1.0-blue)](https://github.com/zeroboiler/analytics)
+|[![Latest Version](https://img.shields.io/badge/version-9.2.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v9.2.0](#whats-new-in-v920)
 - [What's New in v9.1.0](#whats-new-in-v910)
 - [What's New in v9.0.0](#whats-new-in-v900)
 - [What's New in v8.9.0](#whats-new-in-v890)
@@ -80,6 +81,43 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.2.0
+
+### 🧠 SaaS Lifecycle Observer
+- **`SaaSLifecycleObserver`** — Real-time SaaS health monitoring service
+  - Tracks **trial activation score** (0-100) with weighted step progression: trial_start → login → feature_used → subscription → trial_converted
+  - Monitors **churn risk indicators** with weighted scoring: billing_retry (35), feature_limit_reached (20), reduced_usage (30), with diminishing returns for repeat signals
+  - Computes **expansion revenue momentum** from plan_upgrades, expansion_revenue events, and subscription renewals
+  - Tracks **feature adoption depth** — unique features used per identity
+  - Tracks **session engagement** — login frequency, avg sessions/day, stickiness proxy
+  - **Conversion funnel progress** — tracks position through the SaaS signup funnel (7 stages)
+  - GDPR-compliant: `forget()` clears all cached signals for an identity
+  - Aggregate metrics API for admin dashboards
+
+### 📊 Analytics Readiness Score
+- **`AnalyticsReadinessScoreService`** — Comprehensive 8-dimension self-assessment
+  - Scores your analytics setup from 0-100 across:
+    - **Provider Configuration** (15 pts) — at least 1 provider enabled
+    - **Event Catalog Coverage** (15 pts) — core SaaS, engagement, and revenue events
+    - **Identity Tracking** (10 pts) — client ID cookie + auto-link on auth
+    - **Consent Compliance** (10 pts) — GDPR default + granular purposes
+    - **Queue Infrastructure** (15 pts) — async dispatch + dedicated connection
+    - **E-commerce Tracking** (10 pts) — currency + format converter
+    - **SaaS Lifecycle Tracking** (15 pts) — auto-track + lifecycle mapper
+    - **Client-Side Integration** (10 pts) — API enabled + Inertia middleware
+  - Returns letter grade (A+ through F)
+  - Actionable recommendations sorted by priority (critical/high/medium/low)
+  - `isReady()` quick check — true if score >= 60
+
+### ⚙️ Configuration
+- New `lifecycle_observer` config section (cache TTL)
+- New `readiness_score` config section (passing threshold)
+
+### 🧪 Testing
+- 20+ new test cases covering `SaaSLifecycleObserver` and `AnalyticsReadinessScoreService`
+
+---
 
 ## What's New in v9.1.0
 
