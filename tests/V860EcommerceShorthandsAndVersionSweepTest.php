@@ -103,30 +103,30 @@ test('v8.6.0 — Bearer token template literal is properly formatted', function 
 
 test('v8.6.0 — version consistency across all entry points', function (): void {
     // PHP VERSION constant
-    expect(AnalyticsEvent::VERSION)->toBe('8.7.0');
+    expect(AnalyticsEvent::VERSION)->toBe('8.8.0');
 
     // composer.json
     $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-    expect($composer['version'])->toBe('8.7.0');
+    expect($composer['version'])->toBe('8.8.0');
 
     // package.json
     $package = json_decode(file_get_contents(base_path('package.json')), true);
-    expect($package['version'])->toBe('8.7.0');
+    expect($package['version'])->toBe('8.8.0');
 
     // JS client header
     $jsContent = file_get_contents(base_path('resources/js/analytics.js'));
-    expect($jsContent)->toContain('@version 8.7.0');
+    expect($jsContent)->toContain('@version 8.8.0');
 
     // JS getVersion()
-    expect($jsContent)->toContain("return '8.7.0'");
+    expect($jsContent)->toContain("return '8.8.0'");
 
     // TypeScript definitions
     $tsContent = file_get_contents(base_path('resources/js/analytics.d.ts'));
-    expect($tsContent)->toContain('@version 8.7.0');
+    expect($tsContent)->toContain('@version 8.8.0');
 
     // Svelte composable
     $svelteContent = file_get_contents(base_path('resources/js/useAnalytics.svelte.js'));
-    expect($svelteContent)->toContain('@version 8.7.0');
+    expect($svelteContent)->toContain('@version 8.8.0');
 });
 
 test('v8.6.0 — e-commerce event catalog coverage', function (): void {

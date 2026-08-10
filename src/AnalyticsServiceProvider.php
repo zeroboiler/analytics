@@ -207,6 +207,9 @@ use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
 use ZeroBoiler\Analytics\Services\EventSchemaValidationService;
 use ZeroBoiler\Analytics\Services\BotDetectionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
+use ZeroBoiler\Analytics\Services\EventCorrelationHeatmapService;
+use ZeroBoiler\Analytics\Services\AnalyticsHealthMonitorService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthMonitorCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -214,7 +217,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 8.7.0
+ * @version 8.8.0
  *
  * @since 1.0.0
  */
@@ -2009,6 +2012,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new BotDetectionService($cache, $config);
         });
+
+        // Event Correlation Heatmap (v8.8.0)
+        $this->app->singleton(EventCorrelationHeatmapService::class, function (Application $app): EventCorrelationHeatmapService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCorrelationHeatmapService($cache, $config);
+        });
+
+        // Health Monitor Dashboard (v8.8.0)
+        $this->app->singleton(AnalyticsHealthMonitorService::class, function (Application $app): AnalyticsHealthMonitorService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsHealthMonitorService($cache, $config);
+        });
     }
 
     /**
@@ -2046,6 +2069,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsReportCommand::class,
                 AnalyticsCohortIntelligenceCommand::class,
                 AnalyticsSnapshotCommand::class,
+                AnalyticsHealthMonitorCommand::class,
             ]);
         }
 

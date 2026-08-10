@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [8.8.0] - 2026-08-10
+
+### Added
+
+- **Event Correlation Heatmap Service** (`EventCorrelationHeatmapService`) — Computes pairwise Jaccard similarity correlation matrix across tracked events within user sessions. Produces structured data for dashboard heatmap chart rendering. Features: `computeHeatmap()`, `getTopCorrelations()`, `getEventCorrelations()`, `getChartData()`, `getStats()`, `recordCoOccurrence()`. Configurable minimum co-occurrences, max events, Jaccard threshold, and excluded events list.
+- **Analytics Health Monitor Dashboard Service** (`AnalyticsHealthMonitorService`) — Unified health monitoring for the entire analytics stack. Aggregates health data from 6 subsystems (providers, queue, config, pipeline, consent, rate limiting) into a composite score (0-100) with A-F grading. Features: `getDashboardData()`, `getScore()`, `getGrade()`, `getDimensionScore()`, `isHealthy()`, `isDegraded()`, `isCritical()`, `getHistory()`, `recordDataPoint()`, `invalidateCache()`.
+- **Health Monitor Command** (`zb:analytics:health-monitor`) — New artisan command displaying composite health score, per-dimension breakdowns, alerts, and optional time-series history. Supports `--json`, `--record`, `--history`, `--points=N`.
+- **Config: `correlation_heatmap` section** — New `zeroboiler.analytics.correlation_heatmap` with configurable cache TTL, min co-occurrences, max events, Jaccard threshold, and excluded events.
+- **Config: `health_monitor` section** — New `zeroboiler.analytics.health_monitor` with configurable dimension weights (providers, queue, config, pipeline, consent, rate_limiting), cache TTL, and enabled dimensions list.
+
+### Changed
+
+- **Version sweep** — 8.7.0 → 8.8.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), README badge, IntegrityCommand::EXPECTED_VERSION, CHANGELOG.
+
 ## [8.7.0] - 2026-08-10
 
 ### Added

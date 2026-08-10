@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.7.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.8.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.8.0](#whats-new-in-v880)
 - [What's New in v8.7.0](#whats-new-in-v870)
 - [What's New in v8.6.0](#whats-new-in-v860)
 - [What's New in v8.5.0](#whats-new-in-v850)
@@ -76,6 +77,40 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.8.0
+
+### Event Correlation Heatmap Service
+
+Industry-standard event correlation analysis using Jaccard similarity coefficients. Computes a pairwise correlation matrix across tracked events within user sessions, producing structured data for dashboard heatmap chart rendering (D3, Chart.js, Recharts).
+
+**Key capabilities:**
+- **Jaccard similarity matrix** — Normalized co-occurrence scoring that prevents high-volume events (page_view) from dominating
+- **Top correlations API** — `getTopCorrelations(20)` returns the strongest event pairs for "Events frequently done together" widgets
+- **Per-event correlations** — `getEventCorrelations('purchase')` returns all events correlated with a specific event
+- **Chart data export** — `getChartData()` produces flat `{source, target, value}` triples for chord diagrams and force graphs
+- **Configurable filtering** — Exclude noisy events (page_view, scroll_depth) and set Jaccard thresholds per deployment
+- **Co-occurrence recording** — `recordCoOccurrence()` tracks session-scoped event pairs with automatic deduplication
+- **Statistics API** — Average/median/max correlation, strong pair count for dashboard KPI tiles
+
+### Health Monitor Dashboard Service
+
+Unified health monitoring for the entire analytics stack. Aggregates health data from 6 subsystems into a single composite score (0-100) with A-F grading and per-dimension breakdowns.
+
+**Dimensions:**
+- **Provider Connectivity (25%)** — GA4, GTM, Meta Pixel, Plausible, PostHog, Webhook reachability
+- **Queue Health (20%)** — Queue config, DLQ, replay enabled, sync vs async
+- **Config Integrity (20%)** — Consent defaults, debug mode, dedup, PII sanitization, GDPR IP anonymization
+- **Pipeline Health (15%)** — UTM auto-attach, metadata enrichment, dedup, debounce
+- **Consent Coverage (10%)** — GDPR-safe defaults, consent logging, purpose definitions
+- **Rate Limiting (10%)** — API throttle, guard enabled, provider rate limits
+
+**Key features:**
+- **Composite scoring** — Weighted average with configurable dimension weights
+- **A-F grading** — A (90+), B (80+), C (70+), D (60+), F (<60)
+- **Alert generation** — Critical (<50) and warning (<70) alerts per dimension
+- **Time-series history** — Record periodic data points for trend chart rendering
+- **Admin command** — `zb:analytics:health-monitor --json --record --history`
 
 ## What's New in v8.7.0
 

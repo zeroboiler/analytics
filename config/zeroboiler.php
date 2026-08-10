@@ -3653,5 +3653,74 @@ return [
                 'sec_ch_mobile',
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Correlation Heatmap (v8.8.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Computes pairwise Jaccard similarity correlation matrix across tracked
+        | events within user sessions. Produces heatmap data for dashboard
+        | chart rendering. Events are sorted by co-occurrence frequency.
+        |
+        | Excluded events (page_view, scroll_depth by default) are omitted from
+        | the matrix to focus on meaningful behavioral correlations.
+        |
+        | Inspired by Amplitude Compass and Mixpanel Event Correlation.
+        |
+        */
+        'correlation_heatmap' => [
+            'enabled' => env('ANALYTICS_CORRELATION_HEATMAP_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CORRELATION_HEATMAP_CACHE_TTL', 3600), // 1 hour
+            'cache_prefix' => env('ANALYTICS_CORRELATION_HEATMAP_PREFIX', 'zb_heatmap_'),
+            'min_co_occurrences' => (int) env('ANALYTICS_CORRELATION_HEATMAP_MIN_CO', 3),
+            'max_events' => (int) env('ANALYTICS_CORRELATION_HEATMAP_MAX_EVENTS', 30),
+            'jaccard_threshold' => (float) env('ANALYTICS_CORRELATION_HEATMAP_JACCARD', 0.05),
+            'exclude_events' => [
+                'page_view',
+                'scroll_depth',
+                'screen_view',
+                'session_start',
+                'session_end',
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Health Monitor Dashboard (v8.8.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Unified health monitoring for the entire analytics stack. Aggregates
+        | health data from providers, queue, config, pipeline, consent, and
+        | rate limiting into a composite score (0-100) with A-F grading.
+        |
+        | Dimension weights must sum to 1.0. Adjust based on your monitoring
+        | priorities. Default: providers 25%, queue 20%, config 20%,
+        | pipeline 15%, consent 10%, rate limiting 10%.
+        |
+        | Use via artisan: zb:analytics:health-monitor --json
+        | Or via API: GET /api/analytics/health-monitor
+        |
+        */
+        'health_monitor' => [
+            'enabled' => env('ANALYTICS_HEALTH_MONITOR_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_HEALTH_MONITOR_CACHE_TTL', 300), // 5 minutes
+            'weights' => [
+                'providers' => (float) env('ANALYTICS_HEALTH_MONITOR_W_PROVIDERS', 0.25),
+                'queue' => (float) env('ANALYTICS_HEALTH_MONITOR_W_QUEUE', 0.20),
+                'config' => (float) env('ANALYTICS_HEALTH_MONITOR_W_CONFIG', 0.20),
+                'pipeline' => (float) env('ANALYTICS_HEALTH_MONITOR_W_PIPELINE', 0.15),
+                'consent' => (float) env('ANALYTICS_HEALTH_MONITOR_W_CONSENT', 0.10),
+                'rate_limiting' => (float) env('ANALYTICS_HEALTH_MONITOR_W_RATE', 0.10),
+            ],
+            'dimensions' => [
+                'providers',
+                'queue',
+                'config',
+                'pipeline',
+                'consent',
+                'rate_limiting',
+            ],
+        ],
     ],
 ];
