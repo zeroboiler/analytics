@@ -78,6 +78,7 @@ use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
 use ZeroBoiler\Analytics\Services\IdentityGraphService;
 use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
 use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
+use ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService;
 
 /**
  * API controller for frontend event tracking.
@@ -9389,5 +9390,101 @@ final class AnalyticsEventController extends Controller
             'consent_log_enabled' => (bool) ($consentConfig['log_enabled'] ?? false),
             'consent_default' => (string) ($consentConfig['default'] ?? 'granted'),
         ];
+    }
+
+    // ── Event Delivery Confirmation (v9.0.0) ──────────────────────────
+
+    /**
+     * Get comprehensive delivery dashboard data.
+     *
+     * Returns reliability scores, per-provider health, response time stats,
+     * outage detection, and SLA status for all enabled providers.
+     */
+    public function deliveryDashboard(): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        return response()->json($service->getDeliveryDashboard());
+    }
+
+    /**
+     * Get the delivery reliability score (0-100) with A-F grading.
+     */
+    public function deliveryReliabilityScore(): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        return response()->json($service->getReliabilityScore());
+    }
+
+    /**
+     * Check delivery receipt for a specific event ID.
+     *
+     * Returns per-provider delivery status for the given event.
+     */
+    public function deliveryCheckReceipt(string $eventId): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        return response()->json($service->checkReceipt($eventId));
+    }
+
+    /**
+     * Get response time percentiles for a specific provider.
+     *
+     * Returns p50, p95, p99, avg, min, max response times.
+     */
+    public function deliveryResponseTimes(string $provider): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        return response()->json($service->getResponseTimeStats($provider));
+    }
+
+    /**
+     * Get recent delivery history for a specific provider.
+     */
+    public function deliveryRecentDeliveries(Request $request, string $provider): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        $limit = (int) ($request->query('limit', 50));
+
+        return response()->json($service->getRecentDeliveries($provider, $limit));
+    }
+
+    /**
+     * Check if a provider is currently in outage state.
+     */
+    public function deliveryOutageStatus(string $provider): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        return response()->json([
+            'provider' => $provider,
+            'in_outage' => $service->isProviderInOutage($provider),
+        ]);
+    }
+
+    /**
+     * Clear delivery tracking stats.
+     *
+     * Optionally limited to a specific provider via ?provider=ga4
+     */
+    public function deliveryClearStats(Request $request): JsonResponse
+    {
+        /** @var EventDeliveryConfirmationService $service */
+        $service = app(EventDeliveryConfirmationService::class);
+
+        $provider = $request->query('provider');
+        $service->clearStats(is_string($provider) && $provider !== '' ? $provider : null);
+
+        return response()->json(['cleared' => true]);
     }
 }

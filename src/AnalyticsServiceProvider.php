@@ -212,6 +212,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsHealthMonitorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthMonitorCommand;
 use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGuardRailsCommand;
+use ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -219,7 +221,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsGuardRailsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 8.9.0
+ * @version 9.0.0
  *
  * @since 1.0.0
  */
@@ -2045,6 +2047,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new TrackingGuardRailsService($cache, $config, $manager);
         });
+
+        // Event Delivery Confirmation (v9.0.0)
+        $this->app->singleton(EventDeliveryConfirmationService::class, function (Application $app): EventDeliveryConfirmationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventDeliveryConfirmationService($manager, $cache, $config);
+        });
     }
 
     /**
@@ -2084,6 +2098,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSnapshotCommand::class,
                 AnalyticsHealthMonitorCommand::class,
                 AnalyticsGuardRailsCommand::class,
+                AnalyticsDeliveryCommand::class,
             ]);
         }
 

@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [9.0.0] - 2026-08-10
+
+### Added
+
+- **Event Delivery Confirmation System** (`EventDeliveryConfirmationService`) — Industry-standard event delivery monitoring inspired by Segment's delivery confirmation, Mixpanel's event verification, and Amplitude's event monitoring dashboard. Features per-provider delivery success/failure tracking, response latency measurement (p50, p95, p99), composite reliability score (0-100) with A-F grading, event delivery receipt recording, provider outage detection via consecutive failure spike, SLA monitoring with configurable target, and cache-backed storage with configurable TTL and retention.
+- **Analytics Delivery Command** (`zb:analytics:delivery`) — New artisan command displaying delivery dashboard with per-provider health, response time percentiles, outage status, and SLA compliance. Supports `--json`, `--provider=`, `--receipt=<eventId>`, `--clear`.
+- **Delivery Confirmation API endpoints** — `GET /api/analytics/delivery` (full dashboard), `GET /api/analytics/delivery/score` (reliability score), `GET /api/analytics/delivery/receipt/{eventId}` (per-event receipt check), `GET /api/analytics/delivery/{provider}/response-times` (latency percentiles), `GET /api/analytics/delivery/{provider}/recent` (delivery history), `GET /api/analytics/delivery/{provider}/outage` (outage detection), `DELETE /api/analytics/delivery` (clear stats).
+- **Config: `delivery_confirmation` section** — New `zeroboiler.analytics.delivery_confirmation` with configurable enabled flag, cache TTL, retention window, outage threshold, and SLA target.
+- **Test suite** — `V900EventDeliveryConfirmationTest.php` with comprehensive tests covering service instantiation, disabled state, success/failure recording, counter management, response time stats, receipt tracking, reliability scoring, grade calculation, SLA compliance, outage detection, consecutive failure reset, dashboard aggregation, and stats clearing.
+
+### Changed
+
+- **Version sweep** — 8.9.0 → 9.0.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), README badge, IntegrityCommand::EXPECTED_VERSION, CHANGELOG.
+
 ## [8.9.0] - 2026-08-10
 
 ### Added

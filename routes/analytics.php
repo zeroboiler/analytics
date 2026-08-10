@@ -569,4 +569,13 @@ Route::prefix('analytics')->group(function () {
     Route::post('identity-graph/merge', [AnalyticsEventController::class, 'identityGraphMerge']);
     Route::post('identity-graph/same-user', [AnalyticsEventController::class, 'identityGraphSameUser']);
     Route::get('identity-graph/fingerprint', [AnalyticsEventController::class, 'identityGraphFingerprint']);
+
+    // Event Delivery Confirmation (v9.0.0)
+    Route::get('delivery', [AnalyticsEventController::class, 'deliveryDashboard']);
+    Route::get('delivery/score', [AnalyticsEventController::class, 'deliveryReliabilityScore']);
+    Route::get('delivery/receipt/{eventId}', [AnalyticsEventController::class, 'deliveryCheckReceipt']);
+    Route::get('delivery/{provider}/response-times', [AnalyticsEventController::class, 'deliveryResponseTimes']);
+    Route::get('delivery/{provider}/recent', [AnalyticsEventController::class, 'deliveryRecentDeliveries']);
+    Route::get('delivery/{provider}/outage', [AnalyticsEventController::class, 'deliveryOutageStatus']);
+    Route::delete('delivery', [AnalyticsEventController::class, 'deliveryClearStats']);
 });

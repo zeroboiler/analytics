@@ -3748,5 +3748,29 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_GUARD_RAILS_CACHE_TTL', 300), // 5 minutes
             'minimum_events' => (int) env('ANALYTICS_GUARD_RAILS_MIN_EVENTS', 100), // Minimum events before full assessment
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delivery Confirmation (v9.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Event delivery confirmation and reliability monitoring system.
+        | Tracks whether events are successfully delivered to each provider,
+        | with response time percentiles, outage detection, and SLA monitoring.
+        |
+        | Inspired by Segment's delivery confirmation, Mixpanel's event
+        | verification, and Amplitude's event monitoring dashboard.
+        |
+        | Use via artisan: zb:analytics:delivery --json
+        | Or via API: GET /analytics/delivery
+        |
+        */
+        'delivery_confirmation' => [
+            'enabled' => env('ANALYTICS_DELIVERY_CONFIRMATION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_CACHE_TTL', 3600), // 1 hour
+            'retention_window' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_RETENTION', 86400), // 24 hours
+            'outage_threshold' => (int) env('ANALYTICS_DELIVERY_CONFIRMATION_OUTAGE_THRESHOLD', 10), // Consecutive failures before outage alert
+            'sla_target' => (float) env('ANALYTICS_DELIVERY_CONFIRMATION_SLA_TARGET', 99.5), // SLA target percentage
+        ],
     ],
 ];

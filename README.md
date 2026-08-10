@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-[![Latest Version](https://img.shields.io/badge/version-8.9.0-blue)](https://github.com/zeroboiler/analytics)
+[![Latest Version](https://img.shields.io/badge/version-9.0.0-blue)](https://github.com/zeroboiler/analytics)
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v9.0.0](#whats-new-in-v900)
 - [What's New in v8.9.0](#whats-new-in-v890)
 - [What's New in v8.8.0](#whats-new-in-v880)
 - [What's New in v8.7.0](#whats-new-in-v870)
@@ -78,6 +79,47 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.0.0
+
+### Event Delivery Confirmation System
+
+Industry-standard event delivery monitoring inspired by Segment's delivery confirmation, Mixpanel's event verification, and Amplitude's event monitoring dashboard.
+
+**Core Features:**
+- **Delivery Receipt Tracking** — Per-event delivery confirmation with unique event IDs. Query whether a specific event was delivered to all enabled providers.
+- **Reliability Scoring** — Composite delivery reliability score (0-100) with A-F grading. Computed from success/failure ratios with consecutive failure penalties.
+- **Response Time Percentiles** — Per-provider p50, p95, p99 response time measurement for latency monitoring.
+- **Outage Detection** — Automatic provider outage detection when consecutive failures exceed configurable threshold. Alert logging on detection.
+- **SLA Monitoring** — Configurable SLA target (default: 99.5%). Real-time SLA compliance tracking across all providers.
+- **Recent Delivery History** — Per-provider delivery audit trail (last 500 events) for debugging delivery issues.
+
+**API Endpoints:**
+- `GET /api/analytics/delivery` — Full delivery dashboard (reliability, per-provider health, response times)
+- `GET /api/analytics/delivery/score` — Reliability score with grading
+- `GET /api/analytics/delivery/receipt/{eventId}` — Check delivery receipt for a specific event
+- `GET /api/analytics/delivery/{provider}/response-times` — Response time percentiles
+- `GET /api/analytics/delivery/{provider}/recent` — Recent delivery history
+- `GET /api/analytics/delivery/{provider}/outage` — Outage status check
+- `DELETE /api/analytics/delivery` — Clear stats (optional `?provider=ga4`)
+
+**Artisan Command:**
+```bash
+php artisan zb:analytics:delivery              # Full dashboard
+php artisan zb:analytics:delivery --json      # JSON output
+php artisan zb:analytics:delivery --provider=ga4  # Specific provider
+php artisan zb:analytics:delivery --receipt=event-uuid  # Check receipt
+php artisan zb:analytics:delivery --clear      # Clear stats
+```
+
+**Configuration:**
+```env
+ANALYTICS_DELIVERY_CONFIRMATION_ENABLED=true
+ANALYTICS_DELIVERY_CONFIRMATION_CACHE_TTL=3600
+ANALYTICS_DELIVERY_CONFIRMATION_RETENTION=86400
+ANALYTICS_DELIVERY_CONFIRMATION_OUTAGE_THRESHOLD=10
+ANALYTICS_DELIVERY_CONFIRMATION_SLA_TARGET=99.5
+```
 
 ## What's New in v8.9.0
 
