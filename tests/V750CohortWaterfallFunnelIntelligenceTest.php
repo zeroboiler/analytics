@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 
 // ─── Version Consistency ───────────────────────────────────────────────
 
-test('version is 7.5.0 everywhere', function (): void {
+test('version is 7.6.0 everywhere', function (): void {
     expect(AnalyticsEvent::VERSION)->toBe('7.6.0');
 
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
