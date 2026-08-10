@@ -3502,5 +3502,57 @@ return [
             'min_events_for_profiling' => (int) env('ANALYTICS_COHORT_MIN_EVENTS', 3),
             'decay_factor' => (float) env('ANALYTICS_COHORT_DECAY_FACTOR', 0.95),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Schema Validation (v8.4.0)
+        |--------------------------------------------------------------------------
+        |
+        | Runtime validation of event parameters against typed schema definitions.
+        | Validates types, coerces values, and enforces required parameters.
+        |
+        | Severity levels:
+        | - 'reject': Block events with validation errors
+        | - 'coerce': Auto-fix type mismatches (e.g. string "42" → int 42)
+        | - 'warn': Log warnings but pass events through
+        | - 'off': Disable schema validation entirely
+        |
+        | Inspired by Segment Protocols and PostHog event validation.
+        |
+        */
+        'schema_validation' => [
+            'enabled' => env('ANALYTICS_SCHEMA_VALIDATION_ENABLED', true),
+            'severity' => env('ANALYTICS_SCHEMA_VALIDATION_SEVERITY', 'coerce'),
+            'strip_unknown' => env('ANALYTICS_SCHEMA_VALIDATION_STRIP_UNKNOWN', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bot Detection (v8.4.0)
+        |--------------------------------------------------------------------------
+        |
+        | Automated bot detection for analytics API endpoints.
+        | Analyzes user-agents, client ID rotation patterns, request velocity,
+        | and HTTP header completeness to produce a composite risk score (0-100).
+        |
+        | Requests scoring above the risk threshold are flagged as bots.
+        | Use 'reject_on_bot' to automatically block bot traffic.
+        |
+        | Inspired by Cloudflare Bot Management and FingerprintJS.
+        |
+        */
+        'bot_detection' => [
+            'enabled' => env('ANALYTICS_BOT_DETECTION_ENABLED', true),
+            'risk_threshold' => (int) env('ANALYTICS_BOT_DETECTION_THRESHOLD', 70),
+            'reject_on_bot' => env('ANALYTICS_BOT_DETECTION_REJECT', false),
+            'max_client_ids_per_ip' => (int) env('ANALYTICS_BOT_MAX_CLIENT_IDS', 10),
+            'velocity_burst' => (int) env('ANALYTICS_BOT_VELOCITY_BURST', 50),
+            'velocity_window' => (int) env('ANALYTICS_BOT_VELOCITY_WINDOW', 60), // seconds
+            'bot_ua_patterns' => [
+                'bot', 'crawl', 'spider', 'scraper', 'curl', 'wget',
+                'python-requests', 'python-urllib', 'httpclient', 'java/',
+                'go-http', 'node-fetch', 'axios', 'postmanruntime', 'insomnia',
+            ],
+        ],
     ],
 ];

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.3.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.4.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.4.0](#whats-new-in-v840)
 - [What's New in v8.3.0](#whats-new-in-v830)
 - [What's New in v8.2.0](#whats-new-in-v820)
 - [What's New in v8.0.0](#whats-new-in-v8000)
@@ -72,6 +73,62 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.4.0
+
+### Event Schema Validation Engine + Bot Detection Service
+
+**EventSchemaValidationService** — Runtime validation of analytics event parameters against the typed schema definitions in `EventParameterSchemas`. Performs type checking, automatic type coercion (e.g., string `"42"` → int `42`), required parameter enforcement, and optional unknown parameter stripping. Four severity levels: `reject`, `coerce`, `warn`, `off`.
+
+```php
+use ZeroBoiler\Analytics\Services\EventSchemaValidationService;
+
+$service = app(EventSchemaValidationService::class);
+
+// Validate a single event
+$event = new AnalyticsEvent('purchase', ['transaction_id' => 'txn_1', 'currency' => 'USD', 'value' => '29.99']);
+$result = $service->validate($event);
+// $result['valid']    // true (value auto-coerced from string to float)
+// $result['coerced']  // true
+// $result['errors']   // []
+// $result['event']    // The coerced AnalyticsEvent
+
+// Validate a batch
+$batchResult = $service->validateBatch([$event1, $event2, $event3]);
+// $batchResult['total'], $batchResult['valid'], $batchResult['rejected']
+
+// Coverage stats
+$coverage = $service->getCoverageStats();
+// $coverage['total_schemas'], $coverage['catalog_size'], $coverage['coverage_percent']
+```
+
+**Config:** `zeroboiler.analytics.schema_validation` with `enabled`, `severity`, `strip_unknown`.
+
+---
+
+**BotDetectionService** — Automated bot detection for analytics API endpoints. Analyzes incoming requests using four signal layers: user-agent pattern matching (15+ known bot patterns), client ID rotation detection (multiple IDs from same IP), request velocity anomaly (burst submissions), and HTTP header completeness scoring. Produces a composite risk score (0-100) with configurable rejection threshold.
+
+```php
+use ZeroBoiler\Analytics\Services\BotDetectionService;
+
+$service = app(BotDetectionService::class);
+
+$result = $service->analyze($request, $clientId);
+// $result['score']     // 0-100 composite risk score
+// $result['is_bot']   // true if score >= threshold
+// $result['signals']  // Per-layer breakdown (user_agent, client_rotation, velocity, header_score)
+// $result['details']   // Human-readable detection details
+
+// Stats
+$stats = $service->getStats();
+// $stats['total'], $stats['bot'], $stats['human'], $stats['avg_score'], $stats['bot_rate']
+```
+
+**Config:** `zeroboiler.analytics.bot_detection` with `enabled`, `risk_threshold`, `reject_on_bot`, `max_client_ids_per_ip`, `velocity_burst`, `velocity_window`, `bot_ua_patterns`.
+
+Inspired by Cloudflare Bot Management, FingerprintJS, Segment Protocols, and PostHog event validation.
+
+**Version sweep** — 8.3.0 → 8.4.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composable, TypeScript definitions, ServiceProvider.
 
 ## What's New in v8.3.0
 

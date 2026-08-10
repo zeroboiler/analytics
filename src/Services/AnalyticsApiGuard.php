@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
  * Designed as a pre-dispatch gate — run before any event processing
  * to reject invalid or abusive requests early.
  *
- * @version 5.0.0
+ * @version 8.4.0
  *
  * @since 1.0.0
  */

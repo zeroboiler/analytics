@@ -199,6 +199,8 @@ use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
 use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
 use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
+use ZeroBoiler\Analytics\Services\EventSchemaValidationService;
+use ZeroBoiler\Analytics\Services\BotDetectionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
 
 /**
@@ -207,7 +209,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 8.2.0
+ * @version 8.4.0
  *
  * @since 1.0.0
  */
@@ -1948,6 +1950,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 'lookback_days' => $cohortConfig['lookback_days'] ?? 30,
                 'decay_factor' => $cohortConfig['decay_factor'] ?? 0.95,
             ]);
+        });
+
+        // Event Schema Validation (v8.4.0)
+        $this->app->singleton(EventSchemaValidationService::class, function (Application $app): EventSchemaValidationService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventSchemaValidationService($config);
+        });
+
+        // Bot Detection (v8.4.0)
+        $this->app->singleton(BotDetectionService::class, function (Application $app): BotDetectionService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new BotDetectionService($cache, $config);
         });
     }
 
