@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 7.8.0
+ * @version 7.9.0
  */
 
 import { tick } from 'svelte';

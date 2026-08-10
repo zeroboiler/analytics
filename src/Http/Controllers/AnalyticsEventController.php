@@ -69,6 +69,8 @@ use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
+use ZeroBoiler\Analytics\Services\AttributionModelService;
+use ZeroBoiler\Analytics\Services\SaaSFeatureMatrixService;
 
 /**
  * API controller for frontend event tracking.
@@ -8496,5 +8498,116 @@ final class AnalyticsEventController extends Controller
         return response()->json([
             'dispatch_balance' => $service->calculateDispatchBalance($providerSignals),
         ]);
+    }
+
+    // ── Attribution Modeling (v7.9.0) ──────────────────────────────────
+
+    /**
+     * GET /api/analytics/attribution/models — List available attribution models.
+     */
+    public function attributionModels(AttributionModelService $service): JsonResponse
+    {
+        return response()->json([
+            'models' => $service->availableModels(),
+            'default' => $service->getDefaultModel(),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/attribution/attribute — Compute attribution for a journey.
+     *
+     * @bodyParam model string Example: position_based
+     * @bodyParam touchpoints array Example: [{"source":"google","medium":"cpc","campaign":"brand"}]
+     * @bodyParam revenue float Example: 99.99
+     */
+    public function attributionAttribute(Request $request, AttributionModelService $service): JsonResponse
+    {
+        $model = $request->input('model', 'position_based');
+        $touchpoints = $request->input('touchpoints', []);
+        $revenue = (float) $request->input('revenue', 1.0);
+
+        return response()->json($service->attribute($model, $touchpoints, $revenue));
+    }
+
+    /**
+     * POST /api/analytics/attribution/compare — Compare attribution across all models.
+     */
+    public function attributionCompare(Request $request, AttributionModelService $service): JsonResponse
+    {
+        $touchpoints = $request->input('touchpoints', []);
+        $revenue = (float) $request->input('revenue', 1.0);
+
+        return response()->json($service->compareModels($touchpoints, $revenue));
+    }
+
+    /**
+     * POST /api/analytics/attribution/by-channel — Aggregate attribution by channel.
+     */
+    public function attributionByChannel(Request $request, AttributionModelService $service): JsonResponse
+    {
+        $journeys = $request->input('journeys', []);
+        $model = $request->input('model', 'position_based');
+
+        return response()->json($service->aggregateByChannel($journeys, $model));
+    }
+
+    /**
+     * POST /api/analytics/attribution/by-campaign — Aggregate attribution by campaign.
+     */
+    public function attributionByCampaign(Request $request, AttributionModelService $service): JsonResponse
+    {
+        $journeys = $request->input('journeys', []);
+        $model = $request->input('model', 'position_based');
+
+        return response()->json($service->aggregateByCampaign($journeys, $model));
+    }
+
+    /**
+     * POST /api/analytics/attribution/efficiency — Channel efficiency metrics (ROAS, CPA).
+     */
+    public function attributionEfficiency(Request $request, AttributionModelService $service): JsonResponse
+    {
+        $journeys = $request->input('journeys', []);
+        $model = $request->input('model', 'position_based');
+        $costs = $request->input('costs', []);
+
+        return response()->json($service->channelEfficiency($journeys, $model, $costs));
+    }
+
+    // ── SaaS Feature Matrix (v7.9.0) ───────────────────────────────────
+
+    /**
+     * GET /api/analytics/feature-matrix — Full feature parity matrix.
+     */
+    public function featureMatrix(SaaSFeatureMatrixService $service): JsonResponse
+    {
+        return response()->json($service->buildMatrix());
+    }
+
+    /**
+     * GET /api/analytics/feature-matrix/summary — Coverage summary with grade.
+     */
+    public function featureMatrixSummary(SaaSFeatureMatrixService $service): JsonResponse
+    {
+        return response()->json($service->coverageSummary());
+    }
+
+    /**
+     * GET /api/analytics/feature-matrix/gaps — List unsupported features.
+     */
+    public function featureMatrixGaps(SaaSFeatureMatrixService $service): JsonResponse
+    {
+        return response()->json([
+            'gaps' => $service->getGaps(),
+            'count' => count($service->getGaps()),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/feature-matrix/compare/{competitor} — Compare with a competitor.
+     */
+    public function featureMatrixCompare(string $competitor, SaaSFeatureMatrixService $service): JsonResponse
+    {
+        return response()->json($service->compareWith($competitor));
     }
 }

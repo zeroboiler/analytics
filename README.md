@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-7.8.0-blue)](https://github.com/zeroboiler/analytics)||
+|||[![Latest Version](https://img.shields.io/badge/version-7.9.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.9.0](#whats-new-in-v790)
 - [What's New in v7.8.0](#whats-new-in-v780)
 - [What's New in v7.7.0](#whats-new-in-v770)
 - [What's New in v7.6.0](#whats-new-in-v760)
@@ -68,6 +69,19 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.9.0
+
+### Multi-Touch Attribution & Feature Matrix Benchmark
+
+**AttributionModelService** — Industry-standard multi-touch attribution modeling for marketing analytics. Computes weighted credit across touchpoints using five models: first-touch, last-touch, linear, time-decay, and position-based (U-shaped). Supports channel aggregation, campaign aggregation, and ROAS/CPA efficiency metrics.
+
+- **AttributionModelService** — Five attribution models (first_touch, last_touch, linear, time_decay, position_based). Validates models, computes per-touchpoint credit with percentage breakdowns. `compareModels()` for side-by-side model comparison. `aggregateByChannel()` and `aggregateByCampaign()` for multi-journey aggregation. `channelEfficiency()` for ROAS/CPA calculations.
+- **SaaSFeatureMatrixService** — Feature parity benchmarking against industry platforms (Segment, Mixpanel, Amplitude, PostHog, Matomo, Plausible). 70+ feature checks across 13 categories. `buildMatrix()` for full coverage analysis with gap identification. `coverageSummary()` with letter grade. `compareWith()` for per-competitor advantage/disadvantage analysis.
+- **Config: `attribution_model` section** — Default model, decay factor, enabled models, cache TTL.
+- **Config: `feature_matrix` section** — Enable/disable feature matrix endpoints, cache TTL.
+- **10 new API endpoints** — Attribution (models, attribute, compare, by-channel, by-campaign, efficiency) and Feature Matrix (matrix, summary, gaps, compare/{competitor}).
+- **Version sweep** — 7.8.0 → 7.9.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, README badge.
 
 ## What's New in v7.8.0
 

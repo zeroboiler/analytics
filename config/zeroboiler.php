@@ -3202,7 +3202,49 @@ return [
         ],
 
         /*
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
+        | Attribution Modeling (v7.9.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Multi-touch attribution models for marketing analytics.
+        | Computes weighted credit across touchpoints in conversion journeys
+        | using first-touch, last-touch, linear, time-decay, and position-based
+        | (U-shaped) models.
+        |
+        | Inspired by Google Analytics Attribution and Segment Personas.
+        |
+        */
+        'attribution_model' => [
+            'enabled' => env('ANALYTICS_ATTRIBUTION_MODEL_ENABLED', true),
+            'default_model' => env('ANALYTICS_ATTRIBUTION_MODEL_DEFAULT', 'position_based'), // first_touch, last_touch, linear, time_decay, position_based
+            'time_decay_factor' => (float) env('ANALYTICS_ATTRIBUTION_DECAY_FACTOR', 0.5),
+            'cache_ttl' => (int) env('ANALYTICS_ATTRIBUTION_MODEL_CACHE_TTL', 3600), // 1 hour
+            'enabled_models' => [
+                'first_touch' => true,
+                'last_touch' => true,
+                'linear' => true,
+                'time_decay' => true,
+                'position_based' => true,
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | SaaS Feature Matrix (v7.9.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Feature parity benchmarking against industry analytics platforms.
+        | When enabled, the feature matrix endpoint compares ZeroBoiler against
+        | Segment, Mixpanel, Amplitude, PostHog, Matomo, and Plausible.
+        |
+        */
+        'feature_matrix' => [
+            'enabled' => env('ANALYTICS_FEATURE_MATRIX_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FEATURE_MATRIX_CACHE_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Plugin Registry (v7.8.0)
         |--------------------------------------------------------------------------
         |

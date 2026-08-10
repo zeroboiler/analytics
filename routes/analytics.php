@@ -518,4 +518,18 @@ Route::prefix('analytics')->group(function () {
     Route::get('signal/staleness', [AnalyticsEventController::class, 'signalIntelligenceStaleness']);
     Route::get('signal/signal-to-noise', [AnalyticsEventController::class, 'signalIntelligenceSignalToNoise']);
     Route::get('signal/dispatch-balance', [AnalyticsEventController::class, 'signalIntelligenceDispatchBalance']);
+
+    // Attribution Modeling (v7.9.0)
+    Route::get('attribution/models', [AnalyticsEventController::class, 'attributionModels']);
+    Route::post('attribution/attribute', [AnalyticsEventController::class, 'attributionAttribute']);
+    Route::post('attribution/compare', [AnalyticsEventController::class, 'attributionCompare']);
+    Route::post('attribution/by-channel', [AnalyticsEventController::class, 'attributionByChannel']);
+    Route::post('attribution/by-campaign', [AnalyticsEventController::class, 'attributionByCampaign']);
+    Route::post('attribution/efficiency', [AnalyticsEventController::class, 'attributionEfficiency']);
+
+    // SaaS Feature Matrix (v7.9.0)
+    Route::get('feature-matrix', [AnalyticsEventController::class, 'featureMatrix']);
+    Route::get('feature-matrix/summary', [AnalyticsEventController::class, 'featureMatrixSummary']);
+    Route::get('feature-matrix/gaps', [AnalyticsEventController::class, 'featureMatrixGaps']);
+    Route::get('feature-matrix/compare/{competitor}', [AnalyticsEventController::class, 'featureMatrixCompare']);
 });
