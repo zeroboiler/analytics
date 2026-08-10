@@ -163,6 +163,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Events\EventPluginRegistry;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsAIService;
 use ZeroBoiler\Analytics\Services\EventExperimentTracker;
@@ -1918,6 +1919,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsInsightsCommand::class,
                 AnalyticsSignalIntelligenceCommand::class,
                 AnalyticsIntegrityCommand::class,
+                AnalyticsReportCommand::class,
             ]);
         }
 

@@ -532,4 +532,15 @@ Route::prefix('analytics')->group(function () {
     Route::get('feature-matrix/summary', [AnalyticsEventController::class, 'featureMatrixSummary']);
     Route::get('feature-matrix/gaps', [AnalyticsEventController::class, 'featureMatrixGaps']);
     Route::get('feature-matrix/compare/{competitor}', [AnalyticsEventController::class, 'featureMatrixCompare']);
+
+    // Event Sessionizer (v8.0.0)
+    Route::get('sessions/{clientId}', [AnalyticsEventController::class, 'sessionizerClientSessions']);
+    Route::get('sessions/{clientId}/{sessionId}', [AnalyticsEventController::class, 'sessionizerGetSession']);
+    Route::get('sessions/{clientId}/stats', [AnalyticsEventController::class, 'sessionizerAggregateStats']);
+    Route::post('sessions/end/{clientId}/{sessionId}', [AnalyticsEventController::class, 'sessionizerEndSession']);
+
+    // Funnel Aggregation (v8.0.0)
+    Route::get('funnels/aggregated/{funnelName}', [AnalyticsEventController::class, 'funnelAggregatedReport']);
+    Route::get('funnels/aggregated', [AnalyticsEventController::class, 'funnelAllAggregatedReports']);
+    Route::get('funnels/definitions', [AnalyticsEventController::class, 'funnelDefinitions']);
 });

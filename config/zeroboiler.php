@@ -1090,6 +1090,60 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Sessionizer (v8.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Session-aware event aggregation for real-time SaaS dashboards.
+        | Groups events by client ID + session ID and computes per-session
+        | metrics: event counts, unique events, session duration, engagement.
+        |
+        | Requires Redis cache driver for production-scale session tracking.
+        | Sessions auto-expire based on session_ttl.
+        |
+        */
+        'sessionizer' => [
+            'enabled' => env('ANALYTICS_SESSIONIZER_ENABLED', true),
+            'session_ttl' => (int) env('ANALYTICS_SESSIONIZER_SESSION_TTL', 1800), // 30 minutes
+            'max_sessions_per_client' => (int) env('ANALYTICS_SESSIONIZER_MAX_SESSIONS', 50),
+            'cache_prefix' => env('ANALYTICS_SESSIONIZER_CACHE_PREFIX', 'zb_session_'),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Funnel Definitions (v8.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Define custom conversion funnels for your application.
+        | Each funnel has a name, ordered steps, and a conversion event.
+        | Built-in funnels (signup, activation, purchase, subscription, expansion)
+        | are always available. Add custom funnels here.
+        |
+        | Example:
+        |   'onboarding' => [
+        |       'steps' => ['sign_up', 'start_trial', 'feature_used', 'subscribe'],
+        |       'conversion_event' => 'subscribe',
+        |       'time_window' => 604800, // 7 days
+        |   ],
+        |
+        */
+        'funnel_definitions' => [],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Classification Enrichment (v8.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the EventClassificationEnricher automatically attaches
+        | catalog metadata to every event: category, provider mappings, priority,
+        | and event class name. Uses the `_zb_` prefix to avoid parameter conflicts.
+        |
+        */
+        'classification' => [
+            'enabled' => env('ANALYTICS_CLASSIFICATION_ENABLED', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Data Retention
         |-------------------------------------------------------------------------- 
         |

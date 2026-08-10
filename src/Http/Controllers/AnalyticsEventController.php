@@ -71,6 +71,8 @@ use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
 use ZeroBoiler\Analytics\Services\AttributionModelService;
 use ZeroBoiler\Analytics\Services\SaaSFeatureMatrixService;
+use ZeroBoiler\Analytics\Services\EventSessionizer;
+use ZeroBoiler\Analytics\Services\EventFunnelAggregator;
 
 /**
  * API controller for frontend event tracking.
@@ -8609,5 +8611,89 @@ final class AnalyticsEventController extends Controller
     public function featureMatrixCompare(string $competitor, SaaSFeatureMatrixService $service): JsonResponse
     {
         return response()->json($service->compareWith($competitor));
+    }
+
+    // ── Event Sessionizer (v8.0.0) ────────────────────────────────────────
+
+    /**
+     * GET /api/analytics/sessions/{clientId} — Get all active sessions for a client.
+     */
+    public function sessionizerClientSessions(string $clientId, EventSessionizer $sessionizer): JsonResponse
+    {
+        return response()->json([
+            'client_id' => $clientId,
+            'sessions' => $sessionizer->getClientSessions($clientId),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/sessions/{clientId}/{sessionId} — Get a specific session.
+     */
+    public function sessionizerGetSession(string $clientId, string $sessionId, EventSessionizer $sessionizer): JsonResponse
+    {
+        $session = $sessionizer->getSession($clientId, $sessionId);
+
+        if ($session === null) {
+            return response()->json(['error' => 'Session not found'], 404);
+        }
+
+        return response()->json($session);
+    }
+
+    /**
+     * GET /api/analytics/sessions/{clientId}/stats — Get aggregated session statistics.
+     */
+    public function sessionizerAggregateStats(string $clientId, EventSessionizer $sessionizer): JsonResponse
+    {
+        return response()->json($sessionizer->aggregateStats($clientId));
+    }
+
+    /**
+     * POST /api/analytics/sessions/end/{clientId}/{sessionId} — End a session.
+     */
+    public function sessionizerEndSession(string $clientId, string $sessionId, EventSessionizer $sessionizer): JsonResponse
+    {
+        $result = $sessionizer->endSession($clientId, $sessionId);
+
+        if ($result === null) {
+            return response()->json(['error' => 'Session not found'], 404);
+        }
+
+        return response()->json($result);
+    }
+
+    // ── Funnel Aggregation (v8.0.0) ───────────────────────────────────────
+
+    /**
+     * GET /api/analytics/funnels/aggregated/{funnelName} — Get funnel conversion report.
+     */
+    public function funnelAggregatedReport(string $funnelName, EventFunnelAggregator $aggregator): JsonResponse
+    {
+        $report = $aggregator->getFunnelReport($funnelName);
+
+        if ($report === null) {
+            return response()->json(['error' => 'Funnel not found', 'available' => array_keys($aggregator->getDefinedFunnels())], 404);
+        }
+
+        return response()->json($report);
+    }
+
+    /**
+     * GET /api/analytics/funnels/aggregated — Get all funnel reports summary.
+     */
+    public function funnelAllAggregatedReports(EventFunnelAggregator $aggregator): JsonResponse
+    {
+        return response()->json([
+            'funnels' => $aggregator->getAllFunnelReports(),
+            'definitions' => $aggregator->getDefinedFunnels(),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/funnels/definitions — Get all funnel definitions.
+     */
+    public function funnelDefinitions(EventFunnelAggregator $aggregator): JsonResponse
+    {
+        return response()->json($aggregator->getDefinedFunnels());
     }
 }

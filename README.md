@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-7.9.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.0.0](#whats-new-in-v8000)
 - [What's New in v7.9.0](#whats-new-in-v790)
 - [What's New in v7.8.0](#whats-new-in-v780)
 - [What's New in v7.7.0](#whats-new-in-v770)
@@ -69,6 +70,19 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.0.0
+
+### Session Analytics & Funnel Aggregation — Industry-Standard SaaS Dashboard Engine
+
+**EventSessionizer** — Session-aware event aggregation for real-time SaaS dashboards. Groups events by client ID + session ID and computes per-session metrics: event counts, unique events, session duration estimation, engagement scoring (0-100), and conversion detection. Uses cache-backed ring buffers with automatic TTL expiry. Supports session indexing, client aggregation stats, and explicit session termination. Inspired by Amplitude Session Explorer and Mixpanel Session Replay.
+
+- **EventSessionizer** — `record(AnalyticsEvent)` for session-context event recording. Returns `session_id`, `event_count`, `unique_events`, `duration_estimate`, `engagement_score`. `getClientSessions()` for per-client session listing. `aggregateStats()` for dashboard-ready summary (total sessions, avg events, conversion rate, avg engagement). `endSession()` for explicit session termination.
+- **EventFunnelAggregator** — Automated funnel completion tracking across sessions. Five built-in funnels (signup, activation, purchase, subscription, expansion) with configurable custom funnels. `record()` tracks progress through funnel steps with conversion detection. `getFunnelReport()` returns step-by-step conversion rates, drop-off rates, and cumulative rates. `getAllFunnelReports()` for dashboard overview.
+- **EventClassificationEnricher** — Pipeline stage that auto-enriches events with catalog metadata: `_zb_category`, `_zb_provider_map`, `_zb_event_class`, `_zb_priority`. Priority inference for custom events using name pattern heuristics. Supports batch enrichment.
+- **AnalyticsReportCommand** — Scheduled report generator (`php artisan analytics:report`) with sections: health, catalog, funnels, sessions, saas. Supports `--format=json` and `--section=` for targeted reporting. Designed for cron-based delivery.
+- **API Endpoints** — `GET /api/analytics/sessions/{clientId}`, `GET /sessions/{clientId}/{sessionId}`, `GET /sessions/{clientId}/stats`, `POST /sessions/end/{clientId}/{sessionId}`, `GET /funnels/aggregated/{funnelName}`, `GET /funnels/aggregated`, `GET /funnels/definitions`.
+- **Config** — `sessionizer` section (session_ttl, max_sessions_per_client, cache_prefix). `funnel_definitions` for custom funnels. `classification` toggle for auto-enrichment.
 
 ## What's New in v7.9.0
 

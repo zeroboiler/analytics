@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [8.0.0] - 2026-08-10
+
+### Added
+
+- **EventSessionizer** — Session-aware event aggregation for real-time SaaS dashboards. Groups events by client ID + session ID with per-session metrics: event counts, unique events, session duration estimation, engagement scoring (0-100), and conversion detection. Cache-backed with automatic TTL expiry. Supports session indexing, client aggregation stats, and explicit session termination.
+- **EventFunnelAggregator** — Automated funnel completion tracking across sessions. Five built-in funnels (signup, activation, purchase, subscription, expansion) with configurable custom funnels. Step-by-step conversion rates, drop-off rates, cumulative rates.
+- **EventClassificationEnricher** — Pipeline stage auto-enriching events with catalog metadata: `_zb_category`, `_zb_provider_map`, `_zb_event_class`, `_zb_priority`. Priority inference for custom events using name pattern heuristics.
+- **AnalyticsReportCommand** — Scheduled report generator (`php artisan analytics:report`) with sections: health, catalog, funnels, sessions, saas. Supports `--format=json` and `--section=` for targeted reporting.
+- **Session API** — `GET /api/analytics/sessions/{clientId}`, session detail, stats, and end endpoints.
+- **Funnel API** — `GET /api/analytics/funnels/aggregated/{funnelName}`, all aggregated reports, and funnel definitions.
+- **Config: `sessionizer`** — Session TTL, max sessions per client, cache prefix.
+- **Config: `funnel_definitions`** — Custom funnel definitions (steps, conversion_event, time_window).
+- **Config: `classification`** — Toggle for auto-classification enrichment.
+
+### Changed
+
+- **Version sweep** — 7.9.0 → 8.0.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), README badge, CHANGELOG.
+
 ## [7.8.0] - 2026-08-10
 
 ### Added
