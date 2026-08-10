@@ -186,6 +186,7 @@ use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
 use ZeroBoiler\Analytics\Services\EventSparklineService;
 use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
+use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 
 /**
@@ -194,7 +195,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.2.0
+ * @version 7.3.0
  *
  * @since 1.0.0
  */
@@ -604,6 +605,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventCooccurrenceService(
                 $app->make('cache'),
                 $app->make(AnalyticsMetrics::class),
+            );
+        });
+
+        // Alert Notification Dispatcher (v7.3.0) — external channel notifications
+        $this->app->singleton(AlertNotificationService::class, function (Application $app): AlertNotificationService {
+            return new AlertNotificationService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
             );
         });
 

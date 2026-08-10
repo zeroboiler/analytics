@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-7.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-7.3.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.3.0](#whats-new-in-v730)
 - [What's New in v7.1.0](#whats-new-in-v7100)
 - [What's New in v7.0.0](#whats-new-in-v7000)
 - [What's New in v6.9.0](#whats-new-in-v6900)
@@ -63,6 +64,59 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.3.0
+
+### Alert Notification Dispatcher
+
+New `AlertNotificationService` dispatches analytics alerts to external notification channels when `EventAlertRulesService` triggers an alert. Supports per-severity channel routing, rate limiting, channel cooldowns, and retry with exponential backoff.
+
+**Supported channels:** Slack, Discord, Microsoft Teams, generic webhook, and log channel.
+
+```php
+use ZeroBoiler\Analytics\Services\AlertNotificationService;
+
+$service = app(AlertNotificationService::class);
+
+// Manually dispatch an alert
+$result = $service->notify([
+    'rule' => 'high_error_rate',
+    'event' => '*',
+    'severity' => 'critical',
+    'message' => 'Error rate exceeds 5% of total events',
+    'triggered_at' => now()->toIso8601String(),
+    'value' => 7.2,
+    'threshold' => 5.0,
+]);
+
+// Test all configured channels
+$test = $service->testChannels();
+
+// Get notification summary
+$summary = $service->summary();
+```
+
+**Configuration** is fully env-driven with sensible defaults:
+
+```env
+ANALYTICS_ALERT_NOTIFICATIONS_ENABLED=true
+ANALYTICS_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+ANALYTICS_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+ANALYTICS_TEAMS_WEBHOOK_URL=https://outlook.office.com/webhook/...
+ANALYTICS_ALERT_WEBHOOK_URL=https://your-webhook.example.com/alerts
+```
+
+Severity routing maps alert levels to channels:
+- **Critical** → Slack + webhook (immediate)
+- **Elevated** → Slack (within cooldown)
+- **Warning** → Log channel
+- **Info** → Log channel
+
+### Dashboard Integration
+
+Alert notification summary is available for admin dashboards via the `summary()` method, including current rate limit usage, configured channel count, and severity routing map.
+
+---
 
 ## What's New in v7.1.0
 

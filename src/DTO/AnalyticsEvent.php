@@ -17,7 +17,7 @@ final readonly class AnalyticsEvent
     /**
      * Package version for schema versioning.
      */
-    public const VERSION = '7.2.0';
+    public const VERSION = '7.3.0';
 
     /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')

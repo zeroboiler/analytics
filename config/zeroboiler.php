@@ -3150,5 +3150,81 @@ return [
             'max_events' => (int) env('ANALYTICS_COOCCURRENCE_MAX_EVENTS', 50),
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Alert Notifications (v7.3.0)
+        |--------------------------------------------------------------------------
+        |
+        | Dispatch analytics alerts to external notification channels (Slack,
+        | Discord, Microsoft Teams, generic webhook, or log). When
+        | EventAlertRulesService triggers an alert, this service routes it
+        | to the appropriate channels based on severity.
+        |
+        | Per-severity routing maps alert severity levels to channel names.
+        | Each channel has independent enable/disable toggle and configuration.
+        |
+        | Rate limiting prevents notification floods. Channel cooldowns
+        | prevent duplicate notifications to the same channel.
+        |
+        | Example channels:
+        |   'slack' => [
+        |       'type' => 'slack',
+        |       'url' => env('ANALYTICS_SLACK_WEBHOOK_URL', ''),
+        |       'timeout' => 5,
+        |   ],
+        |   'discord' => [
+        |       'type' => 'discord',
+        |       'url' => env('ANALYTICS_DISCORD_WEBHOOK_URL', ''),
+        |       'timeout' => 5,
+        |   ],
+        |   'teams' => [
+        |       'type' => 'teams',
+        |       'url' => env('ANALYTICS_TEAMS_WEBHOOK_URL', ''),
+        |       'timeout' => 5,
+        |   ],
+        |
+        */
+        'alert_notifications' => [
+            'enabled' => env('ANALYTICS_ALERT_NOTIFICATIONS_ENABLED', false),
+            'rate_limit_window' => (int) env('ANALYTICS_ALERT_NOTIF_RATE_WINDOW', 60),
+            'rate_limit_max' => (int) env('ANALYTICS_ALERT_NOTIF_RATE_MAX', 20),
+            'max_retries' => (int) env('ANALYTICS_ALERT_NOTIF_RETRIES', 2),
+            'retry_base_delay' => (float) env('ANALYTICS_ALERT_NOTIF_RETRY_DELAY', 1.0),
+            'channel_cooldown' => (int) env('ANALYTICS_ALERT_NOTIF_CHANNEL_COOLDOWN', 30),
+            'severity_routing' => [
+                'critical' => ['slack', 'webhook'],
+                'elevated' => ['slack'],
+                'warning' => ['log'],
+                'info' => ['log'],
+            ],
+            'channels' => [
+                // 'slack' => [
+                //     'type' => 'slack',
+                //     'url' => env('ANALYTICS_SLACK_WEBHOOK_URL', ''),
+                //     'secret' => env('ANALYTICS_SLACK_WEBHOOK_SECRET', ''),
+                //     'timeout' => (int) env('ANALYTICS_SLACK_TIMEOUT', 5),
+                // ],
+                // 'discord' => [
+                //     'type' => 'discord',
+                //     'url' => env('ANALYTICS_DISCORD_WEBHOOK_URL', ''),
+                //     'timeout' => (int) env('ANALYTICS_DISCORD_TIMEOUT', 5),
+                // ],
+                // 'teams' => [
+                //     'type' => 'teams',
+                //     'url' => env('ANALYTICS_TEAMS_WEBHOOK_URL', ''),
+                //     'timeout' => (int) env('ANALYTICS_TEAMS_TIMEOUT', 5),
+                // ],
+                // 'webhook' => [
+                //     'type' => 'webhook',
+                //     'url' => env('ANALYTICS_ALERT_WEBHOOK_URL', ''),
+                //     'secret' => env('ANALYTICS_ALERT_WEBHOOK_SECRET', ''),
+                //     'timeout' => (int) env('ANALYTICS_ALERT_WEBHOOK_TIMEOUT', 5),
+                // ],
+                'log' => [
+                    'type' => 'log',
+                ],
+            ],
+        ],
+
     ],
 ];
