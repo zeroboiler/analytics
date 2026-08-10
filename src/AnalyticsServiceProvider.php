@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
@@ -146,6 +147,8 @@ use ZeroBoiler\Analytics\Services\UserPropertiesStore;
 use ZeroBoiler\Analytics\Services\RetentionCalculator;
 use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
+use ZeroBoiler\Analytics\Services\EventContextSnapshotService;
+use ZeroBoiler\Analytics\Services\UserJourneyReconstructionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 use ZeroBoiler\Analytics\Services\EventEnrichmentService;
@@ -1622,6 +1625,23 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Context Snapshot Service (v8.5.0)
+        $this->app->singleton(EventContextSnapshotService::class, function (Application $app): EventContextSnapshotService {
+            return new EventContextSnapshotService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // User Journey Reconstruction Service (v8.5.0)
+        $this->app->singleton(UserJourneyReconstructionService::class, function (Application $app): UserJourneyReconstructionService {
+            return new UserJourneyReconstructionService(
+                $app->make('cache'),
+                $app->make(AnalyticsMetrics::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Event Debounce Service (v3.2.0)
         $this->app->singleton(EventDebounceService::class, function (Application $app): EventDebounceService {
             return new EventDebounceService(
@@ -2005,6 +2025,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsIntegrityCommand::class,
                 AnalyticsReportCommand::class,
                 AnalyticsCohortIntelligenceCommand::class,
+                AnalyticsSnapshotCommand::class,
             ]);
         }
 

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.4.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.5.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.5.0](#whats-new-in-v850)
 - [What's New in v8.4.0](#whats-new-in-v840)
 - [What's New in v8.3.0](#whats-new-in-v830)
 - [What's New in v8.2.0](#whats-new-in-v820)
@@ -73,6 +74,98 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.5.0
+
+### Event Context Snapshot & User Journey Reconstruction
+
+Two new services for advanced SaaS analytics observability and user journey analysis:
+
+**EventContextSnapshotService** — Captures point-in-time context snapshots for every dispatched event:
+- Device fingerprint, browser, OS, and type detection
+- Session state (hashed session ID, path, referrer)
+- Geographic context (country, locale) with GDPR-compliant IP anonymization (IPv4/IPv6)
+- Behavioral velocity scoring (events/minute → low/normal/elevated/high)
+- Engagement signal classification (passive/active/engaged/power_user)
+- Consent state snapshot for compliance audit trails
+- Cache-backed storage with FIFO eviction per client
+- Snapshot replay for post-hoc event re-dispatch
+- GDPR erasure: `forgetClientSnapshots()` removes all snapshots for a client
+
+```php
+use ZeroBoiler\Analytics\DTO\EventContext;
+use ZeroBoiler\Analytics\Services\EventContextSnapshotService;
+
+$snapshotService = app(EventContextSnapshotService::class);
+
+$context = EventContext::fromRequest($request, 'zb_analytics_id');
+$snapshot = $snapshotService->capture($context, 'purchase', $eventsPerMinute);
+
+// Replay from snapshot for re-dispatch
+$replayPayload = $snapshotService->replayFromSnapshot($snapshot['snapshot_id']);
+
+// GDPR erasure
+$snapshotService->forgetClientSnapshots('client_abc123');
+```
+
+**UserJourneyReconstructionService** — Reconstructs complete user journeys with funnel analysis:
+- Automatic journey recording with step-by-step event tracking
+- Journey finalization (on logout/session end) with duration calculation
+- Cache-backed persistence for cross-request journey reconstruction
+- Funnel completion analysis: `analyzeFunnelProgress(['sign_up', 'start_trial', 'subscribe'])`
+- Time-to-convert metrics per funnel step
+- Sensitive parameter sanitization (passwords, tokens, API keys stripped)
+- Max steps/journey and max journeys/user limits with FIFO eviction
+- GDPR erasure: `eraseUser()` removes all journey data
+
+```php
+use ZeroBoiler\Analytics\Services\UserJourneyReconstructionService;
+
+$journeyService = app(UserJourneyReconstructionService::class);
+
+// Record steps
+$journeyService->recordStep($event, $userId, $clientId, $sessionId);
+
+// Analyze signup → trial → subscribe funnel
+$analysis = $journeyService->analyzeFunnelProgress(
+    ['sign_up', 'start_trial', 'subscribe'],
+    $userId,
+);
+// => ['completed_steps' => 3, 'completion_rate' => 100.0, 'next_expected' => null]
+
+// Finalize on logout
+$journeyService->finalizeJourney($userId);
+
+// GDPR erasure
+$journeyService->eraseUser($userId);
+```
+
+**analytics:snapshot Command** — New admin command for instant system health overview:
+```bash
+php artisan analytics:snapshot                          # Full system overview
+php artisan analytics:snapshot --identity=user_123      # Specific user analysis
+php artisan analytics:snapshot --include-catalog         # Full event catalog dump
+php artisan analytics:snapshot --format=json             # JSON output
+```
+Reports: configuration overview, event catalog coverage & validation, provider status, identity resolution state, correlation & pattern detection, and optional full event catalog.
+
+**Configuration** — Two new config sections in `config/zeroboiler.php`:
+```php
+'context_snapshot' => [
+    'enabled' => env('ANALYTICS_CONTEXT_SNAPSHOT_ENABLED', true),
+    'snapshot_ttl' => 86400,           // 24 hours
+    'max_snapshots_per_client' => 100,
+],
+
+'journey_reconstruction' => [
+    'enabled' => env('ANALYTICS_JOURNEY_RECONSTRUCTION_ENABLED', true),
+    'cache_ttl' => 86400,               // 24 hours
+    'max_journeys_per_user' => 20,
+    'max_steps_per_journey' => 200,
+],
+```
+
+**Tests** — 24 new tests in `V850ContextSnapshotAndJourneyReconstructionTest.php` covering snapshot capture, IP anonymization, behavioral scoring, journey recording/finalization, funnel analysis, parameter sanitization, GDPR erasure, and cross-service integration.
 
 ## What's New in v8.4.0
 

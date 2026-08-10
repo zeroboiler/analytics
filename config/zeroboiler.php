@@ -1136,6 +1136,46 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Context Snapshot (v8.5.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Captures point-in-time context snapshots for each dispatched event.
+        | Snapshots include device fingerprint, session state, geographic hints,
+        | behavioral velocity, and consent state. Cached for replay and audit.
+        |
+        | Used by EventContextSnapshotService for post-hoc event enrichment,
+        | compliance reporting, and cross-reference in dashboards.
+        |
+        */
+        'context_snapshot' => [
+            'enabled' => env('ANALYTICS_CONTEXT_SNAPSHOT_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_CONTEXT_SNAPSHOT_PREFIX', 'zb_ctx_snapshot_'),
+            'snapshot_ttl' => (int) env('ANALYTICS_CONTEXT_SNAPSHOT_TTL', 86400), // 24 hours
+            'max_snapshots_per_client' => (int) env('ANALYTICS_CONTEXT_SNAPSHOT_MAX_PER_CLIENT', 100),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | User Journey Reconstruction (v8.5.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Reconstructs complete user journeys from event correlation data.
+        | Provides funnel completion analysis, time-to-convert metrics,
+        | drop-off detection, and journey comparison across segments.
+        |
+        | Journeys are cache-backed and support GDPR erasure.
+        |
+        */
+        'journey_reconstruction' => [
+            'enabled' => env('ANALYTICS_JOURNEY_RECONSTRUCTION_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_JOURNEY_RECONSTRUCTION_PREFIX', 'zb_journey_'),
+            'cache_ttl' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_TTL', 86400), // 24 hours
+            'max_journeys_per_user' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_MAX_PER_USER', 20),
+            'max_steps_per_journey' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_MAX_STEPS', 200),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Sessionizer (v8.0.0)
         |-------------------------------------------------------------------------- 
         |
