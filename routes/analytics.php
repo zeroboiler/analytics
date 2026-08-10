@@ -543,4 +543,17 @@ Route::prefix('analytics')->group(function () {
     Route::get('funnels/aggregated/{funnelName}', [AnalyticsEventController::class, 'funnelAggregatedReport']);
     Route::get('funnels/aggregated', [AnalyticsEventController::class, 'funnelAllAggregatedReports']);
     Route::get('funnels/definitions', [AnalyticsEventController::class, 'funnelDefinitions']);
+
+    // Cohort Intelligence (v8.1.0)
+    Route::post('cohort-intelligence/profile', [AnalyticsEventController::class, 'cohortIntelligenceProfile']);
+    Route::post('cohort-intelligence/profile/batch', [AnalyticsEventController::class, 'cohortIntelligenceProfileBatch']);
+    Route::post('cohort-intelligence/distribution', [AnalyticsEventController::class, 'cohortIntelligenceDistribution']);
+    Route::post('cohort-intelligence/transitions', [AnalyticsEventController::class, 'cohortIntelligenceTransitions']);
+    Route::post('cohort-intelligence/predict', [AnalyticsEventController::class, 'cohortIntelligencePredict']);
+    Route::post('cohort-intelligence/score', [AnalyticsEventController::class, 'cohortIntelligenceScore']);
+    Route::post('cohort-intelligence/score/batch', [AnalyticsEventController::class, 'cohortIntelligenceScoreBatch']);
+    Route::post('cohort-intelligence/summary', [AnalyticsEventController::class, 'cohortIntelligenceSummary']);
+    Route::post('cohort-intelligence/churn-top', [AnalyticsEventController::class, 'cohortIntelligenceChurnTop']);
+    Route::post('cohort-intelligence/expansion-top', [AnalyticsEventController::class, 'cohortIntelligenceExpansionTop']);
+    Route::get('cohort-intelligence/insights/{cohort}', [AnalyticsEventController::class, 'cohortIntelligenceInsights']);
 });

@@ -73,6 +73,8 @@ use ZeroBoiler\Analytics\Services\AttributionModelService;
 use ZeroBoiler\Analytics\Services\SaaSFeatureMatrixService;
 use ZeroBoiler\Analytics\Services\EventSessionizer;
 use ZeroBoiler\Analytics\Services\EventFunnelAggregator;
+use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
+use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
 
 /**
  * API controller for frontend event tracking.
@@ -8695,5 +8697,356 @@ final class AnalyticsEventController extends Controller
     public function funnelDefinitions(EventFunnelAggregator $aggregator): JsonResponse
     {
         return response()->json($aggregator->getDefinedFunnels());
+    }
+
+    // ── Cohort Intelligence Endpoints (v8.1.0) ──────────────────────────
+
+    /**
+     * POST /api/analytics/cohort-intelligence/profile — Profile a single user.
+     *
+     * Body: { "identity": "user-123", "events": [{ "name": "login", "params": {}, "timestamp": 1234567890 }] }
+     */
+    public function cohortIntelligenceProfile(Request $request, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'identity' => 'required|string',
+            'events' => 'required|array',
+            'events.*.name' => 'required|string',
+        ]);
+
+        $identity = $request->input('identity');
+        $eventsData = $request->input('events', []);
+        $events = array_map(
+            fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                $e['name'],
+                $e['params'] ?? [],
+                $e['client_id'] ?? $identity,
+                $e['user_id'] ?? null,
+                $e['timestamp'] ?? null,
+            ),
+            $eventsData,
+        );
+
+        $profile = $profiler->profile($identity, $events);
+
+        return response()->json(['status' => 'ok', 'profile' => $profile]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/profile/batch — Batch profile users.
+     */
+    public function cohortIntelligenceProfileBatch(Request $request, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'profiles' => $profiler->profileBatch($userEvents),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/distribution — Cohort distribution.
+     */
+    public function cohortIntelligenceDistribution(Request $request, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'distribution' => $profiler->distribution($userEvents),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/transitions — Transition matrix.
+     */
+    public function cohortIntelligenceTransitions(Request $request, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'transitions' => 'required|array',
+            'transitions.*.previous' => 'required|string',
+            'transitions.*.current' => 'required|string',
+        ]);
+
+        return response()->json([
+            'status' => 'ok',
+            'analysis' => $profiler->transitionAnalysis($request->input('transitions', [])),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/predict — Predict cohort transitions.
+     */
+    public function cohortIntelligencePredict(Request $request, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+            'target_cohort' => 'required|string',
+            'threshold' => 'nullable|numeric|min:0|max:1',
+        ];
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        $targetCohort = $request->input('target_cohort');
+        $threshold = (float) $request->input('threshold', 0.6);
+
+        return response()->json([
+            'status' => 'ok',
+            'prediction' => $profiler->predictTransitions($userEvents, $targetCohort, $threshold),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/score — Predictive scoring for a single user.
+     */
+    public function cohortIntelligenceScore(Request $request, EventPredictiveScoringService $scoring): JsonResponse
+    {
+        $request->validate([
+            'identity' => 'required|string',
+            'events' => 'required|array',
+            'events.*.name' => 'required|string',
+        ]);
+
+        $identity = $request->input('identity');
+        $eventsData = $request->input('events', []);
+        $events = array_map(
+            fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                $e['name'],
+                $e['params'] ?? [],
+                $e['client_id'] ?? $identity,
+                $e['user_id'] ?? null,
+                $e['timestamp'] ?? null,
+            ),
+            $eventsData,
+        );
+
+        return response()->json([
+            'status' => 'ok',
+            'scores' => $scoring->score($identity, $events),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/score/batch — Batch predictive scoring.
+     */
+    public function cohortIntelligenceScoreBatch(Request $request, EventPredictiveScoringService $scoring): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'scores' => $scoring->scoreBatch($userEvents),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/summary — Scoring summary.
+     */
+    public function cohortIntelligenceSummary(Request $request, EventPredictiveScoringService $scoring): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'summary' => $scoring->summary($userEvents),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/churn-top — Top churn risks.
+     */
+    public function cohortIntelligenceChurnTop(Request $request, EventPredictiveScoringService $scoring): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'churn_risks' => $scoring->topChurnRisks($userEvents, $request->input('limit', 10)),
+        ]);
+    }
+
+    /**
+     * POST /api/analytics/cohort-intelligence/expansion-top — Top expansion candidates.
+     */
+    public function cohortIntelligenceExpansionTop(Request $request, EventPredictiveScoringService $scoring): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'expansion_candidates' => $scoring->topExpansionCandidates($userEvents, $request->input('limit', 10)),
+        ]);
+    }
+
+    /**
+     * GET /api/analytics/cohort-intelligence/insights/{cohort} — Cohort insights.
+     */
+    public function cohortIntelligenceInsights(Request $request, string $cohort, CohortBehaviorProfilerService $profiler): JsonResponse
+    {
+        $request->validate([
+            'users' => 'required|array',
+            'users.*.identity' => 'required|string',
+            'users.*.events' => 'required|array',
+        ]);
+
+        $userEvents = [];
+        foreach ($request->input('users', []) as $user) {
+            $identity = $user['identity'];
+            $events = array_map(
+                fn (array $e): AnalyticsEvent => AnalyticsEvent::make(
+                    $e['name'],
+                    $e['params'] ?? [],
+                    $e['client_id'] ?? $identity,
+                    $e['user_id'] ?? null,
+                    $e['timestamp'] ?? null,
+                ),
+                $user['events'] ?? [],
+            );
+            $userEvents[$identity] = $events;
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'insights' => $profiler->cohortInsights($cohort, $userEvents),
+        ]);
     }
 }

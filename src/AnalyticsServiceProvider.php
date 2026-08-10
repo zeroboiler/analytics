@@ -195,6 +195,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSignalIntelligenceCommand;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
+use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
+use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -1885,6 +1888,39 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new EventSignalIntelligenceService($cache, $config, $metrics);
         });
+
+        // Cohort Intelligence (v8.1.0)
+        $this->app->singleton(CohortBehaviorProfilerService::class, function (Application $app): CohortBehaviorProfilerService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $cohortConfig = $config->get('zeroboiler.analytics.cohort_intelligence', []);
+
+            return new CohortBehaviorProfilerService($cache, [
+                'enabled' => $cohortConfig['enabled'] ?? true,
+                'cache_ttl' => $cohortConfig['profiler_cache_ttl'] ?? 300,
+                'lookback_days' => $cohortConfig['lookback_days'] ?? 30,
+                'min_events_for_profiling' => $cohortConfig['min_events_for_profiling'] ?? 3,
+            ]);
+        });
+
+        $this->app->singleton(EventPredictiveScoringService::class, function (Application $app): EventPredictiveScoringService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $cohortConfig = $config->get('zeroboiler.analytics.cohort_intelligence', []);
+
+            return new EventPredictiveScoringService($cache, [
+                'enabled' => $cohortConfig['enabled'] ?? true,
+                'cache_ttl' => $cohortConfig['scoring_cache_ttl'] ?? 600,
+                'lookback_days' => $cohortConfig['lookback_days'] ?? 30,
+                'decay_factor' => $cohortConfig['decay_factor'] ?? 0.95,
+            ]);
+        });
     }
 
     /**
@@ -1920,6 +1956,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSignalIntelligenceCommand::class,
                 AnalyticsIntegrityCommand::class,
                 AnalyticsReportCommand::class,
+                AnalyticsCohortIntelligenceCommand::class,
             ]);
         }
 

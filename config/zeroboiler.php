@@ -3432,5 +3432,29 @@ return [
             ],
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Cohort Intelligence (v8.1.0)
+        |--------------------------------------------------------------------------
+        |
+        | Behavioral cohort profiling and predictive scoring engine.
+        | Classifies users into behavioral cohorts (power_users, engaged, at_risk,
+        | dormant, new, churning, expanding) based on event patterns.
+        |
+        | Predictive scoring computes conversion probability, churn risk,
+        | expansion likelihood, and composite health scores.
+        |
+        | Inspired by Amplitude Behavioral Cohorts, ProfitWell Retention Engine,
+        | and ChartMogel Churn Radar.
+        |
+        */
+        'cohort_intelligence' => [
+            'enabled' => env('ANALYTICS_COHORT_INTELLIGENCE_ENABLED', true),
+            'profiler_cache_ttl' => (int) env('ANALYTICS_COHORT_PROFILER_CACHE_TTL', 300), // 5 minutes
+            'scoring_cache_ttl' => (int) env('ANALYTICS_COHORT_SCORING_CACHE_TTL', 600), // 10 minutes
+            'lookback_days' => (int) env('ANALYTICS_COHORT_LOOKBACK_DAYS', 30),
+            'min_events_for_profiling' => (int) env('ANALYTICS_COHORT_MIN_EVENTS', 3),
+            'decay_factor' => (float) env('ANALYTICS_COHORT_DECAY_FACTOR', 0.95),
+        ],
     ],
 ];
