@@ -184,6 +184,8 @@ use ZeroBoiler\Analytics\Services\EventDataMartService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
 use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
+use ZeroBoiler\Analytics\Services\EventSparklineService;
+use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 
 /**
@@ -192,7 +194,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.1.0
+ * @version 7.2.0
  *
  * @since 1.0.0
  */
@@ -586,6 +588,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
                 $manager,
+            );
+        });
+
+        // Event Sparkline Service (v7.2.0) — dashboard mini-chart data
+        $this->app->singleton(EventSparklineService::class, function (Application $app): EventSparklineService {
+            return new EventSparklineService(
+                $app->make('cache'),
+                $app->make(AnalyticsMetrics::class),
+            );
+        });
+
+        // Event Co-occurrence Matrix Service (v7.2.0) — event correlation analysis
+        $this->app->singleton(EventCooccurrenceService::class, function (Application $app): EventCooccurrenceService {
+            return new EventCooccurrenceService(
+                $app->make('cache'),
+                $app->make(AnalyticsMetrics::class),
             );
         });
 

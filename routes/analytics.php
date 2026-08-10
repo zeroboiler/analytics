@@ -486,4 +486,16 @@ Route::prefix('analytics')->group(function () {
     Route::get('recommendations/tiers', [AnalyticsEventController::class, 'recommendationTiers']);
     Route::get('provider-gaps', [AnalyticsEventController::class, 'providerGapAnalysis']);
     Route::get('provider-gaps/{provider}', [AnalyticsEventController::class, 'providerGapDetail']);
+
+    // Event Sparkline (v7.2.0)
+    Route::get('sparkline/{eventName}', [AnalyticsEventController::class, 'eventSparkline']);
+    Route::get('sparklines', [AnalyticsEventController::class, 'eventSparklines']);
+    Route::get('sparkline/dashboard', [AnalyticsEventController::class, 'sparklineDashboard']);
+    Route::get('sparkline/categories', [AnalyticsEventController::class, 'sparklineCategories']);
+
+    // Event Co-occurrence Matrix (v7.2.0)
+    Route::get('cooccurrence/matrix', [AnalyticsEventController::class, 'cooccurrenceMatrix']);
+    Route::get('cooccurrence/top', [AnalyticsEventController::class, 'cooccurrenceTopPairs']);
+    Route::get('cooccurrence/{eventName}', [AnalyticsEventController::class, 'cooccurrenceWith']);
+    Route::get('cooccurrence/dashboard', [AnalyticsEventController::class, 'cooccurrenceDashboard']);
 });

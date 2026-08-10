@@ -3110,5 +3110,45 @@ return [
             'tracked_categories' => [],
         ],
 
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Sparkline Service (v7.2.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Pre-computed mini time-series arrays for dashboard sparkline widgets.
+        | Generates compact data arrays (24-100 points) suitable for inline
+        | chart rendering without full charting libraries.
+        |
+        | Inspired by Amplitude and Mixpanel dashboard sparkline widgets.
+        |
+        */
+        'sparkline' => [
+            'enabled' => env('ANALYTICS_SPARKLINE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_SPARKLINE_CACHE_TTL', 300), // 5 minutes
+            'default_points' => (int) env('ANALYTICS_SPARKLINE_POINTS', 24),
+            'default_period_hours' => (int) env('ANALYTICS_SPARKLINE_PERIOD', 24),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Co-occurrence Matrix (v7.2.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks which events are frequently dispatched together within sessions.
+        | Produces a co-occurrence matrix and correlation scores for:
+        | - "Events frequently done together" dashboard widget
+        | - User journey path analysis
+        | - Feature discovery patterns
+        |
+        | Inspired by Amplitude Pathfinder and Mixpanel Correlation.
+        |
+        */
+        'cooccurrence' => [
+            'enabled' => env('ANALYTICS_COOCCURRENCE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_COOCCURRENCE_CACHE_TTL', 3600), // 1 hour
+            'window_seconds' => (int) env('ANALYTICS_COOCCURRENCE_WINDOW', 1800), // 30 minutes
+            'max_events' => (int) env('ANALYTICS_COOCCURRENCE_MAX_EVENTS', 50),
+        ],
+
     ],
 ];

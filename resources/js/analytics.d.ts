@@ -1373,3 +1373,56 @@ export function getSamplingConfig(): SamplingConfig;
  * Get the regional consent detection status from Inertia props.
  */
 export function getRegionalConsentStatus(): RegionalConsentConfig;
+
+/**
+ * Event Sparkline Data type (v7.2.0).
+ */
+export interface SparklineData {
+  event: string;
+  data: number[];
+  min: number;
+  max: number;
+  avg: number;
+  trend: 'up' | 'down' | 'flat';
+  points: number;
+}
+
+/**
+ * Co-occurrence pair type (v7.2.0).
+ */
+export interface CooccurrencePair {
+  event_a: string;
+  event_b: string;
+  count: number;
+  correlation: number;
+}
+
+/**
+ * Fetch sparkline data for a single event (v7.2.0).
+ */
+export function fetchEventSparkline(eventName: string, points?: number, period?: number): Promise<SparklineData | null>;
+
+/**
+ * Fetch sparkline data for multiple events (v7.2.0).
+ */
+export function fetchEventSparklines(events: string[], points?: number, period?: number): Promise<Record<string, SparklineData> | null>;
+
+/**
+ * Fetch sparkline dashboard summary (v7.2.0).
+ */
+export function fetchSparklineDashboard(points?: number): Promise<Record<string, unknown> | null>;
+
+/**
+ * Fetch co-occurrence top pairs (v7.2.0).
+ */
+export function fetchCooccurrenceTopPairs(limit?: number): Promise<CooccurrencePair[] | null>;
+
+/**
+ * Fetch events co-occurring with a specific event (v7.2.0).
+ */
+export function fetchCooccurrenceWith(eventName: string, limit?: number): Promise<Record<string, unknown> | null>;
+
+/**
+ * Fetch co-occurrence dashboard summary (v7.2.0).
+ */
+export function fetchCooccurrenceDashboard(): Promise<Record<string, unknown> | null>;

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 7.1.0
+ * @version 7.2.0
  */
 
 let trackingId = null;
@@ -162,7 +162,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '7.0.0';
+    return '7.2.0';
 }
 
 /**
@@ -3205,7 +3205,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '7.0.0';
+    return '7.2.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -5491,4 +5491,116 @@ export function getRegionalConsentStatus() {
         return { enabled: false, gdprDefault: 'denied' };
     }
     return config.regionalConsent;
+}
+
+// ─── Event Sparkline API (v7.2.0) ──────────────────────────────
+
+/**
+ * Fetch sparkline data for a single event.
+ *
+ * @param {string} eventName - Event name
+ * @param {number} [points=24] - Number of data points
+ * @param {number} [period=24] - Time period in hours
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchEventSparkline(eventName, points = 24, period = 24) {
+    if (!initialized) return null;
+    const params = new URLSearchParams();
+    if (points) params.set('points', points);
+    if (period) params.set('period', period);
+    try {
+        const res = await fetch(`${apiBaseUrl}/sparkline/${encodeURIComponent(eventName)}?${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch sparkline data for multiple events.
+ *
+ * @param {string[]} events - Event names
+ * @param {number} [points=24] - Number of data points
+ * @param {number} [period=24] - Time period in hours
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchEventSparklines(events, points = 24, period = 24) {
+    if (!initialized) return null;
+    const params = new URLSearchParams();
+    params.set('events', events.join(','));
+    if (points) params.set('points', points);
+    if (period) params.set('period', period);
+    try {
+        const res = await fetch(`${apiBaseUrl}/sparklines?${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch sparkline dashboard summary.
+ *
+ * @param {number} [points=24] - Number of data points
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchSparklineDashboard(points = 24) {
+    if (!initialized) return null;
+    const params = points ? `?points=${points}` : '';
+    try {
+        const res = await fetch(`${apiBaseUrl}/sparkline/dashboard${params}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+// ─── Event Co-occurrence API (v7.2.0) ───────────────────────────
+
+/**
+ * Fetch top co-occurring event pairs.
+ *
+ * @param {number} [limit=20] - Maximum pairs
+ * @returns {Promise<Array|null>}
+ */
+export async function fetchCooccurrenceTopPairs(limit = 20) {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/cooccurrence/top?limit=${limit}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch events that co-occur with a specific event.
+ *
+ * @param {string} eventName - Reference event
+ * @param {number} [limit=10] - Maximum results
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchCooccurrenceWith(eventName, limit = 10) {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/cooccurrence/${encodeURIComponent(eventName)}?limit=${limit}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
+}
+
+/**
+ * Fetch co-occurrence dashboard summary with clusters.
+ *
+ * @returns {Promise<Object|null>}
+ */
+export async function fetchCooccurrenceDashboard() {
+    if (!initialized) return null;
+    try {
+        const res = await fetch(`${apiBaseUrl}/cooccurrence/dashboard`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch { return null; }
 }

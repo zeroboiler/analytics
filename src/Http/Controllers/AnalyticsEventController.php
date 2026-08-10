@@ -64,6 +64,8 @@ use ZeroBoiler\Analytics\Services\EventDataMartService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightEngineService;
 use ZeroBoiler\Analytics\Services\EventRecommendationService;
 use ZeroBoiler\Analytics\Services\ProviderGapAnalyzer;
+use ZeroBoiler\Analytics\Services\EventSparklineService;
+use ZeroBoiler\Analytics\Services\EventCooccurrenceService;
 
 /**
  * API controller for frontend event tracking.
@@ -8187,5 +8189,115 @@ final class AnalyticsEventController extends Controller
             'mapped_count' => count($analyzer->mappedEvents($trackedEvents, $provider)),
             'gap_count' => count($analyzer->gapEvents($trackedEvents, $provider)),
         ]);
+    }
+
+    // ── Event Sparkline Endpoints (v7.2.0) ───────────────────────────
+
+    /**
+     * Get sparkline data for a single event.
+     */
+    public function eventSparkline(
+        EventSparklineService $service,
+        Request $request,
+        string $eventName,
+    ): JsonResponse {
+        $points = (int) $request->query('points', 0);
+        $periodHours = (int) $request->query('period', 0);
+
+        return response()->json($service->sparkline($eventName, $points, $periodHours));
+    }
+
+    /**
+     * Get sparkline data for multiple events.
+     */
+    public function eventSparklines(
+        EventSparklineService $service,
+        Request $request,
+    ): JsonResponse {
+        $events = $request->query('events', '');
+        $eventNames = is_string($events) && $events !== ''
+            ? explode(',', $events)
+            : [];
+        $points = (int) $request->query('points', 0);
+        $periodHours = (int) $request->query('period', 0);
+
+        if ($eventNames === []) {
+            return response()->json(['error' => 'Parameter "events" is required (comma-separated event names).'], 400);
+        }
+
+        return response()->json($service->sparklines($eventNames, $points, $periodHours));
+    }
+
+    /**
+     * Get sparkline dashboard summary with top events and category breakdowns.
+     */
+    public function sparklineDashboard(
+        EventSparklineService $service,
+        Request $request,
+    ): JsonResponse {
+        $points = (int) $request->query('points', 0);
+
+        return response()->json($service->dashboardSummary($points));
+    }
+
+    /**
+     * Get category-level sparkline aggregation.
+     */
+    public function sparklineCategories(
+        EventSparklineService $service,
+        Request $request,
+    ): JsonResponse {
+        $points = (int) $request->query('points', 0);
+        $periodHours = (int) $request->query('period', 0);
+
+        return response()->json($service->categorySparklines($points, $periodHours));
+    }
+
+    // ── Event Co-occurrence Endpoints (v7.2.0) ──────────────────────
+
+    /**
+     * Get the full co-occurrence matrix.
+     */
+    public function cooccurrenceMatrix(
+        EventCooccurrenceService $service,
+    ): JsonResponse {
+        return response()->json($service->getMatrix());
+    }
+
+    /**
+     * Get top co-occurring event pairs.
+     */
+    public function cooccurrenceTopPairs(
+        EventCooccurrenceService $service,
+        Request $request,
+    ): JsonResponse {
+        $limit = (int) $request->query('limit', 20);
+
+        return response()->json($service->topPairs($limit));
+    }
+
+    /**
+     * Get events that co-occur with a specific event.
+     */
+    public function cooccurrenceWith(
+        EventCooccurrenceService $service,
+        Request $request,
+        string $eventName,
+    ): JsonResponse {
+        $limit = (int) $request->query('limit', 10);
+
+        return response()->json([
+            'event' => $eventName,
+            'cooccurring' => $service->cooccurringWith($eventName, $limit),
+        ]);
+    }
+
+    /**
+     * Get co-occurrence dashboard summary with clusters and degrees.
+     */
+    public function cooccurrenceDashboard(
+        EventCooccurrenceService $service,
+    ): JsonResponse {
+        return response()->json($service->dashboardSummary());
     }
 }
