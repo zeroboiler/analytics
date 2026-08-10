@@ -174,6 +174,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
 use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -181,7 +182,7 @@ use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 6.4.0
+ * @version 6.5.0
  *
  * @since 1.0.0
  */
@@ -1709,6 +1710,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new RegionalConsentService($config);
+        });
+
+        // Config Export Service (v6.5.0) — safe redacted config snapshots for debugging
+        $this->app->singleton(AnalyticsConfigExportService::class, function (Application $app): AnalyticsConfigExportService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsConfigExportService($config);
         });
     }
 

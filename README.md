@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.4.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.5.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.5.0](#whats-new-in-v6500)
 - [What's New in v6.2.0](#whats-new-in-v6200)
 - [What's New in v6.1.0](#whats-new-in-v6100)
 - [What's New in v5.9.0](#whats-new-in-v5900)
@@ -174,6 +175,69 @@ ANALYTICS_FIRST_TOUCH_COOKIE_DOMAIN=          # null = current domain
 - **Landing page capture** — First landing page URL and timestamp recorded
 - **Request attributes** — `_zb_first_touch` available to all downstream middleware
 - **Graceful degradation** — Invalid cookie data silently ignored, no exceptions
+
+## What's New in v6.5.0
+
+### Config Export API
+
+Runtime config snapshot endpoints for debugging, dashboards, and support workflows. All secrets are automatically redacted.
+
+- **`GET /api/analytics/config/export`** — Full redacted config snapshot
+- **`GET /api/analytics/config/status`** — Provider and feature toggle status summary (no values)
+- **`GET /api/analytics/config/section/{name}`** — Single config section (e.g. `ga4`, `queue`, `identity`)
+- **`AnalyticsConfigExportService`** — Standalone service with `exportRedacted()`, `exportStatusSummary()`, `exportSection()`, and `diff()` methods
+- **Config export settings** — `config_export.enabled`, `config_export.expose_secrets`, `config_export.cache_ttl`
+
+```bash
+# Get full config (secrets redacted)
+curl /api/analytics/config/export
+
+# Get status summary only
+curl /api/analytics/config/status
+
+# Get specific section
+curl /api/analytics/config/section/ga4
+```
+
+### Expanded Inertia Props
+
+Three new props injected into `page.props.zbAnalytics`:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `sampling` | `{ enabled, rate, deterministic }` | Client-side event sampling config |
+| `geolocation` | `{ enabled, strategy }` | Server-side geolocation enrichment status |
+| `regionalConsent` | `{ enabled, gdprDefault }` | Regional GDPR consent detection status |
+
+### JS Client: Config Export Helpers
+
+New exported functions for admin dashboards and debugging:
+
+```javascript
+import { fetchConfigExport, fetchConfigStatus, fetchConfigSection } from './analytics';
+
+const config = await fetchConfigExport();     // Full redacted config
+const status = await fetchConfigStatus();     // Status summary
+const queue = await fetchConfigSection('queue'); // Single section
+```
+
+### JS Client: Props Accessors
+
+```javascript
+import { getGeolocationStatus, getSamplingConfig, getRegionalConsentStatus } from './analytics';
+
+const geo = getGeolocationStatus();     // { enabled: false, strategy: 'header' }
+const sampling = getSamplingConfig();    // { enabled: false, rate: 1.0, deterministic: true }
+const rc = getRegionalConsentStatus();  // { enabled: false, gdprDefault: 'denied' }
+```
+
+### Expanded Event Aliases
+
+Config `aliases` section now includes categorized default alias examples for authentication, SaaS lifecycle, e-commerce, engagement, and custom application events.
+
+### TypeScript Types
+
+New interfaces: `SamplingConfig`, `GeolocationConfig`, `RegionalConsentConfig`. Added to `ZbAnalyticsProps`.
 
 ## What's New in v6.2.0
 

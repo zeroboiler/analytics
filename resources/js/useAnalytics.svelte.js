@@ -5,7 +5,7 @@
  * Provides type-safe, auto-initializing analytics for Svelte/Inertia/Laravel apps.
  *
  * @package ZeroBoiler Analytics
- * @version 6.4.0
+ * @version 6.5.0
  */
 
 import { tick } from 'svelte';
@@ -22,6 +22,12 @@ import {
     flushQueue,
     getTrackingId,
     getVersion,
+    fetchConfigExport,
+    fetchConfigStatus,
+    fetchConfigSection,
+    getGeolocationStatus,
+    getSamplingConfig,
+    getRegionalConsentStatus,
 } from './analytics.js';
 
 // ─── Reactive State ──────────────────────────────────────────────────
@@ -847,4 +853,27 @@ export function cleanupAnalytics() {
         debug: false,
     });
     destroy();
+}
+
+// ─── Config Export Composable (v6.5.0) ──────────────────────────────
+
+/**
+ * Config export composable for admin dashboards.
+ *
+ * @returns {{ fetchExport: function(): Promise<Object|null>, fetchStatus: function(): Promise<Object|null>, fetchSection: function(string): Promise<Object|null>, geolocation: Object, sampling: Object, regionalConsent: Object }}
+ *
+ * @example
+ * const { fetchStatus, geolocation, sampling } = useAnalyticsConfig();
+ * const status = await fetchStatus();
+ * console.log(geolocation.enabled);
+ */
+export function useAnalyticsConfig() {
+    return {
+        fetchExport: fetchConfigExport,
+        fetchStatus: fetchConfigStatus,
+        fetchSection: fetchConfigSection,
+        get geolocation() { return getGeolocationStatus(); },
+        get sampling() { return getSamplingConfig(); },
+        get regionalConsent() { return getRegionalConsentStatus(); },
+    };
 }

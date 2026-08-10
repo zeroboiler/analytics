@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 6.4.0
+ * @version 6.5.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -48,6 +48,9 @@ export interface ZbAnalyticsProps {
   };
   recommendedEvents: RecommendedEvent[];
   dedup: DedupConfig;
+  sampling: SamplingConfig;
+  geolocation: GeolocationConfig;
+  regionalConsent: RegionalConsentConfig;
 }
 
 export interface ConsentState {
@@ -125,6 +128,22 @@ export interface RecommendedEvent {
 export interface DedupConfig {
   enabled: boolean;
   windowSeconds: number;
+}
+
+export interface SamplingConfig {
+  enabled: boolean;
+  rate: number;
+  deterministic: boolean;
+}
+
+export interface GeolocationConfig {
+  enabled: boolean;
+  strategy: string;
+}
+
+export interface RegionalConsentConfig {
+  enabled: boolean;
+  gdprDefault: string;
 }
 
 // ─── Core Functions ─────────────────────────────────────────────────────
@@ -1322,3 +1341,35 @@ export function initSvelteTracker(
  * @internal Get internal version string for diagnostics.
  */
 export function _getInternalVersion(): string;
+
+// ─── Config Export (v6.5.0) ──────────────────────────────────────────
+
+/**
+ * Fetch the full analytics configuration export (secrets redacted).
+ */
+export function fetchConfigExport(): Promise<Record<string, unknown> | null>;
+
+/**
+ * Fetch the provider/feature status summary.
+ */
+export function fetchConfigStatus(): Promise<Record<string, unknown> | null>;
+
+/**
+ * Fetch a single config section (secrets redacted).
+ */
+export function fetchConfigSection(section: string): Promise<Record<string, unknown> | null>;
+
+/**
+ * Get the geolocation enrichment status from Inertia props.
+ */
+export function getGeolocationStatus(): GeolocationConfig;
+
+/**
+ * Get the sampling configuration from Inertia props.
+ */
+export function getSamplingConfig(): SamplingConfig;
+
+/**
+ * Get the regional consent detection status from Inertia props.
+ */
+export function getRegionalConsentStatus(): RegionalConsentConfig;

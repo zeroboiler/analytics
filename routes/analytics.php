@@ -457,4 +457,9 @@ Route::prefix('analytics')->group(function () {
     Route::get('provider-health', [AnalyticsEventController::class, 'providerHealth']);
     Route::get('provider-health/{provider}', [AnalyticsEventController::class, 'providerHealthDetail']);
     Route::post('provider-health/reset', [AnalyticsEventController::class, 'providerHealthReset']);
+
+    // Config Export (v6.5.0)
+    Route::get('config/export', [AnalyticsEventController::class, 'configExport']);
+    Route::get('config/status', [AnalyticsEventController::class, 'configStatus']);
+    Route::get('config/section/{section}', [AnalyticsEventController::class, 'configSection']);
 });

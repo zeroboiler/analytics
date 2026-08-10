@@ -1300,8 +1300,26 @@ return [
         |
         */
         'aliases' => [
-            // 'signup' => 'sign_up',    // Already included in defaults
-            // 'my_alias' => 'page_view', // Custom alias
+            // Common event name aliases and abbreviations.
+            // The EventAliasResolver uses these plus built-in defaults.
+            // ── Authentication Aliases ──
+            // 'signup' => 'sign_up',        // Built-in default
+            // 'signin' => 'login',         // Built-in default
+            // 'signout' => 'logout',       // Built-in default
+            // ── SaaS Lifecycle Aliases ──
+            // 'sub_created' => 'subscribe', // Built-in default
+            // 'plan_change' => 'plan_upgrade',
+            // 'trial_start' => 'start_trial',
+            // ── E-commerce Aliases ──
+            // 'view_product' => 'view_item',
+            // 'add_cart' => 'add_to_cart',
+            // 'checkout' => 'begin_checkout',
+            // ── Engagement Aliases ──
+            // 'pv' => 'page_view',
+            // 'click_outbound' => 'outbound_click',
+            // ── Custom Application Aliases ──
+            // 'app:install' => 'feature_used',
+            // 'my_custom_event' => 'sign_up',
         ],
 
         /*
@@ -2907,6 +2925,26 @@ return [
         */
         'time_series' => [
             'cache_ttl' => (int) env('ANALYTICS_TS_CACHE_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Config Export (v6.5.0)
+        |--------------------------------------------------------------------------
+        |
+        | Controls the runtime config export API for debugging, dashboards,
+        | and support workflows. When enabled, the /api/analytics/config/export
+        | endpoint returns a redacted snapshot of the analytics configuration.
+        |
+        | Secrets (api_secret, access_token, api_key, etc.) are automatically
+        | redacted in all exports. Use 'expose_secrets' to disable redaction
+        | (only for trusted admin environments — never in production).
+        |
+        */
+        'config_export' => [
+            'enabled' => env('ANALYTICS_CONFIG_EXPORT_ENABLED', true),
+            'expose_secrets' => env('ANALYTICS_CONFIG_EXPORT_SECRETS', false),
+            'cache_ttl' => (int) env('ANALYTICS_CONFIG_EXPORT_CACHE_TTL', 60), // 1 minute
         ],
 
     ],

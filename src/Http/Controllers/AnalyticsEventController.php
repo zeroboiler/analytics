@@ -7903,4 +7903,70 @@ final class AnalyticsEventController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Config Export Endpoints (v6.5.0) ───────────────────────────
+
+    /**
+     * Export the full analytics configuration (secrets redacted).
+     *
+     * GET /api/analytics/config/export
+     *
+     * Returns a redacted snapshot of all analytics configuration sections.
+     * Useful for debugging, dashboards, and support workflows.
+     *
+     * @return JsonResponse
+     */
+    public function configExport(): JsonResponse
+    {
+        try {
+            $exportService = app(\ZeroBoiler\Analytics\Services\AnalyticsConfigExportService::class);
+
+            return response()->json($exportService->exportRedacted());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export only the enabled/disabled status summary.
+     *
+     * GET /api/analytics/config/status
+     *
+     * Returns provider and feature toggle status without exposing config values.
+     *
+     * @return JsonResponse
+     */
+    public function configStatus(): JsonResponse
+    {
+        try {
+            $exportService = app(\ZeroBoiler\Analytics\Services\AnalyticsConfigExportService::class);
+
+            return response()->json($exportService->exportStatusSummary());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export a single config section (redacted).
+     *
+     * GET /api/analytics/config/section/{section}
+     *
+     * @return JsonResponse
+     */
+    public function configSection(string $section): JsonResponse
+    {
+        try {
+            $exportService = app(\ZeroBoiler\Analytics\Services\AnalyticsConfigExportService::class);
+            $result = $exportService->exportSection($section);
+
+            if ($result === null) {
+                return response()->json(['error' => "Unknown section: {$section}"], 404);
+            }
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

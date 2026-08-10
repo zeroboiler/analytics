@@ -257,6 +257,31 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             'windowSeconds' => (int) ($dedupConfig['window_seconds'] ?? 10),
         ];
 
+        // Sampling config for client-side rate control (v6.5.0)
+        $samplingConfig = $this->config->get('zeroboiler.analytics.sampling', []);
+        /** @var array{enabled?: bool, rate?: float, deterministic?: bool} $samplingConfig */
+        $analyticsProps['sampling'] = [
+            'enabled' => (bool) ($samplingConfig['enabled'] ?? false),
+            'rate' => (float) ($samplingConfig['rate'] ?? 1.0),
+            'deterministic' => (bool) ($samplingConfig['deterministic'] ?? true),
+        ];
+
+        // Geolocation enrichment status for client-side awareness (v6.5.0)
+        $geoConfig = $this->config->get('zeroboiler.analytics.geolocation', []);
+        /** @var array{enabled?: bool, strategy?: string} $geoConfig */
+        $analyticsProps['geolocation'] = [
+            'enabled' => (bool) ($geoConfig['enabled'] ?? false),
+            'strategy' => (string) ($geoConfig['strategy'] ?? 'header'),
+        ];
+
+        // Regional consent detection status (v6.5.0)
+        $regionalConfig = $this->config->get('zeroboiler.analytics.regional_consent', []);
+        /** @var array{enabled?: bool, gdpr_default?: string} $regionalConfig */
+        $analyticsProps['regionalConsent'] = [
+            'enabled' => (bool) ($regionalConfig['enabled'] ?? false),
+            'gdprDefault' => (string) ($regionalConfig['gdpr_default'] ?? 'denied'),
+        ];
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 6.4.0
+ * @version 6.5.0
  */
 
 let trackingId = null;
@@ -150,7 +150,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '6.4.0';
+    return '6.5.0';
 }
 
 /**
@@ -3193,7 +3193,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '6.4.0';
+    return '6.5.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -5340,4 +5340,143 @@ export function connectSSE(options = {}) {
             return active;
         },
     };
+}
+
+// ─── Config Export Helpers (v6.5.0) ─────────────────────────────────
+
+/**
+ * Fetch the full analytics configuration export (secrets redacted).
+ *
+ * Returns a redacted snapshot of all analytics configuration sections.
+ * Useful for admin dashboards and debugging workflows.
+ *
+ * @returns {Promise<Object|null>} Redacted config object or null on error
+ *
+ * @example
+ * const cfg = await fetchConfigExport();
+ * console.log(cfg.queue.enabled); // true
+ * console.log(cfg.ga4.api_secret); // '********'
+ */
+export async function fetchConfigExport() {
+    if (!initialized) return null;
+
+    try {
+        const res = await fetch(`${apiBaseUrl}/config/export`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch the provider/feature status summary.
+ *
+ * Returns enabled/disabled booleans for each provider and feature
+ * without exposing any config values or secrets.
+ *
+ * @returns {Promise<Object|null>} Status summary or null on error
+ *
+ * @example
+ * const status = await fetchConfigStatus();
+ * console.log(status.providers.ga4); // true
+ * console.log(status.features.queue); // true
+ * console.log(status.version); // '6.5.0'
+ */
+export async function fetchConfigStatus() {
+    if (!initialized) return null;
+
+    try {
+        const res = await fetch(`${apiBaseUrl}/config/status`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch a single config section (secrets redacted).
+ *
+ * @param {string} section - Config section name (e.g. 'ga4', 'queue', 'identity', 'ecommerce')
+ * @returns {Promise<Object|null>} Section config or null on error
+ *
+ * @example
+ * const queueConfig = await fetchConfigSection('queue');
+ * console.log(queueConfig.enabled); // true
+ * console.log(queueConfig.queue); // 'analytics'
+ */
+export async function fetchConfigSection(section) {
+    if (!initialized) return null;
+
+    try {
+        const res = await fetch(`${apiBaseUrl}/config/section/${encodeURIComponent(section)}`, {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? await res.json() : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get the geolocation enrichment status from Inertia props.
+ *
+ * Returns whether server-side geolocation enrichment is enabled
+ * and which strategy is used (header, ip2country, maxmind).
+ *
+ * @returns {{ enabled: boolean, strategy: string }}
+ *
+ * @example
+ * const geo = getGeolocationStatus();
+ * if (geo.enabled) {
+ *     console.log('Geolocation via', geo.strategy);
+ * }
+ */
+export function getGeolocationStatus() {
+    if (!initialized || !config?.geolocation) {
+        return { enabled: false, strategy: 'header' };
+    }
+    return config.geolocation;
+}
+
+/**
+ * Get the sampling configuration from Inertia props.
+ *
+ * Returns whether client-side event sampling is enabled,
+ * the sampling rate, and whether deterministic mode is used.
+ *
+ * @returns {{ enabled: boolean, rate: number, deterministic: boolean }}
+ *
+ * @example
+ * const sampling = getSamplingConfig();
+ * if (sampling.enabled && sampling.rate < 1.0) {
+ *     console.log(`Sampling at ${sampling.rate * 100}%`);
+ * }
+ */
+export function getSamplingConfig() {
+    if (!initialized || !config?.sampling) {
+        return { enabled: false, rate: 1.0, deterministic: true };
+    }
+    return config.sampling;
+}
+
+/**
+ * Get the regional consent detection status from Inertia props.
+ *
+ * @returns {{ enabled: boolean, gdprDefault: string }}
+ *
+ * @example
+ * const rc = getRegionalConsentStatus();
+ * if (rc.enabled && rc.gdprDefault === 'denied') {
+ *     console.log('GDPR opt-in required for EU users');
+ * }
+ */
+export function getRegionalConsentStatus() {
+    if (!initialized || !config?.regionalConsent) {
+        return { enabled: false, gdprDefault: 'denied' };
+    }
+    return config.regionalConsent;
 }

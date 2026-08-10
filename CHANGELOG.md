@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.5.0] - 2026-08-10
+
+### Added
+
+- **AnalyticsConfigExportService** — Runtime config export service with automatic secret redaction. Provides `exportRedacted()`, `exportStatusSummary()`, `exportSection()`, and `diff()` for config drift detection between deployments.
+- **Config Export API endpoints** — Three new REST endpoints: `GET /api/analytics/config/export` (full redacted config), `GET /api/analytics/config/status` (provider/feature toggle summary), `GET /api/analytics/config/section/{name}` (single section).
+- **Inertia props expansion** — Three new props injected into `page.props.zbAnalytics`: `sampling` (rate control), `geolocation` (enrichment status), `regionalConsent` (GDPR region detection).
+- **JS client: config export helpers** — `fetchConfigExport()`, `fetchConfigStatus()`, `fetchConfigSection()` async functions for admin dashboards.
+- **JS client: props accessors** — `getGeolocationStatus()`, `getSamplingConfig()`, `getRegionalConsentStatus()` synchronous accessors.
+- **TypeScript definitions** — New interfaces: `SamplingConfig`, `GeolocationConfig`, `RegionalConsentConfig`. Added to `ZbAnalyticsProps`.
+- **Config: config_export section** — New `zeroboiler.analytics.config_export` with `enabled`, `expose_secrets`, `cache_ttl` settings.
+- **Config: expanded aliases documentation** — Categorized alias examples for authentication, SaaS lifecycle, e-commerce, engagement, and custom events.
+
+### Changed
+
+- **Version sweep** — 6.4.0 → 6.5.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + @version), Svelte composables (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
 ## [6.4.0] - 2026-08-09
 
 ### Added
