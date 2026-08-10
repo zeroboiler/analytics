@@ -197,7 +197,7 @@ use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.5.0
+ * @version 7.6.0
  *
  * @since 1.0.0
  */

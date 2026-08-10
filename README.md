@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.6.0](#whats-new-in-v760)
 - [What's New in v7.4.0](#whats-new-in-v740)
 - [What's New in v7.3.0](#whats-new-in-v730)
 - [What's New in v7.1.0](#whats-new-in-v7100)
@@ -65,6 +66,56 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.6.0
+
+### Cohort Waterfall Analysis
+
+Revenue flow decomposition by cohort period — visualize how users flow through signup → trial → conversion → active → churn with per-stage drop-off rates, NRR computation, and actionable insights.
+
+```php
+use ZeroBoiler\Analytics\Services\CohortWaterfallService;
+
+$service = app(CohortWaterfallService::class);
+
+$report = $service->report([
+    'cohorts' => [
+        '2026-08' => [
+            'entered' => 1000, 'trial_starts' => 800,
+            'conversions' => 400, 'active' => 350,
+            'expansions' => 5000.0, 'contractions' => 1000.0,
+            'churned' => 50, 'churned_mrr' => 2500.0, 'mrr' => 40000.0,
+        ],
+    ],
+]);
+
+// $report['cohorts']['2026-08']['stages']['trial_converted']['drop_off_rate'] // 50.0
+// $report['summary']['nrr'] // Net Revenue Retention percentage
+// $report['insights'] // Actionable recommendations
+```
+
+**API**: `POST /api/analytics/cohort-waterfall`, `/summary`, `/compare` · `GET /stages`
+
+### Funnel Drop-off Intelligence
+
+Smart funnel analysis with automatic bottleneck detection (low/moderate/high/critical), anomaly detection (sudden drop-off spikes), time-based UX recommendations, and period-over-period comparison.
+
+```php
+use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
+
+$service = app(FunnelDropoffIntelligenceService::class);
+
+$analysis = $service->analyze(
+    ['landing', 'signup', 'trial', 'subscribe', 'active'],
+    ['step_counts' => ['landing' => 10000, 'signup' => 3000, ...]],
+);
+
+// $analysis['bottlenecks'][0]['severity'] // 'critical'
+// $analysis['anomalies'][0]['spike_multiplier'] // 3.5x
+// $analysis['recommendations'] // Actionable UX improvements
+```
+
+**API**: `POST /api/analytics/funnel-intelligence`, `/compare`
 
 ## What's New in v7.4.0
 

@@ -5,6 +5,22 @@ All notable changes to the package will be documented in this file.
 ## [7.6.0] - 2026-08-10
 
 ### Added
+
+- **CohortWaterfallService** — Revenue flow decomposition by cohort period. Visualizes how users flow through signup → trial → conversion → active → renewing → expansion → contraction → churn stages. Produces waterfall-style data structures suitable for dashboard chart rendering. Features: per-cohort stage analysis with drop-off rates and cumulative conversion rates, NRR computation, expansion/contraction/churned MRR breakdown, cohort comparison with delta analysis, actionable insights generation (low conversion warnings, churn alerts, NRR status, expansion/contraction ratios), quick summary endpoint. Cache-backed, config-driven. Registered as singleton in ServiceProvider.
+- **FunnelDropoffIntelligenceService** — Smart funnel analysis with bottleneck detection, anomaly detection, time-to-convert analysis, and actionable recommendations. Features: per-step drop-off counts/rates/cumulative conversion rates, bottleneck severity classification (low/moderate/high/critical), anomaly detection via spike multiplier (>2x previous step drop-off), time-based UX recommendations, period comparison with improved/degraded/unchanged classification, funnel step count thresholds. Cache-backed, config-driven. Registered as singleton in ServiceProvider.
+- **Config: `cohort_waterfall` section** — New `zeroboiler.analytics.cohort_waterfall` with `enabled`, `cache_ttl`, `granularity` (weekly/monthly), `currency`, `projection_months` settings. All configurable via environment variables.
+- **Config: `funnel_intelligence` section** — New `zeroboiler.analytics.funnel_intelligence` with `enabled`, `cache_ttl`, `bottleneck_threshold` (default 50% drop-off), `anomaly_threshold` (default 2.0x spike multiplier) settings.
+- **API endpoints: Cohort Waterfall** — 4 new REST endpoints: `POST /api/analytics/cohort-waterfall` (full report), `POST /api/analytics/cohort-waterfall/summary` (quick summary), `POST /api/analytics/cohort-waterfall/compare` (period comparison), `GET /api/analytics/cohort-waterfall/stages` (default stages).
+- **API endpoints: Funnel Intelligence** — 2 new REST endpoints: `POST /api/analytics/funnel-intelligence` (full analysis with bottlenecks/anomalies/recommendations), `POST /api/analytics/funnel-intelligence/compare` (period comparison).
+- **V750CohortWaterfallFunnelIntelligenceTest** — 35+ Pest test cases covering: version consistency (7.5.0 across 7 entry points), PHP 8.5 patterns (final class, strict types, return types, docblocks), CohortWaterfallService report with stage-level data/drop-off/NRR/insights, quickSummary, compare with delta analysis, stages defaults, empty cohorts handling, FunnelDropoffIntelligenceService full analysis with bottleneck detection/critical severity/anomaly detection/recommendations, comparePeriods with improved/degraded classification, empty steps handling, config sections, route registration, ServiceProvider singleton registration, event catalog integrity, NRR formula verification.
+
+### Changed
+
+- **Version sweep** — 7.4.0 → 7.6.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), README badge.
+
+## [7.0.0] - 2026-08-10
+
+### Added
 - `pestphp/pest-plugin-type-coverage` to require-dev
 
 ### Changed
