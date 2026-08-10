@@ -857,12 +857,37 @@ final class EcommerceFormatConverter
     // ── Universal GA4 → Plausible Converter (v5.9.0) ─────────────────
 
     /**
+     * Convert GA4 view_item event params to Plausible custom event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{event_name: string, props: array<string, string>}
+     *
+     * @since 7.4.0
+     */
+    public static function ga4ToPlausibleViewItem(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $firstItem = $items[0] ?? [];
+
+        return [
+            'event_name' => 'view_item',
+            'props' => array_filter([
+                'item_name' => (string) ($firstItem['item_name'] ?? $firstItem['item_id'] ?? ''),
+                'item_id' => (string) ($firstItem['item_id'] ?? ''),
+                'value' => (string) round((float) ($ga4Params['value'] ?? ($firstItem['price'] ?? 0)), 2),
+                'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            ], fn (string $v): bool => $v !== ''),
+        ];
+    }
+
+    /**
      * Universal GA4 → Plausible converter for any e-commerce event.
      *
      * Automatically selects the correct Plausible event name and formats
      * parameters based on the GA4 event name.
      *
-     * Supported events: purchase, refund, add_to_cart, begin_checkout.
+     * Supported events: purchase, refund, add_to_cart, begin_checkout, view_item.
      *
      * @param  string  $ga4EventName  GA4 event name
      * @param  array<string, mixed>  $ga4Params  GA4 event parameters
@@ -887,8 +912,145 @@ final class EcommerceFormatConverter
                 'plausible_event' => 'begin_checkout',
                 'plausible_params' => self::ga4ToPlausibleBeginCheckout($ga4Params)['props'],
             ],
+            'view_item' => [
+                'plausible_event' => 'view_item',
+                'plausible_params' => self::ga4ToPlausibleViewItem($ga4Params)['props'],
+            ],
             default => null,
         };
+    }
+
+    // ── PostHog CAPI (Server-Side Conversions API) — v7.4.0 ──────────
+
+    /**
+     * Build PostHog-formatted ViewContent / view_item properties from GA4-style items.
+     *
+     * PostHog uses '$set' and custom event properties for product views.
+     * Items are serialized as a structured array compatible with PostHog's
+     * product analytics feature.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price: float, quantity?: int, currency?: string}  $item  Viewed item
+     * @param  string  $currency  ISO 4217 currency code
+     * @return array<string, mixed>  PostHog event properties
+     *
+     * @since 7.4.0
+     */
+    public static function buildPosthogViewItem(
+        array $item,
+        string $currency = 'USD',
+    ): array {
+        return [
+            '$currency' => $currency,
+            'value' => (float) ($item['price'] ?? 0),
+            'items' => [
+                [
+                    'sku' => (string) ($item['item_id'] ?? ''),
+                    'name' => (string) ($item['item_name'] ?? ''),
+                    'category' => (string) ($item['item_category'] ?? ''),
+                    'price' => (float) ($item['price'] ?? 0),
+                    'quantity' => (int) ($item['quantity'] ?? 1),
+                    'variant' => (string) ($item['item_variant'] ?? ''),
+                    'brand' => (string) ($item['item_brand'] ?? ''),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Build PostHog-formatted AddToCart properties from GA4-style items.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}  $item  Cart item
+     * @param  string  $currency  ISO 4217 currency code
+     * @return array<string, mixed>  PostHog event properties
+     *
+     * @since 7.4.0
+     */
+    public static function buildPosthogAddToCart(
+        array $item,
+        string $currency = 'USD',
+    ): array {
+        return [
+            '$currency' => $currency,
+            'value' => (float) ($item['price'] ?? 0) * (int) ($item['quantity'] ?? 1),
+            'items' => [
+                [
+                    'sku' => (string) ($item['item_id'] ?? ''),
+                    'name' => (string) ($item['item_name'] ?? ''),
+                    'category' => (string) ($item['item_category'] ?? ''),
+                    'price' => (float) ($item['price'] ?? 0),
+                    'quantity' => (int) ($item['quantity'] ?? 1),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Build PostHog-formatted BeginCheckout properties from GA4-style items.
+     *
+     * @param  array<int, array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}>  $items  Cart items
+     * @param  float  $value  Total cart value
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  array{coupon?: string}  $options  Optional params
+     * @return array<string, mixed>  PostHog event properties
+     *
+     * @since 7.4.0
+     */
+    public static function buildPosthogBeginCheckout(
+        array $items,
+        float $value,
+        string $currency = 'USD',
+        array $options = [],
+    ): array {
+        $posthogItems = self::ga4ToPosthogProperties($items);
+
+        $params = array_merge($posthogItems, [
+            '$currency' => $currency,
+            'value' => $value,
+        ]);
+
+        if (isset($options['coupon'])) {
+            $params['coupon'] = (string) $options['coupon'];
+        }
+
+        return $params;
+    }
+
+    /**
+     * Build a PostHog-formatted ViewContent / view_item event.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price: float}  $item  Viewed item
+     * @param  string  $currency  ISO 4217 currency code
+     * @return AnalyticsEvent  PostHog-optimized event
+     *
+     * @since 7.4.0
+     */
+    public static function buildPosthogViewItemEvent(
+        array $item,
+        string $currency = 'USD',
+    ): AnalyticsEvent {
+        return new AnalyticsEvent(
+            name: '$view_item',
+            params: self::buildPosthogViewItem($item, $currency),
+        );
+    }
+
+    /**
+     * Build a PostHog-formatted AddToCart event.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}  $item  Cart item
+     * @param  string  $currency  ISO 4217 currency code
+     * @return AnalyticsEvent  PostHog-optimized event
+     *
+     * @since 7.4.0
+     */
+    public static function buildPosthogAddToCartEvent(
+        array $item,
+        string $currency = 'USD',
+    ): AnalyticsEvent {
+        return new AnalyticsEvent(
+            name: 'add_to_cart',
+            params: self::buildPosthogAddToCart($item, $currency),
+        );
     }
 
     // ── Universal Provider Format Conversion (v5.9.0) ────────────────

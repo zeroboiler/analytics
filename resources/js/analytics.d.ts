@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 7.3.0
+ * @version 7.4.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -511,6 +511,17 @@ export function initScrollDepth(): void;
 export function initInertiaPageViewTracker(options?: {
   scrollDepth?: boolean;
 }): void;
+
+/**
+ * Initialize Inertia page view tracking with Svelte page store integration.
+ * Combines page view tracking, scroll depth reset, and session tracking.
+ */
+export function initSveltePageTracker(options?: {
+  page?: unknown;
+  scrollDepth?: boolean;
+  sessionTracking?: boolean;
+  onPageView?: (url: string) => void;
+}): () => void;
 
 /**
  * Initialize form tracking (start/submit).

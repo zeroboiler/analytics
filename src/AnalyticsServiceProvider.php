@@ -195,7 +195,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 7.3.0
+ * @version 7.4.0
  *
  * @since 1.0.0
  */

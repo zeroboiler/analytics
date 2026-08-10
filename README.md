@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-7.3.0-blue)](https://github.com/zeroboiler/analytics)|
+||[![Latest Version](https://img.shields.io/badge/version-7.4.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v7.4.0](#whats-new-in-v740)
 - [What's New in v7.3.0](#whats-new-in-v730)
 - [What's New in v7.1.0](#whats-new-in-v7100)
 - [What's New in v7.0.0](#whats-new-in-v7000)
@@ -64,6 +65,79 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v7.4.0
+
+### PostHog CAPI (Server-Side Conversions API)
+
+New PostHog server-side event builders for product analytics via the Conversions API. Generates PostHog-optimized item structures with `$currency` properties, compatible with PostHog's product analytics and revenue tracking features.
+
+```php
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
+
+// View item via PostHog CAPI
+$event = EcommerceFormatConverter::buildPosthogViewItemEvent(
+    ['item_id' => 'SKU-1', 'item_name' => 'Widget', 'price' => 29.99],
+    'USD',
+);
+Analytics::trackEvent($event);
+
+// Add to cart via PostHog CAPI
+$event = EcommerceFormatConverter::buildPosthogAddToCartEvent(
+    ['item_id' => 'SKU-2', 'item_name' => 'Gadget', 'price' => 19.99, 'quantity' => 2],
+);
+Analytics::trackEvent($event);
+
+// Begin checkout with coupon support
+$params = EcommerceFormatConverter::buildPosthogBeginCheckout(
+    [['item_id' => 'SKU-1', 'item_name' => 'Widget', 'price' => 29.99, 'quantity' => 1]],
+    29.99,
+    'USD',
+    ['coupon' => 'SUMMER20'],
+);
+Analytics::track('begin_checkout', $params);
+```
+
+**Config:** PostHog CAPI enabled by default when PostHog is active:
+```php
+'posthog' => [
+    'capi_enabled' => env('ANALYTICS_POSTHOG_CAPI_ENABLED', true),
+    'capture_path' => env('ANALYTICS_POSTHOG_CAPTURE_PATH', '/capture/'),
+],
+```
+
+### Plausible View Item Conversion
+
+New `ga4ToPlausibleViewItem()` converter and updated `ga4ToPlausibleAuto()` now supports 5 e-commerce events: purchase, refund, add_to_cart, begin_checkout, and **view_item**.
+
+### Svelte Inertia Page Tracker
+
+New `initSveltePageTracker()` combines automatic page view tracking, scroll depth reset on navigation, and session start tracking into a single initialization call for Svelte + Inertia projects.
+
+```javascript
+import { page } from '@inertiajs/svelte';
+import { initSveltePageTracker } from './analytics.js';
+
+$: if (page.props.zbAnalytics?.enabled) {
+    const cleanup = initSveltePageTracker({
+        scrollDepth: true,
+        sessionTracking: true,
+        onPageView: (url) => console.log('Tracked:', url),
+    });
+}
+```
+
+### E-Commerce Helpers Expansion
+
+- `buildPosthogViewItem()` — Build PostHog view_item properties
+- `buildPosthogAddToCart()` — Build PostHog add_to_cart properties
+- `buildPosthogBeginCheckout()` — Build PostHog begin_checkout with coupon support
+- `buildPosthogViewItemEvent()` — Full PostHog ViewItem event
+- `buildPosthogAddToCartEvent()` — Full PostHog AddToCart event
+- `ga4ToPlausibleViewItem()` — GA4 → Plausible view_item conversion
+- `ga4ToPlausibleAuto()` expanded to support `view_item`
+
+---
 
 ## What's New in v7.3.0
 

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 7.3.0
+ * @version 7.4.0
  */
 
 let trackingId = null;
@@ -162,7 +162,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-    return '7.3.0';
+    return '7.4.0';
 }
 
 /**
@@ -1155,6 +1155,106 @@ export function initInertiaPageViewTracker() {
     document.addEventListener('inertia:navigate', handler);
 
     return () => document.removeEventListener('inertia:navigate', handler);
+}
+
+/**
+ * Initialize Inertia page view tracking with Svelte page store integration.
+ *
+ * Watches the Inertia Svelte page store for URL changes and auto-tracks
+ * page_view events. Includes scroll depth reset on navigation and
+ * optional automatic scroll depth tracking.
+ *
+ * This is the recommended method for Svelte + Inertia projects.
+ * It combines page view tracking, scroll depth, and session tracking
+ * into a single initialization call.
+ *
+ * @param {object} options - Configuration options
+ * @param {object} options.page - The Inertia page object (from `$page` in Svelte)
+ * @param {boolean} [options.scrollDepth=true] - Enable scroll depth tracking on each page
+ * @param {boolean} [options.sessionTracking=true] - Track session_start on first navigation
+ * @param {Function} [options.onPageView] - Callback after each page view is tracked
+ * @returns {function} Cleanup function to remove all listeners
+ *
+ * @example
+ * // In your root +layout.svelte:
+ * import { page } from '@inertiajs/svelte';
+ * import { initSveltePageTracker } from './analytics.js';
+ *
+ * $: if (page.props.zbAnalytics?.enabled) {
+ *     const cleanup = initSveltePageTracker({
+ *         page,
+ *         onPageView: (url) => console.log('Tracked:', url),
+ *     });
+ * }
+ */
+export function initSveltePageTracker(options = {}) {
+    if (!initialized) return () => {};
+
+    const { scrollDepth = true, sessionTracking = true, onPageView } = options;
+    const cleanups = [];
+    let lastUrl = window.location.href;
+    let sessionStarted = false;
+    let scrollCleanup = null;
+
+    // Track session start on first navigation
+    if (sessionTracking && !sessionStarted) {
+        sessionStarted = true;
+        trackEvent('session_start', {
+            entry_point: window.location.href,
+            referrer: document.referrer,
+        });
+    }
+
+    // Inertia navigate event listener
+    const navigateHandler = (event) => {
+        if (event.detail?.visit) {
+            const url = window.location.href;
+            if (url === lastUrl) return;
+
+            lastUrl = url;
+
+            // Reset scroll depth on navigation
+            if (scrollCleanup) {
+                scrollCleanup();
+                scrollCleanup = null;
+            }
+
+            // Track the page view
+            trackPageView(
+                event.detail.page?.title || document.title,
+                url,
+                document.referrer,
+            );
+
+            // Re-initialize scroll depth for new page
+            if (scrollDepth) {
+                scrollCleanup = initScrollDepth();
+            }
+
+            // Fire callback
+            if (typeof onPageView === 'function') {
+                onPageView(url);
+            }
+        }
+    };
+
+    document.addEventListener('inertia:navigate', navigateHandler);
+    cleanups.push(() => document.removeEventListener('inertia:navigate', navigateHandler));
+
+    // Initialize scroll depth for initial page
+    if (scrollDepth) {
+        scrollCleanup = initScrollDepth();
+        cleanups.push(() => {
+            if (scrollCleanup) scrollCleanup();
+        });
+    }
+
+    return () => {
+        for (const cleanup of cleanups) {
+            cleanup();
+        }
+        cleanups.length = 0;
+    };
 }
 
 // ─── Auto Form Tracking ────────────────────────────────────────────────
@@ -3205,7 +3305,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-    return '7.3.0';
+    return '7.4.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

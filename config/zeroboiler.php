@@ -390,6 +390,18 @@ return [
             'api_key' => env('ANALYTICS_POSTHOG_API_KEY', ''),
             'host' => env('ANALYTICS_POSTHOG_HOST', 'https://eu.posthog.com'),
             'project_id' => env('ANALYTICS_POSTHOG_PROJECT_ID', ''),
+
+            /*
+            | PostHog Conversions API (Server-Side)
+            |
+            | When enabled, PostHog events are sent via the Conversions API
+            | endpoint (/capture/) with $set person properties for user identity.
+            | Provides server-side event reliability and attribution bypassing
+            | ad blockers.
+            |
+            */
+            'capi_enabled' => env('ANALYTICS_POSTHOG_CAPI_ENABLED', true),
+            'capture_path' => env('ANALYTICS_POSTHOG_CAPTURE_PATH', '/capture/'),
         ],
 
         /*
