@@ -38,6 +38,9 @@ final class AnalyticsHealthMonitorCommand extends Command
         $this->monitor = $monitor;
     }
 
+    /**
+     * Execute the health monitor command.
+     */
     #[\Override]
     public function handle(): int
     {
