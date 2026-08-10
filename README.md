@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-6.6.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-6.7.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v6.7.0](#whats-new-in-v6700)
 - [What's New in v6.5.0](#whats-new-in-v6500)
 - [What's New in v6.2.0](#whats-new-in-v6200)
 - [What's New in v6.1.0](#whats-new-in-v6100)
@@ -175,6 +176,23 @@ ANALYTICS_FIRST_TOUCH_COOKIE_DOMAIN=          # null = current domain
 - **Landing page capture** — First landing page URL and timestamp recorded
 - **Request attributes** — `_zb_first_touch` available to all downstream middleware
 - **Graceful degradation** — Invalid cookie data silently ignored, no exceptions
+
+## What's New in v6.7.0
+
+### Production Readiness Test Suite
+
+Comprehensive 50+ test case suite (`V670SaaSStarterProductionReadinessTest`) validating the complete industry-standard SaaS analytics stack:
+
+- **Event catalog completeness** — 90+ events across ecommerce, SaaS, and engagement categories
+- **Cross-provider coverage** — GA4, Meta Pixel, PostHog, and Plausible mappings verified for every event
+- **Industry standard readiness** — 100% coverage of the industry-standard SaaS event set
+- **Lifecycle mapper** — All critical auth, subscription, trial, e-commerce, and engagement mappings validated
+- **E-commerce format conversion** — GA4↔Meta↔PostHog items/contents/purchase/refund conversions
+- **SaasRevenueEventBuilder** — Subscription, plan upgrade, cancellation, and buildEvent factory methods
+- **SaaS analytics service** — Full lifecycle flow (signup→login→trial→subscribe→upgrade→cancel→feature)
+- **GDPR compliance** — Consent lifecycle, sensitive events, enterprise compliance (GDPR, SOC2, ISO27001)
+- **Funnel templates** — Signup, trial, checkout, and onboarding funnels verified
+- **PHP 8.5 strict types** — All source files enforce `declare(strict_types=1)`
 
 ## What's New in v6.5.0
 

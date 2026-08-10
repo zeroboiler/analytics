@@ -2,6 +2,16 @@
 
 All notable changes to the package will be documented in this file.
 
+## [6.7.0] - 2026-08-10
+
+### Added
+
+- **V670SaaSStarterProductionReadinessTest** — Comprehensive production readiness test suite with 50+ Pest test cases validating: event catalog completeness (90+ events), cross-provider coverage (GA4, Meta, PostHog, Plausible), industry standard readiness (100% score), lifecycle event mapper defaults, e-commerce format conversion (GA4↔Meta↔PostHog), SaasRevenueEventBuilder (subscription, plan upgrade, cancellation + buildEvent), SaaS analytics service full lifecycle, EventBuilder priority delegation, GDPR compliance events, funnel templates (signup, trial, checkout), version consistency (7 entry points), PHP 8.5 strict types enforcement across all source files, B2B team events, privacy-safe events, SaaS acquisition/monetization events, DAU/MAU events, product health events, enterprise compliance events (GDPR, SOC2, ISO27001), and revenue events.
+
+### Changed
+
+- **Version sweep** — 6.6.0 → 6.7.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composables (@version), TypeScript definitions (@version), ServiceProvider (@version), CHANGELOG, README badge.
+
 ## [6.6.0] - 2026-08-10
 
 ### Added
