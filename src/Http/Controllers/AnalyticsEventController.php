@@ -9270,7 +9270,7 @@ final class AnalyticsEventController extends Controller
         /** @var TrackingGuardRailsService|null $service */
         $service = app(TrackingGuardRailsService::class);
 
-        $metrics = $this->gatherGuardRailsMetrics($request);
+        $metrics = $this->gatherGuardRailsMetrics();
 
         return response()->json($service->check($metrics));
     }
@@ -9287,7 +9287,7 @@ final class AnalyticsEventController extends Controller
         /** @var TrackingGuardRailsService $service */
         $service = app(TrackingGuardRailsService::class);
 
-        $metrics = $this->gatherGuardRailsMetrics($request);
+        $metrics = $this->gatherGuardRailsMetrics();
 
         return response()->json($service->quickScore($metrics));
     }
@@ -9305,7 +9305,7 @@ final class AnalyticsEventController extends Controller
         $service = app(TrackingGuardRailsService::class);
 
         $severity = (string) ($request->query('severity', 'info'));
-        $metrics = $this->gatherGuardRailsMetrics($request);
+        $metrics = $this->gatherGuardRailsMetrics();
 
         return response()->json([
             'violations' => $service->violations($metrics, $severity),
@@ -9324,7 +9324,7 @@ final class AnalyticsEventController extends Controller
         /** @var TrackingGuardRailsService $service */
         $service = app(TrackingGuardRailsService::class);
 
-        $metrics = $this->gatherGuardRailsMetrics($request);
+        $metrics = $this->gatherGuardRailsMetrics();
         $trackedNames = $metrics['tracked_event_names'] ?? [];
 
         return response()->json($service->coreEventCoverage($trackedNames));
@@ -9356,7 +9356,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return array{total_events: int, tracked_event_names: list<string>, identity_linked_count: int, total_clients: int, consent_log_enabled: bool, consent_default: string}
      */
-    private function gatherGuardRailsMetrics(Request $request): array
+    private function gatherGuardRailsMetrics(): array
     {
         $totalEvents = 0;
         $trackedNames = [];

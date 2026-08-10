@@ -124,6 +124,8 @@ final class TrackingGuardRailsService
         }
 
         $cacheKey = self::CACHE_PREFIX . 'check_' . md5(json_encode($metrics, JSON_THROW_ON_ERROR));
+        $generation = (int) $this->cache->get(self::CACHE_PREFIX . 'generation', 0);
+        $cacheKey .= '_g' . $generation;
 
         /** @var array<string, mixed>|null $cached */
         $cached = $this->cache->get($cacheKey);
@@ -271,10 +273,15 @@ final class TrackingGuardRailsService
 
     /**
      * Clear the guard rails cache.
+     *
+     * Since check() uses content-hashed cache keys, we flush by
+     * incrementing a generation counter. All subsequent check() calls
+     * will use a new generation suffix, effectively invalidating old entries.
      */
     public function clearCache(): void
     {
-        $this->cache->forget(self::CACHE_PREFIX . 'check_');
+        $generation = (int) $this->cache->get(self::CACHE_PREFIX . 'generation', 0);
+        $this->cache->put(self::CACHE_PREFIX . 'generation', $generation + 1, $this->cacheTtl * 2);
     }
 
     /**

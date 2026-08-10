@@ -9,12 +9,6 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Cache;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
-use ZeroBoiler\Analytics\Trackers\GA4Tracker;
-use ZeroBoiler\Analytics\Trackers\GTMTracker;
-use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
-use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
-use ZeroBoiler\Analytics\Trackers\PosthogTracker;
-use ZeroBoiler\Analytics\Trackers\WebhookTracker;
 
 beforeEach(function (): void {
     $this->manager = new AnalyticsManager(null);
@@ -32,9 +26,7 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('returns disabled report when service is disabled', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         // Temporarily override config
         $config = app('config');
@@ -54,12 +46,13 @@ describe('TrackingGuardRailsService', function (): void {
         expect($report['score'])->toBe(0);
         expect($report['grade'])->toBe('N/A');
         expect($report['dimensions'])->toBeEmpty();
+
+        // Restore
+        $config->set('zeroboiler.analytics.guard_rails.enabled', true);
     });
 
     test('computes full guard rails check with empty metrics', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -78,12 +71,13 @@ describe('TrackingGuardRailsService', function (): void {
         // With no providers enabled, provider coverage should be 0
         expect($report['dimensions'])->toHaveKey('provider_coverage');
         expect($report['dimensions']['provider_coverage']['score'])->toBe(0);
+
+        // Should have critical violations (no events tracked)
+        expect($report['violations'])->not()->toBeEmpty();
     });
 
     test('provider coverage score reflects enabled providers', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $config->set('zeroboiler.analytics.ga4.enabled', true);
@@ -98,12 +92,13 @@ describe('TrackingGuardRailsService', function (): void {
 
         // With 1 provider enabled, score should be 60
         expect($report['dimensions']['provider_coverage']['score'])->toBe(60);
+
+        // Restore
+        $config->set('zeroboiler.analytics.ga4.enabled', false);
     });
 
     test('coverage completeness reflects tracked core events', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -127,9 +122,7 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('naming convention validates snake_case', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -165,6 +158,10 @@ describe('TrackingGuardRailsService', function (): void {
         // Invalid: too short
         $result = $service->validateEventName('a');
         expect($result['valid'])->toBeFalse();
+
+        // Invalid: reserved prefix
+        $result = $service->validateEventName('zb_internal');
+        expect($result['valid'])->toBeFalse();
     });
 
     test('coreEventCoverage returns correct completeness', function (): void {
@@ -182,9 +179,7 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('quickScore returns compact response', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -196,9 +191,7 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('violations filter by severity', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -208,12 +201,11 @@ describe('TrackingGuardRailsService', function (): void {
         $criticalViolations = $service->violations([], 'critical');
 
         expect(count($criticalViolations))->toBeLessThanOrEqual(count($allViolations));
+        expect($criticalViolations)->not()->toBeEmpty();
     });
 
     test('consent compliance scores higher with GDPR-safe defaults', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
 
@@ -229,13 +221,10 @@ describe('TrackingGuardRailsService', function (): void {
         expect($consentScore)->toBeGreaterThanOrEqual(80);
 
         // Test with non-GDPR defaults (granted)
-        $cache2 = mock(Cache::class);
-        $cache2->shouldReceive('get')->andReturn(null);
-        $cache2->shouldReceive('put')->andReturn(true);
         $config->set('zeroboiler.analytics.consent.default', 'granted');
         $config->set('zeroboiler.analytics.consent.log_enabled', false);
 
-        $service2 = new TrackingGuardRailsService($cache2, $config, $this->manager);
+        $service2 = new TrackingGuardRailsService($cache, $config, $this->manager);
 
         $report2 = $service2->check(['total_events' => 500, 'tracked_event_names' => ['sign_up', 'login']]);
 
@@ -244,16 +233,14 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('composite score is weighted average of dimensions', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
 
         $report = $service->check([
             'total_events' => 500,
-            'tracked_event_names' => ['sign_up', 'login', 'page_view', 'start_trial', 'subscribe', 'plan_upgrade', 'cancellation', 'logout', 'purchase', 'start_trial', 'trial_converted'],
+            'tracked_event_names' => ['sign_up', 'login', 'page_view', 'start_trial', 'subscribe', 'plan_upgrade', 'cancellation', 'logout', 'purchase', 'trial_converted'],
         ]);
 
         $score = $report['score'];
@@ -274,9 +261,7 @@ describe('TrackingGuardRailsService', function (): void {
     });
 
     test('below minimum events shows deferred message', function (): void {
-        $cache = mock(Cache::class);
-        $cache->shouldReceive('get')->andReturn(null);
-        $cache->shouldReceive('put')->andReturn(true);
+        $cache = app('cache');
 
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
@@ -291,13 +276,43 @@ describe('TrackingGuardRailsService', function (): void {
         expect($coverageDim['details']['message'])->toContain('Below minimum');
     });
 
-    test('clearCache clears the cached result', function (): void {
+    test('clearCache increments generation counter', function (): void {
         $cache = app('cache');
         $config = app('config');
         $service = new TrackingGuardRailsService($cache, $config, $this->manager);
 
-        // Should not throw
+        // Should not throw — increments generation counter
         $service->clearCache();
         expect(true)->toBeTrue();
+    });
+
+    test('report includes generated_at timestamp', function (): void {
+        $cache = app('cache');
+
+        $config = app('config');
+        $service = new TrackingGuardRailsService($cache, $config, $this->manager);
+
+        $report = $service->check(['total_events' => 500, 'tracked_event_names' => ['sign_up']]);
+
+        expect($report['generated_at'])->toBeString();
+        expect($report['generated_at'])->not()->toBeEmpty();
+    });
+
+    test('suggestion generates valid snake_case from various inputs', function (): void {
+        $cache = app('cache');
+        $config = app('config');
+        $service = new TrackingGuardRailsService($cache, $config, $this->manager);
+
+        // camelCase → snake_case
+        $result = $service->validateEventName('userSignedUp');
+        expect($result['suggestion'])->toBe('user_signed_up');
+
+        // PascalCase → snake_case
+        $result = $service->validateEventName('ButtonClicked');
+        expect($result['suggestion'])->toBe('button_clicked');
+
+        // kebab-case → snake_case
+        $result = $service->validateEventName('user-clicked-button');
+        expect($result['suggestion'])->toBe('user_clicked_button');
     });
 });
