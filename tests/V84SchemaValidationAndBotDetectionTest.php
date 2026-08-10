@@ -479,15 +479,15 @@ test('EventSchemaValidationService + BotDetectionService: v8.4.0 services regist
 
 test('version consistency: v8.8.0 across all entry points', function (): void {
 
-    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('8.8.0');
+    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('8.9.0');
 
     // composer.json version
     $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-    expect($composer['version'])->toBe('8.8.0');
+    expect($composer['version'])->toBe('8.9.0');
 
     // package.json version
     $package = json_decode(file_get_contents(base_path('package.json')), true);
-    expect($package['version'])->toBe('8.8.0');
+    expect($package['version'])->toBe('8.9.0');
 });
 
 test('config: schema_validation and bot_detection sections exist', function (): void {

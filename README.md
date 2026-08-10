@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||||[![Latest Version](https://img.shields.io/badge/version-8.8.0-blue)](https://github.com/zeroboiler/analytics)||
+||||[![Latest Version](https://img.shields.io/badge/version-8.9.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [What's New in v8.9.0](#whats-new-in-v890)
 - [What's New in v8.8.0](#whats-new-in-v880)
 - [What's New in v8.7.0](#whats-new-in-v870)
 - [What's New in v8.6.0](#whats-new-in-v860)
@@ -77,6 +78,49 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v8.9.0
+
+### Analytics Guard Rails Engine
+
+Industry-standard tracking quality monitoring system inspired by Amplitude Compass, Mixpanel Data Governance, and Segment Protocols. Provides a composite quality score (0-100) across 6 dimensions with actionable recommendations.
+
+**Dimensions:**
+- **Schema Compliance (25%)** — % of tracked events registered in the event catalog
+- **Naming Convention (20%)** — % of events following snake_case naming convention
+- **Coverage Completeness (20%)** — % of core SaaS lifecycle events tracked
+- **Provider Coverage (15%)** — % of analytics providers receiving events
+- **Identity Linking (10%)** — client ID ↔ user ID linking rate and configuration
+- **Consent Compliance (10%)** — GDPR consent mode defaults and logging status
+
+**Key features:**
+- **Composite scoring** — Weighted average with configurable dimension weights
+- **A-F grading** — A (90+), B (75+), C (60+), D (40+), F (<40)
+- **Violation detection** — Critical, warning, and info severity levels
+- **Event name validation** — `validateEventName()` with auto-suggestion
+- **Core event coverage** — Tracks 11 essential SaaS lifecycle events
+- **Ramp-up protection** — Minimum events threshold before full assessment
+- **Cache-backed** — Configurable TTL for repeated checks
+- **Admin command** — `zb:analytics:guard-rails --json --violations --quick --clear-cache`
+
+**API endpoints:**
+```
+GET  /analytics/guard-rails                    — Full guard rails report
+GET  /analytics/guard-rails/score              — Quick quality score
+GET  /analytics/guard-rails/violations        — Violations (filter by severity)
+GET  /analytics/guard-rails/coverage           — Core event coverage
+GET  /analytics/guard-rails/validate-name       — Validate event name
+```
+
+**Configuration:**
+```php
+// config/zeroboiler.php
+'guard_rails' => [
+    'enabled' => env('ANALYTICS_GUARD_RAILS_ENABLED', true),
+    'cache_ttl' => (int) env('ANALYTICS_GUARD_RAILS_CACHE_TTL', 300),
+    'minimum_events' => (int) env('ANALYTICS_GUARD_RAILS_MIN_EVENTS', 100),
+],
+```
 
 ## What's New in v8.8.0
 

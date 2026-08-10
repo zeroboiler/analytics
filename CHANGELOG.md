@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [8.9.0] - 2026-08-10
+
+### Added
+
+- **Analytics Guard Rails Engine** (`TrackingGuardRailsService`) — Tracking quality monitoring system inspired by Amplitude Compass, Mixpanel Data Governance, and Segment Protocols. Computes a composite quality score (0-100) across 6 dimensions: Schema Compliance (25%), Naming Convention (20%), Coverage Completeness (20%), Provider Coverage (15%), Identity Linking (10%), Consent Compliance (10%). Features: `check()`, `quickScore()`, `violations()`, `validateEventName()`, `coreEventCoverage()`, `clearCache()`. Cache-backed with configurable TTL and minimum event threshold.
+- **Guard Rails Command** (`zb:analytics:guard-rails`) — New artisan command displaying composite quality score, per-dimension breakdowns with visual progress bars, violation alerts, and actionable recommendations. Supports `--json`, `--violations`, `--quick`, `--clear-cache`.
+- **Guard Rails API endpoints** — `GET /analytics/guard-rails` (full report), `GET /analytics/guard-rails/score` (quick score), `GET /analytics/guard-rails/violations` (violations only with severity filter), `GET /analytics/guard-rails/coverage` (core event coverage), `GET /analytics/guard-rails/validate-name` (single event name validation).
+- **Config: `guard_rails` section** — New `zeroboiler.analytics.guard_rails` with configurable enabled flag, cache TTL, and minimum events threshold for ramp-up protection.
+- **Test suite** — `V890GuardRailsServiceTest.php` with 16 tests covering service instantiation, disabled state, full check computation, provider coverage scoring, coverage completeness tracking, naming convention validation, event name validation suggestions, quick score, violation filtering, consent compliance scoring, composite score verification, ramp-up deferred scoring, and cache clearing.
+
+### Changed
+
+- **Version sweep** — 8.8.0 → 8.9.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), README badge, IntegrityCommand::EXPECTED_VERSION.
+
 ## [8.8.0] - 2026-08-10
 
 ### Added

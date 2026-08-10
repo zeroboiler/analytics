@@ -77,6 +77,7 @@ use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
 use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
 use ZeroBoiler\Analytics\Services\IdentityGraphService;
 use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
+use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
 
 /**
  * API controller for frontend event tracking.
@@ -9253,5 +9254,140 @@ final class AnalyticsEventController extends Controller
             'components' => $fingerprint->getComponents(),
             'enabled' => $fingerprint->isEnabled(),
         ]);
+    }
+
+    // ─── Guard Rails (v8.9.0) ─────────────────────────────────────
+
+    /**
+     * Full guard rails check.
+     *
+     * GET /analytics/guard-rails
+     *
+     * @return JsonResponse
+     */
+    public function guardRailsCheck(Request $request): JsonResponse
+    {
+        /** @var TrackingGuardRailsService|null $service */
+        $service = app(TrackingGuardRailsService::class);
+
+        $metrics = $this->gatherGuardRailsMetrics($request);
+
+        return response()->json($service->check($metrics));
+    }
+
+    /**
+     * Quick quality score.
+     *
+     * GET /analytics/guard-rails/score
+     *
+     * @return JsonResponse
+     */
+    public function guardRailsScore(Request $request): JsonResponse
+    {
+        /** @var TrackingGuardRailsService $service */
+        $service = app(TrackingGuardRailsService::class);
+
+        $metrics = $this->gatherGuardRailsMetrics($request);
+
+        return response()->json($service->quickScore($metrics));
+    }
+
+    /**
+     * Violations only.
+     *
+     * GET /analytics/guard-rails/violations?severity=warning
+     *
+     * @return JsonResponse
+     */
+    public function guardRailsViolations(Request $request): JsonResponse
+    {
+        /** @var TrackingGuardRailsService $service */
+        $service = app(TrackingGuardRailsService::class);
+
+        $severity = (string) ($request->query('severity', 'info'));
+        $metrics = $this->gatherGuardRailsMetrics($request);
+
+        return response()->json([
+            'violations' => $service->violations($metrics, $severity),
+        ]);
+    }
+
+    /**
+     * Core event coverage check.
+     *
+     * GET /analytics/guard-rails/coverage
+     *
+     * @return JsonResponse
+     */
+    public function guardRailsCoverage(Request $request): JsonResponse
+    {
+        /** @var TrackingGuardRailsService $service */
+        $service = app(TrackingGuardRailsService::class);
+
+        $metrics = $this->gatherGuardRailsMetrics($request);
+        $trackedNames = $metrics['tracked_event_names'] ?? [];
+
+        return response()->json($service->coreEventCoverage($trackedNames));
+    }
+
+    /**
+     * Validate a single event name against naming conventions.
+     *
+     * GET /analytics/guard-rails/validate-name?name=MyCustomEvent
+     *
+     * @return JsonResponse
+     */
+    public function guardRailsValidateName(Request $request): JsonResponse
+    {
+        /** @var TrackingGuardRailsService $service */
+        $service = app(TrackingGuardRailsService::class);
+
+        $name = (string) ($request->query('name', ''));
+
+        if ($name === '') {
+            return response()->json(['error' => 'Missing "name" query parameter'], 422);
+        }
+
+        return response()->json($service->validateEventName($name));
+    }
+
+    /**
+     * Gather metrics for guard rails from event stream.
+     *
+     * @return array{total_events: int, tracked_event_names: list<string>, identity_linked_count: int, total_clients: int, consent_log_enabled: bool, consent_default: string}
+     */
+    private function gatherGuardRailsMetrics(Request $request): array
+    {
+        $totalEvents = 0;
+        $trackedNames = [];
+        $linkedCount = 0;
+        $totalClients = 0;
+
+        if ($this->streamService !== null) {
+            $stats = $this->streamService->getStats();
+            $totalEvents = (int) ($stats['total_events'] ?? 0);
+            $linkedCount = (int) ($stats['identity_linked_count'] ?? 0);
+            $totalClients = (int) ($stats['unique_clients'] ?? 0);
+
+            $recent = $this->streamService->getRecentEvents(500);
+            foreach ($recent as $event) {
+                $name = $event['event'] ?? null;
+                if (is_string($name) && $name !== '' && ! in_array($name, $trackedNames, true)) {
+                    $trackedNames[] = $name;
+                }
+            }
+        }
+
+        $consentConfig = $this->config->get('zeroboiler.analytics.consent', []);
+        /** @var array{log_enabled?: bool, default?: string} $consentConfig */
+
+        return [
+            'total_events' => $totalEvents,
+            'tracked_event_names' => $trackedNames,
+            'identity_linked_count' => $linkedCount,
+            'total_clients' => $totalClients,
+            'consent_log_enabled' => (bool) ($consentConfig['log_enabled'] ?? false),
+            'consent_default' => (string) ($consentConfig['default'] ?? 'granted'),
+        ];
     }
 }

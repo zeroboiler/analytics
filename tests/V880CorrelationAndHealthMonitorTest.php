@@ -138,7 +138,7 @@ final class V880CorrelationAndHealthMonitorTest extends TestCase
 
     public function testHeatmapServiceVersionConstant(): void
     {
-        $this->assertEquals('8.8.0', AnalyticsEvent::VERSION);
+        $this->assertEquals('8.9.0', AnalyticsEvent::VERSION);
     }
 
     // ─── Health Monitor Dashboard Service ─────────────────────────────

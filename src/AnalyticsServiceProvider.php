@@ -210,6 +210,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortIntelligenceCommand;
 use ZeroBoiler\Analytics\Services\EventCorrelationHeatmapService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthMonitorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthMonitorCommand;
+use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGuardRailsCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -217,7 +219,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthMonitorCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 8.8.0
+ * @version 8.9.0
  *
  * @since 1.0.0
  */
@@ -2032,6 +2034,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsHealthMonitorService($cache, $config);
         });
+
+        $this->app->singleton(TrackingGuardRailsService::class, function (Application $app): TrackingGuardRailsService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+
+            return new TrackingGuardRailsService($cache, $config, $manager);
+        });
     }
 
     /**
@@ -2070,6 +2083,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCohortIntelligenceCommand::class,
                 AnalyticsSnapshotCommand::class,
                 AnalyticsHealthMonitorCommand::class,
+                AnalyticsGuardRailsCommand::class,
             ]);
         }
 
@@ -2359,6 +2373,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/governance/naming', [$controller, 'governanceNaming']);
                 Route::get('analytics/governance/quality', [$controller, 'governanceQuality']);
                 Route::get('analytics/governance/deprecations', [$controller, 'governanceDeprecations']);
+
+                // Guard Rails (v8.9.0)
+                Route::get('analytics/guard-rails', [$controller, 'guardRailsCheck']);
+                Route::get('analytics/guard-rails/score', [$controller, 'guardRailsScore']);
+                Route::get('analytics/guard-rails/violations', [$controller, 'guardRailsViolations']);
+                Route::get('analytics/guard-rails/coverage', [$controller, 'guardRailsCoverage']);
+                Route::get('analytics/guard-rails/validate-name', [$controller, 'guardRailsValidateName']);
             });
 
         // Authenticated endpoints

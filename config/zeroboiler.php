@@ -3722,5 +3722,31 @@ return [
                 'rate_limiting',
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guard Rails (v8.9.0)
+        |--------------------------------------------------------------------------
+        |
+        | Tracking quality monitoring engine inspired by Amplitude Compass,
+        | Mixpanel Data Governance, and Segment Protocols.
+        |
+        | Computes a composite quality score (0-100) across 6 dimensions:
+        | - Schema Compliance (25%)
+        | - Naming Convention (20%)
+        | - Coverage Completeness (20%)
+        | - Provider Coverage (15%)
+        | - Identity Linking (10%)
+        | - Consent Compliance (10%)
+        |
+        | Use via artisan: zb:analytics:guard-rails --json
+        | Or via API: GET /analytics/guard-rails
+        |
+        */
+        'guard_rails' => [
+            'enabled' => env('ANALYTICS_GUARD_RAILS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_GUARD_RAILS_CACHE_TTL', 300), // 5 minutes
+            'minimum_events' => (int) env('ANALYTICS_GUARD_RAILS_MIN_EVENTS', 100), // Minimum events before full assessment
+        ],
     ],
 ];
