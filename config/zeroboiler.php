@@ -1115,6 +1115,20 @@ return [
                 'milestone.reached' => true,
                 'team.invite_accepted' => true,
                 'subscription.trial_end_reminder' => false,
+
+                // ── Security (v9.9.0) ──────────────────────
+                'security.login_attempt' => true,
+                'security.suspicious_activity' => true,
+                'security.data_access_audit' => true,
+                'security.rate_limit_exceeded' => false,
+                'security.mfa_challenge' => true,
+
+                // ── Uptime & Infrastructure (v9.9.0) ────────
+                'uptime.service_up' => true,
+                'uptime.service_down' => true,
+                'uptime.api_latency' => true,
+                'uptime.error_spike' => true,
+                'uptime.deployment' => true,
             ],
             /*
             | Custom event mappings (merged with or override defaults).
@@ -1192,6 +1206,61 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_TTL', 86400), // 24 hours
             'max_journeys_per_user' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_MAX_PER_USER', 20),
             'max_steps_per_journey' => (int) env('ANALYTICS_JOURNEY_RECONSTRUCTION_MAX_STEPS', 200),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Security Event Tracking (v9.9.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Config-driven security event tracking for SaaS applications.
+        | When enabled, security events (login attempts, suspicious activity,
+        | data access audits, rate limit violations, MFA challenges) are
+        | dispatched to all configured analytics providers.
+        |
+        | Toggle individual events on/off. Set 'enabled' to false to disable
+        | all security event tracking.
+        |
+        */
+        'security_events' => [
+            'enabled' => env('ANALYTICS_SECURITY_EVENTS_ENABLED', true),
+            'events' => [
+                'login_attempt' => true,
+                'suspicious_activity' => true,
+                'data_access_audit' => true,
+                'rate_limit_exceeded' => false,
+                'mfa_challenge' => true,
+            ],
+            'log_sensitive' => env('ANALYTICS_SECURITY_LOG_SENSITIVE', false), // Log sensitive params to Laravel log
+            'anonymize_ip' => env('ANALYTICS_SECURITY_ANONYMIZE_IP', true), // Always anonymize IPs in security events
+            'max_events_per_minute' => (int) env('ANALYTICS_SECURITY_MAX_PER_MINUTE', 100), // Rate limit security event dispatch
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Uptime & Infrastructure Monitoring (v9.9.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks service health, API latency, error spikes, and deployments.
+        | Enables correlating infrastructure events with user behavior changes,
+        | conversion rate drops, and error rate increases.
+        |
+        | Used by the health monitoring services and dashboard widgets.
+        |
+        */
+        'uptime' => [
+            'enabled' => env('ANALYTICS_UPTIME_ENABLED', true),
+            'events' => [
+                'service_up' => true,
+                'service_down' => true,
+                'api_latency' => true,
+                'error_spike' => true,
+                'deployment' => true,
+            ],
+            'latency_threshold_ms' => (float) env('ANALYTICS_UPTIME_LATENCY_THRESHOLD', 1000.0),
+            'error_spike_multiplier' => (float) env('ANALYTICS_UPTIME_ERROR_SPIKE_MULTIPLIER', 3.0),
+            'tracked_services' => ['api', 'database', 'cache', 'queue', 'email', 'storage'],
+            'cache_ttl' => (int) env('ANALYTICS_UPTIME_CACHE_TTL', 300), // 5 minutes
         ],
 
         /*

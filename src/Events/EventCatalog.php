@@ -11,13 +11,15 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
+use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
+use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
 
 /**
  * Unified event catalog aggregating all event categories.
  *
  * Provides a single entry point for looking up event names, classes,
  * and provider mappings across Ecommerce, SaaS (including cohort), Engagement,
- * and registered plugin categories.
+ * Security, Uptime, and registered plugin categories.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}
  *
@@ -36,6 +38,8 @@ final class EventCatalog
             self::withCategory(EcommerceEvents::all(), 'ecommerce'),
             self::withCategory(SaaSEvents::all(), 'saas'),
             self::withCategory(EngagementEvents::all(), 'engagement'),
+            self::withCategory(SecurityEvents::all(), 'security'),
+            self::withCategory(UptimeEvents::all(), 'uptime'),
         );
     }
 
@@ -90,6 +94,8 @@ final class EventCatalog
             'ecommerce' => self::withCategory(EcommerceEvents::all(), 'ecommerce'),
             'saas' => self::withCategory(SaaSEvents::all(), 'saas'),
             'engagement' => self::withCategory(EngagementEvents::all(), 'engagement'),
+            'security' => self::withCategory(SecurityEvents::all(), 'security'),
+            'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
         ];
     }
 
@@ -110,13 +116,15 @@ final class EventCatalog
     {
         return EcommerceEvents::has($name)
             || SaaSEvents::has($name)
-            || EngagementEvents::has($name);
+            || EngagementEvents::has($name)
+            || SecurityEvents::has($name)
+            || UptimeEvents::has($name);
     }
 
     /**
      * Get the category name for a given event name.
      *
-     * @return 'ecommerce'|'saas'|'engagement'|null
+     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|null
      */
     public static function getCategory(string $name): ?string
     {
@@ -132,6 +140,14 @@ final class EventCatalog
             return 'engagement';
         }
 
+        if (SecurityEvents::has($name)) {
+            return 'security';
+        }
+
+        if (UptimeEvents::has($name)) {
+            return 'uptime';
+        }
+
         return null;
     }
 
@@ -142,7 +158,9 @@ final class EventCatalog
     {
         return EcommerceEvents::count()
             + SaaSEvents::count()
-            + EngagementEvents::count();
+            + EngagementEvents::count()
+            + SecurityEvents::count()
+            + UptimeEvents::count();
     }
 
     /**
@@ -156,6 +174,8 @@ final class EventCatalog
             EcommerceEvents::ga4Names(),
             SaaSEvents::ga4Names(),
             EngagementEvents::ga4Names(),
+            SecurityEvents::ga4Names(),
+            UptimeEvents::ga4Names(),
         )));
     }
 
@@ -170,6 +190,8 @@ final class EventCatalog
             EcommerceEvents::metaNames(),
             SaaSEvents::metaNames(),
             EngagementEvents::metaNames(),
+            SecurityEvents::metaNames(),
+            UptimeEvents::metaNames(),
         ))));
     }
 
@@ -187,6 +209,8 @@ final class EventCatalog
             EcommerceEvents::posthogNames(),
             SaaSEvents::posthogNames(),
             EngagementEvents::posthogNames(),
+            SecurityEvents::posthogNames(),
+            UptimeEvents::posthogNames(),
         ))));
     }
 
@@ -204,6 +228,8 @@ final class EventCatalog
             EcommerceEvents::plausibleNames(),
             SaaSEvents::plausibleNames(),
             EngagementEvents::plausibleNames(),
+            SecurityEvents::plausibleNames(),
+            UptimeEvents::plausibleNames(),
         ))));
     }
 
@@ -255,13 +281,15 @@ final class EventCatalog
     {
         return EcommerceEvents::classFor($name)
             ?? SaaSEvents::classFor($name)
-            ?? EngagementEvents::classFor($name);
+            ?? EngagementEvents::classFor($name)
+            ?? SecurityEvents::classFor($name)
+            ?? UptimeEvents::classFor($name);
     }
 
     /**
      * Get all events in a specific category.
      *
-     * @param  'ecommerce'|'saas'|'engagement'  $category
+     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'  $category
      * @return array<string, EventEntry>
      */
     public static function category(string $category): array
@@ -270,6 +298,8 @@ final class EventCatalog
             'ecommerce' => self::withCategory(EcommerceEvents::all(), 'ecommerce'),
             'saas' => self::withCategory(SaaSEvents::all(), 'saas'),
             'engagement' => self::withCategory(EngagementEvents::all(), 'engagement'),
+            'security' => self::withCategory(SecurityEvents::all(), 'security'),
+            'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
             default => [],
         };
     }

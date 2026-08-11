@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.8.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.9.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v9.8.0](#whats-new-in-v980)
++- [What's New in v9.9.0](#whats-new-in-v990)
+- [What's New in v9.8.0](#whats-new-in-v980)
 - [What's New in v9.7.0](#whats-new-in-v970)
 +- [What's New in v9.6.0](#whats-new-in-v960)
 - [What's New in v9.4.0](#whats-new-in-v940)
@@ -1834,6 +1835,41 @@ $result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
 - **Meta Pixel**: `content_ids` array types, `num_items` consistency, `content_type` for e-commerce events
 - **PostHog**: Reserved `$properties` detection, `$currency` format warning
 - **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
+
+## What's New in v9.9.0
+
+**Security & Uptime Event Categories — Industry-Standard SaaS Analytics Expansion**
+
+New event categories for comprehensive SaaS observability:
+
+### Security Events (`SecurityEvents` catalog)
+- **`login_attempt`** — Tracks authentication attempts (method, success/failure, reason)
+- **`suspicious_activity`** — Detects brute-force, unusual patterns, permission escalation
+- **`data_access_audit`** — GDPR Art.30 compliant access audit trail (resource, action, actor, target)
+- **`rate_limit_exceeded`** — API rate limit violations with endpoint, client, and limit details
+- **`mfa_challenge`** — Multi-factor authentication lifecycle (totp, sms, email, hardware_key)
+
+### Uptime & Infrastructure Events (`UptimeEvents` catalog)
+- **`service_up`** — Service recovery tracking with downtime duration
+- **`service_down`** — Outage detection with error details and impact level
+- **`api_latency`** — Performance threshold violations (response time vs. configured threshold)
+- **`error_spike`** — Error rate anomaly detection with baseline comparison
+- **`deployment`** — Change-event correlation for deployment impact analysis
+
+### Config Expansion
+- `security_events` — Per-event toggles, sensitive logging, IP anonymization, rate limiting
+- `uptime` — Latency thresholds, error spike multiplier, tracked services list, cache TTL
+- `lifecycle.events` — 15 new security/uptime toggle entries
+
+### EventCatalog Updates
+- `EventCatalog::all()` now includes `security` and `uptime` categories
+- `EventCatalog::byCategory()` returns 5 categories (was 3)
+- `EventCatalog::getCategory()`, `::has()`, `::classFor()`, `::count()` all updated
+- All provider name methods (`::allGa4Names()`, `::allMetaNames()`, etc.) include new categories
+
+### Files Added
+- `src/Events/Security/` — 5 event classes + SecurityEvents catalog
+- `src/Events/Uptime/` — 5 event classes + UptimeEvents catalog
 
 ## Quick Start
 
