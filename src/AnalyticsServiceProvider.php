@@ -2196,7 +2196,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var \Illuminate\Http\Request|null $request */
             $request = $app->make('request', []);
 
-            return new EventNormalizationService($manager, $config, $cache, $enabledProviders, 300, $request);
+            return new EventNormalizationService($config, $cache, $enabledProviders, 300, $request);
         });
 
         // Analytics Consistency Service (v10.5.0) — cross-provider event consistency checker

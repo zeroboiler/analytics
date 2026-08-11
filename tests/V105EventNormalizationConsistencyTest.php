@@ -25,22 +25,11 @@ describe('V105 Event Normalization & Consistency', function () {
                 clientId: 'client-123',
             );
 
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(true);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(false);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(false);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $config = new \Illuminate\Config\Repository([]);
 
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
 
             $service = new EventNormalizationService(
-                $manager,
                 $config,
                 $cache,
                 ['ga4' => true],
@@ -61,21 +50,10 @@ describe('V105 Event Normalization & Consistency', function () {
                 clientId: 'client-456',
             );
 
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(false);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(false);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(true);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $config = new \Illuminate\Config\Repository([]);
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
 
             $service = new EventNormalizationService(
-                $manager,
                 $config,
                 $cache,
                 ['posthog' => true],
@@ -96,21 +74,10 @@ describe('V105 Event Normalization & Consistency', function () {
                 clientId: 'client-789',
             );
 
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(false);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(true);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(false);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $config = new \Illuminate\Config\Repository([]);
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
 
             $service = new EventNormalizationService(
-                $manager,
                 $config,
                 $cache,
                 ['meta' => true],
@@ -126,21 +93,10 @@ describe('V105 Event Normalization & Consistency', function () {
         it('returns empty array when no providers are enabled', function (): void {
             $event = new AnalyticsEvent(name: 'page_view');
 
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(false);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(false);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(false);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $config = new \Illuminate\Config\Repository([]);
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
 
             $service = new EventNormalizationService(
-                $manager,
                 $config,
                 $cache,
                 [],
@@ -157,21 +113,10 @@ describe('V105 Event Normalization & Consistency', function () {
                 new AnalyticsEvent(name: 'sign_up', params: ['method' => 'email']),
             ];
 
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(true);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(false);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(false);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $config = new \Illuminate\Config\Repository([]);
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
 
             $service = new EventNormalizationService(
-                $manager,
                 $config,
                 $cache,
                 ['ga4' => true],
@@ -188,7 +133,6 @@ describe('V105 Event Normalization & Consistency', function () {
 
         it('returns correct provider names from catalog', function (): void {
             $service = new EventNormalizationService(
-                mock(AnalyticsManager::class),
                 new \Illuminate\Config\Repository([]),
                 mock(\Illuminate\Contracts\Cache\Repository::class),
                 ['ga4' => true],
@@ -201,18 +145,7 @@ describe('V105 Event Normalization & Consistency', function () {
         });
 
         it('computes normalization stats for catalog events', function (): void {
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(true);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(true);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(true);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $service = new EventNormalizationService(
-                $manager,
                 new \Illuminate\Config\Repository([]),
                 mock(\Illuminate\Contracts\Cache\Repository::class),
                 ['ga4' => true, 'meta' => true, 'posthog' => true],
@@ -227,18 +160,7 @@ describe('V105 Event Normalization & Consistency', function () {
         });
 
         it('computes target providers for an event', function (): void {
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(true);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(true);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(true);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(true);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $service = new EventNormalizationService(
-                $manager,
                 new \Illuminate\Config\Repository([]),
                 mock(\Illuminate\Contracts\Cache\Repository::class),
                 ['ga4' => true, 'gtm' => true, 'meta' => true, 'posthog' => true],
@@ -253,22 +175,11 @@ describe('V105 Event Normalization & Consistency', function () {
         });
 
         it('generates catalog coverage report', function (): void {
-            $manager = mock(AnalyticsManager::class);
-            $manager->shouldReceive('ga4->isEnabled')->andReturn(true);
-            $manager->shouldReceive('gtm->isEnabled')->andReturn(false);
-            $manager->shouldReceive('meta->isEnabled')->andReturn(true);
-            $manager->shouldReceive('posthog->isEnabled')->andReturn(true);
-            $manager->shouldReceive('plausible->isEnabled')->andReturn(false);
-            $manager->shouldReceive('mixpanel->isEnabled')->andReturn(false);
-            $manager->shouldReceive('amplitude->isEnabled')->andReturn(false);
-            $manager->shouldReceive('webhook->isEnabled')->andReturn(false);
-
             $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
             $cache->shouldReceive('get')->andReturn(null);
             $cache->shouldReceive('put')->andReturn(true);
 
             $service = new EventNormalizationService(
-                $manager,
                 new \Illuminate\Config\Repository([]),
                 $cache,
                 ['ga4' => true, 'meta' => true, 'posthog' => true],
@@ -282,6 +193,156 @@ describe('V105 Event Normalization & Consistency', function () {
             expect($report)->toHaveKey('no_coverage');
             expect($report)->toHaveKey('gaps');
             expect($report['total'])->toBeGreaterThan(0);
+        });
+
+        it('normalizes to GTM with ecommerce enrichment for ecommerce events', function (): void {
+            $event = new AnalyticsEvent(
+                name: 'purchase',
+                params: ['value' => 49.99, 'currency' => 'EUR'],
+                clientId: 'client-gtm-1',
+            );
+
+            $config = new \Illuminate\Config\Repository([]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['gtm' => true],
+            );
+
+            $result = $service->normalize($event);
+
+            expect($result)->toHaveKey('gtm');
+            expect($result['gtm']['event'])->toBe('purchase');
+            expect($result['gtm']['data'])->toHaveKey('client_id');
+            expect($result['gtm'])->toHaveKey('ecommerce');
+        });
+
+        it('normalizes to Mixpanel with distinct_id from clientId', function (): void {
+            $event = new AnalyticsEvent(
+                name: 'page_view',
+                clientId: 'mixpanel-client-1',
+            );
+
+            $config = new \Illuminate\Config\Repository([]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['mixpanel' => true],
+            );
+
+            $result = $service->normalize($event);
+
+            expect($result)->toHaveKey('mixpanel');
+            expect($result['mixpanel']['properties']['distinct_id'])->toBe('mixpanel-client-1');
+        });
+
+        it('normalizes to Amplitude with device_id and user_id', function (): void {
+            $event = new AnalyticsEvent(
+                name: 'login',
+                clientId: 'amp-client-1',
+                userId: 'user-42',
+            );
+
+            $config = new \Illuminate\Config\Repository([]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['amplitude' => true],
+            );
+
+            $result = $service->normalize($event);
+
+            expect($result)->toHaveKey('amplitude');
+            expect($result['amplitude']['event_type'])->toBe('login');
+            expect($result['amplitude']['event_properties']['device_id'])->toBe('amp-client-1');
+            expect($result['amplitude']['event_properties']['user_id'])->toBe('user-42');
+        });
+
+        it('normalizes to Plausible with domain from config', function (): void {
+            $config = new \Illuminate\Config\Repository([
+                'zeroboiler' => [
+                    'analytics' => [
+                        'plausible' => ['domain' => 'example.com'],
+                    ],
+                ],
+            ]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['plausible' => true],
+            );
+
+            $event = new AnalyticsEvent(name: 'page_view');
+            $result = $service->normalize($event);
+
+            expect($result)->toHaveKey('plausible');
+            expect($result['plausible']['domain'])->toBe('example.com');
+        });
+
+        it('normalizes to Webhook with client_id', function (): void {
+            $event = new AnalyticsEvent(
+                name: 'custom_event',
+                params: ['key' => 'value'],
+                clientId: 'wh-client-1',
+            );
+
+            $config = new \Illuminate\Config\Repository([]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['webhook' => true],
+            );
+
+            $result = $service->normalize($event);
+
+            expect($result)->toHaveKey('webhook');
+            expect($result['webhook']['name'])->toBe('custom_event');
+            expect($result['webhook']['client_id'])->toBe('wh-client-1');
+            expect($result['webhook']['params'])->toHaveKey('key');
+        });
+
+        it('attaches userData for Meta CAPI when userId is present', function (): void {
+            $event = new AnalyticsEvent(
+                name: 'purchase',
+                params: ['value' => 100],
+                userId: 'user-meta-1',
+            );
+
+            $config = new \Illuminate\Config\Repository([]);
+            $cache = mock(\Illuminate\Contracts\Cache\Repository::class);
+
+            $service = new EventNormalizationService(
+                $config,
+                $cache,
+                ['meta' => true],
+            );
+
+            $result = $service->normalize($event);
+
+            expect($result['meta'])->toHaveKey('userData');
+            expect($result['meta']['userData']['external_id'])->toBe('user-meta-1');
+            expect($result['meta']['userData']['client_user_agent'])->toBe('');
+        });
+
+        it('falls back to original event name for unknown events', function (): void {
+            $service = new EventNormalizationService(
+                new \Illuminate\Config\Repository([]),
+                mock(\Illuminate\Contracts\Cache\Repository::class),
+                ['ga4' => true],
+            );
+
+            expect($service->providerNameFor('unknown_custom_event', 'ga4'))->toBe('unknown_custom_event');
+            expect($service->providerNameFor('unknown_custom_event', 'meta'))->toBe('unknown_custom_event');
         });
     });
 

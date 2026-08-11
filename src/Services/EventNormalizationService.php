@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
@@ -27,8 +26,6 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  */
 final class EventNormalizationService
 {
-    private AnalyticsManager $manager;
-
     private ConfigRepository $config;
 
     /** @var array<string, bool> */
@@ -44,14 +41,12 @@ final class EventNormalizationService
      * @param  array<string, bool>  $enabledProviders  Provider name => enabled flag
      */
     public function __construct(
-        AnalyticsManager $manager,
         ConfigRepository $config,
         CacheRepository $cache,
         array $enabledProviders = [],
         int $cacheTtl = 300,
         ?Request $request = null,
     ): void {
-        $this->manager = $manager;
         $this->config = $config;
         $this->cache = $cache;
         $this->enabledProviders = $enabledProviders;
