@@ -28,7 +28,7 @@ final class MfaChallengeEvent extends AnalyticsEvent
         string $method = 'totp',
         string $outcome = 'initiated',
         ?string $reason = null,
-    ) {
+    ): void {
         parent::__construct('mfa_challenge', array_filter([
             'method' => $method,
             'outcome' => $outcome,

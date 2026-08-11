@@ -28,7 +28,7 @@ final class ServiceUpEvent extends AnalyticsEvent
         string $service = 'api',
         ?float $downtimeSeconds = null,
         array $context = [],
-    ) {
+    ): void {
         parent::__construct('service_up', array_filter([
             'service' => $service,
             'downtime_seconds' => $downtimeSeconds,

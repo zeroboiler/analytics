@@ -30,7 +30,7 @@ final class DataAccessAuditEvent extends AnalyticsEvent
         string $action = 'read',
         ?string $actorId = null,
         ?string $targetId = null,
-    ) {
+    ): void {
         parent::__construct('data_access_audit', array_filter([
             'resource' => $resource,
             'action' => $action,

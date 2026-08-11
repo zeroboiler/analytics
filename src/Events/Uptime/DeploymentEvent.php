@@ -31,7 +31,7 @@ final class DeploymentEvent extends AnalyticsEvent
         string $version = '',
         string $strategy = 'rolling',
         ?string $service = null,
-    ) {
+    ): void {
         parent::__construct('deployment', array_filter([
             'environment' => $environment,
             'version' => $version,

@@ -31,7 +31,7 @@ final class RateLimitExceededEvent extends AnalyticsEvent
         string $clientId = '',
         int $limit = 60,
         int $window = 60,
-    ) {
+    ): void {
         parent::__construct('rate_limit_exceeded', [
             'endpoint' => $endpoint,
             'client_id' => $clientId,

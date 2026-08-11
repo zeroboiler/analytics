@@ -45,7 +45,7 @@ final class DeviceFingerprintService
     /**
      * @param  array{enabled?: bool, hash_algo?: string, include_ip?: bool, components?: list<string>}  $config
      */
-    public function __construct(array $config = [])
+    public function __construct(array $config = []): void
     {
         $this->enabled = (bool) ($config['enabled'] ?? true);
         $this->hashAlgo = (string) ($config['hash_algo'] ?? 'sha256');
