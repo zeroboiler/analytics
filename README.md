@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.4.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.5.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.5.0](#whats-new-in-v1050)
 +- [What's New in v10.4.0](#whats-new-in-v1040)
 +- [What's New in v10.3.0](#whats-new-in-v1030)
 +- [What's New in v10.2.0](#whats-new-in-v1020)
@@ -91,6 +92,36 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v10.5.0
+
+### 🔄 Event Normalization Service (`EventNormalizationService`)
+- **Provider-agnostic event normalization** — Convert a single `AnalyticsEvent` into all provider-specific formats (GA4, GTM, Meta Pixel, PostHog, Plausible, Mixpanel, Amplitude, Webhook) in one call
+- **Segment-inspired unified event model** — Write once, dispatch everywhere. No more manual per-provider transformation in application code
+- **Batch normalization** — `normalizeBatch()` normalizes multiple events for bulk dispatch
+- **Provider name resolution** — `providerNameFor('purchase', 'meta')` returns `'Purchase'` from catalog mappings
+- **Target provider discovery** — `targetProvidersFor('sign_up')` returns which providers will receive the event
+- **Per-event normalization stats** — Debug/diagnostic view of mappings, missing providers, and coverage gaps
+- **Catalog coverage report** — `catalogCoverageReport()` computes fully_covered, partial, and no_coverage counts across the entire event catalog
+- **E-commerce auto-enrichment** — GA4 and GTM e-commerce events automatically enriched via `EcommerceFormatConverter`
+- **Identity auto-attach** — client_id and user_id automatically included in all provider payloads
+
+### 🔍 Analytics Consistency Service (`AnalyticsConsistencyService`)
+- **Cross-provider event dispatch consistency checker** — Verifies events dispatched to multiple providers maintain consistent naming, parameters, and identity linkage
+- **6-dimension check suite:**
+  - **Catalog Integrity** — Class existence, required keys, name/class validation
+  - **Provider Mappings** — Missing core event mappings per enabled provider
+  - **Identity Consistency** — Cookie config, TTL, auto-linking, cache prefix validation
+  - **Config Validity** — Queue, consent defaults, debug mode, sampling rate validation
+  - **Naming Convention** — snake_case compliance across all catalog events
+  - **Provider Config** — Missing IDs, tokens, and API keys for enabled providers
+- **Composite scoring** — 0-100 score with A+ through F letter grading
+- **Cache-backed** — Full check results cached with configurable TTL for dashboards
+- **Quick score** — `quickScore()` for lightweight health checks
+- **Cache invalidation** — `invalidateCache()` for forced re-check after config changes
+
+### 📦 Version Sweep
+- 10.4.0 → 10.5.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
 ## What's New in v9.8.0
 

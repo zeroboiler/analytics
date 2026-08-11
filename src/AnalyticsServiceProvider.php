@@ -226,6 +226,8 @@ use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
 use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
 use ZeroBoiler\Analytics\Services\EventTimelineService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
+use ZeroBoiler\Analytics\Services\EventNormalizationService;
+use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -233,7 +235,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 10.4.0
+ * @version 10.5.0
  *
  * @since 1.0.0
  */
@@ -2169,6 +2171,41 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $timelineConfig = $config->get('zeroboiler.analytics.timeline', []);
 
             return new EventTimelineService($cache, $identityService, $timelineConfig);
+        });
+
+        // Event Normalization Service (v10.5.0) — provider-agnostic event normalization
+        $this->app->singleton(EventNormalizationService::class, function (Application $app): EventNormalizationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            $enabledProviders = [
+                'ga4' => $manager->ga4()->isEnabled(),
+                'gtm' => $manager->gtm()->isEnabled(),
+                'meta' => $manager->meta()->isEnabled(),
+                'posthog' => $manager->posthog()->isEnabled(),
+                'plausible' => $manager->plausible()->isEnabled(),
+                'mixpanel' => $manager->mixpanel()->isEnabled(),
+                'amplitude' => $manager->amplitude()->isEnabled(),
+                'webhook' => $manager->webhook()->isEnabled(),
+            ];
+
+            return new EventNormalizationService($manager, $config, $cache, $enabledProviders);
+        });
+
+        // Analytics Consistency Service (v10.5.0) — cross-provider event consistency checker
+        $this->app->singleton(AnalyticsConsistencyService::class, function (Application $app): AnalyticsConsistencyService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            return new AnalyticsConsistencyService($manager, $config, $cache);
         });
     }
 
