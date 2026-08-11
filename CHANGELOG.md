@@ -2,6 +2,101 @@
 
 All notable changes to the package will be documented in this file.
 
+## [10.6.0] - 2026-08-11
+
+### Added
+
+- **Mixpanel & Amplitude Event Catalog Parity** — Every catalog entry across all 5 categories (Ecommerce, SaaS, Engagement, Security, Uptime) now includes native `mixpanel` and `amplitude` event name fields. Mixpanel uses Title Case convention (e.g. `Add to Cart`, `Sign Up`); Amplitude uses Past Tense (e.g. `Added to Cart`, `Signed Up`).
+- **EventCatalog aggregate methods** — `allMixpanelNames()`, `allAmplitudeNames()`, `mixpanelNameFor()`, `amplitudeNameFor()` for provider-specific lookups.
+- **EventTransformer provider support** — `saasToMixpanelEventMap()` (80+ mappings) and `saasToAmplitudeEventMap()` (80+ mappings). `transformForProvider()` now supports `'mixpanel'` and `'amplitude'`.
+- **byProvider() expanded** — Returns 6 providers: ga4, meta, posthog, plausible, mixpanel, amplitude.
+- **Category-level helpers** — `EcommerceEvents::mixpanelNames()`, `SaaSEvents::amplitudeNames()`, etc. on all 5 catalog classes.
+- **Tracker auto-transform** — `MixpanelTracker::track()` and `AmplitudeTracker::track()` auto-transform event names via `EventTransformer::transformForProvider()`.
+- **Test** — `MixpanelAmplitudeParityTest` with 35+ assertions.
+
+### Changed
+
+- **Version sweep** — 10.5.0 → 10.6.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, README badge, CHANGELOG.
+
+## [10.5.0] - 2026-08-11
+
+### Added
+
+- **Event Normalization Service** (`EventNormalizationService`) — Provider-agnostic event normalization. Convert a single `AnalyticsEvent` into all provider-specific formats (GA4, GTM, Meta, PostHog, Plausible, Mixpanel, Amplitude, Webhook) in one call. Segment-inspired unified event model. Batch normalization, provider name resolution, target provider discovery, per-event normalization stats, catalog coverage report.
+- **Analytics Consistency Service** (`AnalyticsConsistencyService`) — Cross-provider event dispatch consistency checker. 6-dimension check suite: catalog integrity, provider mappings, identity consistency, config validity, naming convention, provider config. Composite scoring (0-100) with letter grading. Cache-backed.
+- **Config `event_templates` section** — Default currency, auto UTM attach, auto user ID attach, provider params for SaaS event templates.
+
+### Changed
+
+- **Refactor** — Removed unused `AnalyticsManager` from `EventNormalizationService`. Fixed `request()` global helper anti-pattern. Removed dead ecommerce branch in `normalizeForMeta`.
+- **Version sweep** — 10.4.0 → 10.5.0.
+
+## [10.4.0] - 2026-08-11
+
+### Added
+
+- **AnalyticsFake** (`AnalyticsFacadeTest`, `AnalyticsFakeTest`) — Industry-standard test fake for analytics event assertions. `Analytics::fake()`, `Analytics::assertTracked()`, `Analytics::assertNotTracked()`, `Analytics::trackedEvents()`. Laravel-style testing pattern.
+- **`WithAnalyticsFake` trait** — Auto-setup/teardown for `Analytics::fake()` in Pest tests.
+
+### Changed
+
+- **Version sweep** — 10.3.0 → 10.4.0.
+
+## [10.3.0] - 2026-08-11
+
+### Added
+
+- **Event Timeline Service** (`EventTimelineService`) — Chronological user journey timelines with session grouping, funnel annotation, and gap detection for churn-risk identification. Cache-backed with configurable TTL and max entries. Config section: `timeline`.
+- **Timeline API endpoints** — `GET /api/analytics/timeline/{clientId}`, `GET .../summary`, `GET .../sessions`, `DELETE .../{clientId}`.
+
+### Changed
+
+- **Version sweep** — 10.2.0 → 10.3.0. Fixed 97 test files with stale version references.
+
+## [10.2.0] - 2026-08-11
+
+### Added
+
+- **9-Provider Full Client Coverage** — JS client now supports all 9 providers: GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook, and SaaS internal. Full e-commerce shorthands (`trackPurchase`, `trackRefund`, `trackViewItem`, `trackAddToCart`, `trackRemoveFromCart`, `trackBeginCheckout`, `trackSelectItem`, `trackPromotionView`, `trackWishlist`).
+- **Catalog summary expansion** — `EventCatalog::summary()` now includes billing, security, uptime, expansion, and GDPR event counts.
+- **Event Catalog billing events** — `InvoiceGeneratedEvent`, `PaymentFailedEvent`, `PaymentSucceededEvent`.
+
+### Changed
+
+- **Version sweep** — 10.1.0 → 10.2.0.
+
+## [10.1.0] - 2026-08-11
+
+### Changed
+
+- **Production readiness** — Manual code review verified. PHP 8.5 syntax compliance, strict types, return type declarations across all files.
+- **Version sweep** — 10.0.0 → 10.1.0.
+
+## [10.0.0] - 2026-08-11
+
+### Added
+
+- **Mixpanel Tracker** (`MixpanelTracker`) — Server-side tracking via Mixpanel `/track` API endpoint. Config section: `mixpanel`. Supports identity, event properties, and super properties.
+- **Amplitude Tracker** (`AmplitudeTracker`) — Server-side tracking via Amplitude V2 HTTP API. Config section: `amplitude`. Supports device ID, user ID, event properties, and platform identification.
+- **8-Provider Architecture** — GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook. Full `AnalyticsManager` integration with per-provider enable/disable.
+- **PHP 8.5 Compatibility** — `:void` return types added to 16 constructors. All services use named arguments, readonly properties, and intersection types.
+
+### Changed
+
+- **Breaking** — `AnalyticsManager` constructor now requires `ConfigRepository` (or resolves from container). No longer accepts individual provider configs.
+
+## [9.9.0] - 2026-08-11
+
+### Added
+
+- **Security Event Category** (`SecurityEvents`) — `LoginAttemptEvent`, `SuspiciousActivityEvent`, `DataAccessAuditEvent`, `RateLimitExceededEvent`, `MfaChallengeEvent`. Full GA4/Meta/PostHog/Plausible/Mixpanel/Amplitude catalog mappings.
+- **Uptime Event Category** (`UptimeEvents`) — `ApiLatencyEvent`, `DeploymentEvent`, `ErrorSpikeEvent`, `ServiceDownEvent`, `ServiceUpEvent`. Full provider mappings.
+- **Security & Uptime Lifecycle Mappings** — Config-driven auto-track for `security.login_attempt`, `security.suspicious_activity`, `security.data_access_audit`, `security.rate_limit_exceeded`, `security.mfa_challenge`, `uptime.service_up`, `uptime.service_down`, `uptime.deployment`, `uptime.api_latency`, `uptime.error_spike`.
+
+### Changed
+
+- **Version sweep** — 9.8.0 → 9.9.0.
+
 ## [9.8.0] - 2026-08-11
 
 ### Added
