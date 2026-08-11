@@ -610,4 +610,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('annotations/{eventId}', [AnalyticsEventController::class, 'getEventAnnotations']);
     Route::delete('annotations/{eventId}', [AnalyticsEventController::class, 'clearEventAnnotations']);
     Route::delete('annotations/{eventId}/{key}', [AnalyticsEventController::class, 'removeEventAnnotation']);
+
+    // Provider Fallback Strategy (v9.4.0)
+    Route::get('fallback', [AnalyticsEventController::class, 'fallbackStats']);
+    Route::get('fallback/chains', [AnalyticsEventController::class, 'fallbackChains']);
+    Route::get('fallback/validate', [AnalyticsEventController::class, 'fallbackValidate']);
+    Route::get('fallback/health', [AnalyticsEventController::class, 'fallbackHealth']);
+    Route::post('fallback/reset-counts', [AnalyticsEventController::class, 'fallbackResetCounts']);
 });

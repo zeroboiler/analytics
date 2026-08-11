@@ -3889,5 +3889,33 @@ return [
                 'release_tag_value' => env('ANALYTICS_ANNOTATIONS_RELEASE_TAG_VALUE'),
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Provider Fallback Strategy (v9.4.0)
+        |--------------------------------------------------------------------------
+        |
+        | When a primary analytics provider fails (circuit breaker opens), events
+        | are automatically redirected to configured fallback providers.
+        | Chains are ordered lists — the first healthy provider receives the event.
+        |
+        | Supported providers: ga4, gtm, meta, posthog, plausible, webhook
+        |
+        | Example: If GA4 goes down, fall back to server-side GTM, then Meta CAPI:
+        |   'chains' => [
+        |       'ga4' => ['gtm', 'meta', 'posthog'],
+        |   ],
+        |
+        */
+        'fallback' => [
+            'enabled' => env('ANALYTICS_FALLBACK_ENABLED', true),
+            'max_depth' => (int) env('ANALYTICS_FALLBACK_MAX_DEPTH', 3),
+            'cache_prefix' => env('ANALYTICS_FALLBACK_CACHE_PREFIX', 'zb_fallback_'),
+            'chains' => [
+                // 'ga4' => ['gtm', 'meta', 'posthog'],
+                // 'meta' => ['ga4', 'posthog'],
+                // 'posthog' => ['ga4', 'meta'],
+            ],
+        ],
     ],
 ];

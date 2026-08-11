@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [9.4.0] - 2026-08-11
+
+### Added
+
+- **Provider Fallback Service** (`ProviderFallbackService`) — Multi-provider failover strategy integrated with circuit breaker. When a primary analytics provider fails, events are automatically redirected to configured fallback providers via ordered chain evaluation. Features: `resolveProvider()`, `getFallbackChain()`, `hasFallbackChain()`, `recordFallback()`, `getFallbackCount()`, `validate()` (circular dependency detection, chain depth validation, invalid provider detection), `healthSummary()` (per-provider status with circuit breaker states), `stats()`, `resetCounters()`, `getCachedCounts()`, `clearCachedCounts()`. Cache-backed fallback counters for cross-process visibility. Config-driven chains.
+- **Event Catalog Factory** (`EventCatalogFactory`) — Fluent factory for creating catalog-aware `AnalyticsEvent` DTOs. Static methods: `create()` (catalog-validated), `raw()` (no validation), `event()` (direct shorthand), `critical()` (critical-priority shorthand). Instance methods: `withClientId()`, `withUserId()`, `withIdentity()`, `withTimestamp()`, `withPriority()`, `mergeParams()`, `build()`. Catalog helpers: `getCatalogEntry()`, `getCategory()`, `getGa4Name()`, `getMetaName()`, `isInCatalog()`. Static category helpers: `ecommerceEventNames()`, `saasEventNames()`, `engagementEventNames()`, `catalogSize()`.
+- **AnalyticsEvent source tracking** — New `source` property on `AnalyticsEvent` DTO to track event origin (api|server|client|webhook|replay|batch). Properly serialized in `toArray()` and deserialized in `fromArray()`.
+- **Priority in toArray()** — `AnalyticsEvent::toArray()` now includes the `priority` field for complete serialization.
+- **API endpoints:**
+  - Fallback: `GET /api/analytics/fallback`, `GET .../chains`, `GET .../validate`, `GET .../health`, `POST .../reset-counts`
+- **Config: `fallback` section** — New `zeroboiler.analytics.fallback` with enabled flag, max chain depth (default: 3), cache prefix, and per-provider chains configuration.
+- **Service registration** — `ProviderFallbackService` registered as singleton in `AnalyticsServiceProvider`.
+- **Test suite** — `V940FallbackFactorySourceTest.php` with 50+ tests covering ProviderFallbackService (resolve, chains, validation, health, counters), EventCatalogFactory (create, raw, identity, priority, build, catalog helpers, static shortcuts), and AnalyticsEvent source field (constructor, toArray, fromArray, priority serialization).
+
+### Changed
+
+- **Version sweep** — 9.3.0 → 9.4.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), IntegrityCommand::EXPECTED_VERSION, README badge, CHANGELOG.
+
 ## [9.3.0] - 2026-08-11
 
 ### Added

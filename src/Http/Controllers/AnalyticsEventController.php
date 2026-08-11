@@ -82,6 +82,7 @@ use ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService;
 use ZeroBoiler\Analytics\Services\EventIdempotencyService;
 use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
+use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 
 /**
  * API controller for frontend event tracking.
@@ -9758,5 +9759,98 @@ final class AnalyticsEventController extends Controller
             'event_id' => $eventId,
             'attached' => $attached,
         ]);
+    }
+
+    // ─── Provider Fallback Strategy (v9.4.0) ────────────────────────────
+
+    /**
+     * Get provider fallback statistics.
+     *
+     * GET /api/analytics/fallback
+     *
+     * @return JsonResponse
+     */
+    public function fallbackStats(): JsonResponse
+    {
+        /** @var ProviderFallbackService $service */
+        $service = app(ProviderFallbackService::class);
+
+        return response()->json($service->stats());
+    }
+
+    /**
+     * Get all configured fallback chains.
+     *
+     * GET /api/analytics/fallback/chains
+     *
+     * @return JsonResponse
+     */
+    public function fallbackChains(): JsonResponse
+    {
+        /** @var ProviderFallbackService $service */
+        $service = app(ProviderFallbackService::class);
+
+        return response()->json([
+            'chains' => $service->getAllChains(),
+            'chain_count' => count($service->getAllChains()),
+            'max_depth' => $service->getMaxFallbackDepth(),
+        ]);
+    }
+
+    /**
+     * Validate fallback chain configuration.
+     *
+     * GET /api/analytics/fallback/validate
+     *
+     * @return JsonResponse
+     */
+    public function fallbackValidate(): JsonResponse
+    {
+        /** @var ProviderFallbackService $service */
+        $service = app(ProviderFallbackService::class);
+
+        return response()->json($service->validate());
+    }
+
+    /**
+     * Get fallback health summary with circuit breaker states.
+     *
+     * GET /api/analytics/fallback/health
+     *
+     * @return JsonResponse
+     */
+    public function fallbackHealth(): JsonResponse
+    {
+        /** @var ProviderFallbackService $fallbackService */
+        $fallbackService = app(ProviderFallbackService::class);
+
+        /** @var ProviderCircuitBreaker $circuitBreaker */
+        $circuitBreaker = app(ProviderCircuitBreaker::class);
+
+        $providers = ['ga4', 'gtm', 'meta', 'posthog', 'plausible', 'webhook'];
+        $circuitStates = [];
+        foreach ($providers as $provider) {
+            $circuitStates[$provider] = $circuitBreaker->getState($provider);
+        }
+
+        return response()->json($fallbackService->healthSummary($circuitStates));
+    }
+
+    /**
+     * Reset fallback counters.
+     *
+     * POST /api/analytics/fallback/reset-counts
+     *
+     * @return JsonResponse
+     */
+    public function fallbackResetCounts(): JsonResponse
+    {
+        /** @var ProviderFallbackService $service */
+        $service = app(ProviderFallbackService::class);
+
+        $service->resetCounters();
+        $service->clearCachedCounts();
+
+        return response()->json(['reset' => true]);
     }
 }

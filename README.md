@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.4.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,8 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [What's New in v9.2.0](#whats-new-in-v920)
-+- [What's New in v9.3.0](#whats-new-in-v930)
++- [What's New in v9.4.0](#whats-new-in-v940)
+- [What's New in v9.3.0](#whats-new-in-v930)
 - [What's New in v9.1.0](#whats-new-in-v910)
 - [What's New in v9.0.0](#whats-new-in-v900)
 - [What's New in v8.9.0](#whats-new-in-v890)
@@ -82,6 +82,36 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.4.0
+
+### 🔄 Provider Fallback Service (`ProviderFallbackService`)
+- **Multi-provider failover strategy** — When a primary analytics provider fails (circuit breaker opens), events are automatically redirected to configured fallback providers. Ordered chain evaluation — first healthy provider receives the event.
+- **Config-driven fallback chains** — Define fallback chains per provider in `zeroboiler.analytics.fallback.chains`
+  - Example: `'ga4' => ['gtm', 'meta', 'posthog']` — if GA4 is down, fall back to GTM, then Meta CAPI, then PostHog
+- **Circuit breaker integration** — Uses `ProviderCircuitBreaker` states to determine provider health
+- **Fallback tracking** — Per-chain fallback counters persisted in cache for monitoring and alerting
+- **Validation API** — Detects circular dependencies, invalid providers, and excessive chain depth
+- **API endpoints:**
+  - `GET /api/analytics/fallback` — Fallback statistics (enabled, chains, counts, max depth)
+  - `GET /api/analytics/fallback/chains` — All configured fallback chains
+  - `GET /api/analytics/fallback/validate` — Validate chain configuration (circular deps, depth)
+  - `GET /api/analytics/fallback/health` — Per-provider health with fallback status
+  - `POST /api/analytics/fallback/reset-counts` — Reset fallback counters
+
+### 🏭 Event Catalog Factory (`EventCatalogFactory`)
+- **Catalog-aware event creation** — Fluent factory for creating AnalyticsEvent DTOs with catalog validation
+- **Static convenience methods** — `create()`, `raw()`, `event()`, `critical()` for common patterns
+- **Category-aware helpers** — `ecommerceEventNames()`, `saasEventNames()`, `engagementEventNames()`
+- **Provider name resolution** — `getGa4Name()`, `getMetaName()` from catalog entries
+
+### 📡 AnalyticsEvent Source Tracking
+- **New `source` field** on `AnalyticsEvent` DTO — Tracks event origin (api|server|client|webhook|replay|batch)
+- **fromArray() and toArray() support** — Source field properly serialized and deserialized
+- **Priority in toArray()** — Priority field now included in array output
+
+### Config: `fallback` section
+- New `zeroboiler.analytics.fallback` with enabled flag, max chain depth, cache prefix, and per-provider chains.
 
 ## What's New in v9.3.0
 

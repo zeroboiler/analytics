@@ -218,6 +218,8 @@ use ZeroBoiler\Analytics\Services\EventIdempotencyService;
 use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
+use ZeroBoiler\Analytics\Services\ProviderFallbackService;
+use ZeroBoiler\Analytics\Support\EventCatalogFactory;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -225,7 +227,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.3.0
+ * @version 9.4.0
  *
  * @since 1.0.0
  */
@@ -2097,6 +2099,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventAnnotationService($cache, $config);
+        });
+
+        // Provider Fallback Service (v9.4.0) — multi-provider failover with circuit breaker
+        $this->app->singleton(ProviderFallbackService::class, function (Application $app): ProviderFallbackService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderFallbackService($cache, $config);
         });
     }
 
