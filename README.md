@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.9.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-11.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v11.0.0](#whats-new-in-v11000)
 +- [What's New in v10.9.0](#whats-new-in-v1090)
 +- [What's New in v10.8.0](#whats-new-in-v1080)
 +- [What's New in v10.6.0](#whats-new-in-v1060)
@@ -95,6 +96,24 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v11.0.0
+
+### 🔥 Major Release — Pipeline Smoke Test & GDPR Consent Compliance
+
+Industry-standard end-to-end validation and regulatory compliance tools. This release introduces comprehensive pipeline smoke testing, GDPR Consent Mode v2 compliance auditing, and automated system health verification.
+
+**New Services:**
+- **`AnalyticsConsentComplianceService`** — GDPR Consent Mode v2 compliance validation service. 10-dimensional compliance check suite covering consent signal coverage, GDPR purpose configuration, default consent state, consent logging, TTL validation, regional consent detection, provider consent gating, version hash integrity, cookie integration, and data erasure support. Generates GDPR Article 30 audit reports.
+- **`AnalyticsSmokeRunnerCommand`** (`zb:analytics:smoke`) — 20-check comprehensive pipeline smoke test command. Validates version integrity, event catalog health, provider configuration, GDPR consent compliance, e-commerce format conversion, consent state management, analytics metrics, facade accessibility, health checks, identity resolution, queue dispatch, pipeline filters, GDPR services, admin commands, Inertia middleware, API controller, and test fake availability.
+
+**New Tests:**
+- **`V1100FullSaaSPipelineSmokeTest`** — End-to-end SaaS analytics pipeline test covering: full SaaS user journey (signup → trial → subscription → upgrade → cancellation), e-commerce funnel (view → cart → checkout → purchase → refund), engagement events (page view, scroll, form, search, share, error), Consent Mode v2 compliance, identity resolution (client ID ↔ user ID), multi-provider dispatch, e-commerce format conversion, pipeline processing, GDPR compliance, event catalog integrity (100+ events), DTO round-trips, queue dispatch readiness, facade proxy verification, and AnalyticsFake assertion API.
+- **`V1100ConsentComplianceServiceTest`** — 18 test cases covering consent compliance check structure, score calculation, GDPR-safe defaults scoring, audit report generation, all 10 compliance dimensions, cache invalidation, and check field validation.
+
+**Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
+
+**LOC:** ~131K source, 221 test files
 
 ## What's New in v10.8.0
 

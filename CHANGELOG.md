@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [11.0.0] - 2026-08-11
+
+### Added
+
+- **`AnalyticsConsentComplianceService`** — GDPR Consent Mode v2 compliance validation service. 10-dimensional compliance check suite: consent signal coverage, GDPR purpose configuration, default consent state (denied=GDPR-safe), consent logging (Article 7 audit trail), TTL validation (90-day minimum), regional consent detection (EU geo-targeting), provider consent gating, consent version hash integrity, cookie privacy attributes, and data erasure support (Article 17). Cache-backed with 5-minute TTL. Generates GDPR Article 30 audit reports with processing activities, legal basis, data categories, and retention periods.
+- **`AnalyticsSmokeRunnerCommand`** (`zb:analytics:smoke`) — 20-check comprehensive pipeline smoke test for CI/CD and pre-deployment validation. Checks: version integrity, event catalog validation, catalog categories (5/5), provider coverage, provider configuration, GA4/GTM/Meta connectivity, GDPR consent compliance, e-commerce format conversion, consent state management, analytics metrics, facade accessibility, health check, identity resolution, queue dispatch, pipeline filters (7 components), GDPR services (6 services), admin commands (5 commands), Inertia middleware, API controller, test fake. Supports `--skip-providers`, `--skip-consent`, `--json`, `--verbose` flags. Outputs pass/warn/fail/summary with elapsed time.
+- **`V1100FullSaaSPipelineSmokeTest`** — End-to-end SaaS analytics pipeline test. 70+ assertions covering: SaaS user journey (10-step: signup → email verify → login → trial → subscription → feature use → upgrade → payment → invoice → cancellation), e-commerce funnel (5-step: view → cart → checkout → purchase → refund), engagement events (8 events: page view, scroll, form, search, share, error, click), consent mode v2 compliance (grant/deny/propagation/history), identity resolution (client ↔ user linking), multi-provider dispatch, e-commerce format conversion (GA4/Meta), pipeline processing (UTM/timestamp/metadata enrichers), GDPR compliance (reset/opt-out/opt-in), catalog integrity (5 categories, 100+ events, no duplicates), DTO round-trips, queue dispatch readiness, facade proxy, AnalyticsFake assertions (tracked/not/trackedTimes/callback/reset).
+- **`V1100ConsentComplianceServiceTest`** — 18 test cases covering: compliance check structure, score percentage, GDPR-safe default scoring, audit report (Article 30), consent mode v2 signal check, default consent state validation, consent logging check, TTL validation (90-day), regional consent check, provider consent gating validation, cache invalidation, check field validation (status/severity/message).
+
+### Changed
+
+- **Version sweep** — 10.9.0 → 11.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, CHANGELOG.
+- **LOC** — ~131K PHP source, 6K+ JS client, 221 test files.
+
 ## [10.9.0] - 2026-08-11
 
 ### Added

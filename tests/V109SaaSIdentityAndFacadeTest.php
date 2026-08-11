@@ -31,8 +31,8 @@ use ZeroBoiler\Analytics\Support\AnalyticsFake;
  * 9. PLG scoring availability
  * 10. Quick-start events coverage
  */
-test('v10.9.0 version constant is correct', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('10.9.0');
+test('version constant is correct', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('11.0.0');
 });
 
 test('v10.9.0 event catalog has 100+ events across all categories', function (): void {
