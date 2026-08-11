@@ -3816,5 +3816,78 @@ return [
             'enabled' => env('ANALYTICS_READINESS_SCORE_ENABLED', true),
             'passing_threshold' => (int) env('ANALYTICS_READINESS_THRESHOLD', 60), // Score >= 60 = "ready"
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Idempotency (v9.3.0)
+        |--------------------------------------------------------------------------
+        |
+        | Prevents duplicate analytics event dispatches using idempotency keys.
+        | When enabled, each event is fingerprinted (name + client_id + user_id + params hash)
+        | and stored in cache. Duplicate events within the TTL window are silently dropped.
+        |
+        | Inspired by Stripe's idempotency key pattern.
+        |
+        */
+        'idempotency' => [
+            'enabled' => env('ANALYTICS_IDEMPOTENCY_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_IDEMPOTENCY_TTL', 3600), // 1 hour
+            'max_keys' => (int) env('ANALYTICS_IDEMPOTENCY_MAX_KEYS', 100000), // Max cached keys
+            'prefix' => env('ANALYTICS_IDEMPOTENCY_PREFIX', 'zb_idem_'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Privacy Manifest — GDPR Article 30 (v9.3.0)
+        |--------------------------------------------------------------------------
+        |
+        | Automated Records of Processing Activities (RoPA) generation for all
+        | registered analytics events. Produces structured GDPR documentation
+        | covering data categories, legal bases, retention periods, data flows,
+        | and data subject rights implementation status.
+        |
+        | Use via API: GET /api/analytics/privacy-manifest
+        |
+        */
+        'privacy_manifest' => [
+            'enabled' => env('ANALYTICS_PRIVACY_MANIFEST_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PRIVACY_MANIFEST_CACHE_TTL', 3600), // 1 hour
+            'controller_email' => env('ANALYTICS_PRIVACY_CONTROLLER_EMAIL', 'privacy@example.com'),
+            'dpo_email' => env('ANALYTICS_PRIVACY_DPO_EMAIL'), // null = no DPO
+            'legal_basis_defaults' => [
+                // 'identifier' => 'consent',
+                // 'financial' => 'contract',
+                // 'behavioral' => 'legitimate_interest',
+            ],
+            'retention_defaults' => [
+                // 'financial' => 2555, // 7 years
+                // 'identifier' => 1095, // 3 years
+                // 'behavioral' => 90,    // 90 days
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Annotations (v9.3.0)
+        |--------------------------------------------------------------------------
+        |
+        | Allows attaching deployment markers, debug flags, release tags, and
+        | custom annotations to analytics events. Useful for deployment
+        | correlation analysis and A/B rollout tracking.
+        |
+        */
+        'annotations' => [
+            'enabled' => env('ANALYTICS_ANNOTATIONS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_ANNOTATIONS_CACHE_TTL', 86400), // 24 hours
+            'max_annotations_per_event' => (int) env('ANALYTICS_ANNOTATIONS_MAX_PER_EVENT', 20),
+            'auto_attach' => [
+                'deployment_version' => env('ANALYTICS_ANNOTATIONS_AUTO_DEPLOYMENT_VERSION', false),
+                'deployment_version_value' => env('ANALYTICS_ANNOTATIONS_DEPLOYMENT_VERSION_VALUE'),
+                'environment' => env('ANALYTICS_ANNOTATIONS_AUTO_ENVIRONMENT', false),
+                'debug_in_non_production' => env('ANALYTICS_ANNOTATIONS_DEBUG_IN_NON_PROD', false),
+                'release_tag' => env('ANALYTICS_ANNOTATIONS_AUTO_RELEASE_TAG', false),
+                'release_tag_value' => env('ANALYTICS_ANNOTATIONS_RELEASE_TAG_VALUE'),
+            ],
+        ],
     ],
 ];

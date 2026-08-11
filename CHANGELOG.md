@@ -2,6 +2,26 @@
 
 All notable changes to the package will be documented in this file.
 
+## [9.3.0] - 2026-08-11
+
+### Added
+
+- **Event Idempotency Service** (`EventIdempotencyService`) — Server-side deduplication for analytics event dispatches. Prevents duplicate events using idempotency keys (SHA-256 fingerprinting of event name + client ID + user ID + params hash). Client-supplied idempotency keys take priority. Cache-backed O(1) lookup with configurable TTL (default: 1 hour). Hit/miss statistics tracking with duplicate rate calculation. Key invalidation support. Static `generateClientKey()` helper for frontend use.
+- **Privacy Manifest Service** (`PrivacyManifestService`) — GDPR Article 30 Records of Processing Activities (RoPA) generation. All registered catalog events classified into GDPR data categories (identifier, behavioral, financial, technical, contractual, legal, statistical, transactional). Legal basis mapping per event category. Retention period defaults per category. Third-party data flow documentation for all 5 providers. Data subject rights implementation status. Cross-border data transfer assessment (SCCs, adequacy decisions). Cache-backed manifest generation.
+- **Event Annotation Service** (`EventAnnotationService`) — Deployment markers and event tagging. Annotation types: deployment, debug, experiment, release, custom. Auto-attach annotations from config (deployment version, environment, debug flag, release tag). Cache-backed storage with configurable max annotations per event. Full CRUD API.
+- **API endpoints** — 13 new endpoints:
+  - Idempotency: `GET /api/analytics/idempotency`, `POST .../invalidate`, `POST .../reset-stats`
+  - Privacy Manifest: `GET /api/analytics/privacy-manifest`, `GET .../summary`, `GET .../classify/{eventName}`, `POST .../invalidate`
+  - Annotations: `GET /api/analytics/annotations/stats`, `POST ...`, `POST .../auto-attach`, `GET .../{eventId}`, `DELETE .../{eventId}`, `DELETE .../{eventId}/{key}`
+- **Config: `idempotency` section** — New `zeroboiler.analytics.idempotency` with configurable enabled flag, TTL, max keys, and cache prefix.
+- **Config: `privacy_manifest` section** — New `zeroboiler.analytics.privacy_manifest` with cache TTL, controller/DPO email, legal basis defaults, and retention defaults.
+- **Config: `annotations` section** — New `zeroboiler.analytics.annotations` with cache TTL, max annotations per event, and auto-attach toggles.
+- **Service registration** — All 3 new services registered as singletons in `AnalyticsServiceProvider`.
+
+### Changed
+
+- **Version sweep** — 9.2.0 → 9.3.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), ServiceProvider (@version), README badge, CHANGELOG.
+
 ## [9.2.0] - 2026-08-10
 
 ### Added

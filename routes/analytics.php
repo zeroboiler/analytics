@@ -591,4 +591,23 @@ Route::prefix('analytics')->group(function () {
     Route::get('sse', [AnalyticsSSEController::class, 'stream']);
     Route::get('sse/info', [AnalyticsSSEController::class, 'info']);
     Route::get('sse/health', [AnalyticsSSEController::class, 'health']);
+
+    // Event Idempotency (v9.3.0)
+    Route::get('idempotency', [AnalyticsEventController::class, 'idempotencyStats']);
+    Route::post('idempotency/invalidate', [AnalyticsEventController::class, 'idempotencyInvalidate']);
+    Route::post('idempotency/reset-stats', [AnalyticsEventController::class, 'idempotencyResetStats']);
+
+    // Privacy Manifest — GDPR Article 30 (v9.3.0)
+    Route::get('privacy-manifest', [AnalyticsEventController::class, 'privacyManifest']);
+    Route::get('privacy-manifest/summary', [AnalyticsEventController::class, 'privacyManifestSummary']);
+    Route::get('privacy-manifest/classify/{eventName}', [AnalyticsEventController::class, 'privacyManifestClassify']);
+    Route::post('privacy-manifest/invalidate', [AnalyticsEventController::class, 'privacyManifestInvalidate']);
+
+    // Event Annotations (v9.3.0)
+    Route::get('annotations/stats', [AnalyticsEventController::class, 'annotationStats']);
+    Route::post('annotations', [AnalyticsEventController::class, 'annotateEvent']);
+    Route::post('annotations/auto-attach', [AnalyticsEventController::class, 'autoAttachAnnotations']);
+    Route::get('annotations/{eventId}', [AnalyticsEventController::class, 'getEventAnnotations']);
+    Route::delete('annotations/{eventId}', [AnalyticsEventController::class, 'clearEventAnnotations']);
+    Route::delete('annotations/{eventId}/{key}', [AnalyticsEventController::class, 'removeEventAnnotation']);
 });

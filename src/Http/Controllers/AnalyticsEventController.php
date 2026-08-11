@@ -79,6 +79,9 @@ use ZeroBoiler\Analytics\Services\IdentityGraphService;
 use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
 use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
 use ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService;
+use ZeroBoiler\Analytics\Services\EventIdempotencyService;
+use ZeroBoiler\Analytics\Services\PrivacyManifestService;
+use ZeroBoiler\Analytics\Services\EventAnnotationService;
 
 /**
  * API controller for frontend event tracking.
@@ -9486,5 +9489,274 @@ final class AnalyticsEventController extends Controller
         $service->clearStats(is_string($provider) && $provider !== '' ? $provider : null);
 
         return response()->json(['cleared' => true]);
+    }
+
+    // ── Event Idempotency (v9.3.0) ──────────────────────────────────────
+
+    /**
+     * Check idempotency service status and statistics.
+     *
+     * GET /api/analytics/idempotency
+     *
+     * @return JsonResponse
+     */
+    public function idempotencyStats(): JsonResponse
+    {
+        /** @var EventIdempotencyService $service */
+        $service = app(EventIdempotencyService::class);
+
+        return response()->json($service->getStats());
+    }
+
+    /**
+     * Invalidate an idempotency key to allow re-dispatch.
+     *
+     * POST /api/analytics/idempotency/invalidate
+     *
+     * Body: { "key": "zb_idem_..." }
+     *
+     * @return JsonResponse
+     */
+    public function idempotencyInvalidate(Request $request): JsonResponse
+    {
+        $request->validate([
+            'key' => 'required|string',
+        ]);
+
+        /** @var EventIdempotencyService $service */
+        $service = app(EventIdempotencyService::class);
+
+        $key = (string) $request->input('key');
+        $invalidated = $service->invalidate($key);
+
+        return response()->json([
+            'invalidated' => $invalidated,
+            'key' => $key,
+        ]);
+    }
+
+    /**
+     * Reset idempotency hit/miss counters.
+     *
+     * POST /api/analytics/idempotency/reset-stats
+     *
+     * @return JsonResponse
+     */
+    public function idempotencyResetStats(): JsonResponse
+    {
+        /** @var EventIdempotencyService $service */
+        $service = app(EventIdempotencyService::class);
+        $service->resetStats();
+
+        return response()->json(['reset' => true]);
+    }
+
+    // ── Privacy Manifest (v9.3.0) ──────────────────────────────────────
+
+    /**
+     * Generate the full GDPR Article 30 privacy manifest.
+     *
+     * GET /api/analytics/privacy-manifest
+     *
+     * @return JsonResponse
+     */
+    public function privacyManifest(): JsonResponse
+    {
+        /** @var PrivacyManifestService $service */
+        $service = app(PrivacyManifestService::class);
+
+        return response()->json($service->generate());
+    }
+
+    /**
+     * Get privacy manifest summary for dashboard display.
+     *
+     * GET /api/analytics/privacy-manifest/summary
+     *
+     * @return JsonResponse
+     */
+    public function privacyManifestSummary(): JsonResponse
+    {
+        /** @var PrivacyManifestService $service */
+        $service = app(PrivacyManifestService::class);
+
+        return response()->json($service->summary());
+    }
+
+    /**
+     * Classify an event into GDPR data categories.
+     *
+     * GET /api/analytics/privacy-manifest/classify/{eventName}
+     *
+     * @return JsonResponse
+     */
+    public function privacyManifestClassify(string $eventName): JsonResponse
+    {
+        /** @var PrivacyManifestService $service */
+        $service = app(PrivacyManifestService::class);
+
+        $categories = $service->classifyEvent($eventName);
+        $legalBasis = $service->legalBasisFor($categories);
+        $retention = $service->retentionFor($categories);
+
+        return response()->json([
+            'event' => $eventName,
+            'data_categories' => $categories,
+            'legal_basis' => $legalBasis,
+            'retention_days' => $retention,
+            'contains_pii' => in_array('identifier', $categories, true),
+            'contains_financial' => in_array('financial', $categories, true),
+        ]);
+    }
+
+    /**
+     * Invalidate cached privacy manifest.
+     *
+     * POST /api/analytics/privacy-manifest/invalidate
+     *
+     * @return JsonResponse
+     */
+    public function privacyManifestInvalidate(): JsonResponse
+    {
+        /** @var PrivacyManifestService $service */
+        $service = app(PrivacyManifestService::class);
+        $service->invalidateCache();
+
+        return response()->json(['invalidated' => true]);
+    }
+
+    // ── Event Annotations (v9.3.0) ──────────────────────────────────
+
+    /**
+     * Get annotation service statistics.
+     *
+     * GET /api/analytics/annotations/stats
+     *
+     * @return JsonResponse
+     */
+    public function annotationStats(): JsonResponse
+    {
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+
+        return response()->json($service->getStats());
+    }
+
+    /**
+     * Annotate an event.
+     *
+     * POST /api/analytics/annotations
+     *
+     * Body: { "event_id": "...", "key": "deployment", "value": "v1.2.3", "type": "deployment" }
+     *
+     * @return JsonResponse
+     */
+    public function annotateEvent(Request $request): JsonResponse
+    {
+        $request->validate([
+            'event_id' => 'required|string',
+            'key' => 'required|string|max:100',
+            'value' => 'required',
+            'type' => 'string|in:deployment,debug,experiment,release,custom',
+        ]);
+
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+
+        $eventId = (string) $request->input('event_id');
+        $key = (string) $request->input('key');
+        $value = $request->input('value');
+        $type = (string) $request->input('type');
+
+        $annotated = $service->annotate($eventId, $key, $value, $type);
+
+        return response()->json([
+            'annotated' => $annotated,
+            'event_id' => $eventId,
+            'key' => $key,
+            'type' => $type,
+        ]);
+    }
+
+    /**
+     * Get annotations for an event.
+     *
+     * GET /api/analytics/annotations/{eventId}
+     *
+     * @return JsonResponse
+     */
+    public function getEventAnnotations(string $eventId): JsonResponse
+    {
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+
+        return response()->json([
+            'event_id' => $eventId,
+            'annotations' => $service->getAnnotations($eventId),
+        ]);
+    }
+
+    /**
+     * Remove an annotation from an event.
+     *
+     * DELETE /api/analytics/annotations/{eventId}/{key}
+     *
+     * @return JsonResponse
+     */
+    public function removeEventAnnotation(string $eventId, string $key): JsonResponse
+    {
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+
+        $removed = $service->removeAnnotation($eventId, $key);
+
+        return response()->json([
+            'removed' => $removed,
+            'event_id' => $eventId,
+            'key' => $key,
+        ]);
+    }
+
+    /**
+     * Clear all annotations for an event.
+     *
+     * DELETE /api/analytics/annotations/{eventId}
+     *
+     * @return JsonResponse
+     */
+    public function clearEventAnnotations(string $eventId): JsonResponse
+    {
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+        $service->clearAnnotations($eventId);
+
+        return response()->json(['cleared' => true, 'event_id' => $eventId]);
+    }
+
+    /**
+     * Trigger auto-attach annotations for an event.
+     *
+     * POST /api/analytics/annotations/auto-attach
+     *
+     * Body: { "event_id": "..." }
+     *
+     * @return JsonResponse
+     */
+    public function autoAttachAnnotations(Request $request): JsonResponse
+    {
+        $request->validate([
+            'event_id' => 'required|string',
+        ]);
+
+        /** @var EventAnnotationService $service */
+        $service = app(EventAnnotationService::class);
+
+        $eventId = (string) $request->input('event_id');
+        $attached = $service->autoAttachAnnotations($eventId);
+
+        return response()->json([
+            'event_id' => $eventId,
+            'attached' => $attached,
+        ]);
     }
 }

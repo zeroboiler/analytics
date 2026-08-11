@@ -214,6 +214,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthMonitorCommand;
 use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGuardRailsCommand;
 use ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService;
+use ZeroBoiler\Analytics\Services\EventIdempotencyService;
+use ZeroBoiler\Analytics\Services\PrivacyManifestService;
+use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
 
 /**
@@ -222,7 +225,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.2.0
+ * @version 9.3.0
  *
  * @since 1.0.0
  */
@@ -2064,6 +2067,36 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventDeliveryConfirmationService($manager, $cache, $config);
+        });
+
+        // Event Idempotency Service (v9.3.0) — deduplicate analytics event dispatches
+        $this->app->singleton(EventIdempotencyService::class, function (Application $app): EventIdempotencyService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventIdempotencyService($cache, $config);
+        });
+
+        // Privacy Manifest Service (v9.3.0) — GDPR Article 30 processing records
+        $this->app->singleton(PrivacyManifestService::class, function (Application $app): PrivacyManifestService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PrivacyManifestService($cache, $config);
+        });
+
+        // Event Annotation Service (v9.3.0) — deployment markers and event tagging
+        $this->app->singleton(EventAnnotationService::class, function (Application $app): EventAnnotationService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventAnnotationService($cache, $config);
         });
     }
 

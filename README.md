@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.2.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.3.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -11,6 +11,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 
 - [Quick Start](#quick-start)
 - [What's New in v9.2.0](#whats-new-in-v920)
++- [What's New in v9.3.0](#whats-new-in-v930)
 - [What's New in v9.1.0](#whats-new-in-v910)
 - [What's New in v9.0.0](#whats-new-in-v900)
 - [What's New in v8.9.0](#whats-new-in-v890)
@@ -81,6 +82,61 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.3.0
+
+### 🛡️ Event Idempotency Service (`EventIdempotencyService`)
+- **Server-side deduplication** — Prevents duplicate analytics event dispatches using idempotency keys
+  - SHA-256 fingerprinting of event name + client ID + user ID + params content hash
+  - Client-supplied idempotency keys take priority (for retry-safe frontend dispatch)
+  - Cache-backed O(1) lookup with configurable TTL (default: 1 hour)
+  - Hit/miss statistics tracking with duplicate rate calculation
+  - Key invalidation support for manual re-dispatch
+  - Static `generateClientKey()` helper for frontend idempotency key generation
+- **API endpoints:**
+  - `GET /api/analytics/idempotency` — Stats (enabled, TTL, hits, misses, duplicate rate)
+  - `POST /api/analytics/idempotency/invalidate` — Invalidate a specific idempotency key
+  - `POST /api/analytics/idempotency/reset-stats` — Reset hit/miss counters
+
+### 🔒 Privacy Manifest Service (`PrivacyManifestService`) — GDPR Article 30
+- **Automated Records of Processing Activities (RoPA)** generation
+  - All registered catalog events classified into GDPR data categories (identifier, behavioral, financial, technical, contractual, legal, statistical, transactional)
+  - Legal basis mapping per event category (consent, contractual necessity, legitimate interest)
+  - Retention period defaults per category (financial: 7 years, PII: 3 years, behavioral: 90 days)
+  - Third-party data flow documentation (GA4, GTM, Meta Pixel, PostHog, Plausible)
+  - Data subject rights implementation status (access, erasure, portability, objection)
+  - Cross-border data transfer assessment (SCCs, adequacy decisions)
+  - Cache-backed manifest generation for dashboard queries
+- **API endpoints:**
+  - `GET /api/analytics/privacy-manifest` — Full GDPR Article 30 manifest
+  - `GET /api/analytics/privacy-manifest/summary` — Dashboard-ready summary
+  - `GET /api/analytics/privacy-manifest/classify/{eventName}` — Per-event classification
+  - `POST /api/analytics/privacy-manifest/invalidate` — Clear cached manifest
+
+### 🏷️ Event Annotation Service (`EventAnnotationService`)
+- **Deployment markers and event tagging** — Attach metadata to analytics events
+  - Annotation types: deployment, debug, experiment, release, custom
+  - Auto-attach annotations from config (deployment version, environment, debug flag, release tag)
+  - Cache-backed storage with configurable max annotations per event (default: 20)
+  - Per-annotation CRUD (create, read, update, remove, clear all)
+  - Useful for deployment correlation analysis, A/B rollout tracking, and debug tracing
+- **API endpoints:**
+  - `GET /api/analytics/annotations/stats` — Service statistics
+  - `POST /api/analytics/annotations` — Attach annotation to event
+  - `POST /api/analytics/annotations/auto-attach` — Trigger auto-attach from config
+  - `GET /api/analytics/annotations/{eventId}` — Get all annotations for event
+  - `DELETE /api/analytics/annotations/{eventId}` — Clear all annotations
+  - `DELETE /api/analytics/annotations/{eventId}/{key}` — Remove specific annotation
+
+### ⚙️ Configuration
+- New `idempotency` config section (enabled, TTL, max keys, prefix)
+- New `privacy_manifest` config section (cache TTL, controller/DPO email, legal basis defaults, retention defaults)
+- New `annotations` config section (cache TTL, max per event, auto-attach toggles)
+
+### Changed
+- **Version sweep** — 9.2.0 → 9.3.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composable, TypeScript definitions, ServiceProvider, README badge.
+
+---
 
 ## What's New in v9.2.0
 
