@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Cache;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\EventTimelineService;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
@@ -23,7 +21,7 @@ use Illuminate\Cache\Repository as CacheRepo;
  */
 final class V103EventTimelineServiceTest extends TestCase
 {
-    private CacheRepository $cache;
+    private CacheRepo $cache;
 
     private IdentityResolutionService $identityService;
 
