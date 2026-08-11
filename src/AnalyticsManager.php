@@ -64,6 +64,9 @@ final class AnalyticsManager
 
     private EventInterceptorRegistry $interceptors;
 
+    /** @var array<string, string> Persistent event alias registry (alias → canonical name) */
+    private array $aliasRegistry = [];
+
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
      */
@@ -620,6 +623,211 @@ final class AnalyticsManager
             'screen_name' => $screenName,
             'screen_class' => $screenClass,
         ], $params));
+    }
+
+    /**
+     * Track an A/B test conversion event.
+     *
+     * Fires when a user completes a conversion goal within an experiment.
+     * Complements abTestExposure() for full experiment funnel tracking.
+     *
+     * @param  string  $experimentId  The experiment identifier
+     * @param  string  $variantId  The variant that converted
+     * @param  string  $goalName  The conversion goal name
+     * @param  array<string, mixed>  $params  Additional parameters (value, revenue, etc.)
+     */
+    public function abTestConversion(string $experimentId, string $variantId, string $goalName, array $params = []): void
+    {
+        $this->track('ab_test_conversion', array_merge([
+            'experiment_id' => $experimentId,
+            'variant_id' => $variantId,
+            'goal_name' => $goalName,
+        ], $params));
+    }
+
+    /**
+     * Track a wishlist/add-to-wishlist event.
+     *
+     * E-commerce convenience for tracking when users add items to their wishlist.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price?: float, currency?: string}  $item  Wishlisted item
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function addToWishlist(array $item, array $params = []): void
+    {
+        $this->track('add_to_wishlist', array_merge([
+            'currency' => $item['currency'] ?? 'USD',
+            'value' => (float) ($item['price'] ?? 0),
+            'items' => [$item],
+        ], $params));
+    }
+
+    /**
+     * Track a promotion view event.
+     *
+     * E-commerce convenience for tracking promotional banner/content views.
+     *
+     * @param  string  $promotionId  Promotion identifier
+     * @param  string  $promotionName  Promotion display name
+     * @param  string|null  $creativeName  Creative/banner name
+     * @param  string|null  $creativeSlot  Creative slot position
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function promotionView(
+        string $promotionId,
+        string $promotionName,
+        ?string $creativeName = null,
+        ?string $creativeSlot = null,
+        array $params = [],
+    ): void {
+        $this->track('view_promotion', array_filter(array_merge([
+            'promotion_id' => $promotionId,
+            'promotion_name' => $promotionName,
+            'creative_name' => $creativeName,
+            'creative_slot' => $creativeSlot,
+        ], $params)));
+    }
+
+    /**
+     * Track Monthly Recurring Revenue change.
+     *
+     * SaaS revenue convenience for tracking MRR movements
+     * (new, expansion, contraction, churn, reactivation).
+     *
+     * @param  float  $amount  MRR amount
+     * @param  string  $movementType  Movement type: new, expansion, contraction, churn, reactivation
+     * @param  string|null  $planName  Subscription plan name
+     * @param  string|null  $userId  User ID (optional)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackMrr(
+        float $amount,
+        string $movementType,
+        ?string $planName = null,
+        ?string $userId = null,
+        array $params = [],
+    ): void {
+        $this->track('mrr_movement', array_filter(array_merge([
+            'amount' => $amount,
+            'currency' => $params['currency'] ?? 'USD',
+            'movement_type' => $movementType,
+            'plan_name' => $planName,
+            'user_id' => $userId,
+        ], $params)));
+    }
+
+    /**
+     * Track Annual Recurring Revenue milestone.
+     *
+     * SaaS revenue convenience for tracking ARR snapshots.
+     *
+     * @param  float  $arr  Total ARR amount
+     * @param  int|null  $customerCount  Active customer count
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackArr(float $arr, ?int $customerCount = null, array $params = []): void
+    {
+        $this->track('arr_snapshot', array_filter(array_merge([
+            'arr' => $arr,
+            'currency' => $params['currency'] ?? 'USD',
+            'customer_count' => $customerCount,
+        ], $params)));
+    }
+
+    /**
+     * Track a customer churn event with revenue impact.
+     *
+     * SaaS revenue convenience combining cancellation tracking with
+     * MRR impact analysis.
+     *
+     * @param  string|null  $userId  Churned user ID
+     * @param  string|null  $planName  Cancelled plan name
+     * @param  float|null  $lostMrr  MRR lost from this churn
+     * @param  string|null  $reason  Churn reason
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackChurn(
+        ?string $userId = null,
+        ?string $planName = null,
+        ?float $lostMrr = null,
+        ?string $reason = null,
+        array $params = [],
+    ): void {
+        $this->track('churn', array_filter(array_merge([
+            'user_id' => $userId,
+            'plan_name' => $planName,
+            'lost_mrr' => $lostMrr,
+            'currency' => $params['currency'] ?? 'USD',
+            'reason' => $reason,
+        ], $params)));
+    }
+
+    /**
+     * Track Customer Lifetime Value calculation point.
+     *
+     * SaaS revenue convenience for tracking LTV at key milestones
+     * (payment, renewal, upgrade).
+     *
+     * @param  float  $ltv  Calculated LTV amount
+     * @param  string|null  $userId  User ID
+     * @param  string|null  $planName  Current plan
+     * @param  string|null  $trigger  What triggered the LTV calculation
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trackLtv(
+        float $ltv,
+        ?string $userId = null,
+        ?string $planName = null,
+        ?string $trigger = null,
+        array $params = [],
+    ): void {
+        $this->track('ltv_calculated', array_filter(array_merge([
+            'ltv' => $ltv,
+            'currency' => $params['currency'] ?? 'USD',
+            'user_id' => $userId,
+            'plan_name' => $planName,
+            'trigger' => $trigger,
+        ], $params)));
+    }
+
+    /**
+     * Register a persistent event alias mapping.
+     *
+     * Registered aliases are stored for the request lifecycle and can be
+     * used by trackWithAlias() for automatic resolution. Useful for
+     * standardizing event names across teams or microservices.
+     *
+     * @param  array<string, string>  $aliases  Map of alias → canonical name
+     * @return void
+     */
+    public function registerAliases(array $aliases): void
+    {
+        foreach ($aliases as $alias => $canonical) {
+            $this->aliasRegistry[$alias] = $canonical;
+        }
+    }
+
+    /**
+     * Resolve an event alias to its canonical name.
+     *
+     * If the name is not a registered alias, it is returned unchanged.
+     *
+     * @param  string  $name  Event name or alias
+     * @return string  Canonical event name
+     */
+    public function resolveAlias(string $name): string
+    {
+        return $this->aliasRegistry[$name] ?? $name;
+    }
+
+    /**
+     * Get all registered event aliases.
+     *
+     * @return array<string, string>
+     */
+    public function getAliases(): array
+    {
+        return $this->aliasRegistry;
     }
 
     /**

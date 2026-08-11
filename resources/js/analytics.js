@@ -146,6 +146,7 @@ function flushPendingOnUnload() {
  */
 export function destroy() {
     window.removeEventListener('beforeunload', flushPendingOnUnload);
+    clearDebounceAndThrottleTimers();
     if (flushTimer) {
         clearInterval(flushTimer);
         flushTimer = null;
@@ -172,7 +173,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-      return '15.0.0';
+      return '16.0.0';
 }
 
 /**
@@ -187,6 +188,122 @@ export function getTrackingId() {
  */
 export function getApiBaseUrl() {
     return apiBaseUrl;
+}
+
+// ─── Debounced & Throttled Tracking (v16.0.0) ────────────────────────────────
+
+/**
+ * Internal debounce timer registry keyed by event name.
+ * @type {Object<string, number|null>}
+ */
+const debounceTimers = {};
+
+/**
+ * Internal throttle registry keyed by event name.
+ * @type {Object<string, {lastCall: number, timer: number|null}>}
+ */
+const throttleState = {};
+
+/**
+ * Track an event with debouncing — only fires once the caller stops
+ * invoking for the specified delay.
+ *
+ * Ideal for scroll depth, resize, and keystroke events where you only
+ * want the final value.
+ *
+ * @param {string} name - Event name
+ * @param {Object} [params={}] - Event parameters
+ * @param {Object} [options={}] - Options
+ * @param {number} [options.delay=300] - Debounce delay in ms
+ * @param {boolean} [options.immediate=false] - Fire immediately on first call, then debounce
+ *
+ * @example
+ * // Only track scroll depth after user stops scrolling for 500ms
+ * window.addEventListener('scroll', () => {
+ *     trackDebounced('scroll_depth', { depth: calculateDepth() }, { delay: 500 });
+ * });
+ */
+export function trackDebounced(name, params = {}, options = {}) {
+    const delay = options.delay || 300;
+    const immediate = options.immediate || false;
+
+    if (immediate && debounceTimers[name] === undefined) {
+        trackEvent(name, params, { immediate: true });
+    }
+
+    if (debounceTimers[name] !== null && debounceTimers[name] !== undefined) {
+        clearTimeout(debounceTimers[name]);
+    }
+
+    debounceTimers[name] = setTimeout(() => {
+        debounceTimers[name] = null;
+        if (!immediate) {
+            trackEvent(name, params, { immediate: true });
+        }
+    }, delay);
+}
+
+/**
+ * Track an event with throttling — fires at most once per interval.
+ *
+ * The first call fires immediately; subsequent calls within the interval
+ * are dropped. A trailing call fires after the interval elapses if
+ * a call was suppressed.
+ *
+ * Ideal for click, mousemove, and high-frequency UI events.
+ *
+ * @param {string} name - Event name
+ * @param {Object} [params={}] - Event parameters
+ * @param {Object} [options={}] - Options
+ * @param {number} [options.interval=1000] - Throttle interval in ms
+ * @param {boolean} [options.trailing=true] - Fire a trailing event after interval
+ *
+ * @example
+ * // Track clicks at most once per second
+ * button.addEventListener('click', () => {
+ *     trackThrottled('rapid_click', { button: 'cta' }, { interval: 1000 });
+ * });
+ */
+export function trackThrottled(name, params = {}, options = {}) {
+    const interval = options.interval || 1000;
+    const trailing = options.trailing !== false;
+    const now = Date.now();
+
+    if (!throttleState[name]) {
+        throttleState[name] = { lastCall: 0, timer: null };
+    }
+
+    const state = throttleState[name];
+    const elapsed = now - state.lastCall;
+
+    if (elapsed >= interval) {
+        state.lastCall = now;
+        trackEvent(name, params, { immediate: true });
+    } else if (trailing && state.timer === null) {
+        state.timer = setTimeout(() => {
+            state.timer = null;
+            state.lastCall = Date.now();
+            trackEvent(name, params, { immediate: true });
+        }, interval - elapsed);
+    }
+}
+
+/**
+ * Clear all debounce and throttle timers. Useful for cleanup.
+ */
+export function clearDebounceAndThrottleTimers() {
+    for (const name in debounceTimers) {
+        if (debounceTimers[name] !== null && debounceTimers[name] !== undefined) {
+            clearTimeout(debounceTimers[name]);
+        }
+        delete debounceTimers[name];
+    }
+    for (const name in throttleState) {
+        if (throttleState[name] && throttleState[name].timer !== null) {
+            clearTimeout(throttleState[name].timer);
+        }
+        delete throttleState[name];
+    }
 }
 
 // ─── GA4 Initialization ─────────────────────────────────────────────────
@@ -3657,7 +3774,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-      return '15.0.0';
+      return '16.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

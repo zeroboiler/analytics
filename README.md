@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-15.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-16.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v16.0.0](#whats-new-in-v16000)
 +- [What's New in v15.0.0](#whats-new-in-v15000)
 +- [What's New in v14.0.0](#whats-new-in-v14000)
 +- [What's New in v13.0.0](#whats-new-in-v13000)
@@ -101,6 +102,34 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Upgrading](#upgrading)
 - [License](#license)
 
+## What's New in v16.0.0
+
+### 💰 SaaS Revenue Convenience Methods
+- **`trackMrr()`** — Track Monthly Recurring Revenue movements (new, expansion, contraction, churn, reactivation). Each call includes amount, currency, movement type, plan name, and user ID. Critical for subscription analytics dashboards.
+- **`trackArr()`** — Track Annual Recurring Revenue snapshots with customer count. Ideal for monthly/quarterly ARR reporting events.
+- **`trackChurn()`** — Track customer churn with revenue impact analysis. Combines cancellation tracking with MRR loss, plan name, and churn reason in a single event.
+- **`trackLtv()`** — Track Customer Lifetime Value calculation points at key milestones (payment, renewal, upgrade). Includes trigger context for funnel analysis.
+
+### 🧪 A/B Test Conversion Tracking
+- **`abTestConversion()`** — Fire conversion events for A/B test goals. Complements the existing `abTestExposure()` for complete experiment funnel tracking (exposure → conversion).
+
+### 🛒 E-Commerce Extended Convenience
+- **`addToWishlist()`** — Track wishlist additions with GA4-compatible item format and currency.
+- **`promotionView()`** — Track promotional banner/content views with promotion ID, name, creative name, and slot position.
+
+### 🔗 Event Alias Registry
+- **`registerAliases()`** — Register persistent event name aliases (alias → canonical name mapping). Stored for request lifecycle.
+- **`resolveAlias()`** — Resolve an aliased event name to its canonical form. Returns unchanged name if not registered.
+- **`getAliases()`** — Inspect all registered aliases.
+- Complements the existing `EventAliasResolver` service with a lightweight in-memory registry for microservice and cross-team name standardization.
+
+### 📦 Client-Side Debounced Tracking (JS)
+- **`trackDebounced()`** — JS client method that debounces rapid-fire events (scroll, resize, keystroke) with configurable delay (default 300ms). Only the last event within the window is dispatched.
+- **`trackThrottled()`** — JS client method that throttles events to fire at most once per interval (default 1000ms). First event fires immediately; subsequent calls within the window are dropped.
+
+### 🔄 Version Sweep
+- Version bumped to 16.0.0 across all layers: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand, DiagnosticCommand, README badge, CHANGELOG.
+
 ## What's New in v15.0.0
 
 ### 🔧 Lifecycle Config Section
@@ -186,7 +215,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~131K source, 224 test files
+**LOC:** ~131K source, 225 test files
 
 ## What's New in v10.8.0
 
@@ -3346,7 +3375,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 224 test files, 14,600+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
+- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 225 test files, 14,600+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 

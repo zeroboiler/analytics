@@ -446,7 +446,7 @@ final class AnalyticsDiagnosticCommand extends Command
             return $this->failCount > 0 ? 1 : 0;
         }
 
-        $this->components->info('ZeroBoiler Analytics Diagnostic v15.0.0');
+        $this->components->info('ZeroBoiler Analytics Diagnostic v16.0.0');
         $this->newLine();
 
         $headers = ['Status', 'Section', 'Message'];

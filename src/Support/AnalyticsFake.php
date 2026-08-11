@@ -57,7 +57,7 @@ use ZeroBoiler\Analytics\Trackers\WebhookTracker;
  *   });
  *
  * @since 10.4.0
- * @version 15.0.0 Full AnalyticsManager proxy coverage
+ * @version 16.0.0 Full AnalyticsManager proxy coverage
  */
 final class AnalyticsFake
 {
@@ -514,6 +514,56 @@ final class AnalyticsFake
     public function abTestExposure(string $experimentId, string $variantId, array $params = []): void
     {
         $this->track('ab_test_exposure', array_merge(['experiment_id' => $experimentId, 'variant_id' => $variantId], $params));
+    }
+
+    public function abTestConversion(string $experimentId, string $variantId, string $goalName, array $params = []): void
+    {
+        $this->track('ab_test_conversion', array_merge(['experiment_id' => $experimentId, 'variant_id' => $variantId, 'goal_name' => $goalName], $params));
+    }
+
+    public function addToWishlist(array $item, array $params = []): void
+    {
+        $this->track('add_to_wishlist', array_merge(['currency' => $item['currency'] ?? 'USD', 'value' => (float) ($item['price'] ?? 0), 'items' => [$item]], $params));
+    }
+
+    public function promotionView(string $promotionId, string $promotionName, ?string $creativeName = null, ?string $creativeSlot = null, array $params = []): void
+    {
+        $this->track('view_promotion', array_filter(array_merge(['promotion_id' => $promotionId, 'promotion_name' => $promotionName, 'creative_name' => $creativeName, 'creative_slot' => $creativeSlot], $params)));
+    }
+
+    public function trackMrr(float $amount, string $movementType, ?string $planName = null, ?string $userId = null, array $params = []): void
+    {
+        $this->track('mrr_movement', array_filter(array_merge(['amount' => $amount, 'currency' => $params['currency'] ?? 'USD', 'movement_type' => $movementType, 'plan_name' => $planName, 'user_id' => $userId], $params)));
+    }
+
+    public function trackArr(float $arr, ?int $customerCount = null, array $params = []): void
+    {
+        $this->track('arr_snapshot', array_filter(array_merge(['arr' => $arr, 'currency' => $params['currency'] ?? 'USD', 'customer_count' => $customerCount], $params)));
+    }
+
+    public function trackChurn(?string $userId = null, ?string $planName = null, ?float $lostMrr = null, ?string $reason = null, array $params = []): void
+    {
+        $this->track('churn', array_filter(array_merge(['user_id' => $userId, 'plan_name' => $planName, 'lost_mrr' => $lostMrr, 'currency' => $params['currency'] ?? 'USD', 'reason' => $reason], $params)));
+    }
+
+    public function trackLtv(float $ltv, ?string $userId = null, ?string $planName = null, ?string $trigger = null, array $params = []): void
+    {
+        $this->track('ltv_calculated', array_filter(array_merge(['ltv' => $ltv, 'currency' => $params['currency'] ?? 'USD', 'user_id' => $userId, 'plan_name' => $planName, 'trigger' => $trigger], $params)));
+    }
+
+    public function registerAliases(array $aliases): void
+    {
+        // No-op in fake — aliasing is captured via track()
+    }
+
+    public function resolveAlias(string $name): string
+    {
+        return $name;
+    }
+
+    public function getAliases(): array
+    {
+        return [];
     }
 
     public function notification(string $channel, string $action, ?string $notificationType = null, array $params = []): void

@@ -2,6 +2,28 @@
 
 All notable changes to the package will be documented in this file.
 
+## [16.0.0] - 2026-08-11
+
+### Added
+
+- **SaaS Revenue convenience methods** — `trackMrr()`, `trackArr()`, `trackChurn()`, `trackLtv()` on AnalyticsManager for industry-standard SaaS revenue tracking. MRR movements (new, expansion, contraction, churn, reactivation), ARR snapshots, churn with revenue impact, and LTV calculation milestones.
+- **`abTestConversion()`** — A/B test conversion event shorthand. Complements existing `abTestExposure()` for full experiment funnel tracking.
+- **`addToWishlist()`** — E-commerce wishlist event with GA4-compatible item format.
+- **`promotionView()`** — E-commerce promotion/banner view event with creative tracking.
+- **Event Alias Registry** — `registerAliases()`, `resolveAlias()`, `getAliases()` on AnalyticsManager for in-memory event name aliasing. Complements `EventAliasResolver` service with lightweight request-scoped registry.
+- **`$aliasRegistry` property** on AnalyticsManager for persistent alias storage.
+- **Client-side debounced tracking** — `trackDebounced()` JS client method with configurable delay (default 300ms) and optional immediate mode. Integrates into `destroy()` cleanup.
+- **Client-side throttled tracking** — `trackThrottled()` JS client method with configurable interval (default 1000ms) and trailing call support. Integrates into `destroy()` cleanup.
+- **`clearDebounceAndThrottleTimers()`** — JS cleanup for all debounce/throttle timers.
+- **AnalyticsFake proxy methods** — All 12 new methods proxied in AnalyticsFake (abTestConversion, addToWishlist, promotionView, trackMrr, trackArr, trackChurn, trackLtv, registerAliases, resolveAlias, getAliases).
+- **TypeScript definitions** — `trackDebounced()`, `trackThrottled()`, `clearDebounceAndThrottleTimers()` added to `analytics.d.ts`.
+- **README v16.0.0 What's New section** — Revenue methods, A/B test conversion, e-commerce helpers, event alias registry, client-side debounce/throttle, version sweep.
+- **`V1600RevenueConvenienceAliasDebounceTest`** — Comprehensive test covering all v16.0.0 features.
+
+### Changed
+
+- **Version sweep** — 15.0.0 → 16.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsDiagnosticCommand, AnalyticsFake version, README badge, CHANGELOG.
+
 ## [15.0.0] - 2026-08-11
 
 ### Added

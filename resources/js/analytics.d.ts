@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 15.0.0
+ * @version 16.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -200,6 +200,32 @@ export function getTrackingId(): string | null;
  * Get the configured API base URL.
  */
 export function getApiBaseUrl(): string;
+
+// ─── Debounced & Throttled Tracking (v16.0.0) ─────────────────────────
+
+/**
+ * Track an event with debouncing — only fires once the caller stops
+ * invoking for the specified delay.
+ */
+export function trackDebounced(
+  name: string,
+  params?: Record<string, unknown>,
+  options?: { delay?: number; immediate?: boolean },
+): void;
+
+/**
+ * Track an event with throttling — fires at most once per interval.
+ */
+export function trackThrottled(
+  name: string,
+  params?: Record<string, unknown>,
+  options?: { interval?: number; trailing?: boolean },
+): void;
+
+/**
+ * Clear all debounce and throttle timers.
+ */
+export function clearDebounceAndThrottleTimers(): void;
 
 // ─── Event Tracking ────────────────────────────────────────────────────
 
