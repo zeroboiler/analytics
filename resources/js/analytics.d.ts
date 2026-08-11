@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 13.0.0
+ * @version 14.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -1593,7 +1593,7 @@ export function fetchSignalAnomalies(): Promise<{ anomalies: SignalAnomaly[] } |
  */
 export function fetchSignalProviders(): Promise<{ providers: Record<string, ProviderSignal> } | null>;
 
-// ─── Offline Event Buffer (v13.0.0) ──────────────────────────────
+// ─── Offline Event Buffer (v14.0.0) ──────────────────────────────
 
 /**
  * Check if the browser is currently offline.

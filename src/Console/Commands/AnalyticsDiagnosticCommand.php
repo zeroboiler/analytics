@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
  * - JS client compatibility (version, config completeness)
  * - Service registration readiness
  *
- * @since 13.0.0
+ * @since 14.0.0
  */
 final class AnalyticsDiagnosticCommand extends Command
 {
@@ -446,7 +446,7 @@ final class AnalyticsDiagnosticCommand extends Command
             return $this->failCount > 0 ? 1 : 0;
         }
 
-        $this->components->info('ZeroBoiler Analytics Diagnostic v13.0.0');
+        $this->components->info('ZeroBoiler Analytics Diagnostic v14.0.0');
         $this->newLine();
 
         $headers = ['Status', 'Section', 'Message'];

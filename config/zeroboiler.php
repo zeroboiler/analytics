@@ -455,12 +455,16 @@ return [
         | Enable by setting ANALYTICS_PLAUSIBLE_ENABLED=true and providing
         | your site domain and API key.
         |
+        | For self-hosted Plausible instances, set `base_url` to your instance
+        | API endpoint and `custom_script_url` to your tracking script path.
+        |
         */
         'plausible' => [
             'enabled' => env('ANALYTICS_PLAUSIBLE_ENABLED', false),
             'domain' => env('ANALYTICS_PLAUSIBLE_DOMAIN', ''),
             'api_key' => env('ANALYTICS_PLAUSIBLE_API_KEY', ''),
             'base_url' => env('ANALYTICS_PLAUSIBLE_BASE_URL', 'https://plausible.io/api/event'),
+            'custom_script_url' => env('ANALYTICS_PLAUSIBLE_CUSTOM_SCRIPT_URL'), // e.g., 'https://stats.example.com/js/script.js'
         ],
 
         /*

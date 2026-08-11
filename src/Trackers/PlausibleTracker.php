@@ -16,9 +16,11 @@ use ZeroBoiler\Analytics\DTO\ConsentState;
  * Plausible Analytics — privacy-focused, cookie-free analytics.
  *
  * Tracks events server-side via the Plausible API event endpoint.
- * Supports custom events with properties.
+ * Supports custom events with properties, self-hosted instances,
+ * and automatic script URL generation for custom domains.
  *
  * @since 1.0.0
+ * @see https://plausible.io/docs/api-event
  */
 final class PlausibleTracker implements TrackerInterface
 {
@@ -32,16 +34,21 @@ final class PlausibleTracker implements TrackerInterface
 
     private bool $enabled;
 
+    /** @var string|null Custom script URL for self-hosted instances (e.g., 'stats.example.com/js/script.js') */
+    private ?string $customScriptUrl;
+
     public function __construct(
         string $domain,
         string $apiKey = '',
         string $baseUrl = 'https://plausible.io/api/event',
         bool $enabled = false,
+        ?string $customScriptUrl = null,
     ): void {
         $this->domain = $domain;
         $this->apiKey = $apiKey;
         $this->baseUrl = $baseUrl;
         $this->enabled = $enabled;
+        $this->customScriptUrl = $customScriptUrl;
         $this->consent = ConsentState::granted();
     }
 
@@ -65,7 +72,12 @@ final class PlausibleTracker implements TrackerInterface
         ];
 
         // Clean up props — remove internal fields
-        unset($payload['props']['page_location'], $payload['props']['page_referrer'], $payload['props']['url'], $payload['props']['referrer']);
+        unset(
+            $payload['props']['page_location'],
+            $payload['props']['page_referrer'],
+            $payload['props']['url'],
+            $payload['props']['referrer'],
+        );
 
         // Remove null/empty values
         $payload = array_filter($payload, fn (mixed $v): bool => $v !== null && $v !== '');
@@ -92,6 +104,53 @@ final class PlausibleTracker implements TrackerInterface
         }
     }
 
+    /**
+     * Track a custom Plausible goal/event with specific page URL.
+     *
+     * Useful for tracking events on SPA routes where the page URL
+     * differs from the server-rendered URL.
+     *
+     * @param array<string, mixed> $props Custom event properties
+     */
+    public function trackGoal(string $name, string $url, array $props = []): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        $event = new AnalyticsEvent(
+            name: $name,
+            params: array_merge($props, ['url' => $url]),
+        );
+
+        $this->track($event);
+    }
+
+    /**
+     * Track a page view with a specific URL.
+     *
+     * Sends a standard pageview event to Plausible.
+     * Useful for server-side pageview tracking in SSR or API contexts.
+     */
+    public function trackPageView(string $url, ?string $referrer = null): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        $params = ['url' => $url];
+        if ($referrer !== null) {
+            $params['referrer'] = $referrer;
+        }
+
+        $event = new AnalyticsEvent(
+            name: 'pageview',
+            params: $params,
+        );
+
+        $this->track($event);
+    }
+
     #[\Override]
     public function isEnabled(): bool
     {
@@ -105,6 +164,14 @@ final class PlausibleTracker implements TrackerInterface
     {
         if (! $this->isEnabled()) {
             return '';
+        }
+
+        if ($this->customScriptUrl !== '') {
+            return <<<HTML
+<!-- Plausible Analytics (Self-Hosted) -->
+<script defer data-domain="{$this->domain}" src="{$this->customScriptUrl}"></script>
+<!-- End Plausible Analytics -->
+HTML;
         }
 
         return <<<HTML
@@ -135,5 +202,18 @@ HTML;
     public function getDomain(): string
     {
         return $this->domain;
+    }
+
+    public function getCustomScriptUrl(): ?string
+    {
+        return $this->customScriptUrl;
+    }
+
+    /**
+     * Check if this tracker is using a self-hosted Plausible instance.
+     */
+    public function isSelfHosted(): bool
+    {
+        return $this->customScriptUrl !== null && $this->customScriptUrl !== '';
     }
 }

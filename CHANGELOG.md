@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [14.0.0] - 2026-08-11
+
+### Added
+
+- **PlausibleTracker enhanced with self-hosted support** — New `customScriptUrl` constructor parameter for self-hosted Plausible instances. New `trackGoal()` method for custom goal tracking with specific URLs (SPA support). New `trackPageView()` method for server-side pageview tracking. New `isSelfHosted()` and `getCustomScriptUrl()` accessors. Head scripts automatically use custom script URL when configured.
+- **PosthogTracker enhanced with CAPI, identity, and feature flags** — New `trackWithPerson()` method for Conversions API event dispatch with $set person properties. New `identify()` method for server-side $identify events. New `alias()` method for anonymous-to-authenticated identity merging. New `trackPageView()` method for $pageview events with URL/referrer/title. New `isFeatureEnabled()` method for server-side feature flag evaluation via PostHog API. Constructor now accepts `capiEnabled` and `capturePath` parameters.
+- **ServiceProvider singleton registration for Plausible & PostHog** — Both trackers now registered as config-driven singletons in `AnalyticsServiceProvider`, matching the pattern used by GA4, GTM, and Meta. Resolves from config: `zeroboiler.analytics.plausible` and `zeroboiler.analytics.posthog`. Supports all new constructor parameters including self-hosted script URL and CAPI settings.
+- **Config expansion** — New `ANALYTICS_PLAUSIBLE_CUSTOM_SCRIPT_URL` environment variable for self-hosted Plausible tracking scripts.
+- **Comprehensive tracker test suite** — `V1400PlausiblePosthogProviderSuiteTest` with 40+ test cases covering: construction, enabled/disabled states, script generation (cloud + self-hosted), consent management, event tracking, PostHog CAPI dispatch, identify, alias, pageview, feature flags, GDPR reset, interface contract verification (TrackerInterface, final classes, strict types).
+
+### Changed
+
+- **Version sweep** — 13.0.0 → 14.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsDiagnosticCommand, CHANGELOG, version assertion tests.
+
 ## [13.0.0] - 2026-08-11
 
 ### Added

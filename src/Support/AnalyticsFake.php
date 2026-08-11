@@ -57,7 +57,7 @@ use ZeroBoiler\Analytics\Trackers\WebhookTracker;
  *   });
  *
  * @since 10.4.0
- * @version 13.0.0 Full AnalyticsManager proxy coverage
+ * @version 14.0.0 Full AnalyticsManager proxy coverage
  */
 final class AnalyticsFake
 {

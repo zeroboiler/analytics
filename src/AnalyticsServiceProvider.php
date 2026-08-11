@@ -42,6 +42,8 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
+use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
+use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 use ZeroBoiler\Analytics\Queue\EventReplayQueue;
 use ZeroBoiler\Analytics\Services\CohortAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventAggregationService;
@@ -237,7 +239,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 13.0.0
+ * @version 14.0.0
  *
  * @since 1.0.0
  */
@@ -2211,6 +2213,39 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $cache = $app->make('cache');
 
             return new AnalyticsConsistencyService($manager, $config, $cache);
+        });
+
+        // Plausible Analytics tracker (v14.0.0) — config-driven singleton
+        $this->app->singleton(PlausibleTracker::class, function (Application $app): PlausibleTracker {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $plausibleConfig = $config->get('zeroboiler.analytics.plausible', []);
+            /** @var array{enabled?: bool, domain?: string, api_key?: string, base_url?: string, custom_script_url?: string} $plausibleConfig */
+
+            return new PlausibleTracker(
+                domain: (string) ($plausibleConfig['domain'] ?? ''),
+                apiKey: (string) ($plausibleConfig['api_key'] ?? ''),
+                baseUrl: (string) ($plausibleConfig['base_url'] ?? 'https://plausible.io/api/event'),
+                enabled: (bool) ($plausibleConfig['enabled'] ?? false),
+                customScriptUrl: isset($plausibleConfig['custom_script_url']) ? (string) $plausibleConfig['custom_script_url'] : null,
+            );
+        });
+
+        // PostHog Analytics tracker (v14.0.0) — config-driven singleton
+        $this->app->singleton(PosthogTracker::class, function (Application $app): PosthogTracker {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $posthogConfig = $config->get('zeroboiler.analytics.posthog', []);
+            /** @var array{enabled?: bool, api_key?: string, host?: string, project_id?: string, capi_enabled?: bool, capture_path?: string} $posthogConfig */
+
+            return new PosthogTracker(
+                apiKey: (string) ($posthogConfig['api_key'] ?? ''),
+                host: (string) ($posthogConfig['host'] ?? 'https://eu.posthog.com'),
+                projectId: (string) ($posthogConfig['project_id'] ?? ''),
+                enabled: (bool) ($posthogConfig['enabled'] ?? false),
+                capiEnabled: (bool) ($posthogConfig['capi_enabled'] ?? true),
+                capturePath: (string) ($posthogConfig['capture_path'] ?? '/capture/'),
+            );
         });
 
         // Event Sanitization (v13.0.0)
