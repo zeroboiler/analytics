@@ -224,6 +224,8 @@ use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
 use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
+use ZeroBoiler\Analytics\Services\EventTimelineService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -231,7 +233,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 10.0.0
+ * @version 10.3.0
  *
  * @since 1.0.0
  */
@@ -2155,6 +2157,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Analytics Instrumentation Advisor (v9.7.0) — code-snippet level guidance
         $this->app->singleton(AnalyticsInstrumentationAdvisor::class);
+
+        // Event Timeline Service (v10.3.0) — chronological event timelines
+        $this->app->singleton(EventTimelineService::class, function (Application $app): EventTimelineService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var IdentityResolutionService $identityService */
+            $identityService = $app->make(IdentityResolutionService::class);
+            $timelineConfig = $config->get('zeroboiler.analytics.timeline', []);
+
+            return new EventTimelineService($cache, $identityService, $timelineConfig);
+        });
     }
 
     /**
@@ -2195,6 +2210,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsHealthMonitorCommand::class,
                 AnalyticsGuardRailsCommand::class,
                 AnalyticsDeliveryCommand::class,
+                AnalyticsTimelineCommand::class,
             ]);
         }
 

@@ -538,6 +538,31 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Event Timeline (v10.3.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Chronological event timeline for user journey analysis and dashboard
+        | rendering. Records events per client ID with session grouping,
+        | funnel annotation, and gap detection for churn-risk identification.
+        |
+        | Inspired by Amplitude User Lookup, Mixpanel User Profile, and
+        | PostHog User Activity feeds.
+        |
+        */
+        'timeline' => [
+            'enabled' => env('ANALYTICS_TIMELINE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_TIMELINE_CACHE_TTL', 3600), // 1 hour
+            'max_entries' => (int) env('ANALYTICS_TIMELINE_MAX_ENTRIES', 500),
+            'session_timeout' => (int) env('ANALYTICS_TIMELINE_SESSION_TIMEOUT', 1800), // 30 minutes (seconds)
+            'gap_thresholds' => [
+                'trial_start_to_login' => 172800, // 48 hours
+                'signup_to_trial' => 604800,     // 7 days
+                'purchase_to_return' => 2592000,  // 30 days
+            ],
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | Audit Logging
         |--------------------------------------------------------------------------

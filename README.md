@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.3.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,9 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.3.0](#whats-new-in-v1030)
++- [What's New in v10.2.0](#whats-new-in-v1020)
++- [What's New in v10.1.0](#whats-new-in-v1010)
 - [What's New in v10.0.0](#whats-new-in-v10000)
 - [What's New in v9.9.0](#whats-new-in-v990)
 - [What's New in v9.8.0](#whats-new-in-v980)
@@ -1836,6 +1839,81 @@ $result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
 - **Meta Pixel**: `content_ids` array types, `num_items` consistency, `content_type` for e-commerce events
 - **PostHog**: Reserved `$properties` detection, `$currency` format warning
 - **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
+
+## What's New in v10.3.0
+
+### 📊 Event Timeline Service (`EventTimelineService`)
+
+Industry-standard user event timeline for SaaS analytics dashboards — inspired by Amplitude User Lookup, Mixpanel User Profile, and PostHog User Activity feeds.
+
+**Key capabilities:**
+- **Chronological event timeline** — `getTimeline('client-123')` returns events sorted by timestamp with pagination support
+- **User-scoped timelines** — `getUserTimeline(userId)` resolves all linked client IDs and merges timelines using `IdentityResolutionService`
+- **Funnel step annotation** — `getAnnotatedTimeline()` marks each event's position in configured funnels (signup → trial → subscribe)
+- **Event gap detection** — `detectGaps()` identifies time windows between critical events exceeding configured thresholds (e.g., trial started but no login in 48h)
+- **Session-bound grouping** — Groups events into sessions using configurable session timeout (default: 30 min)
+- **Provider coverage overlay** — Each timeline entry annotated with which providers received the event
+- **Configurable retention** — Timeline entries cached with configurable TTL and max entries per identity
+- **Cache-backed** — Per-identity cache keys with automatic eviction on exceeding max entries
+
+**API Endpoints:**
+```
+GET  /api/analytics/timeline/{clientId}          — Client ID event timeline
+GET  /api/analytics/timeline/user/{userId}      — User-scoped merged timeline
+GET  /api/analytics/timeline/{clientId}/gaps    — Event gap detection
+GET  /api/analytics/timeline/{clientId}/sessions — Session-grouped timeline
+```
+
+**Configuration:**
+```php
+'timeline' => [
+    'enabled' => env('ANALYTICS_TIMELINE_ENABLED', true),
+    'cache_ttl' => (int) env('ANALYTICS_TIMELINE_CACHE_TTL', 3600), // 1 hour
+    'max_entries' => (int) env('ANALYTICS_TIMELINE_MAX_ENTRIES', 500),
+    'session_timeout' => (int) env('ANALYTICS_TIMELINE_SESSION_TIMEOUT', 1800), // 30 minutes
+    'gap_thresholds' => [
+        'trial_start_to_login' => 172800, // 48 hours
+        'signup_to_trial' => 604800,     // 7 days
+        'purchase_to_return' => 2592000,  // 30 days
+    ],
+],
+```
+
+**Artisan Command:**
+```bash
+php artisan zb:analytics:timeline {clientId} --user --gaps --sessions --json --limit=50
+```
+
+### 🧪 Tests
+- `V103EventTimelineServiceTest` — 30+ assertions covering timeline, user merge, gaps, sessions, cache, and config
+
+### 🔢 Version Sweep
+- 10.2.0 → 10.3.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
+
+## What's New in v10.2.0
+
+### 🔗 9-Provider Full Client Coverage
+
+**Expanded client-side coverage for Mixpanel and Amplitude trackers:**
+- **Mixpanel client integration** — `trackEvent()` and `trackPageView()` now dispatch to `window.mixpanel.track()` when the Mixpanel JS SDK is loaded
+- **Amplitude client integration** — `trackEvent()` and `trackPageView()` now dispatch to `window.amplitude.logEvent()` when the Amplitude JS SDK is loaded
+- **Identity propagation** — `setTrackingId()` sets `mixpanel.register({ zb_client_id })` and `amplitude.setDeviceId()` for cross-device identity continuity
+- **9 providers total** — GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook + Server-Sent Events
+
+### 📋 Event Catalog Summary & Billing Events
+
+- **`EventCatalog::summary()` expanded** — Now includes `security` and `uptime` category counts in the summary output
+- **`EventCatalog::billingEvents()`** — New method returning all billing and revenue-related SaaS events for financial lifecycle tracking
+- **`EventCatalog::providerCoverage()`** — Enhanced with per-provider count breakdown
+
+## What's New in v10.1.0
+
+### 🔧 Production Readiness Refactor
+
+- **Manual code review verified** — Full audit of PHP 8.5 syntax, strict types, return type declarations, and docblocks across all source files
+- **Constructor return types** — All service and tracker constructors annotated with `:void` return type for PHP 8.5 compliance
+- **Service provider cleanup** — Consolidated service registrations and streamlined boot logic
+- **Test stability** — Verified all test files pass with consistent assertions
 
 ## What's New in v10.0.0
 

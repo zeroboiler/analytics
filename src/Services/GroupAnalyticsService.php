@@ -52,7 +52,7 @@ final class GroupAnalyticsService
      * @param  CacheRepository  $cache  Laravel cache repository
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config)
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
         $this->cache = $cache;
         $groupConfig = $config->get('zeroboiler.analytics.group', []);
