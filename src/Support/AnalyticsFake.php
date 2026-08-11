@@ -57,7 +57,7 @@ use ZeroBoiler\Analytics\Trackers\WebhookTracker;
  *   });
  *
  * @since 10.4.0
- * @version 14.0.0 Full AnalyticsManager proxy coverage
+ * @version 15.0.0 Full AnalyticsManager proxy coverage
  */
 final class AnalyticsFake
 {
@@ -430,6 +430,11 @@ final class AnalyticsFake
     public function trialEnd(string $outcome, ?string $planName = null, array $params = []): void
     {
         $this->track('trial_end', array_filter(array_merge(['outcome' => $outcome, 'plan_name' => $planName], $params)));
+    }
+
+    public function trialConverted(?string $planName = null, ?float $amount = null, string $currency = 'USD', array $params = []): void
+    {
+        $this->track('trial_converted', array_filter(array_merge(['plan_name' => $planName, 'amount' => $amount, 'currency' => $currency], $params)));
     }
 
     /** @param array<string, mixed> $params */
@@ -856,6 +861,8 @@ final class AnalyticsFake
             'plausible' => ['enabled' => false, 'id' => null],
             'posthog' => ['enabled' => false, 'id' => null],
             'webhook' => ['enabled' => false, 'id' => null],
+            'mixpanel' => ['enabled' => false, 'id' => null],
+            'amplitude' => ['enabled' => false, 'id' => null],
         ];
     }
 

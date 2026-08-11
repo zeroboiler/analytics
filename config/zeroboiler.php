@@ -414,7 +414,39 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Auto-Track Links (Client-Side)
+        | Lifecycle Event Mapping (v15.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven mapping of Laravel application events to analytics events.
+        | The LifecycleEventMapper reads this section to automatically dispatch
+        | analytics events when application events fire (auth.login, subscription.created, etc.).
+        |
+        | Set 'enabled' to false to disable all server-side lifecycle tracking.
+        | Individual events can be toggled on/off in the 'events' sub-array.
+        | Use 'custom_mappings' to register your own event → analytics class mappings.
+        |
+        | Example:
+        |   'custom_mappings' => [
+        |       'team.invited' => ['source' => 'team.invited', 'target' => '\\App\\Analytics\\Events\\TeamInvitedEvent::class'],
+        |   ],
+        |
+        */
+        'lifecycle' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_ENABLED', true),
+            'events' => [
+                // Toggle individual lifecycle mappings on/off
+                // These map to LifecycleEventMapper::DEFAULT_MAPPINGS keys
+            ],
+            'custom_mappings' => [
+                // Add custom event → analytics class mappings here
+                // 'app.custom_event' => ['source' => 'app.custom_event', 'target' => '\\App\\Analytics\\Events\\CustomEvent::class'],
+            ],
+            'override_defaults' => env('ANALYTICS_LIFECYCLE_OVERRIDE_DEFAULTS', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Track Links (Client-Side)
         |--------------------------------------------------------------------------
         |
         | Configure automatic link click tracking in the JS client.

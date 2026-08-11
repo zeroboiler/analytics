@@ -32,7 +32,7 @@ use ZeroBoiler\Analytics\Support\AnalyticsFake;
  * 10. Quick-start events coverage
  */
 test('version constant is correct', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('14.0.0');
+    expect(AnalyticsEvent::VERSION)->toBe('15.0.0');
 });
 
 test('v10.9.0 event catalog has 100+ events across all categories', function (): void {

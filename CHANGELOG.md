@@ -2,6 +2,19 @@
 
 All notable changes to the package will be documented in this file.
 
+## [15.0.0] - 2026-08-11
+
+### Added
+
+- **Lifecycle config section** — New `zeroboiler.analytics.lifecycle` configuration section with `enabled` toggle, per-event toggles, `custom_mappings` for user-defined event → analytics class mappings, and `override_defaults` flag. Previously LifecycleEventMapper read from this key but it returned an empty array — now fully documented and configurable via env variables (`ANALYTICS_LIFECYCLE_ENABLED`, `ANALYTICS_LIFECYCLE_OVERRIDE_DEFAULTS`).
+- **`providerSummary()` includes all 8 providers** — Mixpanel and Amplitude now included in the provider summary response. Previously only 6 providers were reported (GA4, GTM, Meta, Plausible, PostHog, Webhook).
+- **`trialConverted()` convenience method** — New AnalyticsManager shorthand for tracking trial-to-paid conversion events with plan name, amount, and currency parameters. Companion to existing `trialStart()`, `subscription()`, and `cancellation()` methods.
+- **README v14.0.0 and v15.0.0 What's New sections** — Added missing What's New entries for both v14.0.0 (Plausible self-hosted, PostHog CAPI) and v15.0.0 (lifecycle config, provider summary, trialConverted).
+
+### Changed
+
+- **Version sweep** — 14.0.0 → 15.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsDiagnosticCommand, CHANGELOG.
+
 ## [14.0.0] - 2026-08-11
 
 ### Added

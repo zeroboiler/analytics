@@ -1419,6 +1419,14 @@ final class AnalyticsManager
                 'enabled' => $this->webhook->isEnabled(),
                 'id' => $this->webhook->isEnabled() ? $this->webhook->getWebhookUrl() : null,
             ],
+            'mixpanel' => [
+                'enabled' => $this->mixpanel->isEnabled(),
+                'id' => $this->mixpanel->isEnabled() ? $this->mixpanel->getToken() : null,
+            ],
+            'amplitude' => [
+                'enabled' => $this->amplitude->isEnabled(),
+                'id' => $this->amplitude->isEnabled() ? $this->amplitude->getApiKey() : null,
+            ],
         ];
     }
 
@@ -1956,6 +1964,26 @@ final class AnalyticsManager
             'from_plan' => $fromPlan,
             'to_plan' => $toPlan,
             'price_difference' => $priceDifference,
+        ], $params)));
+    }
+
+    /**
+     * Track a trial conversion event.
+     *
+     * Fires when a trial user converts to a paid subscription.
+     * Critical for trial-to-paid conversion funnel analysis.
+     *
+     * @param  string|null  $planName  Converted plan name
+     * @param  float|null  $amount  Subscription amount
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function trialConverted(?string $planName = null, ?float $amount = null, string $currency = 'USD', array $params = []): void
+    {
+        $this->track('trial_converted', array_filter(array_merge([
+            'plan_name' => $planName,
+            'amount' => $amount,
+            'currency' => $currency,
         ], $params)));
     }
 

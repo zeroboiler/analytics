@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-14.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-15.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -98,10 +98,28 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Upgrading](#upgrading)
 - [License](#license)
 
+## What's New in v15.0.0
+
+### 🔧 Lifecycle Config Section
+- **New `zeroboiler.analytics.lifecycle` config section** — Declarative lifecycle event mapping configuration. Toggle individual mappings on/off, add custom event-to-analytics-class mappings via `custom_mappings`, and control whether custom mappings override defaults. Previously LifecycleEventMapper read from this config key but it returned an empty array — now fully documented with env-driven defaults.
+
+### 📊 Provider Summary Completeness
+- **`providerSummary()` now includes all 8 providers** — Previously only reported 6 providers (GA4, GTM, Meta, Plausible, PostHog, Webhook). Now includes Mixpanel and Amplitude with their respective ID/accessor fields. Ensures admin dashboards and health checks see complete provider coverage.
+
+### ⚡ SaaS Convenience: `trialConverted()`
+- **New `trialConverted()` shorthand on AnalyticsManager** — Tracks trial-to-paid conversion with plan name, amount, and currency. Critical metric for SaaS conversion funnel analysis. Companion to existing `trialStart()` and `subscription()` methods.
+
+## What's New in v14.0.0
+
+### 🔗 Plausible Self-Hosted & PostHog CAPI
+- **PlausibleTracker self-hosted support** — New `customScriptUrl` parameter for self-hosted Plausible instances. New `trackGoal()` and `trackPageView()` methods for custom goal and pageview tracking.
+- **PosthogTracker CAPI + identity** — New `trackWithPerson()` for Conversions API dispatch with $set person properties. New `identify()`, `alias()`, `trackPageView()`, and `isFeatureEnabled()` methods. Constructor now accepts `capiEnabled` and `capturePath` parameters.
+- **Singleton registration** — Both Plausible and PostHog trackers registered as config-driven singletons in ServiceProvider.
+- **Comprehensive tracker test suite** — 40+ test cases covering construction, consent, CAPI, identity, feature flags, and interface contracts.
+
 ## What's New in v13.0.0
 
 ### 🧪 Complete AnalyticsFake — Industry-Standard Test Double
-
 Full drop-in replacement for AnalyticsManager with 90+ proxy methods, 15 assertion helpers, and interceptor support. Every public method on the AnalyticsManager facade now works seamlessly in tests without any real dispatch.
 
 **AnalyticsFake Enhancements:**

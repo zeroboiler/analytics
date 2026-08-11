@@ -32,6 +32,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void alias(string $previousId, string $newId)
  * @method static void logout(string|null $method = null, array<string, mixed> $params = [])
  * @method static void trialEnd(string $outcome, string|null $planName = null, array<string, mixed> $params = [])
+ * @method static void trialConverted(string|null $planName = null, float|null $amount = null, string $currency = 'USD', array<string, mixed> $params = [])
  * @method static void planDowngrade(string $fromPlan, string $toPlan, array<string, mixed> $params = [])
  * @method static void wishlist(array<string, mixed> $item, array<string, mixed> $params = [])
  * @method static void selectItem(array<int, array<string, mixed>> $items = [], string|null $itemListId = null, string|null $itemListName = null, array<string, mixed> $params = [])
