@@ -10,9 +10,9 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v18.0.0](#whats-new-in-v18000)
-+- [What's New in v17.0.0](#whats-new-in-v17000)
-+- [What's New in v16.0.0](#whats-new-in-v16000)
+- [What's New in v18.0.0](#whats-new-in-v18000)
+- [What's New in v17.0.0](#whats-new-in-v17000)
+- [What's New in v16.0.0](#whats-new-in-v16000)
 +- [What's New in v15.0.0](#whats-new-in-v15000)
 +- [What's New in v14.0.0](#whats-new-in-v14000)
 +- [What's New in v13.0.0](#whats-new-in-v13000)
@@ -114,10 +114,20 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - **TypeScript `ObservabilityConfig` interface** — Full IntelliSense support for the new observability config in the `.d.ts` file.
 
 ### 🔄 Version Sweep
-- Version bumped to 18.0.0 across `composer.json`, README badge, and changelog.
+- Version bumped to 18.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS `getVersion()`, Svelte composable docblocks, TypeScript definitions, and `AnalyticsIntegrityCommand::EXPECTED_VERSION`.
+
+### 🛒 EcommerceFormatConverter — Mixpanel & Amplitude Support
+- **`ga4ToMixpanelProperties()`**, **`ga4ToMixpanelPurchase()`**, **`ga4ToMixpanelRefund()`** — GA4 → Mixpanel e-commerce data conversion with `$product_id`, `$name`, `$price`, `$quantity` fields matching Mixpanel's `$products` convention.
+- **`ga4ToAmplitudeProperties()`**, **`ga4ToAmplitudePurchase()`**, **`ga4ToAmplitudeRefund()`** — GA4 → Amplitude e-commerce data conversion with `productId`, `productName`, `revenue`, `currency` fields matching Amplitude's Revenue and eCommerce API.
+- **`buildForAllProviders()`** — Universal multi-provider builder. Pass GA4-format params and event type (`purchase`, `refund`, `add_to_cart`, `view_item`) → get formatted parameters for all 5 providers at once.
+
+### 🐛 Bug Fixes
+- **JS client `getVersion()` returned `'17.0.0'`** after version sweep — now correctly returns `'18.0.0'`.
+- **`package.json` version was `'17.0.0'`** — now aligned to `'18.0.0'`.
+- **JS client Meta mapping** — `refund` now maps to `'Refund'` (was `null`), `view_cart` maps to `'ViewCart'` (was `null`), `add_to_wishlist` mapping added.
 
 ### 🧪 Tests
-- 1 new test file: `V1800AnalyticsObservabilityServiceTest.php` (9 test cases covering success/failure recording, provider filtering, metrics calculation, percentile computation, error budget detection, and dashboard structure).
+- **`V1800VersionSweepAndEcommerceConverterTest`** — 23 tests covering version alignment, Mixpanel/Amplitude converter correctness, `buildForAllProviders()` output, empty items edge cases, and Meta mapping coverage.
 
 ## What's New in v17.0.0
 

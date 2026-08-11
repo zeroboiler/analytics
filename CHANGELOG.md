@@ -2,6 +2,27 @@
 
 All notable changes to the package will be documented in this file.
 
+## [18.0.0] - 2026-08-11
+
+### Fixed
+
+- **JS client `getVersion()` now returns `'18.0.0'`** — was incorrectly returning `'17.0.0'` after the v18.0.0 version sweep, causing JS client version mismatch with PHP package.
+- **`package.json` version aligned to `18.0.0`** — was `17.0.0`, out of sync with composer.json and AnalyticsEvent::VERSION.
+
+### Added
+
+- **EcommerceFormatConverter: Mixpanel converter methods** — `ga4ToMixpanelProperties()`, `ga4ToMixpanelPurchase()`, `ga4ToMixpanelRefund()` for GA4 → Mixpanel e-commerce data format conversion with `$product_id`, `$name`, `$price`, `$quantity` fields.
+- **EcommerceFormatConverter: Amplitude converter methods** — `ga4ToAmplitudeProperties()`, `ga4ToAmplitudePurchase()`, `ga4ToAmplitudeRefund()` for GA4 → Amplitude e-commerce data format conversion with `productId`, `productName`, `revenue`, `currency` fields.
+- **EcommerceFormatConverter: `buildForAllProviders()`** — Universal multi-provider builder that returns formatted e-commerce event parameters for all 5 providers (GA4, Meta, PostHog, Mixpanel, Amplitude) from a single GA4-format input. Supports `purchase`, `refund`, `add_to_cart`, and `view_item` event types.
+- **JS client: Meta Pixel `refund` mapping** — `mapToMetaEvent()` now maps `refund` → `'Refund'` for Meta CAPI support (previously returned `null`).
+- **JS client: Meta Pixel `view_cart` mapping** — `mapToMetaEvent()` now maps `view_cart` → `'ViewCart'` for Meta Pixel custom events (previously returned `null`).
+- **JS client: Meta Pixel `add_to_wishlist` mapping** — Added to `mapToMetaEvent()` for completeness.
+- **V1800VersionSweepAndEcommerceConverterTest** — 23 tests covering version alignment across all markers (composer.json, package.json, AnalyticsEvent::VERSION, JS getVersion, Svelte composables, TypeScript definitions, IntegrityCommand), Mixpanel/Amplitude converter correctness, buildForAllProviders output, empty items edge cases, and Meta mapping coverage.
+
+### Changed
+
+- **Version sweep** — All version markers aligned to 18.0.0: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS `getVersion()`, Svelte composable docblocks, TypeScript definitions, `AnalyticsIntegrityCommand::EXPECTED_VERSION`.
+
 ## [17.0.0] - 2026-08-11
 
 ### Added
