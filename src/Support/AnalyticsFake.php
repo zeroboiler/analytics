@@ -374,7 +374,11 @@ final class AnalyticsFake
      */
     public function getConsent(): ConsentState
     {
-        return $this->consentHistory[array_key_last($this->consentHistory) ?? 0]
+        if ($this->consentHistory === []) {
+            return ConsentState::granted();
+        }
+
+        return $this->consentHistory[array_key_last($this->consentHistory)]
             ?? ConsentState::granted();
     }
 
