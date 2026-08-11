@@ -9,6 +9,7 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Http\Request;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
@@ -37,6 +38,8 @@ final class EventNormalizationService
 
     private int $cacheTtl;
 
+    private ?Request $request;
+
     /**
      * @param  array<string, bool>  $enabledProviders  Provider name => enabled flag
      */
@@ -46,12 +49,14 @@ final class EventNormalizationService
         CacheRepository $cache,
         array $enabledProviders = [],
         int $cacheTtl = 300,
+        ?Request $request = null,
     ): void {
         $this->manager = $manager;
         $this->config = $config;
         $this->cache = $cache;
         $this->enabledProviders = $enabledProviders;
         $this->cacheTtl = $cacheTtl;
+        $this->request = $request;
     }
 
     /**
@@ -374,7 +379,7 @@ final class EventNormalizationService
         // Attach user data for CAPI matching
         if ($event->userId !== null || $event->clientId !== null) {
             $result['userData'] = [
-                'client_user_agent' => request()->userAgent() ?? '',
+                'client_user_agent' => $this->request?->userAgent() ?? '',
                 'external_id' => $event->userId,
             ];
         }
