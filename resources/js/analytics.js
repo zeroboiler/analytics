@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 10.0.0
+ * @version 10.2.0
  */
 
 let trackingId = null;
@@ -74,6 +74,16 @@ export function init(pageProps) {
     // Initialize PostHog
     if (analytics.posthogHost) {
         initPostHog(analytics);
+    }
+
+    // Initialize Amplitude
+    if (analytics.amplitudeApiKey) {
+        initAmplitude(analytics);
+    }
+
+    // Initialize Mixpanel
+    if (analytics.mixpanelToken) {
+        initMixpanel(analytics);
     }
 
     // Start batch flush timer
@@ -162,7 +172,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-     return '10.0.0';
+     return '10.2.0';
 }
 
 /**
@@ -251,6 +261,30 @@ function initPlausible() {
 function initPostHog() {
     // PostHog client script may be loaded via Blade middleware
     // Server-side capture handles the heavy lifting
+}
+
+// ─── Amplitude Initialization ────────────────────────────────────────────
+
+function initAmplitude() {
+    // Amplitude SDK may be loaded via Blade middleware headScripts()
+    // If the global amplitude object is available, set user identity
+    if (typeof window !== 'undefined' && window.amplitude) {
+        if (trackingId) {
+            window.amplitude.setDeviceId(trackingId);
+        }
+    }
+}
+
+// ─── Mixpanel Initialization ───────────────────────────────────────────
+
+function initMixpanel() {
+    // Mixpanel SDK may be loaded via Blade middleware headScripts()
+    // If the global mixpanel object is available, register super properties
+    if (typeof window !== 'undefined' && window.mixpanel) {
+        if (trackingId) {
+            window.mixpanel.register({ zb_client_id: trackingId });
+        }
+    }
 }
 
 // ─── Event Tracking ──────────────────────────────────────────────────────
@@ -459,6 +493,16 @@ export async function trackPageView(title = '', location = '', referrer = '') {
         window.posthog.capture('$pageview', params);
     }
 
+    // Push to Amplitude
+    if (config?.amplitudeApiKey && window.amplitude) {
+        window.amplitude.logEvent('Page View', params);
+    }
+
+    // Push to Mixpanel
+    if (config?.mixpanelToken && window.mixpanel) {
+        window.mixpanel.track('$pageview', params);
+    }
+
     // Also send server-side for server-side providers
     await trackEvent('page_view', params);
 }
@@ -578,6 +622,16 @@ export async function trackEcommerce(name, data = {}) {
             const metaParams = mapToMetaParams(name, data);
             window.fbq('track', metaEvent, metaParams);
         }
+    }
+
+    // Amplitude e-commerce event
+    if (config?.amplitudeApiKey && window.amplitude) {
+        window.amplitude.logEvent(name, data);
+    }
+
+    // Mixpanel e-commerce event
+    if (config?.mixpanelToken && window.mixpanel) {
+        window.mixpanel.track(name, data);
     }
 
     // Server-side dispatch (immediate — don't batch ecommerce)
@@ -3603,8 +3657,8 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-     return '10.0.0';
- }
+     return '10.2.0';
+}
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
 

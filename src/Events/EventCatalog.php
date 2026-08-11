@@ -577,6 +577,8 @@ final class EventCatalog
             'ecommerce' => EcommerceEvents::count(),
             'saas' => SaaSEvents::count(),
             'engagement' => EngagementEvents::count(),
+            'security' => SecurityEvents::count(),
+            'uptime' => UptimeEvents::count(),
             'with_ga4' => $withGa4,
             'with_meta' => $withMeta,
             'with_posthog' => $withPosthog,
@@ -863,7 +865,9 @@ final class EventCatalog
             'payment_method_updated', 'invoice_generated', 'credit_applied',
             'billing_retry', 'subscription_value_changed', 'subscribe',
             'subscription_created', 'subscription_cancelled', 'subscription_renewal',
+            'subscription_resumed', 'subscription_paused',
             'revenue_tracked', 'purchase', 'expansion_revenue', 'plan_changed',
+            'plan_upgrade', 'plan_downgrade', 'cancellation',
         ];
 
         return array_values(array_filter(

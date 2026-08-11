@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 10.0.0
+ * @version 10.2.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -24,6 +24,8 @@ export interface ZbAnalyticsProps {
   metaPixelId?: string;
   plausibleDomain?: string;
   posthogHost?: string;
+  amplitudeApiKey?: string;
+  mixpanelToken?: string;
   trackLinks: TrackLinksConfig;
   device: DeviceContext;
   apiBase: string;
@@ -38,6 +40,8 @@ export interface ZbAnalyticsProps {
   version: string;
   subscriptionTiers: Record<string, SubscriptionTier>;
   identityAutoLink: boolean;
+  authStateChanged?: boolean;
+  previousUserId?: string | null;
   maturity: { score: number; grade: string };
   onboarding: { completion: number; gaps: string[] };
   funnelReadiness: {

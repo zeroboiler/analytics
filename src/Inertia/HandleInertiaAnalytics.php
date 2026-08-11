@@ -85,6 +85,14 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             $analyticsProps['posthogHost'] = $this->manager->posthog()->getHost();
         }
 
+        if ($this->manager->amplitude()->isEnabled()) {
+            $analyticsProps['amplitudeApiKey'] = $this->manager->amplitude()->getApiKey();
+        }
+
+        if ($this->manager->mixpanel()->isEnabled()) {
+            $analyticsProps['mixpanelToken'] = $this->manager->mixpanel()->getToken();
+        }
+
         // Auto-track links configuration
         $trackLinks = $this->config->get('zeroboiler.analytics.track_links', []);
         /** @var array{enabled?: bool, track_external?: bool, track_internal?: bool, external_prefix?: string} $trackLinks */
@@ -411,7 +419,9 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             || $this->manager->gtm()->isEnabled()
             || $this->manager->meta()->isEnabled()
             || $this->manager->plausible()->isEnabled()
-            || $this->manager->posthog()->isEnabled();
+            || $this->manager->posthog()->isEnabled()
+            || $this->manager->amplitude()->isEnabled()
+            || $this->manager->mixpanel()->isEnabled();
     }
 
     /**
