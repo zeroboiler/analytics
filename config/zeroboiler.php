@@ -263,6 +263,34 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Sanitization (v12.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Production-grade event parameter sanitization. When enabled, all events
+        | are validated and cleaned before dispatch. Strips HTML, null bytes,
+        | enforces naming conventions, truncates oversized values, and blocks
+        | sensitive parameter keys (password, token, secret, etc.).
+        |
+        | Set to true for production environments.
+        |
+        */
+        'sanitization' => [
+            'enabled' => env('ANALYTICS_SANITIZATION_ENABLED', false),
+            'max_param_count' => (int) env('ANALYTICS_SANITIZATION_MAX_PARAMS', 100),
+            'max_key_length' => (int) env('ANALYTICS_SANITIZATION_MAX_KEY_LENGTH', 100),
+            'max_value_length' => (int) env('ANALYTICS_SANITIZATION_MAX_VALUE_LENGTH', 500),
+            'strict_naming' => env('ANALYTICS_SANITIZATION_STRICT_NAMING', false),
+            'strip_html' => env('ANALYTICS_SANITIZATION_STRIP_HTML', true),
+            'strip_null_bytes' => env('ANALYTICS_SANITIZATION_STRIP_NULL_BYTES', true),
+            'normalize_booleans' => env('ANALYTICS_SANITIZATION_NORMALIZE_BOOLEANS', true),
+            'truncate_strings' => env('ANALYTICS_SANITIZATION_TRUNCATE_STRINGS', true),
+            'disallowed_keys' => ['password', 'token', 'secret', 'api_key', 'credit_card', 'ssn'],
+            'max_event_name_length' => (int) env('ANALYTICS_SANITIZATION_MAX_NAME_LENGTH', 100),
+            'reserved_prefixes' => ['_zb_', '_ga_', '_fb_', '_meta_', '_sentry_'],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Data Mart (v7.0.0)
         |-------------------------------------------------------------------------- 
         |

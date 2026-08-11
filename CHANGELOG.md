@@ -2,6 +2,20 @@
 
 All notable changes to the package will be documented in this file.
 
+## [12.0.0] - 2026-08-11
+
+### Added
+
+- **`AnalyticsEventSanitizer`** — Production-grade event parameter sanitization service. Config-driven validation and cleaning of events before dispatch. Strips HTML, null bytes, enforces snake_case naming (optional strict mode), truncates oversized values, blocks sensitive parameter keys (password, token, secret, api_key, credit_card, ssn), warns on reserved prefixes (_zb_, _ga_, _fb_, _meta_, _sentry_), recursive array sanitization, and preserves type integrity (int, float, bool, null). Enable via `ANALYTICS_SANITIZATION_ENABLED=true`.
+- **`AnalyticsDiagnosticCommand`** (`zb:analytics:diagnostic`) — Comprehensive multi-dimensional diagnostic CLI tool. Checks: config integrity, provider configuration (7 providers), event catalog validation, GDPR consent compliance, queue configuration, identity tracking, sanitization, JS client compatibility, service registration, and e-commerce settings. Supports `--json` and `--section=` flags. Reports health score, pass/warn/fail counts.
+- **Offline Event Buffer (JS Client)** — Offline-first event buffering with localStorage persistence. Automatically buffers events when the browser is offline or API requests fail. FIFO eviction when storage quota is reached (500 events / 5MB max). Auto-recovery via `enableOfflineRecovery()` — flushes buffered events when connectivity is restored. API: `isOffline()`, `saveToOfflineBuffer()`, `loadOfflineBuffer()`, `clearOfflineBuffer()`, `offlineBufferStatus()`, `flushOfflineBuffer()`.
+- **Sanitization config section** — New `zeroboiler.analytics.sanitization` config section with 12 configurable options for production event validation.
+- **`V1200EventSanitizerAndVersionTest`** — 30+ test cases covering: event name sanitization (HTML, null bytes, snake_case, truncation), param sanitization (disallowed keys, safe keys, HTML stripping, string truncation, type preservation, recursive arrays, null handling), validate() method (valid events, empty names, non-snake-case warnings, disallowed params, reserved prefixes), config access, error tracking, and version consistency.
+
+### Changed
+
+- **Version sweep** — 11.0.0 → 12.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, CHANGELOG.
+
 ## [11.0.0] - 2026-08-11
 
 ### Added

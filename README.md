@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-11.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-12.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v12.0.0](#whats-new-in-v12000)
 +- [What's New in v11.0.0](#whats-new-in-v11000)
 +- [What's New in v10.9.0](#whats-new-in-v1090)
 +- [What's New in v10.8.0](#whats-new-in-v1080)
@@ -96,6 +97,29 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v12.0.0
+
+### 🛡️ Production-Grade Event Sanitization & Offline Buffering
+
+Industry-standard event data quality and offline reliability. This release adds production-grade parameter sanitization, a comprehensive diagnostic command, and offline-first event buffering for the JS client.
+
+**New Services:**
+- **`AnalyticsEventSanitizer`** — Config-driven event parameter sanitization. Strips HTML, null bytes, enforces naming conventions, truncates oversized values, and blocks sensitive keys (password, token, secret, api_key, credit_card, ssn). Validates events without modification via `validate()`. Preserves type integrity (int, float, bool, null). Recursive array sanitization. Enable via `ANALYTICS_SANITIZATION_ENABLED=true`.
+
+**New Commands:**
+- **`zb:analytics:diagnostic`** — Comprehensive multi-dimensional diagnostic CLI tool. 10-section health check: config integrity, provider configuration (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude), event catalog validation, GDPR consent compliance, queue configuration, identity tracking, sanitization settings, JS client compatibility, service registration, and e-commerce configuration. Supports `--json` and `--section=` flags.
+
+**New JS Client Features:**
+- **Offline Event Buffer** — localStorage-backed offline event buffering. Automatically persists events when offline or API requests fail. FIFO eviction (500 events / 5MB max). Auto-recovery via `enableOfflineRecovery()`. API: `isOffline()`, `saveToOfflineBuffer()`, `loadOfflineBuffer()`, `clearOfflineBuffer()`, `offlineBufferStatus()`, `flushOfflineBuffer()`.
+
+**New Config:**
+- `zeroboiler.analytics.sanitization` — 12 configurable options: `enabled`, `max_param_count`, `max_key_length`, `max_value_length`, `strict_naming`, `strip_html`, `strip_null_bytes`, `normalize_booleans`, `truncate_strings`, `disallowed_keys`, `max_event_name_length`, `reserved_prefixes`.
+
+**New Tests:**
+- **`V1200EventSanitizerAndVersionTest`** — 30+ test cases covering event sanitization (HTML, null bytes, snake_case, truncation), param sanitization (disallowed keys, type preservation, recursive arrays), validate() method, config access, and version consistency.
+
+**Version sweep:** 11.0.0 → 12.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, README badge, `AnalyticsIntegrityCommand::EXPECTED_VERSION`
 
 ## What's New in v11.0.0
 

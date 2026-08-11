@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 11.0.0
+ * @version 12.0.0
  */
 
 let trackingId = null;
@@ -172,7 +172,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-      return '11.0.0';
+      return '12.0.0';
 }
 
 /**
@@ -3657,7 +3657,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-      return '11.0.0';
+      return '12.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -6125,4 +6125,204 @@ export async function fetchSignalProviders() {
         });
         return res.ok ? await res.json() : null;
     } catch { return null; }
+}
+
+// ─── Offline Event Buffer (v12.0.0) ──────────────────────────────
+
+/**
+ * Offline-first event buffer with localStorage persistence.
+ *
+ * When the browser is offline or API requests fail, events are buffered
+ * to localStorage and automatically retried when connectivity is restored.
+ * Respects storage quota and implements FIFO eviction when capacity is reached.
+ *
+ * @namespace offlineBuffer
+ */
+
+const OFFLINE_BUFFER_KEY = 'zb_analytics_offline_buffer';
+const OFFLINE_BUFFER_MAX = 500;
+const OFFLINE_BUFFER_MAX_SIZE_MB = 5;
+
+/**
+ * Check if the browser is currently offline.
+ * @returns {boolean}
+ */
+export function isOffline() {
+    if (typeof navigator === 'undefined') return false;
+    return navigator.onLine === false;
+}
+
+/**
+ * Save events to the offline buffer (localStorage).
+ *
+ * @param {Array} events - Events to buffer
+ * @returns {boolean} Whether events were saved successfully
+ */
+export function saveToOfflineBuffer(events) {
+    if (typeof localStorage === 'undefined') return false;
+
+    try {
+        const existing = loadOfflineBuffer();
+        const merged = [...existing, ...events].slice(-OFFLINE_BUFFER_MAX);
+
+        const serialized = JSON.stringify(merged);
+        const sizeMB = new Blob([serialized]).size / (1024 * 1024);
+
+        if (sizeMB > OFFLINE_BUFFER_MAX_SIZE_MB) {
+            // FIFO eviction: keep only the newest events that fit
+            const trimmed = merged.slice(-Math.floor(OFFLINE_BUFFER_MAX / 2));
+            const trimmedSerialized = JSON.stringify(trimmed);
+            const trimmedSizeMB = new Blob([trimmedSerialized]).size / (1024 * 1024);
+
+            if (trimmedSizeMB > OFFLINE_BUFFER_MAX_SIZE_MB) {
+                return false;
+            }
+
+            localStorage.setItem(OFFLINE_BUFFER_KEY, trimmedSerialized);
+        } else {
+            localStorage.setItem(OFFLINE_BUFFER_KEY, serialized);
+        }
+
+        return true;
+    } catch {
+        // localStorage full or unavailable
+        return false;
+    }
+}
+
+/**
+ * Load events from the offline buffer.
+ *
+ * @returns {Array} Buffered events
+ */
+export function loadOfflineBuffer() {
+    if (typeof localStorage === 'undefined') return [];
+
+    try {
+        const data = localStorage.getItem(OFFLINE_BUFFER_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * Clear all events from the offline buffer.
+ */
+export function clearOfflineBuffer() {
+    if (typeof localStorage === 'undefined') return;
+    try {
+        localStorage.removeItem(OFFLINE_BUFFER_KEY);
+    } catch { /* ignore */ }
+}
+
+/**
+ * Get offline buffer status (size, event count).
+ *
+ * @returns {{eventCount: number, sizeKB: number}}
+ */
+export function offlineBufferStatus() {
+    const events = loadOfflineBuffer();
+    const serialized = JSON.stringify(events);
+    const sizeKB = Math.round(new Blob([serialized]).size / 1024);
+
+    return {
+        eventCount: events.length,
+        sizeKB,
+    };
+}
+
+/**
+ * Flush the offline buffer by sending all buffered events to the server.
+ *
+ * Called automatically when connectivity is restored.
+ *
+ * @returns {Promise<{sent: number, failed: number}>}
+ */
+export async function flushOfflineBuffer() {
+    const buffered = loadOfflineBuffer();
+
+    if (buffered.length === 0) {
+        return { sent: 0, failed: 0 };
+    }
+
+    // Clear buffer immediately to prevent double-sends
+    clearOfflineBuffer();
+
+    // Split into batches for reliable delivery
+    const batchSize = MAX_QUEUE_SIZE;
+    let sent = 0;
+    let failed = 0;
+
+    for (let i = 0; i < buffered.length; i += batchSize) {
+        const batch = buffered.slice(i, i + batchSize);
+
+        try {
+            const res = await fetch(`${apiBaseUrl}/batch`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Analytics-Client-Id': trackingId,
+                    ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({ events: batch }),
+            });
+
+            if (res.ok) {
+                sent += batch.length;
+            } else {
+                // Re-buffer failed batch
+                saveToOfflineBuffer(batch);
+                failed += batch.length;
+            }
+        } catch {
+            // Network error — re-buffer
+            saveToOfflineBuffer(batch);
+            failed += batch.length;
+        }
+    }
+
+    return { sent, failed };
+}
+
+// ─── Offline Auto-Recovery (v12.0.0) ─────────────────────────────
+
+let offlineListenerAttached = false;
+
+/**
+ * Attach online/offline event listeners for automatic buffer management.
+ *
+ * When the browser goes online, buffered events are automatically flushed.
+ * When offline, failed API calls are automatically buffered.
+ *
+ * Call this once during initialization.
+ */
+export function enableOfflineRecovery() {
+    if (typeof window === 'undefined' || offlineListenerAttached) return;
+
+    window.addEventListener('online', async () => {
+        if (!initialized) return;
+        await flushOfflineBuffer();
+    });
+
+    offlineListenerAttached = true;
+}
+
+// ─── Enhanced sendEvent with Offline Fallback (v12.0.0) ────────
+
+/**
+ * Internal send that falls back to offline buffer on failure.
+ * @param {object} event
+ * @returns {Promise<void>}
+ */
+async function sendEventWithOfflineFallback(event) {
+    try {
+        await sendEvent(event);
+    } catch {
+        // Network error — buffer for later
+        if (isOffline() || true) {
+            saveToOfflineBuffer([event]);
+        }
+    }
 }

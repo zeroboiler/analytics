@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 11.0.0
+ * @version 12.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -1592,3 +1592,40 @@ export function fetchSignalAnomalies(): Promise<{ anomalies: SignalAnomaly[] } |
  * Fetch provider health signals (v7.7.0).
  */
 export function fetchSignalProviders(): Promise<{ providers: Record<string, ProviderSignal> } | null>;
+
+// ─── Offline Event Buffer (v12.0.0) ──────────────────────────────
+
+/**
+ * Check if the browser is currently offline.
+ */
+export function isOffline(): boolean;
+
+/**
+ * Save events to the offline buffer (localStorage).
+ */
+export function saveToOfflineBuffer(events: Record<string, unknown>[]): boolean;
+
+/**
+ * Load events from the offline buffer.
+ */
+export function loadOfflineBuffer(): Record<string, unknown>[];
+
+/**
+ * Clear all events from the offline buffer.
+ */
+export function clearOfflineBuffer(): void;
+
+/**
+ * Get offline buffer status (size, event count).
+ */
+export function offlineBufferStatus(): { eventCount: number; sizeKB: number };
+
+/**
+ * Flush the offline buffer by sending all buffered events to the server.
+ */
+export function flushOfflineBuffer(): Promise<{ sent: number; failed: number }>;
+
+/**
+ * Attach online/offline event listeners for automatic buffer management.
+ */
+export function enableOfflineRecovery(): void;

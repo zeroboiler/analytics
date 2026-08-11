@@ -226,8 +226,10 @@ use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
 use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
 use ZeroBoiler\Analytics\Services\EventTimelineService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDiagnosticCommand;
 use ZeroBoiler\Analytics\Services\EventNormalizationService;
 use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
+use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -235,7 +237,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 11.0.0
+ * @version 12.0.0
  *
  * @since 1.0.0
  */
@@ -2210,6 +2212,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsConsistencyService($manager, $config, $cache);
         });
+
+        // Event Sanitization (v12.0.0)
+        $this->app->singleton(AnalyticsEventSanitizer::class, function (Application $app): AnalyticsEventSanitizer {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsEventSanitizer($config);
+        });
     }
 
     /**
@@ -2251,6 +2261,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsGuardRailsCommand::class,
                 AnalyticsDeliveryCommand::class,
                 AnalyticsTimelineCommand::class,
+                AnalyticsDiagnosticCommand::class,
             ]);
         }
 
