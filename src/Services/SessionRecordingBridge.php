@@ -52,7 +52,7 @@ final class SessionRecordingBridge
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $recording = $config->get('zeroboiler.analytics.session_recording', []);
         /** @var array{enabled?: bool, integrations?: array<string, mixed>, cache_prefix?: string, session_ttl?: int, excluded_patterns?: list<string>, excluded_roles?: list<string>, consent_aware?: bool, mask_pii?: bool, mask_selectors?: list<string>, block_selectors?: list<string>} $recording */

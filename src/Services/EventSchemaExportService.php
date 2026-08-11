@@ -26,7 +26,7 @@ final class EventSchemaExportService
 {
     private EventParameterSchemas $parameterSchemas;
 
-    public function __construct(EventParameterSchemas $parameterSchemas)
+    public function __construct(EventParameterSchemas $parameterSchemas): void
     {
         $this->parameterSchemas = $parameterSchemas;
     }
