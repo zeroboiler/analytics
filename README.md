@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.4.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.6.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v9.4.0](#whats-new-in-v940)
++- [What's New in v9.6.0](#whats-new-in-v960)
+- [What's New in v9.4.0](#whats-new-in-v940)
 - [What's New in v9.3.0](#whats-new-in-v930)
 - [What's New in v9.1.0](#whats-new-in-v910)
 - [What's New in v9.0.0](#whats-new-in-v900)
@@ -82,6 +83,47 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.6.0
+
+### 📊 Event Impact Score Service (`EventImpactScoreService`)
+- **Composite event value scoring** — Computes weighted impact scores (0–1) for every catalog event based on:
+  - **Revenue correlation** (40%) — How directly the event impacts MRR/ARR (revenue category = 1.0, operational = 0.1)
+  - **Funnel position weight** (25%) — Events closer to conversion carry more weight
+  - **Frequency multiplier** (20%) — Log-scale normalization of estimated daily event frequency
+  - **Provider coverage** (15%) — Events tracked across more providers yield richer insights
+- **Letter grades** — A+ through F based on composite score thresholds
+- **Top events API** — `topEvents(10)` returns highest-impact events sorted by score
+- **Low-impact detection** — `lowImpactEvents(0.2)` identifies events that may not justify instrumentation effort
+- **Event comparison** — `compare('purchase', 'error')` returns delta and recommendation
+- **Score distribution** — `distribution()` shows grade breakdown and category averages
+- **Category analysis** — Per-category ranked event lists with average scores
+- **Cache-backed** — Full catalog scoring cached with configurable TTL
+
+### 🔍 Provider Analytics Intelligence Service (`ProviderAnalyticsIntelligenceService`)
+- **Multi-provider coverage intelligence** — Comprehensive analysis of GA4, Meta Pixel, PostHog, and Plausible coverage quality
+- **Mapping quality analysis** — Distinguishes meaningful (non-identity) mappings from passthrough mappings per provider
+- **Coverage opportunity identification** — `coverageOpportunities('plausible', 20)` finds events that would benefit most from being added to a specific provider, with suggested names
+- **Cross-provider mapping matrix** — Boolean matrix for dashboard heatmap visualization
+- **Gap prioritization** — Critical gaps (0 providers), quick wins (1 provider), and category-specific priorities
+- **Coverage grade** — Overall grade based on average provider coverage
+- **Cache-backed** — Report cached with configurable TTL
+
+### 🛠️ EventBuilder Extensions
+- **`source()`** — Set event origin (api|server|client|webhook|replay|batch) on the built AnalyticsEvent
+- **`sourceId()`** — Embed traceable source identifier (`_source_id` param) for request/job correlation
+- **`sessionId()`** — Embed session identifier (`_session_id` param) for session-scoped events
+- **`group()`** — Embed group/context identifier (`_group` param) for B2B/multi-tenant analytics
+- All methods are chainable and integrate with the existing `build()`, `dispatch()`, `dispatchAsync()` flow
+
+### ⚙️ Configuration
+- New `impact` config section: `zeroboiler.analytics.impact.cache_ttl` (default: 300s)
+- New `provider_intelligence` config section: `zeroboiler.analytics.provider_intelligence.cache_ttl` (default: 300s)
+
+### Changed
+- **Version sweep** — 9.5.0 → 9.6.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composable, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge.
+
+---
 
 ## What's New in v9.4.0
 

@@ -221,6 +221,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
 use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 use ZeroBoiler\Analytics\Support\EventCatalogFactory;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
+use ZeroBoiler\Analytics\Services\EventImpactScoreService;
+use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -228,7 +230,7 @@ use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.5.0
+ * @version 9.6.0
  *
  * @since 1.0.0
  */
@@ -2120,6 +2122,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new GroupAnalyticsService($cache, $config);
+        });
+
+        // Event Impact Score Service (v9.6.0) — composite event value scoring
+        $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $impactTtl = (int) $config->get('zeroboiler.analytics.impact.cache_ttl', 300);
+
+            return new EventImpactScoreService(
+                cache: $cache,
+                cacheTtl: $impactTtl,
+            );
+        });
+
+        // Provider Analytics Intelligence Service (v9.6.0) — multi-provider coverage analysis
+        $this->app->singleton(ProviderAnalyticsIntelligenceService::class, function (Application $app): ProviderAnalyticsIntelligenceService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $intelligenceTtl = (int) $config->get('zeroboiler.analytics.provider_intelligence.cache_ttl', 300);
+
+            return new ProviderAnalyticsIntelligenceService(
+                cache: $cache,
+                cacheTtl: $intelligenceTtl,
+            );
         });
     }
 

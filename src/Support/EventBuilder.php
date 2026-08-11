@@ -51,6 +51,14 @@ final class EventBuilder
 
     private bool $validate = true;
 
+    private ?string $source = null;
+
+    private ?string $sourceId = null;
+
+    private ?string $sessionId = null;
+
+    private ?string $group = null;
+
     private function __construct(string $name): void
     {
         $this->name = $name;
@@ -254,6 +262,54 @@ final class EventBuilder
     }
 
     /**
+     * Set the event origin source (api|server|client|webhook|replay|batch).
+     *
+     * @param  string  $source  Event origin identifier
+     */
+    public function source(string $source): self
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    /**
+     * Set the event source ID for traceability.
+     *
+     * @param  string  $sourceId  Unique source identifier (e.g., request ID, job ID)
+     */
+    public function sourceId(string $sourceId): self
+    {
+        $this->sourceId = $sourceId;
+
+        return $this;
+    }
+
+    /**
+     * Set the session ID for session-scoped events.
+     *
+     * @param  string  $sessionId  Session identifier
+     */
+    public function sessionId(string $sessionId): self
+    {
+        $this->sessionId = $sessionId;
+
+        return $this;
+    }
+
+    /**
+     * Set the group/context ID for B2B or multi-tenant analytics.
+     *
+     * @param  string  $group  Group identifier (e.g., workspace ID, team ID)
+     */
+    public function group(string $group): self
+    {
+        $this->group = $group;
+
+        return $this;
+    }
+
+    /**
      * Build the AnalyticsEvent DTO.
      *
      * Validates the event name against the catalog (if validation enabled),
@@ -281,6 +337,17 @@ final class EventBuilder
             $params['items'] = $this->items;
         }
 
+        // Embed contextual identifiers into params
+        if ($this->sourceId !== null) {
+            $params['_source_id'] = $this->sourceId;
+        }
+        if ($this->sessionId !== null) {
+            $params['_session_id'] = $this->sessionId;
+        }
+        if ($this->group !== null) {
+            $params['_group'] = $this->group;
+        }
+
         return new AnalyticsEvent(
             name: $this->name,
             params: $params,
@@ -288,6 +355,7 @@ final class EventBuilder
             userId: $this->userId,
             timestamp: $this->timestamp,
             priority: $this->priority,
+            source: $this->source,
         );
     }
 
