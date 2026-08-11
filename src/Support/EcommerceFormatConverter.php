@@ -1126,4 +1126,218 @@ final class EcommerceFormatConverter
             default => ['ga4_event' => $eventName, 'ga4_params' => $params],
         };
     }
+
+    // ── GA4 → Mixpanel E-Commerce Conversion ───────────────────────────
+
+    /**
+     * Convert GA4 items array to Mixpanel e-commerce properties format.
+     *
+     * Mixpanel uses a flat structure with `$products` array for e-commerce.
+     *
+     * @param  array<int, array<string, mixed>>  $items  GA4-format items
+     * @return array{products: array<int, array<string, mixed>>, total_revenue: float, product_count: int}
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToMixpanelProperties(array $items): array
+    {
+        $products = [];
+        $totalRevenue = 0.0;
+
+        foreach ($items as $item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 1);
+
+            $products[] = [
+                '$product_id' => (string) ($item['item_id'] ?? ''),
+                '$name' => (string) ($item['item_name'] ?? ''),
+                '$category' => (string) ($item['item_category'] ?? ''),
+                '$price' => $price,
+                '$quantity' => $quantity,
+                '$variant' => (string) ($item['item_variant'] ?? ''),
+                '$brand' => (string) ($item['item_brand'] ?? ''),
+            ];
+
+            $totalRevenue += $price * $quantity;
+        }
+
+        return [
+            'products' => $products,
+            'total_revenue' => $totalRevenue,
+            'product_count' => count($products),
+        ];
+    }
+
+    /**
+     * Convert GA4 purchase params to Mixpanel 'Purchase' event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  Mixpanel event properties
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToMixpanelPurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $mixpanelItems = self::ga4ToMixpanelProperties($items);
+
+        return array_merge($mixpanelItems, [
+            '$revenue' => (float) ($ga4Params['value'] ?? $mixpanelItems['total_revenue']),
+            '$currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            '$transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+            '$coupon' => (string) ($ga4Params['coupon'] ?? ''),
+            '$tax' => (float) ($ga4Params['tax'] ?? 0),
+            '$shipping' => (float) ($ga4Params['shipping'] ?? 0),
+        ]);
+    }
+
+    /**
+     * Convert GA4 refund params to Mixpanel event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  Mixpanel event properties
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToMixpanelRefund(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $mixpanelItems = self::ga4ToMixpanelProperties($items);
+
+        return array_merge($mixpanelItems, [
+            '$revenue' => (float) ($ga4Params['value'] ?? $mixpanelItems['total_revenue']),
+            '$currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            '$transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+        ]);
+    }
+
+    // ── GA4 → Amplitude E-Commerce Conversion ──────────────────────────
+
+    /**
+     * Convert GA4 items array to Amplitude e-commerce event properties.
+     *
+     * Amplitude uses `Event Properties` with a `$items` array.
+     *
+     * @param  array<int, array<string, mixed>>  $items  GA4-format items
+     * @return array{items: array<int, array<string, mixed>>, total_amount: float, item_count: int}
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToAmplitudeProperties(array $items): array
+    {
+        $ampItems = [];
+        $totalAmount = 0.0;
+
+        foreach ($items as $item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 1);
+
+            $ampItems[] = [
+                'productId' => (string) ($item['item_id'] ?? ''),
+                'productName' => (string) ($item['item_name'] ?? ''),
+                'category' => (string) ($item['item_category'] ?? ''),
+                'price' => $price,
+                'quantity' => $quantity,
+                'variant' => (string) ($item['item_variant'] ?? ''),
+                'brand' => (string) ($item['item_brand'] ?? ''),
+            ];
+
+            $totalAmount += $price * $quantity;
+        }
+
+        return [
+            'items' => $ampItems,
+            'total_amount' => $totalAmount,
+            'item_count' => count($ampItems),
+        ];
+    }
+
+    /**
+     * Convert GA4 purchase params to Amplitude 'Completed Order' event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  Amplitude event properties
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToAmplitudePurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $ampItems = self::ga4ToAmplitudeProperties($items);
+
+        return array_merge($ampItems, [
+            'revenue' => (float) ($ga4Params['value'] ?? $ampItems['total_amount']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'transactionId' => (string) ($ga4Params['transaction_id'] ?? ''),
+            'coupon' => (string) ($ga4Params['coupon'] ?? ''),
+            'tax' => (float) ($ga4Params['tax'] ?? 0),
+            'shipping' => (float) ($ga4Params['shipping'] ?? 0),
+            'affiliation' => (string) ($ga4Params['affiliation'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Convert GA4 refund params to Amplitude event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  Amplitude event properties
+     *
+     * @since 18.0.0
+     */
+    public static function ga4ToAmplitudeRefund(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $ampItems = self::ga4ToAmplitudeProperties($items);
+
+        return array_merge($ampItems, [
+            'revenue' => (float) ($ga4Params['value'] ?? $ampItems['total_amount']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'transactionId' => (string) ($ga4Params['transaction_id'] ?? ''),
+        ]);
+    }
+
+    // ── Universal Multi-Provider Builder ────────────────────────────────
+
+    /**
+     * Build e-commerce event parameters for all supported providers at once.
+     *
+     * Returns a map of provider name → formatted event parameters for the
+     * given event type (purchase, refund, add_to_cart, view_item).
+     *
+     * @param  'purchase'|'refund'|'add_to_cart'|'view_item'  $eventType
+     * @param  array<string, mixed>  $ga4Params  GA4-format event parameters
+     * @return array{ga4: array<string, mixed>, meta: array<string, mixed>, posthog: array<string, mixed>, mixpanel: array<string, mixed>, amplitude: array<string, mixed>}
+     *
+     * @since 18.0.0
+     */
+    public static function buildForAllProviders(string $eventType, array $ga4Params): array
+    {
+        return [
+            'ga4' => $ga4Params,
+            'meta' => match ($eventType) {
+                'purchase' => self::ga4ToMetaPurchase($ga4Params),
+                'refund' => self::ga4ToMetaRefund($ga4Params),
+                default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
+            },
+            'posthog' => match ($eventType) {
+                'purchase' => self::ga4ToPosthogPurchase($ga4Params),
+                'refund' => self::ga4ToPosthogRefund($ga4Params),
+                default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
+            },
+            'mixpanel' => match ($eventType) {
+                'purchase' => self::ga4ToMixpanelPurchase($ga4Params),
+                'refund' => self::ga4ToMixpanelRefund($ga4Params),
+                default => self::ga4ToMixpanelProperties($ga4Params['items'] ?? []),
+            },
+            'amplitude' => match ($eventType) {
+                'purchase' => self::ga4ToAmplitudePurchase($ga4Params),
+                'refund' => self::ga4ToAmplitudeRefund($ga4Params),
+                default => self::ga4ToAmplitudeProperties($ga4Params['items'] ?? []),
+            },
+        ];
+    }
 }

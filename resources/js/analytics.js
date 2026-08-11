@@ -173,7 +173,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-      return '17.0.0';
+      return '18.0.0';
 }
 
 /**
@@ -838,11 +838,14 @@ function mapToMetaEvent(name) {
         begin_checkout: 'InitiateCheckout',
         add_payment_info: 'AddPaymentInfo',
         purchase: 'Purchase',
-        refund: null, // No standard Meta equivalent
-        view_cart: null, // No Meta equivalent
+        refund: 'Refund', // Meta supports standard refund via CAPI
+        view_cart: 'ViewCart', // Meta Pixel custom event
         select_item: null, // No Meta equivalent
         select_promotion: null, // No Meta equivalent
         view_promotion: null, // No Meta equivalent
+        add_to_wishlist: 'AddToWishlist',
+        checkout_step: null, // No Meta equivalent
+        abandoned_cart: null, // No Meta equivalent
     };
 
     return mapping[name] || null;
