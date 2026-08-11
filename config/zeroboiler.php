@@ -4298,5 +4298,49 @@ return [
             'prefix' => env('ANALYTICS_RATE_LIMIT_PREFIX', 'zb_analytics_'),
             'decay_seconds' => (int) env('ANALYTICS_RATE_LIMIT_DECAY', 60),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Guard (v17.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-dispatch request validation and rate limiting for analytics API.
+        | Validates payload size, event name lengths, and batch sizes before
+        | any event processing occurs. Rejects abusive requests early.
+        |
+        | The AnalyticsApiGuard reads from this config section.
+        |
+        */
+        'api_guard' => [
+            'enabled' => env('ANALYTICS_API_GUARD_ENABLED', true),
+            'batch_max' => (int) env('ANALYTICS_API_GUARD_BATCH_MAX', 25),
+            'max_payload_bytes' => (int) env('ANALYTICS_API_GUARD_MAX_PAYLOAD', 65536), // 64KB
+            'max_event_name_length' => (int) env('ANALYTICS_API_GUARD_MAX_NAME_LENGTH', 100),
+            'rate_window' => (int) env('ANALYTICS_API_GUARD_RATE_WINDOW', 60), // seconds
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Budget (v17.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Per-client and per-user event budget enforcement to prevent abuse
+        | and control costs. Supports sliding window rate limiting with
+        | configurable limits and overflow policies.
+        |
+        | Policies: 'reject' (drop events), 'sample' (accept fraction), 'throttle'
+        |
+        */
+        'budget' => [
+            'enabled' => env('ANALYTICS_BUDGET_ENABLED', true),
+            'client_limit' => (int) env('ANALYTICS_BUDGET_CLIENT_LIMIT', 1000), // events per window
+            'user_limit' => (int) env('ANALYTICS_BUDGET_USER_LIMIT', 500),
+            'global_limit' => (int) env('ANALYTICS_BUDGET_GLOBAL_LIMIT', 100000),
+            'window_seconds' => (int) env('ANALYTICS_BUDGET_WINDOW', 3600), // 1 hour
+            'overflow_policy' => env('ANALYTICS_BUDGET_OVERFLOW_POLICY', 'reject'), // reject, sample, throttle
+            'sample_rate' => (float) env('ANALYTICS_BUDGET_SAMPLE_RATE', 0.1), // when policy is 'sample'
+            'cache_ttl' => (int) env('ANALYTICS_BUDGET_CACHE_TTL', 3600),
+            'use_cache' => env('ANALYTICS_BUDGET_USE_CACHE', true),
+        ],
     ],
 ];

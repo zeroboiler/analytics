@@ -370,6 +370,21 @@ final class AnalyticsEventController extends Controller
         $clientId = $this->extractClientId($request);
         $userId = $request->user()?->getKey();
 
+        // Budget enforcement (v17.0.0) — reject if budget exceeded
+        if ($this->budgetService !== null) {
+            $budgetResult = $this->budgetService->check(
+                $clientId,
+                is_int($userId) || is_string($userId) ? (string) $userId : null,
+            );
+            if (! $budgetResult['allowed']) {
+                return response()->json([
+                    'status' => 'budget_exceeded',
+                    'reason' => $budgetResult['reason'],
+                    'policy' => $budgetResult['policy'],
+                ], 429);
+            }
+        }
+
         $event = new AnalyticsEvent(
             name: $request->input('name'),
             params: $request->input('params', []),
@@ -389,6 +404,14 @@ final class AnalyticsEventController extends Controller
         }
 
         $this->manager->trackEvent($processed);
+
+        // Record against budget counters
+        if ($this->budgetService !== null) {
+            $this->budgetService->record(
+                $clientId,
+                is_int($userId) || is_string($userId) ? (string) $userId : null,
+            );
+        }
 
         return response()->json(['status' => 'ok']);
     }
@@ -411,6 +434,18 @@ final class AnalyticsEventController extends Controller
         $clientId = $this->extractClientId($request);
         $userId = $request->user()?->getKey();
         $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        // Budget enforcement (v17.0.0) — reject if budget exceeded
+        if ($this->budgetService !== null) {
+            $budgetResult = $this->budgetService->check($clientId, $userIdStr);
+            if (! $budgetResult['allowed']) {
+                return response()->json([
+                    'status' => 'budget_exceeded',
+                    'reason' => $budgetResult['reason'],
+                    'policy' => $budgetResult['policy'],
+                ], 429);
+            }
+        }
 
         $events = $request->input('events', []);
 
@@ -438,6 +473,13 @@ final class AnalyticsEventController extends Controller
 
             $this->manager->trackEvent($processed);
             $dispatchedCount++;
+        }
+
+        // Record against budget counters (count dispatched events)
+        if ($this->budgetService !== null) {
+            for ($i = 0; $i < $dispatchedCount; $i++) {
+                $this->budgetService->record($clientId, $userIdStr);
+            }
         }
 
         return response()->json([

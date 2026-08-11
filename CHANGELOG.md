@@ -16,7 +16,18 @@ All notable changes to the package will be documented in this file.
 - **`feature_flags` config section** — `zeroboiler.analytics.feature_flags` for auto-attaching feature flag state to all analytics events via a configurable resolver service.
 - **AnalyticsContextBus registered as scoped binding** in AnalyticsServiceProvider for automatic request isolation.
 - **EventFlushingService registered as singleton** in AnalyticsServiceProvider.
-- **V1700ContextBusAndFlushingTest** — 13 tests covering ContextBus initialization, overrides, event params flattening, summary, reset, and FlushingService strategies (immediate, buffered, auto-flush, strategy switching, reset).
+- **EventBudgetService registered as config-driven singleton** in AnalyticsServiceProvider. Per-client and per-user event budget enforcement with sliding window rate limiting, configurable overflow policies (reject, sample, throttle).
+- **AnalyticsApiGuard registered as config-driven singleton** in AnalyticsServiceProvider. Pre-dispatch request validation with payload size limits, event name validation, and rate limiting per client.
+- **EventDeconflictionService registered as singleton** in AnalyticsServiceProvider. Multi-provider collision detection for event name analysis.
+- **Budget enforcement in AnalyticsEventController** — Both `track()` and `batch()` methods now check EventBudgetService limits before processing. Returns HTTP 429 with `budget_exceeded` when exceeded.
+- **`api_guard` config section** — `zeroboiler.analytics.api_guard` with 5 configurable options for API request validation.
+- **`budget` config section** — `zeroboiler.analytics.budget` with 9 configurable options for event budget enforcement.
+- **V1700ContextBusAndFlushingTest** — 13 tests covering ContextBus initialization, overrides, event params flattening, summary, reset, and FlushingService strategies.
+- **V1700IndustryStandardSaaSUpgradeTest** — 15 tests covering version consistency, EventBudgetService, AnalyticsApiGuard, EventDeconflictionService, config integrity, EventCatalog validation.
+
+### Changed
+
+- **Version sweep** — 16.0.0 → 17.0.0 across `package.json`, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`. `AnalyticsEvent::VERSION`, JS client, and Svelte composables were already at 17.0.0.
 
 ## [16.0.0] - 2026-08-11
 

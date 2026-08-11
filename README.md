@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v17.0.0](#whats-new-in-v17000)
 +- [What's New in v16.0.0](#whats-new-in-v16000)
 +- [What's New in v15.0.0](#whats-new-in-v15000)
 +- [What's New in v14.0.0](#whats-new-in-v14000)
@@ -101,6 +102,26 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v17.0.0
+
+### 🛡️ API Guard + Event Budget Enforcement
+- **`AnalyticsApiGuard` registered as config-driven singleton** — Pre-dispatch request validation and rate limiting. Validates payload size, event name lengths, and batch sizes before event processing. Configured via new `zeroboiler.analytics.api_guard` config section with env-driven defaults.
+- **`EventBudgetService` registered as config-driven singleton** — Per-client and per-user event budget enforcement. Sliding window rate limiting with configurable limits and overflow policies (reject, sample, throttle). Configured via new `zeroboiler.analytics.budget` config section.
+- **Budget enforcement in API controller** — Both `POST /api/analytics/events` and `POST /api/analytics/batch` now check budget limits before processing. Returns 429 with `budget_exceeded` status when limits are exceeded. Budget counters are recorded after successful dispatch.
+
+### 🔍 Event Deconfliction Singleton
+- **`EventDeconflictionService` registered as config-driven singleton** — Multi-provider collision detection now available via dependency injection. Detects provider name collisions, reverse collisions, and similar event names (Levenshtein distance ≤ 2) across all 6 provider mappings.
+
+### 📦 Config Expansion
+- **`api_guard` config section** — 5 configurable options: `enabled`, `batch_max`, `max_payload_bytes`, `max_event_name_length`, `rate_window`.
+- **`budget` config section** — 9 configurable options: `enabled`, `client_limit`, `user_limit`, `global_limit`, `window_seconds`, `overflow_policy`, `sample_rate`, `cache_ttl`, `use_cache`.
+
+### 🔄 Version Sweep
+- Version bumped to 17.0.0 across `package.json`, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`. `AnalyticsEvent::VERSION`, JS client, and Svelte composables were already at 17.0.0.
+
+### 🧪 Tests
+- **`V1700IndustryStandardSaaSUpgradeTest`** — 15 test cases covering: version consistency (composer.json, AnalyticsEvent, package.json, IntegrityCommand), EventBudgetService (constructor, operations, client limit, sample policy, topClients, resetClient/resetUser), AnalyticsApiGuard (validation, disabled mode, batch validation), EventDeconflictionService (collision analysis, similar names), config integrity (api_guard + budget sections), EventCatalog validation, ServiceProvider version docblock.
 
 ## What's New in v16.0.0
 

@@ -234,6 +234,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDiagnosticCommand;
 use ZeroBoiler\Analytics\Services\EventNormalizationService;
 use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
 use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
+use ZeroBoiler\Analytics\Services\EventBudgetService;
+use ZeroBoiler\Analytics\Services\AnalyticsApiGuard;
+use ZeroBoiler\Analytics\Services\EventDeconflictionService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -241,7 +244,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 16.0.0
+ * @version 17.0.0
  *
  * @since 1.0.0
  */
@@ -553,6 +556,46 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventFlushingService($manager, $config);
+        });
+
+        // Event budget service (v17.0.0) — config-driven singleton
+        $this->app->singleton(EventBudgetService::class, function (Application $app): EventBudgetService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $budgetConfig = $config->get('zeroboiler.analytics.budget', []);
+            /** @var array{enabled?: bool, client_limit?: int, user_limit?: int, global_limit?: int, window_seconds?: int, overflow_policy?: string, sample_rate?: float, cache_ttl?: int, use_cache?: bool} $budgetConfig */
+
+            return new EventBudgetService(
+                $cache,
+                (int) ($budgetConfig['client_limit'] ?? 1000),
+                (int) ($budgetConfig['user_limit'] ?? 500),
+                (int) ($budgetConfig['global_limit'] ?? 100000),
+                (int) ($budgetConfig['window_seconds'] ?? 3600),
+                (string) ($budgetConfig['overflow_policy'] ?? 'reject'),
+                (float) ($budgetConfig['sample_rate'] ?? 0.1),
+                (int) ($budgetConfig['cache_ttl'] ?? 3600),
+                (bool) ($budgetConfig['use_cache'] ?? true),
+            );
+        });
+
+        // Analytics API guard (v17.0.0) — config-driven singleton
+        $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsApiGuard($cache, $config);
+        });
+
+        // Event deconfliction service (v17.0.0) — singleton for multi-provider analysis
+        $this->app->singleton(EventDeconflictionService::class, function (Application $app): EventDeconflictionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new EventDeconflictionService($manager);
         });
 
         // Session analytics service
