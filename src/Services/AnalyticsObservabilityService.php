@@ -408,6 +408,7 @@ final class AnalyticsObservabilityService
      */
     private function incrementCounter(string $name): void
     {
+        $this->registerKey($name);
         $key = self::CACHE_PREFIX . $name;
         $current = $this->getCounter($name);
         $this->cache->put($key, $current + 1, $this->ttl);
@@ -431,6 +432,7 @@ final class AnalyticsObservabilityService
      */
     private function recordLatency(string $provider, float $latencyMs): void
     {
+        $this->registerKey("latency_{$provider}");
         $key = self::CACHE_PREFIX . "latency_{$provider}";
         /** @var list<float>|null $samples */
         $samples = $this->cache->get($key);
@@ -472,6 +474,7 @@ final class AnalyticsObservabilityService
      */
     private function appendErrorLog(string $provider, string $errorType, ?string $errorMessage): void
     {
+        $this->registerKey("errors_{$provider}");
         $key = self::CACHE_PREFIX . "errors_{$provider}";
         /** @var list<array{type: string, message: string|null, timestamp: int}>|null $errors */
         $errors = $this->cache->get($key);

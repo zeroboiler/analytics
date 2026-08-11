@@ -648,11 +648,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('rate-limits/advanced/{clientId}', [AnalyticsEventController::class, 'advancedRateLimitClient']);
 
     // Observability (v18.0.0)
-    Route::get('observability', [AnalyticsEventController::class, 'observabilityDashboard']);
-    Route::get('observability/{provider}', [AnalyticsEventController::class, 'observabilityProviderMetrics']);
+    Route::get('observability/filters', [AnalyticsEventController::class, 'observabilityFilterMetrics']);
     Route::get('observability/{provider}/events', [AnalyticsEventController::class, 'observabilityEventMetrics']);
     Route::get('observability/{provider}/timeline', [AnalyticsEventController::class, 'observabilityDispatchTimeline']);
-    Route::get('observability/filters', [AnalyticsEventController::class, 'observabilityFilterMetrics']);
+    Route::get('observability/{provider}', [AnalyticsEventController::class, 'observabilityProviderMetrics']);
+    Route::get('observability', [AnalyticsEventController::class, 'observabilityDashboard']);
     Route::delete('observability/{provider}', [AnalyticsEventController::class, 'observabilityResetProvider']);
     Route::delete('observability', [AnalyticsEventController::class, 'observabilityResetAll']);
 });

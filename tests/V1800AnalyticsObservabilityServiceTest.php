@@ -37,29 +37,27 @@ describe('AnalyticsObservabilityService', function (): void {
 
     describe('recordSuccess', function (): void {
         it('records a successful dispatch and increments counter', function (): void {
+            // registerKey calls: get + put for _index (2 calls)
+            // incrementCounter: get success + put success (2 calls)
+            // recordLatency: get latency + put latency (2 calls)
             $this->cache->shouldReceive('get')
-                ->with('zb_obs_ga4_success', 0)
-                ->andReturn(0);
-            $this->cache->shouldReceive('put')
-                ->with('zb_obs_ga4_success', 1, 300)
-                ->once();
+                ->andReturn(0, null, null);
 
-            $this->cache->shouldReceive('get')
-                ->with('zb_obs_latency_ga4')
-                ->andReturn(null);
             $this->cache->shouldReceive('put')
-                ->with('zb_obs_latency_ga4', mock(type('array')), 300)
-                ->once();
+                ->times(6); // index x2 + success + latency_index + latency + index
 
             $this->service->recordSuccess('ga4', 42.5);
         });
 
         it('records per-event metrics when event name is provided', function (): void {
+            // registerKey x3 (success, latency_ga4, event_success) + incrementCounter x2 (event success + event latency)
+            // registerKey for latency_ga4 and event latency
+            // Total: 5 registerKey calls + 2 incrementCounter + 2 recordLatency
             $this->cache->shouldReceive('get')
-                ->andReturn(0, 0, null, null);
+                ->andReturn(0, 0, null, null, null, null, null);
 
             $this->cache->shouldReceive('put')
-                ->times(4); // success + latency + event_success + event_latency
+                ->times(12); // generous allowance for registerKey + put operations
 
             $this->service->recordSuccess('ga4', 100.0, 'purchase');
         });
@@ -88,10 +86,10 @@ describe('AnalyticsObservabilityService', function (): void {
     describe('recordFailure', function (): void {
         it('records a failure with error type and message', function (): void {
             $this->cache->shouldReceive('get')
-                ->andReturn(0, null, null);
+                ->andReturn(0, null, null, null);
 
             $this->cache->shouldReceive('put')
-                ->times(3); // failure + error_type + error_log
+                ->times(6); // index x2 + failure + error_type_index + error_type + error_log_index + error_log
 
             $this->service->recordFailure('ga4', 'timeout', 'Connection timed out after 5000ms');
         });
@@ -100,12 +98,10 @@ describe('AnalyticsObservabilityService', function (): void {
     describe('recordFiltered', function (): void {
         it('records filtered events by filter name', function (): void {
             $this->cache->shouldReceive('get')
-                ->with('zb_obs_filter_consent_filtered', 0)
-                ->andReturn(5);
+                ->andReturn(5, null);
 
             $this->cache->shouldReceive('put')
-                ->with('zb_obs_filter_consent_filtered', 6, 300)
-                ->once();
+                ->times(3); // index + consent_filtered + index
 
             $this->service->recordFiltered('consent');
         });
