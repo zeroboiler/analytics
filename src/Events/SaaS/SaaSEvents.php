@@ -13,7 +13,7 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
  * @since 1.0.0
  */
@@ -41,6 +41,8 @@ final class SaaSEvents
                 'meta' => 'CompleteRegistration',
                 'posthog' => '$signup',
                 'plausible' => 'signup',
+                'mixpanel' => 'Sign Up',
+                'amplitude' => 'Sign Up',
             ],
             'login' => [
                 'name' => 'login',
@@ -49,6 +51,8 @@ final class SaaSEvents
                 'meta' => 'Login',
                 'posthog' => '$identify',
                 'plausible' => 'login',
+                'mixpanel' => 'Login',
+                'amplitude' => 'Login',
             ],
             'logout' => [
                 'name' => 'logout',
@@ -57,6 +61,8 @@ final class SaaSEvents
                 'meta' => 'Logout',
                 'posthog' => 'logout',
                 'plausible' => 'logout',
+                'mixpanel' => 'Logout',
+                'amplitude' => 'Logout',
             ],
             'start_trial' => [
                 'name' => 'start_trial',
@@ -65,6 +71,8 @@ final class SaaSEvents
                 'meta' => 'StartTrial',
                 'posthog' => 'start_trial',
                 'plausible' => 'trial_start',
+                'mixpanel' => 'Start Trial',
+                'amplitude' => 'Start Trial',
             ],
             'trial_end' => [
                 'name' => 'trial_end',
@@ -73,6 +81,8 @@ final class SaaSEvents
                 'meta' => 'TrialEnded',
                 'posthog' => 'trial_ended',
                 'plausible' => 'trial_end',
+                'mixpanel' => 'Trial End',
+                'amplitude' => 'Trial End',
             ],
             'subscribe' => [
                 'name' => 'subscribe',
@@ -81,6 +91,8 @@ final class SaaSEvents
                 'meta' => 'Subscribe',
                 'posthog' => 'subscription_created',
                 'plausible' => 'subscription',
+                'mixpanel' => 'Subscribe',
+                'amplitude' => 'Subscribe',
             ],
             'plan_upgrade' => [
                 'name' => 'plan_upgrade',
@@ -89,6 +101,8 @@ final class SaaSEvents
                 'meta' => 'PlanUpgrade',
                 'posthog' => 'plan_upgraded',
                 'plausible' => 'plan_upgrade',
+                'mixpanel' => 'Plan Upgrade',
+                'amplitude' => 'Plan Upgrade',
             ],
             'plan_downgrade' => [
                 'name' => 'plan_downgrade',
@@ -97,6 +111,8 @@ final class SaaSEvents
                 'meta' => 'PlanDowngrade',
                 'posthog' => 'plan_downgraded',
                 'plausible' => 'plan_downgrade',
+                'mixpanel' => 'Plan Downgrade',
+                'amplitude' => 'Plan Downgrade',
             ],
             'cancellation' => [
                 'name' => 'cancellation',
@@ -105,6 +121,8 @@ final class SaaSEvents
                 'meta' => 'CancelSubscription',
                 'posthog' => 'cancellation',
                 'plausible' => 'cancellation',
+                'mixpanel' => 'Cancellation',
+                'amplitude' => 'Cancellation',
             ],
             'feature_used' => [
                 'name' => 'feature_used',
@@ -113,6 +131,8 @@ final class SaaSEvents
                 'meta' => 'FeatureUsed',
                 'posthog' => 'feature_used',
                 'plausible' => 'feature_used',
+                'mixpanel' => 'Feature Used',
+                'amplitude' => 'Feature Used',
             ],
             'revenue_tracked' => [
                 'name' => 'revenue_tracked',
@@ -121,6 +141,8 @@ final class SaaSEvents
                 'meta' => 'Purchase',
                 'posthog' => 'revenue_tracked',
                 'plausible' => 'revenue',
+                'mixpanel' => 'Revenue Tracked',
+                'amplitude' => 'Revenue Tracked',
             ],
             // Cohort analytics events (typed classes)
             'cohort_assigned' => [
@@ -130,6 +152,8 @@ final class SaaSEvents
                 'meta' => 'CohortAssigned',
                 'posthog' => 'cohort_assigned',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Assigned',
+                'amplitude' => 'Cohort Assigned',
             ],
             'cohort_retention' => [
                 'name' => 'cohort_retention',
@@ -138,6 +162,8 @@ final class SaaSEvents
                 'meta' => 'CohortRetention',
                 'posthog' => 'cohort_retention',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Retention',
+                'amplitude' => 'Cohort Retention',
             ],
             'cohort_churn' => [
                 'name' => 'cohort_churn',
@@ -146,6 +172,8 @@ final class SaaSEvents
                 'meta' => 'CohortChurn',
                 'posthog' => 'cohort_churn',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Churn',
+                'amplitude' => 'Cohort Churn',
             ],
             'cohort_conversion' => [
                 'name' => 'cohort_conversion',
@@ -154,6 +182,8 @@ final class SaaSEvents
                 'meta' => 'CohortConversion',
                 'posthog' => 'cohort_conversion',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Conversion',
+                'amplitude' => 'Cohort Conversion',
             ],
             'cohort_migration' => [
                 'name' => 'cohort_migration',
@@ -162,6 +192,8 @@ final class SaaSEvents
                 'meta' => 'CohortMigration',
                 'posthog' => 'cohort_migration',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Migration',
+                'amplitude' => 'Cohort Migration',
             ],
             'cohort_engagement' => [
                 'name' => 'cohort_engagement',
@@ -170,6 +202,8 @@ final class SaaSEvents
                 'meta' => 'CohortEngagement',
                 'posthog' => 'cohort_engagement',
                 'plausible' => null,
+                'mixpanel' => 'Cohort Engagement',
+                'amplitude' => 'Cohort Engagement',
             ],
             'invite_sent' => [
                 'name' => 'invite_sent',
@@ -178,6 +212,8 @@ final class SaaSEvents
                 'meta' => 'InviteSent',
                 'posthog' => 'invite_sent',
                 'plausible' => null,
+                'mixpanel' => 'Invite Sent',
+                'amplitude' => 'Invite Sent',
             ],
             'integration_connected' => [
                 'name' => 'integration_connected',
@@ -186,6 +222,8 @@ final class SaaSEvents
                 'meta' => 'IntegrationConnected',
                 'posthog' => 'integration_connected',
                 'plausible' => null,
+                'mixpanel' => 'Integration Connected',
+                'amplitude' => 'Integration Connected',
             ],
             'subscription_renewal' => [
                 'name' => 'subscription_renewal',
@@ -194,6 +232,8 @@ final class SaaSEvents
                 'meta' => 'SubscriptionRenewal',
                 'posthog' => 'subscription_renewed',
                 'plausible' => 'subscription_renewal',
+                'mixpanel' => 'Subscription Renewal',
+                'amplitude' => 'Subscription Renewal',
             ],
             // Account lifecycle events
             'account_activated' => [
@@ -203,6 +243,8 @@ final class SaaSEvents
                 'meta' => 'AccountActivated',
                 'posthog' => 'account_activated',
                 'plausible' => null,
+                'mixpanel' => 'Account Activated',
+                'amplitude' => 'Account Activated',
             ],
             'account_deactivated' => [
                 'name' => 'account_deactivated',
@@ -211,6 +253,8 @@ final class SaaSEvents
                 'meta' => 'AccountDeactivated',
                 'posthog' => 'account_deactivated',
                 'plausible' => null,
+                'mixpanel' => 'Account Deactivated',
+                'amplitude' => 'Account Deactivated',
             ],
             'password_changed' => [
                 'name' => 'password_changed',
@@ -219,6 +263,8 @@ final class SaaSEvents
                 'meta' => 'PasswordChanged',
                 'posthog' => 'password_changed',
                 'plausible' => null,
+                'mixpanel' => 'Password Changed',
+                'amplitude' => 'Password Changed',
             ],
             'password_reset' => [
                 'name' => 'password_reset',
@@ -227,6 +273,8 @@ final class SaaSEvents
                 'meta' => 'PasswordReset',
                 'posthog' => 'password_reset',
                 'plausible' => null,
+                'mixpanel' => 'Password Reset',
+                'amplitude' => 'Password Reset',
             ],
             'profile_updated' => [
                 'name' => 'profile_updated',
@@ -235,6 +283,8 @@ final class SaaSEvents
                 'meta' => 'ProfileUpdated',
                 'posthog' => 'profile_updated',
                 'plausible' => null,
+                'mixpanel' => 'Profile Updated',
+                'amplitude' => 'Profile Updated',
             ],
             'email_verified' => [
                 'name' => 'email_verified',
@@ -243,6 +293,8 @@ final class SaaSEvents
                 'meta' => 'EmailVerified',
                 'posthog' => 'email_verified',
                 'plausible' => null,
+                'mixpanel' => 'Email Verified',
+                'amplitude' => 'Email Verified',
             ],
             // B2B / Team events
             'team_created' => [
@@ -252,6 +304,8 @@ final class SaaSEvents
                 'meta' => 'TeamCreated',
                 'posthog' => 'team_created',
                 'plausible' => null,
+                'mixpanel' => 'Team Created',
+                'amplitude' => 'Team Created',
             ],
             'team_member_joined' => [
                 'name' => 'team_member_joined',
@@ -260,6 +314,8 @@ final class SaaSEvents
                 'meta' => 'TeamMemberJoined',
                 'posthog' => 'team_member_joined',
                 'plausible' => null,
+                'mixpanel' => 'Team Member Joined',
+                'amplitude' => 'Team Member Joined',
             ],
             'team_member_removed' => [
                 'name' => 'team_member_removed',
@@ -268,6 +324,8 @@ final class SaaSEvents
                 'meta' => 'TeamMemberRemoved',
                 'posthog' => 'team_member_removed',
                 'plausible' => null,
+                'mixpanel' => 'Team Member Removed',
+                'amplitude' => 'Team Member Removed',
             ],
             'role_changed' => [
                 'name' => 'role_changed',
@@ -276,6 +334,8 @@ final class SaaSEvents
                 'meta' => 'RoleChanged',
                 'posthog' => 'role_changed',
                 'plausible' => null,
+                'mixpanel' => 'Role Changed',
+                'amplitude' => 'Role Changed',
             ],
             // Billing events
             'payment_failed' => [
@@ -285,6 +345,8 @@ final class SaaSEvents
                 'meta' => 'PaymentFailed',
                 'posthog' => 'payment_failed',
                 'plausible' => null,
+                'mixpanel' => 'Payment Failed',
+                'amplitude' => 'Payment Failed',
             ],
             'payment_succeeded' => [
                 'name' => 'payment_succeeded',
@@ -293,6 +355,8 @@ final class SaaSEvents
                 'meta' => 'PaymentSucceeded',
                 'posthog' => 'payment_succeeded',
                 'plausible' => null,
+                'mixpanel' => 'Payment Succeeded',
+                'amplitude' => 'Payment Succeeded',
             ],
             'payment_method_added' => [
                 'name' => 'payment_method_added',
@@ -301,6 +365,8 @@ final class SaaSEvents
                 'meta' => 'PaymentMethodAdded',
                 'posthog' => 'payment_method_added',
                 'plausible' => null,
+                'mixpanel' => 'Payment Method Added',
+                'amplitude' => 'Payment Method Added',
             ],
             'invoice_generated' => [
                 'name' => 'invoice_generated',
@@ -309,6 +375,8 @@ final class SaaSEvents
                 'meta' => 'InvoiceGenerated',
                 'posthog' => 'invoice_generated',
                 'plausible' => null,
+                'mixpanel' => 'Invoice Generated',
+                'amplitude' => 'Invoice Generated',
             ],
             'credit_applied' => [
                 'name' => 'credit_applied',
@@ -317,6 +385,8 @@ final class SaaSEvents
                 'meta' => 'CreditApplied',
                 'posthog' => 'credit_applied',
                 'plausible' => null,
+                'mixpanel' => 'Credit Applied',
+                'amplitude' => 'Credit Applied',
             ],
             // Operational events
             'feature_limit_reached' => [
@@ -326,6 +396,8 @@ final class SaaSEvents
                 'meta' => 'FeatureLimitReached',
                 'posthog' => 'feature_limit_reached',
                 'plausible' => null,
+                'mixpanel' => 'Feature Limit Reached',
+                'amplitude' => 'Feature Limit Reached',
             ],
             'integration_failed' => [
                 'name' => 'integration_failed',
@@ -334,6 +406,8 @@ final class SaaSEvents
                 'meta' => 'IntegrationFailed',
                 'posthog' => 'integration_failed',
                 'plausible' => null,
+                'mixpanel' => 'Integration Failed',
+                'amplitude' => 'Integration Failed',
             ],
             // Feature discovery & exposure
             'feature_impression' => [
@@ -343,6 +417,8 @@ final class SaaSEvents
                 'meta' => 'FeatureImpression',
                 'posthog' => 'feature_impression',
                 'plausible' => null,
+                'mixpanel' => 'Feature Impression',
+                'amplitude' => 'Feature Impression',
             ],
             // Multi-tenant workspace creation
             'workspace_created' => [
@@ -352,6 +428,8 @@ final class SaaSEvents
                 'meta' => 'WorkspaceCreated',
                 'posthog' => 'workspace_created',
                 'plausible' => null,
+                'mixpanel' => 'Workspace Created',
+                'amplitude' => 'Workspace Created',
             ],
             // Conversion & growth events (v2.66.0)
             'trial_converted' => [
@@ -361,6 +439,8 @@ final class SaaSEvents
                 'meta' => 'Subscribe',
                 'posthog' => 'trial_converted',
                 'plausible' => 'conversion',
+                'mixpanel' => 'Trial Converted',
+                'amplitude' => 'Trial Converted',
             ],
             'subscription_resumed' => [
                 'name' => 'subscription_resumed',
@@ -369,6 +449,8 @@ final class SaaSEvents
                 'meta' => 'Subscribe',
                 'posthog' => 'subscription_resumed',
                 'plausible' => null,
+                'mixpanel' => 'Subscription Resumed',
+                'amplitude' => 'Subscription Resumed',
             ],
             'milestone_reached' => [
                 'name' => 'milestone_reached',
@@ -377,6 +459,8 @@ final class SaaSEvents
                 'meta' => 'MilestoneReached',
                 'posthog' => 'milestone_reached',
                 'plausible' => null,
+                'mixpanel' => 'Milestone Reached',
+                'amplitude' => 'Milestone Reached',
             ],
             // Subscription lifecycle — pause/resume
             'subscription_paused' => [
@@ -386,6 +470,8 @@ final class SaaSEvents
                 'meta' => 'SubscriptionPaused',
                 'posthog' => 'subscription_paused',
                 'plausible' => null,
+                'mixpanel' => 'Subscription Paused',
+                'amplitude' => 'Subscription Paused',
             ],
             // Revenue movement events
             'subscription_value_changed' => [
@@ -395,6 +481,8 @@ final class SaaSEvents
                 'meta' => 'SubscriptionValueChanged',
                 'posthog' => 'subscription_value_changed',
                 'plausible' => null,
+                'mixpanel' => 'Subscription Value Changed',
+                'amplitude' => 'Subscription Value Changed',
             ],
             // Expansion & limit signals
             'usage_quota_reached' => [
@@ -404,6 +492,8 @@ final class SaaSEvents
                 'meta' => 'UsageQuotaReached',
                 'posthog' => 'usage_quota_reached',
                 'plausible' => null,
+                'mixpanel' => 'Usage Quota Reached',
+                'amplitude' => 'Usage Quota Reached',
             ],
             // Dunning / billing retry
             'billing_retry' => [
@@ -413,6 +503,8 @@ final class SaaSEvents
                 'meta' => 'BillingRetry',
                 'posthog' => 'billing_retry',
                 'plausible' => null,
+                'mixpanel' => 'Billing Retry',
+                'amplitude' => 'Billing Retry',
             ],
             // SLA compliance event
             'sla_breach' => [
@@ -422,6 +514,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'sla_breach',
                 'plausible' => null,
+                'mixpanel' => 'Sla Breach',
+                'amplitude' => 'Sla Breach',
             ],
             // Payment method update event
             'payment_method_updated' => [
@@ -431,6 +525,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'payment_method_updated',
                 'plausible' => null,
+                'mixpanel' => 'Payment Method Updated',
+                'amplitude' => 'Payment Method Updated',
             ],
             // Product-Led Growth events (v2.78.0)
             'feature_adopted' => [
@@ -440,6 +536,8 @@ final class SaaSEvents
                 'meta' => 'FeatureAdopted',
                 'posthog' => 'feature_adopted',
                 'plausible' => null,
+                'mixpanel' => 'Feature Adopted',
+                'amplitude' => 'Feature Adopted',
             ],
             'expansion_revenue' => [
                 'name' => 'expansion_revenue',
@@ -448,6 +546,8 @@ final class SaaSEvents
                 'meta' => 'Purchase',
                 'posthog' => 'expansion_revenue',
                 'plausible' => null,
+                'mixpanel' => 'Expansion Revenue',
+                'amplitude' => 'Expansion Revenue',
             ],
             // Data portability events (v2.86.0)
             'export' => [
@@ -457,6 +557,8 @@ final class SaaSEvents
                 'meta' => 'ExportData',
                 'posthog' => 'export',
                 'plausible' => null,
+                'mixpanel' => 'Export',
+                'amplitude' => 'Export',
             ],
             'import' => [
                 'name' => 'import',
@@ -465,6 +567,8 @@ final class SaaSEvents
                 'meta' => 'ImportData',
                 'posthog' => 'import',
                 'plausible' => null,
+                'mixpanel' => 'Import',
+                'amplitude' => 'Import',
             ],
             // GDPR compliance & account lifecycle (v2.90.0)
             'account_deleted' => [
@@ -474,6 +578,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'account_deleted',
                 'plausible' => null,
+                'mixpanel' => 'Account Deleted',
+                'amplitude' => 'Account Deleted',
             ],
             // Subscription lifecycle (v2.90.0)
             'subscription_created' => [
@@ -483,6 +589,8 @@ final class SaaSEvents
                 'meta' => 'Subscribe',
                 'posthog' => 'subscription_created',
                 'plausible' => 'subscription',
+                'mixpanel' => 'Subscription Created',
+                'amplitude' => 'Subscription Created',
             ],
             'subscription_cancelled' => [
                 'name' => 'subscription_cancelled',
@@ -491,6 +599,8 @@ final class SaaSEvents
                 'meta' => 'CancelSubscription',
                 'posthog' => 'subscription_cancelled',
                 'plausible' => 'cancellation',
+                'mixpanel' => 'Subscription Cancelled',
+                'amplitude' => 'Subscription Cancelled',
             ],
             // Trial lifecycle (v2.90.0)
             'trial_expired' => [
@@ -500,6 +610,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'trial_expired',
                 'plausible' => null,
+                'mixpanel' => 'Trial Expired',
+                'amplitude' => 'Trial Expired',
             ],
             // Plan management (v2.90.0)
             'plan_changed' => [
@@ -509,6 +621,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'plan_changed',
                 'plausible' => null,
+                'mixpanel' => 'Plan Changed',
+                'amplitude' => 'Plan Changed',
             ],
             // GDPR compliance events (v2.93.0)
             'data_subject_access_request' => [
@@ -518,6 +632,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'data_subject_access_request',
                 'plausible' => null,
+                'mixpanel' => 'Data Subject Access Request',
+                'amplitude' => 'Data Subject Access Request',
             ],
             'data_erasure_completed' => [
                 'name' => 'data_erasure_completed',
@@ -526,6 +642,8 @@ final class SaaSEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'data_erasure_completed',
                 'plausible' => null,
+                'mixpanel' => 'Data Erasure Completed',
+                'amplitude' => 'Data Erasure Completed',
             ],
         ];
 
@@ -656,4 +774,37 @@ final class SaaSEvents
             fn (?string $name): bool => $name !== null,
         ));
     }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
 }

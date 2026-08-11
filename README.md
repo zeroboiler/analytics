@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.5.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.6.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.6.0](#whats-new-in-v1060)
 +- [What's New in v10.5.0](#whats-new-in-v1050)
 +- [What's New in v10.4.0](#whats-new-in-v1040)
 +- [What's New in v10.3.0](#whats-new-in-v1030)
@@ -93,6 +94,39 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Upgrading](#upgrading)
 - [License](#license)
 
+## What's New in v10.6.0
+
+### 🔗 Mixpanel & Amplitude Provider Parity
+
+Full event catalog parity for Mixpanel and Amplitude — matching the existing PostHog and Plausible integration depth. All 5 catalog categories now include native `mixpanel` and `amplitude` event name fields.
+
+**Event Catalog enhancements:**
+- Every catalog entry (Ecommerce, SaaS, Engagement, Security, Uptime) now has `mixpanel` and `amplitude` fields alongside existing `ga4`, `meta`, `posthog`, and `plausible`
+- New `EventCatalog::allMixpanelNames()`, `allAmplitudeNames()` — aggregate all Mixpanel/Amplitude event names across categories
+- New `EventCatalog::mixpanelNameFor()`, `amplitudeNameFor()` — look up provider-specific event name for any catalog event
+- `byProvider()` now returns 6 providers (ga4, meta, posthog, plausible, mixpanel, amplitude)
+- `providerCoverage()` includes mixpanel and amplitude counts
+- `summary()` reports `with_mixpanel` and `with_amplitude` totals
+- `allProviderMappingsMatrix()` includes mixpanel and amplitude columns
+- Category-level helpers: `EcommerceEvents::mixpanelNames()`, `SaaSEvents::amplitudeNames()`, etc.
+
+**EventTransformer enhancements:**
+- New `saasToMixpanelEventMap()` — 80+ event mappings to Mixpanel title-case format (e.g. `add_to_cart` → `Add to Cart`)
+- New `saasToAmplitudeEventMap()` — 80+ event mappings to Amplitude past-tense format (e.g. `purchase` → `Completed Order`)
+- `transformForProvider()` now supports `'mixpanel'` and `'amplitude'` provider keys
+- New `transformForMixpanel()` and `transformForAmplitude()` private methods
+
+**Tracker integration:**
+- `MixpanelTracker::track()` auto-transforms event names via `EventTransformer::transformForProvider($event, 'mixpanel')`
+- `AmplitudeTracker::track()` auto-transforms event names via `EventTransformer::transformForProvider($event, 'amplitude')`
+
+**Naming conventions:**
+- **Mixpanel**: Title Case (e.g. `Sign Up`, `Add to Cart`, `Purchase`)
+- **Amplitude**: Past Tense (e.g. `Signed Up`, `Added to Cart`, `Completed Order`)
+- Both are snake_case-free for consistency with their respective platform best practices
+
+**Tests:** `MixpanelAmplitudeParityTest` — 35 assertions covering catalog fields, provider lookups, transformer maps, and naming conventions
+
 ## What's New in v10.5.0
 
 ### 🔄 Event Normalization Service (`EventNormalizationService`)
@@ -120,11 +154,20 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - **Quick score** — `quickScore()` for lightweight health checks
 - **Cache invalidation** — `invalidateCache()` for forced re-check after config changes
 
+### 🎯 Mixpanel & Amplitude Catalog Fields
+- **Native `mixpanel` field** added to all catalog entries across EcommerceEvents, SaaSEvents, EngagementEvents, SecurityEvents, UptimeEvents — title-case event names (e.g. "Add to Cart", "Sign Up")
+- **Native `amplitude` field** added to all catalog entries — past-tense action names (e.g. "Added to Cart", "Signed Up")
+- **`mixpanelNames()` / `amplitudeNames()`** accessor methods on every event catalog class
+- **`EventCatalog::allMixpanelNames()` / `allAmplitudeNames()`** unified aggregate methods with deduplication
+- **`EventTransformer::transformForProvider()`** now supports `'mixpanel'` and `'amplitude'` providers with full mapping tables
+- **`EventTransformer::saasToMixpanelEventMap()` / `saasToAmplitudeEventMap()`** comprehensive static mapping tables (100+ entries each)
+
 ### 📦 Version Sweep
 - 10.4.0 → 10.5.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
 ### 🧪 Testing
 - `V105EventNormalizationConsistencyTest` — 30+ assertions covering normalization across all providers, batch normalization, provider name resolution, target providers, stats, coverage report, catalog integrity, provider config, naming convention, identity consistency, config validity, debug mode, sampling rate, full check with scoring, and cache invalidation
+- `EventCatalogTest` — expanded with SecurityEvents, UptimeEvents, Mixpanel/Amplitude name assertions, EventTransformer Mixpanel/Amplitude transform tests, updated category counts
 
 ## What's New in v9.8.0
 

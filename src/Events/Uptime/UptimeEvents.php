@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Provides a central registry for uptime event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations in infrastructure monitoring.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
  * @since 9.9.0
  */
@@ -43,6 +43,8 @@ final class UptimeEvents
                 'meta' => null,
                 'posthog' => 'service_up',
                 'plausible' => null,
+                'mixpanel' => 'Service Up',
+                'amplitude' => 'Service Up',
             ],
             'service_down' => [
                 'name' => 'service_down',
@@ -51,6 +53,8 @@ final class UptimeEvents
                 'meta' => null,
                 'posthog' => 'service_down',
                 'plausible' => null,
+                'mixpanel' => 'Service Down',
+                'amplitude' => 'Service Down',
             ],
             'api_latency' => [
                 'name' => 'api_latency',
@@ -59,6 +63,8 @@ final class UptimeEvents
                 'meta' => null,
                 'posthog' => 'api_latency',
                 'plausible' => null,
+                'mixpanel' => 'API Latency',
+                'amplitude' => 'API Latency',
             ],
             'error_spike' => [
                 'name' => 'error_spike',
@@ -67,6 +73,8 @@ final class UptimeEvents
                 'meta' => null,
                 'posthog' => 'error_spike',
                 'plausible' => null,
+                'mixpanel' => 'Error Spike',
+                'amplitude' => 'Error Spike',
             ],
             'deployment' => [
                 'name' => 'deployment',
@@ -75,6 +83,8 @@ final class UptimeEvents
                 'meta' => null,
                 'posthog' => 'deployment',
                 'plausible' => null,
+                'mixpanel' => 'Deployment',
+                'amplitude' => 'Deployment',
             ],
         ];
 
@@ -200,6 +210,38 @@ final class UptimeEvents
         return array_values(array_filter(
             array_map(
                 fn (array $entry): ?string => $entry['plausible'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
                 self::catalog(),
             ),
             fn (?string $name): bool => $name !== null,

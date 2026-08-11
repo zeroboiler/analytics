@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
+use ZeroBoiler\Analytics\Support\EventTransformer;
 
 /**
  * Mixpanel Analytics — product analytics with user profiling.
@@ -52,6 +53,8 @@ final class MixpanelTracker implements TrackerInterface
         if ($this->isAnalyticsDenied()) {
             return;
         }
+
+        $event = EventTransformer::transformForProvider($event, 'mixpanel');
 
         $distinctId = $event->userId ?? $event->clientId ?? $this->generateDistinctId();
 

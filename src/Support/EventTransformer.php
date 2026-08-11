@@ -13,7 +13,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Event transformer for cross-provider format conversion.
  *
  * Centralizes all event name and parameter transformations between
- * GA4, Meta Pixel, PostHog, Plausible, and generic formats.
+ * GA4, Meta Pixel, PostHog, Plausible, Mixpanel, Amplitude, and generic formats.
  * Provides both individual transforms and bulk conversion helpers.
  *
  * @since 1.0.0
@@ -288,10 +288,10 @@ final class EventTransformer
     }
 
     /**
-     * Transform a single event for a specific provider.
+     * Transform an event for a specific provider.
      *
      * @param  AnalyticsEvent  $event  Original event
-     * @param  'ga4'|'meta'|'posthog'  $provider  Target provider
+     * @param  'ga4'|'meta'|'posthog'|'plausible'|'mixpanel'|'amplitude'  $provider  Target provider
      * @return AnalyticsEvent  Transformed event
      */
     public static function transformForProvider(AnalyticsEvent $event, string $provider): AnalyticsEvent
@@ -303,6 +303,8 @@ final class EventTransformer
             'meta' => self::transformForMeta($name, $params, $event),
             'posthog' => self::transformForPosthog($name, $params, $event),
             'plausible' => self::transformForPlausible($name, $params, $event),
+            'mixpanel' => self::transformForMixpanel($name, $params, $event),
+            'amplitude' => self::transformForAmplitude($name, $params, $event),
             default => $event, // ga4, webhook use original format
         };
     }
@@ -396,5 +398,349 @@ final class EventTransformer
         }
 
         return $event;
+    }
+
+    /**
+     * Transform an event for Mixpanel.
+     *
+     * Mixpanel uses human-readable title-case event names.
+     * Uses the catalog's native `mixpanel` field when available.
+     *
+     * @param  string  $name  Original event name
+     * @param  array<string, mixed>  $params  Original params
+     * @param  AnalyticsEvent  $event  Original event
+     * @return AnalyticsEvent  Transformed event
+     */
+    private static function transformForMixpanel(
+        string $name,
+        array $params,
+        AnalyticsEvent $event,
+    ): AnalyticsEvent {
+        $mixpanelMap = self::saasToMixpanelEventMap();
+
+        if (isset($mixpanelMap[$name])) {
+            return new AnalyticsEvent(
+                name: $mixpanelMap[$name],
+                params: $params,
+                clientId: $event->clientId,
+                userId: $event->userId,
+            );
+        }
+
+        return $event;
+    }
+
+    /**
+     * Transform an event for Amplitude.
+     *
+     * Amplitude uses past-tense action event names (e.g. "Completed Order").
+     * Uses the catalog's native `amplitude` field when available.
+     *
+     * @param  string  $name  Original event name
+     * @param  array<string, mixed>  $params  Original params
+     * @param  AnalyticsEvent  $event  Original event
+     * @return AnalyticsEvent  Transformed event
+     */
+    private static function transformForAmplitude(
+        string $name,
+        array $params,
+        AnalyticsEvent $event,
+    ): AnalyticsEvent {
+        $amplitudeMap = self::saasToAmplitudeEventMap();
+
+        if (isset($amplitudeMap[$name])) {
+            return new AnalyticsEvent(
+                name: $amplitudeMap[$name],
+                params: $params,
+                clientId: $event->clientId,
+                userId: $event->userId,
+            );
+        }
+
+        return $event;
+    }
+
+    /**
+     * Map event names to Mixpanel-compatible event names.
+     *
+     * Mixpanel uses human-readable title-case event names.
+     * Events use their catalog `mixpanel` field when available.
+     *
+     * @return array<string, string>
+     */
+    public static function saasToMixpanelEventMap(): array
+    {
+        return [
+            // Authentication
+            'sign_up' => 'Sign Up',
+            'login' => 'Login',
+            'logout' => 'Logout',
+            'email_verified' => 'Email Verified',
+            'password_changed' => 'Password Changed',
+            'password_reset' => 'Password Reset',
+            // Subscription lifecycle
+            'start_trial' => 'Start Trial',
+            'trial_end' => 'Trial Ended',
+            'trial_converted' => 'Trial Converted',
+            'trial_expired' => 'Trial Expired',
+            'subscribe' => 'Subscribe',
+            'subscription_created' => 'Subscription Created',
+            'subscription_renewal' => 'Subscription Renewed',
+            'subscription_resumed' => 'Subscription Resumed',
+            'subscription_paused' => 'Subscription Paused',
+            'subscription_cancelled' => 'Subscription Cancelled',
+            'subscription_value_changed' => 'Subscription Value Changed',
+            'cancellation' => 'Cancellation',
+            'plan_upgrade' => 'Plan Upgraded',
+            'plan_downgrade' => 'Plan Downgraded',
+            'plan_changed' => 'Plan Changed',
+            // Revenue
+            'revenue_tracked' => 'Revenue Tracked',
+            'expansion_revenue' => 'Expansion Revenue',
+            'payment_succeeded' => 'Payment Succeeded',
+            'payment_failed' => 'Payment Failed',
+            'payment_method_added' => 'Payment Method Added',
+            'payment_method_updated' => 'Payment Method Updated',
+            'invoice_generated' => 'Invoice Generated',
+            'credit_applied' => 'Credit Applied',
+            'billing_retry' => 'Billing Retry',
+            // E-commerce
+            'view_item' => 'View Item',
+            'add_to_cart' => 'Add to Cart',
+            'remove_from_cart' => 'Remove from Cart',
+            'view_cart' => 'View Cart',
+            'begin_checkout' => 'Checkout Started',
+            'add_payment_info' => 'Add Payment Info',
+            'purchase' => 'Purchase',
+            'refund' => 'Refund',
+            'add_to_wishlist' => 'Add to Wishlist',
+            'select_item' => 'Select Item',
+            'select_promotion' => 'Select Promotion',
+            'view_promotion' => 'View Promotion',
+            // Engagement
+            'page_view' => 'Page View',
+            'scroll_depth' => 'Scroll Depth',
+            'click' => 'Click',
+            'form_start' => 'Form Started',
+            'form_submit' => 'Form Submitted',
+            'search' => 'Search',
+            'share' => 'Share',
+            'error' => 'Error',
+            'session_start' => 'Session Started',
+            'session_end' => 'Session Ended',
+            'time_on_page' => 'Time on Page',
+            'content_engagement' => 'Content Engagement',
+            'screen_view' => 'Screen View',
+            'outbound_click' => 'Outbound Click',
+            // Feature & product
+            'feature_used' => 'Feature Used',
+            'feature_adopted' => 'Feature Adopted',
+            'feature_impression' => 'Feature Impression',
+            'feature_limit_reached' => 'Feature Limit Reached',
+            'usage_quota_reached' => 'Usage Quota Reached',
+            'milestone_reached' => 'Milestone Reached',
+            // Account lifecycle
+            'account_activated' => 'Account Activated',
+            'account_deactivated' => 'Account Deactivated',
+            'account_deleted' => 'Account Deleted',
+            'profile_updated' => 'Profile Updated',
+            // B2B / Team
+            'team_created' => 'Team Created',
+            'team_member_joined' => 'Team Member Joined',
+            'team_member_removed' => 'Team Member Removed',
+            'role_changed' => 'Role Changed',
+            'workspace_created' => 'Workspace Created',
+            'invite_sent' => 'Invite Sent',
+            // Integration
+            'integration_connected' => 'Integration Connected',
+            'integration_failed' => 'Integration Failed',
+            // Cohort
+            'cohort_assigned' => 'Cohort Assigned',
+            'cohort_retention' => 'Cohort Retention',
+            'cohort_churn' => 'Cohort Churn',
+            'cohort_conversion' => 'Cohort Conversion',
+            'cohort_migration' => 'Cohort Migration',
+            'cohort_engagement' => 'Cohort Engagement',
+            // Operational
+            'sla_breach' => 'SLA Breach',
+            'export' => 'Export',
+            'import' => 'Import',
+            // GDPR
+            'data_subject_access_request' => 'Data Subject Access Request',
+            'data_erasure_completed' => 'Data Erasure Completed',
+            // Cart & checkout abandonment
+            'abandoned_cart' => 'Abandoned Cart',
+            'checkout_abandon' => 'Checkout Abandon',
+            // Security
+            'login_attempt' => 'Login Attempt',
+            'suspicious_activity' => 'Suspicious Activity',
+            'data_access_audit' => 'Data Access Audit',
+            'rate_limit_exceeded' => 'Rate Limit Exceeded',
+            'mfa_challenge' => 'MFA Challenge',
+            // Uptime
+            'service_up' => 'Service Up',
+            'service_down' => 'Service Down',
+            'api_latency' => 'API Latency',
+            'error_spike' => 'Error Spike',
+            'deployment' => 'Deployment',
+            // Misc engagement
+            'onboarding_step' => 'Onboarding Step',
+            'onboarding_completed' => 'Onboarding Completed',
+            'goal_conversion' => 'Goal Conversion',
+            'feature_request' => 'Feature Request',
+            'feedback' => 'Feedback',
+            'notification' => 'Notification',
+            'file_download' => 'File Download',
+            'video_play' => 'Video Play',
+            'web_vitals' => 'Web Vitals',
+            'js_error' => 'JS Error',
+            'timing' => 'Timing',
+            'ab_test_exposure' => 'A/B Test Exposure',
+            'campaign_attribution' => 'Campaign Attribution',
+            'ad_click' => 'Ad Click',
+            'checkout_step' => 'Checkout Step',
+        ];
+    }
+
+    /**
+     * Map event names to Amplitude-compatible event names.
+     *
+     * Amplitude uses past-tense action names (e.g. "Completed Order", "Signed Up").
+     * Events use their catalog `amplitude` field when available.
+     *
+     * @return array<string, string>
+     */
+    public static function saasToAmplitudeEventMap(): array
+    {
+        return [
+            // Authentication
+            'sign_up' => 'Signed Up',
+            'login' => 'Logged In',
+            'logout' => 'Logged Out',
+            'email_verified' => 'Email Verified',
+            'password_changed' => 'Password Changed',
+            'password_reset' => 'Password Reset',
+            // Subscription lifecycle
+            'start_trial' => 'Started Trial',
+            'trial_end' => 'Trial Ended',
+            'trial_converted' => 'Trial Converted',
+            'trial_expired' => 'Trial Expired',
+            'subscribe' => 'Subscribed',
+            'subscription_created' => 'Subscription Created',
+            'subscription_renewal' => 'Subscription Renewed',
+            'subscription_resumed' => 'Subscription Resumed',
+            'subscription_paused' => 'Subscription Paused',
+            'subscription_cancelled' => 'Subscription Cancelled',
+            'subscription_value_changed' => 'Subscription Value Changed',
+            'cancellation' => 'Cancelled',
+            'plan_upgrade' => 'Upgraded Plan',
+            'plan_downgrade' => 'Downgraded Plan',
+            'plan_changed' => 'Changed Plan',
+            // Revenue
+            'revenue_tracked' => 'Revenue Tracked',
+            'expansion_revenue' => 'Expansion Revenue',
+            'payment_succeeded' => 'Payment Succeeded',
+            'payment_failed' => 'Payment Failed',
+            'payment_method_added' => 'Added Payment Method',
+            'payment_method_updated' => 'Updated Payment Method',
+            'invoice_generated' => 'Invoice Generated',
+            'credit_applied' => 'Credit Applied',
+            'billing_retry' => 'Billing Retry',
+            // E-commerce
+            'view_item' => 'Viewed Item',
+            'add_to_cart' => 'Added to Cart',
+            'remove_from_cart' => 'Removed from Cart',
+            'view_cart' => 'Viewed Cart',
+            'begin_checkout' => 'Started Checkout',
+            'add_payment_info' => 'Added Payment Info',
+            'purchase' => 'Completed Order',
+            'refund' => 'Refunded Order',
+            'add_to_wishlist' => 'Added to Wishlist',
+            'select_item' => 'Selected Item',
+            'select_promotion' => 'Selected Promotion',
+            'view_promotion' => 'Viewed Promotion',
+            // Engagement
+            'page_view' => 'Page View',
+            'scroll_depth' => 'Scroll Depth',
+            'click' => 'Clicked',
+            'form_start' => 'Started Form',
+            'form_submit' => 'Submitted Form',
+            'search' => 'Searched',
+            'share' => 'Shared',
+            'error' => 'Error',
+            'session_start' => 'Session Started',
+            'session_end' => 'Session Ended',
+            'time_on_page' => 'Time on Page',
+            'content_engagement' => 'Content Engagement',
+            'screen_view' => 'Screen View',
+            'outbound_click' => 'Clicked Outbound Link',
+            // Feature & product
+            'feature_used' => 'Used Feature',
+            'feature_adopted' => 'Adopted Feature',
+            'feature_impression' => 'Feature Impression',
+            'feature_limit_reached' => 'Feature Limit Reached',
+            'usage_quota_reached' => 'Usage Quota Reached',
+            'milestone_reached' => 'Reached Milestone',
+            // Account lifecycle
+            'account_activated' => 'Activated Account',
+            'account_deactivated' => 'Deactivated Account',
+            'account_deleted' => 'Deleted Account',
+            'profile_updated' => 'Updated Profile',
+            // B2B / Team
+            'team_created' => 'Created Team',
+            'team_member_joined' => 'Joined Team',
+            'team_member_removed' => 'Removed Team Member',
+            'role_changed' => 'Changed Role',
+            'workspace_created' => 'Created Workspace',
+            'invite_sent' => 'Sent Invite',
+            // Integration
+            'integration_connected' => 'Connected Integration',
+            'integration_failed' => 'Integration Failed',
+            // Cohort
+            'cohort_assigned' => 'Assigned Cohort',
+            'cohort_retention' => 'Cohort Retention',
+            'cohort_churn' => 'Cohort Churn',
+            'cohort_conversion' => 'Cohort Conversion',
+            'cohort_migration' => 'Cohort Migration',
+            'cohort_engagement' => 'Cohort Engagement',
+            // Operational
+            'sla_breach' => 'SLA Breach',
+            'export' => 'Exported Data',
+            'import' => 'Imported Data',
+            // GDPR
+            'data_subject_access_request' => 'Data Subject Access Request',
+            'data_erasure_completed' => 'Data Erasure Completed',
+            // Cart & checkout abandonment
+            'abandoned_cart' => 'Abandoned Cart',
+            'checkout_abandon' => 'Abandoned Checkout',
+            // Security
+            'login_attempt' => 'Login Attempt',
+            'suspicious_activity' => 'Suspicious Activity',
+            'data_access_audit' => 'Data Access Audit',
+            'rate_limit_exceeded' => 'Rate Limit Exceeded',
+            'mfa_challenge' => 'MFA Challenge',
+            // Uptime
+            'service_up' => 'Service Up',
+            'service_down' => 'Service Down',
+            'api_latency' => 'API Latency',
+            'error_spike' => 'Error Spike',
+            'deployment' => 'Deployment',
+            // Misc engagement
+            'onboarding_step' => 'Onboarding Step',
+            'onboarding_completed' => 'Onboarding Completed',
+            'goal_conversion' => 'Goal Conversion',
+            'feature_request' => 'Feature Request',
+            'feedback' => 'Feedback',
+            'notification' => 'Notification',
+            'file_download' => 'Downloaded File',
+            'video_play' => 'Played Video',
+            'web_vitals' => 'Web Vitals',
+            'js_error' => 'JS Error',
+            'timing' => 'Timing',
+            'ab_test_exposure' => 'A/B Test Exposure',
+            'campaign_attribution' => 'Campaign Attribution',
+            'ad_click' => 'Clicked Ad',
+            'checkout_step' => 'Checkout Step',
+        ];
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\ConsentState;
+use ZeroBoiler\Analytics\Support\EventTransformer;
 
 /**
  * Amplitude Analytics — product analytics with behavioral cohorting.
@@ -56,6 +57,8 @@ final class AmplitudeTracker implements TrackerInterface
         if ($this->isAnalyticsDenied()) {
             return;
         }
+
+        $event = EventTransformer::transformForProvider($event, 'amplitude');
 
         $userId = $event->userId ?? null;
         $deviceId = $event->clientId ?? $this->generateDeviceId();

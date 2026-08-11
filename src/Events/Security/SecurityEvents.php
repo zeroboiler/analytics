@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Provides a central registry for security event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations in security monitoring contexts.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
  * @since 9.9.0
  */
@@ -43,6 +43,8 @@ final class SecurityEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'login_attempt',
                 'plausible' => null,
+                'mixpanel' => 'Login Attempt',
+                'amplitude' => 'Login Attempt',
             ],
             'suspicious_activity' => [
                 'name' => 'suspicious_activity',
@@ -51,6 +53,8 @@ final class SecurityEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'suspicious_activity',
                 'plausible' => null,
+                'mixpanel' => 'Suspicious Activity',
+                'amplitude' => 'Suspicious Activity',
             ],
             'data_access_audit' => [
                 'name' => 'data_access_audit',
@@ -59,6 +63,8 @@ final class SecurityEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'data_access_audit',
                 'plausible' => null,
+                'mixpanel' => 'Data Access Audit',
+                'amplitude' => 'Data Access Audit',
             ],
             'rate_limit_exceeded' => [
                 'name' => 'rate_limit_exceeded',
@@ -67,6 +73,8 @@ final class SecurityEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'rate_limit_exceeded',
                 'plausible' => null,
+                'mixpanel' => 'Rate Limit Exceeded',
+                'amplitude' => 'Rate Limit Exceeded',
             ],
             'mfa_challenge' => [
                 'name' => 'mfa_challenge',
@@ -75,6 +83,8 @@ final class SecurityEvents
                 'meta' => 'CustomEvent',
                 'posthog' => 'mfa_challenge',
                 'plausible' => null,
+                'mixpanel' => 'MFA Challenge',
+                'amplitude' => 'MFA Challenge',
             ],
         ];
 
@@ -200,6 +210,38 @@ final class SecurityEvents
         return array_values(array_filter(
             array_map(
                 fn (array $entry): ?string => $entry['plausible'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
                 self::catalog(),
             ),
             fn (?string $name): bool => $name !== null,

@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\Events\Engagement\OnboardingCompletedEvent;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
  * @since 1.0.0
  */
@@ -44,6 +44,8 @@ final class EngagementEvents
                 'meta' => 'PageView',
                 'posthog' => '$pageview',
                 'plausible' => 'pageview',
+                'mixpanel' => 'Page View',
+                'amplitude' => 'Page View',
             ],
             'scroll_depth' => [
                 'name' => 'scroll_depth',
@@ -52,6 +54,8 @@ final class EngagementEvents
                 'meta' => 'ScrollDepth',
                 'posthog' => 'scroll_depth',
                 'plausible' => null,
+                'mixpanel' => 'Scroll Depth',
+                'amplitude' => 'Scroll Depth',
             ],
             'click' => [
                 'name' => 'click',
@@ -60,6 +64,8 @@ final class EngagementEvents
                 'meta' => 'Click',
                 'posthog' => 'click',
                 'plausible' => null,
+                'mixpanel' => 'Click',
+                'amplitude' => 'Click',
             ],
             'form_start' => [
                 'name' => 'form_start',
@@ -68,6 +74,8 @@ final class EngagementEvents
                 'meta' => 'Lead',
                 'posthog' => 'form_started',
                 'plausible' => null,
+                'mixpanel' => 'Form Start',
+                'amplitude' => 'Form Start',
             ],
             'form_submit' => [
                 'name' => 'form_submit',
@@ -76,6 +84,8 @@ final class EngagementEvents
                 'meta' => 'Lead',
                 'posthog' => 'form_submitted',
                 'plausible' => null,
+                'mixpanel' => 'Form Submit',
+                'amplitude' => 'Form Submit',
             ],
             'search' => [
                 'name' => 'search',
@@ -84,6 +94,8 @@ final class EngagementEvents
                 'meta' => 'Search',
                 'posthog' => '$search',
                 'plausible' => 'search',
+                'mixpanel' => 'Search',
+                'amplitude' => 'Search',
             ],
             'share' => [
                 'name' => 'share',
@@ -92,6 +104,8 @@ final class EngagementEvents
                 'meta' => 'Share',
                 'posthog' => '$share',
                 'plausible' => 'share',
+                'mixpanel' => 'Share',
+                'amplitude' => 'Share',
             ],
             'error' => [
                 'name' => 'error',
@@ -100,6 +114,8 @@ final class EngagementEvents
                 'meta' => 'Error',
                 'posthog' => '$error',
                 'plausible' => null,
+                'mixpanel' => 'Error',
+                'amplitude' => 'Error',
             ],
             'time_on_page' => [
                 'name' => 'time_on_page',
@@ -108,6 +124,8 @@ final class EngagementEvents
                 'meta' => 'TimeOnPage',
                 'posthog' => 'time_on_page',
                 'plausible' => null,
+                'mixpanel' => 'Time On Page',
+                'amplitude' => 'Time On Page',
             ],
             'campaign_attribution' => [
                 'name' => 'campaign_attribution',
@@ -116,6 +134,8 @@ final class EngagementEvents
                 'meta' => 'CampaignAttribution',
                 'posthog' => 'campaign_attribution',
                 'plausible' => null,
+                'mixpanel' => 'Campaign Attribution',
+                'amplitude' => 'Campaign Attribution',
             ],
             'screen_view' => [
                 'name' => 'screen_view',
@@ -124,6 +144,8 @@ final class EngagementEvents
                 'meta' => 'ViewContent',
                 'posthog' => '$screenview',
                 'plausible' => null,
+                'mixpanel' => 'Screen View',
+                'amplitude' => 'Screen View',
             ],
             'ab_test_exposure' => [
                 'name' => 'ab_test_exposure',
@@ -132,6 +154,8 @@ final class EngagementEvents
                 'meta' => 'ABTestExposure',
                 'posthog' => '$experiment_exposure',
                 'plausible' => null,
+                'mixpanel' => 'Ab Test Exposure',
+                'amplitude' => 'Ab Test Exposure',
             ],
             'notification' => [
                 'name' => 'notification',
@@ -140,6 +164,8 @@ final class EngagementEvents
                 'meta' => 'Notification',
                 'posthog' => 'notification',
                 'plausible' => null,
+                'mixpanel' => 'Notification',
+                'amplitude' => 'Notification',
             ],
             // Performance & client-side events
             'web_vitals' => [
@@ -149,6 +175,8 @@ final class EngagementEvents
                 'meta' => 'WebVitals',
                 'posthog' => 'web_vitals',
                 'plausible' => null,
+                'mixpanel' => 'Web Vitals',
+                'amplitude' => 'Web Vitals',
             ],
             'js_error' => [
                 'name' => 'js_error',
@@ -157,6 +185,8 @@ final class EngagementEvents
                 'meta' => 'Error',
                 'posthog' => '$exception',
                 'plausible' => null,
+                'mixpanel' => 'Js Error',
+                'amplitude' => 'Js Error',
             ],
             'timing' => [
                 'name' => 'timing',
@@ -165,6 +195,8 @@ final class EngagementEvents
                 'meta' => 'Timing',
                 'posthog' => 'timing',
                 'plausible' => null,
+                'mixpanel' => 'Timing',
+                'amplitude' => 'Timing',
             ],
             // Session lifecycle events
             'session_start' => [
@@ -174,6 +206,8 @@ final class EngagementEvents
                 'meta' => 'SessionStart',
                 'posthog' => '$session_start',
                 'plausible' => null,
+                'mixpanel' => 'Session Start',
+                'amplitude' => 'Session Start',
             ],
             'session_end' => [
                 'name' => 'session_end',
@@ -182,6 +216,8 @@ final class EngagementEvents
                 'meta' => 'SessionEnd',
                 'posthog' => 'session_end',
                 'plausible' => null,
+                'mixpanel' => 'Session End',
+                'amplitude' => 'Session End',
             ],
             // Link click events
             'outbound_click' => [
@@ -191,6 +227,8 @@ final class EngagementEvents
                 'meta' => 'OutboundClick',
                 'posthog' => 'outbound_click',
                 'plausible' => null,
+                'mixpanel' => 'Outbound Click',
+                'amplitude' => 'Outbound Click',
             ],
             // Content engagement events
             'file_download' => [
@@ -200,6 +238,8 @@ final class EngagementEvents
                 'meta' => 'FileDownload',
                 'posthog' => 'file_download',
                 'plausible' => 'file_download',
+                'mixpanel' => 'File Download',
+                'amplitude' => 'File Download',
             ],
             'video_play' => [
                 'name' => 'video_play',
@@ -208,6 +248,8 @@ final class EngagementEvents
                 'meta' => 'VideoPlay',
                 'posthog' => 'video_play',
                 'plausible' => 'video_play',
+                'mixpanel' => 'Video Play',
+                'amplitude' => 'Video Play',
             ],
             // Paid advertising events
             'ad_click' => [
@@ -217,6 +259,8 @@ final class EngagementEvents
                 'meta' => 'AdClick',
                 'posthog' => 'ad_click',
                 'plausible' => null,
+                'mixpanel' => 'Ad Click',
+                'amplitude' => 'Ad Click',
             ],
             // Content consumption events
             'content_engagement' => [
@@ -226,6 +270,8 @@ final class EngagementEvents
                 'meta' => 'ContentEngagement',
                 'posthog' => 'content_engagement',
                 'plausible' => null,
+                'mixpanel' => 'Content Engagement',
+                'amplitude' => 'Content Engagement',
             ],
             // SaaS onboarding funnel events
             'onboarding_step' => [
@@ -235,6 +281,8 @@ final class EngagementEvents
                 'meta' => 'OnboardingStep',
                 'posthog' => 'onboarding_step',
                 'plausible' => null,
+                'mixpanel' => 'Onboarding Step',
+                'amplitude' => 'Onboarding Step',
             ],
             // Product demand signals
             'feature_request' => [
@@ -244,6 +292,8 @@ final class EngagementEvents
                 'meta' => 'FeatureRequest',
                 'posthog' => 'feature_request',
                 'plausible' => null,
+                'mixpanel' => 'Feature Request',
+                'amplitude' => 'Feature Request',
             ],
             // User satisfaction & feedback (v2.79.0)
             'feedback' => [
@@ -253,6 +303,8 @@ final class EngagementEvents
                 'meta' => 'Feedback',
                 'posthog' => 'feedback',
                 'plausible' => null,
+                'mixpanel' => 'Feedback',
+                'amplitude' => 'Feedback',
             ],
             // Custom goal conversion tracking (v2.79.0)
             'goal_conversion' => [
@@ -262,6 +314,8 @@ final class EngagementEvents
                 'meta' => 'Conversion',
                 'posthog' => 'goal_conversion',
                 'plausible' => 'goal',
+                'mixpanel' => 'Goal Conversion',
+                'amplitude' => 'Goal Conversion',
             ],
             // GDPR consent lifecycle events (v2.93.0)
             'consent_granted' => [
@@ -271,6 +325,8 @@ final class EngagementEvents
                 'meta' => 'ConsentGranted',
                 'posthog' => 'consent_granted',
                 'plausible' => null,
+                'mixpanel' => 'Consent Granted',
+                'amplitude' => 'Consent Granted',
             ],
             'consent_withdrawn' => [
                 'name' => 'consent_withdrawn',
@@ -279,6 +335,8 @@ final class EngagementEvents
                 'meta' => 'ConsentWithdrawn',
                 'posthog' => 'consent_withdrawn',
                 'plausible' => null,
+                'mixpanel' => 'Consent Withdrawn',
+                'amplitude' => 'Consent Withdrawn',
             ],
             // Onboarding completion (v9.7.0)
             'onboarding_completed' => [
@@ -288,6 +346,8 @@ final class EngagementEvents
                 'meta' => 'CompleteRegistration',
                 'posthog' => 'onboarding_completed',
                 'plausible' => null,
+                'mixpanel' => 'Onboarding Completed',
+                'amplitude' => 'Onboarding Completed',
             ],
         ];
 
@@ -418,4 +478,37 @@ final class EngagementEvents
             fn (?string $name): bool => $name !== null,
         ));
     }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
 }

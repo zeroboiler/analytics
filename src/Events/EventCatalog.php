@@ -215,7 +215,7 @@ final class EventCatalog
     }
 
     /**
-     * Get all Plausible event names across all categories from catalog entries.
+     * Get all unique Plausible event names across all categories.
      *
      * Uses the native `plausible` field in each catalog entry.
      * Events with null plausible mapping are filtered out.
@@ -230,6 +230,42 @@ final class EventCatalog
             EngagementEvents::plausibleNames(),
             SecurityEvents::plausibleNames(),
             UptimeEvents::plausibleNames(),
+        ))));
+    }
+
+    /**
+     * Get all unique Mixpanel event names across all categories.
+     *
+     * Uses the native `mixpanel` field in each catalog entry.
+     *
+     * @return list<string>
+     */
+    public static function allMixpanelNames(): array
+    {
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::mixpanelNames(),
+            SaaSEvents::mixpanelNames(),
+            EngagementEvents::mixpanelNames(),
+            SecurityEvents::mixpanelNames(),
+            UptimeEvents::mixpanelNames(),
+        ))));
+    }
+
+    /**
+     * Get all unique Amplitude event names across all categories.
+     *
+     * Uses the native `amplitude` field in each catalog entry.
+     *
+     * @return list<string>
+     */
+    public static function allAmplitudeNames(): array
+    {
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::amplitudeNames(),
+            SaaSEvents::amplitudeNames(),
+            EngagementEvents::amplitudeNames(),
+            SecurityEvents::amplitudeNames(),
+            UptimeEvents::amplitudeNames(),
         ))));
     }
 
@@ -255,12 +291,12 @@ final class EventCatalog
      * Get events grouped by provider name.
      *
      * Returns arrays keyed by provider name with deduplicated event names.
-     * Includes all supported providers: ga4, meta, posthog, plausible.
+     * Includes all supported providers: ga4, meta, posthog, plausible, mixpanel, amplitude.
      *
-     * Now uses native catalog fields (posthog, plausible) rather than
+     * Now uses native catalog fields (posthog, plausible, mixpanel, amplitude) rather than
      * EventTransformer maps.
      *
-     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>}
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>}
      */
     public static function byProvider(): array
     {
@@ -269,6 +305,8 @@ final class EventCatalog
             'meta' => self::allMetaNames(),
             'posthog' => self::allPosthogNames(),
             'plausible' => self::allPlausibleNames(),
+            'mixpanel' => self::allMixpanelNames(),
+            'amplitude' => self::allAmplitudeNames(),
         ];
     }
 
@@ -427,6 +465,30 @@ final class EventCatalog
     }
 
     /**
+     * Get the Mixpanel event name for a given catalog event name.
+     *
+     * @return string|null Mixpanel event name or null if not supported
+     */
+    public static function mixpanelNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['mixpanel'] ?? null;
+    }
+
+    /**
+     * Get the Amplitude event name for a given catalog event name.
+     *
+     * @return string|null Amplitude event name or null if not supported
+     */
+    public static function amplitudeNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['amplitude'] ?? null;
+    }
+
+    /**
      * Get the complete event → Plausible mapping table from catalog entries.
      *
      * @return array<string, string|null>
@@ -546,7 +608,7 @@ final class EventCatalog
     /**
      * Get a summary of the event catalog with counts and breakdown.
      *
-     * @return array{total: int, ecommerce: int, saas: int, engagement: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int}
+     * @return array{total: int, ecommerce: int, saas: int, engagement: int, security: int, uptime: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int, with_mixpanel: int, with_amplitude: int}
      */
     public static function summary(): array
     {
@@ -556,6 +618,8 @@ final class EventCatalog
         $withMeta = 0;
         $withPosthog = 0;
         $withPlausible = 0;
+        $withMixpanel = 0;
+        $withAmplitude = 0;
 
         foreach ($all as $entry) {
             if (isset($entry['ga4'])) {
@@ -570,6 +634,12 @@ final class EventCatalog
             if (isset($entry['plausible']) && $entry['plausible'] !== null) {
                 $withPlausible++;
             }
+            if (isset($entry['mixpanel']) && $entry['mixpanel'] !== null) {
+                $withMixpanel++;
+            }
+            if (isset($entry['amplitude']) && $entry['amplitude'] !== null) {
+                $withAmplitude++;
+            }
         }
 
         return [
@@ -583,6 +653,8 @@ final class EventCatalog
             'with_meta' => $withMeta,
             'with_posthog' => $withPosthog,
             'with_plausible' => $withPlausible,
+            'with_mixpanel' => $withMixpanel,
+            'with_amplitude' => $withAmplitude,
         ];
     }
 
@@ -697,7 +769,7 @@ final class EventCatalog
      * Returns a comprehensive breakdown of event coverage per provider,
      * useful for admin dashboards and readiness checks.
      *
-     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, counts: array{ga4: int, meta: int, posthog: int, plausible: int}}
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>, counts: array{ga4: int, meta: int, posthog: int, plausible: int, mixpanel: int, amplitude: int}}
      */
     public static function providerCoverage(): array
     {
@@ -706,11 +778,15 @@ final class EventCatalog
             'meta' => self::allMetaNames(),
             'posthog' => self::allPosthogNames(),
             'plausible' => self::allPlausibleNames(),
+            'mixpanel' => self::allMixpanelNames(),
+            'amplitude' => self::allAmplitudeNames(),
             'counts' => [
                 'ga4' => self::providerCount('ga4'),
                 'meta' => self::providerCount('meta'),
                 'posthog' => self::providerCount('posthog'),
                 'plausible' => self::providerCount('plausible'),
+                'mixpanel' => self::providerCount('mixpanel'),
+                'amplitude' => self::providerCount('amplitude'),
             ],
         ];
     }
@@ -1308,11 +1384,11 @@ final class EventCatalog
     /**
      * Build a complete cross-provider mapping matrix for all catalog events.
      *
-     * Returns every event's name mapped to its GA4, Meta, PostHog, and Plausible
-     * equivalents in a single lookup structure. Ideal for admin dashboards
-     * and provider configuration UIs.
+     * Returns every event's name mapped to its GA4, Meta, PostHog, Plausible,
+     * Mixpanel, and Amplitude equivalents in a single lookup structure.
+     * Ideal for admin dashboards and provider configuration UIs.
      *
-     * @return array<string, array{ga4: string, meta: string|null, posthog: string, plausible: string|null, category: string}>
+     * @return array<string, array{ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string|null, amplitude: string|null, category: string}>
      */
     public static function allProviderMappingsMatrix(): array
     {
@@ -1324,6 +1400,8 @@ final class EventCatalog
                 'meta' => $entry['meta'] ?? null,
                 'posthog' => $entry['posthog'] ?? $name,
                 'plausible' => $entry['plausible'] ?? null,
+                'mixpanel' => $entry['mixpanel'] ?? null,
+                'amplitude' => $entry['amplitude'] ?? null,
                 'category' => $entry['category'] ?? 'unknown',
             ];
         }

@@ -13,7 +13,7 @@ namespace ZeroBoiler\Analytics\Events\Ecommerce;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
  * @since 1.0.0
  */
@@ -41,6 +41,8 @@ final class EcommerceEvents
                 'meta' => 'ViewContent',
                 'posthog' => '$view_item',
                 'plausible' => null,
+                'mixpanel' => 'View Item',
+                'amplitude' => 'View Item',
             ],
             'add_to_cart' => [
                 'name' => 'add_to_cart',
@@ -49,6 +51,8 @@ final class EcommerceEvents
                 'meta' => 'AddToCart',
                 'posthog' => 'add_to_cart',
                 'plausible' => 'add_to_cart',
+                'mixpanel' => 'Add to Cart',
+                'amplitude' => 'Added to Cart',
             ],
             'remove_from_cart' => [
                 'name' => 'remove_from_cart',
@@ -57,6 +61,8 @@ final class EcommerceEvents
                 'meta' => 'RemoveFromCart',
                 'posthog' => 'remove_from_cart',
                 'plausible' => null,
+                'mixpanel' => 'Remove from Cart',
+                'amplitude' => 'Removed from Cart',
             ],
             'view_cart' => [
                 'name' => 'view_cart',
@@ -65,6 +71,8 @@ final class EcommerceEvents
                 'meta' => 'ViewCart',
                 'posthog' => 'view_cart',
                 'plausible' => null,
+                'mixpanel' => 'View Cart',
+                'amplitude' => 'Viewed Cart',
             ],
             'begin_checkout' => [
                 'name' => 'begin_checkout',
@@ -73,6 +81,8 @@ final class EcommerceEvents
                 'meta' => 'InitiateCheckout',
                 'posthog' => 'begin_checkout',
                 'plausible' => 'begin_checkout',
+                'mixpanel' => 'Checkout Started',
+                'amplitude' => 'Started Checkout',
             ],
             'add_payment_info' => [
                 'name' => 'add_payment_info',
@@ -81,6 +91,8 @@ final class EcommerceEvents
                 'meta' => 'AddPaymentInfo',
                 'posthog' => 'add_payment_info',
                 'plausible' => null,
+                'mixpanel' => 'Add Payment Info',
+                'amplitude' => 'Added Payment Info',
             ],
             'purchase' => [
                 'name' => 'purchase',
@@ -89,6 +101,8 @@ final class EcommerceEvents
                 'meta' => 'Purchase',
                 'posthog' => 'purchase',
                 'plausible' => 'purchase',
+                'mixpanel' => 'Purchase',
+                'amplitude' => 'Completed Order',
             ],
             'refund' => [
                 'name' => 'refund',
@@ -97,6 +111,8 @@ final class EcommerceEvents
                 'meta' => 'Refund',
                 'posthog' => 'refund',
                 'plausible' => 'refund',
+                'mixpanel' => 'Refund',
+                'amplitude' => 'Refunded Order',
             ],
             'add_to_wishlist' => [
                 'name' => 'add_to_wishlist',
@@ -105,6 +121,8 @@ final class EcommerceEvents
                 'meta' => 'AddToWishlist',
                 'posthog' => 'add_to_wishlist',
                 'plausible' => null,
+                'mixpanel' => 'Add to Wishlist',
+                'amplitude' => 'Added to Wishlist',
             ],
             'select_item' => [
                 'name' => 'select_item',
@@ -113,6 +131,8 @@ final class EcommerceEvents
                 'meta' => 'ViewItem',
                 'posthog' => 'select_item',
                 'plausible' => null,
+                'mixpanel' => 'Select Item',
+                'amplitude' => 'Selected Item',
             ],
             'select_promotion' => [
                 'name' => 'select_promotion',
@@ -121,6 +141,8 @@ final class EcommerceEvents
                 'meta' => 'ViewContent',
                 'posthog' => 'select_promotion',
                 'plausible' => null,
+                'mixpanel' => 'Select Promotion',
+                'amplitude' => 'Selected Promotion',
             ],
             'view_promotion' => [
                 'name' => 'view_promotion',
@@ -129,6 +151,8 @@ final class EcommerceEvents
                 'meta' => 'ViewContent',
                 'posthog' => 'view_promotion',
                 'plausible' => null,
+                'mixpanel' => 'View Promotion',
+                'amplitude' => 'Viewed Promotion',
             ],
             'checkout_step' => [
                 'name' => 'checkout_step',
@@ -137,6 +161,8 @@ final class EcommerceEvents
                 'meta' => 'CheckoutStep',
                 'posthog' => 'checkout_step',
                 'plausible' => null,
+                'mixpanel' => 'Checkout Step',
+                'amplitude' => 'Checkout Step',
             ],
             // Cart & checkout abandonment (v2.82.0)
             'abandoned_cart' => [
@@ -146,6 +172,8 @@ final class EcommerceEvents
                 'meta' => 'InitiateCheckout',
                 'posthog' => 'abandoned_cart',
                 'plausible' => null,
+                'mixpanel' => 'Abandoned Cart',
+                'amplitude' => 'Abandoned Cart',
             ],
             'checkout_abandon' => [
                 'name' => 'checkout_abandon',
@@ -154,6 +182,8 @@ final class EcommerceEvents
                 'meta' => 'InitiateCheckout',
                 'posthog' => 'checkout_abandon',
                 'plausible' => null,
+                'mixpanel' => 'Checkout Abandon',
+                'amplitude' => 'Checkout Abandoned',
             ],
         ];
 
@@ -279,6 +309,38 @@ final class EcommerceEvents
         return array_values(array_filter(
             array_map(
                 fn (array $entry): ?string => $entry['plausible'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
                 self::catalog(),
             ),
             fn (?string $name): bool => $name !== null,
