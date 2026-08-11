@@ -9,7 +9,6 @@ namespace ZeroBoiler\Analytics\Context;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Request-scoped analytics context bus.

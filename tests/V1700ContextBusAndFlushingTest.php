@@ -14,7 +14,6 @@ use ZeroBoiler\Analytics\Services\EventFlushingService;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
 use Illuminate\Session\Store;
-use Illuminate\Http\Tests\Concerns;
 
 /**
  * Tests for v17.0.0 — AnalyticsContextBus and EventFlushingService.

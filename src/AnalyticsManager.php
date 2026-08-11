@@ -2561,15 +2561,14 @@ final class AnalyticsManager
      */
     public function trackWithContext(string $eventName, array $params = [], bool $enrichContext = true): void
     {
-        $event = new AnalyticsEvent(name: $eventName, params: $params);
+        $finalParams = $params;
 
         if ($enrichContext) {
             $contextParams = $this->contextBus()->asEventParams();
-            $mergedParams = array_merge($params, $contextParams);
-            $event = new AnalyticsEvent(name: $eventName, params: $mergedParams);
+            $finalParams = array_merge($params, $contextParams);
         }
 
-        $this->trackEvent($event);
+        $this->trackEvent(new AnalyticsEvent(name: $eventName, params: $finalParams));
     }
 
     /**
