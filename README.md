@@ -10,6 +10,9 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v15.0.0](#whats-new-in-v15000)
++- [What's New in v14.0.0](#whats-new-in-v14000)
++- [What's New in v13.0.0](#whats-new-in-v13000)
 +- [What's New in v12.0.0](#whats-new-in-v12000)
 +- [What's New in v11.0.0](#whats-new-in-v11000)
 +- [What's New in v10.9.0](#whats-new-in-v1090)
