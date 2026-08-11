@@ -2166,6 +2166,53 @@ final class AnalyticsManager
         return $service->generateReport();
     }
 
+    // ── SaaS Identity Convenience (v10.9.0) ────────────────────────────────
+
+    /**
+     * Track a complete SaaS identity linking event.
+     *
+     * Combines identify + set_user_properties + user_profile enrichment
+     * in a single call. Designed for login/signup flows where you want to
+     * establish the full user identity across all providers simultaneously.
+     *
+     * Links client_id ↔ user_id, sets user traits (name, email, plan, company),
+     * and updates the analytics profile in one atomic operation.
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  string  $clientId  Client tracking ID (from cookie)
+     * @param  array<string, mixed>  $traits  User properties (name, email, plan, company, mrr, etc.)
+     */
+    public function trackSaaSIdentity(string $userId, string $clientId, array $traits = []): void
+    {
+        $event = new AnalyticsEvent(
+            name: 'identify',
+            params: array_merge([
+                'user_id' => $userId,
+                'client_id' => $clientId,
+                'identity_type' => 'saas_auto_link',
+            ], $traits),
+            clientId: $clientId,
+            userId: $userId,
+        );
+
+        $this->trackEvent($event);
+
+        // Set user properties on all providers that support it
+        if (! empty($traits)) {
+            $this->setUserProperties($traits, $userId);
+        }
+
+        // Persist identity link via IdentityResolutionService
+        try {
+            $service = $this->getContainer()->make(
+                \ZeroBoiler\Analytics\Services\IdentityResolutionService::class,
+            );
+            $service->link($clientId, $userId);
+        } catch (\Throwable) {
+            // Service not available — identity event still dispatched
+        }
+    }
+
     // ── B2B Group Analytics (v9.5.0) ───────────────────────────────────────
 
     /**

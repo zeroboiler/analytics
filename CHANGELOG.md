@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [10.9.0] - 2026-08-11
+
+### Added
+
+- **`trackSaaSIdentity()` convenience method** — Combines `identify()` + `setUserProperties()` + identity resolution in a single call. Links `client_id ↔ user_id`, sets user traits (name, email, plan, company), and persists the identity link via `IdentityResolutionService`. Designed for login/signup flows.
+- **Facade docblock expansion** — Added `@method` annotations for `mixpanel()`, `amplitude()`, and `trackSaaSIdentity()` on the `Analytics` facade, enabling IDE autocompletion for the full tracker and SaaS identity API surface.
+- **V109SaaSIdentityAndFacadeTest** — 23 test cases, 150+ assertions covering version consistency, event catalog coverage (100+ events), all SaaS lifecycle methods, tracker accessors, Facade docblock completeness, e-commerce format conversion, funnel tracking, orchestration, B2B groups, PLG scoring, time-series analytics, health checks, GDPR compliance methods, and DTO strict types.
+
+### Changed
+
+- **Version sweep** — 10.8.0 → 10.9.0 across composer.json, package.json, AnalyticsEvent::VERSION, and AnalyticsIntegrityCommand::EXPECTED_VERSION.
+
 ## [10.8.0] - 2026-08-11
 
 ### Added

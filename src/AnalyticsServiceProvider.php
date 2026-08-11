@@ -235,7 +235,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 10.8.0
+ * @version 10.9.0
  *
  * @since 1.0.0
  */

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.8.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.9.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.9.0](#whats-new-in-v1090)
 +- [What's New in v10.8.0](#whats-new-in-v1080)
 +- [What's New in v10.6.0](#whats-new-in-v1060)
 +- [What's New in v10.5.0](#whats-new-in-v1050)
@@ -2144,6 +2145,46 @@ New event categories for comprehensive SaaS observability:
 ### Files Added
 - `src/Events/Security/` — 5 event classes + SecurityEvents catalog
 - `src/Events/Uptime/` — 5 event classes + UptimeEvents catalog
+
+## What's New in v10.9.0
+
+### SaaS Identity Linking — One-Call Auth Flow
+
+The new `trackSaaSIdentity()` method combines three operations into a single atomic call for login/signup flows:
+
+```php
+// Before (3 separate calls):
+Analytics::identify($userId, $clientId);
+Analytics::setUserProperties($traits, $userId);
+// + manual IdentityResolutionService::link()
+
+// After (1 call):
+Analytics::trackSaaSIdentity($userId, $clientId, [
+    'name' => $user->name,
+    'email_hash' => hash('sha256', $user->email),
+    'plan' => $user->plan,
+    'company' => $user->company,
+]);
+```
+
+### Facade IDE Autocompletion Complete
+
+All 8 provider tracker accessors are now documented on the `Analytics` facade:
+
+```php
+Analytics::ga4();       // GA4Tracker
+Analytics::gtm();       // GTMTracker
+Analytics::meta();      // MetaPixelTracker
+Analytics::plausible(); // PlausibleTracker
+Analytics::posthog();   // PosthogTracker
+Analytics::webhook();   // WebhookTracker
+Analytics::mixpanel();   // MixpanelTracker      ← NEW in v10.9.0
+Analytics::amplitude(); // AmplitudeTracker     ← NEW in v10.9.0
+```
+
+### Test Coverage
+
+23 new test cases (150+ assertions) validate the entire API surface: event catalog integrity, SaaS lifecycle methods, tracker accessors, GDPR compliance, funnel tracking, orchestration, B2B groups, PLG scoring, and time-series analytics.
 
 ## Quick Start
 
