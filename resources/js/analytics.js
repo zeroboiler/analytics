@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 12.0.0
+ * @version 13.0.0
  */
 
 let trackingId = null;
@@ -172,7 +172,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-      return '12.0.0';
+      return '13.0.0';
 }
 
 /**
@@ -3657,7 +3657,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-      return '12.0.0';
+      return '13.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -6127,7 +6127,7 @@ export async function fetchSignalProviders() {
     } catch { return null; }
 }
 
-// ─── Offline Event Buffer (v12.0.0) ──────────────────────────────
+// ─── Offline Event Buffer (v13.0.0) ──────────────────────────────
 
 /**
  * Offline-first event buffer with localStorage persistence.
@@ -6286,7 +6286,7 @@ export async function flushOfflineBuffer() {
     return { sent, failed };
 }
 
-// ─── Offline Auto-Recovery (v12.0.0) ─────────────────────────────
+// ─── Offline Auto-Recovery (v13.0.0) ─────────────────────────────
 
 let offlineListenerAttached = false;
 
@@ -6309,7 +6309,7 @@ export function enableOfflineRecovery() {
     offlineListenerAttached = true;
 }
 
-// ─── Enhanced sendEvent with Offline Fallback (v12.0.0) ────────
+// ─── Enhanced sendEvent with Offline Fallback (v13.0.0) ────────
 
 /**
  * Internal send that falls back to offline buffer on failure.

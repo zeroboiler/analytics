@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-12.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-13.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -97,6 +97,34 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v13.0.0
+
+### 🧪 Complete AnalyticsFake — Industry-Standard Test Double
+
+Full drop-in replacement for AnalyticsManager with 90+ proxy methods, 15 assertion helpers, and interceptor support. Every public method on the AnalyticsManager facade now works seamlessly in tests without any real dispatch.
+
+**AnalyticsFake Enhancements:**
+- **90+ proxy methods** — Complete coverage of all AnalyticsManager public methods. Every method from `track()` to `timeSeriesCompare()` has a working fake implementation. Methods that dispatch events actually capture them; service-dependent methods return safe defaults.
+- **Tracker stubs** — `ga4()`, `gtm()`, `meta()`, `plausible()`, `posthog()`, `webhook()`, `mixpanel()`, `amplitude()` all return disabled tracker instances. No HTTP calls in tests.
+- **Interceptor support** — `interceptBefore()` / `interceptAfter()` run through the EventInterceptorRegistry. Before-interceptors can cancel or modify events; after-interceptors fire with success state.
+- **E-commerce capture** — `ecommerceCalls()` returns all `trackEcommerce()` invocations with event name, data, and params.
+- **Funnel progress capture** — `funnelProgressCalls()` returns all funnel progress tracking invocations.
+- **SaaS identity capture** — `saasIdentityCalls()` returns all `trackSaaSIdentity()` invocations.
+- **Metrics tracking** — Fake maintains an `AnalyticsMetrics` instance. `flushMetrics()` returns a pre-flush snapshot.
+
+**New Assertion Helpers:**
+- **`assertTrackedOnce(name)`** — Assert event tracked exactly once (shorthand for `assertTrackedTimes(name, 1)`).
+- **`assertTrackedAtLeast(name, times)`** — Assert event tracked at least N times.
+- **`assertEventSequence(names)`** — Assert events tracked in a specific order. Unrelated events between are ignored.
+- **`assertEventBatch(names)`** — Assert all named events are present (order-independent).
+- **`assertSaaSIdentityLinked(userId, callback?)`** — Assert SaaS identity linking call.
+- **`assertFunnelProgressTracked(funnelName, callback?)`** — Assert funnel progress tracking.
+
+**New Test:**
+- **`V1300AnalyticsFakeEnhancementTest`** — 100+ test cases covering: core tracking (track, trackEvent, directDispatch, trackAsync), SaaS lifecycle (14 methods), e-commerce (7 methods), engagement (7 methods), identity (4 methods), page views (3 methods), consent (4 states), preferences (6 methods), revenue & PLG (5 methods), funnel tracking (3 methods), B2B groups (3 methods), debug & metrics (5 methods), interceptors (4 methods), tracker accessors (8 methods), script generation (2 methods), data layer (1 method), catalog queries (11 methods), profile & health (9 methods), orchestration & PLG (8 methods), assertion API (20+ assertions), inspection methods (6 methods), reset (7 fields), version consistency.
+
+**Version sweep:** 12.0.0 → 13.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, README badge, IntegrityCommand, DiagnosticCommand, CHANGELOG.
 
 ## What's New in v12.0.0
 

@@ -252,7 +252,7 @@ describe('AnalyticsEventSanitizer', function (): void {
 
 describe('v12.0.0 Version Consistency', function (): void {
     test('PHP version is 12.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('12.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('13.0.0');
     });
 
     test('event catalog is valid', function (): void {

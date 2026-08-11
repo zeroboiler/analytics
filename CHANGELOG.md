@@ -2,6 +2,29 @@
 
 All notable changes to the package will be documented in this file.
 
+## [13.0.0] - 2026-08-11
+
+### Added
+
+- **`AnalyticsFake` full proxy coverage** — Complete drop-in replacement for AnalyticsManager with 90+ proxy methods. Every public method on AnalyticsManager is now implemented in AnalyticsFake: core tracking, SaaS lifecycle (signUp, login, logout, trialStart, trialEnd, subscription, subscriptionRenewal, planUpgrade, planDowngrade, cancellation, trackSaaSIdentity, trackSaaSAcquisition), e-commerce (purchase, wishlist, selectItem, selectPromotion, viewPromotion, formatEcommerceForMeta), engagement (trackError, abTestExposure, notification, fileDownload, videoPlay, inviteSent, integrationConnected), revenue (mrr, featureAdopted, expansionRevenue, exportEvent, importEvent), funnel tracking (trackFunnel, funnelProgress), B2B groups (group, groupAddMember, getGroup), identity (alias, setUserProperties, resetIdentity), page views (pageView, serverSidePageView, screenView), async dispatch (trackAsync), preferences (isTrackingAllowed, optOut, optIn, suppressClient, transferClientToUser), consent (setConsent, grantConsent, denyConsent, getConsent), catalog queries (eventCatalogSummary, eventExists, eventCategory, totalEventCount, validateCatalog, resolveEventName, trackWithAlias, version), health (healthCheck, ping, maturityScore, onboardingChecklist, funnelReadiness, quickStartEvents, plgEvents, getProfile, getProfileSummary), orchestration (orchestrate, orchestrateAdvance, orchestrateProgress, insightReport), PLG scoring (plgScore, plgAggregate, plgInvalidate), time series (timeSeries, timeSeriesDashboard, timeSeriesCompare), debug (isDebug, setDebug, shouldLogEvents, metrics, flushMetrics), interceptors (interceptBefore, interceptAfter, interceptors), tracker accessors (ga4, gtm, meta, plausible, posthog, webhook, mixpanel, amplitude), script generation (headScripts, bodyScripts), data layer (push), report/summary (providerSummary, reportSummary, dlqSummary).
+- **Tracker stubs** — All 8 tracker accessors return disabled tracker instances (GA4Tracker, GTMTracker, MetaPixelTracker, PlausibleTracker, PosthogTracker, WebhookTracker, MixpanelTracker, AmplitudeTracker). No HTTP calls during tests.
+- **Interceptor support in fake** — `interceptBefore()` and `interceptAfter()` delegates to EventInterceptorRegistry::runBefore/runAfter. Before-interceptors can cancel or modify events; after-interceptors fire with success state.
+- **E-commerce capture** — `ecommerceCalls()` returns all `trackEcommerce()` invocations with eventName, data, and params.
+- **Funnel progress capture** — `funnelProgressCalls()` returns all `funnelProgress()` invocations with funnelName, stepName, identity, stepNumber, totalSteps.
+- **SaaS identity capture** — `saasIdentityCalls()` returns all `trackSaaSIdentity()` invocations with userId, clientId, traits.
+- **Metrics tracking in fake** — Fake maintains an `AnalyticsMetrics` instance. Events dispatched increment the counter. `flushMetrics()` returns a pre-flush snapshot.
+- **`assertTrackedOnce(name)`** — Assert event tracked exactly once.
+- **`assertTrackedAtLeast(name, times)`** — Assert event tracked at least N times.
+- **`assertEventSequence(names)`** — Assert events tracked in a specific sequence. Unrelated events between are ignored.
+- **`assertEventBatch(names)`** — Assert all named events are present (order-independent).
+- **`assertSaaSIdentityLinked(userId, callback?)`** — Assert SaaS identity linking call was made.
+- **`assertFunnelProgressTracked(funnelName, callback?)`** — Assert funnel progress tracking was called.
+- **`V1300AnalyticsFakeEnhancementTest`** — 100+ test cases covering: core tracking (4), SaaS lifecycle (14 methods + skip_trial variant), e-commerce (7 methods), engagement (7 methods), identity (4 methods), page views (3 methods), consent (4 states), preferences (6 methods), revenue & PLG (5 methods), funnel tracking (3 methods), B2B groups (3 methods), debug & metrics (5 methods), interceptors (4 methods with cancel/modify/after-fire), tracker accessors (8 methods), script generation (2 methods), data layer (1 method), catalog queries (11 methods), profile & health (9 methods), orchestration & PLG (8 methods), assertion API (20+ assertions including positive, negative, callback, sequence, batch, and failure cases), inspection methods (6 methods), reset (7 fields verified), version consistency.
+
+### Changed
+
+- **Version sweep** — 12.0.0 → 13.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), TypeScript definitions (analytics.d.ts), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsDiagnosticCommand, CHANGELOG.
+
 ## [12.0.0] - 2026-08-11
 
 ### Added

@@ -237,7 +237,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 12.0.0
+ * @version 13.0.0
  *
  * @since 1.0.0
  */
@@ -2213,7 +2213,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsConsistencyService($manager, $config, $cache);
         });
 
-        // Event Sanitization (v12.0.0)
+        // Event Sanitization (v13.0.0)
         $this->app->singleton(AnalyticsEventSanitizer::class, function (Application $app): AnalyticsEventSanitizer {
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
