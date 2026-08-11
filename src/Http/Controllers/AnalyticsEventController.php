@@ -86,6 +86,8 @@ use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 
+use ZeroBoiler\Analytics\Services\AnalyticsObservabilityService;
+
 /**
  * API controller for frontend event tracking.
  *
@@ -10049,5 +10051,193 @@ final class AnalyticsEventController extends Controller
         }
 
         return response()->json(['status' => 'ok', 'group_id' => $groupId]);
+    }
+
+    // ── Observability Endpoints (v18.0.0) ─────────────────────────────
+
+    /**
+     * Get the full observability dashboard.
+     *
+     * GET /api/analytics/observability
+     *
+     * Returns per-provider dispatch metrics, latency histograms,
+     * error budgets, and a summary of the overall pipeline health.
+     */
+    public function observabilityDashboard(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $dashboard = $service->getDashboard();
+
+            return response()->json($dashboard);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observability service unavailable',
+                'error' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Get detailed metrics for a specific provider.
+     *
+     * GET /api/analytics/observability/{provider}
+     *
+     * @param  string  $provider  Provider name (ga4, meta, posthog, etc.)
+     */
+    public function observabilityProviderMetrics(string $provider): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $metrics = $service->getProviderMetrics($provider);
+
+            return response()->json([
+                'provider' => $provider,
+                'metrics' => $metrics,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observability service unavailable',
+                'error' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Get per-event metrics for a specific provider.
+     *
+     * GET /api/analytics/observability/{provider}/events
+     *
+     * Returns success/failure counts and average latency per event name.
+     *
+     * @param  string  $provider  Provider name
+     */
+    public function observabilityEventMetrics(string $provider): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $eventMetrics = $service->getEventMetrics($provider);
+
+            return response()->json([
+                'provider' => $provider,
+                'events' => $eventMetrics,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observability service unavailable',
+                'error' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Get the dispatch volume timeline for a specific provider.
+     *
+     * GET /api/analytics/observability/{provider}/timeline?minutes=60
+     *
+     * Returns time-binned success/failure counts for chart rendering.
+     *
+     * @param  string  $provider  Provider name
+     */
+    public function observabilityDispatchTimeline(Request $request, string $provider): JsonResponse
+    {
+        $minutes = (int) $request->query('minutes', 60);
+        $minutes = min(max($minutes, 1), 1440); // Clamp to 1 min - 24 hours
+
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $timeline = $service->getDispatchTimeline($provider, $minutes);
+
+            return response()->json([
+                'provider' => $provider,
+                'minutes' => $minutes,
+                'timeline' => $timeline,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observability service unavailable',
+                'error' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Get pipeline filter metrics.
+     *
+     * GET /api/analytics/observability/filters
+     *
+     * Returns counts of events filtered by each pipeline filter.
+     */
+    public function observabilityFilterMetrics(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $filterMetrics = $service->getFilterMetrics();
+
+            return response()->json([
+                'filters' => $filterMetrics,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Observability service unavailable',
+                'error' => $e->getMessage(),
+            ], 503);
+        }
+    }
+
+    /**
+     * Reset observability metrics for a specific provider.
+     *
+     * DELETE /api/analytics/observability/{provider}
+     *
+     * @param  string  $provider  Provider name
+     */
+    public function observabilityResetProvider(string $provider): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $service->resetProvider($provider);
+
+            return response()->json([
+                'status' => 'ok',
+                'provider' => $provider,
+                'message' => 'Observability metrics reset for provider',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Reset failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset all observability metrics.
+     *
+     * DELETE /api/analytics/observability
+     */
+    public function observabilityResetAll(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsObservabilityService::class);
+            $service->resetAll();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'All observability metrics reset',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Reset failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

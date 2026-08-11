@@ -323,6 +323,14 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             ];
         }
 
+        // Observability config for client-side dispatch monitoring (v18.0.0)
+        $obsConfig = $this->config->get('zeroboiler.analytics.observability', []);
+        /** @var array{enabled?: bool, slow_dispatch_ms?: float} $obsConfig */
+        $analyticsProps['observability'] = [
+            'enabled' => (bool) ($obsConfig['enabled'] ?? true),
+            'slowDispatchMs' => (float) ($obsConfig['slow_dispatch_ms'] ?? 1000.0),
+        ];
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 

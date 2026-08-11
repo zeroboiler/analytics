@@ -4342,5 +4342,29 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_BUDGET_CACHE_TTL', 3600),
             'use_cache' => env('ANALYTICS_BUDGET_USE_CACHE', true),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Observability (v18.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Dispatch-level observability for the analytics pipeline. Tracks
+        | per-provider latency histograms, success/failure rates, error budgets,
+        | and dispatch volume timelines for production monitoring dashboards.
+        |
+        | Complements EventSignalIntelligenceService (event pattern anomalies)
+        | by focusing on the operational health of the dispatch pipeline.
+        |
+        | Inspired by OpenTelemetry metrics and Segment's Observability API.
+        |
+        */
+        'observability' => [
+            'enabled' => env('ANALYTICS_OBSERVABILITY_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_OBSERVABILITY_TTL', 300), // 5 minutes
+            'providers' => [], // empty = observe all providers; e.g., ['ga4', 'meta', 'posthog']
+            'error_budget_threshold' => (float) env('ANALYTICS_OBSERVABILITY_ERROR_BUDGET', 0.01), // 1% failure rate
+            'slow_dispatch_ms' => (float) env('ANALYTICS_OBSERVABILITY_SLOW_MS', 1000.0), // 1 second
+            'latency_buckets' => (int) env('ANALYTICS_OBSERVABILITY_LATENCY_BUCKETS', 50),
+        ],
     ],
 ];

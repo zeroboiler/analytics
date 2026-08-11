@@ -236,6 +236,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsConsistencyService;
 use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
 use ZeroBoiler\Analytics\Services\AnalyticsApiGuard;
+use ZeroBoiler\Analytics\Services\AnalyticsObservabilityService;
 use ZeroBoiler\Analytics\Services\EventDeconflictionService;
 
 /**
@@ -588,6 +589,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsApiGuard($cache, $config);
+        });
+
+        // Analytics observability service (v18.0.0) — dispatch-level monitoring
+        $this->app->singleton(AnalyticsObservabilityService::class, function (Application $app): AnalyticsObservabilityService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsObservabilityService($cache, $config);
         });
 
         // Event deconfliction service (v17.0.0) — singleton for multi-provider analysis

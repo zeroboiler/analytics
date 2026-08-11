@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-17.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-18.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v18.0.0](#whats-new-in-v18000)
 +- [What's New in v17.0.0](#whats-new-in-v17000)
 +- [What's New in v16.0.0](#whats-new-in-v16000)
 +- [What's New in v15.0.0](#whats-new-in-v15000)
@@ -102,6 +103,21 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v18.0.0
+
+### 📊 Analytics Observability Service
+- **`AnalyticsObservabilityService`** — Dispatch-level observability for the analytics pipeline. Tracks per-provider latency histograms (p50, p95, p99), success/failure rates, error budgets, slow dispatch detection, and filter pipeline metrics. Inspired by OpenTelemetry metrics and Segment's Observability API.
+- **`observability` config section** — 6 configurable options: `enabled`, `ttl`, `providers`, `error_budget_threshold`, `slow_dispatch_ms`, `latency_buckets`.
+- **7 new API endpoints** — `GET /api/analytics/observability` (dashboard), `GET /api/analytics/observability/{provider}` (metrics), `GET /api/analytics/observability/{provider}/events` (per-event), `GET /api/analytics/observability/{provider}/timeline` (dispatch timeline), `GET /api/analytics/observability/filters` (filter metrics), `DELETE /api/analytics/observability/{provider}` (reset provider), `DELETE /api/analytics/observability` (reset all).
+- **Inertia middleware observability prop** — `zbAnalytics.observability` exposes `enabled` and `slowDispatchMs` to the JS client for client-side dispatch monitoring.
+- **TypeScript `ObservabilityConfig` interface** — Full IntelliSense support for the new observability config in the `.d.ts` file.
+
+### 🔄 Version Sweep
+- Version bumped to 18.0.0 across `composer.json`, README badge, and changelog.
+
+### 🧪 Tests
+- 1 new test file: `V1800AnalyticsObservabilityServiceTest.php` (9 test cases covering success/failure recording, provider filtering, metrics calculation, percentile computation, error budget detection, and dashboard structure).
 
 ## What's New in v17.0.0
 
@@ -236,7 +252,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~131K source, 227 test files
+**LOC:** ~131K source, 229 test files
 
 ## What's New in v10.8.0
 

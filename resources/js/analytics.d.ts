@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 17.0.0
+ * @version 18.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -57,6 +57,7 @@ export interface ZbAnalyticsProps {
   regionalConsent: RegionalConsentConfig;
   crossDomain: CrossDomainConfig;
   sessionRecording: SessionRecordingConfig;
+  observability: ObservabilityConfig;
 }
 
 export interface ConsentState {
@@ -1655,3 +1656,14 @@ export function flushOfflineBuffer(): Promise<{ sent: number; failed: number }>;
  * Attach online/offline event listeners for automatic buffer management.
  */
 export function enableOfflineRecovery(): void;
+
+// ─── Observability Config ──────────────────────────────────────────────
+
+/**
+ * Observability configuration for client-side dispatch monitoring.
+ * @since v18.0.0
+ */
+export interface ObservabilityConfig {
+  enabled: boolean;
+  slowDispatchMs: number;
+}
