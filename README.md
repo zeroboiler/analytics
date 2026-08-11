@@ -3247,14 +3247,14 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 ### Changes
 
 - **README Documentation** — Added complete "What's New" sections for v3.2.0 (Identity Resolution + Event Debounce), v3.3.0 (Svelte 5 Composables + Lifecycle Config Sync), v3.3.1 (Production Readiness Audit), and v3.4.0 (EventCollection DTO + AnalyticsEventDispatcher + Plausible/PostHog Composables). Updated Table of Contents with all version entries
-- **Comprehensive Validation Test** (`V98SaaSStarterIndustryStandardFinalTest.php`) — 13,000+ assertions validating all 12 SaaS starter features: Event Catalog completeness (100+ events across 3 categories), Server-Side Lifecycle Mapper (40+ config-driven mappings), Inertia middleware prop injection (18+ prop groups), API controller coverage (130+ routes), JS client API (trackEvent, trackPageView, identify, consent, ecommerce, batch), Event Queue async dispatch, User Identity Linking (client ↔ user), E-commerce format conversion (GA4 ↔ Meta), Admin commands (overview, test, health, behavioral, dashboard), Config expansion (20+ sections), Optional providers (Plausible + PostHog), and Test coverage (203 test files)
+- **Comprehensive Validation Test** (`V98SaaSStarterIndustryStandardFinalTest.php`) — 13,000+ assertions validating all 12 SaaS starter features: Event Catalog completeness (100+ events across 3 categories), Server-Side Lifecycle Mapper (40+ config-driven mappings), Inertia middleware prop injection (18+ prop groups), API controller coverage (130+ routes), JS client API (trackEvent, trackPageView, identify, consent, ecommerce, batch), Event Queue async dispatch, User Identity Linking (client ↔ user), E-commerce format conversion (GA4 ↔ Meta), Admin commands (overview, test, health, behavioral, dashboard), Config expansion (20+ sections), Optional providers (Plausible + PostHog), and Test coverage (218 test files)
 - **Version Bump** — `AnalyticsEvent::VERSION` updated to `3.5.0` across all source files, JS client, and Svelte composables
 
 ### Upgrade Notes
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 130K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 207 test files, 13,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
+- Total: 130K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 218 test files, 13,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 
