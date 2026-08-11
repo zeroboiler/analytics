@@ -4,9 +4,14 @@ All notable changes to the package will be documented in this file.
 
 ## [10.8.0] - 2026-08-11
 
+### Added
+
+- **LifecycleEventMapper expansion** — New config-driven lifecycle mappings for `sla.breach` (→ `SlaBreachEvent`), `feature.adopted` (→ `FeatureAdoptedEvent`), and `revenue.expansion` (→ `ExpansionRevenueEvent`). Coverage for SLA violations, feature adoption tracking, and upsell/cross-sell revenue growth signals.
+- **V108LifecycleExpansionAndVersionSweepTest** — 35+ assertions covering version consistency, new catalog entries, provider coverage, e-commerce format conversion, and cross-category integration.
+
 ### Changed
 
-- **Version sweep** — 10.7.0 → 10.8.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, ServiceProvider, README badge, integrity command, consistency service docblock, event normalization service docblock.
+- **Version sweep** — 10.5.0 → 10.8.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables (useAnalytics, useAnalyticsConfig), ServiceProvider docblock, README badge, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsConsistencyService docblock, EventNormalizationService docblock, MixpanelAmplitudeParityTest docblock, V107 test version assertions.
 
 ## [10.7.0] - 2026-08-11
 
