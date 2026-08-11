@@ -225,6 +225,8 @@ use ZeroBoiler\Analytics\Support\EventCatalogFactory;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
+use ZeroBoiler\Analytics\Context\AnalyticsContextBus;
+use ZeroBoiler\Analytics\Services\EventFlushingService;
 use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
 use ZeroBoiler\Analytics\Services\EventTimelineService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
@@ -509,6 +511,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(AnalyticsDataBus::class, function (Application $app): AnalyticsDataBus {
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
+
             /** @var QueuedAnalyticsDispatcher $queue */
             $queue = $app->make(QueuedAnalyticsDispatcher::class);
             /** @var ConfigRepository $config */
@@ -532,6 +535,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventReplayQueue($manager, $manager->metrics(), $config);
+        });
+
+        // Request-scoped analytics context bus (v17.0.0)
+        $this->app->scoped(AnalyticsContextBus::class, function (Application $app): AnalyticsContextBus {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsContextBus($config);
+        });
+
+        // Event flushing service (v17.0.0)
+        $this->app->singleton(EventFlushingService::class, function (Application $app): EventFlushingService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventFlushingService($manager, $config);
         });
 
         // Session analytics service

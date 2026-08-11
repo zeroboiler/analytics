@@ -23,6 +23,8 @@ use ZeroBoiler\Analytics\Trackers\MixpanelTracker;
 use ZeroBoiler\Analytics\Trackers\AmplitudeTracker;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
 use ZeroBoiler\Analytics\EventInterceptorRegistry;
+use ZeroBoiler\Analytics\Context\AnalyticsContextBus;
+use ZeroBoiler\Analytics\Services\EventFlushingService;
 
 /**
  * Central analytics manager — dispatches events to all configured trackers.
@@ -2523,6 +2525,68 @@ final class AnalyticsManager
                 'updated_at' => null,
             ];
         }
+    }
+
+    // ── Context & Flushing (v17.0.0) ──────────────────────────────────────
+
+    /**
+     * Get the request-scoped AnalyticsContextBus.
+     *
+     * Returns the singleton context bus that auto-collects request context
+     * (device, session, UTM, tenant, locale) for event enrichment.
+     *
+     * @return AnalyticsContextBus
+     */
+    public function contextBus(): AnalyticsContextBus
+    {
+        try {
+            return $this->getContainer()->make(AnalyticsContextBus::class);
+        } catch (\Throwable) {
+            // Return a fresh instance if container resolution fails
+            return new AnalyticsContextBus($this->getContainer()->make(\Illuminate\Contracts\Config\Repository::class));
+        }
+    }
+
+    /**
+     * Track an event with automatic context enrichment.
+     *
+     * Merges the current request context (device, session, UTM, tenant, locale)
+     * into the event params before dispatching. Context params use the
+     * `_ctx_` prefix to avoid conflicts with user-defined params.
+     *
+     * @param  string  $eventName
+     * @param  array<string, mixed>  $params
+     * @param  bool  $enrichContext  Whether to auto-enrich with request context
+     * @return void
+     */
+    public function trackWithContext(string $eventName, array $params = [], bool $enrichContext = true): void
+    {
+        $event = new AnalyticsEvent(name: $eventName, params: $params);
+
+        if ($enrichContext) {
+            $contextParams = $this->contextBus()->asEventParams();
+            $mergedParams = array_merge($params, $contextParams);
+            $event = new AnalyticsEvent(name: $eventName, params: $mergedParams);
+        }
+
+        $this->trackEvent($event);
+    }
+
+    /**
+     * Get the EventFlushingService for buffered dispatch.
+     *
+     * Use this when you want to buffer events and flush them later:
+     *   $flusher = Analytics::getFlushingService();
+     *   $flusher->setStrategy(EventFlushingService::STRATEGY_BUFFERED);
+     *   $flusher->process($event);
+     *   // ... later
+     *   $flusher->flush();
+     *
+     * @return EventFlushingService
+     */
+    public function getFlushingService(): EventFlushingService
+    {
+        return $this->getContainer()->make(EventFlushingService::class);
     }
 
     // ── Service Resolvers ─────────────────────────────────────────────────

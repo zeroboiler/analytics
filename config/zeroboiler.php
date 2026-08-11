@@ -1001,6 +1001,61 @@ return [
         ],
 
         /*
+        |--------------------------------------------------------------------------
+        | Event Flushing Strategy (v17.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Controls when analytics events are sent to provider endpoints.
+        |
+        | Strategies:
+        | - 'immediate' (default) — Every event dispatched instantly
+        | - 'buffered' — Events buffered until flush() or max_buffer_size reached
+        | - 'periodic' — Flush at fixed batch_window intervals
+        | - 'batch_window' — Collect for time window then flush as batch
+        |
+        | Use Analytics::getFlushingService() to access at runtime.
+        |
+        */
+        'flushing' => [
+            'strategy' => env('ANALYTICS_FLUSHING_STRATEGY', 'immediate'),
+            'max_buffer_size' => (int) env('ANALYTICS_FLUSHING_MAX_BUFFER', 50),
+            'batch_window' => (int) env('ANALYTICS_FLUSHING_BATCH_WINDOW', 5),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Tenant Context (v17.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Multi-tenant auto-enrichment for the AnalyticsContextBus.
+        | When enabled, the context bus extracts tenant information from the
+        | authenticated user model and attaches it to all events.
+        |
+        */
+        'tenant_context' => [
+            'enabled' => env('ANALYTICS_TENANT_CONTEXT_ENABLED', false),
+            'tenant_id_field' => env('ANALYTICS_TENANT_ID_FIELD', 'tenant_id'),
+            'tenant_name_field' => env('ANALYTICS_TENANT_NAME_FIELD', 'tenant_name'),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Feature Flags Context (v17.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | When enabled, the AnalyticsContextBus attempts to resolve feature flags
+        | from a configured resolver service and attaches them to all events.
+        |
+        | Set 'resolver' to a fully-qualified class name that implements a method
+        | returning an array of flag_name => bool.
+        |
+        */
+        'feature_flags' => [
+            'enabled' => env('ANALYTICS_FEATURE_FLAGS_ENABLED', false),
+            'resolver' => env('ANALYTICS_FEATURE_FLAGS_RESOLVER'),
+        ],
+
+        /*
         |-------------------------------------------------------------------------- 
         | GDPR Compliance
         |-------------------------------------------------------------------------- 

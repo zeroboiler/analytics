@@ -1541,6 +1541,40 @@ final class AnalyticsFake
         $this->metrics = new AnalyticsMetrics;
     }
 
+    // ── v17.0.0 Context & Flushing Proxies ──────────────────────────────
+
+    /**
+     * Get the context bus (returns a basic instance for testing).
+     *
+     * @return \ZeroBoiler\Analytics\Context\AnalyticsContextBus
+     */
+    public function contextBus(): \ZeroBoiler\Analytics\Context\AnalyticsContextBus
+    {
+        $config = app(\Illuminate\Contracts\Config\Repository::class);
+
+        return new \ZeroBoiler\Analytics\Context\AnalyticsContextBus($config);
+    }
+
+    /**
+     * Track with context — stores the event like track().
+     *
+     * @param  string  $eventName
+     * @param  array<string, mixed>  $params
+     * @param  bool  $enrichContext
+     */
+    public function trackWithContext(string $eventName, array $params = [], bool $enrichContext = true): void
+    {
+        $this->track($eventName, $params);
+    }
+
+    /**
+     * Get flushing service — not applicable for fake, returns null.
+     */
+    public function getFlushingService(): ?\ZeroBoiler\Analytics\Services\EventFlushingService
+    {
+        return null;
+    }
+
     /**
      * Static accessor helper for static assertion methods.
      *

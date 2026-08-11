@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [17.0.0] - 2026-08-11
+
+### Added
+
+- **AnalyticsContextBus** — Request-scoped context manager inspired by Segment/RudderStack. Auto-collects device, session, UTM, referrer, locale, tenant, and feature flag data from the current HTTP request. Provides `asEventParams()` for automatic `_ctx_` prefixed enrichment on all events. Configured via `tenant_context` and `feature_flags` config sections.
+- **EventFlushingService** — Configurable event flushing strategy service. Supports `immediate`, `buffered`, `periodic`, and `batch_window` strategies. Controls when analytics events are dispatched to provider endpoints. Configurable via `flushing` config section with env vars.
+- **`contextBus()`** — AnalyticsManager method to access the request-scoped AnalyticsContextBus singleton.
+- **`trackWithContext()`** — AnalyticsManager method for tracking events with automatic context enrichment. Merges `_ctx_` prefixed params into event payload.
+- **`getFlushingService()`** — AnalyticsManager method to access the EventFlushingService for buffered/batch event dispatch.
+- **`flushing` config section** — `zeroboiler.analytics.flushing` with strategy, max_buffer_size, and batch_window options.
+- **`tenant_context` config section** — `zeroboiler.analytics.tenant_context` for multi-tenant event enrichment via authenticated user model fields.
+- **`feature_flags` config section** — `zeroboiler.analytics.feature_flags` for auto-attaching feature flag state to all analytics events via a configurable resolver service.
+- **AnalyticsContextBus registered as scoped binding** in AnalyticsServiceProvider for automatic request isolation.
+- **EventFlushingService registered as singleton** in AnalyticsServiceProvider.
+- **V1700ContextBusAndFlushingTest** — 13 tests covering ContextBus initialization, overrides, event params flattening, summary, reset, and FlushingService strategies (immediate, buffered, auto-flush, strategy switching, reset).
+
 ## [16.0.0] - 2026-08-11
 
 ### Added
