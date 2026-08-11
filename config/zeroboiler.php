@@ -486,6 +486,26 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | B2B Group/Account Analytics (v9.5.0)
+        |--------------------------------------------------------------------------
+        |
+        | Enables account/company-level analytics following the Segment/Mixpanel
+        | group specification. Users can be associated with groups (organizations,
+        | companies, workspaces) and group-level traits (name, industry, plan,
+        | MRR, employee count) are tracked alongside user events.
+        |
+        | All group data is stored in the Laravel cache with configurable TTL.
+        |
+        */
+        'group' => [
+            'enabled' => env('ANALYTICS_GROUP_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_GROUP_TTL', 7776000), // 90 days (seconds)
+            'max_members_per_group' => (int) env('ANALYTICS_GROUP_MAX_MEMBERS', 1000),
+            'max_groups_per_user' => (int) env('ANALYTICS_GROUP_MAX_GROUPS_USER', 10),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Audit Logging
         |--------------------------------------------------------------------------
         |

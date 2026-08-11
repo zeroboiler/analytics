@@ -2091,6 +2091,82 @@ final class AnalyticsManager
         return $service->generateReport();
     }
 
+    // ── B2B Group Analytics (v9.5.0) ───────────────────────────────────────
+
+    /**
+     * Identify a B2B group/account with traits.
+     *
+     * Associates a company, organization, or workspace with its properties.
+     * Used for B2B SaaS account-level analytics (Segment/Mixpanel group spec).
+     *
+     * @param  string  $groupId  Group identifier (company ID, workspace ID)
+     * @param  array<string, mixed>  $traits  Group properties (name, industry, plan, mrr, etc.)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function group(string $groupId, array $traits = [], array $params = []): void
+    {
+        $this->track('group_identify', array_merge([
+            'group_id' => $groupId,
+            'traits' => $traits,
+        ], $params));
+
+        // Persist group traits via GroupAnalyticsService
+        try {
+            $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
+            $service->identify($groupId, $traits);
+        } catch (\Throwable) {
+            // Service not available — event still dispatched
+        }
+    }
+
+    /**
+     * Add a user to a B2B group.
+     *
+     * Creates a membership link between user and group for account-level analytics.
+     *
+     * @param  string  $userId  User identifier
+     * @param  string  $groupId  Group identifier
+     * @param  string|null  $role  User's role in the group
+     * @param  array<string, mixed>  $traits  Membership traits
+     */
+    public function groupAddMember(string $userId, string $groupId, ?string $role = null, array $traits = []): void
+    {
+        try {
+            $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
+            $service->addMember($userId, $groupId, $role, $traits);
+        } catch (\Throwable) {
+            // Service not available
+        }
+
+        $this->track('group_member_added', array_filter([
+            'group_id' => $groupId,
+            'user_id' => $userId,
+            'role' => $role,
+        ]));
+    }
+
+    /**
+     * Get group properties for a given group ID.
+     *
+     * @param  string  $groupId  Group identifier
+     * @return array{group_id: string, traits: array<string, mixed>, member_count: int, updated_at: string|null}
+     */
+    public function getGroup(string $groupId): array
+    {
+        try {
+            $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
+
+            return $service->getGroup($groupId);
+        } catch (\Throwable) {
+            return [
+                'group_id' => $groupId,
+                'traits' => [],
+                'member_count' => 0,
+                'updated_at' => null,
+            ];
+        }
+    }
+
     // ── Service Resolvers ─────────────────────────────────────────────────
 
     private function resolveOrchestrationService(): Services\EventOrchestrationService

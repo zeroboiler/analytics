@@ -617,4 +617,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('fallback/validate', [AnalyticsEventController::class, 'fallbackValidate']);
     Route::get('fallback/health', [AnalyticsEventController::class, 'fallbackHealth']);
     Route::post('fallback/reset-counts', [AnalyticsEventController::class, 'fallbackResetCounts']);
+
+    // B2B Group/Account Analytics (v9.5.0)
+    Route::post('group/identify', [AnalyticsEventController::class, 'groupIdentify']);
+    Route::post('group/members/add', [AnalyticsEventController::class, 'groupAddMember']);
+    Route::delete('group/members/remove', [AnalyticsEventController::class, 'groupRemoveMember']);
+    Route::get('group/{groupId}', [AnalyticsEventController::class, 'groupGet']);
+    Route::get('group/{groupId}/members', [AnalyticsEventController::class, 'groupMembers']);
+    Route::post('group/{groupId}/traits', [AnalyticsEventController::class, 'groupUpdateTraits']);
+    Route::delete('group/{groupId}', [AnalyticsEventController::class, 'groupForget']);
 });

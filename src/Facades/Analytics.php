@@ -115,6 +115,9 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array{direction: string, change_pct: float, current: int, previous: int}, moving_avg: float, period: string, computed_at: string} timeSeries(string $period = '1h')
  * @method static array<string, array{total_events: int, unique_identities: int, top_events: list<array{event: string, count: int}>, category_breakdown: array<string, int>, trend: array, moving_avg: float, period: string}> timeSeriesDashboard()
  * @method static array{current: array, previous: array, delta: array{events: int, identities: int, pct_change: float}} timeSeriesCompare(string $currentPeriod, string $previousPeriod)
+ * @method static void group(string $groupId, array<string, mixed> $traits = [], array<string, mixed> $params = [])
+ * @method static void groupAddMember(string $userId, string $groupId, ?string $role = null, array<string, mixed> $traits = [])
+ * @method static array{group_id: string, traits: array<string, mixed>, member_count: int, updated_at: string|null} getGroup(string $groupId)
  *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
  *

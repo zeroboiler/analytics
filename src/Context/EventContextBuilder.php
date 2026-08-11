@@ -232,9 +232,25 @@ final class EventContextBuilder
 
         if ($this->request !== null) {
             $this->context['ip'] = $this->request->ip();
-            $this->context['user_agent'] = $this->request->userAgent() ?? '';
+            $userAgent = $this->request->userAgent() ?? '';
+            $this->context['user_agent'] = $userAgent;
             $this->context['locale'] = $this->request->getLocale();
             $this->context['method'] = $this->request->method();
+
+            // Parse device context from User-Agent (v9.5.0)
+            if ($userAgent !== '') {
+                $deviceContext = \ZeroBoiler\Analytics\Support\DeviceContextParser::parse($userAgent);
+                $this->context['device_type'] = $deviceContext['device_type'];
+                $this->context['os'] = $deviceContext['os'];
+                $this->context['os_version'] = $deviceContext['os_version'];
+                $this->context['browser'] = $deviceContext['browser'];
+                $this->context['browser_version'] = $deviceContext['browser_version'];
+                $this->context['device_brand'] = $deviceContext['brand'];
+                $this->context['is_bot'] = $deviceContext['is_bot'];
+                $this->context['is_mobile'] = $deviceContext['is_mobile'];
+                $this->context['is_tablet'] = $deviceContext['is_tablet'];
+                $this->context['is_desktop'] = $deviceContext['is_desktop'];
+            }
         }
 
         return $this;

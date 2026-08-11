@@ -84,6 +84,8 @@ use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 
+use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
+
 /**
  * API controller for frontend event tracking.
  *
@@ -9852,5 +9854,158 @@ final class AnalyticsEventController extends Controller
         $service->clearCachedCounts();
 
         return response()->json(['reset' => true]);
+    }
+
+    // ── B2B Group/Account Analytics (v9.5.0) ──────────────────────────────
+
+    /**
+     * Identify a B2B group with traits.
+     *
+     * POST /api/analytics/group/identify
+     *
+     * Body: { "group_id": "org_123", "traits": { "name": "Acme Corp", "industry": "SaaS", "plan": "enterprise" } }
+     */
+    public function groupIdentify(Request $request): JsonResponse
+    {
+        $request->validate([
+            'group_id' => 'required|string',
+            'traits' => 'array',
+            'traits.*' => 'mixed',
+        ]);
+
+        $groupId = (string) $request->input('group_id');
+        $traits = (array) $request->input('traits', []);
+
+        $this->manager->group($groupId, $traits);
+
+        return response()->json(['status' => 'ok', 'group_id' => $groupId]);
+    }
+
+    /**
+     * Add a user to a B2B group.
+     *
+     * POST /api/analytics/group/members/add
+     *
+     * Body: { "user_id": "user_456", "group_id": "org_123", "role": "admin" }
+     */
+    public function groupAddMember(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|string',
+            'group_id' => 'required|string',
+            'role' => 'nullable|string',
+            'traits' => 'array',
+            'traits.*' => 'mixed',
+        ]);
+
+        $userId = (string) $request->input('user_id');
+        $groupId = (string) $request->input('group_id');
+        $role = $request->input('role');
+        $traits = (array) $request->input('traits', []);
+
+        $this->manager->groupAddMember($userId, $groupId, is_string($role) ? $role : null, $traits);
+
+        return response()->json(['status' => 'ok', 'group_id' => $groupId, 'user_id' => $userId]);
+    }
+
+    /**
+     * Remove a user from a B2B group.
+     *
+     * DELETE /api/analytics/group/members/remove
+     *
+     * Body: { "user_id": "user_456", "group_id": "org_123" }
+     */
+    public function groupRemoveMember(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|string',
+            'group_id' => 'required|string',
+        ]);
+
+        try {
+            $service = app(GroupAnalyticsService::class);
+            $service->removeMember(
+                (string) $request->input('user_id'),
+                (string) $request->input('group_id'),
+            );
+        } catch (\Throwable) {
+            // Service not available
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    /**
+     * Get group properties and metadata.
+     *
+     * GET /api/analytics/group/{groupId}
+     */
+    public function groupGet(string $groupId): JsonResponse
+    {
+        $group = $this->manager->getGroup($groupId);
+
+        return response()->json($group);
+    }
+
+    /**
+     * Get all members of a group.
+     *
+     * GET /api/analytics/group/{groupId}/members
+     */
+    public function groupMembers(string $groupId): JsonResponse
+    {
+        try {
+            $service = app(GroupAnalyticsService::class);
+            $members = $service->getGroupMembers($groupId);
+
+            return response()->json([
+                'group_id' => $groupId,
+                'members' => $members,
+                'count' => count($members),
+            ]);
+        } catch (\Throwable) {
+            return response()->json(['group_id' => $groupId, 'members' => [], 'count' => 0]);
+        }
+    }
+
+    /**
+     * Update group traits.
+     *
+     * POST /api/analytics/group/{groupId}/traits
+     *
+     * Body: { "traits": { "name": "New Corp Name", "mrr": 50000 } }
+     */
+    public function groupUpdateTraits(Request $request, string $groupId): JsonResponse
+    {
+        $request->validate([
+            'traits' => 'required|array',
+            'traits.*' => 'mixed',
+        ]);
+
+        try {
+            $service = app(GroupAnalyticsService::class);
+            $service->updateTraits($groupId, (array) $request->input('traits'));
+        } catch (\Throwable) {
+            // Service not available
+        }
+
+        return response()->json(['status' => 'ok', 'group_id' => $groupId]);
+    }
+
+    /**
+     * Forget (delete) a group and all its membership data.
+     *
+     * DELETE /api/analytics/group/{groupId}
+     */
+    public function groupForget(string $groupId): JsonResponse
+    {
+        try {
+            $service = app(GroupAnalyticsService::class);
+            $service->forgetGroup($groupId);
+        } catch (\Throwable) {
+            // Service not available
+        }
+
+        return response()->json(['status' => 'ok', 'group_id' => $groupId]);
     }
 }
