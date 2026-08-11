@@ -119,7 +119,16 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void groupAddMember(string $userId, string $groupId, ?string $role = null, array<string, mixed> $traits = [])
  * @method static array{group_id: string, traits: array<string, mixed>, member_count: int, updated_at: string|null} getGroup(string $groupId)
  *
+ * Testing assertions (when swapped with AnalyticsFake):
+ * @method static void assertTracked(string $eventName, ?callable $callback = null)
+ * @method static void assertNotTracked(string $eventName)
+ * @method static void assertTrackedTimes(string $eventName, int $times)
+ * @method static void assertNothingTracked()
+ * @method static void assertIdentified(string $userId, ?callable $callback = null)
+ * @method static void assertPageViewTracked(?callable $callback = null)
+ *
  * @see \ZeroBoiler\Analytics\AnalyticsManager
+ * @see \ZeroBoiler\Analytics\Support\AnalyticsFake
  *
  * @since 1.0.0
  */

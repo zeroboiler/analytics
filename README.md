@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.4.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.4.0](#whats-new-in-v1040)
 +- [What's New in v10.3.0](#whats-new-in-v1030)
 +- [What's New in v10.2.0](#whats-new-in-v1020)
 +- [What's New in v10.1.0](#whats-new-in-v1010)
@@ -1839,6 +1840,61 @@ $result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
 - **Meta Pixel**: `content_ids` array types, `num_items` consistency, `content_type` for e-commerce events
 - **PostHog**: Reserved `$properties` detection, `$currency` format warning
 - **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
+
+## What's New in v10.4.0
+
+### 🧪 AnalyticsFake — Test Fake for Analytics Events
+
+Industry-standard test double for the Analytics facade, modeled after Laravel's `MailFake`, `NotificationFake`, and `BusFake`. Intercepts all analytics dispatches in tests and provides fluent assertion API.
+
+```php
+// In your Pest tests:
+use ZeroBoiler\Analytics\Facades\Analytics;
+use ZeroBoiler\Analytics\Support\AnalyticsFake;
+use ZeroBoiler\Analytics\Support\WithAnalyticsFake;
+
+beforeEach(function () {
+    app()->instance('zeroboiler.analytics', new AnalyticsFake);
+    // Or use the trait:
+    // $this->withAnalyticsFake();
+});
+
+it('tracks sign_up on registration', function () {
+    app('zeroboiler.analytics')->track('sign_up', ['method' => 'email']);
+    AnalyticsFake::assertTracked('sign_up');
+});
+
+it('tracks purchase with correct value', function () {
+    app('zeroboiler.analytics')->track('purchase', ['value' => 99.99]);
+    AnalyticsFake::assertTracked('purchase', function ($event) {
+        return $event->params['value'] === 99.99;
+    });
+});
+
+it('does not track when consent denied', function () {
+    AnalyticsFake::assertNothingTracked();
+});
+
+it('identifies user on login', function () {
+    app('zeroboiler.analytics')->identify('user_42');
+    AnalyticsFake::assertIdentified('user_42');
+});
+```
+
+**Available assertions:**
+- `Analytics::assertTracked(string $eventName, ?callable $callback = null)`
+- `Analytics::assertNotTracked(string $eventName)`
+- `Analytics::assertTrackedTimes(string $eventName, int $times)`
+- `Analytics::assertNothingTracked()`
+- `Analytics::assertIdentified(string $userId, ?callable $callback = null)`
+- `Analytics::assertPageViewTracked(?callable $callback = null)`
+
+**New files:**
+- `src/Support/AnalyticsFake.php` — Test fake extending AnalyticsManager
+- `src/Support/WithAnalyticsFake.php` — Convenient trait for test setup
+- `tests/AnalyticsFakeTest.php` — Comprehensive test suite (21 test cases)
+
+---
 
 ## What's New in v10.3.0
 
