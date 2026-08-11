@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\AnalyticsManager;
 // ─── Version Consistency ─────────────────────────────────────────────
 
 test('AnalyticsEvent VERSION is 2.84.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.9.0');
+    expect(AnalyticsEvent::VERSION)->toBe('10.3.0');
 });
 
 test('AnalyticsEvent VERSION is a valid semver string', function (): void {
@@ -215,7 +215,7 @@ test('AnalyticsManager version method returns string', function (): void {
     // that matches our expected version
     $manager = new AnalyticsManager(null);
 
-    expect($manager->version())->toBe('5.9.0');
+    expect($manager->version())->toBe('10.3.0');
 });
 
 // ─── Inertia Props Validation ──────────────────────────────────────

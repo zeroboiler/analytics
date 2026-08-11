@@ -43,24 +43,24 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
  * - Optional providers (Plausible, PostHog)
  * - 155+ test files with version consistency
  */
-test('package maturity: version is 5.9.0 everywhere', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('5.9.0');
+test('package maturity: version is 10.3.0 everywhere', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('10.3.0');
 
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('5.9.0');
+    expect($composer['version'])->toBe('10.3.0');
 
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 5.9.0');
-    expect($js)->toContain("'5.9.0'");
+    expect($js)->toContain('@version 10.3.0');
+    expect($js)->toContain("'10.3.0'");
 
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 5.9.0');
+    expect($svelte)->toContain('@version 10.3.0');
 
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($dts)->toContain('@version 5.9.0');
+    expect($dts)->toContain('@version 10.3.0');
 
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-5.9.0');
+    expect($readme)->toContain('version-10.3.0');
 });
 
 test('package maturity: composer.json requires PHP 8.5+ and Laravel 13', function (): void {

@@ -549,7 +549,7 @@ describe('v2.45.0 Full Config Coverage', function (): void {
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                expect(str_contains($contents, '5.9.0'))
+                expect(str_contains($contents, '10.3.0'))
                     ->toBeFalse("{$file->getFilename()} still contains 2.43.0 version reference");
             }
         }
@@ -562,7 +562,7 @@ describe('v2.45.0 Full Config Coverage', function (): void {
         foreach ($iterator as $file) {
             if ($file->isFile() && $file->getExtension() === 'php') {
                 $contents = file_get_contents($file->getPathname());
-                expect(str_contains($contents, '5.9.0'))
+                expect(str_contains($contents, '10.3.0'))
                     ->toBeFalse("{$file->getFilename()} still contains 2.44.0 version reference");
             }
         }
@@ -580,22 +580,22 @@ describe('v2.45.0 Full Config Coverage', function (): void {
 
     test('version 2.45.0 is consistent across all markers', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('5.9.0');
+        expect($composer['version'])->toBe('10.3.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, "'5.9.0'"))->toBeTrue();
+        expect(str_contains($js, "'10.3.0'"))->toBeTrue();
 
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect(str_contains($dts, '5.9.0'))->toBeTrue();
+        expect(str_contains($dts, '10.3.0'))->toBeTrue();
 
         $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-        expect($manager->version())->toBe('5.9.0');
+        expect($manager->version())->toBe('10.3.0');
 
         $tagger = file_get_contents(__DIR__ . '/../src/Services/EventSourceTagger.php');
-        expect(str_contains($tagger, "'5.9.0'"))->toBeTrue();
+        expect(str_contains($tagger, "'10.3.0'"))->toBeTrue();
 
         $forwarder = file_get_contents(__DIR__ . '/../src/Services/EventForwardingService.php');
-        expect(str_contains($forwarder, '5.9.0'))->toBeTrue();
+        expect(str_contains($forwarder, '10.3.0'))->toBeTrue();
     });
 
     // ── Summary Completeness ─────────────────────────────────────

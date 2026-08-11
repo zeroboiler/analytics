@@ -33,7 +33,7 @@ final class V54EventBusSchemaRegionalTest extends TestCase
 
         $this->assertSame('https://json-schema.org/draft/2020-12/schema', $schema['$schema']);
         $this->assertSame('ZeroBoiler Analytics Event Catalog', $schema['title']);
-        $this->assertSame('5.9.0', $schema['version']);
+        $this->assertSame('10.3.0', $schema['version']);
         $this->assertArrayHasKey('name', $schema['properties']);
         $this->assertArrayHasKey('params', $schema['properties']);
         $this->assertArrayHasKey('client_id', $schema['properties']);

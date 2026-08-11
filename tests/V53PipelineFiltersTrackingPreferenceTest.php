@@ -441,7 +441,7 @@ describe('V53 — Pipeline Filters + Tracking Preference Routes', function (): v
                 true,
             );
 
-            expect($composer['version'])->toBe('5.9.0');
+            expect($composer['version'])->toBe('10.3.0');
         });
     });
 });
