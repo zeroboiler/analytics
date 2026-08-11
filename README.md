@@ -2,14 +2,15 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-10.6.0-blue)](https://github.com/zeroboiler/analytics)|
-[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
+|[![Latest Version](https://img.shields.io/badge/version-10.8.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v10.8.0](#whats-new-in-v1080)
 +- [What's New in v10.6.0](#whats-new-in-v1060)
 +- [What's New in v10.5.0](#whats-new-in-v1050)
 +- [What's New in v10.4.0](#whats-new-in-v1040)
@@ -93,6 +94,22 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v10.8.0
+
+### 🔗 Lifecycle Event Mapper Expansion
+
+New lifecycle mappings for SLA, feature adoption, and revenue expansion events. Config-driven auto-tracking now covers 3 additional SaaS patterns.
+
+**New lifecycle mappings:**
+- `sla.breach` → `SlaBreachEvent` — Track SLA violations for compliance dashboards
+- `feature.adopted` → `FeatureAdoptedEvent` — Track when users first adopt a feature beyond initial usage
+- `revenue.expansion` → `ExpansionRevenueEvent` — Track upsell/cross-sell revenue growth signals
+
+**Version sweep:**
+- 10.5.0 → 10.8.0 across all entry points: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client (`getVersion` + `_getInternalVersion`), Svelte composables, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, README badge
+
+**Test:** `V108LifecycleExpansionAndVersionSweepTest` — 35+ assertions covering version consistency, new catalog entries, provider coverage, format conversion, and cross-category integration
 
 ## What's New in v10.6.0
 

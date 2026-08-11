@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [10.8.0] - 2026-08-11
+
+### Changed
+
+- **Version sweep** — 10.7.0 → 10.8.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, ServiceProvider, README badge, integrity command, consistency service docblock, event normalization service docblock.
+
+## [10.7.0] - 2026-08-11
+
+### Added
+
+- **SaaS Industry Standard Comprehensive Test Suite** — Extensive test coverage across all analytics components with 100+ new assertions validating event tracking, normalization, consistency checks, provider mappings, and consent handling.
+
+### Changed
+
+- **Version sweep** — 10.6.0 → 10.7.0 across all version references.
+
 ## [10.6.0] - 2026-08-11
 
 ### Added

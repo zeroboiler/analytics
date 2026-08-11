@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Inspired by Segment's unified event model — write once, dispatch everywhere.
  *
- * @since 10.5.0
+ * @since 10.8.0
  */
 final class EventNormalizationService
 {

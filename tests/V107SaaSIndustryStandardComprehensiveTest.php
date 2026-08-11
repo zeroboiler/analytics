@@ -264,7 +264,7 @@ describe('V10.7 — SaaS Industry Standard Analytics', function (): void {
         });
 
         it('reports correct version', function (): void {
-            expect(AnalyticsEvent::VERSION)->toBe('10.5.0');
+            expect(AnalyticsEvent::VERSION)->toBe('10.8.0');
         });
     });
 
@@ -562,8 +562,8 @@ describe('V10.7 — SaaS Industry Standard Analytics', function (): void {
     // ─── Version Consistency ─────────────────────────────────────────
 
     describe('Version consistency', function (): void {
-        it('AnalyticsEvent VERSION is 10.5.0', function (): void {
-            expect(AnalyticsEvent::VERSION)->toBe('10.5.0');
+        it('AnalyticsEvent VERSION is 10.8.0', function (): void {
+            expect(AnalyticsEvent::VERSION)->toBe('10.8.0');
         });
 
         it('has catalog validation passing', function (): void {

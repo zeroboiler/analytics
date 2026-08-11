@@ -444,6 +444,30 @@ final class LifecycleEventMapper
             'params_extractor' => 'extractTrialParams',
             'priority' => 85,
         ],
+
+        // ── SLA & Compliance Lifecycle (v10.8.0) ───────────────────
+        'sla.breach' => [
+            'source' => 'sla.breach',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SlaBreachEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 95,
+        ],
+
+        // ── Feature Adoption Lifecycle (v10.8.0) ────────────────────
+        'feature.adopted' => [
+            'source' => 'feature.adopted',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\FeatureAdoptedEvent::class,
+            'params_extractor' => 'extractFeatureParams',
+            'priority' => 75,
+        ],
+
+        // ── Revenue Expansion Lifecycle (v10.8.0) ──────────────────
+        'revenue.expansion' => [
+            'source' => 'revenue.expansion',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\ExpansionRevenueEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 90,
+        ],
     ];
 
     /** @var array<string, array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}> */

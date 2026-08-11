@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\Support\EventTransformer;
  * @covers \ZeroBoiler\Analytics\Events\EventCatalog
  * @covers \ZeroBoiler\Analytics\Support\EventTransformer
  *
- * @since 10.5.0
+ * @since 10.8.0
  */
 final class MixpanelAmplitudeParityTest extends TestCase
 {
