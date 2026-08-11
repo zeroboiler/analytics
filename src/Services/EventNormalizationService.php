@@ -367,14 +367,8 @@ final class EventNormalizationService
 
         $result = [
             'event' => $metaEvent,
+            'eventData' => $event->params,
         ];
-
-        // E-commerce events get special Meta CAPI format
-        if (EventCatalog::getCategory($event->name) === 'ecommerce') {
-            $result['eventData'] = $event->params;
-        } else {
-            $result['eventData'] = $event->params;
-        }
 
         // Attach user data for CAPI matching
         if ($event->userId !== null || $event->clientId !== null) {

@@ -123,6 +123,9 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ### 📦 Version Sweep
 - 10.4.0 → 10.5.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
+### 🧪 Testing
+- `V105EventNormalizationConsistencyTest` — 30+ assertions covering normalization across all providers, batch normalization, provider name resolution, target providers, stats, coverage report, catalog integrity, provider config, naming convention, identity consistency, config validity, debug mode, sampling rate, full check with scoring, and cache invalidation
+
 ## What's New in v9.8.0
 
 ### 🌐 Cross-Domain Tracking (`CrossDomainTrackingService`)
@@ -3150,7 +3153,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 73.5K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 203 test files, 13,000+ test assertions, 130+ API routes, 100+ event classes, 6 provider trackers
+- Total: 130K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 207 test files, 13,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 
@@ -4998,7 +5001,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 224 source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 437 source files.
 
 ## Troubleshooting
 
