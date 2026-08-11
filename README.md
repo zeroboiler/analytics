@@ -186,7 +186,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~131K source, 221 test files
+**LOC:** ~131K source, 224 test files
 
 ## What's New in v10.8.0
 
@@ -3346,7 +3346,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 223 test files, 14,600+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
+- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 224 test files, 14,600+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 
