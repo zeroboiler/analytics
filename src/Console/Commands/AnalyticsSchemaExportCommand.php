@@ -9,283 +9,128 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Schema\EventPropertySchema;
-use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
-use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
+use ZeroBoiler\Analytics\Services\EventSchemaExportService;
 
 /**
- * Artisan command to export all analytics event schemas as JSON or TypeScript.
+ * Export analytics event schemas in various industry-standard formats.
  *
- * Useful for generating documentation, client-side type definitions,
- * and schema validation in downstream systems.
+ * Generates JSON Schema, TypeScript definitions, or OpenAPI operation
+ * definitions from the event catalog for downstream consumers.
  *
- * @version 5.0.0
- *
- * @since 1.0.0
+ * @since 9.8.0
  */
 final class AnalyticsSchemaExportCommand extends Command
 {
     /** @var string */
-    protected $signature = 'zb:analytics:schema:export
-        {--format=json : Output format (json, ts, summary)}
-        {--output=- : Output path (- for stdout)}
-        {--category=* : Filter by category (ecommerce, saas, engagement)}
-        {--with-coverage : Include schema coverage report}
-        {--with-providers : Include provider mappings}';
+    protected $signature = 'zb:analytics:export-schema
+        {--format=json : Output format (json, typescript, openapi)}
+        {--output=- : Output file path (- for stdout)}
+        {--pretty : Pretty-print JSON output}';
 
     /** @var string */
-    protected $description = 'Export analytics event schemas as JSON, TypeScript, or summary';
+    protected $description = 'Export analytics event schemas (JSON Schema, TypeScript, OpenAPI)';
+
+    private EventSchemaExportService $exportService;
+
+    public function __construct(EventSchemaExportService $exportService): void
+    {
+        parent::__construct();
+        $this->exportService = $exportService;
+    }
 
     /**
      * Execute the console command.
      */
-    #[\Override]
-    public function handle(EventPropertySchema $propertySchema): int
+    public function handle(): int
     {
         $format = $this->option('format');
         $output = $this->option('output');
-        $categories = $this->option('category');
-        $withCoverage = $this->option('with-coverage');
-        $withProviders = $this->option('with-providers');
+        $pretty = $this->option('pretty');
 
-        $propertySchema->registerBuiltInSchemas();
-        $schemaRegistry = new EventSchemaRegistry;
+        $this->info("Exporting event catalog as {$format}...");
 
-        // Build schema data
-        $allEvents = EventCatalog::all();
-
-        // Filter by category if specified
-        if (! empty($categories)) {
-            $allEvents = array_filter(
-                $allEvents,
-                fn (array $entry): bool => in_array($entry['category'], $categories, true),
-            );
-        }
-
-        $exported = $this->buildExportData($allEvents, $propertySchema, $schemaRegistry, $withProviders);
-
-        // Add coverage report if requested
-        if ($withCoverage) {
-            $diffReporter = new SchemaDiffReporter;
-            $exported['_coverage'] = $diffReporter->report($propertySchema, $schemaRegistry);
-            $exported['_coverage_by_category'] = $diffReporter->reportByCategory($propertySchema, $schemaRegistry);
-        }
-
-        // Generate output
         $content = match ($format) {
-            'ts' => $this->generateTypeScript($allEvents, $propertySchema),
-            'summary' => $this->generateSummary($allEvents, $propertySchema, $schemaRegistry),
-            default => json_encode($exported, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            'json' => $this->exportJson($pretty),
+            'typescript' => $this->exportTypeScript(),
+            'openapi' => $this->exportOpenApi($pretty),
+            default => $this->failAndReturn("Unsupported format: {$format}. Use: json, typescript, openapi"),
         };
 
-        // Write output
         if ($output === '-') {
             $this->line($content);
 
             return self::SUCCESS;
         }
 
-        $bytes = file_put_contents($output, $content . "\n");
+        $path = $output !== '' ? $output : $this->defaultOutputPath($format);
+        $written = file_put_contents($path, $content);
 
-        if ($bytes === false) {
-            $this->error("Failed to write to: {$output}");
+        if ($written === false) {
+            $this->error("Failed to write to: {$path}");
 
             return self::FAILURE;
         }
 
-        $this->info("Exported {$format} schema to: {$output} ({$bytes} bytes)");
+        $size = number_format($written / 1024, 1);
+        $this->info("Exported {$format} schema to: {$path} ({$size} KB)");
 
         return self::SUCCESS;
     }
 
     /**
-     * Build the export data structure.
-     *
-     * @param  array<string, mixed>  $events
-     * @return array<string, mixed>
+     * Export JSON Schema.
      */
-    private function buildExportData(
-        array $events,
-        EventPropertySchema $propertySchema,
-        EventSchemaRegistry $schemaRegistry,
-        bool $withProviders,
-    ): array {
-        $data = [];
-
-        foreach ($events as $name => $entry) {
-            $item = [
-                'name' => $entry['name'],
-                'category' => $entry['category'],
-                'class' => $entry['class'],
-                'ga4' => $entry['ga4'],
-            ];
-
-            if ($withProviders) {
-                $item['meta'] = $entry['meta'] ?? null;
-                $item['posthog'] = $entry['posthog'] ?? null;
-                $item['plausible'] = $entry['plausible'] ?? null;
-            }
-
-            // Add property schema
-            $propSchema = $propertySchema->getSchema($name);
-            if (! empty($propSchema)) {
-                $item['properties'] = $propSchema;
-            }
-
-            // Add registry schema
-            $regSchema = $schemaRegistry->get($name);
-            if ($regSchema !== null) {
-                $item['registry'] = [
-                    'description' => $regSchema->description,
-                    'required' => array_keys($regSchema->requiredParams),
-                    'optional' => array_keys($regSchema->optionalParams),
-                ];
-            }
-
-            $data[$name] = $item;
-        }
-
-        return $data;
-    }
-
-    /**
-     * Generate TypeScript type definitions.
-     *
-     * @param  array<string, mixed>  $events
-     */
-    private function generateTypeScript(array $events, EventPropertySchema $propertySchema): string
+    private function exportJson(bool $pretty): string
     {
-        $lines = [];
-        $lines[] = '/**';
-        $lines[] = ' * ZeroBoiler Analytics — Event Schema TypeScript Definitions';
-        $lines[] = ' * Auto-generated by zb:analytics:schema:export --format=ts';
-        $lines[] = ' * @version 5.0.0';
-        $lines[] = ' */';
-        $lines[] = '';
-        $lines[] = '// ─── Global Properties ─────────────────────────────────';
-        $lines[] = 'export interface AnalyticsGlobalProperties {';
-        $lines[] = '  user_id?: string;';
-        $lines[] = '  client_id?: string;';
-        $lines[] = '  session_id?: string;';
-        $lines[] = '  timestamp?: string;';
-        $lines[] = '  source?: string;';
-        $lines[] = '}';
-        $lines[] = '';
+        $schema = $this->exportService->exportJsonSchema();
 
-        foreach ($events as $name => $entry) {
-            $category = $entry['category'];
-            $propSchema = $propertySchema->getSchema($name);
-
-            $lines[] = "// ─── {$name} ({$category}) ─────────────────────────";
-            $lines[] = '/**';
-
-            if (! empty($propSchema)) {
-                foreach ($propSchema as $prop => $rules) {
-                    $desc = $rules['description'] ?? '';
-                    $required = $rules['required'] ?? false;
-                    $prefix = $required ? ' * @property [required] ' : ' * @property [optional] ';
-                    $lines[] = "{$prefix}{$prop} - {$desc}";
-                }
-            }
-
-            $lines[] = ' * @ga4 ' . ($entry['ga4'] ?? $name);
-            $lines[] = ' */';
-
-            $typeName = $this->toTypeName($name);
-
-            if (! empty($propSchema)) {
-                $lines[] = "export interface {$typeName}Params extends AnalyticsGlobalProperties {";
-
-                foreach ($propSchema as $prop => $rules) {
-                    $tsType = $this->phpTypeToTs($rules['type'] ?? 'string');
-                    $required = $rules['required'] ?? false;
-                    $optional = $required ? '' : '?';
-                    $lines[] = "  {$prop}{$optional}: {$tsType};";
-                }
-
-                $lines[] = '}';
-            } else {
-                $lines[] = "export interface {$typeName}Params extends AnalyticsGlobalProperties {";
-                $lines[] = '  [key: string]: unknown;';
-                $lines[] = '}';
-            }
-
-            $lines[] = '';
-        }
-
-        return implode("\n", $lines);
+        return $pretty
+            ? json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            : json_encode($schema);
     }
 
     /**
-     * Generate a human-readable summary.
-     *
-     * @param  array<string, mixed>  $events
+     * Export TypeScript definitions.
      */
-    private function generateSummary(
-        array $events,
-        EventPropertySchema $propertySchema,
-        EventSchemaRegistry $schemaRegistry,
-    ): string {
-        $diffReporter = new SchemaDiffReporter;
-        $lines = [];
-        $lines[] = $diffReporter->summary($propertySchema, $schemaRegistry);
-        $lines[] = '';
-        $lines[] = str_repeat('─', 50);
-        $lines[] = 'Event Details:';
-        $lines[] = str_repeat('─', 50);
-
-        foreach ($events as $name => $entry) {
-            $hasProp = $propertySchema->hasSchema($name) ? '✓' : '✗';
-            $hasReg = $schemaRegistry->has($name) ? '✓' : '✗';
-            $ga4 = $entry['ga4'] ?? $name;
-            $meta = $entry['meta'] ?? '—';
-
-            $lines[] = '';
-            $lines[] = "[{$entry['category']}] {$name}";
-            $lines[] = "  GA4: {$ga4} | Meta: {$meta}";
-            $lines[] = "  Property schema: {$hasProp} | Registry schema: {$hasReg}";
-
-            $propSchema = $propertySchema->getSchema($name);
-            if (! empty($propSchema)) {
-                $requiredParams = array_filter($propSchema, fn (array $r): bool => ($r['required'] ?? false));
-                $optionalParams = array_filter($propSchema, fn (array $r): bool => ! ($r['required'] ?? false));
-
-                if (! empty($requiredParams)) {
-                    $names = array_map(fn (string $p): string => $p, array_keys($requiredParams));
-                    $lines[] = '  Required: ' . implode(', ', $names);
-                }
-
-                if (! empty($optionalParams)) {
-                    $names = array_map(fn (string $p): string => $p, array_keys($optionalParams));
-                    $lines[] = '  Optional: ' . implode(', ', $names);
-                }
-            }
-        }
-
-        return implode("\n", $lines);
-    }
-
-    /**
-     * Convert event name to TypeScript type name.
-     */
-    private function toTypeName(string $eventName): string
+    private function exportTypeScript(): string
     {
-        return str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $eventName)));
+        return $this->exportService->exportTypeScript();
     }
 
     /**
-     * Convert PHP type to TypeScript type.
+     * Export OpenAPI operations.
      */
-    private function phpTypeToTs(string $phpType): string
+    private function exportOpenApi(bool $pretty): string
     {
-        return match ($phpType) {
-            'string' => 'string',
-            'int', 'integer' => 'number',
-            'float', 'number', 'numeric' => 'number',
-            'bool', 'boolean' => 'boolean',
-            'array', 'object' => 'Record<string, unknown>',
-            default => 'unknown',
+        $operations = $this->exportService->exportOpenApi();
+
+        return $pretty
+            ? json_encode($operations, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            : json_encode($operations);
+    }
+
+    /**
+     * Get the default output file path for a given format.
+     */
+    private function defaultOutputPath(string $format): string
+    {
+        $ext = match ($format) {
+            'json' => 'analytics-events.schema.json',
+            'typescript' => 'analytics-events.d.ts',
+            'openapi' => 'analytics-events.openapi.json',
+            default => 'analytics-events.' . $format,
         };
+
+        return resource_path("docs/analytics/{$ext}");
+    }
+
+    /**
+     * Fail with a message and return failure code.
+     */
+    private function failAndReturn(string $message): string
+    {
+        $this->error($message);
+
+        return '';
     }
 }

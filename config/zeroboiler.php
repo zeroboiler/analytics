@@ -3937,5 +3937,120 @@ return [
                 // 'posthog' => ['ga4', 'meta'],
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cross-Domain Tracking (v9.8.0)
+        |--------------------------------------------------------------------------
+        |
+        | Enables unified visitor tracking across multiple domains (e.g.,
+        | app.example.com + docs.example.com + blog.example.com).
+        |
+        | Supports linker parameter decoration (auto-appends _zbclid to outbound
+        | links) and auth-based client ID linking across domains.
+        |
+        | Configure your tracked domains and the linker will automatically
+        | stitch client IDs together when the same user visits multiple domains.
+        |
+        */
+        'cross_domain' => [
+            'enabled' => env('ANALYTICS_CROSS_DOMAIN_ENABLED', false),
+            'domains' => [
+                // 'app.example.com',
+                // 'docs.example.com',
+                // 'blog.example.com',
+            ],
+            'linker_param' => env('ANALYTICS_CROSS_DOMAIN_LINKER_PARAM', '_zbclid'),
+            'auto_linker' => env('ANALYTICS_CROSS_DOMAIN_AUTO_LINKER', true),
+            'cache_prefix' => env('ANALYTICS_CROSS_DOMAIN_CACHE_PREFIX', 'zb_crossdomain_'),
+            'link_ttl' => (int) env('ANALYTICS_CROSS_DOMAIN_LINK_TTL', 900), // 15 minutes
+            'excluded_domains' => [
+                // 'internal.example.com',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Session Recording Bridge (v9.8.0)
+        |--------------------------------------------------------------------------
+        |
+        | Consent-aware integration with session recording tools (Hotjar, LogRocket,
+        | FullStory, Microsoft Clarity). Recording is suppressed when consent is
+        | denied, for excluded roles (admin/support), and on sensitive pages.
+        |
+        | PII masking is enabled by default — elements with data-zb-mask or .masked
+        | classes are visually masked in recordings. Elements with data-zb-block or
+        | .blocked classes are completely hidden from recordings.
+        |
+        */
+        'session_recording' => [
+            'enabled' => env('ANALYTICS_SESSION_RECORDING_ENABLED', false),
+            'integrations' => [
+                // 'hotjar' => ['site_id' => env('ANALYTICS_HOTJAR_SITE_ID'), 'version' => 6],
+                // 'logrocket' => ['id' => env('ANALYTICS_LOGROCKET_ID')],
+                // 'fullstory' => ['org' => env('ANALYTICS_FULLSTORY_ORG')],
+                // 'clarity' => ['project' => env('ANALYTICS_CLARITY_PROJECT')],
+            ],
+            'cache_prefix' => env('ANALYTICS_SESSION_RECORDING_CACHE_PREFIX', 'zb_recording_'),
+            'session_ttl' => (int) env('ANALYTICS_SESSION_RECORDING_TTL', 1800), // 30 minutes
+            'excluded_patterns' => [
+                '/admin/*',
+                '/billing/*',
+                '/settings/*',
+                '/api/*',
+            ],
+            'excluded_roles' => ['admin', 'super_admin'],
+            'consent_aware' => env('ANALYTICS_SESSION_RECORDING_CONSENT_AWARE', true),
+            'mask_pii' => env('ANALYTICS_SESSION_RECORDING_MASK_PII', true),
+            'mask_selectors' => ['[data-zb-mask]', '.masked'],
+            'block_selectors' => ['[data-zb-block]', '.blocked'],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Schema Export (v9.8.0)
+        |--------------------------------------------------------------------------
+        |
+        | Auto-generate JSON Schema, TypeScript definitions, and OpenAPI specs
+        | from the event catalog. Used by the admin command:
+        |   php artisan zb:analytics:export-schema --format=json|typescript|openapi
+        |
+        | Generated schemas can be consumed by downstream API gateways, SDKs,
+        | and documentation tools to ensure type-safe event tracking.
+        |
+        */
+        'schema_export' => [
+            'enabled' => env('ANALYTICS_SCHEMA_EXPORT_ENABLED', true),
+            'output_path' => env('ANALYTICS_SCHEMA_EXPORT_PATH', resource_path('docs/analytics')),
+            'include_provider_mappings' => env('ANALYTICS_SCHEMA_EXPORT_PROVIDERS', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Rate Limiting (v9.8.0)
+        |--------------------------------------------------------------------------
+        |
+        | Redis-backed rate limiting for analytics API endpoints.
+        | Uses Laravel's RateLimiter facade for distributed rate control.
+        |
+        | Applies three tiers:
+        | - Global: Total events/minute across all clients
+        | - Per-client: Events/minute per client ID
+        | - Per-user: Events/minute per authenticated user
+        |
+        | Batch endpoints have separate, higher limits.
+        |
+        */
+        'rate_limit' => [
+            'enabled' => env('ANALYTICS_RATE_LIMIT_ENABLED', true),
+            'global_limit' => (int) env('ANALYTICS_RATE_LIMIT_GLOBAL', 10000),
+            'client_limit' => (int) env('ANALYTICS_RATE_LIMIT_CLIENT', 300),
+            'user_limit' => (int) env('ANALYTICS_RATE_LIMIT_USER', 600),
+            'batch_global_limit' => (int) env('ANALYTICS_RATE_LIMIT_BATCH_GLOBAL', 5000),
+            'batch_client_limit' => (int) env('ANALYTICS_RATE_LIMIT_BATCH_CLIENT', 100),
+            'max_batch_size' => (int) env('ANALYTICS_RATE_LIMIT_MAX_BATCH', 50),
+            'prefix' => env('ANALYTICS_RATE_LIMIT_PREFIX', 'zb_analytics_'),
+            'decay_seconds' => (int) env('ANALYTICS_RATE_LIMIT_DECAY', 60),
+        ],
     ],
 ];

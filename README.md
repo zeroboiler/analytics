@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.7.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.8.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v9.7.0](#whats-new-in-v970)
++- [What's New in v9.8.0](#whats-new-in-v980)
+- [What's New in v9.7.0](#whats-new-in-v970)
 +- [What's New in v9.6.0](#whats-new-in-v960)
 - [What's New in v9.4.0](#whats-new-in-v940)
 - [What's New in v9.3.0](#whats-new-in-v930)
@@ -84,6 +85,54 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.8.0
+
+### 🌐 Cross-Domain Tracking (`CrossDomainTrackingService`)
+- **Multi-domain visitor stitching** — Unify analytics across `app.example.com`, `docs.example.com`, `blog.example.com` and more
+- **Linker parameter decoration** — Auto-appends `_zbclid` to outbound links via the JS client config
+- **Auth-based identity linking** — Links client IDs across domains when the same authenticated user visits different properties
+- **Transitive identity cluster resolution** — `resolveIdentityCluster()` finds all connected client IDs via bidirectional link traversal
+- **Inertia props integration** — `zbAnalytics.crossDomain` exposes domains, linker param, and auto-linker flag to the JS client
+- **Config-driven** — Enable/disable via `ANALYTICS_CROSS_DOMAIN_ENABLED`, configure domains, linker param, TTL, and exclusions
+
+### 🎥 Session Recording Bridge (`SessionRecordingBridge`)
+- **Consent-aware recording control** — Suppresses Hotjar/LogRocket/FullStory/Clarity recording when analytics consent is denied
+- **Role-based exclusion** — Admin and support users are never recorded (configurable excluded roles)
+- **URL pattern exclusion** — Sensitive pages (`/admin/*`, `/billing/*`, `/settings/*`) are excluded from recording
+- **PII masking** — Elements with `data-zb-mask` or `.masked` classes are visually masked in recordings
+- **Content blocking** — Elements with `data-zb-block` or `.blocked` classes are completely hidden from recordings
+- **Inertia props integration** — `zbAnalytics.sessionRecording` exposes recording config, enabled state, and integration-specific settings to the JS client
+- **Multiple providers** — Supports Hotjar, LogRocket, FullStory, and Microsoft Clarity simultaneously
+
+### 📋 Event Schema Export (`EventSchemaExportService`)
+- **JSON Schema (Draft 2020-12)** — `exportJsonSchema()` generates a complete validation schema with `$defs` for every catalog event
+- **TypeScript type definitions** — `exportTypeScript()` produces `.d.ts`-compatible interfaces with `ZbEventName` union type, per-event typed params, and category-specific types
+- **OpenAPI 3.1 operations** — `exportOpenApi()` generates operation definitions for `POST /events`, `POST /batch`, and `GET /catalog` endpoints
+- **Admin command** — `php artisan zb:analytics:export-schema --format=json|typescript|openapi --output=-` with pretty-print support
+- **Configurable output** — Write to stdout (`--output=-`) or file path; respects `ANALYTICS_SCHEMA_EXPORT_PATH` config
+
+### 🛡️ Analytics Rate Limiter (`AnalyticsRateLimiterService`)
+- **Three-tier rate limiting** — Global (10,000/min), per-client (300/min), and per-user (600/min) limits
+- **Batch-specific limits** — Separate higher limits for batch endpoints (5,000/min global, 100/min per client)
+- **Max batch size enforcement** — Rejects batch requests exceeding `ANALYTICS_RATE_LIMIT_MAX_BATCH` (default: 50 events)
+- **Redis-backed** — Uses Laravel's `RateLimiter` facade for distributed rate control across all app instances
+- **Query endpoints** — `remainingForClient()`, `remainingGlobal()`, `remainingForUser()` for dashboards and debug tools
+- **Fully configurable** — All limits, TTL, and prefix configurable via environment variables
+
+### 🛣️ API Routes (v9.8.0)
+- `GET /analytics/cross-domain` — Cross-domain tracking status
+- `POST /analytics/cross-domain/link` — Link source and target client IDs
+- `GET /analytics/cross-domain/links/{clientId}` — Get linked client IDs
+- `GET /analytics/cross-domain/resolve/{clientId}` — Resolve primary client ID
+- `DELETE /analytics/cross-domain/{clientId}` — Clear cross-domain links (GDPR)
+- `GET /analytics/session-recording` — Session recording bridge status
+- `GET /analytics/session-recording/config` — Client-side recording config
+- `GET /analytics/schemas/export/json` — JSON Schema export
+- `GET /analytics/schemas/export/typescript` — TypeScript definitions export
+- `GET /analytics/schemas/export/openapi` — OpenAPI operations export
+- `GET /analytics/rate-limits/advanced` — Advanced rate limiter status
+- `GET /analytics/rate-limits/advanced/{clientId}` — Per-client rate limit status
 
 ## What's New in v9.7.0
 

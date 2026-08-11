@@ -626,4 +626,24 @@ Route::prefix('analytics')->group(function () {
     Route::get('group/{groupId}/members', [AnalyticsEventController::class, 'groupMembers']);
     Route::post('group/{groupId}/traits', [AnalyticsEventController::class, 'groupUpdateTraits']);
     Route::delete('group/{groupId}', [AnalyticsEventController::class, 'groupForget']);
+
+    // Cross-Domain Tracking (v9.8.0)
+    Route::get('cross-domain', [AnalyticsEventController::class, 'crossDomainStatus']);
+    Route::post('cross-domain/link', [AnalyticsEventController::class, 'crossDomainLink']);
+    Route::get('cross-domain/links/{clientId}', [AnalyticsEventController::class, 'crossDomainLinks']);
+    Route::get('cross-domain/resolve/{clientId}', [AnalyticsEventController::class, 'crossDomainResolve']);
+    Route::delete('cross-domain/{clientId}', [AnalyticsEventController::class, 'crossDomainClear']);
+
+    // Session Recording Bridge (v9.8.0)
+    Route::get('session-recording', [AnalyticsEventController::class, 'sessionRecordingStatus']);
+    Route::get('session-recording/config', [AnalyticsEventController::class, 'sessionRecordingConfig']);
+
+    // Schema Export (v9.8.0)
+    Route::get('schemas/export/json', [AnalyticsEventController::class, 'schemaExportJson']);
+    Route::get('schemas/export/typescript', [AnalyticsEventController::class, 'schemaExportTypeScript']);
+    Route::get('schemas/export/openapi', [AnalyticsEventController::class, 'schemaExportOpenApi']);
+
+    // API Rate Limiter (v9.8.0)
+    Route::get('rate-limits/advanced', [AnalyticsEventController::class, 'advancedRateLimitStatus']);
+    Route::get('rate-limits/advanced/{clientId}', [AnalyticsEventController::class, 'advancedRateLimitClient']);
 });

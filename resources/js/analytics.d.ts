@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 9.7.0
+ * @version 9.8.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -51,6 +51,8 @@ export interface ZbAnalyticsProps {
   sampling: SamplingConfig;
   geolocation: GeolocationConfig;
   regionalConsent: RegionalConsentConfig;
+  crossDomain: CrossDomainConfig;
+  sessionRecording: SessionRecordingConfig;
 }
 
 export interface ConsentState {
@@ -144,6 +146,23 @@ export interface GeolocationConfig {
 export interface RegionalConsentConfig {
   enabled: boolean;
   gdprDefault: string;
+}
+
+export interface CrossDomainConfig {
+  enabled: boolean;
+  domains: string[];
+  linkerParam: string;
+  autoLinker: boolean;
+}
+
+export interface SessionRecordingConfig {
+  enabled: boolean;
+  providers: Record<string, { enabled: boolean; config: Record<string, unknown> }>;
+  maskPii: boolean;
+  maskSelectors: string[];
+  blockSelectors: string[];
+  consentAware: boolean;
+  excludedPatterns: string[];
 }
 
 // ─── Core Functions ─────────────────────────────────────────────────────

@@ -2,6 +2,25 @@
 
 All notable changes to the package will be documented in this file.
 
+## [9.8.0] - 2026-08-11
+
+### Added
+
+- **Cross-Domain Tracking Service** (`CrossDomainTrackingService`) — Multi-domain visitor stitching for SaaS apps with multiple properties (app, docs, blog). Linker parameter decoration (`_zbclid`), auth-based client ID linking, transitive identity cluster resolution, bidirectional link graph with cache-backed storage. Config-driven domain list with wildcard support and exclusions. GDPR-aware link clearing via `clearLinks()`.
+- **Session Recording Bridge** (`SessionRecordingBridge`) — Consent-aware integration with Hotjar, LogRocket, FullStory, Microsoft Clarity. Recording suppression based on consent state, user role, and URL pattern matching. PII masking (`data-zb-mask`, `.masked`) and content blocking (`data-zb-block`, `.blocked`) via CSS selectors. Multi-provider configuration with per-integration settings.
+- **Event Schema Export Service** (`EventSchemaExportService`) — Auto-generate JSON Schema (Draft 2020-12), TypeScript type definitions, and OpenAPI 3.1 operations from the event catalog. TypeScript includes `ZbEventName` union type, per-event typed interfaces, category-specific types, and priority enum. JSON Schema includes `$defs` for every catalog event with parameter types and required fields.
+- **Analytics Rate Limiter Service** (`AnalyticsRateLimiterService`) — Redis-backed three-tier rate limiting using Laravel's `RateLimiter` facade. Global (10K/min), per-client (300/min), per-user (600/min) for single events. Separate batch limits (5K/min global, 100/min per-client). Max batch size enforcement. Configurable decay window.
+- **Schema Export Command** (`AnalyticsSchemaExportCommand`) — `php artisan zb:analytics:export-schema --format=json|typescript|openapi --output=- --pretty`. Writes to stdout or file.
+- **Inertia middleware updates** — `zbAnalytics.crossDomain` prop for cross-domain linker config, `zbAnalytics.sessionRecording` prop for consent-aware recording config.
+- **API endpoints:** 12 new endpoints for cross-domain tracking, session recording, schema export, and advanced rate limiting.
+- **Config sections:** `cross_domain`, `session_recording`, `schema_export`, `rate_limit` in `zeroboiler.php`.
+- **TypeScript types:** `CrossDomainConfig`, `SessionRecordingConfig` interfaces added to `analytics.d.ts`.
+- **Test suite** — `V980CrossDomainSchemaExportRateLimitTest.php` with 30+ tests.
+
+### Changed
+
+- **Version sweep** — 9.7.0 → 9.8.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion + @version), Svelte composable (@version), TypeScript definitions (@version), README badge, CHANGELOG.
+
 ## [9.4.0] - 2026-08-11
 
 ### Added

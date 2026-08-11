@@ -290,6 +290,31 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             'gdprDefault' => (string) ($regionalConfig['gdpr_default'] ?? 'denied'),
         ];
 
+        // Cross-domain tracking config (v9.8.0)
+        $crossDomain = $this->config->get('zeroboiler.analytics.cross_domain', []);
+        /** @var array{enabled?: bool, domains?: list<string>, linker_param?: string, auto_linker?: bool} $crossDomain */
+        $analyticsProps['crossDomain'] = [
+            'enabled' => (bool) ($crossDomain['enabled'] ?? false),
+            'domains' => (array) ($crossDomain['domains'] ?? []),
+            'linkerParam' => (string) ($crossDomain['linker_param'] ?? '_zbclid'),
+            'autoLinker' => (bool) ($crossDomain['auto_linker'] ?? true),
+        ];
+
+        // Session recording bridge config (v9.8.0)
+        try {
+            $recordingBridge = new \ZeroBoiler\Analytics\Services\SessionRecordingBridge($this->config);
+            $analyticsProps['sessionRecording'] = $recordingBridge->getClientConfig([
+                'consent' => $analyticsProps['consent'],
+                'user_role' => $this->getUserRole(),
+                'current_url' => $request->fullUrl(),
+            ]);
+        } catch (\Throwable) {
+            $analyticsProps['sessionRecording'] = [
+                'enabled' => false,
+                'providers' => [],
+            ];
+        }
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 
@@ -351,6 +376,30 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         return method_exists($user, 'getAttribute')
             ? (string) $user->getAttribute($key)
             : (string) $user->getKey();
+    }
+
+    /**
+     * Get the authenticated user's role if available.
+     *
+     * Checks for a `role` attribute on the user model.
+     * Returns null if no role attribute exists or user is not authenticated.
+     */
+    private function getUserRole(): ?string
+    {
+        /** @var \Illuminate\Contracts\Auth\Authenticatable|null $user */
+        $user = auth()->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        if (method_exists($user, 'getAttribute')) {
+            $role = $user->getAttribute('role');
+
+            return is_string($role) && $role !== '' ? $role : null;
+        }
+
+        return null;
     }
 
     /**
