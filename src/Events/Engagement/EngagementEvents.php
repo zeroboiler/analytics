@@ -7,6 +7,9 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events\Engagement;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\Engagement\OnboardingCompletedEvent;
+
 /**
  * Static catalog of all engagement analytics events.
  *
@@ -275,6 +278,15 @@ final class EngagementEvents
                 'ga4' => 'consent_update',
                 'meta' => 'ConsentWithdrawn',
                 'posthog' => 'consent_withdrawn',
+                'plausible' => null,
+            ],
+            // Onboarding completion (v9.7.0)
+            'onboarding_completed' => [
+                'name' => 'onboarding_completed',
+                'class' => OnboardingCompletedEvent::class,
+                'ga4' => 'onboarding_completed',
+                'meta' => 'CompleteRegistration',
+                'posthog' => 'onboarding_completed',
                 'plausible' => null,
             ],
         ];

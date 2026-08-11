@@ -223,6 +223,7 @@ use ZeroBoiler\Analytics\Support\EventCatalogFactory;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
+use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -230,7 +231,7 @@ use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.6.0
+ * @version 9.7.0
  *
  * @since 1.0.0
  */
@@ -2151,6 +2152,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 cacheTtl: $intelligenceTtl,
             );
         });
+
+        // Analytics Instrumentation Advisor (v9.7.0) — code-snippet level guidance
+        $this->app->singleton(AnalyticsInstrumentationAdvisor::class);
     }
 
     /**

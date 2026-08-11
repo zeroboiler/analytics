@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.6.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-9.7.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v9.7.0](#whats-new-in-v970)
 +- [What's New in v9.6.0](#whats-new-in-v960)
 - [What's New in v9.4.0](#whats-new-in-v940)
 - [What's New in v9.3.0](#whats-new-in-v930)
@@ -83,6 +84,30 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v9.7.0
+
+### 🎯 Analytics Instrumentation Advisor (`AnalyticsInstrumentationAdvisor`)
+- **Code-snippet level guidance** — Generates a prioritized instrumentation plan with ready-to-use PHP and JavaScript code examples for every industry-standard event
+- **Quick-start guide** — `quickStartGuide()` returns copy-paste config, middleware, and JS initialization snippets for day-one setup
+- **Gap analysis** — `gapAnalysis(['sign_up', 'login'])` compares your tracked events against the industry standard and returns coverage score, gaps with code examples, and covered events
+- **Auto-track mapping** — Identifies which events can be wired via config-driven auto-tracking vs. require manual dispatch
+- **Category-level summaries** — Instrumentation plan grouped by ecommerce/saas/engagement with counts
+
+### 🎓 Onboarding Completed Event (`OnboardingCompletedEvent`)
+- **Dedicated typed event class** — `new OnboardingCompletedEvent(steps: 5, total: 5, duration: 342)` with automatic completion percentage calculation
+- **Catalog registered** — Added to EngagementEvents catalog with GA4, Meta, and PostHog provider mappings
+- **Full parameter support** — `steps_completed`, `steps_total`, `duration_seconds`, `signup_method`, `skipped_steps`, `completion_percentage`
+
+### 📱 Svelte Composable: `useAnalyticsConfig`
+- **`useAnalyticsConfig()`** — Reactive store derived from Inertia page props, auto-updates on navigation
+- **`useConsentState()`** — Reactive consent state store for conditional consent banner rendering
+- **`useMaturity()`** — Reactive analytics maturity score and grade store for dashboard badges
+- **`useFunnelReadiness()`** — Reactive per-funnel readiness scores for instrumentation coverage dashboards
+- **Type-safe** — Full TypeScript-compatible return types with proper null handling
+
+### 🔧 Version Sweep
+- 9.6.0 → 9.7.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
 ## What's New in v9.6.0
 
