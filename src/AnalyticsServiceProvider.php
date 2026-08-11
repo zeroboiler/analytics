@@ -231,7 +231,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 9.7.0
+ * @version 9.8.0
  *
  * @since 1.0.0
  */
