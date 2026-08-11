@@ -3325,7 +3325,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 130K+ LOC PHP source, 5.2K+ LOC JS client, 850+ LOC Svelte composables, 218 test files, 13,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
+- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 223 test files, 14,600+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 
