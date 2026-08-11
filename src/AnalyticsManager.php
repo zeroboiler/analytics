@@ -19,13 +19,15 @@ use ZeroBoiler\Analytics\Trackers\MetaPixelTracker;
 use ZeroBoiler\Analytics\Trackers\PlausibleTracker;
 use ZeroBoiler\Analytics\Trackers\PosthogTracker;
 use ZeroBoiler\Analytics\Trackers\WebhookTracker;
+use ZeroBoiler\Analytics\Trackers\MixpanelTracker;
+use ZeroBoiler\Analytics\Trackers\AmplitudeTracker;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
 use ZeroBoiler\Analytics\EventInterceptorRegistry;
 
 /**
  * Central analytics manager — dispatches events to all configured trackers.
  *
- * Manages GA4, GTM, Meta Pixel, Plausible, PostHog, and Webhook tracker instances.
+ * Manages GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and Webhook tracker instances.
  * Provides convenience methods for common events (purchase, identify, screenView),
  * consent management, debug mode, GDPR identity reset, and async dispatch.
  *
@@ -49,6 +51,10 @@ final class AnalyticsManager
     protected PosthogTracker $posthog;
 
     protected WebhookTracker $webhook;
+
+    protected MixpanelTracker $mixpanel;
+
+    protected AmplitudeTracker $amplitude;
 
     private AnalyticsMetrics $metrics;
 
@@ -123,6 +129,25 @@ final class AnalyticsManager
             retries: (int) ($webhookConfig['retries'] ?? 1),
             headers: $webhookConfig['headers'] ?? [],
             signPayloads: (bool) ($webhookConfig['sign'] ?? false),
+        );
+
+        // Optional: Mixpanel Analytics (v10.0.0)
+        $mixpanelConfig = $config->get('zeroboiler.analytics.mixpanel', []);
+        /** @var array{enabled?: bool, token?: string, host?: string} $mixpanelConfig */
+        $this->mixpanel = new MixpanelTracker(
+            token: $mixpanelConfig['token'] ?? '',
+            host: $mixpanelConfig['host'] ?? 'https://api.mixpanel.com',
+            enabled: $mixpanelConfig['enabled'] ?? false,
+        );
+
+        // Optional: Amplitude Analytics (v10.0.0)
+        $amplitudeConfig = $config->get('zeroboiler.analytics.amplitude', []);
+        /** @var array{enabled?: bool, api_key?: string, host?: string, platform?: string} $amplitudeConfig */
+        $this->amplitude = new AmplitudeTracker(
+            apiKey: $amplitudeConfig['api_key'] ?? '',
+            host: $amplitudeConfig['host'] ?? 'https://api2.amplitude.com',
+            platform: $amplitudeConfig['platform'] ?? 'Laravel/Server',
+            enabled: $amplitudeConfig['enabled'] ?? false,
         );
 
         // Apply default consent state from config (GDPR-safe defaults)
@@ -327,6 +352,26 @@ final class AnalyticsManager
             }
         }
 
+        if ($this->mixpanel->isEnabled()) {
+            try {
+                $this->mixpanel->track($event);
+                $this->metrics->recordDispatch('mixpanel');
+                $dispatched = true;
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('mixpanel', $e->getMessage());
+            }
+        }
+
+        if ($this->amplitude->isEnabled()) {
+            try {
+                $this->amplitude->track($event);
+                $this->metrics->recordDispatch('amplitude');
+                $dispatched = true;
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('amplitude', $e->getMessage());
+            }
+        }
+
         return $dispatched;
     }
 
@@ -355,6 +400,14 @@ final class AnalyticsManager
 
         if ($this->posthog->isEnabled()) {
             $scripts[] = $this->posthog->headScripts();
+        }
+
+        if ($this->mixpanel->isEnabled()) {
+            $scripts[] = $this->mixpanel->headScripts();
+        }
+
+        if ($this->amplitude->isEnabled()) {
+            $scripts[] = $this->amplitude->headScripts();
         }
 
         return implode("\n", array_filter($scripts));
@@ -439,9 +492,29 @@ final class AnalyticsManager
     }
 
     /**
+     * Get the Mixpanel tracker instance (optional).
+     *
+     * @since 10.0.0
+     */
+    public function mixpanel(): MixpanelTracker
+    {
+        return $this->mixpanel;
+    }
+
+    /**
+     * Get the Amplitude tracker instance (optional).
+     *
+     * @since 10.0.0
+     */
+    public function amplitude(): AmplitudeTracker
+    {
+        return $this->amplitude;
+    }
+
+    /**
      * Set consent state across all trackers.
      *
-     * Propagates the given ConsentState to GA4, GTM, Meta Pixel, Plausible, PostHog, and Webhook trackers.
+     * Propagates the given ConsentState to GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and Webhook trackers.
      * Use this when the user grants or denies consent (e.g. via a cookie banner).
      */
     public function setConsent(ConsentState $state): void
@@ -452,6 +525,8 @@ final class AnalyticsManager
         $this->plausible->setConsent($state);
         $this->posthog->setConsent($state);
         $this->webhook->setConsent($state);
+        $this->mixpanel->setConsent($state);
+        $this->amplitude->setConsent($state);
     }
 
     /**

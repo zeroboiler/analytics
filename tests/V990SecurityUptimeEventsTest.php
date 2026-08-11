@@ -321,7 +321,7 @@ describe('EventCatalog Integration', function () {
 });
 
 describe('Version Consistency', function () {
-    it('AnalyticsEvent VERSION is 9.9.0', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('9.9.0');
+    it('AnalyticsEvent VERSION has advanced past 9.9.0', function () {
+        expect(version_compare(AnalyticsEvent::VERSION, '9.9.0', '>'))->toBeTrue();
     });
 });

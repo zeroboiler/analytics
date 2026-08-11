@@ -486,6 +486,39 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Mixpanel Analytics (Optional, v10.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Product analytics with user profiling, funnel analysis, and cohort tracking.
+        | Server-side tracking via Mixpanel /track API endpoint.
+        | Enable by setting ANALYTICS_MIXPANEL_ENABLED=true and providing your token.
+        |
+        */
+        'mixpanel' => [
+            'enabled' => env('ANALYTICS_MIXPANEL_ENABLED', false),
+            'token' => env('ANALYTICS_MIXPANEL_TOKEN', ''),
+            'host' => env('ANALYTICS_MIXPANEL_HOST', 'https://api.mixpanel.com'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Amplitude Analytics (Optional, v10.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Product analytics with behavioral cohorting, revenue analytics, and
+        | user journey analysis. Server-side tracking via Amplitude V2 HTTP API.
+        | Enable by setting ANALYTICS_AMPLITUDE_ENABLED=true and providing your API key.
+        |
+        */
+        'amplitude' => [
+            'enabled' => env('ANALYTICS_AMPLITUDE_ENABLED', false),
+            'api_key' => env('ANALYTICS_AMPLITUDE_API_KEY', ''),
+            'host' => env('ANALYTICS_AMPLITUDE_HOST', 'https://api2.amplitude.com'),
+            'platform' => env('ANALYTICS_AMPLITUDE_PLATFORM', 'Laravel/Server'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | B2B Group/Account Analytics (v9.5.0)
         |--------------------------------------------------------------------------
         |

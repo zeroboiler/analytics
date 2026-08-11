@@ -2,15 +2,16 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-9.9.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-10.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **6 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v9.9.0](#whats-new-in-v990)
+- [What's New in v10.0.0](#whats-new-in-v10000)
+- [What's New in v9.9.0](#whats-new-in-v990)
 - [What's New in v9.8.0](#whats-new-in-v980)
 - [What's New in v9.7.0](#whats-new-in-v970)
 +- [What's New in v9.6.0](#whats-new-in-v960)
@@ -1835,6 +1836,51 @@ $result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
 - **Meta Pixel**: `content_ids` array types, `num_items` consistency, `content_type` for e-commerce events
 - **PostHog**: Reserved `$properties` detection, `$currency` format warning
 - **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
+
+## What's New in v10.0.0
+
+**Mixpanel & Amplitude Trackers — 8-Provider SaaS Analytics**
+
+### 🎯 Mixpanel Tracker (`MixpanelTracker`)
+- **Server-side event tracking** — Tracks events via the Mixpanel `/track` API endpoint
+- **User profiling** — `setUserProfile()` for `$set` operations (name, email, plan, created_at)
+- **Incremental properties** — `incrementUserProperty()` for `$add` operations (login_count, revenue)
+- **Cross-device identity** — `alias()` for merging anonymous and authenticated identities
+- **GDPR reset** — `reset()` for right-to-be-forgotten compliance
+- **Client-side script injection** — `headScripts()` renders the Mixpanel JS SDK snippet
+- **Config-driven** — Enable via `ANALYTICS_MIXPANEL_ENABLED`, configure token and host
+
+### 📊 Amplitude Tracker (`AmplitudeTracker`)
+- **Server-side event tracking** — Tracks events via the Amplitude V2 HTTP API (`/v2/httpapi`)
+- **User identification** — `identify()` for `$identify` with user properties and device context
+- **Property sanitization** — Auto-truncates strings to 1024 chars, strips nested arrays, filters nulls
+- **Platform detection** — Configurable `platform` field (default: `Laravel/Server`)
+- **GDPR reset** — `reset()` sends `$reset` event to Amplitude API
+- **Client-side script injection** — `headScripts()` renders the Amplitude JS SDK snippet
+- **Config-driven** — Enable via `ANALYTICS_AMPLITUDE_ENABLED`, configure api_key and host
+
+### 🔧 AnalyticsManager Updates
+- `AnalyticsManager` now manages **8 trackers**: GA4, GTM, Meta Pixel, Plausible, PostHog, **Mixpanel**, **Amplitude**, and Webhook
+- `mixpanel()` — Returns the MixpanelTracker instance
+- `amplitude()` — Returns the AmplitudeTracker instance
+- `directDispatch()` dispatches to all 8 enabled trackers
+- `headScripts()` injects scripts from all enabled client-side trackers
+- `setConsent()` propagates consent state to all 8 trackers
+
+### ⚙️ Config Expansion
+- `mixpanel` — `ANALYTICS_MIXPANEL_ENABLED`, `ANALYTICS_MIXPANEL_TOKEN`, `ANALYTICS_MIXPANEL_HOST`
+- `amplitude` — `ANALYTICS_AMPLITUDE_ENABLED`, `ANALYTICS_AMPLITUDE_API_KEY`, `ANALYTICS_AMPLITUDE_HOST`, `ANALYTICS_AMPLITUDE_PLATFORM`
+
+### 🧪 Tests
+- `V1000MixpanelAmplitudeTrackersTest` — 28 assertions covering both trackers, consent, and manager integration
+
+### 🔢 Version Sweep
+- 9.9.0 → 10.0.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), README badge
+
+### Files Added
+- `src/Trackers/MixpanelTracker.php` — Mixpanel server-side tracker
+- `src/Trackers/AmplitudeTracker.php` — Amplitude server-side tracker
+- `tests/V1000MixpanelAmplitudeTrackersTest.php` — Integration tests
 
 ## What's New in v9.9.0
 
