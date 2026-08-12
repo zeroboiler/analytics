@@ -279,6 +279,9 @@ use ZeroBoiler\Analytics\Services\EventDependencyGraphService;
 use ZeroBoiler\Analytics\Services\MultiCurrencyRevenueNormalizer;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyGraphCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnippetCommand;
+use ZeroBoiler\Analytics\Services\AnalyticsSnippetService;
+use ZeroBoiler\Analytics\Services\DifferentialPrivacyService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -286,7 +289,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 41.0.0
+ * @version 42.0.0
  *
  * @since 1.0.0
  */
@@ -2718,6 +2721,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Analytics Snippet Generator (v42.0.0)
+        $this->app->singleton(AnalyticsSnippetService::class, function (Application $app): AnalyticsSnippetService {
+            return new AnalyticsSnippetService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Differential Privacy Service (v42.0.0)
+        $this->app->singleton(DifferentialPrivacyService::class, function (Application $app): DifferentialPrivacyService {
+            return new DifferentialPrivacyService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -2766,6 +2784,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsOTLPCommand::class,
                 AnalyticsReplayAuditCommand::class,
                 AnalyticsDependencyGraphCommand::class,
+                AnalyticsSnippetCommand::class,
             ]);
         }
 

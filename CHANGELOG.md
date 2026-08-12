@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [42.0.0] - 2026-08-12
+
+### Added
+
+- **AnalyticsSnippetService** — Bootstrap snippet generator for all 10 analytics providers. Generates ready-to-paste `<script>` tags with configured provider IDs pre-filled for GA4 (gtag.js + Consent Mode v2), GTM (dataLayer + noscript), Meta Pixel (fbq), Plausible, PostHog, Mixpanel, Amplitude, TikTok Pixel, and LinkedIn Insight Tag. Supports head/body/client-init output modes, consent listener integration, provider summary with masked IDs, and `--json` machine-readable output. Config-driven — reads from `zeroboiler.analytics.*` config.
+- **DifferentialPrivacyService** — Privacy-safe analytics aggregation using the Laplace mechanism. Adds calibrated noise to aggregate metrics (counts, percentages, revenue) so individual contributions cannot be inferred from published results. Configurable privacy budget (epsilon ε), sensitivity (Δ), and per-period budget tracking. Includes k-anonymity suppression for small groups, noisy histogram bucketing, privacy-safe top-N ranking, and budget exhaustion detection. Follows Google RAPPOR model. Config: `zeroboiler.analytics.differential_privacy` (5 options).
+- **AnalyticsSnippetCommand** (`zb:analytics:snippet`) — Admin CLI for snippet generation. 7 modes: full (default, head+body+init), `--head` (script tags only), `--body` (noscript only), `--init` (client init only), `--summary` (masked provider overview table), `--consent` (include consent change listener), `--json`.
+- **1 new config section** — `differential_privacy` (5 options: enabled, epsilon, default_delta, cache_ttl, cache_prefix).
+- **2 new singleton registrations** — AnalyticsSnippetService, DifferentialPrivacyService in AnalyticsServiceProvider.
+- **V42SnippetPrivacyCorrelationTest** — 45+ test cases covering AnalyticsSnippetService (head/body/init/full snippets, provider IDs, consent mode, consent listener, disabled providers, provider summary with masked IDs), DifferentialPrivacyService (enable/disable, addNoise non-negative clamping, different sensitivity, percentage clamping 0-100, revenue non-negative, k-anonymity suppression, histogram suppression, privacy-safe top-N ranking, budget consumption, budget exhaustion, status, reset), and EventCorrelationMatrixService (enable/disable, co-occurrence recording, time window filtering, matrix computation, correlation strength classification, predictors with insights, summary statistics, pair key normalization). Version sweep tests.
+
+### Changed
+
+- **Version sweep** — 41.0.0 → 42.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG.
+
 ## [41.0.0] - 2026-08-12
 
 ### Added

@@ -5338,5 +5338,29 @@ return [
                 // 'telemetry.sdk.language' => 'php',
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Differential Privacy (v42.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Privacy-safe analytics aggregation using the Laplace mechanism.
+        | Adds calibrated noise to aggregate metrics so individual user
+        | contributions cannot be inferred from published results.
+        |
+        | Follows the Google RAPPOR / Apple differential privacy model.
+        | Recommended epsilon values:
+        |   ε = 1.0 → Strong privacy (public dashboards)
+        |   ε = 0.5 → Very strong privacy (internal only)
+        |   ε = 5.0 → Weak privacy (compliance theater)
+        |
+        */
+        'differential_privacy' => [
+            'enabled' => env('ANALYTICS_DIFFERENTIAL_PRIVACY_ENABLED', false),
+            'epsilon' => (float) env('ANALYTICS_DIFFERENTIAL_PRIVACY_EPSILON', 1.0),
+            'default_delta' => (float) env('ANALYTICS_DIFFERENTIAL_PRIVACY_DELTA', 1.0),
+            'cache_ttl' => (int) env('ANALYTICS_DIFFERENTIAL_PRIVACY_CACHE_TTL', 300), // 5 minutes
+            'cache_prefix' => env('ANALYTICS_DIFFERENTIAL_PRIVACY_CACHE_PREFIX', 'zb_dp_'),
+        ],
     ],
 ];

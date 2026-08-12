@@ -176,6 +176,14 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedEvent(string $name)
  * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedCatalogEvent(string $name)
  *
+ * Privacy & Correlation Methods (v42.0.0)
+ * @method static float addPrivacyNoise(float $value, ?float $delta = null)
+ * @method static int|null anonymizeCount(int $count, int $k = 10)
+ * @method static float addPrivacyNoiseToPercentage(float $percentage, ?int $populationSize = null)
+ * @method static float addPrivacyNoiseToRevenue(float $amount, ?float $maxContribution = null)
+ * @method static array{head: string, body: string, init: string, providers: list<string>} snippet(array<string, mixed> $options = [])
+ * @method static array{providers: list<array{name: string, configured: bool, id_masked: string|null}>} snippetProviderSummary()
+ *
  * Testing assertions (when swapped with AnalyticsFake):
  * @method static void assertTracked(string $eventName, ?callable $callback = null)
  * @method static void assertNotTracked(string $eventName)
