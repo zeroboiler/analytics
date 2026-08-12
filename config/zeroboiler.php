@@ -5362,5 +5362,101 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_DIFFERENTIAL_PRIVACY_CACHE_TTL', 300), // 5 minutes
             'cache_prefix' => env('ANALYTICS_DIFFERENTIAL_PRIVACY_CACHE_PREFIX', 'zb_dp_'),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event TTL & Auto-Expiry (v43.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Manages event lifecycle with configurable time-to-live rules.
+        | Events exceeding their TTL are flagged and optionally dropped before
+        | dispatch. Configure default TTL and per-event/category overrides.
+        |
+        | Set 'drop_expired' to true in production to automatically discard
+        | stale events (e.g., delayed delivery from queue failures).
+        |
+        */
+        'event_ttl' => [
+            'enabled' => env('ANALYTICS_EVENT_TTL_ENABLED', true),
+            'default_ttl_seconds' => (int) env('ANALYTICS_EVENT_TTL_DEFAULT', 86400), // 24 hours
+            'drop_expired' => env('ANALYTICS_EVENT_TTL_DROP', false),
+            'event_overrides' => [
+                // 'page_view' => 300,           // 5 minutes
+                // 'scroll_depth' => 600,       // 10 minutes
+                // 'purchase' => 2592000,       // 30 days (important events)
+            ],
+            'category_overrides' => [
+                // 'ecommerce' => 604800,        // 7 days
+                // 'engagement' => 3600,        // 1 hour
+                // 'security' => 2592000,        // 30 days
+            ],
+            'metrics_ttl' => (int) env('ANALYTICS_EVENT_TTL_METRICS_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Referral & Viral Loop Tracking (v43.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Tracks referral code usage, invite link clicks, and viral loop metrics.
+        | Computes K-factor (viral coefficient), referral conversion rates,
+        | and provides top-referrer leaderboards for growth analytics.
+        |
+        | Configure code length and attribution window TTL.
+        |
+        */
+        'referral' => [
+            'enabled' => env('ANALYTICS_REFERRAL_ENABLED', false),
+            'code_length' => (int) env('ANALYTICS_REFERRAL_CODE_LENGTH', 8),
+            'attribution_ttl' => (int) env('ANALYTICS_REFERRAL_ATTRIBUTION_TTL', 2592000), // 30 days
+            'metrics_ttl' => (int) env('ANALYTICS_REFERRAL_METRICS_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Traffic Spike Shield (v43.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Adaptive event throttling during traffic bursts. Detects sudden traffic
+        | spikes using a sliding window algorithm and applies probabilistic
+        | throttling to prevent overwhelming analytics providers and queues.
+        |
+        | Critical events are never throttled. Set 'enabled' to false to
+        | disable automatic throttling.
+        |
+        */
+        'spike_shield' => [
+            'enabled' => env('ANALYTICS_SPIKE_SHIELD_ENABLED', false),
+            'normal_threshold' => (int) env('ANALYTICS_SPIKE_SHIELD_NORMAL', 1000), // events per window
+            'spike_threshold' => (int) env('ANALYTICS_SPIKE_SHIELD_SPIKE', 5000), // events per window
+            'window_size' => (int) env('ANALYTICS_SPIKE_SHIELD_WINDOW', 60), // seconds
+            'cooldown' => (int) env('ANALYTICS_SPIKE_SHIELD_COOLDOWN', 30), // seconds
+            'throttle_ratio' => (float) env('ANALYTICS_SPIKE_SHIELD_RATIO', 0.1), // fraction allowed
+            'event_overrides' => [
+                // 'page_view' => 10000, // higher threshold for high-volume events
+            ],
+            'metrics_ttl' => (int) env('ANALYTICS_SPIKE_SHIELD_METRICS_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Replay Simulator (v43.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Synthetic event generation for load testing and capacity planning.
+        | Generates realistic events following configurable frequency distributions.
+        | Used by the 'zb:analytics:simulate' artisan command.
+        |
+        | WARNING: Only enable in development/staging. High-volume simulation
+        | can impact production analytics providers.
+        |
+        */
+        'simulator' => [
+            'enabled' => env('ANALYTICS_SIMULATOR_ENABLED', false),
+            'batch_size' => (int) env('ANALYTICS_SIMULATOR_BATCH', 100),
+            'rate_limit' => (int) env('ANALYTICS_SIMULATOR_RATE_LIMIT', 50), // events per second
+            'dry_run' => env('ANALYTICS_SIMULATOR_DRY_RUN', true),
+            'max_events' => (int) env('ANALYTICS_SIMULATOR_MAX_EVENTS', 100000),
+        ],
     ],
 ];

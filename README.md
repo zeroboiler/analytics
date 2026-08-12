@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-42.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-43.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v43.0.0](#whats-new-in-v43000)
 - [Quick Start](#quick-start)
 - [What's New in v40.0.0](#whats-new-in-v40000)
 +- [What's New in v41.0.0](#whats-new-in-v41000)
@@ -120,6 +121,61 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v43.0.0
+
+### 🎯 Event TTL & Auto-Expiry Service
+- **EventTtlService** — Configurable time-to-live rules for events with per-event and per-category overrides
+- Stale events are flagged and optionally dropped before dispatch
+- Metrics tracking for expired events (by event name, by category)
+- Category-aware TTL resolution (ecommerce, SaaS, engagement, security, uptime)
+
+### 🔄 Referral & Viral Loop Tracking
+- **ReferralTrackingService** — Referral code generation and validation
+- Invite link click-through tracking with click IDs for attribution
+- Referral attribution (which user referred which signup)
+- Self-referral prevention
+- Viral coefficient (K-factor) calculation
+- Referral funnel analysis (invites → clicks → signups)
+- Top-referrer leaderboard
+
+### 🛡️ Traffic Spike Shield
+- **TrafficSpikeShield** — Adaptive event throttling during traffic bursts
+- Sliding window rate detection (events per second)
+- Priority-aware: critical events are never throttled
+- Probabilistic sampling during cooldown
+- Per-event-name threshold overrides
+- Real-time status and metrics (accepted, throttled, spike count)
+
+### 🧪 Event Replay Simulator
+- **EventReplaySimulator** — Synthetic event generation for load testing
+- Configurable event frequency mix with normalization
+- E-commerce scenario generation (browse → cart → checkout → purchase)
+- SaaS lifecycle simulation (signup → trial → conversion → renewal)
+- Realistic user simulation (client IDs, sessions, user journeys)
+- Dry-run mode for counting without dispatching
+
+### 🛠️ AnalyticsSimulationCommand
+- New `zb:analytics:simulate` artisan command
+- Subcommands: simulate, ecommerce, saas, ttl:status, ttl:reset, referral:health, referral:viral, shield:status, shield:cooldown
+
+### 📡 New API Routes (26 endpoints)
+- TTL: `GET/DELETE /api/analytics/ttl/metrics`, `GET /api/analytics/ttl/config`, `POST /api/analytics/ttl/check`
+- Referral: `POST /api/analytics/referral/generate-code`, `GET /api/analytics/referral/resolve/{code}`, `POST /api/analytics/referral/click`, `POST /api/analytics/referral/convert`, `GET /api/analytics/referral/health`, `GET /api/analytics/referral/viral`, `GET /api/analytics/referral/funnel`, `GET /api/analytics/referral/top-referrers`
+- Spike Shield: `GET /api/analytics/spike-shield/status`, `GET /api/analytics/spike-shield/config`, `POST/DELETE /api/analytics/spike-shield/cooldown`, `DELETE /api/analytics/spike-shield/metrics`
+- Simulator: `GET /api/analytics/simulator/config`, `GET /api/analytics/simulator/mix`, `POST /api/analytics/simulator/generate`, `POST /api/analytics/simulator/ecommerce`, `POST /api/analytics/simulator/saas`
+
+### ⚙️ Config Expansion (5 new sections)
+- `event_ttl` — Default TTL, event/category overrides, drop expired toggle
+- `referral` — Code length, attribution window TTL
+- `spike_shield` — Normal/spike thresholds, window size, throttle ratio, cooldown
+- `simulator` — Batch size, rate limit, dry-run mode
+
+### ✅ Tests (42 new test cases)
+- EventTtlService: TTL resolution, expiry detection, category overrides, event overrides, drop expired, metrics tracking
+- ReferralTrackingService: Code generation, preferred codes, referrer resolution, click tracking, conversion attribution, self-referral prevention, viral coefficient
+- TrafficSpikeShield: Disabled mode, critical events, throttle during cooldown, threshold passthrough, cooldown management, status
+- EventReplaySimulator: Batch generation, dispatch callback, simulation source, e-commerce scenario, SaaS lifecycle, event mix normalization
 
 ## What's New in v41.0.0
 

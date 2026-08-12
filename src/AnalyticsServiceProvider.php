@@ -281,7 +281,12 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyGraphCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnippetCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsSnippetService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSimulationCommand;
 use ZeroBoiler\Analytics\Services\DifferentialPrivacyService;
+use ZeroBoiler\Analytics\Services\EventTtlService;
+use ZeroBoiler\Analytics\Services\ReferralTrackingService;
+use ZeroBoiler\Analytics\Services\TrafficSpikeShield;
+use ZeroBoiler\Analytics\Services\EventReplaySimulator;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -2736,6 +2741,64 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event TTL Service (v43.0.0)
+        $this->app->singleton(EventTtlService::class, function (Application $app): EventTtlService {
+            $config = $app->make(ConfigRepository::class);
+            $ttlConfig = $config->get('zeroboiler.analytics.event_ttl', []);
+            return new EventTtlService(
+                $app->make('cache'),
+                (int) ($ttlConfig['default_ttl_seconds'] ?? 86400),
+                (array) ($ttlConfig['event_overrides'] ?? []),
+                (array) ($ttlConfig['category_overrides'] ?? []),
+                (bool) ($ttlConfig['drop_expired'] ?? false),
+                true,
+                (int) ($ttlConfig['metrics_ttl'] ?? 3600),
+            );
+        });
+
+        // Referral Tracking Service (v43.0.0)
+        $this->app->singleton(ReferralTrackingService::class, function (Application $app): ReferralTrackingService {
+            $config = $app->make(ConfigRepository::class);
+            $referralConfig = $config->get('zeroboiler.analytics.referral', []);
+            return new ReferralTrackingService(
+                $app->make('cache'),
+                (int) ($referralConfig['code_length'] ?? 8),
+                (int) ($referralConfig['attribution_ttl'] ?? 2592000),
+                (int) ($referralConfig['metrics_ttl'] ?? 3600),
+            );
+        });
+
+        // Traffic Spike Shield (v43.0.0)
+        $this->app->singleton(TrafficSpikeShield::class, function (Application $app): TrafficSpikeShield {
+            $config = $app->make(ConfigRepository::class);
+            $shieldConfig = $config->get('zeroboiler.analytics.spike_shield', []);
+            return new TrafficSpikeShield(
+                $app->make('cache'),
+                (int) ($shieldConfig['normal_threshold'] ?? 1000),
+                (int) ($shieldConfig['spike_threshold'] ?? 5000),
+                (int) ($shieldConfig['window_size'] ?? 60),
+                (int) ($shieldConfig['cooldown'] ?? 30),
+                (bool) ($shieldConfig['enabled'] ?? false),
+                (float) ($shieldConfig['throttle_ratio'] ?? 0.1),
+                (array) ($shieldConfig['event_overrides'] ?? []),
+                (int) ($shieldConfig['metrics_ttl'] ?? 3600),
+            );
+        });
+
+        // Event Replay Simulator (v43.0.0)
+        $this->app->singleton(EventReplaySimulator::class, function (Application $app): EventReplaySimulator {
+            $config = $app->make(ConfigRepository::class);
+            $simConfig = $config->get('zeroboiler.analytics.simulator', []);
+            return new EventReplaySimulator(
+                $app->make('cache'),
+                [],
+                (int) ($simConfig['batch_size'] ?? 100),
+                (int) ($simConfig['rate_limit'] ?? 50),
+                (bool) ($simConfig['dry_run'] ?? true),
+                3600,
+            );
+        });
     }
 
     /**
@@ -2785,6 +2848,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsReplayAuditCommand::class,
                 AnalyticsDependencyGraphCommand::class,
                 AnalyticsSnippetCommand::class,
+                AnalyticsSimulationCommand::class,
             ]);
         }
 

@@ -11056,4 +11056,416 @@ final class AnalyticsEventController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event TTL & Auto-Expiry (v43.0.0) ─────────────────────────────────
+
+    /**
+     * Get event TTL expiry metrics.
+     */
+    public function ttlMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventTtlService::class);
+            return response()->json($service->getMetrics());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get event TTL configuration.
+     */
+    public function ttlConfig(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventTtlService::class);
+            return response()->json($service->getConfig());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reset TTL metrics.
+     */
+    public function ttlResetMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventTtlService::class);
+            $service->resetMetrics();
+            return response()->json(['status' => 'reset']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Check if an event is expired.
+     */
+    public function ttlCheckEvent(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $eventName = $request->input('event_name', '');
+            $timestamp = $request->input('timestamp');
+
+            if ($eventName === '') {
+                return response()->json(['error' => 'Missing event_name'], 422);
+            }
+
+            $ts = null;
+            if (is_int($timestamp)) {
+                $ts = (new \DateTimeImmutable())->setTimestamp($timestamp);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                timestamp: $ts,
+            );
+
+            $service = app(\ZeroBoiler\Analytics\Services\EventTtlService::class);
+
+            return response()->json([
+                'event_name' => $eventName,
+                'expired' => $service->isExpired($event),
+                'remaining_ttl' => $service->remainingTtl($event),
+                'effective_ttl' => $service->resolveTtlForEvent($event),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Referral & Viral Loop Tracking (v43.0.0) ────────────────────────────
+
+    /**
+     * Generate a referral code for a user.
+     */
+    public function referralGenerateCode(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $userId = $request->input('user_id', '');
+            $preferredCode = $request->input('preferred_code');
+
+            if ($userId === '') {
+                return response()->json(['error' => 'Missing user_id'], 422);
+            }
+
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            $code = $service->generateCode($userId, $preferredCode);
+
+            return response()->json([
+                'user_id' => $userId,
+                'referral_code' => $code,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Resolve a referral code to its referrer.
+     */
+    public function referralResolveCode(string $code): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            $referrerId = $service->resolveReferrer($code);
+
+            return response()->json([
+                'code' => $code,
+                'referrer_id' => $referrerId,
+                'valid' => $referrerId !== null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Track a referral link click.
+     */
+    public function referralTrackClick(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $code = $request->input('referral_code', '');
+            $clickId = $request->input('click_id');
+            $context = $request->input('context', []);
+
+            if ($code === '') {
+                return response()->json(['error' => 'Missing referral_code'], 422);
+            }
+
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            $resultId = $service->trackClick($code, $clickId, is_array($context) ? $context : []);
+
+            return response()->json([
+                'click_id' => $resultId,
+                'referral_code' => $code,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Track a referral conversion (signup attributed to a referral).
+     */
+    public function referralTrackConversion(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $clickId = $request->input('click_id', '');
+            $referredUserId = $request->input('referred_user_id', '');
+
+            if ($clickId === '' || $referredUserId === '') {
+                return response()->json(['error' => 'Missing click_id or referred_user_id'], 422);
+            }
+
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            $result = $service->trackConversion($clickId, $referredUserId);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get referral program health metrics.
+     */
+    public function referralHealth(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            return response()->json($service->getHealthMetrics());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get viral coefficient (K-factor).
+     */
+    public function referralViralCoefficient(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            return response()->json($service->calculateViralCoefficient());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get referral funnel metrics.
+     */
+    public function referralFunnel(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            return response()->json($service->getReferralFunnel());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top referrers.
+     */
+    public function referralTopReferrers(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $limit = (int) $request->input('limit', 10);
+            $service = app(\ZeroBoiler\Analytics\Services\ReferralTrackingService::class);
+            return response()->json($service->getTopReferrers($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Traffic Spike Shield (v43.0.0) ──────────────────────────────────────
+
+    /**
+     * Get traffic spike shield status.
+     */
+    public function spikeShieldStatus(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\TrafficSpikeShield::class);
+            return response()->json($service->getStatus());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get traffic spike shield configuration.
+     */
+    public function spikeShieldConfig(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\TrafficSpikeShield::class);
+            $status = $service->getStatus();
+            return response()->json([
+                'enabled' => $status['enabled'],
+                'normal_threshold' => $status['normal_threshold'],
+                'spike_threshold' => $status['spike_threshold'],
+                'window_size' => $status['window_size'],
+                'throttle_ratio' => $status['throttle_ratio'],
+                'cooldown' => $status['cooldown_remaining'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Trigger spike shield cooldown.
+     */
+    public function spikeShieldTriggerCooldown(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\TrafficSpikeShield::class);
+            $service->triggerCooldown();
+            return response()->json(['status' => 'cooldown_triggered']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear spike shield cooldown.
+     */
+    public function spikeShieldClearCooldown(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\TrafficSpikeShield::class);
+            $service->clearCooldown();
+            return response()->json(['status' => 'cooldown_cleared']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reset spike shield metrics.
+     */
+    public function spikeShieldResetMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\TrafficSpikeShield::class);
+            $service->resetMetrics();
+            return response()->json(['status' => 'reset']);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Replay Simulator (v43.0.0) ────────────────────────────────────
+
+    /**
+     * Get simulator configuration.
+     */
+    public function simulatorConfig(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventReplaySimulator::class);
+            return response()->json($service->getConfig());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get simulator event mix.
+     */
+    public function simulatorMix(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventReplaySimulator::class);
+            return response()->json(['mix' => $service->getEventMix()]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate a batch of synthetic events.
+     */
+    public function simulatorGenerate(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $count = (int) $request->input('count', 100);
+            $dispatch = (bool) $request->input('dispatch', false);
+
+            $service = app(\ZeroBoiler\Analytics\Services\EventReplaySimulator::class);
+
+            $dispatcher = null;
+            if ($dispatch) {
+                $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
+                $dispatcher = static function (mixed $event) use ($manager): void {
+                    $manager->track($event);
+                };
+            }
+
+            $result = $service->generateBatch($count, $dispatcher);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate an e-commerce scenario.
+     */
+    public function simulatorEcommerce(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $clientId = $request->input('client_id', 'sim_' . substr(md5((string) mt_rand()), 0, 12));
+            $dispatch = (bool) $request->input('dispatch', false);
+
+            $service = app(\ZeroBoiler\Analytics\Services\EventReplaySimulator::class);
+
+            $dispatcher = null;
+            if ($dispatch) {
+                $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
+                $dispatcher = static function (mixed $event) use ($manager): void {
+                    $manager->track($event);
+                };
+            }
+
+            $result = $service->generateEcommerceScenario($clientId, $dispatcher);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate a SaaS lifecycle scenario.
+     */
+    public function simulatorSaaSLifecycle(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $clientId = $request->input('client_id', 'sim_' . substr(md5((string) mt_rand()), 0, 12));
+            $dispatch = (bool) $request->input('dispatch', false);
+
+            $service = app(\ZeroBoiler\Analytics\Services\EventReplaySimulator::class);
+
+            $dispatcher = null;
+            if ($dispatch) {
+                $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
+                $dispatcher = static function (mixed $event) use ($manager): void {
+                    $manager->track($event);
+                };
+            }
+
+            $result = $service->generateSaaSLifecycleScenario($clientId, $dispatcher);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

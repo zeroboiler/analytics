@@ -689,4 +689,34 @@ Route::prefix('analytics')->group(function () {
     Route::post('scheduler/toggle/{taskName}', [AnalyticsEventController::class, 'schedulerToggleTask']);
     Route::post('scheduler/register', [AnalyticsEventController::class, 'schedulerRegisterTask']);
     Route::delete('scheduler/{taskName}', [AnalyticsEventController::class, 'schedulerRemoveTask']);
+
+    // Event TTL & Auto-Expiry (v43.0.0)
+    Route::get('ttl/metrics', [AnalyticsEventController::class, 'ttlMetrics']);
+    Route::get('ttl/config', [AnalyticsEventController::class, 'ttlConfig']);
+    Route::delete('ttl/metrics', [AnalyticsEventController::class, 'ttlResetMetrics']);
+    Route::post('ttl/check', [AnalyticsEventController::class, 'ttlCheckEvent']);
+
+    // Referral & Viral Loop Tracking (v43.0.0)
+    Route::post('referral/generate-code', [AnalyticsEventController::class, 'referralGenerateCode']);
+    Route::get('referral/resolve/{code}', [AnalyticsEventController::class, 'referralResolveCode']);
+    Route::post('referral/click', [AnalyticsEventController::class, 'referralTrackClick']);
+    Route::post('referral/convert', [AnalyticsEventController::class, 'referralTrackConversion']);
+    Route::get('referral/health', [AnalyticsEventController::class, 'referralHealth']);
+    Route::get('referral/viral', [AnalyticsEventController::class, 'referralViralCoefficient']);
+    Route::get('referral/funnel', [AnalyticsEventController::class, 'referralFunnel']);
+    Route::get('referral/top-referrers', [AnalyticsEventController::class, 'referralTopReferrers']);
+
+    // Traffic Spike Shield (v43.0.0)
+    Route::get('spike-shield/status', [AnalyticsEventController::class, 'spikeShieldStatus']);
+    Route::get('spike-shield/config', [AnalyticsEventController::class, 'spikeShieldConfig']);
+    Route::post('spike-shield/cooldown', [AnalyticsEventController::class, 'spikeShieldTriggerCooldown']);
+    Route::delete('spike-shield/cooldown', [AnalyticsEventController::class, 'spikeShieldClearCooldown']);
+    Route::delete('spike-shield/metrics', [AnalyticsEventController::class, 'spikeShieldResetMetrics']);
+
+    // Event Replay Simulator (v43.0.0)
+    Route::get('simulator/config', [AnalyticsEventController::class, 'simulatorConfig']);
+    Route::get('simulator/mix', [AnalyticsEventController::class, 'simulatorMix']);
+    Route::post('simulator/generate', [AnalyticsEventController::class, 'simulatorGenerate']);
+    Route::post('simulator/ecommerce', [AnalyticsEventController::class, 'simulatorEcommerce']);
+    Route::post('simulator/saas', [AnalyticsEventController::class, 'simulatorSaaSLifecycle']);
 });
