@@ -254,6 +254,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
 use ZeroBoiler\Analytics\Services\AnalyticsDashboardService;
 use ZeroBoiler\Analytics\Services\EventIdempotencyKeyService;
 use ZeroBoiler\Analytics\Services\WebhookEventSubscriptionService;
+use ZeroBoiler\Analytics\Services\PerformanceScoreService;
+use ZeroBoiler\Analytics\Services\ConsentBannerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
 
 /**
@@ -262,7 +264,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 23.0.0
+ * @version 24.0.0
  *
  * @since 1.0.0
  */
@@ -786,6 +788,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new WebhookEventSubscriptionService($config);
+        });
+
+        // v24.0.0 — Performance Score Service
+        $this->app->singleton(PerformanceScoreService::class, function (Application $app): PerformanceScoreService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PerformanceScoreService($app->make('cache'), $config);
+        });
+
+        // v24.0.0 — Cookie Consent Banner Service
+        $this->app->singleton(ConsentBannerService::class, function (Application $app): ConsentBannerService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ConsentBannerService($config);
         });
 
         // Session analytics service

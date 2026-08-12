@@ -349,6 +349,17 @@ final class EngagementEvents
                 'mixpanel' => 'Onboarding Completed',
                 'amplitude' => 'Onboarding Completed',
             ],
+            // Performance analytics (v24.0.0)
+            'performance_score' => [
+                'name' => 'performance_score',
+                'class' => PerformanceScoreEvent::class,
+                'ga4' => 'performance_score',
+                'meta' => null,
+                'posthog' => 'performance_score',
+                'plausible' => null,
+                'mixpanel' => 'Performance Score',
+                'amplitude' => 'Performance Score',
+            ],
         ];
 
         return self::$catalog;

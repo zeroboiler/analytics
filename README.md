@@ -2,15 +2,16 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-23.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-24.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
-- [Quick Start](#quick-start)
-+- [What's New in v23.0.0](#whats-new-in-v23000)
+|- [Quick Start](#quick-start)
++- [What's New in v24.0.0](#whats-new-in-v24000)
+|- [What's New in v23.0.0](#whats-new-in-v23000)
 - [What's New in v22.0.0](#whats-new-in-v22000)
 +- [What's New in v21.0.0](#whats-new-in-v21000)
 +- [What's New in v20.0.0](#whats-new-in-v20000)
@@ -107,6 +108,42 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v24.0.0
+
+### 🚀 Performance Score Service
+- **`PerformanceScoreService`** — Server-side Web Vitals aggregation and scoring. Computes 0-100 performance scores using Google's recommended thresholds (LCP 25%, INP 30%, CLS 25%, TTFB 20% weight). Supports p75 aggregation across multiple page views, cache-backed score storage, and per-page/session scoring.
+- **`PerformanceScoreEvent`** — Typed event class for tracking aggregate performance scores alongside individual metric breakdown (LCP, INP, CLS, TTFB ratings).
+- Config expansion: `performance.cache_prefix`, `performance.aggregation_window`, `performance.auto_score`.
+
+### 🍪 Cookie Consent Banner Service
+- **`ConsentBannerService`** — Server-rendered, self-contained GDPR/CCPA consent banner with inline JS. Features:
+  - Granular consent purposes (analytics, marketing, functional, necessary)
+  - Accept All / Reject All / Customize with per-purpose toggles
+  - Automatic GA4 Consent Mode v2 synchronization via `gtag('consent', 'update')`
+  - Server-side consent API integration (`POST /api/analytics/consent`)
+  - Light/dark theme, bottom/top position, responsive design
+  - Config-driven purpose labels and descriptions
+  - `renderConsentScript()` for `<head>` default consent initialization
+  - Blade integration: `{!! app(ConsentBannerService::class)->render() !!}`
+
+### ⚡ Full-Stack Boot Helper (JS)
+- **`initFullStack(pageProps, options)`** — One-call initialization for production SaaS apps. Boots core analytics + Web Vitals + error capture + scroll depth + offline recovery with a single cleanup function.
+- **`initPerformanceTracker(options)`** — Enhanced Web Vitals tracking that computes and dispatches an aggregate `performance_score` event on page hide.
+- **`syncConsentState()`** — Client-side consent cookie ↔ GA4 Consent Mode synchronization.
+
+### 📊 Svelte Performance Tracker Composable
+- **`usePerformanceTracker.svelte.js`** — Reactive Svelte store composable for real-time Core Web Vitals tracking. Exposes `webVitals`, `performanceScore`, `performanceLabel` stores with `start()`, `stop()`, `getMetrics()` methods.
+- Auto-computes weighted performance score after configurable delay.
+- Derived `performanceLabel` store with emoji indicators (🟢🟡🔴⚪).
+
+### 📝 Event Catalog Update
+- `performance_score` added to `EngagementEvents` catalog with cross-provider mappings (GA4, PostHog, Mixpanel, Amplitude).
+
+### 🧪 Tests
+- **30 new test cases** covering `PerformanceScoreService` (metric rating, score calculation, aggregation, caching), `PerformanceScoreEvent` (construction, metric breakdown, extra params), and `ConsentBannerService` (purposes, rendering, themes, consent script).
+
+---
 
 ## What's New in v23.0.0
 

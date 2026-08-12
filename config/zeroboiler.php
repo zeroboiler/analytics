@@ -988,6 +988,18 @@ return [
             'track_ttfb' => env('ANALYTICS_PERFORMANCE_TTFB', true),
             'track_fcp' => env('ANALYTICS_PERFORMANCE_FCP', false),
             'send_to_server' => env('ANALYTICS_PERFORMANCE_SERVER', true),
+
+            /*
+            | Performance Score Aggregation (v24.0.0)
+            |
+            | When enabled, the server-side PerformanceScoreService
+            | aggregates collected Web Vitals and computes p75-based
+            | overall performance scores per page or session.
+            |
+            */
+            'cache_prefix' => env('ANALYTICS_PERFORMANCE_CACHE_PREFIX', 'zb_perf_'),
+            'aggregation_window' => (int) env('ANALYTICS_PERFORMANCE_WINDOW', 900), // 15 minutes (seconds)
+            'auto_score' => env('ANALYTICS_PERFORMANCE_AUTO_SCORE', true),
         ],
 
         /*

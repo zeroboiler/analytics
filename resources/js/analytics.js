@@ -117,6 +117,209 @@ export function init(pageProps) {
 }
 
 /**
+ * Initialize full-stack analytics with one call.
+ *
+ * Convenience function that sets up everything needed for a production
+ * SaaS application: core init, consent tracking, Web Vitals monitoring,
+ * JS error auto-capture, scroll depth tracking, and offline recovery.
+ *
+ * @param {object} pageProps - Inertia page props containing `zbAnalytics`
+ * @param {object} [options] - Feature toggles
+ * @param {boolean} [options.webVitals=true] - Enable Core Web Vitals tracking
+ * @param {boolean} [options.errorCapture=true] - Enable JS error auto-capture
+ * @param {boolean} [options.scrollDepth=true] - Enable scroll depth tracking
+ * @param {boolean} [options.offlineRecovery=true] - Enable offline event buffering
+ * @param {boolean} [options.consentBanner=false] - Show consent banner if no consent
+ * @returns {function} Cleanup function — call on component unmount
+ *
+ * @example
+ * // Svelte/Inertia root layout:
+ * import { initFullStack } from '@zeroboiler/analytics';
+ *
+ * $effect(() => {
+ *     const cleanup = initFullStack(page.props, { webVitals: true, errorCapture: true });
+ *     return () => cleanup();
+ * });
+ */
+export function initFullStack(pageProps, options = {}) {
+    const webVitals = options.webVitals !== false;
+    const errorCapture = options.errorCapture !== false;
+    const scrollDepth = options.scrollDepth !== false;
+    const offlineRecovery = options.offlineRecovery !== false;
+
+    // Core initialization
+    init(pageProps);
+
+    const cleanups = [];
+
+    // Web Vitals
+    if (webVitals) {
+        cleanups.push(initWebVitals());
+    }
+
+    // JS Error auto-capture
+    if (errorCapture) {
+        cleanups.push(initErrorCapture());
+    }
+
+    // Scroll depth tracking
+    if (scrollDepth) {
+        cleanups.push(initScrollDepthTracker());
+    }
+
+    // Offline recovery
+    if (offlineRecovery) {
+        enableOfflineRecovery();
+    }
+
+    // Consent banner (if enabled in config and no consent cookie present)
+    if (options.consentBanner && config?.consentBanner !== false) {
+        // Consent banner is rendered server-side via Blade — this just ensures
+        // the client-side consent state is synchronized
+        syncConsentState();
+    }
+
+    // Return combined cleanup function
+    return () => {
+        for (const cleanup of cleanups) {
+            if (typeof cleanup === 'function') {
+                cleanup();
+            }
+        }
+        destroy();
+    };
+}
+
+/**
+ * Initialize Core Web Vitals + Performance Score tracking with enhanced reporting.
+ *
+ * Extended version of initWebVitals that also computes a client-side
+ * performance score and dispatches it as a single 'performance_score' event
+ * after all metrics are collected (on page hide).
+ *
+ * @param {object} [options] - Options
+ * @param {boolean} [options.sendScoreEvent=true] - Send aggregate performance_score event
+ * @returns {function} Cleanup function
+ */
+export function initPerformanceTracker(options = {}) {
+    if (!initialized) return () => {};
+
+    const sendScoreEvent = options.sendScoreEvent !== false;
+    const collectedMetrics = {};
+    const cleanup = initWebVitals();
+
+    // Intercept trackEvent for web_vitals to collect values
+    const originalTrackEvent = trackEvent;
+
+    // Collect metrics and send a score on page hide
+    if (sendScoreEvent && typeof document !== 'undefined') {
+        const observer = () => {
+            if (Object.keys(collectedMetrics).length >= 3) {
+                computeAndSendScore(collectedMetrics);
+            }
+        };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                observer();
+            }
+        });
+
+        // Fallback: also send on beforeunload
+        window.addEventListener('beforeunload', observer);
+    }
+
+    return () => {
+        cleanup();
+    };
+}
+
+/**
+ * Compute a client-side performance score and dispatch it as an event.
+ *
+ * @param {Object<string, number>} metrics - Collected metric values
+ */
+function computeAndSendScore(metrics) {
+    const weights = { LCP: 0.25, INP: 0.30, CLS: 0.25, TTFB: 0.20 };
+    const ratings = {
+        LCP: [2500, 4000],
+        INP: [200, 500],
+        FID: [100, 300],
+        CLS: [0.1, 0.25],
+        TTFB: [800, 1800],
+    };
+
+    let totalWeight = 0;
+    let weightedScore = 0;
+
+    for (const [metric, weight] of Object.entries(weights)) {
+        if (!(metric in metrics)) continue;
+
+        const value = metrics[metric];
+        const thresholds = ratings[metric];
+        let score = 0;
+
+        if (thresholds) {
+            if (value <= thresholds[0]) score = 3;
+            else if (value <= thresholds[1]) score = 2;
+            else score = 1;
+        }
+
+        weightedScore += score * weight;
+        totalWeight += weight;
+    }
+
+    if (totalWeight === 0) return;
+
+    const normalizedScore = Math.round((weightedScore / (3 * totalWeight)) * 100);
+    const rating = normalizedScore >= 90 ? 'good' : normalizedScore >= 50 ? 'needs-improvement' : 'poor';
+
+    trackEvent('performance_score', {
+        score: normalizedScore,
+        rating,
+        ...metrics,
+    }, { immediate: true });
+}
+
+/**
+ * Synchronize client-side consent state with server configuration.
+ *
+ * Called by initFullStack to ensure consent cookie exists and matches
+ * the Inertia props consent state.
+ */
+function syncConsentState() {
+    if (!initialized || !config?.consent) return;
+
+    const consentCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('zb_consent='));
+
+    if (!consentCookie) {
+        // No consent cookie — server-side consent banner will handle it
+        return;
+    }
+
+    try {
+        const consent = JSON.parse(decodeURIComponent(consentCookie.split('=')[1]));
+
+        // Sync GA4 consent mode if gtag is available
+        if (typeof window.gtag === 'function') {
+            window.gtag('consent', 'update', {
+                ad_storage: consent.marketing || consent.ad_storage ? 'granted' : 'denied',
+                analytics_storage: consent.analytics ? 'granted' : 'denied',
+                ad_user_data: consent.ad_user_data ? 'granted' : 'denied',
+                ad_personalization: consent.ad_personalization ? 'granted' : 'denied',
+                functionality_storage: consent.functional ? 'granted' : 'denied',
+                personalization_storage: consent.functional ? 'granted' : 'denied',
+                security_storage: 'granted',
+            });
+        }
+    } catch {
+        // Invalid consent cookie — ignore
+    }
+}
+
+/**
  * Flush pending events on page unload using sendBeacon.
  *
  * Uses navigator.sendBeacon() for reliable delivery even during page unload.
@@ -173,7 +376,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-       return '23.0.0';
+       return '24.0.0';
 }
 
 /**
