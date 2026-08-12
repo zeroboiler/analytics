@@ -300,6 +300,10 @@ use ZeroBoiler\Analytics\Services\ProductMarketFitScoringService;
 use ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFraudCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthSummaryCommand;
+use ZeroBoiler\Analytics\Services\EventCorrelationEngineService;
+use ZeroBoiler\Analytics\Services\AnomalyRootCauseAnalyzer;
+use ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -307,7 +311,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthSummaryCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 47.0.0
+ * @version 48.0.0
  *
  * @since 1.0.0
  */
@@ -2875,6 +2879,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ProductMarketFitScoringService::class),
             );
         });
+
+        // Event Correlation Engine Service (v48.0.0) — causal event correlation analysis
+        $this->app->singleton(EventCorrelationEngineService::class, function (Application $app): EventCorrelationEngineService {
+            return new EventCorrelationEngineService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Anomaly Root Cause Analyzer (v48.0.0) — trace anomalies to root causes
+        $this->app->singleton(AnomalyRootCauseAnalyzer::class, function (Application $app): AnomalyRootCauseAnalyzer {
+            return new AnomalyRootCauseAnalyzer(
+                $app->make('cache'),
+                $app->make(EventCorrelationEngineService::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Self-Healing Service (v48.0.0) — automatic pipeline recovery
+        $this->app->singleton(AnalyticsSelfHealingService::class, function (Application $app): AnalyticsSelfHealingService {
+            $dlqService = $app->bound(DeadLetterQueueService::class) ? $app->make(DeadLetterQueueService::class) : null;
+            return new AnalyticsSelfHealingService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+                $app->make(UnifiedHealthEndpointService::class),
+                $dlqService,
+            );
+        });
     }
 
     /**
@@ -2929,6 +2961,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsFlowCommand::class,
                 AnalyticsFraudCommand::class,
                 AnalyticsHealthSummaryCommand::class,
+                AnalyticsSelfHealCommand::class,
             ]);
         }
 
@@ -3037,6 +3070,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/health/unified', [$controller, 'unifiedHealth']);
                 Route::get('analytics/health/liveness', [$controller, 'unifiedLiveness']);
                 Route::get('analytics/health/readiness', [$controller, 'unifiedReadiness']);
+
+                // Correlation engine endpoint (v48.0.0)
+                Route::get('analytics/correlation/engine/summary', [$controller, 'correlationEngineSummary']);
+                Route::get('analytics/correlation/engine/top', [$controller, 'correlationEngineTop']);
+
+                // Root cause analysis endpoint (v48.0.0)
+                Route::get('analytics/root-cause/analyze', [$controller, 'rootCauseAnalyze']);
+                Route::get('analytics/root-cause/history', [$controller, 'rootCauseHistory']);
+
+                // Self-healing endpoint (v48.0.0)
+                Route::get('analytics/self-heal/summary', [$controller, 'selfHealSummary']);
+                Route::get('analytics/self-heal/history', [$controller, 'selfHealHistory']);
+                Route::post('analytics/self-heal/execute', [$controller, 'selfHealExecute']);
                 Route::get('analytics/catalog', [$controller, 'catalog']);
                 Route::get('analytics/stream', [$controller, 'stream']);
                 Route::get('analytics/stream/stats', [$controller, 'streamStats']);

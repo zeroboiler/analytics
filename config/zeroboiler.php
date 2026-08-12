@@ -5695,5 +5695,75 @@ return [
                 'revenue_stickiness' => (float) env('ANALYTICS_PMF_W_REVENUE', 0.10),
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Correlation Engine (v48.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Detects statistically significant causal relationships between events
+        | using temporal proximity analysis. Identifies event pairs that frequently
+        | co-occur within configurable time windows and computes correlation
+        | coefficients for funnel analysis, feature adoption sequencing, and
+        | anomaly root cause investigation.
+        |
+        | Inspired by Amplitude Pathfinder, Mixpanel Journeys, and Datadog.
+        |
+        */
+        'correlation_engine' => [
+            'enabled' => env('ANALYTICS_CORRELATION_ENGINE_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_CORRELATION_CACHE_PREFIX', 'zb_corr_'),
+            'cache_ttl' => (int) env('ANALYTICS_CORRELATION_CACHE_TTL', 7200), // 2 hours
+            'time_window_seconds' => (int) env('ANALYTICS_CORRELATION_TIME_WINDOW', 300), // 5 minutes
+            'min_cooccurrence' => (int) env('ANALYTICS_CORRELATION_MIN_COOCCURRENCE', 3),
+            'min_correlation_score' => (float) env('ANALYTICS_CORRELATION_MIN_SCORE', 0.3),
+            'decay_rate' => (float) env('ANALYTICS_CORRELATION_DECAY_RATE', 0.95),
+            'max_correlations_per_event' => (int) env('ANALYTICS_CORRELATION_MAX_PER_EVENT', 20),
+            'max_event_pair_cache_size' => (int) env('ANALYTICS_CORRELATION_MAX_PAIRS', 10000),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Anomaly Root Cause Analyzer (v48.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Traces analytics anomalies back to their most likely originating events
+        | using correlation engine data. Categorizes root causes as infrastructure,
+        | behavioral, technical, or data quality issues, and generates actionable
+        | remediation suggestions.
+        |
+        | Inspired by Datadog AIOps Root Cause Analysis and Honeycomb BubbleUp.
+        |
+        */
+        'root_cause_analyzer' => [
+            'enabled' => env('ANALYTICS_ROOT_CAUSE_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_ROOT_CAUSE_CACHE_PREFIX', 'zb_rca_'),
+            'cache_ttl' => (int) env('ANALYTICS_ROOT_CAUSE_CACHE_TTL', 1800), // 30 minutes
+            'max_root_causes' => (int) env('ANALYTICS_ROOT_CAUSE_MAX', 5),
+            'lookback_window_seconds' => (int) env('ANALYTICS_ROOT_CAUSE_LOOKBACK', 3600), // 1 hour
+            'min_confidence_score' => (float) env('ANALYTICS_ROOT_CAUSE_MIN_CONFIDENCE', 0.2),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Self-Healing (v48.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Automatic recovery actions for common analytics pipeline failures.
+        | Actions include cache warming, provider health reset, DLQ flush,
+        | pipeline reset, stale data cleanup, and queue health checks.
+        |
+        | Inspired by AWS Lambda auto-healing and HashiCorp Consul health checks.
+        |
+        */
+        'self_healing' => [
+            'enabled' => env('ANALYTICS_SELF_HEALING_ENABLED', false),
+            'auto_heal_enabled' => env('ANALYTICS_SELF_HEALING_AUTO_HEAL_ENABLED', false),
+            'auto_heal_actions' => [], // e.g., ['warm_cache', 'reset_provider_health']
+            'cache_prefix' => env('ANALYTICS_SELF_HEALING_CACHE_PREFIX', 'zb_heal_'),
+            'history_ttl' => (int) env('ANALYTICS_SELF_HEALING_HISTORY_TTL', 86400), // 24 hours
+            'max_history_entries' => (int) env('ANALYTICS_SELF_HEALING_MAX_HISTORY', 200),
+            'healing_cooldown_seconds' => (int) env('ANALYTICS_SELF_HEALING_COOLDOWN', 300), // 5 minutes
+        ],
     ],
 ];

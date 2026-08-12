@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [48.0.0] - 2026-08-12
+
+### Added
+
+- **EventCorrelationEngineService** — Causal event correlation analysis using temporal proximity and NPMI scoring. Bidirectional pair normalization, configurable time windows (300s default), min co-occurrence thresholds (3), temporal recency weighting with exponential decay (0.95). Methods: recordCooccurrence(), getCorrelationScore(), getCorrelatedEvents(), getAntecedents(), getConsequents(), getTopCorrelations(), getSummary(), clearCorrelations(). Cache-backed with configurable TTL (2h) and max pair limits (10K). Config: `zeroboiler.analytics.correlation_engine` (9 options).
+- **AnomalyRootCauseAnalyzer** — Traces analytics anomalies to root causes using correlation engine data. 5 anomaly types (spike/drop/error/latency/quality). Root cause categories: infrastructure, behavioral, technical, data_quality, billing. Confidence scoring (0.0–1.0) based on correlation, directionality, category relevance, and frequency. Human-readable explanations and actionable remediation suggestions. Infrastructure fallback causes. Analysis history with caching. Config: `zeroboiler.analytics.root_cause_analyzer` (6 options).
+- **AnalyticsSelfHealingService** — Automatic pipeline recovery with 9 healing actions: warm_cache, reset_provider_health, flush_dlq, reset_pipeline, cleanup_stale_data, check_queue_health, reset_fraud_metrics, reset_quality_firewall, clear_correlations. Cooldown system (300s default) prevents repeated healing. Auto-heal mode for health-triggered recovery. Healing history with audit trail. Config: `zeroboiler.analytics.self_healing` (7 options).
+- **AnalyticsSelfHealCommand** (`zb:analytics:self-heal`) — Admin CLI with 7 modes: heal (specific action), heal-all (all eligible), auto (health-triggered), history, summary, correlate (event correlation analysis), root-cause (anomaly root cause diagnosis). `--action=`, `--event=`, `--anomaly-type=`, `--limit=`, `--json` options.
+- **7 new API endpoints** — correlation engine summary/top, root cause analyze/history, self-heal summary/history/execute.
+- **3 new config sections** — correlation_engine (9 options), root_cause_analyzer (6 options), self_healing (7 options).
+- **3 new singleton registrations** — EventCorrelationEngineService, AnomalyRootCauseAnalyzer, AnalyticsSelfHealingService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsSelfHealCommand registered in ServiceProvider commands.
+- **V48CorrelationSelfHealTest** — 35 test cases covering EventCorrelationEngineService (cooccurrence, correlation scores, bidirectional, summary, clear, antecedents, consequents, top), AnomalyRootCauseAnalyzer (analysis, top root cause, history, summary, clear, anomaly types, field validation), AnalyticsSelfHealingService (all 9 actions, heal-all, auto-heal, history, summary, cooldown, version consistency).
+
+### Changed
+
+- **Version sweep** — 47.0.0 → 48.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, README badge, CHANGELOG, ToC.
+
 ## [46.0.0] - 2026-08-12
 
 ### Added

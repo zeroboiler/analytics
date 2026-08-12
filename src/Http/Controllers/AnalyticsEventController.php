@@ -11592,4 +11592,155 @@ final class AnalyticsEventController extends Controller
             return response()->json(['ready' => false, 'status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Correlation engine summary endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function correlationEngineSummary(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventCorrelationEngineService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Correlation engine top correlated pairs endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function correlationEngineTop(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventCorrelationEngineService::class);
+            $limit = (int) request()->query('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getTopCorrelations(min($limit, 100)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Root cause analysis endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function rootCauseAnalyze(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $analyzer = app(\ZeroBoiler\Analytics\Services\AnomalyRootCauseAnalyzer::class);
+            $event = (string) request()->query('event', '');
+            $anomalyType = (string) request()->query('anomaly_type', 'spike');
+
+            if ($event === '') {
+                return response()->json(['status' => 'error', 'error' => 'Event name required'], 400);
+            }
+
+            $result = $analyzer->analyze($event, $anomalyType);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Root cause analysis history endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function rootCauseHistory(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $analyzer = app(\ZeroBoiler\Analytics\Services\AnomalyRootCauseAnalyzer::class);
+            $limit = (int) request()->query('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $analyzer->getAnalysisHistory(min($limit, 100)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Self-healing summary endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function selfHealSummary(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Self-healing history endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function selfHealHistory(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService::class);
+            $limit = (int) request()->query('limit', 50);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getHistory(min($limit, 200)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Self-healing execute endpoint.
+     *
+     * @since 48.0.0
+     */
+    public function selfHealExecute(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService::class);
+            $action = (string) request()->input('action', '');
+
+            if ($action === '') {
+                return response()->json(['status' => 'error', 'error' => 'Action name required'], 400);
+            }
+
+            $result = $service->heal($action, request()->input('context', []));
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

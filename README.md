@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-47.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-48.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v48.0.0](#whats-new-in-v48000)
 - [What's New in v47.0.0](#whats-new-in-v47000)
 - [What's New in v46.0.0](#whats-new-in-v46000)
 - [What's New in v45.0.0](#whats-new-in-v45000)
@@ -125,6 +126,71 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v48.0.0
+
+### 🔗 Event Correlation Engine Service
+- **EventCorrelationEngineService** — Detects statistically significant causal relationships between analytics events using temporal proximity analysis
+- Normalized Pointwise Mutual Information (NPMI) scoring with temporal recency weighting
+- Bidirectional pair key normalization for consistent A↔B correlation lookups
+- `recordCooccurrence()` — Record event co-occurrences with optional context (user_id, session_id)
+- `getCorrelationScore()` — Compute 0.0–1.0 correlation coefficient between any two events
+- `getCorrelatedEvents()` — Ranked list of events correlated above threshold, with directionality (before/after/simultaneous)
+- `getAntecedents()` — Events that commonly precede a target event (for funnel drop-off analysis)
+- `getConsequents()` — Events that commonly follow a source event (for next-action prediction)
+- `getTopCorrelations()` — System-wide top N correlated event pairs for dashboards
+- Exponential decay recency weighting for recent co-occurrences
+- Cache-backed correlation matrices with configurable TTL and pair limits
+- Config: `zeroboiler.analytics.correlation_engine`
+
+### 🔍 Anomaly Root Cause Analyzer
+- **AnomalyRootCauseAnalyzer** — Traces analytics anomalies back to their most likely originating events
+- 5 anomaly types supported: spike, drop, error, latency, quality
+- Root cause categories: infrastructure, behavioral, technical, data_quality, billing
+- Confidence scoring based on correlation strength, directionality, category relevance, and frequency
+- Human-readable explanations and actionable remediation suggestions per root cause
+- Infrastructure fallback causes when behavioral correlations are insufficient
+- Analysis history with caching and summary metrics
+- Config: `zeroboiler.analytics.root_cause_analyzer`
+
+### 🩺 Analytics Self-Healing Service
+- **AnalyticsSelfHealingService** — Automatic recovery for common analytics pipeline failures
+- 9 healing actions: warm_cache, reset_provider_health, flush_dlq, reset_pipeline, cleanup_stale_data, check_queue_health, reset_fraud_metrics, reset_quality_firewall, clear_correlations
+- Cooldown system prevents repeated healing of the same issue
+- Auto-heal mode triggered by health service degradation
+- Full healing history with audit trail
+- Config: `zeroboiler.analytics.self_healing`
+
+### 🛠️ AnalyticsSelfHealCommand
+- New `zb:analytics:self-heal` artisan command with 7 modes: `heal`, `heal-all`, `auto`, `history`, `summary`, `correlate`, `root-cause`
+- `--mode=heal --action=warm_cache` — Execute a specific healing action
+- `--mode=heal-all` — Execute all eligible healing actions
+- `--mode=auto` — Run automatic healing based on health status
+- `--mode=history` — Show healing history
+- `--mode=summary` — Self-healing service summary
+- `--mode=correlate --event=purchase` — Analyze event correlations
+- `--mode=root-cause --event=purchase --anomaly-type=spike` — Analyze anomaly root causes
+- `--json` output for all modes
+
+### 🌐 New API Endpoints
+- `GET /api/analytics/correlation/engine/summary` — Correlation engine summary metrics
+- `GET /api/analytics/correlation/engine/top` — Top N correlated event pairs
+- `GET /api/analytics/root-cause/analyze?event=purchase&anomaly_type=spike` — Root cause analysis
+- `GET /api/analytics/root-cause/history` — Root cause analysis history
+- `GET /api/analytics/self-heal/summary` — Self-healing service summary
+- `GET /api/analytics/self-heal/history` — Self-healing execution history
+- `POST /api/analytics/self-heal/execute` — Execute a healing action
+
+### ⚙️ New Config Sections
+- `correlation_engine` — enabled, cache_prefix, cache_ttl, time_window_seconds, min_cooccurrence, min_correlation_score, decay_rate, max_correlations_per_event, max_event_pair_cache_size
+- `root_cause_analyzer` — enabled, cache_prefix, cache_ttl, max_root_causes, lookback_window_seconds, min_confidence_score
+- `self_healing` — enabled, auto_heal_enabled, auto_heal_actions, cache_prefix, history_ttl, max_history_entries, healing_cooldown_seconds
+
+### 📦 ServiceProvider Registration
+- EventCorrelationEngineService registered as singleton
+- AnomalyRootCauseAnalyzer registered as singleton (with EventCorrelationEngineService dependency)
+- AnalyticsSelfHealingService registered as singleton (with optional DeadLetterQueueService injection)
+- AnalyticsSelfHealCommand registered in console commands
 
 ## What's New in v47.0.0
 
