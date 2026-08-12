@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-34.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-35.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v34.0.0](#whats-new-in-v34000)
++- [What's New in v35.0.0](#whats-new-in-v35000)
 +- [What's New in v33.0.0](#whats-new-in-v33000)
 +- [What's New in v31.0.0](#whats-new-in-v31000)
 +- [What's New in v30.0.0](#whats-new-in-v30000)
@@ -114,6 +114,44 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v35.0.0
+
+### 🌐 Cross-Provider Identity Synchronization
+- **CrossProviderIdentityService** — Synchronizes user identity and traits across all 10 analytics providers when a user is identified (login, register, or explicit identify call).
+- Provider-specific identity protocols:
+  - **GA4** — `user_identify` event with user_id + name/email/plan traits
+  - **Meta Pixel CAPI** — SHA-256 hashed `em`, `fn`, `ct`, `country` for Advanced Matching
+  - **PostHog** — `$create_alias` (anonymous → authenticated) + `$identify` with `$set` properties
+  - **Mixpanel** — `$merge` (identity unification) + `$set` user properties
+  - **Amplitude** — `$identify` with user properties
+  - **TikTok** — `user_identify` with user_id for advanced matching
+  - **LinkedIn** — `user_identify` for conversion tracking
+  - **Plausible** — Server-side identity mapping
+- **Identity merge** — `mergeIdentity()` for anonymous → authenticated identity unification (PostHog `$merge`, Mixpanel `$merge`)
+- **Identity reset** — `resetIdentity()` for GDPR logout/erasure (GA4, PostHog `$reset`, Mixpanel `$reset`, Amplitude)
+- Config-driven per-provider toggles via `zeroboiler.analytics.cross_provider_identity`
+
+### 🛒 TikTok & LinkedIn E-Commerce Format Conversion
+- **GA4 → TikTok** — `ga4ToTiktokProperties()`, `ga4ToTiktokPurchase()`, `ga4ToTiktokRefund()`, `ga4ToTiktokAddToCart()`
+- **GA4 → LinkedIn** — `ga4ToLinkedinPurchase()`, `ga4ToLinkedinAddToCart()`
+- **Convenience builders** — `buildTiktokPurchase()`, `buildLinkedinPurchase()`
+- **`buildForAllProviders()`** expanded from 5 → 8 providers (added Plausible, TikTok, LinkedIn)
+
+### 📋 SaaSMetricsCommand
+- New `zb:analytics:saas-metrics` CLI command for SaaS KPI dashboard
+- Sections: overview, revenue, retention, growth, provider coverage, benchmark comparison
+- Displays maturity score, onboarding completion, catalog sizes, provider counts
+- JSON output via `--json` flag
+- Configurable time period via `--days` option
+
+### 📊 Event Catalog Enhancements
+- **EcommerceEvents** — All 15 entries now include `tiktok` and `linkedin` provider mappings
+- **New methods** — `tiktokNames()`, `linkedinNames()` on EcommerceEvents, SaaSEvents, EngagementEvents
+- TikTok mappings: `CompletePayment` (purchase), `AddToCart`, `InitiateCheckout`, `ViewContent`, `AddToWishlist`
+
+### ⚙️ Config
+- New `cross_provider_identity` config section with per-provider sync toggles
 
 ## What's New in v34.0.0
 

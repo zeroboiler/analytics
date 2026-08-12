@@ -558,4 +558,40 @@ final class EngagementEvents
         ));
     }
 
+    /**
+     * Get all TikTok event names in this category (non-null only).
+     *
+     * @return list<string>
+     *
+     * @since 35.0.0
+     */
+    public static function tiktokNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['tiktok'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all LinkedIn event names in this category (non-null only).
+     *
+     * @return list<string>
+     *
+     * @since 35.0.0
+     */
+    public static function linkedinNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['linkedin'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
 }

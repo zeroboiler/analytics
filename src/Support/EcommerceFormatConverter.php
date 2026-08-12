@@ -1300,17 +1300,218 @@ final class EcommerceFormatConverter
         ]);
     }
 
+    // ── GA4 → TikTok E-Commerce Conversion (v35.0.0) ─────────────────
+
+    /**
+     * Convert GA4 items array to TikTok e-commerce properties format.
+     *
+     * TikTok uses `contents` array with content_id, content_name, content_category,
+     * quantity, and price fields for advanced matching.
+     *
+     * @param  array<int, array<string, mixed>>  $items  GA4-format items
+     * @return array{contents: array<int, array<string, mixed>>, total_value: float, num_items: int}
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToTiktokProperties(array $items): array
+    {
+        $contents = [];
+        $totalValue = 0.0;
+
+        foreach ($items as $item) {
+            $price = (float) ($item['price'] ?? 0);
+            $quantity = (int) ($item['quantity'] ?? 1);
+
+            $contents[] = [
+                'content_id' => (string) ($item['item_id'] ?? ''),
+                'content_name' => (string) ($item['item_name'] ?? ''),
+                'content_category' => (string) ($item['item_category'] ?? ''),
+                'quantity' => $quantity,
+                'price' => $price,
+            ];
+
+            $totalValue += $price * $quantity;
+        }
+
+        return [
+            'contents' => $contents,
+            'total_value' => $totalValue,
+            'num_items' => count($contents),
+        ];
+    }
+
+    /**
+     * Convert GA4 purchase params to TikTok 'CompletePayment' event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  TikTok event properties
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToTiktokPurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $tiktokItems = self::ga4ToTiktokProperties($items);
+
+        return array_merge($tiktokItems, [
+            'value' => (float) ($ga4Params['value'] ?? $tiktokItems['total_value']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+            'coupon' => (string) ($ga4Params['coupon'] ?? ''),
+            'tax' => (float) ($ga4Params['tax'] ?? 0),
+            'shipping' => (float) ($ga4Params['shipping'] ?? 0),
+        ]);
+    }
+
+    /**
+     * Convert GA4 refund params to TikTok event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  TikTok event properties
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToTiktokRefund(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $tiktokItems = self::ga4ToTiktokProperties($items);
+
+        return array_merge($tiktokItems, [
+            'value' => (float) ($ga4Params['value'] ?? $tiktokItems['total_value']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Convert GA4 add_to_cart params to TikTok event properties.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array<string, mixed>  TikTok event properties
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToTiktokAddToCart(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+        $tiktokItems = self::ga4ToTiktokProperties($items);
+
+        return array_merge($tiktokItems, [
+            'value' => (float) ($ga4Params['value'] ?? $tiktokItems['total_value']),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ]);
+    }
+
+    /**
+     * Build TikTok-formatted purchase event from GA4-style items.
+     *
+     * @param  string  $transactionId  Transaction ID
+     * @param  float  $value  Revenue
+     * @param  string  $currency  Currency code
+     * @param  array<int, array{item_id: string, item_name?: string, item_category?: string, price: float, quantity: int}>  $items  Line items
+     * @param  array{coupon?: string, tax?: float, shipping?: float}  $options  Optional params
+     * @return AnalyticsEvent  TikTok-optimized event
+     *
+     * @since 35.0.0
+     */
+    public static function buildTiktokPurchase(
+        string $transactionId,
+        float $value,
+        string $currency,
+        array $items,
+        array $options = [],
+    ): AnalyticsEvent {
+        $tiktok = self::ga4ToTiktokPurchase(
+            array_merge(self::buildGa4Purchase($transactionId, $value, $currency, $items), $options),
+        );
+
+        return new AnalyticsEvent(
+            name: 'CompletePayment',
+            params: $tiktok,
+        );
+    }
+
+    // ── GA4 → LinkedIn E-Commerce Conversion (v35.0.0) ────────────────
+
+    /**
+     * Convert GA4 purchase params to LinkedIn conversion event format.
+     *
+     * LinkedIn Conversions API uses a flat structure with conversion_id,
+     * event_name, value, and currency.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{value: float, currency: string, transaction_id: string, items_count: int}
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToLinkedinPurchase(array $ga4Params): array
+    {
+        $items = $ga4Params['items'] ?? [];
+        /** @var array<int, array<string, mixed>> $items */
+
+        return [
+            'value' => (float) ($ga4Params['value'] ?? 0),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+            'transaction_id' => (string) ($ga4Params['transaction_id'] ?? ''),
+            'items_count' => count($items),
+        ];
+    }
+
+    /**
+     * Convert GA4 add_to_cart params to LinkedIn event format.
+     *
+     * @param  array<string, mixed>  $ga4Params  GA4 event parameters
+     * @return array{value: float, currency: string}
+     *
+     * @since 35.0.0
+     */
+    public static function ga4ToLinkedinAddToCart(array $ga4Params): array
+    {
+        return [
+            'value' => (float) ($ga4Params['value'] ?? 0),
+            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Build LinkedIn-formatted purchase event from GA4-style items.
+     *
+     * @param  string  $transactionId  Transaction ID
+     * @param  float  $value  Revenue
+     * @param  string  $currency  Currency code
+     * @return AnalyticsEvent  LinkedIn-optimized event
+     *
+     * @since 35.0.0
+     */
+    public static function buildLinkedinPurchase(
+        string $transactionId,
+        float $value,
+        string $currency,
+    ): AnalyticsEvent {
+        return new AnalyticsEvent(
+            name: 'purchase',
+            params: self::ga4ToLinkedinPurchase([
+                'transaction_id' => $transactionId,
+                'value' => $value,
+                'currency' => $currency,
+            ]),
+        );
+    }
+
     // ── Universal Multi-Provider Builder ────────────────────────────────
 
     /**
-     * Build e-commerce event parameters for all supported providers at once.
+     * Build e-commerce event parameters for all 10 supported providers at once.
      *
      * Returns a map of provider name → formatted event parameters for the
      * given event type (purchase, refund, add_to_cart, view_item).
      *
      * @param  'purchase'|'refund'|'add_to_cart'|'view_item'  $eventType
      * @param  array<string, mixed>  $ga4Params  GA4-format event parameters
-     * @return array{ga4: array<string, mixed>, meta: array<string, mixed>, posthog: array<string, mixed>, mixpanel: array<string, mixed>, amplitude: array<string, mixed>}
+     * @return array{ga4: array<string, mixed>, meta: array<string, mixed>, posthog: array<string, mixed>, mixpanel: array<string, mixed>, amplitude: array<string, mixed>, plausible: array{event_name: string, props: array<string, string>}|null, tiktok: array<string, mixed>, linkedin: array<string, mixed>}
      *
      * @since 18.0.0
      */
@@ -1337,6 +1538,18 @@ final class EcommerceFormatConverter
                 'purchase' => self::ga4ToAmplitudePurchase($ga4Params),
                 'refund' => self::ga4ToAmplitudeRefund($ga4Params),
                 default => self::ga4ToAmplitudeProperties($ga4Params['items'] ?? []),
+            },
+            'plausible' => self::ga4ToPlausibleAuto($eventType, $ga4Params),
+            'tiktok' => match ($eventType) {
+                'purchase' => self::ga4ToTiktokPurchase($ga4Params),
+                'refund' => self::ga4ToTiktokRefund($ga4Params),
+                'add_to_cart' => self::ga4ToTiktokAddToCart($ga4Params),
+                default => self::ga4ToTiktokProperties($ga4Params['items'] ?? []),
+            },
+            'linkedin' => match ($eventType) {
+                'purchase' => self::ga4ToLinkedinPurchase($ga4Params),
+                'add_to_cart' => self::ga4ToLinkedinAddToCart($ga4Params),
+                default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
             },
         ];
     }

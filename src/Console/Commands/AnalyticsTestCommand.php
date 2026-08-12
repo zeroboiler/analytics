@@ -29,7 +29,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *   --dry-run             Show what would be dispatched without actually dispatching
  *
  * @since 1.0.0
- * @version 34.0.0
+ * @version 35.0.0
  */
 final class AnalyticsTestCommand extends Command
 {

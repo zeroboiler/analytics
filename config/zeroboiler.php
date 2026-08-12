@@ -4975,5 +4975,34 @@ return [
                 'revenue' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_REVENUE', 0.15),
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cross-Provider Identity Sync (v35.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | When a user is identified, syncs their identity and traits across all
+        | 10 analytics providers. Supports GA4, Meta CAPI, PostHog, Mixpanel,
+        | Amplitude, TikTok, LinkedIn, Plausible, GTM, and Webhook.
+        |
+        | Set 'cross_provider_enabled' to false to disable cross-provider sync
+        | (identity will only be sent to the generic identify event).
+        |
+        | Use 'provider_sync' to selectively enable/disable per-provider sync.
+        |
+        */
+        'cross_provider_identity' => [
+            'enabled' => env('ANALYTICS_CROSS_PROVIDER_IDENTITY_ENABLED', true),
+            'provider_sync' => [
+                'ga4' => env('ANALYTICS_IDENTITY_SYNC_GA4', true),
+                'meta' => env('ANALYTICS_IDENTITY_SYNC_META', true),
+                'posthog' => env('ANALYTICS_IDENTITY_SYNC_POSTHOG', true),
+                'mixpanel' => env('ANALYTICS_IDENTITY_SYNC_MIXPANEL', true),
+                'amplitude' => env('ANALYTICS_IDENTITY_SYNC_AMPLITUDE', true),
+                'tiktok' => env('ANALYTICS_IDENTITY_SYNC_TIKTOK', true),
+                'linkedin' => env('ANALYTICS_IDENTITY_SYNC_LINKEDIN', true),
+                'plausible' => env('ANALYTICS_IDENTITY_SYNC_PLAUSIBLE', true),
+            ],
+        ],
     ],
 ];

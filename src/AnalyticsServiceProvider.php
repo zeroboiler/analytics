@@ -222,7 +222,6 @@ use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
 use ZeroBoiler\Analytics\Services\ProviderFallbackService;
-use ZeroBoiler\Analytics\Support\EventCatalogFactory;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
@@ -261,6 +260,7 @@ use ZeroBoiler\Analytics\Services\UniversalEventNormalizer;
 use ZeroBoiler\Analytics\Services\EventSchemaMigrationService;
 use ZeroBoiler\Analytics\Services\ConsentBannerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
+use ZeroBoiler\Analytics\Console\Commands\SaaSMetricsCommand;
 use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
 use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
@@ -273,7 +273,7 @@ use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 34.0.0
+ * @version 35.0.0
  *
  * @since 1.0.0
  */
@@ -2674,6 +2674,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsTimelineCommand::class,
                 AnalyticsDiagnosticCommand::class,
                 AnalyticsDlqCommand::class,
+                SaaSMetricsCommand::class,
             ]);
         }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
@@ -13,7 +14,7 @@ namespace ZeroBoiler\Analytics\Events\Ecommerce;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 1.0.0
  */
@@ -43,6 +44,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'View Item',
                 'amplitude' => 'View Item',
+                'tiktok' => 'ViewContent',
+                'linkedin' => 'view_product',
             ],
             'add_to_cart' => [
                 'name' => 'add_to_cart',
@@ -53,6 +56,8 @@ final class EcommerceEvents
                 'plausible' => 'add_to_cart',
                 'mixpanel' => 'Add to Cart',
                 'amplitude' => 'Added to Cart',
+                'tiktok' => 'AddToCart',
+                'linkedin' => 'add_to_cart',
             ],
             'remove_from_cart' => [
                 'name' => 'remove_from_cart',
@@ -63,6 +68,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Remove from Cart',
                 'amplitude' => 'Removed from Cart',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'view_cart' => [
                 'name' => 'view_cart',
@@ -73,6 +80,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'View Cart',
                 'amplitude' => 'Viewed Cart',
+                'tiktok' => 'ViewContent',
+                'linkedin' => null,
             ],
             'begin_checkout' => [
                 'name' => 'begin_checkout',
@@ -83,6 +92,8 @@ final class EcommerceEvents
                 'plausible' => 'begin_checkout',
                 'mixpanel' => 'Checkout Started',
                 'amplitude' => 'Started Checkout',
+                'tiktok' => 'InitiateCheckout',
+                'linkedin' => 'purchase',
             ],
             'add_payment_info' => [
                 'name' => 'add_payment_info',
@@ -93,6 +104,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Add Payment Info',
                 'amplitude' => 'Added Payment Info',
+                'tiktok' => 'AddPaymentInfo',
+                'linkedin' => null,
             ],
             'purchase' => [
                 'name' => 'purchase',
@@ -103,6 +116,8 @@ final class EcommerceEvents
                 'plausible' => 'purchase',
                 'mixpanel' => 'Purchase',
                 'amplitude' => 'Completed Order',
+                'tiktok' => 'CompletePayment',
+                'linkedin' => 'purchase',
             ],
             'refund' => [
                 'name' => 'refund',
@@ -113,6 +128,8 @@ final class EcommerceEvents
                 'plausible' => 'refund',
                 'mixpanel' => 'Refund',
                 'amplitude' => 'Refunded Order',
+                'tiktok' => 'ClickButton',
+                'linkedin' => null,
             ],
             'add_to_wishlist' => [
                 'name' => 'add_to_wishlist',
@@ -123,6 +140,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Add to Wishlist',
                 'amplitude' => 'Added to Wishlist',
+                'tiktok' => 'AddToWishlist',
+                'linkedin' => null,
             ],
             'select_item' => [
                 'name' => 'select_item',
@@ -133,6 +152,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Select Item',
                 'amplitude' => 'Selected Item',
+                'tiktok' => 'ViewContent',
+                'linkedin' => null,
             ],
             'select_promotion' => [
                 'name' => 'select_promotion',
@@ -143,6 +164,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Select Promotion',
                 'amplitude' => 'Selected Promotion',
+                'tiktok' => 'ClickButton',
+                'linkedin' => null,
             ],
             'view_promotion' => [
                 'name' => 'view_promotion',
@@ -153,6 +176,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'View Promotion',
                 'amplitude' => 'Viewed Promotion',
+                'tiktok' => 'ViewContent',
+                'linkedin' => null,
             ],
             'checkout_step' => [
                 'name' => 'checkout_step',
@@ -163,6 +188,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Checkout Step',
                 'amplitude' => 'Checkout Step',
+                'tiktok' => 'InitiateCheckout',
+                'linkedin' => null,
             ],
             // Cart & checkout abandonment (v2.82.0)
             'abandoned_cart' => [
@@ -174,6 +201,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Abandoned Cart',
                 'amplitude' => 'Abandoned Cart',
+                'tiktok' => 'ClickButton',
+                'linkedin' => null,
             ],
             'checkout_abandon' => [
                 'name' => 'checkout_abandon',
@@ -184,6 +213,8 @@ final class EcommerceEvents
                 'plausible' => null,
                 'mixpanel' => 'Checkout Abandon',
                 'amplitude' => 'Checkout Abandoned',
+                'tiktok' => 'InitiateCheckout',
+                'linkedin' => null,
             ],
         ];
 
@@ -341,6 +372,42 @@ final class EcommerceEvents
         return array_values(array_filter(
             array_map(
                 fn (array $entry): ?string => $entry['amplitude'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all TikTok event names in this category (non-null only).
+     *
+     * @return list<string>
+     *
+     * @since 35.0.0
+     */
+    public static function tiktokNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['tiktok'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all LinkedIn event names in this category (non-null only).
+     *
+     * @return list<string>
+     *
+     * @since 35.0.0
+     */
+    public static function linkedinNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['linkedin'] ?? null,
                 self::catalog(),
             ),
             fn (?string $name): bool => $name !== null,
