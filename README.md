@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-25.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-26.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -109,6 +109,49 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v26.0.0
+
+### 🚀 Full Event Catalog Shorthand API
+- **35 new convenience methods** on `AnalyticsManager` and `Analytics` facade — one-liner tracking for every event in the catalog.
+- **E-commerce shorthands**: `viewItem()`, `addToCart()`, `removeFromCart()`, `viewCart()`, `beginCheckout()`, `addPaymentInfo()`, `refund()`, `abandonedCart()`, `checkoutAbandon()`, `checkoutStep()`.
+- **Engagement shorthands**: `scrollDepth()`, `click()`, `formStart()`, `formSubmit()`, `search()`, `share()`, `outboundClick()`, `contentEngagement()`, `onboardingStep()`, `onboardingCompleted()`, `goalConversion()`, `feedback()`, `featureRequest()`.
+- **SaaS lifecycle shorthands**: `subscriptionPaused()`, `subscriptionResumed()`, `planChanged()`, `teamCreated()`, `teamMemberJoined()`, `teamMemberRemoved()`, `roleChanged()`, `paymentFailed()`, `paymentSucceeded()`, `milestoneReached()`, `workspaceCreated()`, `usageQuotaReached()`, `billingRetry()`.
+- All methods follow consistent API conventions: required params first, optional params with defaults, extra `$params` array for custom data.
+- Full Facade `@method` annotations for IDE autocompletion.
+
+### Example Usage
+```php
+// E-commerce — single line for every catalog event
+Analytics::viewItem(['item_id' => 'SKU-123', 'item_name' => 'T-Shirt', 'price' => 29.99]);
+Analytics::addToCart(['item_id' => 'SKU-123', 'item_name' => 'T-Shirt', 'quantity' => 2]);
+Analytics::beginCheckout($items, 59.98, ['currency' => 'USD']);
+Analytics::purchase('txn_abc', 59.98, $items);
+Analytics::refund('txn_abc', 59.98, ['currency' => 'USD']);
+
+// Engagement — every interaction tracked in one line
+Analytics::scrollDepth(75, '/blog/article');
+Analytics::click('#cta-button', '/pricing');
+Analytics::formStart('contact-form', 'Contact Us');
+Analytics::formSubmit('contact-form', 'Contact Us', true);
+Analytics::search('laravel analytics', 42);
+Analytics::share('twitter', 'article', 'post-123');
+
+// SaaS lifecycle — complete subscription funnel tracking
+Analytics::signUp('google_oauth');
+Analytics::trialStart('Pro', 14);
+Analytics::planUpgrade('Free', 'Pro');
+Analytics::subscriptionResumed('Pro');
+Analytics::milestoneReached('100_events');
+Analytics::teamCreated('Engineering', 5);
+Analytics::paymentSucceeded(99.00, 'stripe');
+```
+
+### 🔄 Version Sweep
+- Version bumped to 26.0.0 across all layers: `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, JS `getVersion()` + `_getInternalVersion()`, README badge.
+
+### 🧪 Tests
+- **`V2600EventCatalogShorthandTest`** — 60+ assertions covering all 35 new shorthand methods (ecommerce, engagement, SaaS lifecycle), event name verification, parameter correctness, optional param behavior, Facade proxy verification, catalog consistency, version sweep.
 
 ## What's New in v25.0.0
 
@@ -443,7 +486,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~234K source, 233 test files
+**LOC:** ~235K source, 239 test files
 
 ## What's New in v10.8.0
 

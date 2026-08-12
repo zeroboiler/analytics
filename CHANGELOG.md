@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [26.0.0] - 2026-08-12
+
+### Added
+
+- **Full Event Catalog Shorthand API** — 35 new convenience methods on `AnalyticsManager` and `Analytics` facade for one-liner tracking of every event in the catalog.
+- **E-commerce shorthands (10)**: `viewItem()`, `addToCart()`, `removeFromCart()`, `viewCart()`, `beginCheckout()`, `addPaymentInfo()`, `refund()`, `abandonedCart()`, `checkoutAbandon()`, `checkoutStep()`.
+- **Engagement shorthands (13)**: `scrollDepth()`, `click()`, `formStart()`, `formSubmit()`, `search()`, `share()`, `outboundClick()`, `contentEngagement()`, `onboardingStep()`, `onboardingCompleted()`, `goalConversion()`, `feedback()`, `featureRequest()`.
+- **SaaS lifecycle shorthands (13)**: `subscriptionPaused()`, `subscriptionResumed()`, `planChanged()`, `teamCreated()`, `teamMemberJoined()`, `teamMemberRemoved()`, `roleChanged()`, `paymentFailed()`, `paymentSucceeded()`, `milestoneReached()`, `workspaceCreated()`, `usageQuotaReached()`, `billingRetry()`.
+- **Facade `@method` annotations** — All 35 new methods documented with full type hints for IDE autocompletion ( PhpStorm, VS Code with Intelephense, etc.).
+- **V2600EventCatalogShorthandTest** — 45+ test cases covering all shorthand methods (event name verification, parameter correctness, optional param behavior, catalog consistency, version sweep, snake_case naming convention).
+
+### Changed
+
+- **Version sweep** — 25.0.0 → 26.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), README badge, CHANGELOG.
+
 ## [23.0.0] - 2026-08-12
 
 ### Added

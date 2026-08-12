@@ -2688,4 +2688,564 @@ final class AnalyticsManager
 
         return $service->compare($currentPeriod, $previousPeriod);
     }
+
+    // ─── E-Commerce Shorthand Methods (v26.0.0) ─────────────────────────
+
+    /**
+     * Track a view_item event.
+     *
+     * @param  array<string, mixed>  $item  Item data (item_id, item_name, item_category, price, currency, ...)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function viewItem(array $item, array $params = []): void
+    {
+        $this->track('view_item', array_merge($params, $item));
+    }
+
+    /**
+     * Track an add_to_cart event.
+     *
+     * @param  array<string, mixed>  $item  Item data (item_id, item_name, item_category, price, quantity, currency, ...)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function addToCart(array $item, array $params = []): void
+    {
+        $this->track('add_to_cart', array_merge($params, $item));
+    }
+
+    /**
+     * Track a remove_from_cart event.
+     *
+     * @param  array<string, mixed>  $item  Item data (item_id, item_name, price, quantity, currency, ...)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function removeFromCart(array $item, array $params = []): void
+    {
+        $this->track('remove_from_cart', array_merge($params, $item));
+    }
+
+    /**
+     * Track a view_cart event.
+     *
+     * @param  list<array<string, mixed>>  $items  Cart items
+     * @param  float|null  $value  Cart total value
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function viewCart(array $items = [], ?float $value = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($items !== []) {
+            $payload['items'] = $items;
+        }
+        if ($value !== null) {
+            $payload['value'] = $value;
+        }
+        $this->track('view_cart', $payload);
+    }
+
+    /**
+     * Track a begin_checkout event.
+     *
+     * @param  list<array<string, mixed>>  $items  Cart items
+     * @param  float|null  $value  Cart total value
+     * @param  array<string, mixed>  $params  Additional event parameters (currency, coupon, ...)
+     */
+    public function beginCheckout(array $items = [], ?float $value = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($items !== []) {
+            $payload['items'] = $items;
+        }
+        if ($value !== null) {
+            $payload['value'] = $value;
+        }
+        $this->track('begin_checkout', $payload);
+    }
+
+    /**
+     * Track an add_payment_info event.
+     *
+     * @param  string|null  $paymentType  Payment type (credit_card, paypal, ...)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function addPaymentInfo(?string $paymentType = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($paymentType !== null) {
+            $payload['payment_type'] = $paymentType;
+        }
+        $this->track('add_payment_info', $payload);
+    }
+
+    /**
+     * Track a refund event.
+     *
+     * @param  string  $transactionId  Original transaction ID
+     * @param  float  $value  Refund amount
+     * @param  array<string, mixed>  $params  Additional event parameters (currency, items, ...)
+     */
+    public function refund(string $transactionId, float $value, array $params = []): void
+    {
+        $this->track('refund', array_merge($params, [
+            'transaction_id' => $transactionId,
+            'value' => $value,
+        ]));
+    }
+
+    /**
+     * Track an abandoned_cart event.
+     *
+     * @param  list<array<string, mixed>>  $items  Cart items left behind
+     * @param  float|null  $value  Cart total value
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function abandonedCart(array $items = [], ?float $value = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($items !== []) {
+            $payload['items'] = $items;
+        }
+        if ($value !== null) {
+            $payload['value'] = $value;
+        }
+        $this->track('abandoned_cart', $payload);
+    }
+
+    /**
+     * Track a checkout_abandon event.
+     *
+     * @param  int|null  $step  Checkout step where user abandoned
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function checkoutAbandon(?int $step = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($step !== null) {
+            $payload['checkout_step'] = $step;
+        }
+        $this->track('checkout_abandon', $payload);
+    }
+
+    /**
+     * Track a checkout_step event.
+     *
+     * @param  int  $step  Current checkout step number
+     * @param  string|null  $stepName  Human-readable step name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function checkoutStep(int $step, ?string $stepName = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['checkout_step'] = $step;
+        if ($stepName !== null) {
+            $payload['checkout_step_name'] = $stepName;
+        }
+        $this->track('checkout_step', $payload);
+    }
+
+    // ─── Engagement Shorthand Methods (v26.0.0) ────────────────────────
+
+    /**
+     * Track a scroll_depth event.
+     *
+     * @param  int  $percent  Scroll depth percentage (0-100)
+     * @param  string|null  $url  Page URL where scroll occurred
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function scrollDepth(int $percent, ?string $url = null, array $params = []): void
+    {
+        $this->track('scroll_depth', array_merge($params, [
+            'percent' => $percent,
+            'url' => $url,
+        ]));
+    }
+
+    /**
+     * Track a click event.
+     *
+     * @param  string  $target  Clicked element identifier (CSS selector, button ID, ...)
+     * @param  string|null  $url  Page URL where click occurred
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function click(string $target, ?string $url = null, array $params = []): void
+    {
+        $this->track('click', array_merge($params, [
+            'target' => $target,
+            'url' => $url,
+        ]));
+    }
+
+    /**
+     * Track a form_start event.
+     *
+     * @param  string|null  $formId  Form identifier
+     * @param  string|null  $formName  Human-readable form name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function formStart(?string $formId = null, ?string $formName = null, array $params = []): void
+    {
+        $this->track('form_start', array_merge($params, [
+            'form_id' => $formId,
+            'form_name' => $formName,
+        ]));
+    }
+
+    /**
+     * Track a form_submit event.
+     *
+     * @param  string|null  $formId  Form identifier
+     * @param  string|null  $formName  Human-readable form name
+     * @param  bool|null  $success  Whether submission succeeded
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function formSubmit(?string $formId = null, ?string $formName = null, ?bool $success = null, array $params = []): void
+    {
+        $this->track('form_submit', array_merge($params, array_filter([
+            'form_id' => $formId,
+            'form_name' => $formName,
+            'success' => $success,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a search event.
+     *
+     * @param  string  $query  Search query string
+     * @param  int|null  $resultsCount  Number of results returned
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function search(string $query, ?int $resultsCount = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['search_term'] = $query;
+        if ($resultsCount !== null) {
+            $payload['results_count'] = $resultsCount;
+        }
+        $this->track('search', $payload);
+    }
+
+    /**
+     * Track a share event.
+     *
+     * @param  string  $method  Share method (email, twitter, facebook, link, ...)
+     * @param  string|null  $contentType  Type of shared content (article, product, ...)
+     * @param  string|null  $itemId  Shared item identifier
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function share(string $method, ?string $contentType = null, ?string $itemId = null, array $params = []): void
+    {
+        $this->track('share', array_merge($params, array_filter([
+            'method' => $method,
+            'content_type' => $contentType,
+            'item_id' => $itemId,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an outbound_click event.
+     *
+     * @param  string  $url  Destination URL
+     * @param  string|null  $label  Link label or text
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function outboundClick(string $url, ?string $label = null, array $params = []): void
+    {
+        $this->track('outbound_click', array_merge($params, array_filter([
+            'url' => $url,
+            'label' => $label,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a content_engagement event.
+     *
+     * @param  string  $contentType  Type of content (article, video, podcast, ...)
+     * @param  string|null  $contentId  Content identifier
+     * @param  int|null  $durationSeconds  Time spent engaging (seconds)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function contentEngagement(string $contentType, ?string $contentId = null, ?int $durationSeconds = null, array $params = []): void
+    {
+        $this->track('content_engagement', array_merge($params, array_filter([
+            'content_type' => $contentType,
+            'content_id' => $contentId,
+            'duration_seconds' => $durationSeconds,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an onboarding_step event.
+     *
+     * @param  int  $step  Onboarding step number
+     * @param  string|null  $stepName  Step name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function onboardingStep(int $step, ?string $stepName = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['step'] = $step;
+        if ($stepName !== null) {
+            $payload['step_name'] = $stepName;
+        }
+        $this->track('onboarding_step', $payload);
+    }
+
+    /**
+     * Track an onboarding_completed event.
+     *
+     * @param  int|null  $totalSteps  Total onboarding steps completed
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function onboardingCompleted(?int $totalSteps = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($totalSteps !== null) {
+            $payload['total_steps'] = $totalSteps;
+        }
+        $this->track('onboarding_completed', $payload);
+    }
+
+    /**
+     * Track a goal_conversion event.
+     *
+     * @param  string  $goalName  Goal identifier
+     * @param  float|null  $value  Goal value (revenue or score)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function goalConversion(string $goalName, ?float $value = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['goal_name'] = $goalName;
+        if ($value !== null) {
+            $payload['value'] = $value;
+        }
+        $this->track('goal_conversion', $payload);
+    }
+
+    /**
+     * Track a feedback event.
+     *
+     * @param  string  $type  Feedback type (rating, nps, survey, ...)
+     * @param  int|string|null  $score  Numeric score or text value
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function feedback(string $type, int|string|null $score = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['feedback_type'] = $type;
+        if ($score !== null) {
+            $payload['score'] = $score;
+        }
+        $this->track('feedback', $payload);
+    }
+
+    /**
+     * Track a feature_request event.
+     *
+     * @param  string  $featureName  Requested feature name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function featureRequest(string $featureName, array $params = []): void
+    {
+        $this->track('feature_request', array_merge($params, [
+            'feature_name' => $featureName,
+        ]));
+    }
+
+    // ─── SaaS Lifecycle Shorthand Methods (v26.0.0) ──────────────────
+
+    /**
+     * Track a subscription_paused event.
+     *
+     * @param  string|null  $planName  Plan name being paused
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function subscriptionPaused(?string $planName = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($planName !== null) {
+            $payload['plan_name'] = $planName;
+        }
+        $this->track('subscription_paused', $payload);
+    }
+
+    /**
+     * Track a subscription_resumed event.
+     *
+     * @param  string|null  $planName  Plan name being resumed
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function subscriptionResumed(?string $planName = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($planName !== null) {
+            $payload['plan_name'] = $planName;
+        }
+        $this->track('subscription_resumed', $payload);
+    }
+
+    /**
+     * Track a plan_changed event.
+     *
+     * @param  string  $fromPlan  Previous plan name
+     * @param  string  $toPlan  New plan name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function planChanged(string $fromPlan, string $toPlan, array $params = []): void
+    {
+        $this->track('plan_changed', array_merge($params, [
+            'from_plan' => $fromPlan,
+            'to_plan' => $toPlan,
+        ]));
+    }
+
+    /**
+     * Track a team_created event.
+     *
+     * @param  string|null  $teamName  Team name
+     * @param  int|null  $memberCount  Initial member count
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function teamCreated(?string $teamName = null, ?int $memberCount = null, array $params = []): void
+    {
+        $this->track('team_created', array_merge($params, array_filter([
+            'team_name' => $teamName,
+            'member_count' => $memberCount,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a team_member_joined event.
+     *
+     * @param  string|null  $role  Member role
+     * @param  string|null  $inviteMethod  How the member was invited
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function teamMemberJoined(?string $role = null, ?string $inviteMethod = null, array $params = []): void
+    {
+        $this->track('team_member_joined', array_merge($params, array_filter([
+            'role' => $role,
+            'invite_method' => $inviteMethod,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a team_member_removed event.
+     *
+     * @param  string|null  $role  Removed member's role
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function teamMemberRemoved(?string $role = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($role !== null) {
+            $payload['role'] = $role;
+        }
+        $this->track('team_member_removed', $payload);
+    }
+
+    /**
+     * Track a role_changed event.
+     *
+     * @param  string  $fromRole  Previous role
+     * @param  string  $toRole  New role
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function roleChanged(string $fromRole, string $toRole, array $params = []): void
+    {
+        $this->track('role_changed', array_merge($params, [
+            'from_role' => $fromRole,
+            'to_role' => $toRole,
+        ]));
+    }
+
+    /**
+     * Track a payment_failed event.
+     *
+     * @param  string|null  $reason  Failure reason
+     * @param  float|null  $amount  Attempted payment amount
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function paymentFailed(?string $reason = null, ?float $amount = null, array $params = []): void
+    {
+        $this->track('payment_failed', array_merge($params, array_filter([
+            'reason' => $reason,
+            'amount' => $amount,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a payment_succeeded event.
+     *
+     * @param  float|null  $amount  Payment amount
+     * @param  string|null  $method  Payment method
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function paymentSucceeded(?float $amount = null, ?string $method = null, array $params = []): void
+    {
+        $this->track('payment_succeeded', array_merge($params, array_filter([
+            'amount' => $amount,
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a milestone_reached event.
+     *
+     * @param  string  $milestoneName  Milestone identifier
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function milestoneReached(string $milestoneName, array $params = []): void
+    {
+        $this->track('milestone_reached', array_merge($params, [
+            'milestone' => $milestoneName,
+        ]));
+    }
+
+    /**
+     * Track a workspace_created event.
+     *
+     * @param  string|null  $workspaceName  Workspace name
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function workspaceCreated(?string $workspaceName = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($workspaceName !== null) {
+            $payload['workspace_name'] = $workspaceName;
+        }
+        $this->track('workspace_created', $payload);
+    }
+
+    /**
+     * Track a usage_quota_reached event.
+     *
+     * @param  string  $quotaType  Type of quota (storage, api_calls, users, ...)
+     * @param  int|null  $limit  Quota limit value
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function usageQuotaReached(string $quotaType, ?int $limit = null, array $params = []): void
+    {
+        $payload = $params;
+        $payload['quota_type'] = $quotaType;
+        if ($limit !== null) {
+            $payload['quota_limit'] = $limit;
+        }
+        $this->track('usage_quota_reached', $payload);
+    }
+
+    /**
+     * Track a billing_retry event.
+     *
+     * @param  int|null  $attemptNumber  Retry attempt number
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function billingRetry(?int $attemptNumber = null, array $params = []): void
+    {
+        $payload = $params;
+        if ($attemptNumber !== null) {
+            $payload['attempt'] = $attemptNumber;
+        }
+        $this->track('billing_retry', $payload);
+    }
 }
