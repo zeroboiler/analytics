@@ -198,13 +198,10 @@ final class AnalyticsDashboardService
             'trial_converted',
         ];
 
-        $dispatched = $this->metrics->dispatchedByProvider();
-        // Funnel counts from dispatched metrics (per-provider, sum across all)
-        $allDispatched = $this->metrics->totalDispatched();
-
         $distribution = [];
         foreach ($funnelEvents as $eventName) {
-            // Return 0 since metrics doesn't track per-event counts by name
+            // Metrics tracks per-provider counts, not per-event-name counts.
+            // Placeholder zeros — populated by event-level tracking when available.
             $distribution[$eventName] = 0;
         }
 
@@ -302,11 +299,12 @@ final class AnalyticsDashboardService
             $logs = $consentLogService->getSummary();
             $granted = (int) ($logs['granted'] ?? 0);
             $denied = (int) ($logs['denied'] ?? 0);
+            $total = (int) ($logs['total_records'] ?? 0);
 
             return [
                 'granted' => $granted,
                 'denied' => $denied,
-                'unknown' => max(0, count($logs) - $granted - $denied),
+                'unknown' => max(0, $total - $granted - $denied),
             ];
         });
     }

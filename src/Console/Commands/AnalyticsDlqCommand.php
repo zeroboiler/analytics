@@ -9,8 +9,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
 
 /**
@@ -26,7 +24,8 @@ final class AnalyticsDlqCommand extends Command
 {
     protected $signature = 'zb:analytics:dlq
         {action : Action to perform (list|show|replay|replay-all|purge|stats)}
-        {--id=? : Event ID for show/replay actions}
+        {--offset=? : Event offset for show/replay actions (0-based)}
+        {--event=? : Filter list by event name}
         {--limit=25 : Number of events to list (default: 25)}
         {--json : Output as JSON}';
 
@@ -64,9 +63,15 @@ final class AnalyticsDlqCommand extends Command
      */
     private function listEvents(): int
     {
-        $limit = (int) $this->option('limit');
-        $events = $this->dlq->list($limit);
         $asJson = (bool) $this->option('json');
+        $eventName = $this->option('event');
+
+        $events = $eventName !== null
+            ? $this->dlq->getByEventName((string) $eventName)
+            : $this->dlq->all();
+
+        $limit = (int) $this->option('limit');
+        $events = array_slice($events, 0, $limit);
 
         if (empty($events)) {
             if ($asJson) {
@@ -78,32 +83,32 @@ final class AnalyticsDlqCommand extends Command
             return self::SUCCESS;
         }
 
-        $stats = $this->dlq->stats();
+        $total = $this->dlq->count();
 
         if ($asJson) {
             $this->line(json_encode([
                 'events' => $events,
-                'total' => $stats['count'] ?? 0,
+                'total' => $total,
             ], JSON_PRETTY_PRINT));
 
             return self::SUCCESS;
         }
 
-        $this->info("📦 Dead Letter Queue (showing {$limit} of {$stats['count']})");
+        $this->info("📦 Dead Letter Queue (showing " . min($limit, $total) . " of {$total})");
         $this->newLine();
 
-        $headers = ['ID', 'Event', 'Provider', 'Attempts', 'Error', 'Time'];
+        $headers = ['#', 'Event', 'Provider', 'Error', 'Attempts'];
 
         $rows = array_map(
-            fn (array $event): array => [
-                $event['id'] ?? '-',
-                $event['event_name'] ?? '-',
+            fn (array $event, int $index): array => [
+                (string) $index,
+                $event['event_name'] ?? $event['name'] ?? '-',
                 $event['provider'] ?? 'all',
-                (string) ($event['attempts'] ?? 0),
-                $this->truncate((string) ($event['error'] ?? 'unknown'), 40),
-                $event['created_at'] ?? '-',
+                $this->truncate((string) ($event['error'] ?? $event['message'] ?? 'unknown'), 50),
+                (string) ($event['attempts'] ?? $event['attempt'] ?? 0),
             ],
             $events,
+            array_keys($events),
         );
 
         $this->table($headers, $rows);
@@ -112,25 +117,28 @@ final class AnalyticsDlqCommand extends Command
     }
 
     /**
-     * Show details of a specific DLQ event.
+     * Show details of a specific DLQ event by offset.
      */
     private function showEvent(): int
     {
-        $id = $this->option('id');
+        $offset = $this->option('offset');
 
-        if ($id === null || $id === '') {
-            $this->error('❌ --id is required for show action.');
+        if ($offset === null || $offset === '') {
+            $this->error('❌ --offset is required for show action (0-based index).');
+
+            return self::FAILURE;
+        }
+
+        $offset = (int) $offset;
+        $events = $this->dlq->all();
+
+        if (! isset($events[$offset])) {
+            $this->error("❌ No event at offset {$offset} in DLQ (total: " . $this->dlq->count() . ').');
 
             return self::FAILURE;
         }
 
-        $event = $this->dlq->get((string) $id);
-
-        if ($event === null) {
-            $this->error("❌ Event '{$id}' not found in DLQ.");
-
-            return self::FAILURE;
-        }
+        $event = $events[$offset];
 
         if ((bool) $this->option('json')) {
             $this->line(json_encode($event, JSON_PRETTY_PRINT));
@@ -138,7 +146,7 @@ final class AnalyticsDlqCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->info("📋 DLQ Event: {$id}");
+        $this->info("📋 DLQ Event [offset {$offset}]");
         $this->newLine();
 
         foreach ($event as $key => $value) {
@@ -152,28 +160,30 @@ final class AnalyticsDlqCommand extends Command
     }
 
     /**
-     * Replay a single DLQ event.
+     * Replay a single DLQ event by offset.
      */
     private function replayEvent(): int
     {
-        $id = $this->option('id');
+        $offset = $this->option('offset');
 
-        if ($id === null || $id === '') {
-            $this->error('❌ --id is required for replay action.');
+        if ($offset === null || $offset === '') {
+            $this->error('❌ --offset is required for replay action (0-based index).');
 
             return self::FAILURE;
         }
 
-        if (! $this->confirm("Replay event {$id}?")) {
+        $offset = (int) $offset;
+
+        if (! $this->confirm("Replay event at offset {$offset}?")) {
             return self::SUCCESS;
         }
 
-        $result = $this->dlq->replay((string) $id);
+        $result = $this->dlq->replaySingle($offset);
 
-        if ($result) {
-            $this->info("✅ Event {$id} replayed successfully.");
+        if ($result !== null) {
+            $this->info("✅ Event at offset {$offset} replayed successfully.");
         } else {
-            $this->warn("⚠️  Event {$id} replay failed (still in DLQ).");
+            $this->warn("⚠️  Replay failed — event may still be in DLQ.");
         }
 
         return self::SUCCESS;
@@ -184,8 +194,7 @@ final class AnalyticsDlqCommand extends Command
      */
     private function replayAll(): int
     {
-        $stats = $this->dlq->stats();
-        $count = $stats['count'] ?? 0;
+        $count = $this->dlq->count();
 
         if ($count === 0) {
             $this->info('✅ Dead Letter Queue is empty — nothing to replay.');
@@ -214,8 +223,7 @@ final class AnalyticsDlqCommand extends Command
      */
     private function purgeQueue(): int
     {
-        $stats = $this->dlq->stats();
-        $count = $stats['count'] ?? 0;
+        $count = $this->dlq->count();
 
         if ($count === 0) {
             $this->info('✅ Dead Letter Queue is already empty.');
@@ -227,7 +235,7 @@ final class AnalyticsDlqCommand extends Command
             return self::SUCCESS;
         }
 
-        $this->dlq->purge();
+        $this->dlq->clear();
         $this->info("🗑️  Purged {$count} events from the Dead Letter Queue.");
 
         return self::SUCCESS;
@@ -238,11 +246,11 @@ final class AnalyticsDlqCommand extends Command
      */
     private function showStats(): int
     {
-        $stats = $this->dlq->stats();
+        $summary = $this->dlq->summary();
         $asJson = (bool) $this->option('json');
 
         if ($asJson) {
-            $this->line(json_encode($stats, JSON_PRETTY_PRINT));
+            $this->line(json_encode($summary, JSON_PRETTY_PRINT));
 
             return self::SUCCESS;
         }
@@ -250,7 +258,7 @@ final class AnalyticsDlqCommand extends Command
         $this->info('📊 Dead Letter Queue Statistics');
         $this->newLine();
 
-        foreach ($stats as $key => $value) {
+        foreach ($summary as $key => $value) {
             $display = is_array($value)
                 ? json_encode($value, JSON_UNESCAPED_SLASHES)
                 : (string) $value;

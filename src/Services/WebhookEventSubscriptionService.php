@@ -301,7 +301,7 @@ final class WebhookEventSubscriptionService
             'params' => $event->params,
             'client_id' => $event->clientId,
             'user_id' => $event->userId,
-            'timestamp' => $event->timestamp ?? now()->toIso8601String(),
+            'timestamp' => $event->timestamp?->format(\DateTimeInterface::ATOM) ?? now()->toIso8601String(),
             'source' => 'zeroboiler-analytics',
             'version' => '23.0.0',
         ];
