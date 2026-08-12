@@ -264,6 +264,8 @@ use ZeroBoiler\Analytics\Console\Commands\SaaSMetricsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsIngestionCommand;
 use ZeroBoiler\Analytics\Services\EventIngestionService;
 use ZeroBoiler\Analytics\Services\AnalyticsCommandScheduler;
+use ZeroBoiler\Analytics\Services\EventRouterService;
+use ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService;
 use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
 use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
@@ -276,7 +278,7 @@ use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 36.0.0
+ * @version 37.0.0
  *
  * @since 1.0.0
  */
@@ -2651,6 +2653,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
             );
         });
+
+        // Event Router Service (v37.0.0) — provider-aware destination routing
+        $this->app->singleton(EventRouterService::class, function (Application $app): EventRouterService {
+            return new EventRouterService(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
+
+        // Analytics Workspace Service (v37.0.0) — multi-tenant workspace KPI rollups
+        $this->app->singleton(AnalyticsWorkspaceService::class, function (Application $app): AnalyticsWorkspaceService {
+            return new AnalyticsWorkspaceService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -2992,6 +3010,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/guard-rails/violations', [$controller, 'guardRailsViolations']);
                 Route::get('analytics/guard-rails/coverage', [$controller, 'guardRailsCoverage']);
                 Route::get('analytics/guard-rails/validate-name', [$controller, 'guardRailsValidateName']);
+
+                // Event Router (v37.0.0)
+                Route::get('analytics/router/summary', [$controller, 'eventRouterSummary']);
+                Route::get('analytics/router/validate', [$controller, 'eventRouterValidate']);
+                Route::get('analytics/router/providers', [$controller, 'eventRouterProviders']);
+
+                // Workspace Analytics (v37.0.0)
+                Route::get('analytics/workspace/{workspaceId}', [$controller, 'workspaceOverview']);
+                Route::get('analytics/workspace/{workspaceId}/active-users', [$controller, 'workspaceActiveUsers']);
+                Route::get('analytics/workspace/{workspaceId}/top-events', [$controller, 'workspaceTopEvents']);
+                Route::get('analytics/workspace/{workspaceId}/funnels', [$controller, 'workspaceFunnels']);
+                Route::get('analytics/workspace/{workspaceId}/revenue', [$controller, 'workspaceRevenue']);
+                Route::post('analytics/workspace/compare', [$controller, 'workspaceCompare']);
             });
 
         // Authenticated endpoints

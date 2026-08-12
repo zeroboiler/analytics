@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [37.0.0] - 2026-08-12
+
+### Added
+
+- **Event Router Service** — `EventRouterService` provides Segment/RudderStack-style provider-aware destination routing. Config-driven rules for routing events to specific providers based on: category (ecommerce, saas, engagement), event name patterns (glob and regex), priority levels (critical/normal/low/background), cost optimization (automatically excludes expensive providers for low-priority events), deny list (hard-block specific events from specific providers), allow list (restrict specific events to only specified providers), and default providers fallback. Returns empty provider list to silently drop events (by design for cost control). Supports routing decision caching, route reasoning (which rules were applied), and rule validation. Config: `zeroboiler.analytics.event_router`.
+- **Analytics Workspace Service** — `AnalyticsWorkspaceService` provides multi-tenant workspace-level analytics aggregation for SaaS dashboards. Computes per-workspace KPIs: DAU/WAU/MAU active users, event volume and top events ranking, revenue totals (MRR + one-time), configurable funnel conversion rates (signup funnel, activation funnel, custom), engagement score (events per active user, normalized 0-100), and workspace comparison (sorted by engagement). All data is cache-backed with configurable TTL — no database required. Config: `zeroboiler.analytics.workspace`.
+- **9 new API endpoints** — Event Router: summary, validate, providers. Workspace: overview, active-users, top-events, funnels, revenue, compare.
+- **2 new config sections** — `event_router` (12 options including category routes, pattern rules, priority routes, deny/allow lists, cost optimization) and `workspace` (6 options including engagement events, funnel definitions, cache settings).
+- **2 new singleton registrations** — EventRouterService, AnalyticsWorkspaceService in AnalyticsServiceProvider.
+- **V37EventRouterWorkspaceTest** — 24 test cases covering EventRouterService (all providers constant, enable/disable, category routes, deny list, allow list, cost optimization with priority awareness, routing summary, rule validation for unknown providers and empty defaults, route with reasoning, shouldSendTo, cache operations) and AnalyticsWorkspaceService (enable/disable, overview with full summary, empty workspace, engagement score, top events sorting, workspace comparison by engagement, config summary, record event when disabled).
+
+### Changed
+
+- **Version sweep** — 36.0.0 → 37.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge, CHANGELOG, ToC, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`.
+
 ## [36.0.0] - 2026-08-12
 
 ### Added

@@ -5088,5 +5088,114 @@ return [
             ],
             'override_defaults' => env('ANALYTICS_SCHEDULER_OVERRIDE_DEFAULTS', false),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Router — Provider-Aware Destination Routing (v37.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Segment/RudderStack-style destination filtering. Determines which
+        | analytics providers should receive a given event based on configurable
+        | routing rules:
+        |
+        | - category_routes: Route entire event categories to specific providers
+        |   e.g., only send ecommerce events to GA4 + Meta Pixel
+        | - pattern_rules: Glob/regex patterns for event name matching
+        | - priority_routes: Map priority levels to provider subsets
+        | - deny_list: Hard-block specific events from specific providers
+        | - allow_list: Restrict specific events to only these providers
+        | - cost_optimized: Automatically exclude expensive providers for low-priority events
+        | - default_providers: Fallback when no rules match (null = all enabled)
+        |
+        | The router is consulted before dispatch. Events routed to an empty
+        | provider list are silently dropped (by design for cost control).
+        |
+        */
+        'event_router' => [
+            'enabled' => env('ANALYTICS_EVENT_ROUTER_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_EVENT_ROUTER_CACHE_TTL', 300), // 5 minutes
+
+            // Category-based routing: category => providers
+            'category_routes' => [
+                // 'ecommerce' => ['ga4', 'meta_pixel', 'posthog'],
+                // 'saas' => ['ga4', 'posthog', 'mixpanel'],
+                // 'engagement' => ['ga4', 'posthog'],
+            ],
+
+            // Pattern-based routing: glob or regex patterns
+            'pattern_rules' => [
+                // ['pattern' => 'scroll_*', 'providers' => ['ga4'], 'type' => 'glob'],
+                // ['pattern' => '/^ab_/', 'providers' => ['posthog', 'mixpanel'], 'type' => 'regex'],
+            ],
+
+            // Priority-based routing: priority => providers
+            'priority_routes' => [
+                // 'critical' => ['ga4', 'meta_pixel', 'posthog', 'webhook'],
+                // 'normal' => ['ga4', 'posthog'],
+                // 'low' => ['ga4'],
+                // 'background' => [],
+            ],
+
+            // Cost optimization: exclude expensive providers for low-priority events
+            'cost_optimized' => env('ANALYTICS_EVENT_ROUTER_COST_OPTIMIZED', false),
+            'cost_threshold' => (float) env('ANALYTICS_EVENT_ROUTER_COST_THRESHOLD', 0.5),
+
+            // Deny list: event_name => providers to block
+            'deny_list' => [
+                // 'scroll_depth' => ['meta_pixel', 'tiktok'],
+                // 'hover' => ['posthog'],
+            ],
+
+            // Allow list: event_name => providers to restrict to
+            'allow_list' => [
+                // 'purchase' => ['ga4', 'meta_pixel'],
+            ],
+
+            // Default providers when no rules match (null = all enabled providers)
+            'default_providers' => null,
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Workspace Analytics — Multi-Tenant KPI Rollups (v37.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Per-workspace (tenant) analytics aggregation for multi-tenant SaaS
+        | dashboards. Computes workspace-scoped metrics:
+        | - DAU/WAU/MAU active users
+        | - Event volume and top events
+        | - Revenue totals (MRR, one-time)
+        | - Funnel conversion rates (configurable per workspace)
+        | - Engagement score (events per active user)
+        |
+        | All data is cache-backed. No database required.
+        |
+        */
+        'workspace' => [
+            'enabled' => env('ANALYTICS_WORKSPACE_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_WORKSPACE_CACHE_PREFIX', 'zb_workspace_'),
+            'cache_ttl' => (int) env('ANALYTICS_WORKSPACE_CACHE_TTL', 3600), // 1 hour
+            'max_events_per_summary' => (int) env('ANALYTICS_WORKSPACE_MAX_EVENTS', 1000),
+
+            // Events counted for engagement scoring
+            'engagement_events' => [
+                'page_view', 'click', 'scroll_depth', 'feature_used',
+                'search', 'form_start', 'form_submit', 'share', 'feedback',
+            ],
+
+            // Workspace funnel definitions
+            'funnels' => [
+                'signup_funnel' => [
+                    'name' => 'Signup Funnel',
+                    'steps' => ['page_view', 'sign_up', 'email_verified', 'start_trial', 'subscribe'],
+                    'weights' => [0.2, 0.3, 0.1, 0.2, 0.2],
+                ],
+                'activation_funnel' => [
+                    'name' => 'Activation Funnel',
+                    'steps' => ['sign_up', 'feature_used', 'onboarding_completed'],
+                    'weights' => [0.3, 0.4, 0.3],
+                ],
+            ],
+        ],
     ],
 ];

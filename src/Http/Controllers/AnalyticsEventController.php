@@ -10881,4 +10881,179 @@ final class AnalyticsEventController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Router Endpoints (v37.0.0) ────────────────────────────────
+
+    /**
+     * Get the event routing configuration summary.
+     */
+    public function eventRouterSummary(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventRouterService::class);
+
+            return response()->json($service->getRoutingSummary());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate event routing rules for misconfigurations.
+     */
+    public function eventRouterValidate(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventRouterService::class);
+
+            return response()->json($service->validateRules());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all supported provider identifiers.
+     */
+    public function eventRouterProviders(): JsonResponse
+    {
+        return response()->json([
+            'providers' => \ZeroBoiler\Analytics\Services\EventRouterService::allProviders(),
+        ]);
+    }
+
+    // ─── Workspace Analytics Endpoints (v37.0.0) ────────────────────────
+
+    /**
+     * Get the full workspace analytics overview.
+     */
+    public function workspaceOverview(Request $request, string $workspaceId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            return response()->json($service->getOverview($workspaceId));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get active users (DAU/WAU/MAU) for a workspace.
+     */
+    public function workspaceActiveUsers(Request $request, string $workspaceId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            $days = (int) ($request->query('days', 1));
+
+            return response()->json([
+                'workspace_id' => $workspaceId,
+                'days' => $days,
+                'active_users' => $service->getActiveUsers($workspaceId, $days),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top events for a workspace.
+     */
+    public function workspaceTopEvents(Request $request, string $workspaceId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            $limit = (int) ($request->query('limit', 10));
+
+            return response()->json([
+                'workspace_id' => $workspaceId,
+                'top_events' => $service->getTopEvents($workspaceId, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get funnel conversion rates for a workspace.
+     */
+    public function workspaceFunnels(Request $request, string $workspaceId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            $overview = $service->getOverview($workspaceId);
+
+            return response()->json([
+                'workspace_id' => $workspaceId,
+                'funnels' => $overview['funnels'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get revenue totals for a workspace.
+     */
+    public function workspaceRevenue(Request $request, string $workspaceId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            return response()->json([
+                'workspace_id' => $workspaceId,
+                'revenue' => $service->getRevenueTotals($workspaceId),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compare metrics across multiple workspaces.
+     */
+    public function workspaceCompare(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsWorkspaceService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json(['error' => 'Workspace analytics is not enabled'], 404);
+            }
+
+            $workspaceIds = $request->input('workspaces', []);
+
+            if (! is_array($workspaceIds) || $workspaceIds === []) {
+                return response()->json(['error' => 'Missing "workspaces" array in request body'], 422);
+            }
+
+            return response()->json($service->compareWorkspaces($workspaceIds));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

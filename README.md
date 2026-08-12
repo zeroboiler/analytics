@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-36.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-37.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v37.0.0](#whats-new-in-v37000)
 +- [What's New in v36.0.0](#whats-new-in-v36000)
 +- [What's New in v35.0.0](#whats-new-in-v35000)
 +- [What's New in v33.0.0](#whats-new-in-v33000)
@@ -2767,6 +2768,57 @@ php artisan migrate --path=vendor/zeroboiler/analytics/database/migrations
 - `src/Models/AnalyticsEventModel.php`
 - `database/migrations/2026_08_12_000000_create_analytics_events_table.php`
 - `tests/V300EventStorePersistentStorageTest.php` (23 test cases)
+
+## What's New in v37.0.0
+
+### Event Router Service — Provider-Aware Destination Routing
+Segment/RudderStack-style destination filtering. Route events to specific analytics providers based on configurable rules:
+- **Category routes**: Send all ecommerce events only to GA4 + Meta Pixel
+- **Pattern rules**: Glob and regex event name matching
+- **Priority routes**: Critical events → all providers, background → none
+- **Cost optimization**: Automatically skip expensive providers for low-priority events
+- **Deny/Allow lists**: Per-event provider control
+
+```php
+// Config example
+'event_router' => [
+    'enabled' => true,
+    'category_routes' => [
+        'ecommerce' => ['ga4', 'meta_pixel', 'posthog'],
+        'saas' => ['ga4', 'posthog', 'mixpanel'],
+    ],
+    'cost_optimized' => true,
+    'deny_list' => [
+        'scroll_depth' => ['meta_pixel', 'tiktok'],
+    ],
+],
+```
+
+### Analytics Workspace Service — Multi-Tenant KPI Rollups
+Per-workspace (tenant) analytics aggregation for multi-tenant SaaS dashboards:
+- **DAU/WAU/MAU** active user counts
+- **Top events** ranking by volume
+- **Revenue totals** (MRR + one-time)
+- **Funnel conversion rates** (configurable per workspace)
+- **Engagement score** (events per active user, 0-100 scale)
+- **Workspace comparison** (sorted by engagement)
+
+```php
+$workspace = app(AnalyticsWorkspaceService::class);
+$overview = $workspace->getOverview('workspace-123');
+// Returns: active_users, total_events, top_events, engagement_score, funnels, revenue
+```
+
+### 9 New API Endpoints
+- `GET /api/analytics/router/summary` — routing configuration
+- `GET /api/analytics/router/validate` — rule validation
+- `GET /api/analytics/router/providers` — all supported providers
+- `GET /api/analytics/workspace/{id}` — full workspace overview
+- `GET /api/analytics/workspace/{id}/active-users` — DAU/WAU/MAU
+- `GET /api/analytics/workspace/{id}/top-events` — ranked events
+- `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
+- `GET /api/analytics/workspace/{id}/revenue` — revenue totals
+- `POST /api/analytics/workspace/compare` — multi-workspace comparison
 
 ## Quick Start
 
