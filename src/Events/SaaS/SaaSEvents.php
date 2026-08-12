@@ -686,6 +686,39 @@ final class SaaSEvents
                 'mixpanel' => 'Product Analytics',
                 'amplitude' => 'Product Analytics',
             ],
+            // API telemetry (v27.0.0)
+            'api_rate_limited' => [
+                'name' => 'api_rate_limited',
+                'class' => ApiRateLimitedEvent::class,
+                'ga4' => 'api_rate_limited',
+                'meta' => null,
+                'posthog' => 'api_rate_limited',
+                'plausible' => null,
+                'mixpanel' => 'API Rate Limited',
+                'amplitude' => 'API Rate Limited',
+            ],
+            // Webhook delivery monitoring (v27.0.0)
+            'webhook_delivered' => [
+                'name' => 'webhook_delivered',
+                'class' => WebhookDeliveredEvent::class,
+                'ga4' => 'webhook_delivered',
+                'meta' => null,
+                'posthog' => 'webhook_delivered',
+                'plausible' => null,
+                'mixpanel' => 'Webhook Delivered',
+                'amplitude' => 'Webhook Delivered',
+            ],
+            // Integration engagement tracking (v27.0.0)
+            'integration_used' => [
+                'name' => 'integration_used',
+                'class' => IntegrationUsedEvent::class,
+                'ga4' => 'integration_used',
+                'meta' => null,
+                'posthog' => 'integration_used',
+                'plausible' => null,
+                'mixpanel' => 'Integration Used',
+                'amplitude' => 'Integration Used',
+            ],
         ];
 
         return self::$catalog;

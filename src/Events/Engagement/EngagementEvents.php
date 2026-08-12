@@ -8,6 +8,9 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Events\Engagement;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\Engagement\CopyTextEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ElementVisibilityEvent;
+use ZeroBoiler\Analytics\Events\Engagement\HoverEvent;
 use ZeroBoiler\Analytics\Events\Engagement\OnboardingCompletedEvent;
 
 /**
@@ -359,6 +362,39 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Performance Score',
                 'amplitude' => 'Performance Score',
+            ],
+            // Element visibility via IntersectionObserver (v27.0.0)
+            'element_visibility' => [
+                'name' => 'element_visibility',
+                'class' => ElementVisibilityEvent::class,
+                'ga4' => 'element_visibility',
+                'meta' => null,
+                'posthog' => 'element_visibility',
+                'plausible' => null,
+                'mixpanel' => 'Element Visibility',
+                'amplitude' => 'Element Visibility',
+            ],
+            // Text copy/cut tracking (v27.0.0)
+            'copy_text' => [
+                'name' => 'copy_text',
+                'class' => CopyTextEvent::class,
+                'ga4' => 'copy_text',
+                'meta' => null,
+                'posthog' => 'copy_text',
+                'plausible' => null,
+                'mixpanel' => 'Copy Text',
+                'amplitude' => 'Copy Text',
+            ],
+            // Element hover/focus tracking (v27.0.0)
+            'hover' => [
+                'name' => 'hover',
+                'class' => HoverEvent::class,
+                'ga4' => 'hover',
+                'meta' => null,
+                'posthog' => 'hover',
+                'plausible' => null,
+                'mixpanel' => 'Hover',
+                'amplitude' => 'Hover',
             ],
         ];
 

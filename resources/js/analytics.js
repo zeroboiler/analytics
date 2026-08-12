@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 26.0.0
+ * @version 27.0.0
  */
 
 let trackingId = null;
@@ -130,6 +130,9 @@ export function init(pageProps) {
  * @param {boolean} [options.scrollDepth=true] - Enable scroll depth tracking
  * @param {boolean} [options.offlineRecovery=true] - Enable offline event buffering
  * @param {boolean} [options.consentBanner=false] - Show consent banner if no consent
+ * @param {boolean} [options.elementVisibility=true] - Enable element visibility tracking (v27.0.0)
+ * @param {boolean} [options.copyTracking=true] - Enable text copy tracking (v27.0.0)
+ * @param {boolean} [options.hoverTracking=false] - Enable element hover tracking (v27.0.0)
  * @returns {function} Cleanup function — call on component unmount
  *
  * @example
@@ -146,6 +149,9 @@ export function initFullStack(pageProps, options = {}) {
     const errorCapture = options.errorCapture !== false;
     const scrollDepth = options.scrollDepth !== false;
     const offlineRecovery = options.offlineRecovery !== false;
+    const elementVisibility = options.elementVisibility !== false;
+    const copyTracking = options.copyTracking !== false;
+    const hoverTracking = options.hoverTracking === true;
 
     // Core initialization
     init(pageProps);
@@ -165,6 +171,21 @@ export function initFullStack(pageProps, options = {}) {
     // Scroll depth tracking
     if (scrollDepth) {
         cleanups.push(initScrollDepthTracker());
+    }
+
+    // Element visibility tracking (v27.0.0)
+    if (elementVisibility) {
+        cleanups.push(initElementVisibilityTracker());
+    }
+
+    // Text copy tracking (v27.0.0)
+    if (copyTracking) {
+        cleanups.push(initCopyTracking());
+    }
+
+    // Element hover tracking (v27.0.0)
+    if (hoverTracking) {
+        cleanups.push(initHoverTracking());
     }
 
     // Offline recovery
@@ -376,7 +397,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-       return '26.0.0';
+       return '27.0.0';
 }
 
 /**
@@ -2255,6 +2276,224 @@ export function initWebVitals(options = {}) {
 }
 
 /**
+ * Initialize element visibility tracking using IntersectionObserver.
+ *
+ * Tracks when elements with `data-zb-track="visibility"` enter and leave
+ * the viewport. Fires `element_visibility` events with the element's
+ * identifier, visibility ratio, and optional section name.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {number} [options.threshold=0.5] - Visibility ratio threshold to trigger event (0.0-1.0)
+ * @param {number} [options.rootMargin='0px'] - IntersectionObserver rootMargin
+ * @param {boolean} [options.trackOnce=true] - Only fire 'visible' once per element per page load
+ * @param {string} [options.selector='[data-zb-track="visibility"]'] - CSS selector for tracked elements
+ * @returns {function} Cleanup function — call to disconnect the observer
+ *
+ * @example
+ * // HTML: <section data-zb-track="visibility" data-zb-id="pricing-table" data-zb-section="pricing">...</section>
+ * // JS:
+ * const cleanup = initElementVisibilityTracker({ threshold: 0.3, trackOnce: true });
+ * // Later:
+ * cleanup();
+ *
+ * @since 27.0.0
+ */
+export function initElementVisibilityTracker(options = {}) {
+    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+        return () => {};
+    }
+
+    const threshold = options.threshold ?? 0.5;
+    const rootMargin = options.rootMargin ?? '0px';
+    const trackOnce = options.trackOnce !== false;
+    const selector = options.selector || '[data-zb-track="visibility"]';
+
+    const seen = new Set();
+
+    const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            const el = entry.target;
+            const elementId = el.getAttribute('data-zb-id') || el.id || el.getAttribute('data-zb-track-key') || 'unknown';
+            const section = el.getAttribute('data-zb-section') || null;
+            const elementClass = el.className || null;
+
+            if (entry.isIntersecting) {
+                const visibilityRatio = entry.intersectionRatio;
+
+                if (trackOnce && seen.has(elementId)) continue;
+                if (trackOnce) seen.add(elementId);
+
+                trackEvent('element_visibility', {
+                    element_id: elementId,
+                    visibility_state: 'visible',
+                    visibility_ratio: Math.round(visibilityRatio * 100) / 100,
+                    element_class: elementClass,
+                    section: section,
+                    page_path: window.location.pathname,
+                });
+            } else if (!trackOnce) {
+                trackEvent('element_visibility', {
+                    element_id: elementId,
+                    visibility_state: 'hidden',
+                    visibility_ratio: Math.round(entry.intersectionRatio * 100) / 100,
+                    element_class: el.className || null,
+                    section: section,
+                    page_path: window.location.pathname,
+                });
+            }
+        }
+    }, {
+        threshold: threshold,
+        rootMargin: rootMargin,
+    });
+
+    const elements = document.querySelectorAll(selector);
+    for (const el of elements) {
+        observer.observe(el);
+    }
+
+    return () => {
+        observer.disconnect();
+        seen.clear();
+    };
+}
+
+/**
+ * Initialize text copy/cut tracking.
+ *
+ * Fires `copy_text` events when users copy text from elements with
+ * `data-zb-track="copy"`. Useful for measuring content value,
+ * promo code copying, and code snippet usage.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {number} [options.maxLength=200] - Max length of copied text to include
+ * @param {string} [options.selector='[data-zb-track="copy"]'] - CSS selector for tracked elements
+ * @returns {function} Cleanup function — call to remove event listener
+ *
+ * @example
+ * // HTML: <code data-zb-track="copy" data-zb-id="api-key">sk-1234...</code>
+ * // HTML: <div data-zb-track="copy" data-zb-section="pricing">Standard — $29/mo</div>
+ * const cleanup = initCopyTracking();
+ *
+ * @since 27.0.0
+ */
+export function initCopyTracking(options = {}) {
+    if (typeof window === 'undefined' || !navigator.clipboard) {
+        return () => {};
+    }
+
+    const maxLength = options.maxLength || 200;
+    const selector = options.selector || '[data-zb-track="copy"]';
+
+    function handleCopy(e) {
+        const target = e.target?.closest?.(selector);
+        if (!target) return;
+
+        const elementId = target.getAttribute('data-zb-id') || target.id || 'unknown';
+        const elementType = target.tagName?.toLowerCase() || null;
+        const section = target.getAttribute('data-zb-section') || null;
+
+        // Get selected text
+        const selection = window.getSelection();
+        const selectedText = selection?.toString() || '';
+        const selectionLength = selectedText.length;
+
+        trackEvent('copy_text', {
+            copied_text: selectedText.substring(0, maxLength),
+            element_type: elementType,
+            element_id: elementId,
+            selection_length: selectionLength,
+            page_path: window.location.pathname,
+            ...(section ? { section } : {}),
+        });
+    }
+
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+        document.removeEventListener('copy', handleCopy);
+    };
+}
+
+/**
+ * Initialize element hover tracking.
+ *
+ * Fires `hover` events when users hover over interactive elements with
+ * `data-zb-track="hover"` for a minimum duration. Useful for measuring
+ * feature discovery and CTA engagement signals.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {number} [options.minDurationMs=500] - Minimum hover duration to fire event
+ * @param {string} [options.selector='[data-zb-track="hover"]'] - CSS selector for tracked elements
+ * @returns {function} Cleanup function — call to remove event listeners
+ *
+ * @example
+ * // HTML: <button data-zb-track="hover" data-zb-id="cta-upgrade" data-zb-label="Upgrade Now">...</button>
+ * const cleanup = initHoverTracking({ minDurationMs: 300 });
+ *
+ * @since 27.0.0
+ */
+export function initHoverTracking(options = {}) {
+    if (typeof window === 'undefined') {
+        return () => {};
+    }
+
+    const minDurationMs = options.minDurationMs || 500;
+    const selector = options.selector || '[data-zb-track="hover"]';
+
+    const hoverTimers = new Map();
+
+    function handleMouseEnter(e) {
+        const target = e.target?.closest?.(selector);
+        if (!target) return;
+
+        const elementId = target.getAttribute('data-zb-id') || target.id || 'unknown';
+        if (hoverTimers.has(elementId)) return;
+
+        const startTime = Date.now();
+        hoverTimers.set(elementId, startTime);
+    }
+
+    function handleMouseLeave(e) {
+        const target = e.target?.closest?.(selector);
+        if (!target) return;
+
+        const elementId = target.getAttribute('data-zb-id') || target.id || 'unknown';
+        const startTime = hoverTimers.get(elementId);
+        if (!startTime) return;
+
+        hoverTimers.delete(elementId);
+
+        const duration = Date.now() - startTime;
+        if (duration < minDurationMs) return;
+
+        const elementType = target.tagName?.toLowerCase() || null;
+        const elementClass = target.className || null;
+        const label = target.getAttribute('data-zb-label') ||
+                      target.getAttribute('aria-label') ||
+                      target.textContent?.trim()?.substring(0, 50) || null;
+
+        trackEvent('hover', {
+            element_id: elementId,
+            element_class: elementClass,
+            element_type: elementType,
+            label: label,
+            hover_duration_ms: duration,
+            page_path: window.location.pathname,
+        });
+    }
+
+    document.addEventListener('mouseenter', handleMouseEnter, true);
+    document.addEventListener('mouseleave', handleMouseLeave, true);
+
+    return () => {
+        document.removeEventListener('mouseenter', handleMouseEnter, true);
+        document.removeEventListener('mouseleave', handleMouseLeave, true);
+        hoverTimers.clear();
+    };
+}
+
+/**
  * Track a timing event using the Performance API.
  *
  * @param {string} name - Timing name
@@ -3980,7 +4219,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-       return '26.0.0';
+        return '27.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────

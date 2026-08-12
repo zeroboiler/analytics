@@ -655,6 +655,46 @@ export function initWebVitals(options?: {
   sendToServer?: boolean;
 }): void;
 
+/**
+ * Initialize element visibility tracking using IntersectionObserver (v27.0.0).
+ *
+ * Tracks elements with data-zb-track="visibility".
+ *
+ * @returns Cleanup function to disconnect the observer.
+ */
+export function initElementVisibilityTracker(options?: {
+  threshold?: number;
+  rootMargin?: string;
+  trackOnce?: boolean;
+  selector?: string;
+}): () => void;
+
+/**
+ * Initialize text copy tracking (v27.0.0).
+ *
+ * Fires copy_text events when users copy text from elements with
+ * data-zb-track="copy".
+ *
+ * @returns Cleanup function to remove event listener.
+ */
+export function initCopyTracking(options?: {
+  maxLength?: number;
+  selector?: string;
+}): () => void;
+
+/**
+ * Initialize element hover tracking (v27.0.0).
+ *
+ * Fires hover events when users hover over elements with
+ * data-zb-track="hover" for a minimum duration.
+ *
+ * @returns Cleanup function to remove event listeners.
+ */
+export function initHoverTracking(options?: {
+  minDurationMs?: number;
+  selector?: string;
+}): () => void;
+
 export interface WebVitalMetric {
   name: string;
   value: number;

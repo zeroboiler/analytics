@@ -2,6 +2,27 @@
 
 All notable changes to the package will be documented in this file.
 
+## [27.0.0] - 2026-08-12
+
+### Added
+
+- **Element Visibility Tracking** — `ElementVisibilityEvent` (PHP) + `initElementVisibilityTracker()` (JS) tracks element impressions via IntersectionObserver. Fires `element_visibility` events with element ID, visibility ratio, section, and page path. Uses `data-zb-track="visibility"` HTML attributes with `data-zb-id` and `data-zb-section` for declarative tracking. Full multi-provider catalog mapping (GA4, PostHog, Mixpanel, Amplitude).
+- **Copy Text Tracking** — `CopyTextEvent` (PHP) + `initCopyTracking()` (JS) tracks when users copy text from tracked elements. Captures copied text (truncated to 200 chars), element type, element ID, selection length, and page path. Uses `data-zb-track="copy"` HTML attribute. Essential for measuring content value and promo code engagement.
+- **Element Hover Tracking** — `HoverEvent` (PHP) + `initHoverTracking()` (JS) tracks when users hover over interactive elements for a configurable minimum duration (default 500ms). Captures element ID, type, class, label, hover duration, and page path. Uses `data-zb-track="hover"` HTML attribute with `data-zb-label`. Key signal for feature discovery and CTA engagement measurement.
+- **API Rate Limited Event** — `ApiRateLimitedEvent` tracks when API rate limits are hit. Captures endpoint, HTTP method, limit threshold, rate limit window, and user ID. Critical telemetry for identifying power users and upgrade opportunities.
+- **Webhook Delivered Event** — `WebhookDeliveredEvent` monitors webhook delivery outcomes (success, failed, timeout, retrying). Captures sanitized URL (credentials stripped), HTTP status code, event type, response time, and attempt number. Essential for integration health monitoring and SLA compliance.
+- **Integration Used Event** — `IntegrationUsedEvent` tracks ongoing integration engagement beyond initial connection. Captures integration name, action performed, result, response time, and user ID. Complements `IntegrationConnectedEvent` for full integration lifecycle analytics.
+- **3 new Engagement catalog entries** — `element_visibility`, `copy_text`, `hover` with full 6-provider mappings (GA4, PostHog, Plausible null, Mixpanel, Amplitude). Plausible marked null as these are custom events not natively supported.
+- **3 new SaaS catalog entries** — `api_rate_limited`, `webhook_delivered`, `integration_used` with full 6-provider mappings. Meta Pixel marked null (custom server-side telemetry events).
+- **`initFullStack()` enhancements** — Three new options: `elementVisibility` (default: true), `copyTracking` (default: true), `hoverTracking` (default: false). Automatically initializes the new JS trackers alongside existing scroll depth, web vitals, and error capture.
+- **`data-zb-track` attribute system** — Declarative HTML attributes for element analytics: `data-zb-track="visibility|copy|hover"`, `data-zb-id` (element identifier), `data-zb-section` (semantic section), `data-zb-label` (accessible label for hover), `data-zb-track-key` (fallback element key).
+- **V2700Test** — 45+ test cases covering all 6 new event classes (construction, parameter correctness, null filtering, value truncation, URL sanitization, readonly enforcement), catalog integrity (entry existence, category assignment, provider mapping coverage, validation pass), and version sweep.
+
+### Changed
+
+- **Version sweep** — 26.0.0 → 27.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), all Svelte composables (`usePerformanceTracker.svelte.js`, `useAnalytics.svelte.js`, `useAnalyticsConfig.svelte.js`), README badge, CHANGELOG.
+- **Event catalog expanded** — Total catalog size increased by 6 events (3 engagement + 3 SaaS).
+
 ## [26.0.0] - 2026-08-12
 
 ### Added
