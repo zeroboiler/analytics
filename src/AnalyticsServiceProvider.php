@@ -291,6 +291,9 @@ use ZeroBoiler\Analytics\Services\TrafficSpikeShield;
 use ZeroBoiler\Analytics\Services\EventReplaySimulator;
 use ZeroBoiler\Analytics\Services\EventDeprecationService;
 use ZeroBoiler\Analytics\Services\EventVersioningService;
+use ZeroBoiler\Analytics\Services\EventFlowAnalysisService;
+use ZeroBoiler\Analytics\Services\AnalyticsDataQualityFirewall;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsFlowCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -298,7 +301,7 @@ use ZeroBoiler\Analytics\Services\EventVersioningService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 45.0.0
+ * @version 46.0.0
  *
  * @since 1.0.0
  */
@@ -2815,9 +2818,25 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Versioning Service (v44.0.0) — catalog-level version metadata
         $this->app->singleton(EventVersioningService::class);
 
-        // Event Sampling Strategy Service (v45.0.0) — config-driven sampling with 3 strategies
+        // Event Sampling Strategy Service (v46.0.0) — config-driven sampling with 3 strategies
         $this->app->singleton(EventSamplingStrategyService::class, function (Application $app): EventSamplingStrategyService {
             return new EventSamplingStrategyService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Flow Analysis Service (v46.0.0) — real-time user flow/journey analysis
+        $this->app->singleton(EventFlowAnalysisService::class, function (Application $app): EventFlowAnalysisService {
+            return new EventFlowAnalysisService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Data Quality Firewall (v46.0.0) — pre-dispatch quality scoring
+        $this->app->singleton(AnalyticsDataQualityFirewall::class, function (Application $app): AnalyticsDataQualityFirewall {
+            return new AnalyticsDataQualityFirewall(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
@@ -2873,6 +2892,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSnippetCommand::class,
                 AnalyticsSimulationCommand::class,
                 AnalyticsSamplingCommand::class,
+                AnalyticsFlowCommand::class,
             ]);
         }
 

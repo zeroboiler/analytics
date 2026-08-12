@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks feature flag evaluations for experiment analysis and rollout monitoring.
  * Links flag evaluation results to user segments and contexts.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class FeatureFlagEvaluatedEvent extends AnalyticsEvent
 {

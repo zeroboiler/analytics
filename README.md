@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-45.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-46.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v46.0.0](#whats-new-in-v46000)
 - [What's New in v45.0.0](#whats-new-in-v45000)
 - [What's New in v44.0.0](#whats-new-in-v44000)
 - [What's New in v43.0.0](#whats-new-in-v43000)
@@ -123,6 +124,56 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v46.0.0
+
+### 🔀 Event Flow Analysis Service
+- **EventFlowAnalysisService** — Real-time user event flow/journey analysis (Amplitude Pathfinder, Mixpanel Journeys pattern)
+- Path tracking: Records event sequences per user/client with configurable max length and TTL
+- Common path detection: Top N-step paths ranked by frequency
+- Funnel drop-off analysis: Per-step conversion rates and drop-off percentages
+- Conversion path comparison: Compare paths of converters vs non-converters
+- Step timing analysis: Average/min/max time between consecutive events
+- Transition tracking: Automatic step-to-step transition counting
+- Config: `zeroboiler.analytics.event_flow`
+
+### 🛡️ Analytics Data Quality Firewall
+- **AnalyticsDataQualityFirewall** — Pre-dispatch quality scoring with auto-quarantine
+- 4 quality checks: Completeness (required params), Format (naming conventions), Velocity (rate limiting), Consistency (value validation)
+- Quality scores 0.0–1.0 with configurable quarantine (default: 0.5) and drop (default: 0.2) thresholds
+- Event-specific required parameter rules (e.g., `purchase` requires `transaction_id`, `value`, `currency`)
+- Reserved parameter prefix detection (`_ga_`, `_fb_`, `_meta_`, `_sentry_`)
+- Per-event velocity limiting to prevent flooding
+- Config: `zeroboiler.analytics.quality_firewall`
+
+### 📊 Provider Event Compatibility Matrix
+- **ProviderEventCompatibilityMatrix** — Comprehensive gap analysis across all 6 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude)
+- Full 2D compatibility matrix: event × provider → mapped/null
+- Per-provider coverage percentage with unmapped event lists
+- Provider readiness scoring (0–100) based on coverage, specificity, and category breadth
+- Event popularity ranking (most to least provider-supported events)
+- Prioritized gap closure recommendations with category-based priority weights
+- Config: `zeroboiler.analytics.provider_matrix`
+
+### 🛠️ AnalyticsFlowCommand
+- New `zb:analytics:flow` artisan command with 5 modes: `flow`, `quality`, `matrix`, `evaluate`, `summary`
+- `--mode=flow` — Event flow analysis with top paths and funnel drop-off (`--funnel=step1,step2,step3`)
+- `--mode=quality` — Data quality firewall metrics (evaluated, passed, quarantined, dropped)
+- `--mode=matrix` — Provider coverage, readiness scores, gap recommendations (`--provider=ga4`)
+- `--mode=evaluate` — Single event quality evaluation (`--event=purchase`)
+- `--mode=summary` — Overview of all three services with catalog stats
+- `--json` output for all modes
+
+### ⚙️ New Config Sections
+- `event_flow` — enabled, max_path_length, path_ttl, top_paths_limit, cache_prefix, metrics_ttl
+- `quality_firewall` — enabled, quarantine_threshold, drop_threshold, enforce_quarantine, enforce_drop, velocity settings, required params
+- `provider_matrix` — enabled, cache_prefix, cache_ttl
+
+### 📦 ServiceProvider Registration
+- EventFlowAnalysisService registered as singleton
+- AnalyticsDataQualityFirewall registered as singleton
+- ProviderEventCompatibilityMatrix already registered (existing)
+- AnalyticsFlowCommand registered in console commands
 
 ## What's New in v45.0.0
 

@@ -8,347 +8,404 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
+use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Psr\SimpleCache\InvalidArgumentException;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
- * Cross-provider event compatibility scoring matrix.
+ * Provider event compatibility matrix — comprehensive gap analysis across all providers.
  *
- * Analyzes the event catalog to determine how well events are mapped
- * across all configured analytics providers. Provides:
+ * Analyzes which events from the EventCatalog are supported by which providers
+ * and identifies gaps where events are not mapped to a specific provider.
  *
- * - Per-event compatibility scores (0-100) across providers
- * - Category-level coverage analysis
- * - Provider gap detection (events missing from a provider)
- * - Coverage completeness score for the entire catalog
- * - Recommendations for improving provider coverage
+ * Provides:
+ * - Per-provider coverage percentage
+ * - Event-level gap analysis (which events are missing from which providers)
+ * - Provider readiness scoring (how well each provider covers the full catalog)
+ * - Event popularity ranking (which events have the most/least provider support)
+ * - Gap closure recommendations (prioritized list of events to add mappings for)
  *
- * A compatibility score of 100 means the event is fully mapped
- * to all providers. Lower scores indicate missing or null mappings.
+ * Config: `zeroboiler.analytics.provider_matrix`
  *
- * @since 21.0.0
+ * @since 46.0.0
  */
 final class ProviderEventCompatibilityMatrix
 {
-    /** @var list<string> All supported provider keys */
-    private const PROVIDERS = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+    private readonly bool $enabled;
 
-    /** @var array<string, int> Provider weights for scoring (1-10, higher = more important) */
-    private const PROVIDER_WEIGHTS = [
-        'ga4' => 10,
-        'meta' => 8,
-        'posthog' => 7,
-        'plausible' => 5,
-        'mixpanel' => 6,
-        'amplitude' => 6,
-        'tiktok' => 4,
-        'linkedin' => 4,
-    ];
+    private readonly string $cachePrefix;
+
+    private readonly int $cacheTtl;
+
+    private CacheRepository $cache;
+
+    /** @var list<string> All supported providers */
+    private const PROVIDERS = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude'];
 
     /**
-     * Get the full compatibility matrix for all catalog events.
+     * Create a new ProviderEventCompatibilityMatrix.
      *
-     * @return array{events: array<string, array{score: float, providers: array<string, string|null>, gaps: list<string>}>, summary: array{total_events: int, avg_score: float, perfect_coverage: int, provider_coverage: array<string, float>}, recommendations: list<string>}
+     * @param  CacheRepository  $cache  Cache repository for computed results
+     * @param  ConfigRepository  $config  Application config repository
      */
-    public function analyze(): array
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
-        $allEvents = EventCatalog::all();
-        $eventAnalysis = [];
-        $totalScore = 0.0;
-        $perfectCoverage = 0;
-        $providerMappedCounts = array_fill_keys(self::PROVIDERS, 0);
-        $providerTotalCounts = array_fill_keys(self::PROVIDERS, 0);
+        $this->cache = $cache;
 
-        foreach ($allEvents as $name => $entry) {
-            $score = 0.0;
-            $maxScore = 0.0;
-            $gaps = [];
-            $providerMappings = [];
+        $matrixConfig = $config->get('zeroboiler.analytics.provider_matrix', []);
+        /** @var array{enabled?: bool, cache_prefix?: string, cache_ttl?: int} $matrixConfig */
 
-            foreach (self::PROVIDERS as $provider) {
-                $providerTotalCounts[$provider]++;
-                $mapping = $entry[$provider] ?? null;
-                $providerMappings[$provider] = $mapping;
+        $this->enabled = (bool) ($matrixConfig['enabled'] ?? true);
+        $this->cachePrefix = (string) ($matrixConfig['cache_prefix'] ?? 'zb_pem_');
+        $this->cacheTtl = (int) ($matrixConfig['cache_ttl'] ?? 3600);
+    }
 
-                $weight = self::PROVIDER_WEIGHTS[$provider] ?? 1;
-                $maxScore += $weight;
+    /**
+     * Get the full compatibility matrix.
+     *
+     * Returns a 2D matrix: event_name × provider → mapped|null.
+     *
+     * @return array{events: int, providers: list<string>, matrix: array<string, array<string, string|null>>}
+     */
+    public function getMatrix(): array
+    {
+        $catalog = EventCatalog::all();
+        $matrix = [];
 
-                if ($mapping !== null && $mapping !== '') {
-                    $score += $weight;
-                    $providerMappedCounts[$provider]++;
-                } else {
-                    $gaps[] = $provider;
-                }
-            }
-
-            $eventScore = $maxScore > 0 ? round(($score / $maxScore) * 100, 2) : 0.0;
-            $totalScore += $eventScore;
-
-            if ($eventScore === 100.0) {
-                $perfectCoverage++;
-            }
-
-            $eventAnalysis[$name] = [
-                'score' => $eventScore,
-                'providers' => $providerMappings,
-                'gaps' => $gaps,
+        foreach ($catalog as $eventName => $entry) {
+            $matrix[$eventName] = [
+                'ga4' => $entry['ga4'] ?? $eventName,
+                'meta' => $entry['meta'] ?? null,
+                'posthog' => $entry['posthog'] ?? $eventName,
+                'plausible' => $entry['plausible'] ?? null,
+                'mixpanel' => $entry['mixpanel'] ?? null,
+                'amplitude' => $entry['amplitude'] ?? null,
             ];
         }
 
-        $totalEvents = count($allEvents);
-        $avgScore = $totalEvents > 0 ? round($totalScore / $totalEvents, 2) : 0.0;
-
-        // Provider coverage percentages
-        $providerCoverage = [];
-        foreach (self::PROVIDERS as $provider) {
-            $total = $providerTotalCounts[$provider];
-            $mapped = $providerMappedCounts[$provider];
-            $providerCoverage[$provider] = $total > 0 ? round(($mapped / $total) * 100, 2) : 0.0;
-        }
-
-        // Generate recommendations
-        $recommendations = $this->generateRecommendations($eventAnalysis, $providerCoverage);
-
         return [
-            'events' => $eventAnalysis,
-            'summary' => [
-                'total_events' => $totalEvents,
-                'avg_score' => $avgScore,
-                'perfect_coverage' => $perfectCoverage,
-                'perfect_coverage_pct' => $totalEvents > 0 ? round(($perfectCoverage / $totalEvents) * 100, 2) : 0.0,
-                'provider_coverage' => $providerCoverage,
-            ],
-            'recommendations' => $recommendations,
+            'events' => count($matrix),
+            'providers' => self::PROVIDERS,
+            'matrix' => $matrix,
         ];
     }
 
     /**
-     * Get the compatibility score for a single event.
+     * Get per-provider coverage percentage and stats.
      *
-     * @return array{score: float, providers: array<string, string|null>, gaps: list<string>, weighted_breakdown: array<string, array{mapped: bool, weight: int, mapping: string|null}>}
+     * @return array<string, array{provider: string, total_events: int, mapped_count: int, coverage_pct: float, unmapped: list<string>}>
      */
-    public function eventScore(string $eventName): array
+    public function getProviderCoverage(): array
+    {
+        try {
+            $cacheKey = $this->cachePrefix . 'provider_coverage';
+
+            /** @var array<string, array{provider: string, total_events: int, mapped_count: int, coverage_pct: float, unmapped: list<string>}>|null $cached */
+            $cached = $this->cache->get($cacheKey, null);
+
+            if ($cached !== null) {
+                return $cached;
+            }
+        } catch (InvalidArgumentException) {
+            // Fall through to compute
+        }
+
+        $catalog = EventCatalog::all();
+        $totalEvents = count($catalog);
+        $coverage = [];
+
+        foreach (self::PROVIDERS as $provider) {
+            $mappedCount = 0;
+            $unmapped = [];
+
+            foreach ($catalog as $eventName => $entry) {
+                $mapped = $entry[$provider] ?? null;
+                if ($mapped !== null && $mapped !== '') {
+                    $mappedCount++;
+                } else {
+                    $unmapped[] = $eventName;
+                }
+            }
+
+            $coverage[$provider] = [
+                'provider' => $provider,
+                'total_events' => $totalEvents,
+                'mapped_count' => $mappedCount,
+                'coverage_pct' => $totalEvents > 0 ? round(($mappedCount / $totalEvents) * 100, 2) : 0.0,
+                'unmapped' => $unmapped,
+            ];
+        }
+
+        try {
+            $this->cache->put($this->cachePrefix . 'provider_coverage', $coverage, $this->cacheTtl);
+        } catch (InvalidArgumentException) {
+            // Ignore cache errors
+        }
+
+        return $coverage;
+    }
+
+    /**
+     * Analyze gaps for a specific event across all providers.
+     *
+     * @param  string  $eventName  The event name to analyze
+     * @return array{event: string, providers: array<string, string|null>, gap_count: int, has_ga4: bool, has_meta: bool, has_posthog: bool, has_plausible: bool, has_mixpanel: bool, has_amplitude: bool}
+     */
+    public function analyzeEventGaps(string $eventName): array
     {
         $entry = EventCatalog::get($eventName);
 
         if ($entry === null) {
             return [
-                'score' => 0.0,
+                'event' => $eventName,
                 'providers' => array_fill_keys(self::PROVIDERS, null),
-                'gaps' => self::PROVIDERS,
-                'weighted_breakdown' => [],
+                'gap_count' => count(self::PROVIDERS),
+                'has_ga4' => false,
+                'has_meta' => false,
+                'has_posthog' => false,
+                'has_plausible' => false,
+                'has_mixpanel' => false,
+                'has_amplitude' => false,
             ];
         }
 
-        $score = 0.0;
-        $maxScore = 0.0;
-        $gaps = [];
-        $providerMappings = [];
-        $weightedBreakdown = [];
+        $mappings = [];
+        $gapCount = 0;
 
         foreach (self::PROVIDERS as $provider) {
-            $mapping = $entry[$provider] ?? null;
-            $providerMappings[$provider] = $mapping;
-
-            $weight = self::PROVIDER_WEIGHTS[$provider] ?? 1;
-            $maxScore += $weight;
-
-            $isMapped = $mapping !== null && $mapping !== '';
-            if ($isMapped) {
-                $score += $weight;
-            } else {
-                $gaps[] = $provider;
+            $mapped = $entry[$provider] ?? null;
+            $mappings[$provider] = $mapped;
+            if ($mapped === null || $mapped === '') {
+                $gapCount++;
             }
-
-            $weightedBreakdown[$provider] = [
-                'mapped' => $isMapped,
-                'weight' => $weight,
-                'mapping' => $mapping,
-            ];
         }
 
         return [
-            'score' => $maxScore > 0 ? round(($score / $maxScore) * 100, 2) : 0.0,
-            'providers' => $providerMappings,
-            'gaps' => $gaps,
-            'weighted_breakdown' => $weightedBreakdown,
+            'event' => $eventName,
+            'providers' => $mappings,
+            'gap_count' => $gapCount,
+            'has_ga4' => ($entry['ga4'] ?? null) !== null,
+            'has_meta' => ($entry['meta'] ?? null) !== null,
+            'has_posthog' => ($entry['posthog'] ?? null) !== null,
+            'has_plausible' => ($entry['plausible'] ?? null) !== null,
+            'has_mixpanel' => ($entry['mixpanel'] ?? null) !== null,
+            'has_amplitude' => ($entry['amplitude'] ?? null) !== null,
         ];
     }
 
     /**
-     * Get compatibility analysis for a specific category.
+     * Get provider readiness scores — how production-ready each provider is.
      *
-     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'  $category
-     * @return array{category: string, total_events: int, avg_score: float, events: array<string, array{score: float, gaps: list<string>}>}
+     * Scores (0-100) based on:
+     * - Event coverage (40% weight)
+     * - Named mapping specificity (30% weight) — provider-specific names vs generic
+     * - Category coverage (30% weight) — events across all categories
+     *
+     * @return array{scores: array<string, array{provider: string, score: float, coverage_weight: float, specificity_weight: float, category_weight: float}>, recommendation: string}
      */
-    public function categoryScore(string $category): array
+    public function getReadinessScores(): array
     {
-        $events = EventCatalog::category($category);
+        $coverage = $this->getProviderCoverage();
+        $catalog = EventCatalog::all();
+        $totalEvents = count($catalog);
 
-        if ($events === []) {
-            return [
-                'category' => $category,
-                'total_events' => 0,
-                'avg_score' => 0.0,
-                'events' => [],
+        // Count events per category
+        $categoryCounts = [];
+        foreach ($catalog as $eventName => $entry) {
+            $cat = $entry['category'] ?? 'unknown';
+            $categoryCounts[$cat] = ($categoryCounts[$cat] ?? 0) + 1;
+        }
+        $totalCategories = count($categoryCounts);
+
+        $scores = [];
+
+        foreach (self::PROVIDERS as $provider) {
+            $providerData = $coverage[$provider] ?? [];
+            $mappedCount = $providerData['mapped_count'] ?? 0;
+
+            // Coverage weight (40%)
+            $coverageScore = $totalEvents > 0 ? ($mappedCount / $totalEvents) * 40 : 0;
+
+            // Specificity weight (30%) — events with provider-specific names
+            $specificCount = 0;
+            foreach ($catalog as $entry) {
+                $mapped = $entry[$provider] ?? null;
+                if ($mapped !== null && $mapped !== '' && $mapped !== $entry['name']) {
+                    $specificCount++;
+                }
+            }
+            $specificityScore = $mappedCount > 0 ? ($specificCount / $mappedCount) * 30 : 0;
+
+            // Category weight (30%) — at least one event per category
+            $coveredCategories = 0;
+            foreach ($categoryCounts as $cat => $count) {
+                $catEvents = EventCatalog::category($cat);
+                foreach ($catEvents as $entry) {
+                    $mapped = $entry[$provider] ?? null;
+                    if ($mapped !== null && $mapped !== '') {
+                        $coveredCategories++;
+                        break;
+                    }
+                }
+            }
+            $categoryScore = $totalCategories > 0 ? ($coveredCategories / $totalCategories) * 30 : 0;
+
+            $scores[$provider] = [
+                'provider' => $provider,
+                'score' => round($coverageScore + $specificityScore + $categoryScore, 2),
+                'coverage_weight' => round($coverageScore, 2),
+                'specificity_weight' => round($specificityScore, 2),
+                'category_weight' => round($categoryScore, 2),
             ];
         }
 
-        $totalScore = 0.0;
-        $eventScores = [];
+        // Find best provider
+        $bestProvider = 'ga4';
+        $bestScore = 0;
+        foreach ($scores as $p => $data) {
+            if ($data['score'] > $bestScore) {
+                $bestScore = $data['score'];
+                $bestProvider = $p;
+            }
+        }
 
-        foreach ($events as $name => $entry) {
-            $score = 0.0;
-            $maxScore = 0.0;
-            $gaps = [];
+        return [
+            'scores' => $scores,
+            'recommendation' => "Best coverage: {$bestProvider} ({$bestScore}/100)",
+        ];
+    }
 
+    /**
+     * Get events ranked by provider support (most to least supported).
+     *
+     * @param  int  $limit  Maximum events to return
+     * @return list<array{event: string, provider_count: int, providers: list<string>, category: string|null}>
+     */
+    public function eventPopularityRanking(int $limit = 25): array
+    {
+        $catalog = EventCatalog::all();
+        $ranked = [];
+
+        foreach ($catalog as $eventName => $entry) {
+            $supportedProviders = [];
             foreach (self::PROVIDERS as $provider) {
-                $weight = self::PROVIDER_WEIGHTS[$provider] ?? 1;
-                $maxScore += $weight;
-                $mapping = $entry[$provider] ?? null;
-
-                if ($mapping !== null && $mapping !== '') {
-                    $score += $weight;
-                } else {
-                    $gaps[] = $provider;
+                $mapped = $entry[$provider] ?? null;
+                if ($mapped !== null && $mapped !== '') {
+                    $supportedProviders[] = $provider;
                 }
             }
 
-            $eventScore = $maxScore > 0 ? round(($score / $maxScore) * 100, 2) : 0.0;
-            $totalScore += $eventScore;
-
-            $eventScores[$name] = [
-                'score' => $eventScore,
-                'gaps' => $gaps,
+            $ranked[] = [
+                'event' => $eventName,
+                'provider_count' => count($supportedProviders),
+                'providers' => $supportedProviders,
+                'category' => $entry['category'] ?? null,
             ];
         }
 
-        return [
-            'category' => $category,
-            'total_events' => count($events),
-            'avg_score' => count($events) > 0 ? round($totalScore / count($events), 2) : 0.0,
-            'events' => $eventScores,
+        // Sort by provider count descending
+        usort($ranked, fn (array $a, array $b): int => $b['provider_count'] <=> $a['provider_count']);
+
+        return array_slice($ranked, 0, $limit);
+    }
+
+    /**
+     * Get gap closure recommendations — prioritized events needing mappings.
+     *
+     * Prioritizes by:
+     * 1. Number of providers missing the event
+     * 2. Event category importance (ecommerce and saas ranked higher)
+     *
+     * @param  string  $provider  Provider to analyze gaps for
+     * @param  int  $limit  Maximum recommendations
+     * @return list<array{event: string, category: string|null, missing_providers: list<string>, priority: string}>
+     */
+    public function getGapRecommendations(string $provider, int $limit = 25): array
+    {
+        $catalog = EventCatalog::all();
+        $gaps = [];
+
+        // Category importance weights
+        $categoryWeights = [
+            'ecommerce' => 3,
+            'saas' => 3,
+            'engagement' => 2,
+            'security' => 2,
+            'infrastructure' => 1,
+            'uptime' => 1,
         ];
-    }
 
-    /**
-     * Get events that have the lowest compatibility scores.
-     *
-     * Useful for identifying events that need additional provider mappings.
-     *
-     * @param  int  $limit  Number of events to return (default: 20)
-     * @return list<array{name: string, score: float, gaps: list<string>, category: string|null}>
-     */
-    public function worstCoveredEvents(int $limit = 20): array
-    {
-        $analysis = $this->analyze();
-        $scored = [];
+        foreach ($catalog as $eventName => $entry) {
+            $mapped = $entry[$provider] ?? null;
+            if ($mapped === null || $mapped === '') {
+                $category = $entry['category'] ?? 'unknown';
+                $weight = $categoryWeights[$category] ?? 1;
 
-        foreach ($analysis['events'] as $name => $data) {
-            $category = EventCatalog::getCategory($name);
-            $scored[] = [
-                'name' => $name,
-                'score' => $data['score'],
-                'gaps' => $data['gaps'],
-                'category' => $category,
-            ];
-        }
+                // Count how many providers are missing this event
+                $missingProviders = [];
+                foreach (self::PROVIDERS as $p) {
+                    $pMapped = $entry[$p] ?? null;
+                    if ($pMapped === null || $pMapped === '') {
+                        $missingProviders[] = $p;
+                    }
+                }
 
-        usort($scored, fn (array $a, array $b): int => $a['score'] <=> $b['score']);
-
-        return array_slice($scored, 0, $limit);
-    }
-
-    /**
-     * Get events with perfect 100% coverage.
-     *
-     * @return list<array{name: string, category: string|null}>
-     */
-    public function perfectlyCoveredEvents(): array
-    {
-        $analysis = $this->analyze();
-        $perfect = [];
-
-        foreach ($analysis['events'] as $name => $data) {
-            if ($data['score'] === 100.0) {
-                $perfect[] = [
-                    'name' => $name,
-                    'category' => EventCatalog::getCategory($name),
+                $gaps[] = [
+                    'event' => $eventName,
+                    'category' => $category,
+                    'missing_providers' => $missingProviders,
+                    'priority' => $weight >= 3 ? 'high' : ($weight >= 2 ? 'medium' : 'low'),
+                    '_weight' => $weight * count($missingProviders),
                 ];
             }
         }
 
-        return $perfect;
+        // Sort by weight descending
+        usort($gaps, fn (array $a, array $b): int => $b['_weight'] <=> $a['_weight']);
+
+        // Remove internal weight field
+        $result = [];
+        foreach (array_slice($gaps, 0, $limit) as $gap) {
+            unset($gap['_weight']);
+            $result[] = $gap;
+        }
+
+        return $result;
     }
 
     /**
-     * Get the overall catalog maturity grade.
-     *
-     * Returns a letter grade (A+ through F) based on average coverage.
-     *
-     * @return array{grade: string, score: float, threshold: float, description: string}
+     * Check if the service is enabled.
      */
-    public function maturityGrade(): array
+    public function isEnabled(): bool
     {
-        $analysis = $this->analyze();
-        $score = $analysis['summary']['avg_score'];
-
-        return match (true) {
-            $score >= 98.0 => ['grade' => 'A+', 'score' => $score, 'threshold' => 98.0, 'description' => 'Near-perfect provider coverage across all events'],
-            $score >= 95.0 => ['grade' => 'A', 'score' => $score, 'threshold' => 95.0, 'description' => 'Excellent provider coverage with minimal gaps'],
-            $score >= 90.0 => ['grade' => 'A-', 'score' => $score, 'threshold' => 90.0, 'description' => 'Strong provider coverage with minor gaps'],
-            $score >= 85.0 => ['grade' => 'B+', 'score' => $score, 'threshold' => 85.0, 'description' => 'Good provider coverage, some events unmapped'],
-            $score >= 80.0 => ['grade' => 'B', 'score' => $score, 'threshold' => 80.0, 'description' => 'Adequate coverage, notable provider gaps'],
-            $score >= 70.0 => ['grade' => 'C', 'score' => $score, 'threshold' => 70.0, 'description' => 'Moderate coverage, significant gaps exist'],
-            $score >= 50.0 => ['grade' => 'D', 'score' => $score, 'threshold' => 50.0, 'description' => 'Low coverage, many events missing mappings'],
-            default => ['grade' => 'F', 'score' => $score, 'threshold' => 0.0, 'description' => 'Critical coverage gaps across most providers'],
-        };
+        return $this->enabled;
     }
 
     /**
-     * Generate improvement recommendations.
+     * Get a summary of the provider matrix.
      *
-     * @param  array<string, array{score: float, gaps: list<string>}>  $eventAnalysis
-     * @param  array<string, float>  $providerCoverage
-     * @return list<string>
+     * @return array{enabled: bool, providers: list<string>, catalog_size: int, cache_ttl: int}
      */
-    private function generateRecommendations(array $eventAnalysis, array $providerCoverage): array
+    public function summary(): array
     {
-        $recommendations = [];
+        return [
+            'enabled' => $this->enabled,
+            'providers' => self::PROVIDERS,
+            'catalog_size' => EventCatalog::count(),
+            'cache_ttl' => $this->cacheTtl,
+        ];
+    }
 
-        // Check for providers with low coverage
-        foreach ($providerCoverage as $provider => $coverage) {
-            if ($coverage < 50.0) {
-                $recommendations[] = "Provider '{$provider}' has very low coverage ({$coverage}%). Consider adding mappings for high-priority events.";
-            } elseif ($coverage < 80.0) {
-                $recommendations[] = "Provider '{$provider}' coverage is {$coverage}%. Some events are unmapped.";
-            }
+    /**
+     * Clear cached analysis results.
+     */
+    public function clearCache(): void
+    {
+        try {
+            $this->cache->forget($this->cachePrefix . 'provider_coverage');
+        } catch (InvalidArgumentException) {
+            // Ignore cache errors
         }
-
-        // Find events with zero mappings (except to GA4 which is always present)
-        $zeroMapped = [];
-        foreach ($eventAnalysis as $name => $data) {
-            if ($data['score'] === 0.0) {
-                $zeroMapped[] = $name;
-            }
-        }
-
-        if (count($zeroMapped) > 0) {
-            $sample = array_slice($zeroMapped, 0, 5);
-            $recommendations[] = count($zeroMapped) . ' events have no provider mappings: ' . implode(', ', $sample);
-        }
-
-        // Check for events with only GA4 mapped
-        $ga4Only = 0;
-        foreach ($eventAnalysis as $name => $data) {
-            if (count($data['gaps']) === 5 && ! in_array('ga4', $data['gaps'], true)) {
-                $ga4Only++;
-            }
-        }
-
-        if ($ga4Only > 10) {
-            $recommendations[] = "{$ga4Only} events are only mapped to GA4. Consider adding Meta, PostHog, or Mixpanel mappings for cross-provider analytics.";
-        }
-
-        return $recommendations;
     }
 }

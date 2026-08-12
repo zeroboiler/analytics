@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks rollback events for reliability analysis and deployment pipeline monitoring.
  * Correlates with error spikes and incident events.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class DeploymentRolledBackEvent extends AnalyticsEvent
 {

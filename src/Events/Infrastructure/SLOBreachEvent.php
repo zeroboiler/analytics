@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks Service Level Objective violations for reliability governance.
  * Correlates with deployment events, traffic spikes, and infrastructure changes.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class SLOBreachEvent extends AnalyticsEvent
 {

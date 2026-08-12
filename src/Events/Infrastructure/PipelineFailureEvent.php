@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks analytics pipeline reliability for self-monitoring.
  * Distinguishes between transient failures and persistent outages.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class PipelineFailureEvent extends AnalyticsEvent
 {

@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks maintenance completion for availability SLA tracking.
  * Links to the corresponding maintenance_started event via maintenance_id.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class MaintenanceEndedEvent extends AnalyticsEvent
 {

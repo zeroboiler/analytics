@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Config: `zeroboiler.analytics.sampling`
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class EventSamplingStrategyService
 {

@@ -17,7 +17,7 @@ namespace ZeroBoiler\Analytics\Events\Infrastructure;
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class InfrastructureEvents
 {

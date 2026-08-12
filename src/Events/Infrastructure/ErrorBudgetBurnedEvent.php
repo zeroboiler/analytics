@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks SRE error budget consumption for reliability monitoring.
  * Supports burn rate alerts and SLO compliance tracking.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class ErrorBudgetBurnedEvent extends AnalyticsEvent
 {

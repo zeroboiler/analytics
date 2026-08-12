@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [46.0.0] - 2026-08-12
+
+### Added
+
+- **EventFlowAnalysisService** — Real-time user event flow/journey analysis service (Amplitude Pathfinder, Mixpanel Journeys pattern). Path tracking per user/client with configurable max length (50) and TTL (24h). Common path detection (top N-step paths ranked by frequency). Funnel drop-off analysis with per-step conversion rates and drop-off percentages. Conversion path comparison (converters vs non-converters). Step timing analysis (avg/min/max time between events). Automatic transition counting. Config: `zeroboiler.analytics.event_flow` (6 options).
+- **AnalyticsDataQualityFirewall** — Pre-dispatch data quality scoring and auto-quarantine. 4 quality checks: Completeness (required params), Format (naming conventions, snake_case enforcement, max length), Velocity (per-event rate limiting), Consistency (null byte detection, empty strings, value length, param count). Quality scores 0.0–1.0 with configurable quarantine (0.5) and drop (0.2) thresholds. Event-specific required parameter rules. Reserved prefix detection (`_ga_`, `_fb_`, `_meta_`, `_sentry_`). Config: `zeroboiler.analytics.quality_firewall` (11 options).
+- **ProviderEventCompatibilityMatrix** — Comprehensive provider gap analysis across 6 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude). Full 2D compatibility matrix (event × provider). Per-provider coverage percentage with unmapped event lists. Provider readiness scoring (0–100) based on coverage weight (40%), naming specificity (30%), and category breadth (30%). Event popularity ranking. Prioritized gap closure recommendations with category weights (ecommerce/saas=3, engagement/security=2, infrastructure/uptime=1). Config: `zeroboiler.analytics.provider_matrix` (3 options).
+- **AnalyticsFlowCommand** (`zb:analytics:flow`) — Admin CLI for flow analysis, data quality, and provider coverage. 5 modes: `flow` (path metrics, top N-step paths, funnel drop-off with `--funnel=`), `quality` (firewall metrics: evaluated/passed/quarantined/dropped), `matrix` (provider coverage, readiness scores, gap recommendations with `--provider=`), `evaluate` (single event quality check with `--event=`), `summary` (all services overview). `--json` output for all modes.
+- **3 new config sections** — `event_flow` (6 options), `quality_firewall` (11 options), `provider_matrix` (3 options).
+- **2 new singleton registrations** — EventFlowAnalysisService, AnalyticsDataQualityFirewall registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsFlowCommand registered in ServiceProvider commands.
+- **V460EventFlowQualityFirewallProviderMatrixTest** — 60+ test cases covering EventFlowAnalysisService (construction, enabled/disabled, recordStep/getPath/clearPath, fallback identifiers, metrics, summary, funnelDropOff, stepTiming, conversionPathComparison, topPaths disabled), AnalyticsDataQualityFirewall (construction, enabled/disabled, evaluate pass, disabled passthrough, bad name format, null bytes, reserved prefixes, empty strings, shouldBlock, velocity trigger, metrics, summary), ProviderEventCompatibilityMatrix (construction, enabled, getMatrix, provider coverage, readiness scores, event popularity ranking sort order, analyzeEventGaps known/unknown, gap recommendations, summary, clearCache), AnalyticsFlowCommand (class/signature), EventCatalog integrity (100+ events, 6 categories), config coverage (3 new sections), ServiceProvider registration (version, imports, commands).
+
+### Changed
+
+- **Version sweep** — 45.0.0 → 46.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, all Infrastructure event DTOs (10 files), `EventSamplingStrategyService`, `AnalyticsSamplingCommand`, `AnalyticsIntegrityCommand`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
+
 ## [45.0.0] - 2026-08-12
 
 ### Added

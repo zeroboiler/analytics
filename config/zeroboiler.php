@@ -5538,5 +5538,82 @@ return [
             'metrics_ttl' => (int) env('ANALYTICS_SAMPLING_METRICS_TTL', 3600),
             'adaptive_window' => (int) env('ANALYTICS_SAMPLING_ADAPTIVE_WINDOW', 60),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Flow Analysis (v46.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Real-time user event flow/journey analysis. Tracks event sequences
+        | per user, identifies common paths, drop-off points, and conversion
+        | funnels. Inspired by Amplitude Pathfinder, Mixpanel Journeys.
+        |
+        | Enable this to get flow analytics via the `zb:analytics:flow` command
+        | and programmatic access via EventFlowAnalysisService.
+        |
+        */
+        'event_flow' => [
+            'enabled' => env('ANALYTICS_EVENT_FLOW_ENABLED', false),
+            'max_path_length' => (int) env('ANALYTICS_EVENT_FLOW_MAX_PATH', 50),
+            'path_ttl' => (int) env('ANALYTICS_EVENT_FLOW_PATH_TTL', 86400), // 24 hours
+            'top_paths_limit' => (int) env('ANALYTICS_EVENT_FLOW_TOP_PATHS', 25),
+            'cache_prefix' => env('ANALYTICS_EVENT_FLOW_CACHE_PREFIX', 'zb_flow_'),
+            'metrics_ttl' => (int) env('ANALYTICS_EVENT_FLOW_METRICS_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Quality Firewall (v46.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-dispatch data quality scoring and auto-quarantine. Evaluates every
+        | event before dispatch using configurable quality rules:
+        | - Completeness: required parameters present
+        | - Format: naming conventions and type checks
+        | - Velocity: per-event rate limiting
+        | - Consistency: parameter value validation
+        |
+        | Events scoring below the quarantine threshold are quarantined.
+        | Events scoring below the drop threshold are dropped.
+        | Set 'enforce_quarantine' and 'enforce_drop' to true to activate.
+        |
+        */
+        'quality_firewall' => [
+            'enabled' => env('ANALYTICS_QUALITY_FIREWALL_ENABLED', false),
+            'quarantine_threshold' => (float) env('ANALYTICS_QUALITY_QUARANTINE_THRESHOLD', 0.5),
+            'drop_threshold' => (float) env('ANALYTICS_QUALITY_DROP_THRESHOLD', 0.2),
+            'enforce_quarantine' => env('ANALYTICS_QUALITY_ENFORCE_QUARANTINE', false),
+            'enforce_drop' => env('ANALYTICS_QUALITY_ENFORCE_DROP', false),
+            'cache_prefix' => env('ANALYTICS_QUALITY_CACHE_PREFIX', 'zb_qf_'),
+            'metrics_ttl' => (int) env('ANALYTICS_QUALITY_METRICS_TTL', 3600),
+            'velocity_window' => (int) env('ANALYTICS_QUALITY_VELOCITY_WINDOW', 60),
+            'max_events_per_window' => (int) env('ANALYTICS_QUALITY_MAX_EVENTS_WINDOW', 100),
+            'required_global_params' => [],
+            'event_required_params' => [
+                // 'purchase' => ['transaction_id', 'value', 'currency'],
+                // 'sign_up' => ['method'],
+            ],
+            'reserved_prefixes' => ['_ga_', '_fb_', '_meta_', '_sentry_'],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Provider Event Compatibility Matrix (v46.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Comprehensive provider gap analysis. Analyzes which events from the
+        | EventCatalog are supported by which providers and identifies gaps.
+        | Provides per-provider coverage percentage, readiness scores,
+        | and prioritized gap closure recommendations.
+        |
+        | Used by the `zb:analytics:flow --mode=matrix` command and
+        | ProviderEventCompatibilityMatrix service.
+        |
+        */
+        'provider_matrix' => [
+            'enabled' => env('ANALYTICS_PROVIDER_MATRIX_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_PROVIDER_MATRIX_CACHE_PREFIX', 'zb_pem_'),
+            'cache_ttl' => (int) env('ANALYTICS_PROVIDER_MATRIX_CACHE_TTL', 3600), // 1 hour
+        ],
     ],
 ];

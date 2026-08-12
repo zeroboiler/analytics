@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks maintenance periods for availability calculation and user impact analysis.
  * Used to exclude maintenance from SLO compliance penalties.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class MaintenanceStartedEvent extends AnalyticsEvent
 {

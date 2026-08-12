@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks A/B test and experiment exposures for statistical analysis.
  * Used to correlate experiment participation with downstream conversion events.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class ExperimentExposedEvent extends AnalyticsEvent
 {

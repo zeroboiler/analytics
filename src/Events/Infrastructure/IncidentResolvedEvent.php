@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks incident resolution for MTTR calculation and reliability analysis.
  * Links to the corresponding incident_started event via incident_id.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class IncidentResolvedEvent extends AnalyticsEvent
 {

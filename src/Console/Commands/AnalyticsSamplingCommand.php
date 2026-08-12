@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Services\EventSamplingStrategyService;
  * Inspect and manage event sampling configuration, rates, metrics,
  * and adaptive counters.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class AnalyticsSamplingCommand extends Command
 {

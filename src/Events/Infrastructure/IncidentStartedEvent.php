@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Tracks production incidents for reliability engineering and post-mortem analysis.
  * Enables MTTR, MTBF, and incident frequency tracking.
  *
- * @since 45.0.0
+ * @since 46.0.0
  */
 final class IncidentStartedEvent extends AnalyticsEvent
 {
