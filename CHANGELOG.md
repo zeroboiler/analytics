@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [39.0.0] - 2026-08-12
+
+### Added
+
+- **EventReplayAuditService** — Comprehensive audit trail for event replay operations. Records single and bulk replay actions with full context: audit ID, event name, archive ID, triggered-by user, source (archive/dlq/manual/api/command), per-provider success/failure, execution duration. Cache-backed with 30-day retention, audit ID → entry ID index for fast lookups, configurable auto-record toggle for archive/DLQ replay hooks. Provides search (filter by source, type, event_name, triggered_by, success, since, until), getByAuditId, statistics with period filtering (day/week/month/all), clear, and summary.
+- **AnalyticsReplayAuditCommand** (`zb:analytics:replay-audit`) — Admin CLI for replay audit inspection and data retention management. 8 modes: summary (service health + statistics), `--stats` (period-filtered statistics), `--search` (key=value filter string), `--recent` (last N entries with provider results), `--purge-status` (retention policy overview with per-category breakdown), `--purge-expired` (execute expired event purge with optional `--dry-run` and `--category`), `--purge-logs` (recent purge operations), `--json` output.
+- **AnalyticsDataRetentionService** — Configurable per-category data retention policies for archived analytics events. Automatically purges expired events based on event timestamp and category-specific retention periods. Includes GDPR-compliant right-to-erasure: `purgeForClientId()` and `purgeForUserId()` remove all archived events for a specific identity. Per-category defaults: ecommerce (90 days), saas (180 days), engagement (30 days), security (365 days), uptime (30 days). Supports dry-run mode for preview before purge, purge audit logging, configurable batch size, and category resolution via EventCatalog with heuristic fallback.
+- **2 new config sections** — `zeroboiler.analytics.replay_audit` (5 options: enabled, cache_prefix, retention_ttl, max_entries, auto_record) and `zeroboiler.analytics.data_retention` (10 options: enabled, default_days, per-category days for ecommerce/saas/engagement/security/uptime, cache_prefix, cache_ttl, gdpr_erase_enabled, purge_batch_size, log_purge).
+- **2 new singleton registrations** — EventReplayAuditService, AnalyticsDataRetentionService in AnalyticsServiceProvider.
+- **AnalyticsReplayAuditCommand** registered in ServiceProvider commands.
+- **V39ReplayAuditRetentionTest** — 40+ test cases covering EventReplayAuditService (enable/disable, autoRecord, single/bulk recording, search with all filters, getByAuditId, statistics for all/day/week/month, clear, totalCount, summary) and AnalyticsDataRetentionService (retentionFor category-specific and default, retentionDaysFor, isExpired with valid/expired/invalid timestamps, purgeExpired with dry-run and actual delete, purgeForClientId with GDPR enabled/disabled, purgeForUserId, statistics, summary, configuredCategories, getPurgeLogs, isEnabled).
+
+### Changed
+
+- **Version sweep** — 38.0.0 → 39.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
+
 ## [38.0.0] - 2026-08-12
 
 ### Added

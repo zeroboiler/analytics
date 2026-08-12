@@ -1869,6 +1869,55 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Replay Audit Trail (v39.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Records every event replay operation with full context: who triggered it,
+        | which events were replayed, provider-level success/failure, timestamps,
+        | and execution duration. Provides search, filtering, and statistics
+        | for compliance, debugging, and operational dashboards.
+        |
+        */
+        'replay_audit' => [
+            'enabled' => env('ANALYTICS_REPLAY_AUDIT_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_REPLAY_AUDIT_CACHE_PREFIX', 'zb_replay_audit_'),
+            'retention_ttl' => (int) env('ANALYTICS_REPLAY_AUDIT_TTL', 2592000), // 30 days
+            'max_entries' => (int) env('ANALYTICS_REPLAY_AUDIT_MAX_ENTRIES', 5000),
+            'auto_record' => env('ANALYTICS_REPLAY_AUDIT_AUTO_RECORD', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Retention (v39.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Configurable per-category retention policies for archived analytics events.
+        | Automatically purges expired events based on event timestamp and category.
+        | Includes GDPR-compliant right-to-erasure for client_id and user_id purges.
+        |
+        | Retention periods are specified in days. Events are checked against the
+        | category-specific retention, falling back to default_days.
+        |
+        */
+        'data_retention' => [
+            'enabled' => env('ANALYTICS_DATA_RETENTION_ENABLED', true),
+            'default_days' => (int) env('ANALYTICS_DATA_RETENTION_DEFAULT_DAYS', 90),
+            'categories' => [
+                'ecommerce' => (int) env('ANALYTICS_RETENTION_ECOMMERCE_DAYS', 90),
+                'saas' => (int) env('ANALYTICS_RETENTION_SAAS_DAYS', 180),
+                'engagement' => (int) env('ANALYTICS_RETENTION_ENGAGEMENT_DAYS', 30),
+                'security' => (int) env('ANALYTICS_RETENTION_SECURITY_DAYS', 365),
+                'uptime' => (int) env('ANALYTICS_RETENTION_UPTIME_DAYS', 30),
+            ],
+            'cache_prefix' => env('ANALYTICS_DATA_RETENTION_CACHE_PREFIX', 'zb_retention_'),
+            'cache_ttl' => (int) env('ANALYTICS_DATA_RETENTION_CACHE_TTL', 3600),
+            'gdpr_erase_enabled' => env('ANALYTICS_DATA_RETENTION_GDPR_ERASE', true),
+            'purge_batch_size' => (int) env('ANALYTICS_DATA_RETENTION_PURGE_BATCH', 500),
+            'log_purge' => env('ANALYTICS_DATA_RETENTION_LOG_PURGE', true),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Real-Time Aggregation (Live Dashboard Data)
         |-------------------------------------------------------------------------- 
         |

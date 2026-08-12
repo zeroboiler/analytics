@@ -273,6 +273,9 @@ use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
 use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
 use ZeroBoiler\Analytics\Services\OTLPExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
+use ZeroBoiler\Analytics\Services\EventReplayAuditService;
+use ZeroBoiler\Analytics\Services\AnalyticsDataRetentionService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -280,7 +283,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 38.0.0
+ * @version 39.0.0
  *
  * @since 1.0.0
  */
@@ -2672,11 +2675,28 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // OpenTelemetry (OTLP) Export Service (v38.0.0)
+        // OpenTelemetry (OTLP) Export Service (v38.0.0) — unchanged
         $this->app->singleton(OTLPExportService::class, function (Application $app): OTLPExportService {
             return new OTLPExportService(
                 $app->make(ConfigRepository::class),
                 $app->make('cache'),
+            );
+        });
+
+        // Event Replay Audit Service (v39.0.0)
+        $this->app->singleton(EventReplayAuditService::class, function (Application $app): EventReplayAuditService {
+            return new EventReplayAuditService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Data Retention Service (v39.0.0)
+        $this->app->singleton(AnalyticsDataRetentionService::class, function (Application $app): AnalyticsDataRetentionService {
+            return new AnalyticsDataRetentionService(
+                $app->make('cache'),
+                $app->make(EventArchiveService::class),
+                $app->make(ConfigRepository::class),
             );
         });
     }
@@ -2725,6 +2745,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 SaaSMetricsCommand::class,
                 AnalyticsIngestionCommand::class,
                 AnalyticsOTLPCommand::class,
+                AnalyticsReplayAuditCommand::class,
             ]);
         }
 

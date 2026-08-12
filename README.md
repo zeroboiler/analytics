@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-38.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-39.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v39.0.0](#whats-new-in-v39000)
 +- [What's New in v38.0.0](#whats-new-in-v38000)
 +- [What's New in v37.0.0](#whats-new-in-v37000)
 +- [What's New in v36.0.0](#whats-new-in-v36000)
@@ -117,6 +118,23 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v39.0.0
+
+### 🔒 Event Replay Audit Trail
+- **EventReplayAuditService** — Comprehensive audit trail for every event replay operation. Records single and bulk replays with full context: audit ID, event name, archive ID, triggered by (user ID), source (archive/dlq/manual/api/command), per-provider success/failure, execution duration. Cache-backed with 30-day retention, audit ID index for fast lookups, configurable auto-record toggle.
+- **AnalyticsReplayAuditCommand** (`zb:analytics:replay-audit`) — Admin CLI with 8 modes: summary, `--stats`, `--search` (filter by source/type/event_name/triggered_by/success/since/until), `--recent` (last N entries), `--purge-status` (retention policy overview), `--purge-expired` (execute expired event purge with optional `--dry-run` and `--category` filter), `--purge-logs`, `--json` output.
+- **Config section** — `zeroboiler.analytics.replay_audit` with 5 options: enabled, cache_prefix, retention_ttl, max_entries, auto_record.
+
+### 🗄️ Data Retention & GDPR Purge
+- **AnalyticsDataRetentionService** — Configurable per-category retention policies for archived analytics events. Automatically purges expired events based on timestamp and category. Includes GDPR-compliant right-to-erasure for client_id and user_id purges. Per-category defaults: ecommerce (90d), saas (180d), engagement (30d), security (365d), uptime (30d). Dry-run mode, purge audit logging, configurable batch size.
+- **2 new config sections** — `replay_audit` (5 options) and `data_retention` (10 options including per-category retention periods, GDPR erase toggle, purge batch size, logging).
+- **2 new singleton registrations** — EventReplayAuditService, AnalyticsDataRetentionService in AnalyticsServiceProvider.
+- **Singleton registration** — AnalyticsReplayAuditCommand registered in ServiceProvider commands.
+- **V39ReplayAuditRetentionTest** — 40+ test cases covering EventReplayAuditService (single/bulk recording, search, filter, getByAuditId, statistics with period filtering, clear, summary, enabled/autoRecord/disabled), AnalyticsDataRetentionService (category retention, expiry check, purgeExpired with dry-run, GDPR purgeForClientId, purgeForUserId, statistics, purge logs, summary), and version sweep.
+
+### Changed
+- **Version sweep** — 38.0.0 → 39.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
 
 ## What's New in v38.0.0
 
