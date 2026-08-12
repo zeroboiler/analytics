@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [21.0.0] - 2026-08-12
+
+### Added
+
+- **Event Schema Runtime Validator** — `EventSchemaRuntimeValidator` validates dispatched events against their registered parameter schemas in the EventSchemaRegistry. Checks required parameters, value types, string lengths, numeric ranges, and regex patterns. Provides strict/warn/off modes for configurable enforcement. Batch validation support for bulk event processing.
+- **Composable Enrichment Pipeline** — `ComposableEnrichmentPipeline` provides config-driven, ordered event enrichment stages that run before dispatch. 10 built-in stages: `pii_scrub` (hash/remove PII), `consent_filter` (GDPR param filtering), `utm_source` (request UTM attachment), `device_context` (UA/IP/locale), `session_context` (session ID, page count, duration), `tenant_tag` (multi-tenant isolation), `identity_link` (client_id ↔ user_id metadata), `timestamp_normalize` (UTC ISO 8601), `cost_tag` (dispatch cost estimation), `source_tag` (origin metadata). Custom handler registration via `registerHandler()`.
+- **Analytics Audit Log Service** — `AnalyticsAuditLogService` provides an immutable, append-only audit trail for GDPR Article 30 (Records of Processing Activities). Records event name, timestamp, source, provider results, and content hash for integrity. Configurable retention, success/failure logging, event/category exclusions, and query API with filtering.
+- **Provider Event Compatibility Matrix** — `ProviderEventCompatibilityMatrix` analyzes cross-provider event mapping coverage across all 6 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude). Weighted scoring with A+ through F maturity grades. Identifies worst-covered events, perfectly-covered events, and generates provider-specific improvement recommendations.
+- **Event Fingerprint Service** — `EventFingerprintService` generates deterministic content-based hashes for analytics events. Enables exact deduplication across retries, idempotency keys for API requests, and event identity comparison. Configurable time bucketing, identity field inclusion, internal param exclusion, and hash algorithm (xxh128, sha256, md5).
+- **4 new config sections** — `schema_validation` (3 options), `enrichment_pipeline` (10 configurable stages), `audit_log` (7 options), `fingerprinting` (6 options).
+- **4 new singleton registrations** — EventSchemaRuntimeValidator, ComposableEnrichmentPipeline, AnalyticsAuditLogService, ProviderEventCompatibilityMatrix registered in AnalyticsServiceProvider.
+- **V2100SchemaValidationEnrichmentAuditCompatibilityTest** — 50+ tests covering all new services, config integrity, version sweep, enrichment stages, PII scrubbing, audit log exclusions, compatibility matrix grading, fingerprint consistency, and batch operations.
+
+### Changed
+
+- **Version sweep** — 20.0.0 → 21.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsServiceProvider` docblock.
+
 ## [20.0.0] - 2026-08-12
 
 ### Added

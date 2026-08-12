@@ -8,282 +8,174 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
- * Event fingerprinting service for deduplication and replay identification.
+ * Deterministic event fingerprinting for idempotent dispatch.
  *
- * Computes stable, content-addressed hashes for analytics events based on
- * their name, parameter signature, client identity, and time window.
- * Used by EventDeduplicationService and EventReplayQueue for reliable
- * event identity matching.
+ * Generates content-based hashes for analytics events, enabling:
+ * - Exact deduplication across retries and batch re-dispatch
+ * - Idempotency keys for API endpoints
+ * - Event identity comparison without object equality
+ * - Cache key generation for event-level operations
  *
- * Supports configurable time-granularity windowing so that identical events
- * sent within the same time bucket share a fingerprint (for dedup), while
- * events across buckets get unique fingerprints.
+ * The fingerprint is computed from the event name, sorted parameter keys/values,
+ * client ID, user ID, and a configurable time window bucket.
  *
- * Inspired by Segment's messageId, RudderStack's batchId, and Mixpanel's
- * event deduplication fingerprinting.
+ * Configuration is read from `zeroboiler.analytics.fingerprinting`.
  *
- * @since 8.2.0
+ * @since 21.0.0
  */
 final class EventFingerprintService
 {
-    /**
-     * Default fingerprint TTL in seconds (24 hours).
-     */
-    private const DEFAULT_TTL = 86400;
-
-    /**
-     * Time bucket granularity constants (seconds).
-     */
-    private const BUCKET_SECOND = 1;
-    private const BUCKET_MINUTE = 60;
-    private const BUCKET_HOUR = 3600;
-    private const BUCKET_DAY = 86400;
-
-    /** @var non-empty-string */
-    private string $cachePrefix;
-
-    private int $ttl;
-
+    /** @var int Time window in seconds for bucketing (0 = no bucketing) */
     private int $timeBucketSeconds;
 
-    private bool $excludeTimestamp;
+    /** @var bool Whether to include client_id in the fingerprint */
+    private bool $includeClientId;
 
-    private bool $excludeParams;
+    /** @var bool Whether to include user_id in the fingerprint */
+    private bool $includeUserId;
 
-    private CacheRepository $cache;
+    /** @var bool Whether to ignore internal params (prefixed with _) */
+    private bool $ignoreInternalParams;
+
+    /** @var string Hash algorithm */
+    private string $algorithm;
+
+    /** @var array<string, string> In-memory fingerprint cache (key → hash) */
+    private array $cache = [];
+
+    /** @var int Maximum cache size */
+    private int $maxCacheSize;
 
     /**
-     * @param  CacheRepository  $cache
-     * @param  array{cache_prefix?: string, ttl?: int, time_bucket?: string, exclude_timestamp?: bool, exclude_params?: bool}  $config
+     * @param  array<string, mixed>  $config  zeroboiler.analytics.fingerprinting
      */
-    public function __construct(CacheRepository $cache, array $config = []): void
+    public function __construct(array $config): void
     {
-        $this->cache = $cache;
-        $this->cachePrefix = $config['cache_prefix'] ?? 'zb_fp_';
-        $this->ttl = $config['ttl'] ?? self::DEFAULT_TTL;
-        $this->excludeTimestamp = (bool) ($config['exclude_timestamp'] ?? false);
-        $this->excludeParams = (bool) ($config['exclude_params'] ?? false);
-
-        $bucket = $config['time_bucket'] ?? 'minute';
-        $this->timeBucketSeconds = match ($bucket) {
-            'second' => self::BUCKET_SECOND,
-            'hour' => self::BUCKET_HOUR,
-            'day' => self::BUCKET_DAY,
-            default => self::BUCKET_MINUTE,
-        };
+        $this->timeBucketSeconds = (int) ($config['time_bucket_seconds'] ?? 60);
+        $this->includeClientId = (bool) ($config['include_client_id'] ?? true);
+        $this->includeUserId = (bool) ($config['include_user_id'] ?? true);
+        $this->ignoreInternalParams = (bool) ($config['ignore_internal_params'] ?? true);
+        $this->algorithm = (string) ($config['algorithm'] ?? 'xxh128');
+        $this->maxCacheSize = (int) ($config['max_cache_size'] ?? 1000);
     }
 
     /**
-     * Compute a fingerprint hash for the given event.
+     * Generate a deterministic fingerprint for an analytics event.
      *
-     * The fingerprint is a SHA-256 hash of the event name, sorted parameter keys,
-     * client ID, user ID, and time bucket. Events with identical fingerprints
-     * within the TTL window are considered duplicates.
-     *
-     * @return non-empty-string Hex-encoded SHA-256 hash (64 characters)
+     * The fingerprint includes:
+     * - Event name
+     * - Sorted parameter key-value pairs (excluding internal params if configured)
+     * - Client ID (if configured)
+     * - User ID (if configured)
+     * - Time bucket (if configured > 0)
      */
     public function fingerprint(AnalyticsEvent $event): string
     {
-        $components = [
-            'name' => $event->name,
-            'client_id' => $event->clientId ?? 'anonymous',
-            'user_id' => $event->userId ?? 'guest',
-            'bucket' => $this->timeBucket($event->timestamp),
-        ];
+        $cacheKey = $this->cacheKey($event);
 
-        if (! $this->excludeParams) {
-            $components['params'] = $this->paramSignature($event->params);
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
-        return hash('sha256', json_encode($components, JSON_THROW_ON_ERROR));
-    }
+        $parts = [$event->name];
 
-    /**
-     * Compute a fingerprint for a batch of events.
-     *
-     * Uses the sorted set of individual fingerprints plus the batch size
-     * to produce a stable batch-level hash. Batches with the same events
-     * in the same order within the same time bucket get the same fingerprint.
-     *
-     * @param  list<AnalyticsEvent>  $events
-     * @return non-empty-string
-     */
-    public function batchFingerprint(array $events): string
-    {
-        $fingerprints = array_map(
-            fn (AnalyticsEvent $e): string => $this->fingerprint($e),
-            $events,
-        );
-
-        sort($fingerprints);
-
-        $components = [
-            'count' => count($fingerprints),
-            'fingerprints' => $fingerprints,
-            'bucket' => $this->timeBucket(),
-        ];
-
-        return hash('sha256', json_encode($components, JSON_THROW_ON_ERROR));
-    }
-
-    /**
-     * Check if an event fingerprint has been seen within the TTL window.
-     *
-     * Uses the cache as a bloom-filter-style seen-set. Returns true if
-     * the fingerprint exists in cache (duplicate detected).
-     */
-    public function hasSeen(AnalyticsEvent $event): bool
-    {
-        $fp = $this->fingerprint($event);
-
-        return (bool) $this->cache->get($this->cacheKey($fp));
-    }
-
-    /**
-     * Mark an event fingerprint as seen.
-     *
-     * Stores the fingerprint in the cache with the configured TTL.
-     * Returns the fingerprint hash for reference.
-     *
-     * @return non-empty-string
-     */
-    public function markSeen(AnalyticsEvent $event): string
-    {
-        $fp = $this->fingerprint($event);
-        $this->cache->put($this->cacheKey($fp), true, $this->ttl);
-
-        return $fp;
-    }
-
-    /**
-     * Mark a batch fingerprint as seen.
-     *
-     * @param  list<AnalyticsEvent>  $events
-     * @return non-empty-string
-     */
-    public function markBatchSeen(array $events): string
-    {
-        $fp = $this->batchFingerprint($events);
-        $this->cache->put($this->cacheKey($fp), true, $this->ttl);
-
-        return $fp;
-    }
-
-    /**
-     * Check if a batch fingerprint has been seen.
-     *
-     * @param  list<AnalyticsEvent>  $events
-     */
-    public function hasSeenBatch(array $events): bool
-    {
-        $fp = $this->batchFingerprint($events);
-
-        return (bool) $this->cache->get($this->cacheKey($fp));
-    }
-
-    /**
-     * Check and mark in one operation (atomic dedup check).
-     *
-     * If the fingerprint hasn't been seen, marks it and returns false (not a duplicate).
-     * If it has been seen, returns true (duplicate).
-     *
-     * @return array{is_duplicate: bool, fingerprint: string}
-     */
-    public function checkAndMark(AnalyticsEvent $event): array
-    {
-        $fp = $this->fingerprint($event);
-        $key = $this->cacheKey($fp);
-
-        $seen = (bool) $this->cache->get($key);
-
-        if (! $seen) {
-            $this->cache->put($key, true, $this->ttl);
+        // Add sorted parameters
+        $params = $event->params;
+        if ($this->ignoreInternalParams) {
+            $params = array_filter(
+                $params,
+                fn (string $key): bool => ! str_starts_with($key, '_'),
+                ARRAY_FILTER_USE_KEY,
+            );
         }
 
-        return [
-            'is_duplicate' => $seen,
-            'fingerprint' => $fp,
-        ];
+        ksort($params);
+        $parts[] = json_encode($params, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        // Add identity fields
+        if ($this->includeClientId && $event->clientId !== null) {
+            $parts[] = 'cid:' . $event->clientId;
+        }
+
+        if ($this->includeUserId && $event->userId !== null) {
+            $parts[] = 'uid:' . $event->userId;
+        }
+
+        // Add time bucket
+        if ($this->timeBucketSeconds > 0) {
+            $timestamp = $event->timestamp ?? new \DateTimeImmutable();
+            $bucket = (int) ($timestamp->getTimestamp() / $this->timeBucketSeconds);
+            $parts[] = 'tb:' . $bucket;
+        }
+
+        $fingerprint = hash($this->algorithm, implode('|', $parts));
+
+        // Cache management
+        if (count($this->cache) >= $this->maxCacheSize) {
+            $this->cache = array_slice($this->cache, -($this->maxCacheSize / 2), null, true);
+        }
+        $this->cache[$cacheKey] = $fingerprint;
+
+        return $fingerprint;
     }
 
     /**
-     * Get the deduplication statistics.
+     * Generate an idempotency key suitable for API requests.
      *
-     * Returns the number of fingerprints currently tracked and the TTL.
-     * Note: cache stores are opaque, so this returns config-based estimates.
-     *
-     * @return array{ttl: int, time_bucket_seconds: int, exclude_timestamp: bool, exclude_params: bool, cache_prefix: string}
+     * Returns a prefixed, URL-safe key that can be sent as
+     * an `Idempotency-Key` header.
      */
-    public function stats(): array
+    public function idempotencyKey(AnalyticsEvent $event): string
     {
-        return [
-            'ttl' => $this->ttl,
-            'time_bucket_seconds' => $this->timeBucketSeconds,
-            'exclude_timestamp' => $this->excludeTimestamp,
-            'exclude_params' => $this->excludeParams,
-            'cache_prefix' => $this->cachePrefix,
-        ];
+        return 'zb_idem_' . $this->fingerprint($event);
     }
 
     /**
-     * Compute a time bucket string for a given timestamp.
-     *
-     * Divides the timestamp by the bucket granularity to produce a
-     * stable string that changes only at bucket boundaries.
-     *
-     * @param  \DateTimeImmutable|null  $timestamp
-     * @return non-empty-string
+     * Check if two events have the same fingerprint.
      */
-    private function timeBucket(?\DateTimeImmutable $timestamp = null): string
+    public function isSameEvent(AnalyticsEvent $a, AnalyticsEvent $b): bool
     {
-        $ts = $timestamp ?? new \DateTimeImmutable();
-
-        return (string) (int) ($ts->getTimestamp() / $this->timeBucketSeconds);
+        return $this->fingerprint($a) === $this->fingerprint($b);
     }
 
     /**
-     * Compute a stable parameter signature.
+     * Generate a fingerprint for a subset of parameters.
      *
-     * Sorts parameter keys recursively and omits null values
-     * to produce a canonical JSON representation for hashing.
+     * Useful for partial deduplication (e.g., dedup by event name + userId only).
      *
      * @param  array<string, mixed>  $params
-     * @return array<string, mixed>
      */
-    private function paramSignature(array $params): array
+    public function partialFingerprint(string $eventName, array $params): string
     {
-        $clean = [];
+        ksort($params);
 
-        foreach ($params as $key => $value) {
-            if ($value === null) {
-                continue;
-            }
-
-            if (is_array($value)) {
-                $clean[$key] = $this->paramSignature($value);
-            } else {
-                $clean[$key] = $value;
-            }
-        }
-
-        ksort($clean);
-
-        return $clean;
+        return hash($this->algorithm, $eventName . '|' . json_encode($params, JSON_THROW_ON_ERROR));
     }
 
     /**
-     * Build the cache key for a fingerprint.
-     *
-     * @param  non-empty-string  $fingerprint
-     * @return non-empty-string
+     * Clear the fingerprint cache.
      */
-    private function cacheKey(string $fingerprint): string
+    public function clearCache(): void
     {
-        return $this->cachePrefix . $fingerprint;
+        $this->cache = [];
+    }
+
+    /**
+     * Get the current cache size.
+     */
+    public function cacheSize(): int
+    {
+        return count($this->cache);
+    }
+
+    /**
+     * Generate a cache key for the fingerprint lookup.
+     */
+    private function cacheKey(AnalyticsEvent $event): string
+    {
+        return $event->name . ':' . ($event->clientId ?? '') . ':' . ($event->userId ?? '');
     }
 }

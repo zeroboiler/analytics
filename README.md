@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-20.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-21.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v21.0.0](#whats-new-in-v21000)
 +- [What's New in v20.0.0](#whats-new-in-v20000)
 - [What's New in v18.0.0](#whats-new-in-v18000)
 - [What's New in v17.0.0](#whats-new-in-v17000)
@@ -104,6 +105,26 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v21.0.0
+
+### 🔍 Event Schema Runtime Validator
+- **`EventSchemaRuntimeValidator`** — Validates dispatched events against registered parameter schemas. Checks required parameters, value types, string lengths, numeric ranges, and regex patterns before dispatch. Configurable strict/warn/off enforcement modes. Batch validation API for bulk event processing.
+
+### 🔗 Composable Enrichment Pipeline
+- **`ComposableEnrichmentPipeline`** — Config-driven, ordered event enrichment stages. 10 built-in enrichment stages: `pii_scrub` (hash/remove PII fields), `consent_filter` (GDPR param filtering), `utm_source` (auto-attach request UTM params), `device_context` (user agent, IP, locale), `session_context` (session ID, page count, duration), `tenant_tag` (multi-tenant ID attachment), `identity_link` (client_id ↔ user_id metadata), `timestamp_normalize` (UTC ISO 8601), `cost_tag` (dispatch cost estimation), `source_tag` (origin metadata). Custom handler registration via `registerHandler()`.
+
+### 📋 Analytics Audit Log Service
+- **`AnalyticsAuditLogService`** — Immutable, append-only audit trail for GDPR Article 30 compliance. Records event name, timestamp, source, provider results, and content hash for integrity verification. Configurable retention, success/failure logging, event/category exclusions, and query API.
+
+### 📊 Provider Event Compatibility Matrix
+- **`ProviderEventCompatibilityMatrix`** — Cross-provider event mapping coverage analysis. Weighted scoring across GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude. A+ through F maturity grades, worst-covered event detection, and improvement recommendations.
+
+### 🆔 Event Fingerprint Service
+- **`EventFingerprintService`** — Deterministic content-based event hashing for exact deduplication across retries, idempotency keys for API requests, and event identity comparison. Configurable time bucketing, identity inclusion, and hash algorithm.
+
+### Configuration
+- New config sections: `schema_validation`, `enrichment_pipeline`, `audit_log`, `fingerprinting`
 
 ## What's New in v20.0.0
 
@@ -299,7 +320,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~131K source, 231 test files
+**LOC:** ~234K source, 232 test files
 
 ## What's New in v10.8.0
 
@@ -3459,7 +3480,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 
 - No breaking changes — all existing APIs remain backward compatible
 - README now fully documents all releases from v2.88.0 through v3.5.0
-- Total: 134K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 231 test files, 12,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
+- Total: 234K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 232 test files, 12,300+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
 ## What's New in v3.4.0
 
@@ -3916,7 +3937,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 9** — Level max, full type coverage
-- **Pest PHP** — 300+ tests across 231 test files
+- **Pest PHP** — 300+ tests across 232 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 

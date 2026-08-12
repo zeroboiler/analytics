@@ -243,6 +243,10 @@ use ZeroBoiler\Analytics\Services\EventTransportService;
 use ZeroBoiler\Analytics\Services\EventCorrelationMatrixService;
 use ZeroBoiler\Analytics\Services\DataLakeExportService;
 use ZeroBoiler\Analytics\Services\SdkScopeTokenService;
+use ZeroBoiler\Analytics\Services\EventSchemaRuntimeValidator;
+use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
+use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
+use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -250,7 +254,7 @@ use ZeroBoiler\Analytics\Services\SdkScopeTokenService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 20.0.0
+ * @version 21.0.0
  *
  * @since 1.0.0
  */
@@ -664,6 +668,45 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SdkScopeTokenService($cache, $config);
+        });
+
+        // Event Schema Runtime Validator (v21.0.0)
+        $this->app->singleton(EventSchemaRuntimeValidator::class, function (Application $app): EventSchemaRuntimeValidator {
+            /** @var EventSchemaRegistry $registry */
+            $registry = $app->make(EventSchemaRegistry::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $schemaValidationConfig = $config->get('zeroboiler.analytics.schema_validation', []);
+            /** @var array<string, mixed> $schemaValidationConfig */
+
+            return new EventSchemaRuntimeValidator($registry, $schemaValidationConfig);
+        });
+
+        // Composable Enrichment Pipeline (v21.0.0)
+        $this->app->singleton(ComposableEnrichmentPipeline::class, function (Application $app): ComposableEnrichmentPipeline {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ComposableEnrichmentPipeline($config);
+        });
+
+        // Analytics Audit Log Service (v21.0.0)
+        $this->app->singleton(AnalyticsAuditLogService::class, function (Application $app): AnalyticsAuditLogService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $auditConfig = $config->get('zeroboiler.analytics.audit_log', []);
+            /** @var array<string, mixed> $auditConfig */
+
+            return new AnalyticsAuditLogService($cache, $auditConfig);
+        });
+
+        // Provider Event Compatibility Matrix (v21.0.0)
+        $this->app->singleton(ProviderEventCompatibilityMatrix::class, function (Application $app): ProviderEventCompatibilityMatrix {
+            return new ProviderEventCompatibilityMatrix;
         });
 
         // Session analytics service

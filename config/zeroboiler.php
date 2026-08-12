@@ -4482,5 +4482,100 @@ return [
             'hash_algorithm' => env('ANALYTICS_SDK_TOKENS_HASH', 'sha256'),
             'signing_key' => env('ANALYTICS_SDK_TOKENS_SIGNING_KEY', ''),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Schema Runtime Validation (v21.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Validates dispatched events against their registered parameter schemas
+        | in the EventSchemaRegistry. Checks required parameters, value types,
+        | string lengths, numeric ranges, and regex patterns.
+        |
+        | Modes:
+        | - 'strict': Reject events that fail validation
+        | - 'warn':  Log warnings but allow dispatch
+        | - 'off':   Skip validation entirely
+        |
+        */
+        'schema_validation' => [
+            'enabled' => env('ANALYTICS_SCHEMA_VALIDATION_ENABLED', false),
+            'mode' => env('ANALYTICS_SCHEMA_VALIDATION_MODE', 'warn'), // strict, warn, off
+            'enforce_catalog_membership' => env('ANALYTICS_SCHEMA_VALIDATION_CATALOG', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Composable Enrichment Pipeline (v21.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven, ordered event enrichment stages that run before dispatch.
+        | Each stage can add, transform, or remove event parameters.
+        |
+        | Built-in stages: utm_source, device_context, session_context,
+        | timestamp_normalize, pii_scrub, tenant_tag, identity_link,
+        | cost_tag, source_tag, consent_filter
+        |
+        | Stages are executed in priority order (higher = runs first).
+        |
+        */
+        'enrichment_pipeline' => [
+            'enabled' => env('ANALYTICS_ENRICHMENT_PIPELINE_ENABLED', true),
+            'stages' => [
+                ['stage' => 'pii_scrub', 'enabled' => true, 'priority' => 100, 'config' => []],
+                ['stage' => 'consent_filter', 'enabled' => true, 'priority' => 90, 'config' => []],
+                ['stage' => 'utm_source', 'enabled' => true, 'priority' => 80, 'config' => []],
+                ['stage' => 'device_context', 'enabled' => true, 'priority' => 70, 'config' => []],
+                ['stage' => 'session_context', 'enabled' => true, 'priority' => 60, 'config' => []],
+                ['stage' => 'tenant_tag', 'enabled' => false, 'priority' => 50, 'config' => []],
+                ['stage' => 'identity_link', 'enabled' => true, 'priority' => 40, 'config' => []],
+                ['stage' => 'timestamp_normalize', 'enabled' => true, 'priority' => 30, 'config' => []],
+                ['stage' => 'cost_tag', 'enabled' => false, 'priority' => 20, 'config' => []],
+                ['stage' => 'source_tag', 'enabled' => true, 'priority' => 10, 'config' => []],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Audit Log (v21.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Immutable append-only audit trail for GDPR Article 30 compliance.
+        | Records event name, timestamp, source, provider results, and payload
+        | hash for integrity verification.
+        |
+        | Use excluded_events to suppress noise from high-frequency events.
+        |
+        */
+        'audit_log' => [
+            'enabled' => env('ANALYTICS_AUDIT_LOG_ENABLED', false),
+            'retention_days' => (int) env('ANALYTICS_AUDIT_LOG_RETENTION', 90),
+            'max_entries' => (int) env('ANALYTICS_AUDIT_LOG_MAX_ENTRIES', 10000),
+            'log_success' => env('ANALYTICS_AUDIT_LOG_SUCCESS', true),
+            'log_failures' => env('ANALYTICS_AUDIT_LOG_FAILURES', true),
+            'excluded_events' => [
+                // 'page_view', // Uncomment to exclude high-frequency events
+            ],
+            'excluded_categories' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Fingerprinting (v21.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Deterministic content-based event hashing for idempotent dispatch.
+        | Generates consistent fingerprints across retries enabling exact
+        | deduplication and idempotency keys for API requests.
+        |
+        */
+        'fingerprinting' => [
+            'time_bucket_seconds' => (int) env('ANALYTICS_FINGERPRINT_TIME_BUCKET', 60),
+            'include_client_id' => env('ANALYTICS_FINGERPRINT_CLIENT_ID', true),
+            'include_user_id' => env('ANALYTICS_FINGERPRINT_USER_ID', true),
+            'ignore_internal_params' => env('ANALYTICS_FINGERPRINT_IGNORE_INTERNAL', true),
+            'algorithm' => env('ANALYTICS_FINGERPRINT_ALGORITHM', 'xxh128'), // xxh128, sha256, md5
+            'max_cache_size' => (int) env('ANALYTICS_FINGERPRINT_CACHE_SIZE', 1000),
+        ],
     ],
 ];
