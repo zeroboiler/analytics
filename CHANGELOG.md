@@ -2,6 +2,13 @@
 
 All notable changes to the package will be documented in this file.
 
+## [35.0.0] - 2026-08-12
+
+### Changed
+- Version bump to 35.0.0
+- Deep manual code review: all source files verified — strict types, final classes, #[Override], docblocks, return types
+- Fixed CHANGELOG version mismatch (was 33.0.0, composer was 35.0.0)
+
 ## [33.0.0] - 2026-08-12
 
 ### Changed
