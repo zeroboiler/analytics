@@ -258,6 +258,9 @@ final class AnalyticsOverviewCommand extends Command
             'Industry-standard event catalog with priority tiers (critical/high/medium/low)',
             'SaaS lifecycle convenience methods (signUp, login, trialStart, subscription, planUpgrade, cancellation)',
             'SaaS acquisition funnel shortcut (trackSaaSAcquisition)',
+            'PHP 8.5 Analytics Event attributes (code-first event metadata)',
+            'SaaS Onboarding Funnel service (10-stage progress tracking)',
+            'SaaS Onboarding Funnel config section',
         ];
         foreach ($features as $feature) {
             $this->line("  ✅ {$feature}");

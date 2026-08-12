@@ -2,6 +2,24 @@
 
 All notable changes to the package will be documented in this file.
 
+## [19.0.0] - 2026-08-12
+
+### Added
+
+- **PHP 8.5 Analytics Event Attributes** — Declarative event metadata via `#[AnalyticsEventAttribute]` for code-first event catalog registration. Supports provider mappings (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude), priority levels, aliases, description, and tags. Read by `AttributeScanner` to complement static catalogs.
+- **`#[AnalyticsLifecycleMapping]`** attribute — Declarative Laravel event → analytics event mapping on listener methods and classes. Complements config-driven `LifecycleEventMapper` with code-first approach.
+- **`#[AnalyticsEventParam]`** attribute — Type-safe event parameter schema declarations on DTO classes and properties. Supports string/int/float/bool/array types, required flag, regex patterns, min/max ranges, and max length.
+- **`AttributeScanner`** — Reflection-based scanner that reads `#[AnalyticsEventAttribute]` and `#[AnalyticsLifecycleMapping]` from classes. Provides `scanEvent()`, `scanLifecycleMappings()`, `allEvents()`, and `allLifecycleMappings()` with internal caching.
+- **SaaS Onboarding Funnel Service** — `SaaSOnboardingFunnelService` tracks the complete SaaS user journey through 10 stages: sign_up → email_verified → first_login → trial_start → first_feature → team_created → integration_connected → subscription → plan_upgrade → activated. Provides cache-persisted progress tracking, completion percentage, drop-off detection, and funnel metrics.
+- **`onboarding_funnel` config section** — `zeroboiler.analytics.onboarding_funnel` with enabled toggle, cache TTL, cache prefix, and configurable stage list.
+- **`SaaSOnboardingFunnelService` registered as singleton** in `AnalyticsServiceProvider`.
+- **V1900AttributesOnboardingFunnelAndVersionSweepTest** — 35+ tests covering all new attributes, scanner, onboarding funnel service, version sweep, type declarations, and config integration.
+
+### Changed
+
+- **Version sweep** — 18.0.0 → 19.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS `getVersion()` + `_getInternalVersion()`, Svelte composables, TypeScript definitions, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`.
+- **OverviewCommand feature list** — Added 3 new features: PHP 8.5 Analytics Event attributes, SaaS Onboarding Funnel service, SaaS Onboarding Funnel config section.
+
 ## [18.0.0] - 2026-08-11
 
 ### Fixed

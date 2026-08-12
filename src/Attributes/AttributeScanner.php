@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Attributes;
 
 use ReflectionClass;
-use ReflectionMethod;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
  * Scans classes for #[AnalyticsEventAttribute] and #[AnalyticsLifecycleMapping] attributes.

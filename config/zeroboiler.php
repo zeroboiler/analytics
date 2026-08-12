@@ -446,6 +446,28 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | SaaS Onboarding Funnel (v19.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Unified onboarding funnel tracking for SaaS products. Tracks the complete
+        | user journey from signup through activation with cache-persisted state.
+        | Used by SaaSOnboardingFunnelService for progress tracking, drop-off
+        | detection, and funnel analytics.
+        |
+        */
+        'onboarding_funnel' => [
+            'enabled' => env('ANALYTICS_ONBOARDING_FUNNEL_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_ONBOARDING_FUNNEL_CACHE_TTL', 86400), // 24 hours
+            'cache_prefix' => env('ANALYTICS_ONBOARDING_FUNNEL_CACHE_PREFIX', 'zb_onboarding_'),
+            'stages' => [
+                'sign_up', 'email_verified', 'first_login', 'trial_start',
+                'first_feature', 'team_created', 'integration_connected',
+                'subscription', 'plan_upgrade', 'activated',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Track Links (Client-Side)
         |--------------------------------------------------------------------------
         |
