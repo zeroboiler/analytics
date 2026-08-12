@@ -2,6 +2,12 @@
 
 All notable changes to the package will be documented in this file.
 
+## [29.1.0] - 2026-08-12
+
+### Changed
+- Version bump to 29.1.0
+- Manual code review: verified `declare(strict_types=1)`, `final` classes, `#[Override]`, readonly DTOs, constructor `:void` return types across core files (AnalyticsManager, AnalyticsEvent, TrackerInterface, DTOs)
+
 ## [29.0.0] - 2026-08-12
 
 ### Added
