@@ -5615,5 +5615,85 @@ return [
             'cache_prefix' => env('ANALYTICS_PROVIDER_MATRIX_CACHE_PREFIX', 'zb_pem_'),
             'cache_ttl' => (int) env('ANALYTICS_PROVIDER_MATRIX_CACHE_TTL', 3600), // 1 hour
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Fraud Detection (v47.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Detects suspicious analytics event patterns including volume anomalies,
+        | velocity abuse, duplicate injection, parameter injection (XSS probes),
+        | and spoofed identity (multiple fingerprints per client ID).
+        |
+        | Each detection signal contributes to a composite fraud score (0.0–1.0).
+        | Events exceeding quarantine_threshold are flagged but not dropped.
+        | Events exceeding block_threshold are dropped silently.
+        |
+        | Critical events (purchase, subscription_created, payment_succeeded)
+        | are always elevated to block if quarantined, for safety.
+        |
+        | Inspired by Segment's Sentry integration, PostHog's spam detection,
+        | and Cloudflare bot management patterns.
+        |
+        */
+        'fraud_detection' => [
+            'enabled' => env('ANALYTICS_FRAUD_DETECTION_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_FRAUD_CACHE_PREFIX', 'zb_fraud_'),
+            'metrics_ttl' => (int) env('ANALYTICS_FRAUD_METRICS_TTL', 3600), // 1 hour
+            'velocity_window' => (int) env('ANALYTICS_FRAUD_VELOCITY_WINDOW', 60), // seconds
+            'max_events_per_window' => (int) env('ANALYTICS_FRAUD_MAX_EVENTS_WINDOW', 200),
+            'quarantine_threshold' => (float) env('ANALYTICS_FRAUD_QUARANTINE_THRESHOLD', 0.6),
+            'block_threshold' => (float) env('ANALYTICS_FRAUD_BLOCK_THRESHOLD', 0.85),
+            'burst_multiplier' => (float) env('ANALYTICS_FRAUD_BURST_MULTIPLIER', 5.0),
+            'burst_window' => (int) env('ANALYTICS_FRAUD_BURST_WINDOW', 10), // seconds
+            'duplicate_window' => (int) env('ANALYTICS_FRAUD_DUPLICATE_WINDOW', 5), // seconds
+            'max_duplicate_hash_per_window' => (int) env('ANALYTICS_FRAUD_MAX_DUPLICATES', 10),
+            'spoofed_identity_window' => (int) env('ANALYTICS_FRAUD_SPOOFED_WINDOW', 3600), // 1 hour
+            'max_fingerprints_per_client' => (int) env('ANALYTICS_FRAUD_MAX_FINGERPRINTS', 5),
+            'suspicious_patterns' => ['<script', 'javascript:', 'data:', 'onerror='],
+            'critical_events' => ['purchase', 'subscription_created', 'payment_succeeded'],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Product-Market Fit Scoring (v47.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Computes a composite PMF score (0–100) using industry-standard signals:
+        | - Sean Ellis Test (40%+ = strong PMF)
+        | - Activation Rate (% completing onboarding)
+        | - Retention Curve (D7/D30 sustainability)
+        | - Feature Engagement Depth (features adopted per user)
+        | - Organic Growth Rate (referral/virality)
+        | - Revenue Stickiness (Net Revenue Retention)
+        |
+        | Configurable weights must sum to 1.0. The default weights follow
+        | the Sean Ellis framework hierarchy.
+        |
+        | Grading scale:
+        | - Exceptional (85–100): Product-market fit achieved
+        | - Strong (70–84): Close to product-market fit
+        | - Moderate (50–69): Promising but needs improvement
+        | - Weak (30–49): Significant pivot needed
+        | - None (0–29): Fundamental reassessment required
+        |
+        | Inspired by Superhuman's Sean Ellis framework, Amplitude PMF analysis,
+        | and OpenView retention-based scoring.
+        |
+        */
+        'pmf_scoring' => [
+            'enabled' => env('ANALYTICS_PMF_SCORING_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_PMF_CACHE_PREFIX', 'zb_pmf_'),
+            'cache_ttl' => (int) env('ANALYTICS_PMF_CACHE_TTL', 3600), // 1 hour
+            'ellis_threshold' => (float) env('ANALYTICS_PMF_ELLIS_THRESHOLD', 0.40),
+            'weights' => [
+                'ellis_test' => (float) env('ANALYTICS_PMF_W_ELLIS', 0.25),
+                'activation_rate' => (float) env('ANALYTICS_PMF_W_ACTIVATION', 0.20),
+                'retention' => (float) env('ANALYTICS_PMF_W_RETENTION', 0.20),
+                'engagement' => (float) env('ANALYTICS_PMF_W_ENGAGEMENT', 0.15),
+                'organic_growth' => (float) env('ANALYTICS_PMF_W_ORGANIC', 0.10),
+                'revenue_stickiness' => (float) env('ANALYTICS_PMF_W_REVENUE', 0.10),
+            ],
+        ],
     ],
 ];

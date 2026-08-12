@@ -295,13 +295,19 @@ use ZeroBoiler\Analytics\Services\EventFlowAnalysisService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataQualityFirewall;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFlowCommand;
 
+use ZeroBoiler\Analytics\Services\EventFraudDetectionService;
+use ZeroBoiler\Analytics\Services\ProductMarketFitScoringService;
+use ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsFraudCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthSummaryCommand;
+
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
  *
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 46.0.0
+ * @version 47.0.0
  *
  * @since 1.0.0
  */
@@ -2841,6 +2847,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Fraud Detection Service (v47.0.0) — spam, bot flood, injection detection
+        $this->app->singleton(EventFraudDetectionService::class, function (Application $app): EventFraudDetectionService {
+            return new EventFraudDetectionService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Product-Market Fit Scoring Service (v47.0.0) — Sean Ellis, retention, activation
+        $this->app->singleton(ProductMarketFitScoringService::class, function (Application $app): ProductMarketFitScoringService {
+            return new ProductMarketFitScoringService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Unified Health Endpoint Service (v47.0.0) — composite health for probes
+        $this->app->singleton(UnifiedHealthEndpointService::class, function (Application $app): UnifiedHealthEndpointService {
+            return new UnifiedHealthEndpointService(
+                $app->make(AnalyticsHealthService::class),
+                $app->make(AnalyticsHealthCheckService::class),
+                $app->make(AnalyticsHealthMonitorService::class),
+                $app->make(AnalyticsDataQualityFirewall::class),
+                $app->make(EventFraudDetectionService::class),
+                $app->make(ProductMarketFitScoringService::class),
+            );
+        });
     }
 
     /**
@@ -2893,6 +2927,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSimulationCommand::class,
                 AnalyticsSamplingCommand::class,
                 AnalyticsFlowCommand::class,
+                AnalyticsFraudCommand::class,
+                AnalyticsHealthSummaryCommand::class,
             ]);
         }
 
@@ -2988,6 +3024,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
             ->middleware(['throttle:120,1'])
             ->group(function () use ($controller): void {
                 Route::get('analytics/health', [$controller, 'health']);
+
+                // Fraud detection endpoint (v47.0.0)
+                Route::get('analytics/fraud/metrics', [$controller, 'fraudMetrics']);
+                Route::get('analytics/fraud/status', [$controller, 'fraudStatus']);
+
+                // PMF scoring endpoint (v47.0.0)
+                Route::get('analytics/pmf/score', [$controller, 'pmfScore']);
+                Route::get('analytics/pmf/grade', [$controller, 'pmfGrade']);
+
+                // Unified health endpoint (v47.0.0)
+                Route::get('analytics/health/unified', [$controller, 'unifiedHealth']);
+                Route::get('analytics/health/liveness', [$controller, 'unifiedLiveness']);
+                Route::get('analytics/health/readiness', [$controller, 'unifiedReadiness']);
                 Route::get('analytics/catalog', [$controller, 'catalog']);
                 Route::get('analytics/stream', [$controller, 'stream']);
                 Route::get('analytics/stream/stats', [$controller, 'streamStats']);

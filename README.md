@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-46.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-47.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v47.0.0](#whats-new-in-v47000)
 - [What's New in v46.0.0](#whats-new-in-v46000)
 - [What's New in v45.0.0](#whats-new-in-v45000)
 - [What's New in v44.0.0](#whats-new-in-v44000)
@@ -124,6 +125,78 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v47.0.0
+
+### 🕵️ Event Fraud Detection Service
+- **EventFraudDetectionService** — Real-time fraud signal detection for analytics events
+- 5 detection signals: Velocity (per-event rate limiting), Burst (sudden spike detection), Duplicate (replay detection via event hash), Parameter Injection (XSS/suspicious pattern detection), Spoofed Identity (multiple fingerprints per client ID)
+- Composite fraud scoring (0.0–1.0) with configurable weights: velocity (25%), burst (30%), duplicate (20%), injection (15%), identity (10%)
+- Two-tier action system: Quarantine (flagged, score ≥ 0.6) and Block (dropped, score ≥ 0.85)
+- Critical event escalation: Purchase, subscription, and payment events are auto-blocked if quarantined
+- Cache-backed metrics: total evaluated, passed, quarantined, blocked, average score, top flagged events
+- Config: `zeroboiler.analytics.fraud_detection`
+
+### 📈 Product-Market Fit Scoring Service
+- **ProductMarketFitScoringService** — Industry-standard PMF scoring (0–100) with 7 signals
+- Sean Ellis Test: "Very disappointed" percentage scoring (40%+ = strong PMF signal)
+- Activation Rate: Onboarding completion percentage
+- Retention Curve: D7/D30 retention sustainability scoring
+- Feature Engagement Depth: Feature adoption ratio per user
+- Organic Growth: Referral/virality rate scoring
+- Revenue Stickiness: Net Revenue Retention (NRR) scoring
+- Engagement Cadence: WAU/MAU ratio scoring
+- Configurable weights (default: Ellis 25%, Activation 20%, Retention 20%, Engagement 15%, Organic 10%, Revenue 10%)
+- 5-tier grading: Exceptional (85+), Strong (70–84), Moderate (50–69), Weak (30–49), None (0–29)
+- Actionable recommendations generated from weak signal analysis
+- Config: `zeroboiler.analytics.pmf_scoring`
+
+### 🏥 Unified Health Endpoint Service
+- **UnifiedHealthEndpointService** — Composite health aggregation across all analytics subsystems
+- Full health check: Core, Extended, Monitor, Quality Firewall, Fraud Detection, PMF Scoring
+- Liveness probe: Lightweight core health check for Kubernetes liveness probes
+- Readiness probe: All-critical-subsystem check for Kubernetes readiness probes
+- Overall status: healthy/warning/critical with composite score (0–100)
+- Structured output: subsystem scores, warnings, recommendations, version
+- Config: injected via ServiceProvider (all optional services gracefully handle null)
+
+### 🛠️ AnalyticsFraudCommand
+- New `zb:analytics:fraud` artisan command with 5 modes: `status`, `metrics`, `evaluate`, `test-burst`, `reset`
+- `--mode=status` — Fraud detection status with thresholds and top flagged events
+- `--mode=metrics` — Detailed metrics (total, passed, quarantined, blocked, avg score)
+- `--mode=evaluate --event=purchase --client=abc` — Single event fraud evaluation with signal breakdown
+- `--mode=test-burst` — Simulated 100-event burst test scenario
+- `--mode=reset` — Reset all fraud metrics
+- `--json` output for all modes
+
+### 🛠️ AnalyticsHealthSummaryCommand
+- New `zb:analytics:health-summary` artisan command with 5 modes: `full`, `liveness`, `readiness`, `pmf`, `pmf-grade`
+- `--mode=full` — Complete unified health check with PMF score, subsystems, warnings, recommendations
+- `--mode=liveness` — Lightweight liveness probe (for Kubernetes)
+- `--mode=readiness` — Readiness probe with per-subsystem status
+- `--mode=pmf` — PMF scoring details with signal breakdown and recommendations
+- `--mode=pmf-grade` — Compact PMF grade output (score/100 [grade])
+- `--json` output for all modes
+- Exit code 1 on critical status (CI health gate support)
+
+### 🌐 New API Endpoints
+- `GET /api/analytics/fraud/metrics` — Fraud detection metrics
+- `GET /api/analytics/fraud/status` — Fraud detection status with thresholds
+- `GET /api/analytics/pmf/score` — Cached PMF score with config summary
+- `GET /api/analytics/pmf/grade` — Compact PMF grade
+- `GET /api/analytics/health/unified` — Full unified health check
+- `GET /api/analytics/health/liveness` — Liveness probe
+- `GET /api/analytics/health/readiness` — Readiness probe
+
+### ⚙️ New Config Sections
+- `fraud_detection` — enabled, cache_prefix, metrics_ttl, velocity_window, max_events_per_window, quarantine/block thresholds, burst settings, duplicate settings, spoofed identity settings, suspicious_patterns, critical_events
+- `pmf_scoring` — enabled, cache_prefix, cache_ttl, ellis_threshold, weights (ellis_test, activation_rate, retention, engagement, organic_growth, revenue_stickiness)
+
+### 📦 ServiceProvider Registration
+- EventFraudDetectionService registered as singleton
+- ProductMarketFitScoringService registered as singleton
+- UnifiedHealthEndpointService registered as singleton (with optional service injection)
+- AnalyticsFraudCommand and AnalyticsHealthSummaryCommand registered in console commands
 
 ## What's New in v46.0.0
 

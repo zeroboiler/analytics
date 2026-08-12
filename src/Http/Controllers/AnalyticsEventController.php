@@ -11468,4 +11468,128 @@ final class AnalyticsEventController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get fraud detection metrics.
+     *
+     * @since 47.0.0
+     */
+    public function fraudMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventFraudDetectionService::class);
+
+            return response()->json($service->getMetrics());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get fraud detection status with thresholds.
+     *
+     * @since 47.0.0
+     */
+    public function fraudStatus(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventFraudDetectionService::class);
+            $metrics = $service->getMetrics();
+
+            return response()->json(array_merge($metrics, [
+                'quarantine_threshold' => $service->getQuarantineThreshold(),
+                'block_threshold' => $service->getBlockThreshold(),
+            ]));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cached PMF score.
+     *
+     * @since 47.0.0
+     */
+    public function pmfScore(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ProductMarketFitScoringService::class);
+            $cached = $service->getCachedScore();
+
+            return response()->json([
+                'cached' => $cached,
+                'config' => $service->getConfigSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get PMF grade (compact).
+     *
+     * @since 47.0.0
+     */
+    public function pmfGrade(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\ProductMarketFitScoringService::class);
+            $cached = $service->getCachedScore();
+
+            return response()->json($cached !== null
+                ? ['score' => $cached['score'], 'grade' => $cached['grade'], 'cached' => true]
+                : ['score' => null, 'grade' => null, 'cached' => false]
+            );
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Unified health check endpoint.
+     *
+     * @since 47.0.0
+     */
+    public function unifiedHealth(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService::class);
+
+            return response()->json($service->check());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Liveness probe endpoint.
+     *
+     * @since 47.0.0
+     */
+    public function unifiedLiveness(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService::class);
+
+            return response()->json($service->liveness());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'critical', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Readiness probe endpoint.
+     *
+     * @since 47.0.0
+     */
+    public function unifiedReadiness(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService::class);
+
+            return response()->json($service->readiness());
+        } catch (\Throwable $e) {
+            return response()->json(['ready' => false, 'status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
