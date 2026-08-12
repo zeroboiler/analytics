@@ -1576,6 +1576,196 @@ final class AnalyticsFake
     }
 
     /**
+     * Magic proxy for shorthand methods (viewItem, addToCart, scrollDepth, etc.).
+     *
+     * Uses the real AnalyticsManager to build event params, then intercepts
+     * the resulting track() call so nothing actually dispatches.
+     */
+    public function __call(string $method, array $args): mixed
+    {
+        $shorthandMethods = [
+            // E-commerce
+            'viewItem', 'addToCart', 'removeFromCart', 'viewCart',
+            'beginCheckout', 'addPaymentInfo', 'refund', 'abandonedCart',
+            'checkoutAbandon', 'checkoutStep',
+            // Engagement
+            'scrollDepth', 'click', 'formStart', 'formSubmit', 'search',
+            'share', 'outboundClick', 'contentEngagement', 'onboardingStep',
+            'onboardingCompleted', 'goalConversion', 'feedback', 'featureRequest',
+            // SaaS Lifecycle
+            'subscriptionPaused', 'subscriptionResumed', 'planChanged',
+            'teamCreated', 'teamMemberJoined', 'teamMemberRemoved',
+            'roleChanged', 'paymentFailed', 'paymentSucceeded',
+            'milestoneReached', 'workspaceCreated', 'usageQuotaReached',
+            'billingRetry',
+        ];
+
+        if (in_array($method, $shorthandMethods, true)) {
+            // Build params using the same logic as AnalyticsManager
+            $params = $this->buildShorthandParams($method, $args);
+            $eventName = $this->shorthandEventName($method);
+            $this->track($eventName, $params);
+
+            return null;
+        }
+
+        throw new \BadMethodCallException(
+            "Method {$method}() does not exist on " . static::class,
+        );
+    }
+
+    /**
+     * Convert camelCase shorthand method name to snake_case event name.
+     */
+    private function shorthandEventName(string $method): string
+    {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $method));
+    }
+
+    /**
+     * Build event params for a shorthand method, mirroring AnalyticsManager logic.
+     */
+    private function buildShorthandParams(string $method, array $args): array
+    {
+        return match ($method) {
+            // E-commerce — single-item methods merge item with optional extra params
+            'viewItem', 'addToCart', 'removeFromCart' => array_merge(
+                $args[1] ?? [],
+                $args[0] ?? [],
+            ),
+            // E-commerce — collection methods with items + value
+            'viewCart', 'beginCheckout', 'abandonedCart' => array_filter([
+                ...($args[2] ?? []),
+                'items' => ($args[0] ?? []) !== [] ? ($args[0] ?? []) : null,
+                'value' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            // E-commerce — single-value methods
+            'addPaymentInfo' => array_filter([
+                ...($args[1] ?? []),
+                'payment_type' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'refund' => array_merge($args[2] ?? [], [
+                'transaction_id' => $args[0] ?? '',
+                'value' => $args[1] ?? 0.0,
+            ]),
+            'checkoutAbandon' => array_filter([
+                ...($args[1] ?? []),
+                'checkout_step' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'checkoutStep' => array_filter([
+                ...($args[2] ?? []),
+                'checkout_step' => $args[0] ?? 0,
+                'checkout_step_name' => $args[1] ?? null,
+            ]),
+            // Engagement — simple pairs
+            'scrollDepth', 'click' => array_merge($args[2] ?? [], [
+                ($method === 'scrollDepth' ? 'percent' : 'target') => $args[0] ?? '',
+                'url' => $args[1] ?? null,
+            ]),
+            'formStart' => array_merge($args[2] ?? [], [
+                'form_id' => $args[0] ?? null,
+                'form_name' => $args[1] ?? null,
+            ]),
+            'formSubmit' => array_filter(array_merge($args[3] ?? [], [
+                'form_id' => $args[0] ?? null,
+                'form_name' => $args[1] ?? null,
+                'success' => $args[2] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'search' => array_filter([
+                ...($args[2] ?? []),
+                'search_term' => $args[0] ?? '',
+                'results_count' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'share' => array_filter(array_merge($args[3] ?? [], [
+                'method' => $args[0] ?? '',
+                'content_type' => $args[1] ?? null,
+                'item_id' => $args[2] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'outboundClick' => array_filter(array_merge($args[2] ?? [], [
+                'url' => $args[0] ?? '',
+                'label' => $args[1] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'contentEngagement' => array_filter(array_merge($args[3] ?? [], [
+                'content_type' => $args[0] ?? '',
+                'content_id' => $args[1] ?? null,
+                'duration_seconds' => $args[2] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'onboardingStep' => array_filter([
+                ...($args[2] ?? []),
+                'step' => $args[0] ?? 0,
+                'step_name' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'onboardingCompleted' => array_filter([
+                ...($args[1] ?? []),
+                'total_steps' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'goalConversion' => array_filter([
+                ...($args[2] ?? []),
+                'goal_name' => $args[0] ?? '',
+                'value' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'feedback' => array_filter([
+                ...($args[2] ?? []),
+                'feedback_type' => $args[0] ?? '',
+                'score' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'featureRequest' => array_merge($args[1] ?? [], [
+                'feature_name' => $args[0] ?? '',
+            ]),
+            // SaaS Lifecycle
+            'subscriptionPaused', 'subscriptionResumed' => array_filter([
+                ...($args[1] ?? []),
+                'plan_name' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'planChanged' => array_merge($args[2] ?? [], [
+                'from_plan' => $args[0] ?? '',
+                'to_plan' => $args[1] ?? '',
+            ]),
+            'teamCreated' => array_filter(array_merge($args[2] ?? [], [
+                'team_name' => $args[0] ?? null,
+                'member_count' => $args[1] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'teamMemberJoined' => array_filter(array_merge($args[2] ?? [], [
+                'role' => $args[0] ?? null,
+                'invite_method' => $args[1] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'teamMemberRemoved' => array_filter([
+                ...($args[1] ?? []),
+                'role' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'roleChanged' => array_merge($args[2] ?? [], [
+                'from_role' => $args[0] ?? '',
+                'to_role' => $args[1] ?? '',
+            ]),
+            'paymentFailed' => array_filter(array_merge($args[2] ?? [], [
+                'reason' => $args[0] ?? null,
+                'amount' => $args[1] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'paymentSucceeded' => array_filter(array_merge($args[2] ?? [], [
+                'amount' => $args[0] ?? null,
+                'method' => $args[1] ?? null,
+            ]), fn (mixed $v): bool => $v !== null),
+            'milestoneReached' => array_merge($args[1] ?? [], [
+                'milestone' => $args[0] ?? '',
+            ]),
+            'workspaceCreated' => array_filter([
+                ...($args[1] ?? []),
+                'workspace_name' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'usageQuotaReached' => array_filter([
+                ...($args[2] ?? []),
+                'quota_type' => $args[0] ?? '',
+                'quota_limit' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'billingRetry' => array_filter([
+                ...($args[1] ?? []),
+                'attempt' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            default => $args[0] ?? [],
+        };
+    }
+
+    /**
      * Static accessor helper for static assertion methods.
      *
      * @return static
