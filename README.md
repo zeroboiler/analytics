@@ -2,14 +2,15 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-29.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-33.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v33.0.0](#whats-new-in-v33000)
 +- [What's New in v31.0.0](#whats-new-in-v31000)
 +- [What's New in v30.0.0](#whats-new-in-v30000)
 - [What's New in v28.0.0](#whats-new-in-v28000)
@@ -112,6 +113,24 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v33.0.0
+
+### 🧪 AnalyticsTestCommand — Full 10-Provider Validation
+- **AnalyticsTestCommand rebuilt** — `zb:analytics:test` now validates all 10 configured analytics providers (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn). Previous version only tested 5 providers.
+- **`--dry-run` flag** — Preview what would be dispatched without actually sending events. Useful for verifying provider configuration in staging.
+- **`--json` flag** — Machine-readable JSON output with provider status, latency, dispatch results, and catalog statistics. Ideal for CI/CD pipeline integration.
+- **Per-provider latency tracking** — Each dispatch is timed and reported in milliseconds.
+- **Consent state display** — Shows current consent signal states (ad_storage, analytics_storage, etc.) for quick GDPR debugging.
+- **Catalog summary** — Displays total event count and category count from EventCatalog.
+- **Error aggregation** — Exit code `FAILURE` if any provider throws, with error messages displayed.
+
+### 🔧 Version Sweep
+- Version bumped to 33.0.0 across all 12 version markers: `composer.json`, `package.json` (29.0.0 → 33.0.0), `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION` (30.0.0 → 33.0.0), `AnalyticsServiceProvider` docblock (30.0.0 → 33.0.0), JS `getVersion()` (31.0.0 → 33.0.0), JS `_getInternalVersion()` (31.0.0 → 33.0.0), `analytics.js` header (32.0.0 → 33.0.0), all 3 Svelte composables (31.0.0 → 33.0.0), TypeScript definitions (26.0.0 → 33.0.0), README badge (29.1.0 → 33.0.0).
+- README provider count updated: 8 → 10 providers (added TikTok, LinkedIn).
+
+### 🧪 Tests
+- **`V3300TestCommandRebuildVersionSweepTest`** — 35+ assertions covering AnalyticsTestCommand (construction, all 10 providers, dry-run mode, JSON output, consent display, catalog summary, disabled providers, error handling), version consistency across all 12 markers, file integrity, strict types.
 
 ## What's New in v31.0.0
 

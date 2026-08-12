@@ -2,6 +2,14 @@
 
 All notable changes to the package will be documented in this file.
 
+## [33.0.0] - 2026-08-12
+
+### Changed
+
+- **AnalyticsTestCommand rebuilt** — `zb:analytics:test` expanded to validate all 10 configured analytics providers (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn). Previously only tested 5 providers (GA4, GTM, Meta, Plausible, PostHog). Added `--dry-run` flag for preview mode, `--json` flag for machine-readable output, per-provider latency tracking, consent state display, and catalog summary.
+- **Version sweep** — 32.0.0 → 33.0.0 across all 12 version markers: `composer.json`, `package.json` (29.0.0 → 33.0.0), `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION` (30.0.0 → 33.0.0), `AnalyticsServiceProvider` docblock (30.0.0 → 33.0.0), `resources/js/analytics.js` header + `getVersion()` + `_getInternalVersion()` (31.0.0/32.0.0 → 33.0.0), all 3 Svelte composables (31.0.0 → 33.0.0), TypeScript definitions `analytics.d.ts` (26.0.0 → 33.0.0), README badge (29.1.0 → 33.0.0).
+- **README provider count** updated from 8 to 10 providers (added TikTok, LinkedIn).
+
 ## [32.0.0] - 2026-08-12
 
 ### Added
