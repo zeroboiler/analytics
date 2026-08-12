@@ -666,4 +666,27 @@ Route::prefix('analytics')->group(function () {
     Route::delete('store/events', [AnalyticsEventController::class, 'eventStoreDelete']);
     Route::delete('store/events/{id}', [AnalyticsEventController::class, 'eventStoreDeleteById']);
     Route::delete('store', [AnalyticsEventController::class, 'eventStorePurge']);
+
+    // Event Ingestion Pipeline (v36.0.0)
+    Route::get('ingestion/metrics', [AnalyticsEventController::class, 'ingestionMetrics']);
+    Route::get('ingestion/stats', [AnalyticsEventController::class, 'ingestionAggregatedStats']);
+    Route::get('ingestion/health', [AnalyticsEventController::class, 'ingestionHealth']);
+
+    // Event Cost Allocation (v36.0.0)
+    Route::get('cost-allocation/daily', [AnalyticsEventController::class, 'costAllocationDaily']);
+    Route::get('cost-allocation/monthly', [AnalyticsEventController::class, 'costAllocationMonthly']);
+    Route::get('cost-allocation/events', [AnalyticsEventController::class, 'costAllocationTopEvents']);
+    Route::get('cost-allocation/tenant/{tenantId}', [AnalyticsEventController::class, 'costAllocationTenant']);
+    Route::get('cost-allocation/budget', [AnalyticsEventController::class, 'costAllocationBudget']);
+
+    // Analytics Command Scheduler (v36.0.0)
+    Route::get('scheduler/status', [AnalyticsEventController::class, 'schedulerStatus']);
+    Route::get('scheduler/tasks', [AnalyticsEventController::class, 'schedulerTasks']);
+    Route::get('scheduler/due', [AnalyticsEventController::class, 'schedulerDueTasks']);
+    Route::get('scheduler/log', [AnalyticsEventController::class, 'schedulerExecutionLog']);
+    Route::post('scheduler/execute', [AnalyticsEventController::class, 'schedulerExecuteDue']);
+    Route::post('scheduler/execute/{taskName}', [AnalyticsEventController::class, 'schedulerExecuteTask']);
+    Route::post('scheduler/toggle/{taskName}', [AnalyticsEventController::class, 'schedulerToggleTask']);
+    Route::post('scheduler/register', [AnalyticsEventController::class, 'schedulerRegisterTask']);
+    Route::delete('scheduler/{taskName}', [AnalyticsEventController::class, 'schedulerRemoveTask']);
 });

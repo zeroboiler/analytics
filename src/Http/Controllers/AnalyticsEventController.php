@@ -88,6 +88,12 @@ use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 
 use ZeroBoiler\Analytics\Services\AnalyticsObservabilityService;
 
+use ZeroBoiler\Analytics\Services\EventIngestionService;
+
+use ZeroBoiler\Analytics\Services\EventCostTracker;
+
+use ZeroBoiler\Analytics\Services\AnalyticsCommandScheduler;
+
 /**
  * API controller for frontend event tracking.
  *
@@ -10554,6 +10560,325 @@ final class AnalyticsEventController extends Controller
                 : new \ZeroBoiler\Analytics\Store\NullEventStore;
         } catch (\Throwable) {
             return new \ZeroBoiler\Analytics\Store\NullEventStore;
+        }
+    }
+
+    // ── Event Ingestion Pipeline (v36.0.0) ─────────────────────────
+
+    /**
+     * Get ingestion metrics for the current request.
+     *
+     * GET /api/analytics/ingestion/metrics
+     */
+    public function ingestionMetrics(): JsonResponse
+    {
+        try {
+            $ingestion = app(EventIngestionService::class);
+
+            return response()->json($ingestion->getMetrics());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get aggregated ingestion statistics from cache.
+     *
+     * GET /api/analytics/ingestion/stats
+     */
+    public function ingestionAggregatedStats(): JsonResponse
+    {
+        try {
+            $ingestion = app(EventIngestionService::class);
+
+            return response()->json($ingestion->getAggregatedStats());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Health check for the ingestion pipeline.
+     *
+     * GET /api/analytics/ingestion/health
+     */
+    public function ingestionHealth(): JsonResponse
+    {
+        try {
+            $ingestion = app(EventIngestionService::class);
+
+            return response()->json([
+                'enabled' => $ingestion->isEnabled(),
+                'status' => $ingestion->isEnabled() ? 'healthy' : 'disabled',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Cost Allocation (v36.0.0) ──────────────────────────────
+
+    /**
+     * Get daily cost breakdown by provider.
+     *
+     * GET /api/analytics/cost-allocation/daily
+     */
+    public function costAllocationDaily(): JsonResponse
+    {
+        try {
+            $tracker = app(EventCostTracker::class);
+
+            return response()->json($tracker->getDailyCostBreakdown());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get monthly cost breakdown by provider.
+     *
+     * GET /api/analytics/cost-allocation/monthly
+     */
+    public function costAllocationMonthly(): JsonResponse
+    {
+        try {
+            $tracker = app(EventCostTracker::class);
+
+            return response()->json($tracker->getMonthlyCostBreakdown());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top N most expensive events today.
+     *
+     * GET /api/analytics/cost-allocation/events
+     */
+    public function costAllocationTopEvents(Request $request): JsonResponse
+    {
+        try {
+            $tracker = app(EventCostTracker::class);
+            $limit = (int) ($request->query('limit', 10));
+
+            return response()->json($tracker->getTopCostEvents(min($limit, 100)));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost summary for a specific tenant.
+     *
+     * GET /api/analytics/cost-allocation/tenant/{tenantId}
+     */
+    public function costAllocationTenant(string $tenantId): JsonResponse
+    {
+        try {
+            $tracker = app(EventCostTracker::class);
+
+            return response()->json($tracker->getTenantCost($tenantId));
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get budget status and remaining budget.
+     *
+     * GET /api/analytics/cost-allocation/budget
+     */
+    public function costAllocationBudget(): JsonResponse
+    {
+        try {
+            $tracker = app(EventCostTracker::class);
+
+            return response()->json([
+                'budget_exceeded' => $tracker->isBudgetExceeded(),
+                'remaining' => $tracker->getRemainingBudget(),
+                'request_metrics' => $tracker->getRequestMetrics(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Analytics Command Scheduler (v36.0.0) ───────────────────────
+
+    /**
+     * Get scheduler summary status.
+     *
+     * GET /api/analytics/scheduler/status
+     */
+    public function schedulerStatus(): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+
+            return response()->json($scheduler->getSummary());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all registered tasks.
+     *
+     * GET /api/analytics/scheduler/tasks
+     */
+    public function schedulerTasks(): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+
+            return response()->json($scheduler->getTasks());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get tasks that are currently due for execution.
+     *
+     * GET /api/analytics/scheduler/due
+     */
+    public function schedulerDueTasks(): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+
+            return response()->json([
+                'due_tasks' => $scheduler->getDueTasks(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get execution log for all tasks.
+     *
+     * GET /api/analytics/scheduler/log
+     */
+    public function schedulerExecutionLog(): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+
+            return response()->json($scheduler->getExecutionLog());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Execute all due scheduled tasks.
+     *
+     * POST /api/analytics/scheduler/execute
+     */
+    public function schedulerExecuteDue(): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+            $result = $scheduler->executeDueTasks();
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Execute a specific scheduled task.
+     *
+     * POST /api/analytics/scheduler/execute/{taskName}
+     */
+    public function schedulerExecuteTask(string $taskName): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+            $success = $scheduler->executeTask($taskName);
+
+            return response()->json([
+                'task' => $taskName,
+                'success' => $success,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Toggle a task enabled/disabled.
+     *
+     * POST /api/analytics/scheduler/toggle/{taskName}
+     */
+    public function schedulerToggleTask(string $taskName, Request $request): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+            $enabled = (bool) ($request->input('enabled', true));
+            $scheduler->toggleTask($taskName, $enabled);
+
+            return response()->json([
+                'task' => $taskName,
+                'enabled' => $enabled,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Register a new custom scheduled task.
+     *
+     * POST /api/analytics/scheduler/register
+     */
+    public function schedulerRegisterTask(Request $request): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+
+            $name = (string) ($request->input('name', ''));
+            $command = (string) ($request->input('command', ''));
+            $frequency = (string) ($request->input('frequency', 'daily'));
+            $description = (string) ($request->input('description', ''));
+            $params = (array) ($request->input('params', []));
+
+            if ($name === '' || $command === '') {
+                return response()->json([
+                    'error' => 'name and command are required',
+                ], 422);
+            }
+
+            $scheduler->registerTask($name, $command, $frequency, $description, $params);
+
+            return response()->json([
+                'task' => $name,
+                'registered' => true,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Remove a scheduled task.
+     *
+     * DELETE /api/analytics/scheduler/{taskName}
+     */
+    public function schedulerRemoveTask(string $taskName): JsonResponse
+    {
+        try {
+            $scheduler = app(AnalyticsCommandScheduler::class);
+            $scheduler->removeTask($taskName);
+
+            return response()->json([
+                'task' => $taskName,
+                'removed' => true,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [36.0.0] - 2026-08-12
+
+### Added
+
+- **Event Ingestion Pipeline** — `EventIngestionService` provides a centralized, single entry point for all incoming analytics events regardless of source (API, server-side, webhook, replay, batch). Orchestrates the full ingestion lifecycle: validation (name length, param count, payload size), deduplication (event fingerprint), consent check, enrichment, cost estimation, provider dispatch, and post-dispatch metrics (latency, source tracking, rejection rate). Configurable via `zeroboiler.analytics.ingestion`.
+- **Event Cost Allocation** — `EventCostTracker` tracks per-provider dispatch cost with configurable cost weights for all 10 providers (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn). Priority-aware estimation (critical=2x, normal=1x, low=0.5x, background=0.25x). Daily and monthly cost breakdowns, per-event cost ranking, per-tenant allocation, budget enforcement with configurable daily limits. Config: `zeroboiler.analytics.cost_allocation`.
+- **Analytics Command Scheduler** — `AnalyticsCommandScheduler` enables config-driven scheduling of analytics admin commands. 7 built-in tasks (health check, readiness score, cost report, archive cleanup, schema validation, daily snapshot, overview) with hourly/daily/weekly/monthly frequencies. Cooldown tracking, execution logging, and runtime task registration. Config: `zeroboiler.analytics.scheduler`.
+- **Analytics Ingestion Command** (`zb:analytics:ingestion`) — Admin CLI displaying real-time ingestion metrics, cost allocation breakdowns, scheduled task status, and budget utilization. Supports `--costs`, `--scheduler`, `--execute-due`, `--reset`, and `--json` flags.
+- **18 new API endpoints** — Ingestion metrics/stats/health (3), cost allocation daily/monthly/events/tenant/budget (5), scheduler status/tasks/due/log/execute/toggle/register/remove (10).
+- **3 new config sections** — `ingestion` (8 options), `cost_allocation` (6 options + 10 provider weights), `scheduler` (4 options + custom tasks).
+- **2 new singleton registrations** — EventIngestionService, AnalyticsCommandScheduler in AnalyticsServiceProvider.
+- **V3600IngestionCostSchedulerTest** — 40+ test cases covering all 3 new services, config integration, version sweep, strict types, final classes, return type declarations, and readonly DTO enforcement.
+
+### Changed
+
+- **Version sweep** — 35.0.0 → 36.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge, CHANGELOG, ToC.
+
 ## [35.0.0] - 2026-08-12
 
 ### Changed

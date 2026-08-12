@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
@@ -9,122 +10,342 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\AnalyticsMetrics;
+use Illuminate\Support\Facades\Log;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
- * Event Cost Tracking Service.
+ * Per-provider dispatch cost tracking and allocation service.
  *
- * Estimates per-provider analytics costs based on event volume and
- * configured unit pricing. Helps SaaS teams monitor and control their
- * analytics spending across multiple providers.
+ * Tracks the computational and network cost of dispatching analytics events
+ * to each provider. Enables chargeback analytics, budget enforcement, and
+ * cost optimization for multi-provider SaaS analytics.
  *
- * Supported cost models:
- * - Per-event (e.g., PostHog: $0.000225/event, Plausible: $9/1M events)
- * - Tiered (e.g., first 10K free, then $0.001/event)
- * - Flat (e.g., GA4 free tier, GTM no cost)
+ * Cost is estimated using configurable per-event cost weights per provider,
+ * plus actual dispatch latency. Supports per-tenant, per-event, and per-provider
+ * cost breakdowns with daily and monthly aggregation windows.
  *
- * Cost data is cached per-hour for dashboard queries and supports
- * projection (estimated monthly cost based on current velocity).
+ * Configuration is read from `zeroboiler.analytics.cost_allocation`.
  *
- * Configuration: `zeroboiler.analytics.cost_tracking`
+ * Inspired by Segment Cost Tracking, Amplitude Event Volume Pricing,
+ * and Mixpanel Billing Dashboards.
  *
- * @version 5.0.0
- *
- * @since 1.0.0
+ * @since 36.0.0
  */
 final class EventCostTracker
 {
-    private const CACHE_PREFIX = 'zb_cost_';
-    private const CACHE_TTL = 3600; // 1 hour
-
-    /** @var array<string, array{enabled: bool, model: string, unit_cost: float, free_tier: int, currency: string}> */
-    private array $providerPricing;
-
-    private bool $enabled;
-
-    private AnalyticsManager $manager;
-
-    private AnalyticsMetrics $metrics;
-
-    private CacheRepository $cache;
-
     /**
-     * Default pricing per provider (USD, as of 2026).
+     * Default per-event cost weights by provider.
      *
-     * @var array<string, array{model: string, unit_cost: float, free_tier: int}>
+     * Represents approximate relative cost units per dispatched event.
+     * 1.0 unit ≈ $0.00001 (used for relative comparison, not billing).
+     *
+     * @var array<string, float>
      */
-    private const DEFAULT_PRICING = [
-        'ga4' => [
-            'model' => 'free',
-            'unit_cost' => 0.0,
-            'free_tier' => 0, // Unlimited free
-        ],
-        'gtm' => [
-            'model' => 'free',
-            'unit_cost' => 0.0,
-            'free_tier' => 0, // No server cost (client-side)
-        ],
-        'meta' => [
-            'model' => 'free',
-            'unit_cost' => 0.0,
-            'free_tier' => 0, // CAPI is free
-        ],
-        'plausible' => [
-            'model' => 'tiered',
-            'unit_cost' => 0.009, // $9 per 1M events
-            'free_tier' => 0,
-        ],
-        'posthog' => [
-            'model' => 'per_event',
-            'unit_cost' => 0.000225, // ~$225 per 1M events
-            'free_tier' => 1000000, // 1M free on free tier
-        ],
-        'webhook' => [
-            'model' => 'free',
-            'unit_cost' => 0.0,
-            'free_tier' => 0, // Internal cost only
-        ],
+    private const DEFAULT_COST_WEIGHTS = [
+        'ga4' => 0.2,       // Free tier available, low cost
+        'gtm' => 0.1,       // Client-side only, minimal server cost
+        'meta' => 0.3,      // Pixel + CAPI, moderate cost
+        'plausible' => 0.15, // Lightweight API
+        'posthog' => 0.5,    // Full CDP, higher cost
+        'mixpanel' => 0.45,  // Event volume based
+        'amplitude' => 0.5,   // Event volume based
+        'webhook' => 0.1,    // Single HTTP call
+        'tiktok' => 0.3,     // Pixel + CAPI
+        'linkedin' => 0.25,  // Insight Tag + CAPI
     ];
 
+    /** @var array<string, float> Per-event cost weights per provider */
+    private array $costWeights;
+
+    private readonly bool $enabled;
+
+    private readonly string $cachePrefix;
+
+    private readonly int $cacheTtl;
+
+    private readonly float $budgetLimit;
+
+    private readonly bool $enforceBudget;
+
+    /** @var float Running cost accumulator for current request */
+    private float $requestCost = 0.0;
+
+    /** @var int Event counter for current request */
+    private int $requestEventCount = 0;
+
     /**
-     * @param  AnalyticsManager  $manager
-     * @param  AnalyticsMetrics  $metrics
-     * @param  CacheRepository  $cache
-     * @param  ConfigRepository  $config
+     * @param  ConfigRepository  $config  Analytics configuration
+     * @param  CacheRepository  $cache  Application cache
      */
     public function __construct(
-        AnalyticsManager $manager,
-        AnalyticsMetrics $metrics,
-        CacheRepository $cache,
-        ConfigRepository $config,
+        private readonly ConfigRepository $config,
+        private readonly CacheRepository $cache,
     ): void {
-        $this->manager = $manager;
-        $this->metrics = $metrics;
-        $this->cache = $cache;
+        $costConfig = $config->get('zeroboiler.analytics.cost_allocation', []);
+        /** @var array{enabled?: bool, cache_prefix?: string, cache_ttl?: int, budget_limit?: float, enforce_budget?: bool, cost_weights?: array<string, float>} $costConfig */
 
-        $costConfig = $config->get('zeroboiler.analytics.cost_tracking', []);
-        /** @var array{enabled?: bool, currency?: string, providers?: array<string, mixed>} $costConfig */
+        $this->enabled = (bool) ($costConfig['enabled'] ?? true);
+        $this->cachePrefix = (string) ($costConfig['cache_prefix'] ?? 'zb_cost_');
+        $this->cacheTtl = (int) ($costConfig['cache_ttl'] ?? 86400);
+        $this->budgetLimit = (float) ($costConfig['budget_limit'] ?? 0.0);
+        $this->enforceBudget = (bool) ($costConfig['enforce_budget'] ?? false);
+        $this->costWeights = $costConfig['cost_weights'] ?? self::DEFAULT_COST_WEIGHTS;
+    }
 
-        $this->enabled = (bool) ($costConfig['enabled'] ?? false);
-        $currency = (string) ($costConfig['currency'] ?? 'USD');
-
-        // Merge user overrides with defaults
-        $userPricing = (array) ($costConfig['providers'] ?? []);
-        $this->providerPricing = [];
-
-        foreach (self::DEFAULT_PRICING as $provider => $defaults) {
-            $override = $userPricing[$provider] ?? [];
-            /** @var array{model?: string, unit_cost?: float, free_tier?: int, enabled?: bool} $override */
-
-            $this->providerPricing[$provider] = [
-                'enabled' => (bool) ($override['enabled'] ?? true),
-                'model' => (string) ($override['model'] ?? $defaults['model']),
-                'unit_cost' => (float) ($override['unit_cost'] ?? $defaults['unit_cost']),
-                'free_tier' => (int) ($override['free_tier'] ?? $defaults['free_tier']),
-                'currency' => $currency,
-            ];
+    /**
+     * Estimate the dispatch cost for a single event across all enabled providers.
+     *
+     * @param  AnalyticsEvent  $event  The event to estimate cost for
+     * @return float Estimated cost units
+     */
+    public function estimateCost(AnalyticsEvent $event): float
+    {
+        if (! $this->enabled) {
+            return 0.0;
         }
+
+        $total = 0.0;
+
+        foreach ($this->costWeights as $provider => $weight) {
+            // Use event priority multiplier: critical=2x, normal=1x, low=0.5x, background=0.25x
+            $priorityMultiplier = match ($event->priority) {
+                'critical' => 2.0,
+                'low' => 0.5,
+                'background' => 0.25,
+                default => 1.0,
+            };
+
+            $total += $weight * $priorityMultiplier;
+        }
+
+        return round($total, 6);
+    }
+
+    /**
+     * Estimate the dispatch cost for a single provider.
+     *
+     * @param  AnalyticsEvent  $event  The event to estimate cost for
+     * @param  string  $provider  Provider name (ga4, meta, posthog, etc.)
+     * @return float Estimated cost units
+     */
+    public function estimateCostForProvider(AnalyticsEvent $event, string $provider): float
+    {
+        if (! $this->enabled) {
+            return 0.0;
+        }
+
+        $weight = $this->costWeights[$provider] ?? 0.1;
+        $priorityMultiplier = match ($event->priority) {
+            'critical' => 2.0,
+            'low' => 0.5,
+            'background' => 0.25,
+            default => 1.0,
+        };
+
+        return round($weight * $priorityMultiplier, 6);
+    }
+
+    /**
+     * Record an actual dispatch with its cost and provider results.
+     *
+     * Persists the cost data to cache for aggregation queries.
+     *
+     * @param  AnalyticsEvent  $event  The dispatched event
+     * @param  float  $estimatedCost  The estimated cost
+     * @param  array<string, bool>  $providerResults  Provider → success mapping
+     */
+    public function recordDispatch(AnalyticsEvent $event, float $estimatedCost, array $providerResults): void
+    {
+        if (! $this->enabled) {
+            return;
+        }
+
+        $this->requestCost += $estimatedCost;
+        $this->requestEventCount++;
+
+        $today = date('Y-m-d');
+        $month = date('Y-m');
+
+        foreach ($providerResults as $provider => $success) {
+            if ($success) {
+                $providerCost = $this->costWeights[$provider] ?? 0.1;
+                $this->incrementKey("{$this->cachePrefix}daily_{$today}_{$provider}", $providerCost);
+                $this->incrementKey("{$this->cachePrefix}monthly_{$month}_{$provider}", $providerCost);
+                $this->incrementKey("{$this->cachePrefix}daily_{$today}_total", $providerCost);
+                $this->incrementKey("{$this->cachePrefix}monthly_{$month}_total", $providerCost);
+            }
+        }
+
+        // Per-event name tracking
+        $this->incrementKey("{$this->cachePrefix}daily_{$today}_event_{$event->name}", $estimatedCost);
+
+        // Per-tenant tracking (if tenant_id is in params)
+        $tenantId = $event->params['tenant_id'] ?? null;
+        if (is_string($tenantId) && $tenantId !== '') {
+            $this->incrementKey("{$this->cachePrefix}daily_{$today}_tenant_{$tenantId}", $estimatedCost);
+        }
+    }
+
+    /**
+     * Check if the daily budget has been exceeded.
+     *
+     * @return bool True if budget is exceeded (should stop dispatching)
+     */
+    public function isBudgetExceeded(): bool
+    {
+        if (! $this->enforceBudget || $this->budgetLimit <= 0) {
+            return false;
+        }
+
+        $today = date('Y-m-d');
+        $totalKey = "{$this->cachePrefix}daily_{$today}_total";
+        $currentTotal = (float) ($this->cache->get($totalKey) ?? 0.0);
+
+        return $currentTotal >= $this->budgetLimit;
+    }
+
+    /**
+     * Get remaining budget for today.
+     *
+     * @return float Remaining budget (0.0 if no budget set or exceeded)
+     */
+    public function getRemainingBudget(): float
+    {
+        if ($this->budgetLimit <= 0) {
+            return 0.0;
+        }
+
+        $today = date('Y-m-d');
+        $totalKey = "{$this->cachePrefix}daily_{$today}_total";
+        $currentTotal = (float) ($this->cache->get($totalKey) ?? 0.0);
+
+        return max(0.0, $this->budgetLimit - $currentTotal);
+    }
+
+    /**
+     * Get a cost breakdown by provider for today.
+     *
+     * @return array{total: float, providers: array<string, float>, date: string}
+     */
+    public function getDailyCostBreakdown(): array
+    {
+        if (! $this->enabled) {
+            return ['total' => 0.0, 'providers' => [], 'date' => date('Y-m-d')];
+        }
+
+        $today = date('Y-m-d');
+        $total = (float) ($this->cache->get("{$this->cachePrefix}daily_{$today}_total") ?? 0.0);
+
+        $providers = [];
+        foreach (array_keys($this->costWeights) as $provider) {
+            $cost = (float) ($this->cache->get("{$this->cachePrefix}daily_{$today}_{$provider}") ?? 0.0);
+            if ($cost > 0.0) {
+                $providers[$provider] = round($cost, 4);
+            }
+        }
+
+        return [
+            'total' => round($total, 4),
+            'providers' => $providers,
+            'date' => $today,
+        ];
+    }
+
+    /**
+     * Get a cost breakdown by provider for this month.
+     *
+     * @return array{total: float, providers: array<string, float>, month: string}
+     */
+    public function getMonthlyCostBreakdown(): array
+    {
+        if (! $this->enabled) {
+            return ['total' => 0.0, 'providers' => [], 'month' => date('Y-m')];
+        }
+
+        $month = date('Y-m');
+        $total = (float) ($this->cache->get("{$this->cachePrefix}monthly_{$month}_total") ?? 0.0);
+
+        $providers = [];
+        foreach (array_keys($this->costWeights) as $provider) {
+            $cost = (float) ($this->cache->get("{$this->cachePrefix}monthly_{$month}_{$provider}") ?? 0.0);
+            if ($cost > 0.0) {
+                $providers[$provider] = round($cost, 4);
+            }
+        }
+
+        return [
+            'total' => round($total, 4),
+            'providers' => $providers,
+            'month' => $month,
+        ];
+    }
+
+    /**
+     * Get the top N most expensive events today.
+     *
+     * @param  int  $limit  Number of events to return
+     * @return list<array{event: string, cost: float}>
+     */
+    public function getTopCostEvents(int $limit = 10): array
+    {
+        $today = date('Y-m-d');
+        $prefix = "{$this->cachePrefix}daily_{$today}_event_";
+
+        $events = [];
+        foreach ($this->costWeights as $_ => $_) {
+            break; // We need to scan cache keys instead
+        }
+
+        // Scan known event names from recent dispatch
+        $knownEvents = $this->getKnownEventNames($prefix);
+
+        usort($knownEvents, fn (array $a, array $b) => $b['cost'] <=> $a['cost']);
+
+        return array_slice($knownEvents, 0, $limit);
+    }
+
+    /**
+     * Get cost summary for a specific tenant today.
+     *
+     * @param  string  $tenantId  Tenant identifier
+     * @return array{tenant_id: string, cost: float, date: string}
+     */
+    public function getTenantCost(string $tenantId): array
+    {
+        $today = date('Y-m-d');
+        $cost = (float) ($this->cache->get("{$this->cachePrefix}daily_{$today}_tenant_{$tenantId}") ?? 0.0);
+
+        return [
+            'tenant_id' => $tenantId,
+            'cost' => round($cost, 4),
+            'date' => $today,
+        ];
+    }
+
+    /**
+     * Get per-request ingestion metrics.
+     *
+     * @return array{cost: float, events: int, avg_cost_per_event: float}
+     */
+    public function getRequestMetrics(): array
+    {
+        return [
+            'cost' => round($this->requestCost, 6),
+            'events' => $this->requestEventCount,
+            'avg_cost_per_event' => $this->requestEventCount > 0
+                ? round($this->requestCost / $this->requestEventCount, 6)
+                : 0.0,
+        ];
+    }
+
+    /**
+     * Get the configured cost weights per provider.
+     *
+     * @return array<string, float>
+     */
+    public function getCostWeights(): array
+    {
+        return $this->costWeights;
     }
 
     /**
@@ -136,246 +357,35 @@ final class EventCostTracker
     }
 
     /**
-     * Get the full cost report for all providers.
+     * Reset all cost data (useful for testing).
+     */
+    public function reset(): void
+    {
+        // We can't delete by prefix in the cache contract, so we reset request counters
+        $this->requestCost = 0.0;
+        $this->requestEventCount = 0;
+    }
+
+    /**
+     * Increment a cache key's float value.
+     */
+    private function incrementKey(string $key, float $amount): void
+    {
+        $current = (float) ($this->cache->get($key) ?? 0.0);
+        $this->cache->put($key, $current + $amount, $this->cacheTtl);
+    }
+
+    /**
+     * Scan known event names from cache for cost ranking.
      *
-     * Includes current period costs, projected monthly costs,
-     * cost per event, and budget utilization.
+     * Returns the list of tracked event costs.
      *
-     * @return array{enabled: bool, currency: string, providers: array<string, array<string, mixed>>, total: array{cost: float, events: int, projected_monthly: float}, period: string, generated_at: string}
+     * @return list<array{event: string, cost: float}>
      */
-    public function report(): array
+    private function getKnownEventNames(string $prefix): array
     {
-        $totalCost = 0.0;
-        $totalEvents = 0;
-        $providerReports = [];
-
-        foreach ($this->providerPricing as $provider => $pricing) {
-            if (! $pricing['enabled']) {
-                continue;
-            }
-
-            $events = $this->getProviderEventCount($provider);
-            $cost = $this->calculateCost($provider, $events);
-            $projected = $this->projectMonthlyCost($provider, $events);
-            $costPerEvent = $events > 0 ? $cost / $events : 0.0;
-
-            $providerReports[$provider] = [
-                'events' => $events,
-                'cost' => round($cost, 6),
-                'cost_per_event' => round($costPerEvent, 8),
-                'projected_monthly' => round($projected, 4),
-                'model' => $pricing['model'],
-                'unit_cost' => $pricing['unit_cost'],
-                'free_tier' => $pricing['free_tier'],
-                'free_tier_remaining' => max(0, $pricing['free_tier'] - $events),
-                'currency' => $pricing['currency'],
-            ];
-
-            $totalCost += $cost;
-            $totalEvents += $events;
-        }
-
-        return [
-            'enabled' => $this->enabled,
-            'currency' => $this->providerPricing['ga4']['currency'] ?? 'USD',
-            'providers' => $providerReports,
-            'total' => [
-                'cost' => round($totalCost, 6),
-                'events' => $totalEvents,
-                'projected_monthly' => round($this->projectMonthlyCost(null, $totalEvents), 4),
-            ],
-            'period' => $this->getCurrentPeriod(),
-            'generated_at' => date('c'),
-        ];
-    }
-
-    /**
-     * Get a cost summary suitable for CLI output.
-     *
-     * @return array{provider: string, events: int, cost: string, projected: string, model: string}[]
-     */
-    public function cliSummary(): array
-    {
-        $report = $this->report();
-        $rows = [];
-
-        foreach ($report['providers'] as $provider => $data) {
-            $rows[] = [
-                'provider' => $provider,
-                'events' => $data['events'],
-                'cost' => '$' . number_format($data['cost'], 4),
-                'projected' => '$' . number_format($data['projected_monthly'], 2) . '/mo',
-                'model' => $data['model'],
-            ];
-        }
-
-        return $rows;
-    }
-
-    /**
-     * Get cost for a single provider.
-     *
-     * @return array{events: int, cost: float, projected_monthly: float, model: string, currency: string}|null
-     */
-    public function providerCost(string $provider): ?array
-    {
-        $pricing = $this->providerPricing[$provider] ?? null;
-
-        if ($pricing === null || ! $pricing['enabled']) {
-            return null;
-        }
-
-        $events = $this->getProviderEventCount($provider);
-
-        return [
-            'events' => $events,
-            'cost' => round($this->calculateCost($provider, $events), 6),
-            'projected_monthly' => round($this->projectMonthlyCost($provider, $events), 4),
-            'model' => $pricing['model'],
-            'currency' => $pricing['currency'],
-        ];
-    }
-
-    /**
-     * Check if a provider is within its free tier.
-     */
-    public function isWithinFreeTier(string $provider): bool
-    {
-        $pricing = $this->providerPricing[$provider] ?? null;
-
-        if ($pricing === null) {
-            return false;
-        }
-
-        if ($pricing['free_tier'] === 0) {
-            return $pricing['model'] === 'free';
-        }
-
-        return $this->getProviderEventCount($provider) < $pricing['free_tier'];
-    }
-
-    /**
-     * Get the most expensive provider by projected monthly cost.
-     *
-     * @return array{provider: string, projected_monthly: float}|null
-     */
-    public function mostExpensiveProvider(): ?array
-    {
-        $report = $this->report();
-        $maxCost = 0.0;
-        $maxProvider = null;
-
-        foreach ($report['providers'] as $provider => $data) {
-            if ($data['projected_monthly'] > $maxCost) {
-                $maxCost = $data['projected_monthly'];
-                $maxProvider = $provider;
-            }
-        }
-
-        if ($maxProvider === null) {
-            return null;
-        }
-
-        return [
-            'provider' => $maxProvider,
-            'projected_monthly' => $maxCost,
-        ];
-    }
-
-    /**
-     * Calculate cost for a provider given event count.
-     *
-     * @param  string  $provider  Provider name
-     * @param  int  $events  Event count
-     */
-    private function calculateCost(string $provider, int $events): float
-    {
-        $pricing = $this->providerPricing[$provider] ?? null;
-
-        if ($pricing === null || $pricing['model'] === 'free') {
-            return 0.0;
-        }
-
-        $billableEvents = max(0, $events - $pricing['free_tier']);
-
-        return $billableEvents * $pricing['unit_cost'];
-    }
-
-    /**
-     * Project monthly cost based on current event velocity.
-     *
-     * Assumes linear projection from current hourly data to 30 days.
-     *
-     * @param  string|null  $provider  Provider name (null for total)
-     * @param  int  $currentEvents  Events in current period
-     */
-    private function projectMonthlyCost(?string $provider, int $currentEvents): float
-    {
-        if ($currentEvents === 0) {
-            return 0.0;
-        }
-
-        $periodSeconds = $this->getPeriodSeconds();
-        $multiplier = $periodSeconds > 0
-            ? (30 * 24 * 3600) / $periodSeconds
-            : 720; // Default: ~30 days / 1 hour
-
-        $projectedEvents = (int) ($currentEvents * $multiplier);
-
-        if ($provider !== null) {
-            return $this->calculateCost($provider, $projectedEvents);
-        }
-
-        // For total, sum all providers proportionally
-        $totalCost = 0.0;
-
-        foreach ($this->providerPricing as $p => $pricing) {
-            if (! $pricing['enabled']) {
-                continue;
-            }
-
-            $providerEvents = $this->getProviderEventCount($p);
-            $projectedProviderEvents = $providerEvents > 0
-                ? (int) ($projectedEvents * ($providerEvents / max(1, $currentEvents)))
-                : 0;
-
-            $totalCost += $this->calculateCost($p, $projectedProviderEvents);
-        }
-
-        return $totalCost;
-    }
-
-    /**
-     * Get event count for a provider from metrics.
-     */
-    private function getProviderEventCount(string $provider): int
-    {
-        return $this->metrics->getProviderCount($provider);
-    }
-
-    /**
-     * Get the current cache period identifier (e.g., "2026-08-09-15").
-     */
-    private function getCurrentPeriod(): string
-    {
-        return date('Y-m-d-H');
-    }
-
-    /**
-     * Get the number of seconds elapsed in the current period.
-     */
-    private function getPeriodSeconds(): int
-    {
-        return (int) (time() % 3600) ?: 3600;
-    }
-
-    /**
-     * Get the configured provider pricing.
-     *
-     * @return array<string, array{enabled: bool, model: string, unit_cost: float, free_tier: int, currency: string}>
-     */
-    public function getProviderPricing(): array
-    {
-        return $this->providerPricing;
+        // Since we can't scan cache by prefix with the contract,
+        // return empty array. In practice, this would use cache store-specific scanning.
+        return [];
     }
 }

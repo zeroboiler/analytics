@@ -5004,5 +5004,89 @@ return [
                 'plausible' => env('ANALYTICS_IDENTITY_SYNC_PLAUSIBLE', true),
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Ingestion Pipeline (v36.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Centralized event ingestion pipeline — the single entry point for all
+        | incoming analytics events regardless of source (API, server-side, webhook,
+        | replay, batch, edge proxy).
+        |
+        | Orchestrates validation, deduplication, enrichment, cost estimation,
+        | dispatch, and post-dispatch metrics for every event.
+        |
+        */
+        'ingestion' => [
+            'enabled' => env('ANALYTICS_INGESTION_ENABLED', true),
+            'max_event_name_length' => (int) env('ANALYTICS_INGESTION_MAX_NAME_LENGTH', 100),
+            'max_param_count' => (int) env('ANALYTICS_INGESTION_MAX_PARAMS', 100),
+            'max_payload_size' => (int) env('ANALYTICS_INGESTION_MAX_PAYLOAD', 65536), // 64 KB
+            'timeout_ms' => (int) env('ANALYTICS_INGESTION_TIMEOUT', 5000),
+            'track_latency' => env('ANALYTICS_INGESTION_TRACK_LATENCY', true),
+            'cache_prefix' => env('ANALYTICS_INGESTION_CACHE_PREFIX', 'zb_ingestion_'),
+            'cache_ttl' => (int) env('ANALYTICS_INGESTION_CACHE_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Cost Allocation (v36.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Per-provider dispatch cost tracking and allocation.
+        | Enables chargeback analytics, budget enforcement, and cost optimization.
+        |
+        | Cost weights are relative units (not monetary). Set 'enforce_budget'
+        | to true to stop dispatching when the daily budget limit is reached.
+        |
+        */
+        'cost_allocation' => [
+            'enabled' => env('ANALYTICS_COST_ALLOCATION_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_COST_CACHE_PREFIX', 'zb_cost_'),
+            'cache_ttl' => (int) env('ANALYTICS_COST_CACHE_TTL', 86400), // 24 hours
+            'budget_limit' => (float) env('ANALYTICS_COST_BUDGET_LIMIT', 0.0), // 0 = unlimited
+            'enforce_budget' => env('ANALYTICS_COST_ENFORCE_BUDGET', false),
+            'cost_weights' => [
+                'ga4' => (float) env('ANALYTICS_COST_GA4', 0.2),
+                'gtm' => (float) env('ANALYTICS_COST_GTM', 0.1),
+                'meta' => (float) env('ANALYTICS_COST_META', 0.3),
+                'plausible' => (float) env('ANALYTICS_COST_PLAUSIBLE', 0.15),
+                'posthog' => (float) env('ANALYTICS_COST_POSTHOG', 0.5),
+                'mixpanel' => (float) env('ANALYTICS_COST_MIXPANEL', 0.45),
+                'amplitude' => (float) env('ANALYTICS_COST_AMPLITUDE', 0.5),
+                'webhook' => (float) env('ANALYTICS_COST_WEBHOOK', 0.1),
+                'tiktok' => (float) env('ANALYTICS_COST_TIKTOK', 0.3),
+                'linkedin' => (float) env('ANALYTICS_COST_LINKEDIN', 0.25),
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Analytics Command Scheduler (v36.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven scheduling of analytics admin commands.
+        | Supports hourly, daily, weekly, and monthly schedules with cooldown
+        | tracking and execution logging.
+        |
+        | Set 'enabled' to true and use 'php artisan zb:analytics:ingestion --scheduler'
+        | to view status, or '--execute-due' to run all due tasks.
+        |
+        */
+        'scheduler' => [
+            'enabled' => env('ANALYTICS_SCHEDULER_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_SCHEDULER_CACHE_PREFIX', 'zb_scheduler_'),
+            'cache_ttl' => (int) env('ANALYTICS_SCHEDULER_CACHE_TTL', 2592000), // 30 days
+            'tasks' => [
+                // 'custom_task' => [
+                //     'command' => 'zb:analytics:export',
+                //     'frequency' => 'daily', // hourly|daily|weekly|monthly
+                //     'description' => 'My custom scheduled task',
+                //     'enabled' => true,
+                // ],
+            ],
+            'override_defaults' => env('ANALYTICS_SCHEDULER_OVERRIDE_DEFAULTS', false),
+        ],
     ],
 ];

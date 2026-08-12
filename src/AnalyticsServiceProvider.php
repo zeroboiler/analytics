@@ -261,6 +261,9 @@ use ZeroBoiler\Analytics\Services\EventSchemaMigrationService;
 use ZeroBoiler\Analytics\Services\ConsentBannerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
 use ZeroBoiler\Analytics\Console\Commands\SaaSMetricsCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsIngestionCommand;
+use ZeroBoiler\Analytics\Services\EventIngestionService;
+use ZeroBoiler\Analytics\Services\AnalyticsCommandScheduler;
 use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
 use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
@@ -273,7 +276,7 @@ use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 35.0.0
+ * @version 36.0.0
  *
  * @since 1.0.0
  */
@@ -2631,6 +2634,23 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Ingestion Service (v36.0.0) — centralized event ingestion pipeline
+        $this->app->singleton(EventIngestionService::class, function (Application $app): EventIngestionService {
+            return new EventIngestionService(
+                $app->make('zeroboiler.analytics'),
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
+
+        // Analytics Command Scheduler (v36.0.0) — config-driven task scheduling
+        $this->app->singleton(AnalyticsCommandScheduler::class, function (Application $app): AnalyticsCommandScheduler {
+            return new AnalyticsCommandScheduler(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
     }
 
     /**
@@ -2675,6 +2695,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDiagnosticCommand::class,
                 AnalyticsDlqCommand::class,
                 SaaSMetricsCommand::class,
+                AnalyticsIngestionCommand::class,
             ]);
         }
 

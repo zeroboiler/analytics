@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-35.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-36.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v36.0.0](#whats-new-in-v36000)
 +- [What's New in v35.0.0](#whats-new-in-v35000)
 +- [What's New in v33.0.0](#whats-new-in-v33000)
 +- [What's New in v31.0.0](#whats-new-in-v31000)
@@ -114,6 +115,41 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v36.0.0
+
+### 🔄 Event Ingestion Pipeline
+- **EventIngestionService** — Centralized event ingestion pipeline that is the single entry point for all incoming analytics events regardless of source (API, server-side, webhook, replay, batch, edge proxy).
+- Full lifecycle orchestration: validation → deduplication → consent check → enrichment → cost estimation → dispatch → post-dispatch metrics.
+- Per-request and aggregated ingestion metrics with source tracking, latency monitoring, and rejection rate analysis.
+- Configurable limits: event name length, param count, payload size, and timeout.
+- Config: `zeroboiler.analytics.ingestion`
+
+### 💰 Event Cost Allocation
+- **EventCostTracker** — Per-provider dispatch cost tracking and allocation. Enables chargeback analytics, budget enforcement, and cost optimization for multi-provider SaaS analytics.
+- Priority-aware cost estimation: critical=2x, normal=1x, low=0.5x, background=0.25x multiplier.
+- Daily and monthly cost breakdowns by provider, per-event ranking, and per-tenant allocation.
+- Configurable budget limits with enforcement (stops dispatching when daily budget exceeded).
+- Config: `zeroboiler.analytics.cost_allocation`
+
+### ⏰ Analytics Command Scheduler
+- **AnalyticsCommandScheduler** — Config-driven scheduling of analytics admin commands without requiring manual crontab entries.
+- 7 built-in scheduled tasks: health check (hourly), readiness score (daily), cost report (daily), archive cleanup (weekly), schema validation (daily), daily snapshot, and overview.
+- Supports hourly, daily, weekly, and monthly schedules with cooldown tracking and execution logging.
+- Custom tasks can be registered via config or at runtime via API.
+- Config: `zeroboiler.analytics.scheduler`
+
+### 🖥️ Analytics Ingestion Command
+- **`zb:analytics:ingestion`** — Admin CLI for ingestion metrics, cost allocation breakdowns, and scheduler status.
+- Flags: `--costs` (cost breakdown), `--scheduler` (task status), `--execute-due` (run due tasks), `--reset` (clear stats), `--json`.
+
+### 🛣️ New API Endpoints (18 routes)
+- **Ingestion**: GET `ingestion/metrics`, `ingestion/stats`, `ingestion/health`
+- **Cost Allocation**: GET `cost-allocation/daily`, `cost-allocation/monthly`, `cost-allocation/events`, `cost-allocation/tenant/{tenantId}`, `cost-allocation/budget`
+- **Scheduler**: GET `scheduler/status`, `scheduler/tasks`, `scheduler/due`, `scheduler/log` | POST `scheduler/execute`, `scheduler/execute/{taskName}`, `scheduler/toggle/{taskName}`, `scheduler/register` | DELETE `scheduler/{taskName}`
+
+### 🧪 Tests
+- **V3600IngestionCostSchedulerTest** — 40+ test cases covering EventIngestionService (construct, ingest valid/rejected events, batch deduplication, metrics, aggregated stats, disabled state), EventCostTracker (cost estimation, priority multipliers, cost weights, daily/monthly breakdowns, budget enforcement, tenant cost, per-provider costs, dispatch recording), AnalyticsCommandScheduler (built-in tasks, custom registration, toggle, remove, due tasks, config-driven tasks), and version sweep (strict types, final classes, return type declarations, readonly DTO).
 
 ## What's New in v35.0.0
 
