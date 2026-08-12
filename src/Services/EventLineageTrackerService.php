@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -331,15 +330,21 @@ final class EventLineageTrackerService
      */
     public function getLineagesByClient(string $clientId, int $limit = 50): array
     {
-        return $this->getRecentLineages(
-            limit: $limit,
-            eventName: null,
-            source: null,
-            status: null,
-        );
+        // Full client-based filtering requires a secondary index for performance.
+        // Current implementation scans recent entries in-memory.
+        $recent = $this->getRecentLineages(limit: $this->maxEntries);
+        $results = [];
 
-        // Note: Full client-based filtering would require a secondary index
-        // For performance, we scan recent entries and filter in-memory
+        foreach ($recent as $entry) {
+            if (($entry['client_id'] ?? null) === $clientId) {
+                $results[] = $entry;
+                if (count($results) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $results;
     }
 
     /**

@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Services;
 
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Cache;
 use ZeroBoiler\Analytics\Services\EventLineageTrackerService;
 
