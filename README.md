@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-22.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-23.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v22.0.0](#whats-new-in-v22000)
++- [What's New in v23.0.0](#whats-new-in-v23000)
+- [What's New in v22.0.0](#whats-new-in-v22000)
 +- [What's New in v21.0.0](#whats-new-in-v21000)
 +- [What's New in v20.0.0](#whats-new-in-v20000)
 - [What's New in v18.0.0](#whats-new-in-v18000)
@@ -106,6 +107,28 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v23.0.0
+
+### 📊 Analytics Dashboard Service
+- **`AnalyticsDashboardService`** — Pre-computed dashboard data aggregator for admin interfaces. Provides single-request `overview()` returning 8 widgets: event volume (by provider/category), provider health (enabled/dispatched/failed/success_rate per provider), catalog summary (total events/category counts/provider coverage), funnel distribution (signup → trial → subscribe → upgrade → cancellation), revenue breakdown (MRR/ARR from subscription tiers), SaaS health score (from SaaSHealthScoreService), and consent stats. All data is cache-backed with configurable TTL (default 5 min). Individual `widget()` access for partial dashboard updates.
+
+### 🔑 Event Idempotency Key Service
+- **`EventIdempotencyKeyService`** — Server-side event deduplication preventing duplicate processing on client retries. Three strategies: `client_key` (recommended, uses client-provided key like Stripe), `fingerprint` (auto-generated xxh128 hash from event name + sorted params), `hybrid` (checks both for maximum deduplication). Request-level in-memory cache for fast-path dedup + persistent cache with configurable TTL (default 1 hour). `markProcessed()` / `isProcessed()` / `forget()` for manual control. Useful for DLQ replay scenarios.
+
+### 🔔 Webhook Event Subscription Service
+- **`WebhookEventSubscriptionService`** — Real-time event push to external webhooks. Config-driven subscriptions with per-subscription event filtering (wildcard `*` or named events). HMAC-SHA256 payload signing via `X-ZB-Signature` header. Four payload formats: `json` (default), `slack` (Block Kit), `teams` (Adaptive Card), `discord` (Embed). Exponential backoff retry (configurable attempts, default 2). Per-minute rate limiting (default 60). `test()` method for verifying webhook configuration. Non-blocking dispatch with logged failures.
+
+### 📦 DLQ Management Command
+- **`zb:analytics:dlq`** — Admin CLI for Dead Letter Queue inspection and management. 6 actions: `list` (table output with `--limit`), `show` (event details by `--id`), `replay` (re-dispatch single event), `replay-all` (batch replay with confirmation), `purge` (permanent deletion with safety prompt), `stats` (DLQ statistics). `--json` flag for machine-readable output.
+
+### Configuration
+- New `dashboard` config section — 2 options: `cache_ttl`, `top_events_count`.
+- New `idempotency` config section — 4 options: `enabled`, `ttl`, `strategy`, `cache_prefix`.
+- New `webhook_subscriptions` config section — 5 options: `enabled`, `subscriptions`, `default_timeout`, `default_retries`, `rate_limit_per_minute`.
+
+### Tests
+- **`V2300DashboardIdempotencyWebhookDlqTest`** — 30+ assertions covering DashboardService (overview, event volume, provider health, catalog summary, funnel, revenue, widget access), IdempotencyKeyService (disabled/client_key/fingerprint/hybrid strategies, deterministic hashing, param normalization, mark/forget), WebhookEventSubscriptionService (config, event matching, disabled mode, format), version consistency, catalog integrity.
 
 ## What's New in v22.0.0
 

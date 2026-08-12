@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [23.0.0] - 2026-08-12
+
+### Added
+
+- **AnalyticsDashboardService** — Comprehensive SaaS dashboard data aggregator. Pre-computed dashboard widgets: event volume (by provider/category), provider health (enabled/dispatched/failed/success_rate), catalog summary (total events/provider coverage), funnel distribution (signup → trial → subscribe → upgrade → cancellation), revenue breakdown (MRR/ARR from subscription tiers), SaaS health score, and consent stats. All data is cache-backed with configurable TTL. Single-request `overview()` or individual `widget()` access for partial updates.
+- **EventIdempotencyKeyService** — Server-side event deduplication to prevent duplicate processing when clients retry requests. Three strategies: `client_key` (client-provided idempotency key, recommended), `fingerprint` (auto-generated xxh128 hash from event name + sorted params), `hybrid` (both, most aggressive). Request-level in-memory cache for fast path + persistent cache with configurable TTL (default 1 hour). Inspired by Stripe's Idempotency-Key header.
+- **WebhookEventSubscriptionService** — Real-time event push to external webhooks (Slack, Teams, Discord, custom) when trigger events fire. Per-subscription event filtering with `events` list or `*` wildcard. HMAC-SHA256 payload signing for security. Exponential backoff retry. Per-minute rate limiting. Four payload formats: `json` (default), `slack` (Block Kit), `teams` (Adaptive Card), `discord` (Embed). Config-driven subscriptions via `zeroboiler.analytics.webhook_subscriptions`.
+- **AnalyticsDlqCommand** (`zb:analytics:dlq`) — Admin CLI for Dead Letter Queue management. Actions: `list` (show failed events with table output), `show` (event details by ID), `replay` (re-dispatch single event), `replay-all` (re-dispatch all with confirmation), `purge` (permanent deletion with safety confirmation), `stats` (DLQ statistics). Supports `--json` output and `--limit` pagination.
+- **3 new config sections** — `dashboard` (cache TTL, top events count), `idempotency` (enabled, TTL, strategy, cache prefix), `webhook_subscriptions` (enabled, subscriptions array, timeout, retries, rate limit).
+- **3 new singleton registrations** — AnalyticsDashboardService, EventIdempotencyKeyService, WebhookEventSubscriptionService registered in AnalyticsServiceProvider.
+- **V2300DashboardIdempotencyWebhookDlqTest** — 30+ test cases covering DashboardService (overview structure, event volume, provider health, catalog summary, funnel distribution, revenue MRR/ARR, widget access), IdempotencyKeyService (disabled mode, client_key dedup, fingerprint strategy, hybrid strategy, deterministic hashing, param order normalization, mark/forget/isProcessed, request cache size), WebhookEventSubscriptionService (config, event matching, disabled mode, format structure), catalog integrity, version consistency, and config validation.
+
+### Changed
+
+- **Version sweep** — 22.0.0 → 23.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), README badge, CHANGELOG.
+
 ## [22.0.0] - 2026-08-12
 
 ### Added

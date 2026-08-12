@@ -251,6 +251,10 @@ use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
 use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
 use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
+use ZeroBoiler\Analytics\Services\AnalyticsDashboardService;
+use ZeroBoiler\Analytics\Services\EventIdempotencyKeyService;
+use ZeroBoiler\Analytics\Services\WebhookEventSubscriptionService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -258,7 +262,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 22.0.0
+ * @version 23.0.0
  *
  * @since 1.0.0
  */
@@ -749,6 +753,39 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $config,
                 $app->make('cache'),
             );
+        });
+
+        // v23.0.0 — Analytics Dashboard Service
+        $this->app->singleton(AnalyticsDashboardService::class, function (Application $app): AnalyticsDashboardService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $app->make('zeroboiler.analytics')->metrics();
+
+            return new AnalyticsDashboardService(
+                $app->make('cache'),
+                $config,
+                $metrics,
+            );
+        });
+
+        // v23.0.0 — Event Idempotency Key Service
+        $this->app->singleton(EventIdempotencyKeyService::class, function (Application $app): EventIdempotencyKeyService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventIdempotencyKeyService(
+                $app->make('cache'),
+                $config,
+            );
+        });
+
+        // v23.0.0 — Webhook Event Subscription Service
+        $this->app->singleton(WebhookEventSubscriptionService::class, function (Application $app): WebhookEventSubscriptionService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new WebhookEventSubscriptionService($config);
         });
 
         // Session analytics service
@@ -2514,6 +2551,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDeliveryCommand::class,
                 AnalyticsTimelineCommand::class,
                 AnalyticsDiagnosticCommand::class,
+                AnalyticsDlqCommand::class,
             ]);
         }
 

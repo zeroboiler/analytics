@@ -521,6 +521,73 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Dashboard (v23.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the AnalyticsDashboardService which provides
+        | pre-computed dashboard data for admin interfaces. All data is
+        | cache-backed for fast rendering.
+        |
+        */
+        'dashboard' => [
+            'cache_ttl' => (int) env('ANALYTICS_DASHBOARD_CACHE_TTL', 300), // 5 minutes
+            'top_events_count' => (int) env('ANALYTICS_DASHBOARD_TOP_EVENTS', 20),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Idempotency (v23.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Server-side event deduplication to prevent duplicate processing
+        | when clients retry requests due to network failures.
+        |
+        | Strategies:
+        |   - `client_key`: Use client-provided idempotency key (recommended)
+        |   - `fingerprint`: Auto-generate from event name + params hash
+        |   - `hybrid`: Check both (most aggressive)
+        |
+        */
+        'idempotency' => [
+            'enabled' => env('ANALYTICS_IDEMPOTENCY_ENABLED', false),
+            'ttl' => (int) env('ANALYTICS_IDEMPOTENCY_TTL', 3600), // 1 hour
+            'strategy' => env('ANALYTICS_IDEMPOTENCY_STRATEGY', 'client_key'),
+            'cache_prefix' => env('ANALYTICS_IDEMPOTENCY_CACHE_PREFIX', 'zb_idem_'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Webhook Event Subscriptions (v23.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Real-time event push to external webhooks (Slack, Teams, Discord, custom).
+        | Events matching subscription filters are pushed immediately after dispatch.
+        | Supports HMAC signing, retry with exponential backoff, and rate limiting.
+        |
+        | Example subscription:
+        |   'subscriptions' => [
+        |       [
+        |           'url' => 'https://hooks.slack.com/services/T/B/K',
+        |           'secret' => env('SLACK_WEBHOOK_SECRET'),
+        |           'events' => ['purchase', 'sign_up', 'trial_converted'],
+        |           'format' => 'slack', // json, slack, teams, discord
+        |           'timeout' => 5,
+        |           'retries' => 2,
+        |           'enabled' => true,
+        |       ],
+        |   ],
+        |
+        */
+        'webhook_subscriptions' => [
+            'enabled' => env('ANALYTICS_WEBHOOK_SUBS_ENABLED', false),
+            'subscriptions' => [],
+            'default_timeout' => (int) env('ANALYTICS_WEBHOOK_SUBS_TIMEOUT', 5),
+            'default_retries' => (int) env('ANALYTICS_WEBHOOK_SUBS_RETRIES', 2),
+            'rate_limit_per_minute' => (int) env('ANALYTICS_WEBHOOK_SUBS_RATE_LIMIT', 60),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | API (Frontend Event Tracking)
         |--------------------------------------------------------------------------
         |
