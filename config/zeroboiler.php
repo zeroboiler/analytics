@@ -5502,5 +5502,41 @@ return [
                 // ],
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Sampling Strategy (v45.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven event sampling for high-traffic applications. Controls which
+        | events are dispatched (sampled in) vs dropped (sampled out) using
+        | configurable strategies per event name, category, or as a global default.
+        |
+        | Three strategies available:
+        | - 'uniform': Random sampling (each event independently sampled)
+        | - 'deterministic': Hash-based (same event name always gets same decision)
+        | - 'adaptive': Volume-aware (auto-reduces rate when throughput is high)
+        |
+        | Event-specific overrides take precedence over category overrides,
+        | which take precedence over the global rate. Critical-priority events
+        | are never sampled out regardless of rate.
+        |
+        */
+        'sampling' => [
+            'enabled' => env('ANALYTICS_SAMPLING_ENABLED', false),
+            'global_rate' => (float) env('ANALYTICS_SAMPLING_GLOBAL_RATE', 1.0),
+            'strategy' => env('ANALYTICS_SAMPLING_STRATEGY', 'deterministic'),
+            'event_overrides' => [
+                // 'scroll_depth' => 0.1,   // Sample 10% of scroll depth events
+                // 'page_view' => 0.5,       // Sample 50% of page views
+            ],
+            'category_overrides' => [
+                // 'engagement' => 0.5,       // Sample 50% of all engagement events
+                // 'infrastructure' => 1.0,  // Never sample infrastructure events
+            ],
+            'cache_prefix' => env('ANALYTICS_SAMPLING_CACHE_PREFIX', 'zb_sampling_'),
+            'metrics_ttl' => (int) env('ANALYTICS_SAMPLING_METRICS_TTL', 3600),
+            'adaptive_window' => (int) env('ANALYTICS_SAMPLING_ADAPTIVE_WINDOW', 60),
+        ],
     ],
 ];

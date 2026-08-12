@@ -10,6 +10,7 @@ namespace ZeroBoiler\Analytics\Events;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
+use ZeroBoiler\Analytics\Events\Infrastructure\InfrastructureEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
 use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
@@ -19,7 +20,7 @@ use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
  *
  * Provides a single entry point for looking up event names, classes,
  * and provider mappings across Ecommerce, SaaS (including cohort), Engagement,
- * Security, Uptime, and registered plugin categories.
+ * Security, Uptime, Infrastructure, and registered plugin categories.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}
  *
@@ -40,6 +41,7 @@ final class EventCatalog
             self::withCategory(EngagementEvents::all(), 'engagement'),
             self::withCategory(SecurityEvents::all(), 'security'),
             self::withCategory(UptimeEvents::all(), 'uptime'),
+            self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
         );
     }
 
@@ -96,6 +98,7 @@ final class EventCatalog
             'engagement' => self::withCategory(EngagementEvents::all(), 'engagement'),
             'security' => self::withCategory(SecurityEvents::all(), 'security'),
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
+            'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
         ];
     }
 
@@ -118,13 +121,14 @@ final class EventCatalog
             || SaaSEvents::has($name)
             || EngagementEvents::has($name)
             || SecurityEvents::has($name)
-            || UptimeEvents::has($name);
+            || UptimeEvents::has($name)
+            || InfrastructureEvents::has($name);
     }
 
     /**
      * Get the category name for a given event name.
      *
-     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|null
+     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|null
      */
     public static function getCategory(string $name): ?string
     {
@@ -148,6 +152,10 @@ final class EventCatalog
             return 'uptime';
         }
 
+        if (InfrastructureEvents::has($name)) {
+            return 'infrastructure';
+        }
+
         return null;
     }
 
@@ -160,7 +168,8 @@ final class EventCatalog
             + SaaSEvents::count()
             + EngagementEvents::count()
             + SecurityEvents::count()
-            + UptimeEvents::count();
+            + UptimeEvents::count()
+            + InfrastructureEvents::count();
     }
 
     /**
@@ -176,6 +185,7 @@ final class EventCatalog
             EngagementEvents::ga4Names(),
             SecurityEvents::ga4Names(),
             UptimeEvents::ga4Names(),
+            InfrastructureEvents::ga4Names(),
         )));
     }
 
@@ -192,6 +202,7 @@ final class EventCatalog
             EngagementEvents::metaNames(),
             SecurityEvents::metaNames(),
             UptimeEvents::metaNames(),
+            InfrastructureEvents::metaNames(),
         ))));
     }
 
@@ -211,6 +222,7 @@ final class EventCatalog
             EngagementEvents::posthogNames(),
             SecurityEvents::posthogNames(),
             UptimeEvents::posthogNames(),
+            InfrastructureEvents::posthogNames(),
         ))));
     }
 
@@ -230,6 +242,7 @@ final class EventCatalog
             EngagementEvents::plausibleNames(),
             SecurityEvents::plausibleNames(),
             UptimeEvents::plausibleNames(),
+            InfrastructureEvents::plausibleNames(),
         ))));
     }
 
@@ -248,6 +261,7 @@ final class EventCatalog
             EngagementEvents::mixpanelNames(),
             SecurityEvents::mixpanelNames(),
             UptimeEvents::mixpanelNames(),
+            InfrastructureEvents::mixpanelNames(),
         ))));
     }
 
@@ -266,6 +280,7 @@ final class EventCatalog
             EngagementEvents::amplitudeNames(),
             SecurityEvents::amplitudeNames(),
             UptimeEvents::amplitudeNames(),
+            InfrastructureEvents::amplitudeNames(),
         ))));
     }
 
@@ -321,7 +336,8 @@ final class EventCatalog
             ?? SaaSEvents::classFor($name)
             ?? EngagementEvents::classFor($name)
             ?? SecurityEvents::classFor($name)
-            ?? UptimeEvents::classFor($name);
+            ?? UptimeEvents::classFor($name)
+            ?? InfrastructureEvents::classFor($name);
     }
 
     /**
@@ -338,6 +354,7 @@ final class EventCatalog
             'engagement' => self::withCategory(EngagementEvents::all(), 'engagement'),
             'security' => self::withCategory(SecurityEvents::all(), 'security'),
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
+            'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             default => [],
         };
     }

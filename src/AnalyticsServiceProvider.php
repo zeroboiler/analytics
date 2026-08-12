@@ -282,6 +282,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnippetCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsSnippetService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSimulationCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSamplingCommand;
+use ZeroBoiler\Analytics\Services\EventSamplingStrategyService;
 use ZeroBoiler\Analytics\Services\DifferentialPrivacyService;
 use ZeroBoiler\Analytics\Services\EventTtlService;
 use ZeroBoiler\Analytics\Services\ReferralTrackingService;
@@ -296,7 +298,7 @@ use ZeroBoiler\Analytics\Services\EventVersioningService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 44.0.0
+ * @version 45.0.0
  *
  * @since 1.0.0
  */
@@ -2812,6 +2814,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Event Versioning Service (v44.0.0) — catalog-level version metadata
         $this->app->singleton(EventVersioningService::class);
+
+        // Event Sampling Strategy Service (v45.0.0) — config-driven sampling with 3 strategies
+        $this->app->singleton(EventSamplingStrategyService::class, function (Application $app): EventSamplingStrategyService {
+            return new EventSamplingStrategyService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -2862,6 +2872,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDependencyGraphCommand::class,
                 AnalyticsSnippetCommand::class,
                 AnalyticsSimulationCommand::class,
+                AnalyticsSamplingCommand::class,
             ]);
         }
 

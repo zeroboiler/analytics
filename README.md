@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-44.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-45.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v45.0.0](#whats-new-in-v45000)
 - [What's New in v44.0.0](#whats-new-in-v44000)
 - [What's New in v43.0.0](#whats-new-in-v43000)
 - [Quick Start](#quick-start)
@@ -122,6 +123,51 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v45.0.0
+
+### 🏗️ Infrastructure Events Category (10 new events)
+- **InfrastructureEvents** catalog — New event category for DevOps, SRE, and platform engineering tracking
+- `feature_flag_evaluated` — Track feature flag evaluations with variant, reason, and segment context
+- `experiment_exposed` — A/B test and experiment exposure tracking with source attribution
+- `error_budget_burned` — SRE error budget consumption with burn rate, remaining budget, and measurement window
+- `slo_breach` — SLO violation detection with SLI name, current/target values, and severity classification
+- `deployment_rolled_back` — Deployment rollback tracking with version, reason, and environment context
+- `incident_started` — Production incident declaration with severity (P1-P4) and affected service
+- `incident_resolved` — Incident resolution with MTTR duration, resolution type, and root cause category
+- `maintenance_started` — Scheduled maintenance window start for SLO exclusion
+- `maintenance_ended` — Maintenance completion with outcome status and duration
+- `pipeline_failure` — Analytics pipeline reliability self-monitoring (ingestion, dispatch, store failures)
+
+### 📊 Event Sampling Strategy Service
+- **EventSamplingStrategyService** — Config-driven event sampling with 3 strategies: `uniform` (random), `deterministic` (hash-based), `adaptive` (volume-aware)
+- Per-event and per-category sampling rate overrides (event > category > global priority)
+- Critical-priority events always bypass sampling
+- Cache-backed metrics: passed, dropped, total, critical_passed
+- Runtime rate adjustment via `setGlobalRate()`, `setEventRate()`, `setCategoryRate()`
+
+### 🛠️ AnalyticsSamplingCommand
+- New `zb:analytics:sampling` artisan command with 11 modes: `status`, `metrics`, `summary`, `set-global`, `set-event`, `set-category`, `remove-event`, `reset-metrics`, `reset-adaptive`, `list-overrides`, `preview`
+- `--json` output for all modes
+- `preview --event=page_view` resolves the effective sampling rate for any event
+
+### ⚙️ New Config Section
+- `sampling` — enabled, global_rate, strategy, event_overrides, category_overrides, cache_prefix, metrics_ttl, adaptive_window
+
+### 📦 EventCatalog Integration
+- Infrastructure category fully integrated into `EventCatalog::all()`, `byCategory()`, `getCategory()`, `count()`, and all provider name methods
+- 10 new events across all catalog aggregation endpoints
+
+### ✅ Tests (50+ new test cases)
+- Infrastructure Event DTOs: all 10 events tested for construction, params, null handling, error message truncation
+- InfrastructureEvents catalog: count, names, has/get/classFor, provider names, required fields
+- EventSamplingStrategyService: disabled passthrough, rate 1.0/0.0, critical bypass, event/category overrides, resolveRate priority/clamping, deterministic consistency, uniform variance, adaptive counters, unknown strategy fail-open, metrics increment, metrics reset
+- Version sweep tests
+
+### Changed
+- **Version sweep** — 44.0.0 → 45.0.0 across composer.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, AnalyticsServiceProvider, analytics.js (header + getVersion + _getInternalVersion), all 3 Svelte composables, TypeScript definitions, README badge, CHANGELOG.
+
+---
 
 ## What's New in v44.0.0
 

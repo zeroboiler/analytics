@@ -2,6 +2,23 @@
 
 All notable changes to the package will be documented in this file.
 
+## [45.0.0] - 2026-08-12
+
+### Added
+
+- **InfrastructureEvents** catalog — New event category (10 events) for DevOps, SRE, and platform engineering: `feature_flag_evaluated`, `experiment_exposed`, `error_budget_burned`, `slo_breach`, `deployment_rolled_back`, `incident_started`, `incident_resolved`, `maintenance_started`, `maintenance_ended`, `pipeline_failure`. Each event extends `AnalyticsEvent` with typed constructor parameters and null-safe filtering.
+- **EventSamplingStrategyService** — Config-driven event sampling with 3 strategies: `uniform` (random per-event), `deterministic` (hash-based, consistent per event name), `adaptive` (volume-aware, auto-reduces rate when throughput exceeds threshold). Supports per-event and per-category rate overrides with event > category > global priority. Critical-priority events always bypass sampling. Cache-backed metrics (passed, dropped, total, critical_passed). Runtime rate adjustment via `setGlobalRate()`, `setEventRate()`, `setCategoryRate()`, `removeEventRate()`, `setCategoryRate()`. Config: `zeroboiler.analytics.sampling` (8 options).
+- **AnalyticsSamplingCommand** (`zb:analytics:sampling`) — Admin CLI for sampling management. 11 modes: `status` (enabled/strategy/rate), `metrics` (passed/dropped/total), `summary` (full config overview), `set-global` (runtime global rate), `set-event` (per-event override), `set-category` (per-category override), `remove-event` (delete override), `reset-metrics` (clear counters), `reset-adaptive` (clear volume counters), `list-overrides` (all event/category overrides), `preview` (resolve effective rate for a specific event). `--json` output for all modes.
+- **1 new config section** — `sampling` (8 options: enabled, global_rate, strategy, event_overrides, category_overrides, cache_prefix, metrics_ttl, adaptive_window).
+- **2 new singleton registrations** — EventSamplingStrategyService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsSamplingCommand registered in ServiceProvider commands.
+- **EventCatalog integration** — Infrastructure category added to `all()`, `byCategory()`, `getCategory()`, `has()`, `count()`, `classFor()`, `category()`, `allGa4Names()`, `allMetaNames()`, `allPosthogNames()`, `allPlausibleNames()`, `allMixpanelNames()`, `allAmplitudeNames()`.
+- **V450InfrastructureEventsSamplingStrategyTest** — 50+ test cases covering all 10 Infrastructure Event DTOs (construction, params, null handling, extra params, error message truncation), InfrastructureEvents catalog (count, names, has/get/classFor, provider names, required fields), EventSamplingStrategyService (disabled passthrough, rate 1.0/0.0, critical bypass, event/category overrides, resolveRate priority/clamping, deterministic consistency, uniform variance, adaptive counters, unknown strategy fail-open, metrics increment, metrics reset), version sweep.
+
+### Changed
+
+- **Version sweep** — 44.0.0 → 45.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
+
 ## [42.0.0] - 2026-08-12
 
 ### Added
