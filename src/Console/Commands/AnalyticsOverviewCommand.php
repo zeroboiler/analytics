@@ -68,7 +68,7 @@ final class AnalyticsOverviewCommand extends Command
             'catalog' => $this->getCatalogStats(),
             'consent' => $this->manager->getConsent()->toArray(),
             'enabled_count' => $this->countEnabledProviders(),
-            'total_providers' => 8,
+            'total_providers' => 10,
         ];
     }
 
@@ -116,6 +116,16 @@ final class AnalyticsOverviewCommand extends Command
             'webhook' => [
                 'enabled' => $this->manager->webhook()->isEnabled(),
                 'configured' => true,
+            ],
+            'tiktok' => [
+                'enabled' => $this->manager->tiktok()->isEnabled(),
+                'configured' => $this->manager->tiktok()->getPixelId() !== '',
+                'id' => $this->manager->tiktok()->getPixelId() ?: null,
+            ],
+            'linkedin' => [
+                'enabled' => $this->manager->linkedin()->isEnabled(),
+                'configured' => $this->manager->linkedin()->getPartnerId() !== '',
+                'id' => $this->manager->linkedin()->getPartnerId() ?: null,
             ],
         ];
     }
@@ -190,6 +200,8 @@ final class AnalyticsOverviewCommand extends Command
                 ['Mixpanel', $this->formatStatus($overview['providers']['mixpanel']['enabled']), '—'],
                 ['Amplitude', $this->formatStatus($overview['providers']['amplitude']['enabled']), '—'],
                 ['Webhook', $this->formatStatus($overview['providers']['webhook']['enabled']), '—'],
+                ['TikTok', $this->formatStatus($overview['providers']['tiktok']['enabled']), $overview['providers']['tiktok']['id'] ?? '—'],
+                ['LinkedIn', $this->formatStatus($overview['providers']['linkedin']['enabled']), $overview['providers']['linkedin']['id'] ?? '—'],
             ],
         );
 

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-33.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-34.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v34.0.0](#whats-new-in-v34000)
 +- [What's New in v33.0.0](#whats-new-in-v33000)
 +- [What's New in v31.0.0](#whats-new-in-v31000)
 +- [What's New in v30.0.0](#whats-new-in-v30000)
@@ -113,6 +114,34 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v34.0.0
+
+### 📊 User Engagement Scoring Service
+- **UserEngagementScoringService** — Composite engagement scoring (0–100) per user based on five configurable weighted signals: frequency, recency, breadth, lifecycle progress, and revenue contribution.
+- **Five scoring signals:**
+  - *Frequency* — Logarithmic event volume scoring (more events = higher score, diminishing returns)
+  - *Recency* — Exponential decay based on configurable half-life (default 7 days)
+  - *Breadth* — Feature adoption breadth across event catalog categories
+  - *Lifecycle* — SaaS lifecycle milestone progress (signup → trial → subscribe → upgrade)
+  - *Revenue* — Revenue contribution tier scoring (free/paid/enterprise)
+- **Five engagement tiers:** champion (80–100), active (60–79), moderate (40–59), dormant (20–39), at_risk (0–19)
+- **Batch scoring** — `scoreBatch()` for bulk user scoring operations
+- **Tier distribution** — `tierDistribution()` for aggregate segmentation analytics
+- **Cache-backed** — Scores cached per user with configurable TTL (default 1 hour)
+- **Config-driven weights** — All signal weights configurable via `zeroboiler.analytics.engagement_scoring.weights`
+- **Inspired by:** Amplitude Engage, Mixpanel User Score, Pendo Engagement Score
+
+### 🔧 AnalyticsOverviewCommand — 10-Provider Support
+- **TikTok Pixel** and **LinkedIn Insight Tag** added to provider status table and API response
+- **`total_providers`** updated from 8 → 10 to reflect TikTok and LinkedIn
+- Both providers show enabled status and configuration ID
+
+### 🔧 Version Sweep
+- Version bumped to 34.0.0 across all version markers: `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `AnalyticsTestCommand` docblock, README badge.
+
+### ⚙️ Config
+- New `engagement_scoring` config section with `weights`, `cache_ttl`, `recency_half_life`, and `max_events_window` settings.
 
 ## What's New in v33.0.0
 

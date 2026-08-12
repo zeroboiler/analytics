@@ -4949,5 +4949,31 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_TELEMETRY_CACHE_TTL', 300), // 5 minutes
             'high_volume_threshold' => (int) env('ANALYTICS_TELEMETRY_HIGH_VOLUME', 10000),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | User Engagement Scoring (v34.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Composite user engagement scoring (0–100) based on five weighted signals:
+        | frequency, recency, breadth, lifecycle progress, and revenue contribution.
+        | Used for PLG segmentation, churn prediction, and activation analysis.
+        |
+        | Inspired by Amplitude Engage, Mixpanel User Score, Pendo Engagement Score.
+        |
+        */
+        'engagement_scoring' => [
+            'enabled' => env('ANALYTICS_ENGAGEMENT_SCORING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_ENGAGEMENT_SCORING_CACHE_TTL', 3600), // 1 hour
+            'recency_half_life' => (int) env('ANALYTICS_ENGAGEMENT_SCORING_RECENCY_HALF_LIFE', 604800), // 7 days
+            'max_events_window' => (int) env('ANALYTICS_ENGAGEMENT_SCORING_EVENTS_WINDOW', 90), // 90 days
+            'weights' => [
+                'frequency' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_FREQUENCY', 0.30),
+                'recency' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_RECENCY', 0.20),
+                'breadth' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_BREADTH', 0.20),
+                'lifecycle' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_LIFECYCLE', 0.15),
+                'revenue' => (float) env('ANALYTICS_ENGAGEMENT_SCORING_WEIGHT_REVENUE', 0.15),
+            ],
+        ],
     ],
 ];

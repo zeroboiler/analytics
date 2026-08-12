@@ -265,6 +265,7 @@ use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
 use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
 use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
+use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -272,7 +273,7 @@ use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 33.0.0
+ * @version 34.0.0
  *
  * @since 1.0.0
  */
@@ -2621,6 +2622,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
         });
 
         $this->app->alias(\ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface::class, 'zeroboiler.analytics.event_store');
+
+        // User Engagement Scoring Service (v34.0.0) — composite engagement scoring
+        $this->app->singleton(UserEngagementScoringService::class, function (Application $app): UserEngagementScoringService {
+            return new UserEngagementScoringService(
+                $app->make('cache'),
+                $app->make('zeroboiler.analytics')->metrics(),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
