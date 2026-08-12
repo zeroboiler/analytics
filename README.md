@@ -126,6 +126,12 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ### Configuration
 - New config sections: `schema_validation`, `enrichment_pipeline`, `audit_log`, `fingerprinting`
 
+### 📈 Analytics Data Quality Scorer
+- **`AnalyticsDataQualityScorer`** — Composite quality scoring engine (0-100, A-F grades) across 6 weighted dimensions: schema compliance, provider coverage, payload health, naming convention, identity completeness, timestamp accuracy. Batch scoring, catalog-level scoring, and actionable improvement recommendations.
+
+### 🏷️ Event Classification Service
+- **`EventClassificationService`** — ML-ready event classification engine. Auto-classifies events into 8 semantic categories (conversion, intent, engagement, navigation, transaction, identity, error, search) using name patterns, parameter indicators, and catalog membership. Auto-tagging with source, identity, monetary value, and catalog tags.
+
 ## What's New in v20.0.0
 
 ### 🚀 Event Transport Layer
@@ -320,7 +326,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~234K source, 232 test files
+**LOC:** ~234K source, 233 test files
 
 ## What's New in v10.8.0
 

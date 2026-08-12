@@ -14,6 +14,9 @@ All notable changes to the package will be documented in this file.
 - **4 new config sections** — `schema_validation` (3 options), `enrichment_pipeline` (10 configurable stages), `audit_log` (7 options), `fingerprinting` (6 options).
 - **4 new singleton registrations** — EventSchemaRuntimeValidator, ComposableEnrichmentPipeline, AnalyticsAuditLogService, ProviderEventCompatibilityMatrix registered in AnalyticsServiceProvider.
 - **V2100SchemaValidationEnrichmentAuditCompatibilityTest** — 50+ tests covering all new services, config integrity, version sweep, enrichment stages, PII scrubbing, audit log exclusions, compatibility matrix grading, fingerprint consistency, and batch operations.
+- **Analytics Data Quality Scorer** — `AnalyticsDataQualityScorer` computes composite quality scores (0-100, A-F grades) across 6 weighted dimensions: schema compliance, provider coverage, payload health, naming convention, identity completeness, and timestamp accuracy. Batch scoring, catalog-level scoring, and actionable improvement recommendations.
+- **Event Classification Service** — `EventClassificationService` ML-ready event classification engine. Auto-classifies events into 8 semantic categories (conversion, intent, engagement, navigation, transaction, identity, error, search) based on name patterns, parameter indicators, and catalog membership. Auto-tagging with source, identity, monetary value, and catalog tags.
+- **V2100DataQualityScorerEventClassificationTest** — 30+ tests covering quality scoring dimensions, classification categories, auto-tagging, batch operations, and catalog analysis.
 
 ### Changed
 

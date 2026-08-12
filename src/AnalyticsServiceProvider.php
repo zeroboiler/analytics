@@ -247,6 +247,8 @@ use ZeroBoiler\Analytics\Services\EventSchemaRuntimeValidator;
 use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
 use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
 use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
+use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
+use ZeroBoiler\Analytics\Services\EventClassificationService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -707,6 +709,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Provider Event Compatibility Matrix (v21.0.0)
         $this->app->singleton(ProviderEventCompatibilityMatrix::class, function (Application $app): ProviderEventCompatibilityMatrix {
             return new ProviderEventCompatibilityMatrix;
+        });
+
+        // Analytics Data Quality Scorer (v21.0.0)
+        $this->app->singleton(AnalyticsDataQualityScorer::class, function (Application $app): AnalyticsDataQualityScorer {
+            return new AnalyticsDataQualityScorer;
+        });
+
+        // Event Classification Service (v21.0.0)
+        $this->app->singleton(EventClassificationService::class, function (Application $app): EventClassificationService {
+            return new EventClassificationService;
         });
 
         // Session analytics service
