@@ -484,6 +484,43 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | User Journey Orchestration (v22.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configure the user journey stage progression tracking system.
+        | The AnalyticsJourneyOrchestrator tracks users through defined stages
+        | and provides funnel distribution analysis for activation and retention.
+        |
+        | Stages are ordered — users can only advance forward.
+        | Customize stages to match your product's user lifecycle.
+        |
+        */
+        'journey' => [
+            'enabled' => env('ANALYTICS_JOURNEY_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_JOURNEY_CACHE_PREFIX', 'zb_journey_'),
+            'cache_ttl' => (int) env('ANALYTICS_JOURNEY_CACHE_TTL', 86400), // 24 hours
+            'stages' => [
+                'visitor', 'signed_up', 'email_verified', 'activated',
+                'engaged', 'converting', 'retained', 'champion',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feature Flag Analytics (v22.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the AnalyticsFeatureFlagService which tracks
+        | feature flag evaluations, exposures, and conversions.
+        |
+        */
+        'feature_flags' => [
+            'enabled' => env('ANALYTICS_FEATURE_FLAGS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FEATURE_FLAGS_CACHE_TTL', 86400),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | API (Frontend Event Tracking)
         |--------------------------------------------------------------------------
         |

@@ -645,6 +645,47 @@ final class SaaSEvents
                 'mixpanel' => 'Data Erasure Completed',
                 'amplitude' => 'Data Erasure Completed',
             ],
+            // Product analytics & activation signals (v22.0.0)
+            'first_value' => [
+                'name' => 'first_value',
+                'class' => FirstValueEvent::class,
+                'ga4' => 'first_value',
+                'meta' => 'CompleteRegistration',
+                'posthog' => '$set',
+                'plausible' => 'activation',
+                'mixpanel' => 'First Value',
+                'amplitude' => 'First Value',
+            ],
+            'upcoming_renewal' => [
+                'name' => 'upcoming_renewal',
+                'class' => UpcomingRenewalEvent::class,
+                'ga4' => 'upcoming_renewal',
+                'meta' => 'CustomEvent',
+                'posthog' => 'upcoming_renewal',
+                'plausible' => null,
+                'mixpanel' => 'Upcoming Renewal',
+                'amplitude' => 'Upcoming Renewal',
+            ],
+            'retention_risk' => [
+                'name' => 'retention_risk',
+                'class' => RetentionRiskEvent::class,
+                'ga4' => 'retention_risk',
+                'meta' => 'CustomEvent',
+                'posthog' => 'retention_risk',
+                'plausible' => null,
+                'mixpanel' => 'Retention Risk',
+                'amplitude' => 'Retention Risk',
+            ],
+            'product_analytics' => [
+                'name' => 'product_analytics',
+                'class' => ProductAnalyticsEvent::class,
+                'ga4' => 'product_analytics',
+                'meta' => 'CustomEvent',
+                'posthog' => 'product_analytics',
+                'plausible' => null,
+                'mixpanel' => 'Product Analytics',
+                'amplitude' => 'Product Analytics',
+            ],
         ];
 
         return self::$catalog;

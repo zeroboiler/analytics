@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-21.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-22.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v22.0.0](#whats-new-in-v22000)
 +- [What's New in v21.0.0](#whats-new-in-v21000)
 +- [What's New in v20.0.0](#whats-new-in-v20000)
 - [What's New in v18.0.0](#whats-new-in-v18000)
@@ -105,6 +106,31 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v22.0.0
+
+### 🎯 Industry-Standard SaaS Starter Upgrade
+
+#### New Event Types — Product Analytics & Activation
+- **`FirstValueEvent`** — Tracks the critical "aha moment" when users first experience core product value. Includes time-to-value (TTV) metric for activation rate analysis. Priority: critical.
+- **`UpcomingRenewalEvent`** — Dispatched when subscription renewal is approaching (7/14/30 days). Used for churn prediction, renewal outreach, and revenue forecasting.
+- **`RetentionRiskEvent`** — Signals when users show churn risk patterns (usage decline, support volume, login frequency). Supports low/medium/high/critical risk levels with computed risk scores.
+- **`ProductAnalyticsEvent`** — Structured product analytics wrapper with category/action/object taxonomy (e.g., `report.create.monthly_summary`). Enables consistent domain-specific event tracking.
+
+#### New Services
+- **`AnalyticsFeatureFlagService`** — Feature flag analytics service. Registers, evaluates, and tracks feature flag exposures with deterministic variant assignment. Provides adoption stats and conversion tracking for A/B experiments. Cache-backed for performance.
+- **`AnalyticsJourneyOrchestrator`** — User journey stage progression tracker. Manages lifecycle stages (visitor → signed_up → activated → retained → champion). Tracks transitions, time-in-stage, and provides funnel distribution analysis. Forward-only advancement prevents stage regression.
+
+#### Configuration
+- New `journey` config section for user journey orchestration (stages, cache prefix, TTL).
+- New `feature_flags` config section for feature flag analytics (enabled, cache TTL).
+
+#### Catalog Expansion
+- 4 new SaaS event types added to `SaaSEvents` catalog with full multi-provider mappings (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude).
+- Total catalog: 119+ events across 5 categories.
+
+#### Tests
+- `V2200SaaSStarterFeatureFlagJourneyUpgradeTest` — 30+ assertions covering new event classes, catalog integrity, FeatureFlagService, JourneyOrchestrator, and version sweep.
 
 ## What's New in v21.0.0
 

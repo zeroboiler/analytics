@@ -249,6 +249,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
 use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
 use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
+use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
+use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -256,7 +258,7 @@ use ZeroBoiler\Analytics\Services\EventClassificationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 21.0.0
+ * @version 22.0.0
  *
  * @since 1.0.0
  */
@@ -719,6 +721,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Classification Service (v21.0.0)
         $this->app->singleton(EventClassificationService::class, function (Application $app): EventClassificationService {
             return new EventClassificationService;
+        });
+
+        // Feature Flag Analytics Service (v22.0.0)
+        $this->app->singleton(AnalyticsFeatureFlagService::class, function (Application $app): AnalyticsFeatureFlagService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsFeatureFlagService(
+                $manager,
+                $config,
+                $app->make('cache'),
+            );
+        });
+
+        // User Journey Orchestration Service (v22.0.0)
+        $this->app->singleton(AnalyticsJourneyOrchestrator::class, function (Application $app): AnalyticsJourneyOrchestrator {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsJourneyOrchestrator(
+                $manager,
+                $config,
+                $app->make('cache'),
+            );
         });
 
         // Session analytics service

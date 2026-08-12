@@ -2,6 +2,26 @@
 
 All notable changes to the package will be documented in this file.
 
+## [22.0.0] - 2026-08-12
+
+### Added
+
+- **FirstValueEvent** — Tracks the critical "aha moment" when users first experience core product value. Includes time-to-value (TTV) metric for activation rate analysis. Priority: critical. Full multi-provider catalog mapping.
+- **UpcomingRenewalEvent** — Dispatched when subscription renewal is approaching (7/14/30 days). Used for churn prediction, renewal outreach, and revenue forecasting. Includes plan name, amount, currency, and days-until-renewal.
+- **RetentionRiskEvent** — Signals when users show churn risk patterns. Supports low/medium/high/critical risk levels with computed risk scores (0.0-1.0). Escalates to critical priority for high-risk users.
+- **ProductAnalyticsEvent** — Structured product analytics wrapper with category/action/object taxonomy. Enables consistent domain-specific event tracking (e.g., `report.create.monthly_summary`).
+- **AnalyticsFeatureFlagService** — Feature flag analytics service. Registers, evaluates, and tracks feature flag exposures with deterministic hash-based variant assignment. Provides adoption stats per variant and conversion tracking for A/B experiments. Cache-backed for performance.
+- **AnalyticsJourneyOrchestrator** — User journey stage progression tracker. Manages lifecycle stages (visitor → signed_up → activated → engaged → converting → retained → champion). Tracks transitions, time-in-stage, transition counts. Forward-only advancement prevents stage regression. In-stage event tracking for engagement within a stage.
+- **2 new config sections** — `journey` (stages, cache prefix, TTL) and `feature_flags` (enabled, cache TTL).
+- **2 new singleton registrations** — AnalyticsFeatureFlagService and AnalyticsJourneyOrchestrator registered in AnalyticsServiceProvider.
+- **4 new SaaS catalog entries** — first_value, upcoming_renewal, retention_risk, product_analytics with full multi-provider mappings (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude).
+- **V2200SaaSStarterFeatureFlagJourneyUpgradeTest** — 30+ assertions covering new event classes, catalog integrity, FeatureFlagService evaluation, JourneyOrchestrator stage progression, and version sweep.
+
+### Changed
+
+- **Version sweep** — 21.0.0 → 22.0.0 across `AnalyticsEvent::VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), README badge, CHANGELOG.
+- **SaaS Event Catalog** — Expanded from 64 to 68 events with 4 new product analytics and activation signal types.
+
 ## [21.0.0] - 2026-08-12
 
 ### Added
