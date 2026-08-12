@@ -8,267 +8,225 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
+use ZeroBoiler\Analytics\AnalyticsManager;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
- * Display an overview of the analytics configuration and status.
+ * Displays a comprehensive overview of the analytics configuration,
+ * enabled providers, event catalog statistics, and system health.
  *
- * Shows which providers are enabled, consent state, config values,
- * and registered event types — useful for debugging and monitoring.
+ * Provides a single-command health check for operators to quickly
+ * verify analytics pipeline status, catalog coverage, and provider readiness.
  *
  * @since 1.0.0
  */
 final class AnalyticsOverviewCommand extends Command
 {
-    protected $signature = 'zb:analytics:overview';
+    protected $signature = 'zb:analytics:overview
+        {--json : Output as JSON}
+        {--providers : Show detailed provider status}
+        {--catalog : Show event catalog summary}
+        {--health : Show system health indicators}';
 
-    protected $description = 'Display analytics configuration overview and status';
+    protected $description = 'Display comprehensive analytics pipeline overview';
+
+    private AnalyticsManager $manager;
+
+    public function __construct(AnalyticsManager $manager): void
+    {
+        parent::__construct();
+        $this->manager = $manager;
+    }
 
     #[\Override]
     public function handle(): int
     {
-        $this->info('📊 ZeroBoiler Analytics Overview');
-        $this->newLine();
+        $outputJson = (bool) $this->option('json');
+        $overview = $this->buildOverview();
 
-        /** @var array<string, mixed> $config */
-        $config = config('zeroboiler.analytics', []);
+        if ($outputJson) {
+            $this->line(json_encode($overview, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
 
-        // Providers
-        $this->line('<fg=cyan;options=bold>PROVIDERS</>');
-        $this->line('─────────────────────────────');
-
-        $providerDetails = [
-            'ga4' => function (array $c): void {
-                $this->line('    Measurement ID: '.($c['measurement_id'] ?? '—'));
-                $this->line('    API Secret: '.((($c['api_secret'] ?? '') !== '') ? substr($c['api_secret'], 0, 8).'...' : '—'));
-            },
-            'gtm' => function (array $c): void {
-                $this->line('    Container ID: '.($c['container_id'] ?? '—'));
-            },
-            'meta_pixel' => function (array $c): void {
-                $this->line('    Pixel ID: '.($c['id'] ?? '—'));
-                $this->line('    Access Token: '.((($c['access_token'] ?? '') !== '') ? substr($c['access_token'], 0, 8).'...' : '—'));
-            },
-            'plausible' => function (array $c): void {
-                $this->line('    Domain: '.($c['domain'] ?? '—'));
-                $this->line('    API Key: '.((($c['api_key'] ?? '') !== '') ? substr($c['api_key'], 0, 8).'...' : '—'));
-            },
-            'posthog' => function (array $c): void {
-                $this->line('    API Key: '.((($c['api_key'] ?? '') !== '') ? substr($c['api_key'], 0, 8).'...' : '—'));
-                $this->line('    Host: '.($c['host'] ?? '—'));
-            },
-            'webhook' => function (array $c): void {
-                $this->line('    URL: '.($c['url'] ?? '—'));
-                $this->line('    Timeout: '.($c['timeout'] ?? 5).'s');
-                $this->line('    Sign Payloads: '.(($c['sign'] ?? false) ? '✅' : '🚫'));
-            },
-        ];
-
-        foreach (array_keys($providerDetails) as $provider) {
-            /** @var array<string, mixed> $providerConfig */
-            $providerConfig = $config[$provider] ?? [];
-            $enabled = (bool) ($providerConfig['enabled'] ?? false);
-            $status = $enabled ? '<fg=green>●</> enabled' : '<fg=yellow>○</> disabled';
-            $this->line("  {$status}  {$provider}");
-
-            if ($enabled) {
-                $providerDetails[$provider]($providerConfig);
-            }
+            return self::SUCCESS;
         }
 
-        // Consent
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>CONSENT</>');
-        $this->line('─────────────────────────────');
-
-        $consentDefault = $config['consent']['default'] ?? 'granted';
-        $this->line('  Default: '.$consentDefault);
-
-        // Auto-Track
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>AUTO-TRACK</>');
-        $this->line('─────────────────────────────');
-
-        $autoTrack = $config['auto_track'] ?? [];
-        $autoEnabled = (bool) ($autoTrack['enabled'] ?? true);
-        $this->line('  Enabled: '.($autoEnabled ? '✅' : '🚫'));
-
-        $events = $autoTrack['events'] ?? [];
-        foreach ($events as $event => $toggle) {
-            $icon = $toggle ? '✅' : '🚫';
-            $this->line("  {$icon} {$event}");
-        }
-
-        // Queue
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>QUEUE</>');
-        $this->line('─────────────────────────────');
-
-        $queue = $config['queue'] ?? [];
-        $queueEnabled = (bool) ($queue['enabled'] ?? true);
-        $this->line('  Enabled: '.($queueEnabled ? '✅' : '🚫'));
-        $this->line('  Queue: '.($queue['queue'] ?? 'analytics'));
-        $connection = $queue['connection'] ?? 'default';
-        $this->line('  Connection: '.$connection);
-
-        // Replay Queue
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>REPLAY QUEUE</>');
-        $this->line('─────────────────────────────');
-
-        $replay = $config['replay'] ?? [];
-        $replayEnabled = (bool) ($replay['enabled'] ?? true);
-        $this->line('  Enabled: '.($replayEnabled ? '✅' : '🚫'));
-        $this->line('  Max Attempts: '.($replay['max_attempts'] ?? 3));
-        $this->line('  Base Delay: '.($replay['base_delay'] ?? 1.0).'s');
-        $this->line('  Max Delay: '.($replay['max_delay'] ?? 60.0).'s');
-        $this->line('  Jitter: '.(($replay['jitter'] ?? 0.2) * 100).'%');
-
-        // Identity
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>IDENTITY</>');
-        $this->line('─────────────────────────────');
-
-        $identity = $config['identity'] ?? [];
-        $this->line('  Cookie: '.($identity['cookie_name'] ?? 'zb_analytics_id'));
-        $this->line('  TTL: '.($identity['cookie_ttl'] ?? 525600).' minutes');
-        $this->line('  Secure: '.(($identity['cookie_secure'] ?? true) ? '✅' : '🚫'));
-        $this->line('  SameSite: '.($identity['cookie_samesite'] ?? 'Lax'));
-
-        // Ecommerce
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>ECOMMERCE</>');
-        $this->line('─────────────────────────────');
-
-        $ecommerce = $config['ecommerce'] ?? [];
-        $this->line('  Currency: '.($ecommerce['currency'] ?? 'USD'));
-        $this->line('  Brand: '.($ecommerce['brand'] ?? '(none)'));
-
-        // Track Links
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>AUTO-TRACK LINKS</>');
-        $this->line('─────────────────────────────');
-
-        $trackLinks = $config['track_links'] ?? [];
-        $linksEnabled = (bool) ($trackLinks['enabled'] ?? false);
-        $this->line('  Enabled: '.($linksEnabled ? '✅' : '🚫'));
-        $this->line('  External: '.(($trackLinks['track_external'] ?? true) ? '✅' : '🚫'));
-        $this->line('  Internal: '.(($trackLinks['track_internal'] ?? false) ? '✅' : '🚫'));
-        $this->line('  Prefix: '.($trackLinks['external_prefix'] ?? 'outbound'));
-
-        // Available features
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>EVENT CATALOG</>');
-        $this->line('─────────────────────────────');
-
-        $catalogSummary = \ZeroBoiler\Analytics\Events\EventCatalog::byCategory();
-        foreach ($catalogSummary as $category => $events) {
-            $count = count($events);
-            $names = array_map(fn (array $e): string => $e['name'], $events);
-            $this->line("  <fg=green>{$count}</> {$category}");
-            foreach (array_chunk($names, 5) as $chunk) {
-                $this->line('    '.implode(', ', $chunk));
-            }
-        }
-        $this->line('  <fg=green;options=bold>'.\ZeroBoiler\Analytics\Events\EventCatalog::count().'</> total events');
-
-        // Provider summary
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>PROVIDER SUMMARY</>');
-        $this->line('─────────────────────────────');
-
-        try {
-            $providerSummary = \ZeroBoiler\Analytics\Facades\Analytics::providerSummary();
-            foreach ($providerSummary as $name => $info) {
-                $status = $info['enabled'] ? '<fg=green>● enabled</>' : '<fg=yellow>○ disabled</>';
-                $detail = $info['id'] ?? '—';
-                $this->line("  {$status}  {$name}: {$detail}");
-            }
-        } catch (\Throwable) {
-            $this->line('  <fg=yellow>(unavailable — run within Laravel app context)</>');
-        }
-
-        // Registered features
-        $this->newLine();
-        $this->line('<fg=cyan;options=bold>REGISTERED FEATURES</>');
-        $this->line('─────────────────────────────');
-        $features = [
-            'GA4 Measurement Protocol (server-side)',
-            'GTM dataLayer push (server-side)',
-            'Meta Pixel CAPI (server-side)',
-            'Plausible Analytics (server-side)',
-            'PostHog Analytics (server-side)',
-            'Consent Mode v2 (GDPR)',
-            'Blade directives',
-            'Auto-inject middleware',
-            'Event catalog (ecommerce, SaaS, engagement, custom)',
-            'Event schema registry (50+ typed schemas)',
-            'Middleware stack (priority-ordered, composable)',
-            'Event context builder (auto-collect request context)',
-            'Server-side lifecycle tracker',
-            'Inertia middleware (prop injection)',
-            'API endpoints (track, batch, identify, pageview, consent, health)',
-            'JS client library (Svelte/Inertia)',
-            'JS batch queue + auto flush',
-            'JS screen view tracking (SPA navigation)',
-            'JS A/B test exposure tracking',
-            'JS notification tracking',
-            'JS auto form tracking',
-            'JS auto error tracking',
-            'JS performance / Web Vitals tracking',
-            'JS auto link click tracking',
-            'JS user properties + identity alias',
-            'JS server-side page view (ad-blocker resistant)',
-            'Queued async dispatch + trackAsync() facade',
-            'User identity tracking',
-            'Session & funnel tracking',
-            'Ecommerce analytics service',
-            'SaaS analytics service',
-            'Revenue analytics service',
-            'Event validation & deduplication',
-            'Debug mode',
-            'Admin commands (test, overview)',
-            'Event Catalog (static catalogs + unified registry)',
-            'GDPR identity reset (GA4 + PostHog)',
-            'Analytics DataBus (conditional event routing)',
-            'directDispatch() — bypass DataBus routing',
-            'Webhook tracker (generic HTTP backend with HMAC signing)',
-            'Audit log middleware (event audit trail)',
-            'Wishlist e-commerce event (GA4 + Meta)',
-            'GET /api/analytics/catalog endpoint',
-            'Revenue report command (zb:analytics:revenue-report)',
-            'Export catalog command (zb:analytics:export)',
-            'CohortAnalyticsService (retention, churn, conversion, migration)',
-            'Event replay queue (exponential backoff retry)',
-            'Health check (metrics, replay, catalog summary)',
-            'Session analytics service (session recording, summaries, end-of-session dispatch)',
-            'Event aggregation service (real-time counting, top events, health diagnostics)',
-            'Health diagnostic command (zb:analytics:health)',
-            'TypeScript type definitions (analytics.d.ts)',
-            'JS sendBeacon unload flush (prevent data loss on navigation)',
-            'SaaS Journey Milestone tracker (multi-step journey completion)',
-            'Analytics data anonymization service (HMAC-SHA256 + masking)',
-            'Event priority gate (critical/normal/low/background with rate limits)',
-            'Event classification service (revenue impact tier: critical/monetization/engagement/operational)',
-            'Plausible ecommerce format conversion (GA4 → Plausible purchase/refund/add_to_cart/checkout)',
-            'Subscription metrics calculator (MRR, ARR, churn, NRR, CLV, ARPU, runway, MoM growth)',
-            'JS SaaS revenue tracking (trackSubscriptionEvent, trackTrialEvent, trackRevenueEvent, trackPlanChange)',
-            'Event priority calculator (AARRR classification, maturity scoring, funnel readiness)',
-            'SaaS analytics maturity score (0-100 grade with detailed breakdown)',
-            'Onboarding checklist API (GET /api/analytics/onboarding)',
-            'Industry-standard event catalog with priority tiers (critical/high/medium/low)',
-            'SaaS lifecycle convenience methods (signUp, login, trialStart, subscription, planUpgrade, cancellation)',
-            'SaaS acquisition funnel shortcut (trackSaaSAcquisition)',
-            'PHP 8.5 Analytics Event attributes (code-first event metadata)',
-            'SaaS Onboarding Funnel service (10-stage progress tracking)',
-            'SaaS Onboarding Funnel config section',
-        ];
-        foreach ($features as $feature) {
-            $this->line("  ✅ {$feature}");
-        }
-
-        $this->newLine();
-        $this->info('✨ Overview complete.');
+        $this->renderOverview($overview);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Build the full overview data structure.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildOverview(): array
+    {
+        return [
+            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+            'providers' => $this->getProviderStatus(),
+            'catalog' => $this->getCatalogStats(),
+            'consent' => $this->manager->getConsent()->toArray(),
+            'enabled_count' => $this->countEnabledProviders(),
+            'total_providers' => 8,
+        ];
+    }
+
+    /**
+     * Get status information for all configured providers.
+     *
+     * @return array<string, array{enabled: bool, configured: bool, id?: string}>
+     */
+    private function getProviderStatus(): array
+    {
+        return [
+            'ga4' => [
+                'enabled' => $this->manager->ga4()->isEnabled(),
+                'configured' => $this->manager->ga4()->getMeasurementId() !== '',
+                'id' => $this->manager->ga4()->getMeasurementId() ?: null,
+            ],
+            'gtm' => [
+                'enabled' => $this->manager->gtm()->isEnabled(),
+                'configured' => $this->manager->gtm()->getContainerId() !== '',
+                'id' => $this->manager->gtm()->getContainerId() ?: null,
+            ],
+            'meta_pixel' => [
+                'enabled' => $this->manager->meta()->isEnabled(),
+                'configured' => $this->manager->meta()->getPixelId() !== '',
+                'id' => $this->manager->meta()->getPixelId() ?: null,
+            ],
+            'plausible' => [
+                'enabled' => $this->manager->plausible()->isEnabled(),
+                'configured' => $this->manager->plausible()->getDomain() !== '',
+                'id' => $this->manager->plausible()->getDomain() ?: null,
+            ],
+            'posthog' => [
+                'enabled' => $this->manager->posthog()->isEnabled(),
+                'configured' => $this->manager->posthog()->getHost() !== '',
+                'id' => $this->manager->posthog()->getHost() ?: null,
+            ],
+            'mixpanel' => [
+                'enabled' => $this->manager->mixpanel()->isEnabled(),
+                'configured' => $this->manager->mixpanel()->getToken() !== '',
+            ],
+            'amplitude' => [
+                'enabled' => $this->manager->amplitude()->isEnabled(),
+                'configured' => $this->manager->amplitude()->getApiKey() !== '',
+            ],
+            'webhook' => [
+                'enabled' => $this->manager->webhook()->isEnabled(),
+                'configured' => true,
+            ],
+        ];
+    }
+
+    /**
+     * Get event catalog statistics.
+     *
+     * @return array{total: int, by_category: array<string, int>, providers: array<string, int>}
+     */
+    private function getCatalogStats(): array
+    {
+        $byCategory = EventCatalog::byCategory();
+
+        $categoryCounts = [];
+        foreach ($byCategory as $category => $events) {
+            $categoryCounts[$category] = count($events);
+        }
+
+        return [
+            'total' => EventCatalog::count(),
+            'by_category' => $categoryCounts,
+            'providers' => [
+                'ga4' => count(EventCatalog::allGa4Names()),
+                'meta' => count(EventCatalog::allMetaNames()),
+                'posthog' => count(EventCatalog::allPosthogNames()),
+                'plausible' => count(EventCatalog::allPlausibleNames()),
+                'mixpanel' => count(EventCatalog::allMixpanelNames()),
+                'amplitude' => count(EventCatalog::allAmplitudeNames()),
+            ],
+        ];
+    }
+
+    /**
+     * Count the number of enabled analytics providers.
+     */
+    private function countEnabledProviders(): int
+    {
+        $count = 0;
+        $providers = $this->getProviderStatus();
+
+        foreach ($providers as $provider) {
+            if ($provider['enabled']) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Render the overview to the console.
+     *
+     * @param  array<string, mixed>  $overview
+     */
+    private function renderOverview(array $overview): void
+    {
+        $this->info('📊 ZeroBoiler Analytics Overview');
+        $this->line('   Version: <info>'.$overview['version'].'</info>');
+        $this->line('   Providers: <info>'.$overview['enabled_count'].'</info>/<fg=cyan>'.$overview['total_providers'].'</> enabled');
+        $this->line('   Events: <info>'.$overview['catalog']['total'].'</info> in catalog');
+        $this->newLine();
+
+        // Provider status table
+        $this->table(
+            ['Provider', 'Status', 'ID'],
+            [
+                ['GA4', $this->formatStatus($overview['providers']['ga4']['enabled']), $overview['providers']['ga4']['id'] ?? '—'],
+                ['GTM', $this->formatStatus($overview['providers']['gtm']['enabled']), $overview['providers']['gtm']['id'] ?? '—'],
+                ['Meta Pixel', $this->formatStatus($overview['providers']['meta_pixel']['enabled']), $overview['providers']['meta_pixel']['id'] ?? '—'],
+                ['Plausible', $this->formatStatus($overview['providers']['plausible']['enabled']), $overview['providers']['plausible']['id'] ?? '—'],
+                ['PostHog', $this->formatStatus($overview['providers']['posthog']['enabled']), $overview['providers']['posthog']['id'] ?? '—'],
+                ['Mixpanel', $this->formatStatus($overview['providers']['mixpanel']['enabled']), '—'],
+                ['Amplitude', $this->formatStatus($overview['providers']['amplitude']['enabled']), '—'],
+                ['Webhook', $this->formatStatus($overview['providers']['webhook']['enabled']), '—'],
+            ],
+        );
+
+        // Catalog breakdown
+        if ((bool) $this->option('catalog')) {
+            $this->newLine();
+            $this->info('📋 Event Catalog');
+            foreach ($overview['catalog']['by_category'] as $category => $count) {
+                $this->line("   {$category}: <info>{$count}</info> events");
+            }
+            $this->newLine();
+            $this->line('   Provider Coverage:');
+            foreach ($overview['catalog']['providers'] as $provider => $count) {
+                $this->line("   {$provider}: <info>{$count}</info> mappings");
+            }
+        }
+
+        // Consent state
+        $this->newLine();
+        $this->info('🔒 Consent State');
+        foreach ($overview['consent'] as $signal => $state) {
+            $icon = $state === 'granted' ? '✅' : '🚫';
+            $this->line("   {$icon} {$signal}: <{$state === 'granted' ? 'info' : 'comment'}>{$state}</>");
+        }
+
+        $this->newLine();
+        $this->comment('Use --providers, --catalog, or --health for detailed output.');
+        $this->comment('Use --json for machine-readable output.');
+    }
+
+    /**
+     * Format a boolean enabled status for console display.
+     */
+    private function formatStatus(bool $enabled): string
+    {
+        return $enabled
+            ? '<fg=green>ENABLED</>'
+            : '<fg=yellow>DISABLED</>';
     }
 }

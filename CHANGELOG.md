@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [28.0.0] - 2026-08-12
+
+### Added
+
+- **Universal Event Normalizer** — `UniversalEventNormalizer` service transforms `AnalyticsEvent` DTOs into provider-specific payloads using catalog mappings. Handles event name resolution (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude), parameter structure normalization, identity field attachment (`client_id` → `distinct_id`/`device_id` per provider), and timestamp formatting. E-commerce events (`purchase`, `refund`, `add_to_cart`, `view_item`) get cross-format conversion via `EcommerceFormatConverter`. Supports `normalize()` for single-provider and `normalizeForAll()` for multi-provider normalization.
+- **Event Schema Migration Service** — `EventSchemaMigrationService` provides database-style schema versioning for analytics events. Register typed parameter schemas with required/optional/deprecated flags, define callable migration functions between versions, validate events against schemas (required fields, type checks, deprecated warnings), compute schema compatibility diffs, and track schema versions in cache with 24h TTL. Built-in schemas and migrations for `purchase` (v1→v2, currency field), `sign_up` (v1→v2, auth_method→method rename), `page_view`, and `login`.
+- **ServiceProvider registrations** — `UniversalEventNormalizer` and `EventSchemaMigrationService` registered as singletons in `AnalyticsServiceProvider`.
+
+### Fixed
+
+- **AnalyticsOverviewCommand rebuilt** — `zb:analytics:overview` command file was corrupted (binary content instead of PHP). Rebuilt from scratch with proper provider status display, catalog statistics, consent state output, and `--json`/`--providers`/`--catalog`/`--health` flags. Uses `AnalyticsManager`, `AnalyticsMetrics`, and `EventCatalog` for data gathering.
+
+### Changed
+
+- **Version sweep** — 27.0.0 → 28.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), all Svelte composables (`usePerformanceTracker.svelte.js`, `useAnalytics.svelte.js`, `useAnalyticsConfig.svelte.js`), README badge, CHANGELOG.
+
 ## [27.0.0] - 2026-08-12
 
 ### Added

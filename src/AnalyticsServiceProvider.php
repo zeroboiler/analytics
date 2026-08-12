@@ -256,6 +256,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsDashboardService;
 use ZeroBoiler\Analytics\Services\EventIdempotencyKeyService;
 use ZeroBoiler\Analytics\Services\WebhookEventSubscriptionService;
 use ZeroBoiler\Analytics\Services\PerformanceScoreService;
+use ZeroBoiler\Analytics\Services\UniversalEventNormalizer;
+use ZeroBoiler\Analytics\Services\EventSchemaMigrationService;
 use ZeroBoiler\Analytics\Services\ConsentBannerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
 
@@ -265,7 +267,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 27.0.0
+ * @version 28.0.0
  *
  * @since 1.0.0
  */
@@ -805,6 +807,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new ConsentBannerService($config);
+        });
+
+        // v28.0.0 — Universal Event Normalizer
+        $this->app->singleton(UniversalEventNormalizer::class, function (Application $app): UniversalEventNormalizer {
+            return new UniversalEventNormalizer;
+        });
+
+        // v28.0.0 — Event Schema Migration Service
+        $this->app->singleton(EventSchemaMigrationService::class, function (Application $app): EventSchemaMigrationService {
+            return new EventSchemaMigrationService(
+                cache: $app->make('cache'),
+            );
         });
 
         // Session analytics service

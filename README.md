@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-27.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-28.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v25.0.0](#whats-new-in-v25000)
++- [What's New in v28.0.0](#whats-new-in-v28000)
+- [What's New in v25.0.0](#whats-new-in-v25000)
 - [What's New in v24.0.0](#whats-new-in-v24000)
 |- [What's New in v23.0.0](#whats-new-in-v23000)
 - [What's New in v22.0.0](#whats-new-in-v22000)
@@ -109,6 +110,15 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v28.0.0
+
+### 🚀 Industry-Standard SaaS Analytics Upgrade
+
+- **Universal Event Normalizer** — `UniversalEventNormalizer` service transforms events into provider-specific payloads using catalog mappings. Handles name resolution, parameter structure, identity fields (client_id, user_id), and timestamps across all 8 providers (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude, Webhook). E-commerce events get cross-format conversion via `EcommerceFormatConverter`.
+- **Event Schema Migration Service** — `EventSchemaMigrationService` provides database-style schema versioning for analytics events. Register schemas with typed parameters, define migration functions between versions, validate events against schemas, and compute compatibility diffs. Cache-backed schema version tracking with 24h TTL. Built-in migrations for `purchase` (v1→v2) and `sign_up` (v1→v2).
+- **AnalyticsOverviewCommand (rebuilt)** — `zb:analytics:overview` command now works correctly after binary corruption fix. Displays provider status table, catalog stats, consent state, and supports `--json`, `--providers`, `--catalog`, and `--health` flags.
+- **Version sweep** — 27.0.0 → 28.0.0 across all version markers.
 
 ## What's New in v26.0.0
 
