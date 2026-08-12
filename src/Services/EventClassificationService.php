@@ -10,9 +10,9 @@ namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\SaaSEvents;
-use ZeroBoiler\Analytics\Events\EngagementEvents;
+use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
+use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
+use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
 /**
  * ML-ready event classification and auto-tagging engine.

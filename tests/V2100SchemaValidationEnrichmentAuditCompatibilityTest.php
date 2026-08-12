@@ -13,9 +13,6 @@ use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
 use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
 use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
-use ZeroBoiler\Analytics\Schema\EventParameterSchema;
-use ZeroBoiler\Analytics\Schema\EventParameterSchemas;
-use ZeroBoiler\Analytics\Schema\EventPropertySchema;
 
 beforeEach(function (): void {
     $this->registry = new EventSchemaRegistry;
