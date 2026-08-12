@@ -719,4 +719,15 @@ Route::prefix('analytics')->group(function () {
     Route::post('simulator/generate', [AnalyticsEventController::class, 'simulatorGenerate']);
     Route::post('simulator/ecommerce', [AnalyticsEventController::class, 'simulatorEcommerce']);
     Route::post('simulator/saas', [AnalyticsEventController::class, 'simulatorSaaSLifecycle']);
+
+    // Event Lineage Tracker (v49.0.0)
+    Route::get('lineage/status', [AnalyticsEventController::class, 'lineageStatus']);
+    Route::get('lineage/stats', [AnalyticsEventController::class, 'lineageStats']);
+    Route::get('lineage/{lineageId}', [AnalyticsEventController::class, 'lineageShow']);
+    Route::get('lineage', [AnalyticsEventController::class, 'lineageList']);
+    Route::get('lineage/failures', [AnalyticsEventController::class, 'lineageFailures']);
+    Route::get('lineage/stages/performance', [AnalyticsEventController::class, 'lineageStagePerformance']);
+    Route::get('lineage/providers/reliability', [AnalyticsEventController::class, 'lineageProviderReliability']);
+    Route::get('lineage/export', [AnalyticsEventController::class, 'lineageExportCompliance']);
+    Route::delete('lineage', [AnalyticsEventController::class, 'lineagePurge']);
 });

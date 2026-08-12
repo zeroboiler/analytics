@@ -303,7 +303,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthSummaryCommand;
 use ZeroBoiler\Analytics\Services\EventCorrelationEngineService;
 use ZeroBoiler\Analytics\Services\AnomalyRootCauseAnalyzer;
 use ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService;
+use ZeroBoiler\Analytics\Services\EventLineageTrackerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsLineageCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -311,7 +313,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 48.0.0
+ * @version 49.0.0
  *
  * @since 1.0.0
  */
@@ -2907,6 +2909,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $dlqService,
             );
         });
+
+        // Event Lineage Tracker Service (v49.0.0) — event lifecycle tracing
+        $this->app->singleton(EventLineageTrackerService::class, function (Application $app): EventLineageTrackerService {
+            return new EventLineageTrackerService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -2962,6 +2972,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsFraudCommand::class,
                 AnalyticsHealthSummaryCommand::class,
                 AnalyticsSelfHealCommand::class,
+                AnalyticsLineageCommand::class,
             ]);
         }
 

@@ -5765,5 +5765,29 @@ return [
             'max_history_entries' => (int) env('ANALYTICS_SELF_HEALING_MAX_HISTORY', 200),
             'healing_cooldown_seconds' => (int) env('ANALYTICS_SELF_HEALING_COOLDOWN', 300), // 5 minutes
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Lineage Tracker (v49.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Tracks the complete lifecycle path of analytics events through the pipeline:
+        | source origin → enrichment stages → provider dispatch → delivery confirmation.
+        | Each tracked event gets a lineage ID linking all stages together for
+        | end-to-end tracing, debugging, and GDPR compliance reporting.
+        |
+        | Inspired by OpenTelemetry distributed tracing and Datadog pipeline visibility.
+        |
+        */
+        'event_lineage' => [
+            'enabled' => env('ANALYTICS_EVENT_LINEAGE_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_EVENT_LINEAGE_CACHE_PREFIX', 'zb_lineage_'),
+            'retention_ttl' => (int) env('ANALYTICS_EVENT_LINEAGE_RETENTION_TTL', 604800), // 7 days
+            'max_entries' => (int) env('ANALYTICS_EVENT_LINEAGE_MAX_ENTRIES', 10000),
+            'auto_track' => env('ANALYTICS_EVENT_LINEAGE_AUTO_TRACK', false),
+            'track_enrichment' => env('ANALYTICS_EVENT_LINEAGE_TRACK_ENRICHMENT', true),
+            'track_providers' => env('ANALYTICS_EVENT_LINEAGE_TRACK_PROVIDERS', true),
+            'skip_stages' => [], // e.g., ['timestamp'] to skip high-frequency no-op stages
+        ],
     ],
 ];

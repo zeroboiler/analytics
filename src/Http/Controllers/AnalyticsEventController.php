@@ -11743,4 +11743,206 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Lineage Tracker (v49.0.0) ─────────────────────────────────
+
+    /**
+     * Lineage tracking status endpoint.
+     *
+     * GET /api/analytics/lineage/status
+     */
+    public function lineageStatus(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+            $stats = $service->getStats();
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => [
+                    'enabled' => $service->isEnabled(),
+                    'auto_track' => $service->isAutoTrackEnabled(),
+                    'total_tracked' => $stats['total_tracked'],
+                    'in_progress' => $stats['in_progress'],
+                    'delivered' => $stats['delivered'],
+                    'partial' => $stats['partial'],
+                    'failed' => $stats['failed'],
+                    'filtered' => $stats['filtered'],
+                    'avg_duration_ms' => $stats['avg_duration_ms'],
+                    'by_source' => $stats['by_source'],
+                    'enrichment_stages_used' => $stats['enrichment_stages_used'],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Lineage statistics endpoint.
+     *
+     * GET /api/analytics/lineage/stats
+     */
+    public function lineageStats(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Show a specific lineage entry.
+     *
+     * GET /api/analytics/lineage/{lineageId}
+     */
+    public function lineageShow(string $lineageId): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+            $entry = $service->getLineage($lineageId);
+
+            if ($entry === null) {
+                return response()->json(['status' => 'not_found', 'error' => "Lineage '{$lineageId}' not found"], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $entry,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * List recent lineage entries with optional filters.
+     *
+     * GET /api/analytics/lineage?limit=50&event=page_view&source=api&status=delivered
+     */
+    public function lineageList(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+            $limit = min((int) request()->query('limit', 50), 200);
+            $eventName = request()->query('event');
+            $source = request()->query('source');
+            $status = request()->query('status');
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getRecentLineages(
+                    limit: $limit,
+                    eventName: is_string($eventName) && $eventName !== '' ? $eventName : null,
+                    source: is_string($source) && $source !== '' ? $source : null,
+                    status: is_string($status) && $status !== '' ? $status : null,
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top failure patterns.
+     *
+     * GET /api/analytics/lineage/failures?limit=10
+     */
+    public function lineageFailures(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+            $limit = min((int) request()->query('limit', 10), 50);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getFailurePatterns(limit: $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get enrichment stage performance stats.
+     *
+     * GET /api/analytics/lineage/stages/performance
+     */
+    public function lineageStagePerformance(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getStagePerformanceStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get provider dispatch reliability stats.
+     *
+     * GET /api/analytics/lineage/providers/reliability
+     */
+    public function lineageProviderReliability(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->getProviderReliabilityStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export lineage data for GDPR compliance reporting.
+     *
+     * GET /api/analytics/lineage/export
+     */
+    public function lineageExportCompliance(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->exportForCompliance(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Purge all lineage entries.
+     *
+     * DELETE /api/analytics/lineage
+     */
+    public function lineagePurge(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventLineageTrackerService::class);
+            $count = $service->purge();
+
+            return response()->json([
+                'status' => 'ok',
+                'purged' => $count,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
