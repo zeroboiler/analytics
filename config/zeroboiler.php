@@ -1918,6 +1918,57 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Dependency Graph (v40.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Models causal dependencies between analytics events — e.g., sign_up
+        | must precede start_trial, add_to_cart must precede purchase. Validates
+        | real-time event sequences, detects impossible workflows, and provides
+        | funnel guard logic for SaaS products.
+        |
+        | Built-in graph covers SaaS lifecycle (sign_up → login → start_trial →
+        | subscribe → plan_upgrade/cancellation) and e-commerce (view_item →
+        | add_to_cart → begin_checkout → purchase → refund).
+        |
+        | Disable in development to skip dependency validation.
+        |
+        */
+        'dependency_graph' => [
+            'enabled' => env('ANALYTICS_DEPENDENCY_GRAPH_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_DEPENDENCY_GRAPH_CACHE_PREFIX', 'zb_edg_'),
+            'cache_ttl' => (int) env('ANALYTICS_DEPENDENCY_GRAPH_CACHE_TTL', 86400), // 24 hours
+            'violation_ttl' => (int) env('ANALYTICS_DEPENDENCY_GRAPH_VIOLATION_TTL', 3600), // 1 hour
+            'max_violations' => (int) env('ANALYTICS_DEPENDENCY_GRAPH_MAX_VIOLATIONS', 100),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Multi-Currency Revenue Normalization (v40.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Converts revenue event values from any currency to a configured base
+        | currency using exchange rates. Enables unified revenue analytics across
+        | markets and currencies for consistent MRR, ARR, and LTV calculations.
+        |
+        | Exchange rates default to common pairs (USD base). Override via config
+        | or set dynamically using the MultiCurrencyRevenueNormalizer API.
+        |
+        | When enabled, normalized params are injected with _normalized_* prefix
+        | without overwriting original event params.
+        |
+        */
+        'multi_currency' => [
+            'enabled' => env('ANALYTICS_MULTI_CURRENCY_ENABLED', false),
+            'base_currency' => env('ANALYTICS_MULTI_CURRENCY_BASE', 'USD'),
+            'cache_prefix' => env('ANALYTICS_MULTI_CURRENCY_CACHE_PREFIX', 'zb_fx_'),
+            'rate_ttl' => (int) env('ANALYTICS_MULTI_CURRENCY_RATE_TTL', 86400), // 24 hours
+            'rounding' => env('ANALYTICS_MULTI_CURRENCY_ROUNDING', 'currency'), // currency, none
+            'stale_threshold' => (float) env('ANALYTICS_MULTI_CURRENCY_STALE_THRESHOLD', 0.1), // 10% deviation
+            'rates' => [], // Override defaults: ['EUR' => 0.92, 'GBP' => 0.79, ...]
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Real-Time Aggregation (Live Dashboard Data)
         |-------------------------------------------------------------------------- 
         |

@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [40.0.0] - 2026-08-12
+
+### Added
+
+- **EventDependencyGraphService** — Causal event dependency validation service. Models required, expected, and exclusive relationships between analytics events (e.g., `sign_up` → `start_trial` → `subscribe`, `add_to_cart` → `begin_checkout` → `purchase`). Built-in graph covers SaaS lifecycle (12 nodes, 24 edges) and e-commerce funnel (11 nodes, 16 edges). Features: real-time sequence validation per client ID, topological sort for execution order, DFS cycle detection, path validation with funnel completion probability, violation recording with TTL-based caching, critical path analysis. Config: `zeroboiler.analytics.dependency_graph` (5 options).
+- **MultiCurrencyRevenueNormalizer** — Cross-currency revenue normalization for unified analytics. Converts revenue event values from any currency to a configured base currency using exchange rates (25 built-in currency pairs, USD base). Features: automatic currency/value detection from event params, normalized params injection (`_normalized_*` prefix) without overwriting originals, ISO 4217-aware rounding (JPY=0 decimals, USD/EUR=2, BHD=3), dynamic rate management via cache, stale-rate detection, batch normalization with per-currency totals. Config: `zeroboiler.analytics.multi_currency` (7 options).
+- **AnalyticsDependencyGraphCommand** (`zb:analytics:dependencies`) — Admin CLI for dependency graph and multi-currency management. 8 modes: summary (default, both services), `--graph` (full graph visualization), `--validate=<event>` (single event validation), `--path=<events>` (sequence path validation with funnel probability), `--topo` (topological sort), `--cycles` (cycle detection), `--currency` (rates overview), `--convert=<amount:from:to>` (live conversion). Supports `--json` output.
+- **2 new config sections** — `zeroboiler.analytics.dependency_graph` (5 options: enabled, cache_prefix, cache_ttl, violation_ttl, max_violations) and `zeroboiler.analytics.multi_currency` (7 options: enabled, base_currency, cache_prefix, rate_ttl, rounding, stale_threshold, rates).
+- **2 new singleton registrations** — EventDependencyGraphService, MultiCurrencyRevenueNormalizer in AnalyticsServiceProvider.
+- **V4000DependencyGraphMultiCurrencyTest** — 45+ test cases covering EventDependencyGraphService (enable/disable, validate with met/unmet prerequisites, batch validation, getPrerequisites/getSuccessors, graph structure, topological sort, cycle detection, path validation, funnel completion probability, statistics, summary, violations recording/clearing, disabled passthrough, null client, critical paths) and MultiCurrencyRevenueNormalizer (enable/disable, base currency, getRate static/one/null, convertValue cross-rate/same/unknown, setRate valid/invalid, setRates bulk, detectCurrency/detectValue, normalizeEvent converts/disabled/base-currency/missing-currency, normalizeBatch totals, getAllRates, statistics/summary, JPY rounding).
+
+### Changed
+
+- **Version sweep** — 39.0.0/39.1.0 → 40.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG.
+
 ## [39.0.0] - 2026-08-12
 
 ### Added

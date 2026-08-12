@@ -275,6 +275,9 @@ use ZeroBoiler\Analytics\Services\OTLPExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
 use ZeroBoiler\Analytics\Services\EventReplayAuditService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataRetentionService;
+use ZeroBoiler\Analytics\Services\EventDependencyGraphService;
+use ZeroBoiler\Analytics\Services\MultiCurrencyRevenueNormalizer;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyGraphCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
 
 /**
@@ -283,7 +286,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 39.0.0
+ * @version 40.0.0
  *
  * @since 1.0.0
  */
@@ -2699,6 +2702,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Dependency Graph Service (v40.0.0)
+        $this->app->singleton(EventDependencyGraphService::class, function (Application $app): EventDependencyGraphService {
+            return new EventDependencyGraphService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Multi-Currency Revenue Normalizer (v40.0.0)
+        $this->app->singleton(MultiCurrencyRevenueNormalizer::class, function (Application $app): MultiCurrencyRevenueNormalizer {
+            return new MultiCurrencyRevenueNormalizer(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -2746,6 +2765,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsIngestionCommand::class,
                 AnalyticsOTLPCommand::class,
                 AnalyticsReplayAuditCommand::class,
+                AnalyticsDependencyGraphCommand::class,
             ]);
         }
 
