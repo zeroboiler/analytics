@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [29.0.0] - 2026-08-12
+
+### Added
+
+- **Customer Profile Unification Service (CDP)** — `CustomerProfileUnificationService` provides Segment/mParticle-style unified customer profile building. Aggregates identity data, event history, user properties, attribution context, and lifetime metrics from multiple analytics sources into a single customer profile. Features: `getProfile()` for on-demand profile building, `updateFromEvent()` for incremental updates, `mergeProfiles()` for identity link merging (client → user), `setTrait()`/`getTrait()`/`setTraits()` for CDP traits management, `addExternalId()`/`getExternalIds()` for cross-platform identity linking (Stripe, HubSpot, etc.), `exportProfile()` for clean API export, `registerEnricher()` for custom profile enrichment callbacks, `deleteProfile()` for GDPR erasure. Automatic segment evaluation (active_user, new_user, power_user, revenue_customer, trial_user, enterprise, at_risk, churned). Cache-backed with configurable TTL. Config: `zeroboiler.analytics.cdp`.
+- **Computed Traits Engine** — `ComputedTraitsService` provides Segment Computed Traits-style automatic trait derivation from user properties. 17 built-in operations: `exists`, `not_exists`, `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `in`, `not_in`, `count`, `is_true`, `is_false`, `regex`, `age_days`. Rule-based evaluation with configurable output types (bool, string, int, float). `registerComputer()` for custom computation functions. Config-driven rules via `zeroboiler.analytics.computed_traits.rules`. Cache-backed results for performance. Config: `zeroboiler.analytics.computed_traits`.
+- **Privacy Report Generator** — `PrivacyReportGeneratorService` generates audit-ready regulatory compliance reports. **GDPR Article 30** (Records of Processing Activities): documents all 5 analytics processing activities with legal basis, data categories, retention periods, and technical measures. **CCPA Data Inventory**: lists all 8 personal data fields with categories, sources, purposes, and sharing status. **Consent Compliance Audit**: evaluates GDPR readiness with actionable recommendations. **Data Subject Access Report (DSAR)**: exports complete analytics data for GDPR Article 15 / CCPA §1798.100 requests. All reports cache-backed and structured for JSON/PDF rendering. Config: `zeroboiler.analytics.privacy_report`.
+- **Event Debug Capture Service** — `EventDebugCaptureService` provides studio-style event debugging. `capture()` stores dispatched events with full context (params, provider results, timing). `getCapture()` retrieves by ID. `getCapturedEvents()` with filters (name, client_id, user_id, source). `replay()` reconstructs events for re-dispatch. `simulate()` creates synthetic test events. `replayBatch()` for bulk replay. `registerObserver()` for real-time debugging callbacks. `clear()` for cache cleanup. Disabled by default (production-safe). Config: `zeroboiler.analytics.debug_capture`.
+- **4 new singleton registrations** — CustomerProfileUnificationService, ComputedTraitsService, PrivacyReportGeneratorService, EventDebugCaptureService registered in AnalyticsServiceProvider.
+- **4 new config sections** — `cdp` (enabled, debug, cache_prefix, profile_ttl, max_recent_events), `computed_traits` (enabled, debug, cache_prefix, cache_ttl, rules), `privacy_report` (enabled, cache_prefix, report_ttl, organization_name, dpo_contact, jurisdiction), `debug_capture` (enabled, debug, cache_prefix, capture_ttl, max_events).
+- **V2900CdpComputedTraitsPrivacyDebugTest** — 45+ test cases covering all 4 new services (CDP profile building, traits, segments, external IDs, profile merge, export, enrichers, computed trait rules with 8 operations, custom computers, GDPR Article 30 report, CCPA inventory, consent audit, DSAR, full report, event debug capture/replay/simulation, config sections, ServiceProvider registrations, version sweep, file integrity, strict types).
+
+### Changed
+
+- **Version sweep** — 28.0.0 → 29.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (both `getVersion()` and `_getInternalVersion()`), all Svelte composables (`usePerformanceTracker.svelte.js`, `useAnalytics.svelte.js`, `useAnalyticsConfig.svelte.js`), README badge, CHANGELOG.
+
 ## [28.0.0] - 2026-08-12
 
 ### Added

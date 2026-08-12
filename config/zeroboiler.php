@@ -4710,5 +4710,95 @@ return [
             'algorithm' => env('ANALYTICS_FINGERPRINT_ALGORITHM', 'xxh128'), // xxh128, sha256, md5
             'max_cache_size' => (int) env('ANALYTICS_FINGERPRINT_CACHE_SIZE', 1000),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | CDP Profile Unification (v29.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Customer Data Platform (CDP) style profile unification. Aggregates identity
+        | data, event history, user properties, and attribution context from multiple
+        | analytics sources into a single unified customer profile.
+        |
+        | Inspired by Segment Personas, mParticle Audience, RudderStack Profiles.
+        |
+        */
+        'cdp' => [
+            'enabled' => env('ANALYTICS_CDP_ENABLED', true),
+            'debug' => env('ANALYTICS_CDP_DEBUG', false),
+            'cache_prefix' => env('ANALYTICS_CDP_CACHE_PREFIX', 'zb_cdp_profile_'),
+            'profile_ttl' => (int) env('ANALYTICS_CDP_PROFILE_TTL', 2592000), // 30 days
+            'max_recent_events' => (int) env('ANALYTICS_CDP_MAX_RECENT_EVENTS', 50),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Computed Traits (v29.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Segment-style computed traits engine. Evaluates user properties against
+        | configurable rules to automatically derive profile traits.
+        |
+        | Operations: exists, eq, gt, gte, lt, lte, contains, in, count,
+        |   is_true, is_false, regex, age_days, not_exists, neq, not_in
+        |
+        | Example rule:
+        |   'is_paying' => [
+        |       'property' => 'plan',
+        |       'operation' => '!=',
+        |       'value' => 'free',
+        |       'output' => 'is_paying',
+        |       'type' => 'bool',
+        |   ],
+        |
+        */
+        'computed_traits' => [
+            'enabled' => env('ANALYTICS_COMPUTED_TRAITS_ENABLED', true),
+            'debug' => env('ANALYTICS_COMPUTED_TRAITS_DEBUG', false),
+            'cache_prefix' => env('ANALYTICS_COMPUTED_TRAITS_CACHE_PREFIX', 'zb_ct_'),
+            'cache_ttl' => (int) env('ANALYTICS_COMPUTED_TRAITS_CACHE_TTL', 3600), // 1 hour
+            'rules' => [
+                // 'is_paying' => ['property' => 'plan', 'operation' => '!=', 'value' => 'free', 'output' => 'is_paying', 'type' => 'bool'],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Privacy Report Generator (v29.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | GDPR Article 30 and CCPA compliance report generation.
+        | Generates audit-ready reports for regulatory compliance including
+        | Records of Processing Activities (ROPA), data inventory, consent
+        | audits, and Data Subject Access Reports (DSAR).
+        |
+        */
+        'privacy_report' => [
+            'enabled' => env('ANALYTICS_PRIVACY_REPORT_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_PRIVACY_REPORT_CACHE_PREFIX', 'zb_privacy_report_'),
+            'report_ttl' => (int) env('ANALYTICS_PRIVACY_REPORT_TTL', 3600), // 1 hour
+            'organization_name' => env('ANALYTICS_PRIVACY_REPORT_ORG', ''),
+            'dpo_contact' => env('ANALYTICS_PRIVACY_REPORT_DPO_CONTACT', ''),
+            'jurisdiction' => env('ANALYTICS_PRIVACY_REPORT_JURISDICTION', 'GDPR'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Debug Capture (v29.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Event capture and replay service for debugging. Stores dispatched
+        | events with full context for inspection, replay, and simulation.
+        |
+        | WARNING: Enable only in development/staging. Performance impact in production.
+        |
+        */
+        'debug_capture' => [
+            'enabled' => env('ANALYTICS_DEBUG_CAPTURE_ENABLED', false),
+            'debug' => env('ANALYTICS_DEBUG_CAPTURE_DEBUG', false),
+            'cache_prefix' => env('ANALYTICS_DEBUG_CAPTURE_CACHE_PREFIX', 'zb_debug_'),
+            'capture_ttl' => (int) env('ANALYTICS_DEBUG_CAPTURE_TTL', 3600), // 1 hour
+            'max_events' => (int) env('ANALYTICS_DEBUG_CAPTURE_MAX_EVENTS', 500),
+        ],
     ],
 ];

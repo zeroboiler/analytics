@@ -260,6 +260,10 @@ use ZeroBoiler\Analytics\Services\UniversalEventNormalizer;
 use ZeroBoiler\Analytics\Services\EventSchemaMigrationService;
 use ZeroBoiler\Analytics\Services\ConsentBannerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
+use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
+use ZeroBoiler\Analytics\Services\ComputedTraitsService;
+use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
+use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -267,7 +271,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 28.0.0
+ * @version 29.0.0
  *
  * @since 1.0.0
  */
@@ -818,6 +822,44 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventSchemaMigrationService::class, function (Application $app): EventSchemaMigrationService {
             return new EventSchemaMigrationService(
                 cache: $app->make('cache'),
+            );
+        });
+
+        // v29.0.0 — Customer Profile Unification Service (CDP)
+        $this->app->singleton(CustomerProfileUnificationService::class, function (Application $app): CustomerProfileUnificationService {
+            return new CustomerProfileUnificationService(
+                cache: $app->make('cache'),
+                config: $app->make(ConfigRepository::class),
+                propertiesStore: $app->make(UserPropertiesStore::class),
+                identityResolution: $app->make(IdentityResolutionService::class),
+            );
+        });
+
+        // v29.0.0 — Computed Traits Engine
+        $this->app->singleton(ComputedTraitsService::class, function (Application $app): ComputedTraitsService {
+            return new ComputedTraitsService(
+                cache: $app->make('cache'),
+                config: $app->make(ConfigRepository::class),
+                propertiesStore: $app->make(UserPropertiesStore::class),
+            );
+        });
+
+        // v29.0.0 — Privacy Report Generator
+        $this->app->singleton(PrivacyReportGeneratorService::class, function (Application $app): PrivacyReportGeneratorService {
+            return new PrivacyReportGeneratorService(
+                cache: $app->make('cache'),
+                config: $app->make(ConfigRepository::class),
+                propertiesStore: $app->make(UserPropertiesStore::class),
+                identityResolution: $app->make(IdentityResolutionService::class),
+                cdp: $app->make(CustomerProfileUnificationService::class),
+            );
+        });
+
+        // v29.0.0 — Event Debug Capture Service
+        $this->app->singleton(EventDebugCaptureService::class, function (Application $app): EventDebugCaptureService {
+            return new EventDebugCaptureService(
+                cache: $app->make('cache'),
+                config: $app->make(ConfigRepository::class),
             );
         });
 
