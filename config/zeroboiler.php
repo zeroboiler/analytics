@@ -4866,5 +4866,88 @@ return [
             // Retention policy (database driver only)
             'retention_days' => (int) env('ANALYTICS_EVENT_STORE_RETENTION_DAYS', 90),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Endpoints (v32.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the analytics API controller.
+        | Controls authentication, rate limiting, and request validation behavior.
+        |
+        */
+        'api' => [
+            'enabled' => env('ANALYTICS_API_ENABLED', true),
+            'base_url' => env('ANALYTICS_API_BASE_URL', '/api/analytics'),
+            'middleware' => env('ANALYTICS_API_MIDDLE', ''), // additional middleware (e.g., 'throttle:60,1')
+            'rate_limit' => [
+                'enabled' => env('ANALYTICS_API_RATE_LIMIT_ENABLED', true),
+                'max_requests' => (int) env('ANALYTICS_API_RATE_LIMIT_MAX', 120),
+                'decay_minutes' => (int) env('ANALYTICS_API_RATE_LIMIT_DECAY', 1),
+            ],
+            'max_batch_size' => (int) env('ANALYTICS_API_MAX_BATCH', 25),
+            'max_event_name_length' => (int) env('ANALYTICS_API_MAX_NAME_LENGTH', 100),
+            'max_param_count' => (int) env('ANALYTICS_API_MAX_PARAMS', 100),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | TikTok Pixel (v32.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | TikTok Pixel and Conversions API (CAPI) configuration.
+        | Supports client-side pixel tracking via ttq and server-side
+        | event tracking via the TikTok Events API.
+        |
+        | Required: pixel_id + access_token for server-side CAPI.
+        | Client-side pixel rendering only requires pixel_id.
+        |
+        */
+        'tiktok' => [
+            'enabled' => env('ANALYTICS_TIKTOK_ENABLED', false),
+            'pixel_id' => env('ANALYTICS_TIKTOK_PIXEL_ID', ''),
+            'access_token' => env('ANALYTICS_TIKTOK_ACCESS_TOKEN', ''),
+            'api_version' => env('ANALYTICS_TIKTOK_API_VERSION', 'v1.3'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | LinkedIn Insight Tag (v32.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | LinkedIn Insight Tag and Conversions API configuration.
+        | Essential for B2B SaaS analytics — tracks conversions from
+        | LinkedIn Ads campaigns and enables remarketing audiences.
+        |
+        | The Insight Tag provides page-level tracking (client-side).
+        | The Conversions API provides server-side event tracking for
+        | attributed conversions with higher accuracy.
+        |
+        */
+        'linkedin' => [
+            'enabled' => env('ANALYTICS_LINKEDIN_ENABLED', false),
+            'partner_id' => env('ANALYTICS_LINKEDIN_PARTNER_ID', ''),
+            'conversion_id' => env('ANALYTICS_LINKEDIN_CONVERSION_ID', ''),
+            'access_token' => env('ANALYTICS_LINKEDIN_ACCESS_TOKEN', ''),
+            'api_version' => env('ANALYTICS_LINKEDIN_API_VERSION', '202401'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Provider Dispatch Telemetry (v32.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Real-time dispatch monitoring per provider. Tracks success/failure
+        | counts, latency, error rates, and top events. Used by dashboards
+        | and health monitoring services.
+        |
+        | Set 'enabled' to false in production to save cache overhead.
+        |
+        */
+        'telemetry' => [
+            'enabled' => env('ANALYTICS_TELEMETRY_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_TELEMETRY_CACHE_TTL', 300), // 5 minutes
+            'high_volume_threshold' => (int) env('ANALYTICS_TELEMETRY_HIGH_VOLUME', 10000),
+        ],
     ],
 ];

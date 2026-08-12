@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 31.0.0
+ * @version 32.0.0
  */
 
 let trackingId = null;
@@ -84,6 +84,16 @@ export function init(pageProps) {
     // Initialize Mixpanel
     if (analytics.mixpanelToken) {
         initMixpanel(analytics);
+    }
+
+    // Initialize TikTok Pixel
+    if (analytics.tiktokPixelId) {
+        initTikTok(analytics);
+    }
+
+    // Initialize LinkedIn Insight Tag
+    if (analytics.linkedinPartnerId) {
+        initLinkedIn(analytics);
     }
 
     // Start batch flush timer
@@ -6886,5 +6896,124 @@ async function sendEventWithOfflineFallback(event) {
         if (isOffline() || true) {
             saveToOfflineBuffer([event]);
         }
+    }
+}
+
+// ─── TikTok Pixel Initialization (v32.0.0) ─────────────────────
+
+/**
+ * Initialize the TikTok Pixel (ttq).
+ *
+ * Loads the TikTok Pixel SDK and enables event tracking via the ttq() function.
+ * The pixel ID is provided by the Inertia middleware via zbAnalytics.tiktokPixelId.
+ *
+ * @param {object} analytics - Analytics config object
+ */
+function initTikTok(analytics) {
+    if (typeof window === 'undefined') return;
+
+    window._tiktokPixelLoaded = true;
+
+    // TikTok Pixel event mapping — maps internal event names to TikTok standard events
+    window.tiktokEventMap = {
+        page_view: 'Pageview',
+        view_item: 'ViewContent',
+        add_to_cart: 'AddToCart',
+        begin_checkout: 'InitiateCheckout',
+        purchase: 'CompletePayment',
+        sign_up: 'CompleteRegistration',
+        form_submit: 'SubmitForm',
+        search: 'Search',
+        add_to_wishlist: 'AddToWishlist',
+    };
+
+    if (typeof window.ttq !== 'undefined' && window.ttq.load) {
+        // Already loaded by server-side headScripts
+        return;
+    }
+}
+
+/**
+ * Track a TikTok Pixel event.
+ *
+ * @param {string} eventName - Internal event name
+ * @param {object} params - Event parameters
+ */
+function trackTikTokEvent(eventName, params = {}) {
+    if (typeof window === 'undefined' || typeof window.ttq === 'undefined') return;
+
+    const tiktokEvent = window.tiktokEventMap?.[eventName] || 'ClickButton';
+    const tiktokParams = {};
+
+    if (params.value !== undefined) tiktokParams.value = params.value;
+    if (params.currency) tiktokParams.currency = params.currency;
+    if (params.contents) tiktokParams.contents = params.contents;
+    if (params.content_id) tiktokParams.content_id = params.content_id;
+    if (params.content_name) tiktokParams.content_name = params.content_name;
+    if (params.content_type) tiktokParams.content_type = params.content_type;
+    if (params.quantity) tiktokParams.quantity = params.quantity;
+    if (params.search_term) tiktokParams.query = params.search_term;
+    if (params.email) tiktokParams.email = params.email;
+    if (params.phone_number) tiktokParams.phone_number = params.phone_number;
+
+    try {
+        window.ttq.track(tiktokEvent, tiktokParams);
+    } catch {
+        // Silently fail — TikTok pixel may not be loaded
+    }
+}
+
+// ─── LinkedIn Insight Tag Initialization (v32.0.0) ─────────────
+
+/**
+ * Initialize the LinkedIn Insight Tag.
+ *
+ * The LinkedIn Insight Tag is loaded via server-side headScripts.
+ * This function sets up client-side event tracking helpers.
+ *
+ * @param {object} analytics - Analytics config object
+ */
+function initLinkedIn(analytics) {
+    if (typeof window === 'undefined') return;
+
+    window._linkedinPixelLoaded = true;
+
+    // LinkedIn event mapping
+    window.linkedinEventMap = {
+        sign_up: 'complete_registration',
+        purchase: 'purchase',
+        add_to_cart: 'add_to_cart',
+        begin_checkout: 'purchase',
+        form_submit: 'submit_form',
+        form_start: 'generate_lead',
+        view_item: 'view_product',
+        click: 'click_link',
+        subscribe: 'purchase',
+        start_trial: 'purchase',
+        plan_upgrade: 'purchase',
+        search: 'search',
+    };
+}
+
+/**
+ * Track a LinkedIn Insight Tag event.
+ *
+ * @param {string} eventName - Internal event name
+ * @param {object} params - Event parameters
+ */
+function trackLinkedInEvent(eventName, params = {}) {
+    if (typeof window === 'undefined' || typeof window.lintrk === 'undefined') return;
+
+    const linkedinEvent = window.linkedinEventMap?.[eventName] || 'other';
+    const conversionValue = params.value || params.revenue || 0;
+
+    try {
+        window.lintrk('track', {
+            conversion_id: linkedinEvent,
+            value: conversionValue,
+            currency: params.currency || 'USD',
+        });
+    } catch {
+        // Silently fail
     }
 }

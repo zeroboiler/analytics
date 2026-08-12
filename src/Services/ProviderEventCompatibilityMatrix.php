@@ -30,7 +30,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 final class ProviderEventCompatibilityMatrix
 {
     /** @var list<string> All supported provider keys */
-    private const PROVIDERS = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude'];
+    private const PROVIDERS = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
 
     /** @var array<string, int> Provider weights for scoring (1-10, higher = more important) */
     private const PROVIDER_WEIGHTS = [
@@ -40,6 +40,8 @@ final class ProviderEventCompatibilityMatrix
         'plausible' => 5,
         'mixpanel' => 6,
         'amplitude' => 6,
+        'tiktok' => 4,
+        'linkedin' => 4,
     ];
 
     /**

@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [32.0.0] - 2026-08-12
+
+### Added
+
+- **TikTok Pixel & Conversions API Tracker** — `TikTokTracker` implements full TikTok Pixels + server-side Events API (CAPI) integration. Client-side pixel rendering via `ttq` SDK (`headScripts()`), server-side CAPI dispatch to `business-api.tiktok.com/open_api/v1.3/pixel/track/`. Event name mapping from internal names to TikTok standard events (Pageview, ViewContent, AddToCart, CompletePayment, CompleteRegistration, etc.). E-commerce parameter conversion (items → contents, value, currency, search query). Client-side `initTikTok()` and `trackTikTokEvent()` in `analytics.js`. Integrated into `AnalyticsManager`, `HandleInertiaAnalytics`, and `InjectAnalyticsScripts`. Config: `zeroboiler.analytics.tiktok` (enabled, pixel_id, access_token, api_version).
+- **LinkedIn Insight Tag & Conversions API Tracker** — `LinkedInTracker` implements LinkedIn Insight Tag for B2B SaaS analytics. Client-side Insight Tag rendering with `_linkedin_partner_id` and `lintrk` pixel. Server-side Conversions API to `api.linkedin.com/rest/conversions`. Event name mapping (complete_registration, purchase, add_to_cart, submit_form, generate_lead, view_product, etc.). Monetary value and currency extraction for conversion tracking. Client-side `initLinkedIn()` and `trackLinkedInEvent()` in `analytics.js`. Integrated into `AnalyticsManager`, `HandleInertiaAnalytics`, and `InjectAnalyticsScripts`. Config: `zeroboiler.analytics.linkedin` (enabled, partner_id, conversion_id, access_token, api_version).
+- **Provider Dispatch Telemetry Service** — `ProviderDispatchTelemetry` provides real-time dispatch monitoring per analytics provider. Tracks success/failure counts, average latency (rolling 100-sample window), error messages, and top dispatched events. Cache-backed with configurable TTL (default: 5 minutes). Methods: `recordSuccess()`, `recordFailure()`, `summary()`, `providerStats()`, `topEvents()`, `isHighVolume()`, `reset()`. Tracks 10 providers: ga4, gtm, meta_pixel, plausible, posthog, mixpanel, amplitude, webhook, tiktok, linkedin. Config: `zeroboiler.analytics.telemetry` (enabled, cache_ttl, high_volume_threshold).
+- **API Endpoints Config Section** — New `zeroboiler.analytics.api` configuration for analytics API controller. Controls base_url, middleware, rate limiting (max_requests, decay_minutes), max_batch_size, max_event_name_length, max_param_count. All values configurable via environment variables.
+- **AnalyticsManager integration** — TikTok and LinkedIn tracker instances with `tiktok()` and `linkedin()` accessor methods. Consent propagation to new trackers. Dispatch in `dispatchToTrackers()` with metrics recording and error handling. Head script aggregation includes TikTok and LinkedIn pixel tags.
+- **Inertia middleware expansion** — `HandleInertiaAnalytics` now exposes `tiktokPixelId` and `linkedinPartnerId` in `zbAnalytics` page props when providers are enabled. `isAnyProviderEnabled()` updated to include TikTok and LinkedIn.
+- **JavaScript client expansion** — `analytics.js` v32.0.0 adds `initTikTok()`, `initLinkedIn()`, `trackTikTokEvent()`, `trackLinkedInEvent()`. Event name mapping for both providers. Consent-respecting dispatch (silent fail on consent denial). Offline-safe fallback.
+
 ## [29.1.0] - 2026-08-12
 
 ### Changed

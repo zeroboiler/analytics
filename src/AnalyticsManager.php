@@ -58,6 +58,10 @@ final class AnalyticsManager
 
     protected AmplitudeTracker $amplitude;
 
+    protected \ZeroBoiler\Analytics\Trackers\TikTokTracker $tiktok;
+
+    protected \ZeroBoiler\Analytics\Trackers\LinkedInTracker $linkedin;
+
     private AnalyticsMetrics $metrics;
 
     private bool $debugMode;
@@ -149,10 +153,30 @@ final class AnalyticsManager
         $amplitudeConfig = $config->get('zeroboiler.analytics.amplitude', []);
         /** @var array{enabled?: bool, api_key?: string, host?: string, platform?: string} $amplitudeConfig */
         $this->amplitude = new AmplitudeTracker(
-            apiKey: $amplitudeConfig['api_key'] ?? '',
+            apiKey: $ampli...ey'] ?? '',
             host: $amplitudeConfig['host'] ?? 'https://api2.amplitude.com',
             platform: $amplitudeConfig['platform'] ?? 'Laravel/Server',
             enabled: $amplitudeConfig['enabled'] ?? false,
+        );
+
+        // Optional: TikTok Pixel & CAPI (v32.0.0)
+        $tiktokConfig = $config->get('zeroboiler.analytics.tiktok', []);
+        /** @var array{enabled?: bool, pixel_id?: string, access_token?: string, api_version?: string} $tiktokConfig */
+        $this->tiktok = new \ZeroBoiler\Analytics\Trackers\TikTokTracker(
+            pixelId: $tiktokConfig['pixel_id'] ?? '',
+            accessToken: $tiktokConfig['access_token'] ?? '',
+            enabled: $tiktokConfig['enabled'] ?? false,
+            apiVersion: $tiktokConfig['api_version'] ?? 'v1.3',
+        );
+
+        // Optional: LinkedIn Insight Tag & CAPI (v32.0.0)
+        $linkedinConfig = $config->get('zeroboiler.analytics.linkedin', []);
+        /** @var array{enabled?: bool, partner_id?: string, conversion_id?: string, access_token?: string, api_version?: string} $linkedinConfig */
+        $this->linkedin = new \ZeroBoiler\Analytics\Trackers\LinkedInTracker(
+            partnerId: $linkedinConfig['partner_id'] ?? '',
+            conversionId: $linkedinConfig['conversion_id'] ?? '',
+            accessToken: $linkedinConfig['access_token'] ?? '',
+            enabled: $linkedinConfig['enabled'] ?? false,
         );
 
         // Apply default consent state from config (GDPR-safe defaults)
@@ -377,6 +401,26 @@ final class AnalyticsManager
             }
         }
 
+        if ($this->tiktok->isEnabled()) {
+            try {
+                $this->tiktok->track($event);
+                $this->metrics->recordDispatch('tiktok');
+                $dispatched = true;
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('tiktok', $e->getMessage());
+            }
+        }
+
+        if ($this->linkedin->isEnabled()) {
+            try {
+                $this->linkedin->track($event);
+                $this->metrics->recordDispatch('linkedin');
+                $dispatched = true;
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure('linkedin', $e->getMessage());
+            }
+        }
+
         return $dispatched;
     }
 
@@ -413,6 +457,14 @@ final class AnalyticsManager
 
         if ($this->amplitude->isEnabled()) {
             $scripts[] = $this->amplitude->headScripts();
+        }
+
+        if ($this->tiktok->isEnabled()) {
+            $scripts[] = $this->tiktok->headScripts();
+        }
+
+        if ($this->linkedin->isEnabled()) {
+            $scripts[] = $this->linkedin->headScripts();
         }
 
         return implode("\n", array_filter($scripts));
@@ -517,9 +569,29 @@ final class AnalyticsManager
     }
 
     /**
+     * Get the TikTok Pixel tracker instance (optional).
+     *
+     * @since 32.0.0
+     */
+    public function tiktok(): \ZeroBoiler\Analytics\Trackers\TikTokTracker
+    {
+        return $this->tiktok;
+    }
+
+    /**
+     * Get the LinkedIn Insight Tag tracker instance (optional).
+     *
+     * @since 32.0.0
+     */
+    public function linkedin(): \ZeroBoiler\Analytics\Trackers\LinkedInTracker
+    {
+        return $this->linkedin;
+    }
+
+    /**
      * Set consent state across all trackers.
      *
-     * Propagates the given ConsentState to GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and Webhook trackers.
+     * Propagates the given ConsentState to GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and Webhook trackers.
      * Use this when the user grants or denies consent (e.g. via a cookie banner).
      */
     public function setConsent(ConsentState $state): void
@@ -532,6 +604,8 @@ final class AnalyticsManager
         $this->webhook->setConsent($state);
         $this->mixpanel->setConsent($state);
         $this->amplitude->setConsent($state);
+        $this->tiktok->setConsent($state);
+        $this->linkedin->setConsent($state);
     }
 
     /**

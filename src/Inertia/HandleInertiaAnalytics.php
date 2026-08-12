@@ -93,6 +93,14 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             $analyticsProps['mixpanelToken'] = $this->manager->mixpanel()->getToken();
         }
 
+        if ($this->manager->tiktok()->isEnabled()) {
+            $analyticsProps['tiktokPixelId'] = $this->manager->tiktok()->getPixelId();
+        }
+
+        if ($this->manager->linkedin()->isEnabled()) {
+            $analyticsProps['linkedinPartnerId'] = $this->manager->linkedin()->getPartnerId();
+        }
+
         // Auto-track links configuration
         $trackLinks = $this->config->get('zeroboiler.analytics.track_links', []);
         /** @var array{enabled?: bool, track_external?: bool, track_internal?: bool, external_prefix?: string} $trackLinks */
@@ -429,7 +437,9 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             || $this->manager->plausible()->isEnabled()
             || $this->manager->posthog()->isEnabled()
             || $this->manager->amplitude()->isEnabled()
-            || $this->manager->mixpanel()->isEnabled();
+            || $this->manager->mixpanel()->isEnabled()
+            || $this->manager->tiktok()->isEnabled()
+            || $this->manager->linkedin()->isEnabled();
     }
 
     /**
