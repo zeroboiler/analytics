@@ -173,6 +173,23 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Session Fingerprint (v25.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Deterministic browser fingerprinting for bot detection and quality scoring.
+        | Generates stable SHA-256 hashes from normalized browser signals and tracks
+        | them in cache for cross-request analysis.
+        |
+        */
+        'session_fingerprint' => [
+            'enabled' => env('ANALYTICS_SESSION_FINGERPRINT_ENABLED', false),
+            'cache_prefix' => env('ANALYTICS_SESSION_FINGERPRINT_CACHE_PREFIX', 'zb_fp_'),
+            'fingerprint_ttl' => (int) env('ANALYTICS_SESSION_FINGERPRINT_TTL', 3600), // 1 hour
+            'max_fingerprints_per_client' => (int) env('ANALYTICS_SESSION_FINGERPRINT_MAX_PER_CLIENT', 10),
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | SaaS Revenue Defaults
         |--------------------------------------------------------------------------

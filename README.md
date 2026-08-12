@@ -2,15 +2,16 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-24.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-25.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
-|- [Quick Start](#quick-start)
-+- [What's New in v24.0.0](#whats-new-in-v24000)
+- [Quick Start](#quick-start)
++- [What's New in v25.0.0](#whats-new-in-v25000)
+- [What's New in v24.0.0](#whats-new-in-v24000)
 |- [What's New in v23.0.0](#whats-new-in-v23000)
 - [What's New in v22.0.0](#whats-new-in-v22000)
 +- [What's New in v21.0.0](#whats-new-in-v21000)
@@ -108,6 +109,36 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v25.0.0
+
+### 🔍 Event Hash Deduplication Pipeline Middleware
+- **`EventHashDedupFilter`** — Pipeline-stage event deduplication using SHA-256 content hashing. Computes a deterministic hash from event name + sorted parameters and checks against an in-memory seen-set. Events with identical content within a single request lifecycle are silently dropped. Prevents duplicate dispatch during eager Inertia re-renders and API retries.
+- **Cross-request deduplication** — Optional cache-backed deduplication with configurable TTL for API retry scenarios. Uses the configured cache driver for persistent seen-set storage.
+- **FIFO eviction** — Automatic eviction when the in-memory seen-set exceeds configurable capacity (default: 1000 entries).
+- **`computeHash()`** — Public method for computing event content hashes. Useful for integration with external idempotency systems.
+- **`stats()`** — Returns dedup statistics (seen count, max entries, cross-request config).
+
+### 🖐️ Session Fingerprint Service
+- **`SessionFingerprintService`** — Deterministic browser fingerprinting for bot detection and session quality scoring. Generates stable SHA-256 fingerprints from normalized browser signals (user agent, screen resolution, color depth, timezone, language, platform, canvas hash).
+- **Server-side fingerprinting** — `generateFromRequest()` creates fingerprints from HTTP headers (User-Agent, Accept-Language, Sec-CH-UA-Platform).
+- **Quality scoring** — `recordFingerprint()` stores fingerprints with a 0-100 quality score based on uniqueness, frequency, and multi-fingerprint risk factors.
+- **Bot detection** — `isSuspicious()` checks if a fingerprint has been seen more than 100 times, indicating potential bot traffic.
+- **Cache-backed tracking** — Uses the cache driver with configurable TTL (default 1 hour) and per-client fingerprint limits.
+
+### 🏷️ Event Taxonomy Auto-Tagger
+- **`EventTaxonomyEnricher`** — Pipeline middleware that automatically classifies events into 8 semantic categories: `conversion`, `intent`, `engagement`, `navigation`, `transaction`, `identity`, `error`, `search`. Uses pattern matching on event names and parameter indicators.
+- **Enriched metadata** — Each event processed through the enricher gets: `zb_taxonomy_category`, `zb_catalog_match` (bool), and `zb_provider_count` (int) attached as params.
+- **`classify()`** — Public method for standalone event classification. Useful for dashboard filtering and reporting.
+- **`categories()`** — Returns all 8 supported taxonomy categories.
+
+### 🔄 Version Sweep
+- Version bumped to 25.0.0 across all layers: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, JS `getVersion()` + `_getInternalVersion()`, Svelte composables (useAnalytics, useAnalyticsConfig, usePerformanceTracker), TypeScript definitions (`analytics.d.ts`), README badge.
+
+### 🧪 Tests
+- **`V2500DedupFingerprintTaxonomyVersionTest`** — 40+ assertions covering EventHashDedupFilter (hash computation, in-memory dedup, FIFO eviction, cross-request dedup, stats), SessionFingerprintService (fingerprint generation, server-side fingerprint, recording, quality scoring, bot detection, normalization, stats), EventTaxonomyEnricher (classification of all 8 categories, param-based classification, catalog enrichment, edge cases), EventCatalog integrity, version consistency across 12 markers.
+
+---
 
 ## What's New in v24.0.0
 

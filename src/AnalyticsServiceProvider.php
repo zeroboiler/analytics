@@ -151,6 +151,7 @@ use ZeroBoiler\Analytics\Services\BehavioralCohortBuilder;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\IdentityGraphService;
 use ZeroBoiler\Analytics\Services\DeviceFingerprintService;
+use ZeroBoiler\Analytics\Services\SessionFingerprintService;
 use ZeroBoiler\Analytics\Services\EventContextSnapshotService;
 use ZeroBoiler\Analytics\Services\UserJourneyReconstructionService;
 use ZeroBoiler\Analytics\Services\EventDebounceService;
@@ -264,7 +265,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDlqCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 24.0.0
+ * @version 25.0.0
  *
  * @since 1.0.0
  */
@@ -1940,6 +1941,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{enabled?: bool, hash_algo?: string, include_ip?: bool, components?: list<string>} $fpConfig */
 
             return new DeviceFingerprintService($fpConfig);
+        });
+
+        // Session Fingerprint Service (v25.0.0)
+        $this->app->singleton(SessionFingerprintService::class, function (Application $app): SessionFingerprintService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $fpConfig = $config->get('zeroboiler.analytics.session_fingerprint', []);
+
+            return new SessionFingerprintService($app->make('cache'), $fpConfig);
         });
 
         // Event Context Snapshot Service (v8.5.0)
