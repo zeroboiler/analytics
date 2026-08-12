@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-40.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-41.0.0-blue)](https://github.com/zeroboiler/analytics)]
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -11,6 +11,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 
 - [Quick Start](#quick-start)
 - [What's New in v40.0.0](#whats-new-in-v40000)
++- [What's New in v41.0.0](#whats-new-in-v41000)
 +- [What's New in v39.0.0](#whats-new-in-v39000)
 +- [What's New in v38.0.0](#whats-new-in-v38000)
 +- [What's New in v37.0.0](#whats-new-in-v37000)
@@ -119,6 +120,69 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v41.0.0
+
+### 🎯 Analytics Context Manager
+- **AnalyticsContext** — Scoped analytics context for automatic source tagging, timing, and error handling. Wraps any closure in a measured analytics context that:
+  - Tags all events with a configurable source and context label
+  - Measures execution duration and emits timing events on completion
+  - Captures exceptions and emits structured error events with file, line, type, and message
+  - Attaches consistent metadata to all events dispatched within the scope
+  - Supports silent mode (metadata-only, no auto-emitted events)
+  - Manual lifecycle control via `complete()` and `error()` methods
+  - Elapsed time tracking via `elapsedMs()`
+  - Client ID, user ID, and priority overrides for scoped events
+- **`AnalyticsContext::measure($manager, $label, $callback)`** — One-liner context wrapper for quick timing measurement
+- Inspired by OpenTelemetry span semantics and Sentry's `startSpan` pattern
+
+### 🔨 Typed Event Builder
+- **TypedEventBuilder** — Fluent, type-safe event construction with compile-time validation:
+  - `TypedEventBuilder::for($name)` — Build any custom event with fluent param chaining
+  - `TypedEventBuilder::catalogEvent($name)` — Validate event name against EventCatalog before building
+  - Param, clientId, userId, priority, and source setting via chainable methods
+  - `build()` — Throws on validation errors (invalid priority, source)
+  - `buildUnsafe()` — Builds even with validation warnings
+  - `mergeFrom(AnalyticsEvent)` — Merge params from an existing event (for replay/enrichment)
+  - `describe()` — Human-readable description for debugging
+  - `isInCatalog()` / `getCatalogCategory()` — Catalog membership introspection
+
+### 📡 Analytics Wire Protocol
+- **AnalyticsWireProtocolService** — Self-describing JSON envelope format for cross-service, cross-process, and cross-language event transmission:
+  - Single event serialization: `serialize(AnalyticsEvent, metadata)` → JSON wire envelope
+  - Batch serialization: `serializeBatch(list<AnalyticsEvent>, metadata)` → JSON batch envelope
+  - Single event deserialization: `deserialize(string)` → AnalyticsEvent
+  - Batch deserialization: `deserializeBatch(string)` → list<AnalyticsEvent>
+  - Wire validation: `validate(string)` → {valid, errors, warnings, event_count}
+  - Protocol versioning: `zb_analytics/1.0` identifier with SDK version
+  - Correlation ID support for batch tracing
+  - ISO 8601 timestamps, UTC-normalized
+  - Graceful handling of missing/invalid timestamps, params, and event names
+  - Designed for event forwarding, archival, replay, and event bus integration (Redis, Kafka, SQS)
+
+### 🛣️ Event Context Middleware
+- **EventContextMiddleware** — HTTP middleware that wraps each request in a silent AnalyticsContext:
+  - Derives context label from route name or request path
+  - Attaches request metadata (method, path, IP, user agent, request ID)
+  - Adds `X-ZB-Analytics-Context` response header for tracing
+  - Zero-overhead: silent mode — no auto-emitted events, metadata-only
+
+### 🔗 Facade Methods (v41.0.0)
+- `Analytics::contextMeasure($label, $callback)` — Measure a closure within analytics context
+- `Analytics::createContext($label, $source)` — Create a reusable analytics context
+- `Analytics::typedEvent($name)` — Create a typed event builder
+- `Analytics::typedCatalogEvent($name)` — Create a catalog-validated typed builder
+- `Analytics::wireSerialize($event, $metadata)` — Serialize to wire format
+- `Analytics::wireSerializeBatch($events, $metadata)` — Serialize batch to wire format
+- `Analytics::wireDeserialize($payload)` — Deserialize wire envelope
+- `Analytics::wireDeserializeBatch($payload)` — Deserialize batch wire envelope
+- `Analytics::wireValidate($payload)` — Validate wire envelope
+
+### 🧪 Tests
+- **V41ContextWireProtocolTest** — 45+ test cases covering AnalyticsContext (create, silent, metadata chaining, clientId/userId/priority, timing, error capture, measurement), TypedEventBuilder (for/catalogEvent, param chaining, bulk params, identity, priority/source validation, build/buildUnsafe, mergeFrom, describe, catalog membership), AnalyticsWireProtocolService (single/batch serialization, single/batch deserialization, validation of valid/malformed/missing fields, protocol version warnings, roundtrip with all fields, custom metadata), and version sweep (strict types, final classes, docblocks, class existence).
+
+### Changed
+- **Version sweep** — 40.0.0 → 41.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge.
 
 ## What's New in v39.0.0
 

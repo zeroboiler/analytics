@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [41.0.0] - 2026-08-12
+
+### Added
+
+- **AnalyticsContext** — Scoped analytics context for automatic source tagging, timing, and error handling. Wraps closures in a measured context that tags events with source/label, measures execution duration, captures exceptions as structured error events, and attaches consistent metadata. Supports silent mode, manual lifecycle (complete/error), and client/user/priority overrides. Inspired by OpenTelemetry span semantics.
+- **TypedEventBuilder** — Fluent, type-safe event construction with catalog validation. `for($name)` builds any event; `catalogEvent($name)` validates against EventCatalog. Chainable param/clientId/userId/priority/source setters. `build()` throws on validation errors; `buildUnsafe()` builds with warnings. `mergeFrom(AnalyticsEvent)` for replay enrichment.
+- **AnalyticsWireProtocolService** — Self-describing JSON wire envelope for cross-service event transmission. Protocol `zb_analytics/1.0` with SDK version, ISO 8601 timestamps, correlation IDs. Supports single/batch serialize/deserialize, wire validation (valid/errors/warnings/event_count). Designed for event bus integration (Redis, Kafka, SQS).
+- **EventContextMiddleware** — HTTP middleware wrapping each request in a silent AnalyticsContext. Derives label from route name/path, attaches request metadata, adds `X-ZB-Analytics-Context` response header.
+- **10 new Facade methods** — `contextMeasure`, `createContext`, `typedEvent`, `typedCatalogEvent`, `wireSerialize`, `wireSerializeBatch`, `wireDeserialize`, `wireDeserializeBatch`, `wireValidate`.
+- **V41ContextWireProtocolTest** — 45+ test cases covering all new features and version sweep.
+
+### Changed
+
+- **Version sweep** — 40.0.0 → 41.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG.
+
 ## [40.0.0] - 2026-08-12
 
 ### Added

@@ -165,6 +165,17 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void usageQuotaReached(string $quotaType, int|null $limit = null, array<string, mixed> $params = [])
  * @method static void billingRetry(int|null $attemptNumber = null, array<string, mixed> $params = [])
  *
+ * Context & Wire Protocol Methods (v41.0.0)
+ * @method static mixed contextMeasure(string $label, \Closure $callback)
+ * @method static \ZeroBoiler\Analytics\Support\AnalyticsContext createContext(string $label, ?string $source = null)
+ * @method static string wireSerialize(\ZeroBoiler\Analytics\DTO\AnalyticsEvent $event, array<string, mixed> $metadata = [])
+ * @method static string wireSerializeBatch(list<\ZeroBoiler\Analytics\DTO\AnalyticsEvent> $events, array<string, mixed> $metadata = [])
+ * @method static \ZeroBoiler\Analytics\DTO\AnalyticsEvent wireDeserialize(string $payload)
+ * @method static list<\ZeroBoiler\Analytics\DTO\AnalyticsEvent> wireDeserializeBatch(string $payload)
+ * @method static array{valid: bool, errors: list<string>, warnings: list<string>, event_count: int} wireValidate(string $payload)
+ * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedEvent(string $name)
+ * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedCatalogEvent(string $name)
+ *
  * Testing assertions (when swapped with AnalyticsFake):
  * @method static void assertTracked(string $eventName, ?callable $callback = null)
  * @method static void assertNotTracked(string $eventName)
@@ -173,8 +184,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void assertIdentified(string $userId, ?callable $callback = null)
  * @method static void assertPageViewTracked(?callable $callback = null)
  *
- * @see \ZeroBoiler\Analytics\AnalyticsManager
- * @see \ZeroBoiler\Analytics\Support\AnalyticsFake
+ * @see \\ZeroBoiler\\Analytics\\AnalyticsManager
+ * @see \\ZeroBoiler\\Analytics\\Support\\AnalyticsFake
  *
  * @since 1.0.0
  */

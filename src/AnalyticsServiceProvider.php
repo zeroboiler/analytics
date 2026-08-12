@@ -286,7 +286,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 40.0.0
+ * @version 41.0.0
  *
  * @since 1.0.0
  */
