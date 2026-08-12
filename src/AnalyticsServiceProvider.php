@@ -230,6 +230,7 @@ use ZeroBoiler\Analytics\Context\AnalyticsContextBus;
 use ZeroBoiler\Analytics\Services\EventFlushingService;
 use ZeroBoiler\Analytics\Services\AnalyticsInstrumentationAdvisor;
 use ZeroBoiler\Analytics\Services\EventTimelineService;
+use ZeroBoiler\Analytics\Services\EventStreamProcessorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimelineCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDiagnosticCommand;
 use ZeroBoiler\Analytics\Services\EventNormalizationService;
@@ -2501,6 +2502,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Analytics Instrumentation Advisor (v9.7.0) — code-snippet level guidance
         $this->app->singleton(AnalyticsInstrumentationAdvisor::class);
+
+        // Event Stream Processor Service (v31.0.0) — sequential event analysis & pattern discovery
+        $this->app->singleton(EventStreamProcessorService::class, function (Application $app): EventStreamProcessorService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $streamConfig = $config->get('zeroboiler.analytics.stream_processing', []);
+
+            return new EventStreamProcessorService($cache, $streamConfig);
+        });
 
         // Event Timeline Service (v10.3.0) — chronological event timelines
         $this->app->singleton(EventTimelineService::class, function (Application $app): EventTimelineService {

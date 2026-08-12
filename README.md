@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-30.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-31.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v31.0.0](#whats-new-in-v31000)
 +- [What's New in v30.0.0](#whats-new-in-v30000)
 - [What's New in v28.0.0](#whats-new-in-v28000)
 - [What's New in v25.0.0](#whats-new-in-v25000)
@@ -111,6 +112,21 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v31.0.0
+
+### 🚀 Event Stream Processing Engine
+
+- **EventStreamProcessorService** — Sequential event analysis engine that processes raw analytics events into ordered streams with position tracking, time-since-previous computation, and session sequence grouping. Inspired by Amplitude Pathfinder, Mixpanel Flow, and PostHog User Paths.
+- **Pattern Discovery** — Automatic discovery of frequent event sequences ( subsequences of length 3+). Patterns are tracked per-client and aggregated globally with occurrence counts, unique user counts, average/median duration, and conversion rates. Configurable `min_pattern_support` threshold filters noise.
+- **Auto-Funnel Detection** — Identifies sequences ending in conversion events (purchase, subscribe, sign_up, start_trial, trial_converted) and computes per-step completion rates with drop-off position analysis.
+- **Stream Anomaly Detection** — Detects three types of anomalies: unusual gaps (time between events exceeds baseline + N standard deviations), rapid repetitions (same event fired 3+ times within 2s), and velocity spikes (event rate in recent events significantly exceeds historical baseline).
+- **StreamEvent DTO** — Rich stream event representation with position, time-since-previous, session sequence ID, and category resolution. Stable ID generation via XXH128 hash.
+- **EventSequencePattern DTO** — Represents a detected pattern with statistical metadata: occurrences, unique users, avg/median duration, conversion rate, and sample client IDs.
+- **Config section** — `stream_processing` with env-driven toggles for enable/disable, cache TTL, max sequence length, max patterns per client, min pattern support, anomaly deviation threshold, anomaly window, and max stream events per client.
+- **ServiceProvider registration** — `EventStreamProcessorService` registered as singleton with config injection.
+- **Comprehensive test suite** — 20 Pest tests covering: enabled/disabled states, stream event creation, position tracking, time-since-previous, pattern discovery, auto-funnel detection, client stream analysis, anomaly detection, client stream clearing, global stats, ID generation, DTO serialization, fallback client IDs, and category resolution.
+- **Version sweep** — 30.0.0 → 31.0.0 across all version markers (PHP, JS, Svelte composables, README).
 
 ## What's New in v28.0.0
 

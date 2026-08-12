@@ -962,6 +962,29 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Stream Processing (v31.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Sequential event analysis engine that processes events into ordered
+        | sequences, discovers frequent event patterns, auto-detects funnels,
+        | and identifies stream-level anomalies (velocity spikes, unusual gaps).
+        |
+        | Inspired by Amplitude Pathfinder, Mixpanel Flow, and PostHog User Paths.
+        |
+        */
+        'stream_processing' => [
+            'enabled' => env('ANALYTICS_STREAM_PROCESSING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_STREAM_PROCESSING_CACHE_TTL', 3600), // 1 hour
+            'max_sequence_length' => (int) env('ANALYTICS_STREAM_PROCESSING_MAX_SEQ', 10),
+            'max_patterns_per_client' => (int) env('ANALYTICS_STREAM_PROCESSING_MAX_PATTERNS', 50),
+            'min_pattern_support' => (int) env('ANALYTICS_STREAM_PROCESSING_MIN_SUPPORT', 2),
+            'anomaly_deviation' => (float) env('ANALYTICS_STREAM_PROCESSING_ANOMALY_DEV', 3.0), // standard deviations
+            'anomaly_window' => (int) env('ANALYTICS_STREAM_PROCESSING_ANOMALY_WINDOW', 600), // 10 minutes
+            'max_stream_events' => (int) env('ANALYTICS_STREAM_PROCESSING_MAX_EVENTS', 500), // per client
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Client-Side Auto-Tracking
         |-------------------------------------------------------------------------- 
         |
