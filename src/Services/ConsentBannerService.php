@@ -58,7 +58,7 @@ final class ConsentBannerService
     /**
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $this->config = $config;
     }

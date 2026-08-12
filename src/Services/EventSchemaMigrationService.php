@@ -38,7 +38,7 @@ final class EventSchemaMigrationService
 
     public function __construct(
         private readonly CacheRepository $cache,
-    ) {
+    ): void {
         $this->registerBuiltinMigrations();
     }
 

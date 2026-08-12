@@ -55,7 +55,7 @@ final class AnalyticsSnippetCommand extends Command
         AnalyticsSnippetService $snippetService,
         DifferentialPrivacyService $privacyService,
         EventCorrelationMatrixService $correlationService,
-    ) {
+    ): void {
         parent::__construct();
         $this->snippetService = $snippetService;
         $this->privacyService = $privacyService;

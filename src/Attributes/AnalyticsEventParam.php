@@ -42,5 +42,5 @@ final readonly class AnalyticsEventParam
         public ?float $min = null,
         public ?float $max = null,
         public ?int $maxLength = null,
-    ) {}
+    ): void {}
 }

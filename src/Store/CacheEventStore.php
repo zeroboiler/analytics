@@ -52,7 +52,7 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
     public function __construct(
         private readonly ?string $store = null,
         private readonly int $ttl = self::DEFAULT_TTL,
-    ) {}
+    ): void {}
 
     /**
      * {@inheritdoc}

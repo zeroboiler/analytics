@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
@@ -9,324 +10,316 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Support\Facades\Log;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
- * Event deprecation lifecycle management service.
+ * Event Deprecation & Versioning Service.
  *
- * Manages the deprecation of analytics events following a structured lifecycle:
- * Active → Deprecated → Retired. Provides replacement suggestions,
- * sunset period enforcement, and deprecation warnings for consumers.
+ * Manages event lifecycle metadata: deprecation detection, stability
+ * enforcement, migration suggestions, and deprecation audit logging.
  *
- * When an event is deprecated:
- * 1. A replacement event may be specified
- * 2. A sunset period begins (configurable, default 30 days)
- * 3. Deprecation warnings are logged for every dispatch
- * 4. After the sunset period, the event should be retired
+ * Events marked as deprecated emit warnings and can optionally be blocked
+ * or silently forwarded to their replacement event. The service reads
+ * versioning metadata from the config-driven deprecation registry and
+ * cross-references with the event catalog.
  *
- * Configuration is read from `zeroboiler.analytics.governance.deprecation`.
+ * Features:
+ * - Detect usage of deprecated events at dispatch time
+ * - Suggest replacement events with parameter mapping hints
+ * - Emit structured deprecation warnings to log channel
+ * - Cache deprecation warnings to prevent log spam
+ * - Provide deprecation audit report for admin dashboards
+ * - Enforce stability policies (stable, beta, experimental)
  *
- * @phpstan-type DeprecationEntry array{event: string, replacement: string|null, deprecated_at: string, sunset_days: int, dispatch_count: int, status: 'active'|'expired'}
+ * Inspired by Segment Event Protocol versioning and PostHog event deprecation.
  *
- * @since 1.0.0
+ * @since 44.0.0
  */
 final class EventDeprecationService
 {
-    private const CACHE_PREFIX = 'zb_deprecation_';
+    /** @var array<string, array{since?: string, deprecated?: string, deprecated_in?: string, replaced_by?: string|null, stability?: string, message?: string}> */
+    private array $registry = [];
 
-    private readonly int $defaultSunsetDays;
+    private readonly bool $enabled;
 
-    /** @var array<string, DeprecationEntry> */
-    private array $deprecations = [];
+    private readonly bool $blockDeprecated;
 
-    /** @var array<string, int> In-memory dispatch counters for deprecated events */
-    private array $dispatchCounts = [];
+    private readonly bool $autoRedirect;
 
+    private readonly string $cachePrefix;
+
+    private readonly int $warningTtl;
+
+    private readonly string $logChannel;
+
+    /**
+     * @param  CacheRepository  $cache  Cache repository for deprecation warning deduplication
+     */
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
     ): void {
-        $deprecationConfig = $config->get('zeroboiler.analytics.governance.deprecation', []);
-        /** @var array{default_sunset_days?: int} $deprecationConfig */
+        $versioningConfig = $config->get('zeroboiler.analytics.event_versioning', []);
+        /** @var array{enabled?: bool, block_deprecated?: bool, auto_redirect?: bool, cache_prefix?: string, warning_ttl?: int, log_channel?: string, registry?: array<string, mixed>} $versioningConfig */
 
-        $this->defaultSunsetDays = (int) ($deprecationConfig['default_sunset_days'] ?? 30);
-
-        $this->loadDeprecations();
+        $this->enabled = (bool) ($versioningConfig['enabled'] ?? true);
+        $this->blockDeprecated = (bool) ($versioningConfig['block_deprecated'] ?? false);
+        $this->autoRedirect = (bool) ($versioningConfig['auto_redirect'] ?? false);
+        $this->cachePrefix = $versioningConfig['cache_prefix'] ?? 'zb_deprecation_';
+        $this->warningTtl = (int) ($versioningConfig['warning_ttl'] ?? 3600);
+        $this->logChannel = $versioningConfig['log_channel'] ?? 'daily';
+        $this->registry = $versioningConfig['registry'] ?? [];
     }
 
     /**
-     * Set a replacement event for a deprecated event.
+     * Check if an event name is deprecated.
      *
-     * @param  string  $event  Deprecated event name
-     * @param  string  $replacement  Suggested replacement event name
+     * Returns deprecation metadata if the event is marked deprecated,
+     * or null if the event is active or not in the registry.
+     *
+     * @return array{since: string, deprecated_in: string, replaced_by: string|null, stability: string, message: string}|null
      */
-    public function setReplacement(string $event, string $replacement): void
+    public function getDeprecation(string $eventName): ?array
     {
-        if (! isset($this->deprecations[$event])) {
-            $this->deprecations[$event] = [
-                'event' => $event,
-                'replacement' => null,
-                'deprecated_at' => date('c'),
-                'sunset_days' => $this->defaultSunsetDays,
-                'dispatch_count' => 0,
-                'status' => 'active',
-            ];
+        if (! $this->enabled) {
+            return null;
         }
 
-        $this->deprecations[$event]['replacement'] = $replacement;
-        $this->persistDeprecations();
-    }
+        $entry = $this->registry[$eventName] ?? null;
 
-    /**
-     * Deprecate an event with optional replacement.
-     *
-     * @param  string  $event  Event name to deprecate
-     * @param  string|null  $replacement  Replacement event name
-     * @param  int|null  $sunsetDays  Custom sunset period (null = use default)
-     * @return array{success: bool, error: string|null}
-     */
-    public function deprecate(string $event, ?string $replacement = null, ?int $sunsetDays = null): array
-    {
-        if (isset($this->deprecations[$event])) {
-            return ['success' => false, 'error' => "Event '{$event}' is already deprecated"];
+        if ($entry === null) {
+            return null;
         }
 
-        $this->deprecations[$event] = [
-            'event' => $event,
-            'replacement' => $replacement,
-            'deprecated_at' => date('c'),
-            'sunset_days' => $sunsetDays ?? $this->defaultSunsetDays,
-            'dispatch_count' => 0,
-            'status' => 'active',
-        ];
+        $deprecated = $entry['deprecated'] ?? false;
 
-        $this->persistDeprecations();
-
-        return ['success' => true, 'error' => null];
-    }
-
-    /**
-     * Record a dispatch of a deprecated event (for tracking).
-     *
-     * @param  string  $event  Event name
-     * @return array{deprecated: bool, replacement: string|null, sunset_expired: bool, days_until_sunset: int|null}
-     */
-    public function trackDispatch(string $event): array
-    {
-        if (! isset($this->deprecations[$event])) {
-            return ['deprecated' => false, 'replacement' => null, 'sunset_expired' => false, 'days_until_sunset' => null];
-        }
-
-        // Increment dispatch counter
-        $this->dispatchCounts[$event] = ($this->dispatchCounts[$event] ?? 0) + 1;
-        $this->deprecations[$event]['dispatch_count'] = $this->dispatchCounts[$event];
-
-        $entry = $this->deprecations[$event];
-        $deprecatedAt = strtotime($entry['deprecated_at']);
-        $sunsetEnd = $deprecatedAt + ($entry['sunset_days'] * 86400);
-        $now = time();
-        $daysUntilSunset = (int) ceil(($sunsetEnd - $now) / 86400);
-        $expired = $now > $sunsetEnd;
-
-        if ($expired && $entry['status'] === 'active') {
-            $this->deprecations[$event]['status'] = 'expired';
-            $this->persistDeprecations();
+        if (! $deprecated) {
+            return null;
         }
 
         return [
-            'deprecated' => true,
-            'replacement' => $entry['replacement'],
-            'sunset_expired' => $expired,
-            'days_until_sunset' => max(0, $daysUntilSunset),
+            'since' => $entry['since'] ?? 'unknown',
+            'deprecated_in' => $entry['deprecated_in'] ?? 'unknown',
+            'replaced_by' => $entry['replaced_by'] ?? null,
+            'stability' => $entry['stability'] ?? 'deprecated',
+            'message' => $entry['message'] ?? "Event '{$eventName}' is deprecated.",
         ];
     }
 
     /**
-     * Get the replacement event for a deprecated event.
+     * Check if an event name is deprecated and emit a warning if so.
+     *
+     * Deduplicates warnings using the cache to prevent log spam.
+     * Returns true if the event is deprecated, false otherwise.
      */
-    public function getReplacement(string $event): ?string
+    public function checkAndWarn(string $eventName): bool
     {
-        return $this->deprecations[$event]['replacement'] ?? null;
-    }
+        $deprecation = $this->getDeprecation($eventName);
 
-    /**
-     * Check if an event is deprecated.
-     */
-    public function isDeprecated(string $event): bool
-    {
-        return isset($this->deprecations[$event]);
-    }
-
-    /**
-     * Check if a deprecated event has passed its sunset period.
-     */
-    public function isSunsetExpired(string $event): bool
-    {
-        $entry = $this->deprecations[$event] ?? null;
-
-        if ($entry === null) {
+        if ($deprecation === null) {
             return false;
         }
 
-        $deprecatedAt = strtotime($entry['deprecated_at']);
-        $sunsetEnd = $deprecatedAt + ($entry['sunset_days'] * 86400);
+        $cacheKey = $this->cachePrefix . md5($eventName);
 
-        return time() > $sunsetEnd;
-    }
-
-    /**
-     * Remove a deprecation entry (undeprecate — use with caution).
-     *
-     * @return array{success: bool, error: string|null}
-     */
-    public function undeprecate(string $event): array
-    {
-        if (! isset($this->deprecations[$event])) {
-            return ['success' => false, 'error' => "Event '{$event}' is not deprecated"];
+        if ($this->cache->has($cacheKey)) {
+            return true;
         }
 
-        unset($this->deprecations[$event]);
-        unset($this->dispatchCounts[$event]);
-        $this->persistDeprecations();
+        $this->cache->put($cacheKey, true, $this->warningTtl);
 
-        return ['success' => true, 'error' => null];
-    }
+        $replacement = $deprecation['replaced_by'];
+        $message = $deprecation['message'];
 
-    /**
-     * Get all deprecated events.
-     *
-     * @param  string|null  $status  Filter by status ('active'|'expired'|null=all)
-     * @return list<DeprecationEntry>
-     */
-    public function list(?string $status = null): array
-    {
-        if ($status === null) {
-            return array_values($this->deprecations);
+        if ($replacement !== null) {
+            $message .= " Use '{$replacement}' instead.";
         }
 
-        return array_values(array_filter(
-            $this->deprecations,
-            fn (array $entry): bool => $entry['status'] === $status,
-        ));
+        Log::channel($this->logChannel)->warning("[ZeroBoiler] Deprecated event dispatched: {$eventName}", [
+            'event' => $eventName,
+            'deprecated_in' => $deprecation['deprecated_in'],
+            'replaced_by' => $replacement,
+            'message' => $message,
+        ]);
+
+        return true;
     }
 
     /**
-     * Get deprecation warnings for events dispatched in the last N days.
+     * Resolve the effective event name, applying auto-redirect for deprecated events.
      *
-     * @param  int  $days  Look-back period
-     * @return list<array{event: string, deprecated_at: string|null, replacement: string|null, dispatch_count: int}>
+     * When auto_redirect is enabled and the event has a replacement,
+     * returns the replacement event name. Otherwise returns the original.
      */
-    public function warnings(int $days = 30): array
+    public function resolve(string $eventName): string
     {
-        $results = [];
-        $cutoff = time() - ($days * 86400);
+        if (! $this->autoRedirect) {
+            return $eventName;
+        }
 
-        foreach ($this->deprecations as $entry) {
-            $deprecatedAt = strtotime($entry['deprecated_at']);
+        $deprecation = $this->getDeprecation($eventName);
 
-            if ($deprecatedAt >= $cutoff || $entry['dispatch_count'] > 0) {
-                $results[] = [
-                    'event' => $entry['event'],
-                    'deprecated_at' => $entry['deprecated_at'],
-                    'replacement' => $entry['replacement'],
-                    'dispatch_count' => $entry['dispatch_count'],
+        if ($deprecation !== null && $deprecation['replaced_by'] !== null) {
+            return $deprecation['replaced_by'];
+        }
+
+        return $eventName;
+    }
+
+    /**
+     * Check if a deprecated event should be blocked from dispatch.
+     *
+     * When block_deprecated is enabled, deprecated events without a
+     * valid replacement are blocked.
+     */
+    public function shouldBlock(string $eventName): bool
+    {
+        if (! $this->blockDeprecated) {
+            return false;
+        }
+
+        $deprecation = $this->getDeprecation($eventName);
+
+        if ($deprecation === null) {
+            return false;
+        }
+
+        // Block only if no replacement exists
+        return $deprecation['replaced_by'] === null;
+    }
+
+    /**
+     * Get the stability level for an event.
+     *
+     * @return 'stable'|'beta'|'experimental'|'deprecated'|'unknown'
+     */
+    public function getStability(string $eventName): string
+    {
+        if (! $this->enabled) {
+            return 'stable';
+        }
+
+        $entry = $this->registry[$eventName] ?? null;
+
+        if ($entry === null) {
+            return 'stable';
+        }
+
+        return $entry['stability'] ?? 'stable';
+    }
+
+    /**
+     * Check if an event meets a minimum stability requirement.
+     *
+     * Stability levels (lowest to highest): experimental, beta, stable
+     *
+     * @param  'experimental'|'beta'|'stable'  $minimum
+     */
+    public function meetsStability(string $eventName, string $minimum): bool
+    {
+        $levels = [
+            'experimental' => 0,
+            'beta' => 1,
+            'stable' => 2,
+        ];
+
+        $current = $this->getStability($eventName);
+        $currentLevel = $levels[$current] ?? 2;
+        $minimumLevel = $levels[$minimum] ?? 2;
+
+        return $currentLevel >= $minimumLevel;
+    }
+
+    /**
+     * Get a full deprecation audit report.
+     *
+     * Returns all deprecated events with their metadata, replacement
+     * suggestions, and catalog status (whether replacement exists in catalog).
+     *
+     * @return array{total_deprecated: int, total_registry: int, events: list<array{name: string, deprecated_in: string, replaced_by: string|null, replacement_in_catalog: bool, stability: string}>}
+     */
+    public function auditReport(): array
+    {
+        $deprecated = [];
+        $totalCount = count($this->registry);
+
+        foreach ($this->registry as $name => $entry) {
+            if (($entry['deprecated'] ?? false) === true) {
+                $replacedBy = $entry['replaced_by'] ?? null;
+                $deprecated[] = [
+                    'name' => $name,
+                    'deprecated_in' => $entry['deprecated_in'] ?? 'unknown',
+                    'replaced_by' => $replacedBy,
+                    'replacement_in_catalog' => $replacedBy !== null && EventCatalog::has($replacedBy),
+                    'stability' => $entry['stability'] ?? 'deprecated',
                 ];
             }
         }
 
-        return $results;
-    }
-
-    /**
-     * Get events that have passed their sunset period (need retirement).
-     *
-     * @return list<array{event: string, deprecated_at: string, replacement: string|null, dispatch_count: int, days_expired: int}>
-     */
-    public function expired(): array
-    {
-        $results = [];
-
-        foreach ($this->deprecations as $entry) {
-            if ($this->isSunsetExpired($entry['event'])) {
-                $deprecatedAt = strtotime($entry['deprecated_at']);
-                $sunsetEnd = $deprecatedAt + ($entry['sunset_days'] * 86400);
-
-                $results[] = [
-                    'event' => $entry['event'],
-                    'deprecated_at' => $entry['deprecated_at'],
-                    'replacement' => $entry['replacement'],
-                    'dispatch_count' => $entry['dispatch_count'],
-                    'days_expired' => max(0, (int) floor((time() - $sunsetEnd) / 86400)),
-                ];
-            }
-        }
-
-        return $results;
-    }
-
-    /**
-     * Get a summary of the deprecation service state.
-     *
-     * @return array{total_deprecated: int, active: int, expired: int, with_replacement: int, total_dispatches: int}
-     */
-    public function summary(): array
-    {
-        $active = 0;
-        $expired = 0;
-        $withReplacement = 0;
-        $totalDispatches = 0;
-
-        foreach ($this->deprecations as $entry) {
-            if ($entry['status'] === 'active') {
-                $active++;
-            } else {
-                $expired++;
-            }
-
-            if ($entry['replacement'] !== null) {
-                $withReplacement++;
-            }
-
-            $totalDispatches += $entry['dispatch_count'];
-        }
+        // Sort by deprecated_in descending (most recent first)
+        usort($deprecated, fn (array $a, array $b): int => strcmp($b['deprecated_in'], $a['deprecated_in']));
 
         return [
-            'total_deprecated' => count($this->deprecations),
-            'active' => $active,
-            'expired' => $expired,
-            'with_replacement' => $withReplacement,
-            'total_dispatches' => $totalDispatches,
+            'total_deprecated' => count($deprecated),
+            'total_registry' => $totalCount,
+            'events' => $deprecated,
         ];
     }
 
     /**
-     * Load deprecations from cache.
+     * Get all events that are in beta or experimental stability.
+     *
+     * Useful for dashboards showing unstable event usage.
+     *
+     * @return list<array{name: string, stability: string, since: string}>
      */
-    private function loadDeprecations(): void
+    public function unstableEvents(): array
     {
-        try {
-            $cached = $this->cache->get(self::CACHE_PREFIX . 'entries');
+        $unstable = [];
 
-            if (is_array($cached)) {
-                $this->deprecations = $cached;
+        foreach ($this->registry as $name => $entry) {
+            $stability = $entry['stability'] ?? 'stable';
+
+            if (in_array($stability, ['beta', 'experimental'], true)) {
+                $unstable[] = [
+                    'name' => $name,
+                    'stability' => $stability,
+                    'since' => $entry['since'] ?? 'unknown',
+                ];
             }
-        } catch (\Throwable) {
-            // Cache unavailable
         }
+
+        return $unstable;
     }
 
     /**
-     * Persist deprecations to cache.
+     * Register or update an event's versioning metadata.
+     *
+     * This modifies the in-memory registry only. Persist changes
+     * by updating the config file.
+     *
+     * @param  array{since?: string, deprecated?: bool, deprecated_in?: string, replaced_by?: string|null, stability?: string, message?: string}  $metadata
      */
-    private function persistDeprecations(): void
+    public function register(string $eventName, array $metadata): void
     {
-        try {
-            $this->cache->put(
-                self::CACHE_PREFIX . 'entries',
-                $this->deprecations,
-                86400, // 24 hours
-            );
-        } catch (\Throwable) {
-            // Cache unavailable
-        }
+        $existing = $this->registry[$eventName] ?? [];
+        $this->registry[$eventName] = array_merge($existing, $metadata);
+    }
+
+    /**
+     * Check if the service is enabled.
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Get the total number of events in the deprecation registry.
+     */
+    public function registryCount(): int
+    {
+        return count($this->registry);
     }
 }

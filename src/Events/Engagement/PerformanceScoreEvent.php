@@ -41,7 +41,7 @@ final class PerformanceScoreEvent extends AnalyticsEvent
         ?string $pageUrl = null,
         ?string $sessionId = null,
         array $extra = [],
-    ) {
+    ): void {
         $params = array_merge($extra, [
             'score' => $score,
             'rating' => $rating,

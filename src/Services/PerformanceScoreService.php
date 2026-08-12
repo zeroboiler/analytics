@@ -63,7 +63,7 @@ final class PerformanceScoreService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config)
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
         $this->cache = $cache;
         $this->config = $config;

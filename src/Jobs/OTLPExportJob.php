@@ -52,7 +52,7 @@ final class OTLPExportJob implements ShouldQueue
      */
     public function __construct(
         private readonly string $otelConfigKey = 'zeroboiler.analytics.otel',
-    ) {}
+    ): void {}
 
     /**
      * Execute the OTLP export job.

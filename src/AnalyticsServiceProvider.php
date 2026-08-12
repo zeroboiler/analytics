@@ -287,6 +287,8 @@ use ZeroBoiler\Analytics\Services\EventTtlService;
 use ZeroBoiler\Analytics\Services\ReferralTrackingService;
 use ZeroBoiler\Analytics\Services\TrafficSpikeShield;
 use ZeroBoiler\Analytics\Services\EventReplaySimulator;
+use ZeroBoiler\Analytics\Services\EventDeprecationService;
+use ZeroBoiler\Analytics\Services\EventVersioningService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -294,7 +296,7 @@ use ZeroBoiler\Analytics\Services\EventReplaySimulator;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 42.0.0
+ * @version 44.0.0
  *
  * @since 1.0.0
  */
@@ -2799,6 +2801,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 3600,
             );
         });
+
+        // Event Deprecation Service (v44.0.0) — lifecycle management, deprecation warnings
+        $this->app->singleton(EventDeprecationService::class, function (Application $app): EventDeprecationService {
+            return new EventDeprecationService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Versioning Service (v44.0.0) — catalog-level version metadata
+        $this->app->singleton(EventVersioningService::class);
     }
 
     /**

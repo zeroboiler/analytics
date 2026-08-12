@@ -43,7 +43,7 @@ final class AnalyticsFeatureFlagService
         private readonly AnalyticsManager $manager,
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ) {}
+    ): void {}
 
     /**
      * Register a feature flag definition.

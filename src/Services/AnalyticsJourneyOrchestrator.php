@@ -44,7 +44,7 @@ final class AnalyticsJourneyOrchestrator
         private readonly AnalyticsManager $manager,
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ) {
+    ): void {
         $journeyConfig = $config->get('zeroboiler.analytics.journey', []);
         /** @var array{stages?: list<string>, cache_prefix?: string, cache_ttl?: int} $journeyConfig */
 

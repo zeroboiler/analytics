@@ -5458,5 +5458,49 @@ return [
             'dry_run' => env('ANALYTICS_SIMULATOR_DRY_RUN', true),
             'max_events' => (int) env('ANALYTICS_SIMULATOR_MAX_EVENTS', 100000),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Versioning & Deprecation (v44.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven event lifecycle management. Mark events as deprecated,
+        | beta, or experimental. When deprecated events are dispatched, warnings
+        | are logged and replacements are suggested.
+        |
+        | Set 'block_deprecated' to true to prevent dispatching deprecated events
+        | that have no replacement. Set 'auto_redirect' to true to silently
+        | redirect deprecated events to their replacement.
+        |
+        | Registry format:
+        |   'event_name' => [
+        |       'since' => '1.0.0',           // Version when event was introduced
+        |       'deprecated' => true,          // Whether event is deprecated
+        |       'deprecated_in' => '44.0.0',   // Version when deprecated
+        |       'replaced_by' => 'new_event',  // Replacement event name (null = no replacement)
+        |       'stability' => 'deprecated',   // stable, beta, experimental, deprecated
+        |       'message' => 'Use new_event instead.',
+        |   ],
+        |
+        */
+        'event_versioning' => [
+            'enabled' => env('ANALYTICS_EVENT_VERSIONING_ENABLED', true),
+            'block_deprecated' => env('ANALYTICS_EVENT_VERSIONING_BLOCK_DEPRECATED', false),
+            'auto_redirect' => env('ANALYTICS_EVENT_VERSIONING_AUTO_REDIRECT', false),
+            'cache_prefix' => env('ANALYTICS_EVENT_VERSIONING_CACHE_PREFIX', 'zb_deprecation_'),
+            'warning_ttl' => (int) env('ANALYTICS_EVENT_VERSIONING_WARNING_TTL', 3600), // 1 hour
+            'log_channel' => env('ANALYTICS_EVENT_VERSIONING_LOG_CHANNEL', 'daily'),
+            'registry' => [
+                // Example entries — add your own deprecated events here:
+                // 'old_event_name' => [
+                //     'since' => '1.0.0',
+                //     'deprecated' => true,
+                //     'deprecated_in' => '44.0.0',
+                //     'replaced_by' => 'new_event_name',
+                //     'stability' => 'deprecated',
+                //     'message' => 'Use new_event_name instead.',
+                // ],
+            ],
+        ],
     ],
 ];

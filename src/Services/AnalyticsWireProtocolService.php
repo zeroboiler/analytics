@@ -58,7 +58,7 @@ final class AnalyticsWireProtocol
     /**
      * @param  string|null  $sdkVersion  Override SDK version (defaults to AnalyticsEvent::VERSION)
      */
-    public function __construct(?string $sdkVersion = null)
+    public function __construct(?string $sdkVersion = null): void
     {
         $this->sdkVersion = $sdkVersion ?? AnalyticsEvent::VERSION;
     }

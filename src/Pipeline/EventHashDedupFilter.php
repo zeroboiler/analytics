@@ -44,7 +44,7 @@ final class EventHashDedupFilter
     /**
      * @param  array{max_memory_entries?: int, cross_request_dedup?: bool, cross_request_ttl?: int, cache_prefix?: string}  $config
      */
-    public function __construct(array $config = [])
+    public function __construct(array $config = []): void
     {
         $this->maxMemoryEntries = $config['max_memory_entries'] ?? 1000;
         $this->crossRequestDedup = $config['cross_request_dedup'] ?? false;

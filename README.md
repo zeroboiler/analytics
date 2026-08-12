@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-43.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-44.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v44.0.0](#whats-new-in-v44000)
 - [What's New in v43.0.0](#whats-new-in-v43000)
 - [Quick Start](#quick-start)
 - [What's New in v40.0.0](#whats-new-in-v40000)
@@ -121,6 +122,24 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v44.0.0
+
+### 📋 Event Versioning & Deprecation API
+- **EventDeprecationService** — Config-driven event lifecycle management with deprecation detection, auto-redirect, and blocking
+- Mark events as `deprecated`, `beta`, or `experimental` via config registry
+- Deprecated events emit structured warnings (deduplicated via cache to prevent log spam)
+- `auto_redirect` mode silently forwards deprecated events to their replacement
+- `block_deprecated` mode prevents dispatching deprecated events without replacements
+- **EventVersioningService** — Catalog-level version metadata enrichment
+- Per-event `since` version, stability level, and category metadata
+- Deprecation audit report for admin dashboards
+- Stability enforcement: `meetsStability()` for minimum stability gates
+
+### ⚙️ New Config Section
+- `event_versioning` — Enable/disable, block_deprecated, auto_redirect, cache_prefix, warning_ttl, log_channel, registry
+
+---
 
 ## What's New in v43.0.0
 

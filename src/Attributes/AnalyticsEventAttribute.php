@@ -52,7 +52,7 @@ final readonly class AnalyticsEventAttribute
         public array $aliases = [],
         public ?string $description = null,
         public array $tags = [],
-    ) {}
+    ): void {}
 
     /**
      * Convert to catalog entry format compatible with EventCatalog.
