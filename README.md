@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-37.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-38.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v38.0.0](#whats-new-in-v38000)
 +- [What's New in v37.0.0](#whats-new-in-v37000)
 +- [What's New in v36.0.0](#whats-new-in-v36000)
 +- [What's New in v35.0.0](#whats-new-in-v35000)
@@ -116,6 +117,34 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v38.0.0
+
+### 🔭 OpenTelemetry (OTLP) Export Bridge
+- **OTLPExportService** — Bridges ZeroBoiler analytics events to any OTLP-compatible collector (Grafana Tempo, Jaeger, Honeycomb, Datadog, OpenSearch, SigNoz, etc.). Converts AnalyticsEvent DTOs into OTLP ResourceSpans JSON format with:
+  - Event name → OTLP span name
+  - Event params → OTLP span attributes (type-aware: string, int, float, bool, array)
+  - Client ID / User ID → trace context linking (deterministic trace_id generation)
+  - Category → SpanKind mapping (ecommerce=CLIENT, saas=INTERNAL, engagement=INTERNAL, security=SERVER, uptime=SERVER)
+  - Priority → span attribute
+  - Timestamp → start/end time in nanoseconds (OTLP requirement)
+  - SDK metadata attributes (`analytics.sdk.name`, `analytics.sdk.version`)
+- **Configurable resource attributes** — `service.name`, `deployment.environment`, and custom resource attributes attached to all exported spans.
+- **Batch export** — `exportBatch()` splits events into configurable chunks (default: 100) and sends each as a separate OTLP request.
+- **Cache-backed statistics** — Tracks success/failure counts, exported event count, rolling average latency, and last error. Stats persist across requests with configurable TTL.
+- **cURL HTTP transport** — POSTs OTLP JSON payloads to the configured endpoint with configurable timeout (default: 5s). Supports custom headers (e.g., `Authorization: Bearer ...`).
+- **Config-driven** — All settings configurable via `zeroboiler.analytics.otel`: enabled, endpoint, headers, timeout, max_batch_size, debug, cache_ttl, resource_attributes.
+- **Compliant attribute keys** — Auto-sanitizes parameter keys to match OTLP regex `[a-zA-Z][a-zA-Z0-9_.-*\/]*`.
+
+### 🖥️ Analytics OTLP Command
+- **`zb:analytics:otel`** — Admin CLI for OTLP export diagnostics and management.
+- Flags: `--stats` (export statistics), `--validate` (config validation), `--test` (send test event), `--reset` (clear stats), `--enable`/`--disable`, `--json`.
+
+### ⚙️ Config
+- New `otel` config section with 9 options: enabled, endpoint, headers, timeout, max_batch_size, debug, cache_prefix, cache_ttl, resource_attributes.
+
+### 🔄 Version Sweep
+- Version bumped to 38.0.0 across `composer.json`, `package.json` (34.0.0 → 38.0.0), `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
 
 ## What's New in v36.0.0
 

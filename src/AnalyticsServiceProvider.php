@@ -271,6 +271,8 @@ use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
 use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
 use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
+use ZeroBoiler\Analytics\Services\OTLPExportService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -278,7 +280,7 @@ use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 37.0.0
+ * @version 38.0.0
  *
  * @since 1.0.0
  */
@@ -2669,6 +2671,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // OpenTelemetry (OTLP) Export Service (v38.0.0)
+        $this->app->singleton(OTLPExportService::class, function (Application $app): OTLPExportService {
+            return new OTLPExportService(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
     }
 
     /**
@@ -2714,6 +2724,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDlqCommand::class,
                 SaaSMetricsCommand::class,
                 AnalyticsIngestionCommand::class,
+                AnalyticsOTLPCommand::class,
             ]);
         }
 

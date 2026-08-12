@@ -5197,5 +5197,46 @@ return [
                 ],
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | OpenTelemetry (OTLP) Export (v38.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Bridge analytics events to any OTLP-compatible collector 
+        | (Grafana Tempo, Jaeger, Honeycomb, Datadog, etc.).
+        |
+        | When enabled, all dispatched analytics events are automatically
+        | converted to OTLP ResourceSpans and POSTed to the configured endpoint.
+        | Events are mapped as spans with:
+        |   - name → span name
+        |   - params → span attributes
+        |   - clientId/userId → trace context
+        |   - category → span kind
+        |
+        | Enable this if you use OpenTelemetry for observability and want
+        | analytics events to appear alongside application traces.
+        |
+        */
+        'otel' => [
+            'enabled' => env('ANALYTICS_OTEL_ENABLED', false),
+            'endpoint' => env('ANALYTICS_OTEL_ENDPOINT', 'http://localhost:4318/v1/traces'),
+            'headers' => env('ANALYTICS_OTEL_HEADERS', ''), // e.g., "Authorization: Basic xxx, X-Custom: value"
+            'timeout' => (int) env('ANALYTICS_OTEL_TIMEOUT', 5), // seconds
+            'max_batch_size' => (int) env('ANALYTICS_OTEL_MAX_BATCH_SIZE', 100),
+            'debug' => env('ANALYTICS_OTEL_DEBUG', false),
+            'cache_prefix' => env('ANALYTICS_OTEL_CACHE_PREFIX', 'zb_otel_'),
+            'cache_ttl' => (int) env('ANALYTICS_OTEL_CACHE_TTL', 300), // 5 minutes
+
+            // OpenTelemetry resource attributes attached to all exported spans
+            // These identify your application in the OTLP collector
+            'resource_attributes' => [
+                'service.name' => env('ANALYTICS_OTEL_SERVICE_NAME', 'zeroboiler-analytics'),
+                'deployment.environment' => env('ANALYTICS_OTEL_ENVIRONMENT', env('APP_ENV', 'production')),
+                // Add custom resource attributes:
+                // 'service.namespace' => 'analytics',
+                // 'telemetry.sdk.language' => 'php',
+            ],
+        ],
     ],
 ];

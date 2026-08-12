@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [38.0.0] - 2026-08-12
+
+### Added
+
+- **OTLPExportService** — OpenTelemetry (OTLP) export bridge that converts ZeroBoiler AnalyticsEvent DTOs into OTLP ResourceSpans JSON and POSTs to any OTLP-compatible collector (Grafana Tempo, Jaeger, Honeycomb, Datadog, OpenSearch, SigNoz). Features: event→span conversion with type-aware attribute mapping, deterministic trace_id/span_id generation, category→SpanKind mapping, batch export with configurable chunk size, cache-backed export statistics (success/failure/latency), cURL HTTP transport with custom headers, config-driven resource attributes, OTLP-compliant attribute key sanitization.
+- **AnalyticsOTLPCommand** (`zb:analytics:otel`) — Admin CLI for OTLP diagnostics: `--stats` (export statistics), `--validate` (config validation), `--test` (send test event), `--reset` (clear stats), `--enable`/`--disable` (runtime toggle), `--json`.
+- **OTLPExportJob** — Queue job for async OTLP export (background dispatch).
+- **Config section** — `zeroboiler.analytics.otel` with 9 options: enabled, endpoint, headers, timeout, max_batch_size, debug, cache_prefix, cache_ttl, resource_attributes.
+- **Singleton registration** — OTLPExportService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsOTLPCommand registered in ServiceProvider commands.
+
+### Changed
+
+- **Version sweep** — 37.0.0 → 38.0.0 across `composer.json`, `package.json` (34.0.0 → 38.0.0), `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
+
 ## [37.0.0] - 2026-08-12
 
 ### Added
