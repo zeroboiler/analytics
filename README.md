@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-29.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-30.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,7 +10,8 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-+- [What's New in v28.0.0](#whats-new-in-v28000)
++- [What's New in v30.0.0](#whats-new-in-v30000)
+- [What's New in v28.0.0](#whats-new-in-v28000)
 - [What's New in v25.0.0](#whats-new-in-v25000)
 - [What's New in v24.0.0](#whats-new-in-v24000)
 |- [What's New in v23.0.0](#whats-new-in-v23000)
@@ -2587,6 +2588,47 @@ Analytics::amplitude(); // AmplitudeTracker     ← NEW in v10.9.0
 ### Test Coverage
 
 23 new test cases (150+ assertions) validate the entire API surface: event catalog integrity, SaaS lifecycle methods, tracker accessors, GDPR compliance, funnel tracking, orchestration, B2B groups, PLG scoring, and time-series analytics.
+
+## What's New in v30.0.0
+
+### Event Store — Persistent Event Storage Layer
+
+The biggest architectural upgrade in v30.0.0: a full **persistent event storage abstraction layer** with pluggable backends. Previously, all analytics events were ephemeral (cache-only) with no database persistence. This release introduces:
+
+- **`AnalyticsEventStoreInterface`** — Contract for event persistence backends with `store()`, `retrieve()`, `query()`, `count()`, `delete()`, `aggregateBy()`, and `purge()` methods
+- **`DatabaseEventStore`** — Eloquent-backed persistent storage with bulk insert optimization, indexed query columns, and configurable retention pruning
+- **`CacheEventStore`** — Cache-backed ephemeral storage with event index for query support, suitable for real-time dashboards
+- **`NullEventStore`** — No-op implementation for testing and when persistence is disabled
+- **`EventStoreManager`** — Orchestrator with primary/fallback store support, automatic health monitoring, and stats reporting
+- **`AnalyticsEventModel`** — Eloquent model with UUID primary key, composite indexes, and Laravel Prunable integration for automatic data retention
+- **Database Migration** — `analytics_events` table with indexed columns for all common query patterns (event name, category, user ID, client ID, session ID, timestamp, fingerprint, idempotency key)
+- **9 new API endpoints** — `/api/analytics/store/health`, `/stats`, `/events`, `/events/{id}`, `/count`, `/aggregate/{groupBy}`, `DELETE /events`, `/events/{id}`, `/`
+- **Auto-persist mode** — When enabled, every dispatched event is automatically persisted to the configured store
+- **Config-driven setup** — Configure driver (database/cache/null), fallback, retention, and connection settings via `config/zeroboiler.analytics.event_store`
+
+**Configuration:**
+```env
+ANALYTICS_EVENT_STORE_ENABLED=true
+ANALYTICS_EVENT_STORE_DRIVER=database     # database, cache, null
+ANALYTICS_EVENT_STORE_AUTO_PERSIST=true   # auto-store on dispatch
+ANALYTICS_EVENT_STORE_FALLBACK_DRIVER=cache  # fallback when primary fails
+ANALYTICS_EVENT_STORE_RETENTION_DAYS=90   # auto-prune old events
+```
+
+**Migration:**
+```bash
+php artisan migrate --path=vendor/zeroboiler/analytics/database/migrations
+```
+
+### New Files (8 PHP + 1 migration + 1 test)
+- `src/Contracts/AnalyticsEventStoreInterface.php`
+- `src/Store/EventStoreManager.php`
+- `src/Store/DatabaseEventStore.php`
+- `src/Store/CacheEventStore.php`
+- `src/Store/NullEventStore.php`
+- `src/Models/AnalyticsEventModel.php`
+- `database/migrations/2026_08_12_000000_create_analytics_events_table.php`
+- `tests/V300EventStorePersistentStorageTest.php` (23 test cases)
 
 ## Quick Start
 

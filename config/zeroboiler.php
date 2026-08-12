@@ -4800,5 +4800,48 @@ return [
             'capture_ttl' => (int) env('ANALYTICS_DEBUG_CAPTURE_TTL', 3600), // 1 hour
             'max_events' => (int) env('ANALYTICS_DEBUG_CAPTURE_MAX_EVENTS', 500),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Store — Persistent Event Storage (v30.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configures the analytics event persistence layer. Events can be stored
+        | in a database for historical queries, replay, GDPR compliance, and
+        | data warehouse exports, or in cache for ephemeral real-time dashboards.
+        |
+        | Drivers:
+        |   - 'database' (or 'db'): Persistent storage via Eloquent/MySQL
+        |   - 'cache': Ephemeral storage via the configured cache driver
+        |   - 'null': No persistence (events are dispatched but not stored)
+        |
+        | Set 'auto_persist' to true to automatically store all dispatched events.
+        | When enabled, every event that passes through the dispatch pipeline
+        | is also persisted to the configured store.
+        |
+        | Use 'fallback_driver' to configure a secondary store for high availability.
+        | When the primary store fails, events are automatically written to the fallback.
+        |
+        | The 'retention_days' setting controls automatic pruning of database events
+        | via Laravel's Prunable trait. Default: 90 days.
+        |
+        */
+        'event_store' => [
+            'enabled' => env('ANALYTICS_EVENT_STORE_ENABLED', false),
+            'driver' => env('ANALYTICS_EVENT_STORE_DRIVER', 'cache'), // database, cache, null
+            'auto_persist' => env('ANALYTICS_EVENT_STORE_AUTO_PERSIST', false),
+            'fallback_driver' => env('ANALYTICS_EVENT_STORE_FALLBACK_DRIVER'), // null = no fallback
+
+            // Database driver settings
+            'db_connection' => env('ANALYTICS_EVENT_STORE_DB_CONNECTION', 'mysql'),
+            'db_table' => env('ANALYTICS_EVENT_STORE_DB_TABLE', 'analytics_events'),
+
+            // Cache driver settings
+            'cache_store' => env('ANALYTICS_EVENT_STORE_CACHE_STORE'), // null = default
+            'cache_ttl' => (int) env('ANALYTICS_EVENT_STORE_CACHE_TTL', 86400), // 24 hours
+
+            // Retention policy (database driver only)
+            'retention_days' => (int) env('ANALYTICS_EVENT_STORE_RETENTION_DAYS', 90),
+        ],
     ],
 ];

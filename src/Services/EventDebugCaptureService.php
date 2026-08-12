@@ -112,7 +112,7 @@ final class EventDebugCaptureService
             'source' => $event->source,
             'context' => $context,
             'captured_at' => date('c'),
-            'capture_version' => '29.0.0',
+            'capture_version' => '30.0.0',
         ];
 
         // Store the capture

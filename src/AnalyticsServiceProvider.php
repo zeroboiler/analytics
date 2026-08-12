@@ -271,7 +271,7 @@ use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 29.0.0
+ * @version 30.0.0
  *
  * @since 1.0.0
  */
@@ -2593,6 +2593,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsEventSanitizer($config);
         });
+
+        // Event Store — Persistent Event Storage (v30.0.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface::class, function (Application $app): \ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $storeConfig = $config->get('zeroboiler.analytics.event_store', []);
+            /** @var array{enabled?: bool, driver?: string} $storeConfig */
+
+            if (! ($storeConfig['enabled'] ?? false)) {
+                return new \ZeroBoiler\Analytics\Store\NullEventStore;
+            }
+
+            return new \ZeroBoiler\Analytics\Store\EventStoreManager($config);
+        });
+
+        $this->app->alias(\ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface::class, 'zeroboiler.analytics.event_store');
     }
 
     /**

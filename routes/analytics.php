@@ -655,4 +655,15 @@ Route::prefix('analytics')->group(function () {
     Route::get('observability', [AnalyticsEventController::class, 'observabilityDashboard']);
     Route::delete('observability/{provider}', [AnalyticsEventController::class, 'observabilityResetProvider']);
     Route::delete('observability', [AnalyticsEventController::class, 'observabilityResetAll']);
+
+    // Event Store — Persistent Event Storage (v30.0.0)
+    Route::get('store/health', [AnalyticsEventController::class, 'eventStoreHealth']);
+    Route::get('store/stats', [AnalyticsEventController::class, 'eventStoreStats']);
+    Route::get('store/events', [AnalyticsEventController::class, 'eventStoreQuery']);
+    Route::get('store/events/{id}', [AnalyticsEventController::class, 'eventStoreRetrieve']);
+    Route::get('store/count', [AnalyticsEventController::class, 'eventStoreCount']);
+    Route::get('store/aggregate/{groupBy}', [AnalyticsEventController::class, 'eventStoreAggregate']);
+    Route::delete('store/events', [AnalyticsEventController::class, 'eventStoreDelete']);
+    Route::delete('store/events/{id}', [AnalyticsEventController::class, 'eventStoreDeleteById']);
+    Route::delete('store', [AnalyticsEventController::class, 'eventStorePurge']);
 });

@@ -10240,4 +10240,320 @@ final class AnalyticsEventController extends Controller
             ], 500);
         }
     }
+
+    // ─── Event Store — Persistent Storage (v30.0.0) ──────────────────────────
+
+    /**
+     * Check event store health.
+     *
+     * GET /api/analytics/store/health
+     */
+    public function eventStoreHealth(): JsonResponse
+    {
+        try {
+            $store = $this->resolveEventStore();
+
+            return response()->json([
+                'status' => 'ok',
+                'healthy' => $store->isHealthy(),
+                'health_report' => ($store instanceof \ZeroBoiler\Analytics\Store\EventStoreManager)
+                    ? $store->healthReport()
+                    : ['primary' => $store->isHealthy()],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'healthy' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get event store statistics.
+     *
+     * GET /api/analytics/store/stats
+     */
+    public function eventStoreStats(): JsonResponse
+    {
+        try {
+            $store = $this->resolveEventStore();
+
+            $response = [
+                'status' => 'ok',
+                'total_events' => $store->count(),
+                'healthy' => $store->isHealthy(),
+            ];
+
+            if ($store instanceof \ZeroBoiler\Analytics\Store\EventStoreManager) {
+                $response['stats'] = $store->stats();
+            }
+
+            return response()->json($response);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Query stored events with filters.
+     *
+     * GET /api/analytics/store/events?event_name=...&category=...&from=...&to=...&limit=...
+     */
+    public function eventStoreQuery(Request $request): JsonResponse
+    {
+        $filters = array_filter([
+            'event_name' => $request->string('event_name')->toString() ?: null,
+            'category' => $request->string('category')->toString() ?: null,
+            'provider' => $request->query('provider'),
+            'user_id' => $request->string('user_id')->toString() ?: null,
+            'client_id' => $request->string('client_id')->toString() ?: null,
+            'source' => $request->string('source')->toString() ?: null,
+            'from' => $request->string('from')->toString() ?: null,
+            'to' => $request->string('to')->toString() ?: null,
+            'limit' => $request->integer('limit', 100),
+            'offset' => $request->integer('offset', 0),
+            'sort' => $request->string('sort', 'created_at')->toString(),
+            'direction' => $request->string('direction', 'desc')->toString(),
+        ], fn($v) => $v !== null && $v !== '');
+
+        try {
+            $store = $this->resolveEventStore();
+            $events = $store->query($filters);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => array_map(fn(AnalyticsEvent $e) => $e->toArray(), $events),
+                'count' => count($events),
+                'filters' => $filters,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Retrieve a single stored event by ID.
+     *
+     * GET /api/analytics/store/events/{id}
+     */
+    public function eventStoreRetrieve(string $id): JsonResponse
+    {
+        try {
+            $store = $this->resolveEventStore();
+            $event = $store->retrieve($id);
+
+            if ($event === null) {
+                return response()->json([
+                    'status' => 'not_found',
+                    'error' => 'Event not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $event->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Count stored events with filters.
+     *
+     * GET /api/analytics/store/count?event_name=...&category=...
+     */
+    public function eventStoreCount(Request $request): JsonResponse
+    {
+        $filters = array_filter([
+            'event_name' => $request->string('event_name')->toString() ?: null,
+            'category' => $request->string('category')->toString() ?: null,
+            'provider' => $request->query('provider'),
+            'user_id' => $request->string('user_id')->toString() ?: null,
+            'client_id' => $request->string('client_id')->toString() ?: null,
+            'source' => $request->string('source')->toString() ?: null,
+            'from' => $request->string('from')->toString() ?: null,
+            'to' => $request->string('to')->toString() ?: null,
+        ], fn($v) => $v !== null && $v !== '');
+
+        try {
+            $store = $this->resolveEventStore();
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => $store->count($filters),
+                'filters' => $filters,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Aggregate stored events by dimension.
+     *
+     * GET /api/analytics/store/aggregate/{groupBy}?category=...&from=...&to=...
+     *
+     * groupBy: event_name, category, provider, source, user_id, client_id, hour, day, week, month, priority
+     */
+    public function eventStoreAggregate(Request $request, string $groupBy): JsonResponse
+    {
+        $allowedGroups = [
+            'event_name', 'category', 'provider', 'source', 'user_id',
+            'client_id', 'hour', 'day', 'week', 'month', 'priority',
+        ];
+
+        if (! in_array($groupBy, $allowedGroups, true)) {
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Invalid group_by dimension',
+                'allowed' => $allowedGroups,
+            ], 422);
+        }
+
+        $filters = array_filter([
+            'event_name' => $request->string('event_name')->toString() ?: null,
+            'category' => $request->string('category')->toString() ?: null,
+            'provider' => $request->query('provider'),
+            'user_id' => $request->string('user_id')->toString() ?: null,
+            'client_id' => $request->string('client_id')->toString() ?: null,
+            'from' => $request->string('from')->toString() ?: null,
+            'to' => $request->string('to')->toString() ?: null,
+        ], fn($v) => $v !== null && $v !== '');
+
+        try {
+            $store = $this->resolveEventStore();
+            $aggregates = $store->aggregateBy($groupBy, $filters);
+
+            return response()->json([
+                'status' => 'ok',
+                'group_by' => $groupBy,
+                'data' => $aggregates,
+                'total_groups' => count($aggregates),
+                'filters' => $filters,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete stored events matching filters (GDPR erasure).
+     *
+     * DELETE /api/analytics/store/events?user_id=...&category=...
+     */
+    public function eventStoreDelete(Request $request): JsonResponse
+    {
+        $filters = array_filter([
+            'event_name' => $request->string('event_name')->toString() ?: null,
+            'category' => $request->string('category')->toString() ?: null,
+            'provider' => $request->query('provider'),
+            'user_id' => $request->string('user_id')->toString() ?: null,
+            'client_id' => $request->string('client_id')->toString() ?: null,
+            'from' => $request->string('from')->toString() ?: null,
+            'to' => $request->string('to')->toString() ?: null,
+        ], fn($v) => $v !== null && $v !== '');
+
+        try {
+            $store = $this->resolveEventStore();
+            $deleted = $store->delete($filters);
+
+            return response()->json([
+                'status' => 'ok',
+                'deleted' => $deleted,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a single stored event by ID.
+     *
+     * DELETE /api/analytics/store/events/{id}
+     */
+    public function eventStoreDeleteById(string $id): JsonResponse
+    {
+        try {
+            $store = $this->resolveEventStore();
+            $deleted = $store->deleteById($id);
+
+            if (! $deleted) {
+                return response()->json([
+                    'status' => 'not_found',
+                    'error' => 'Event not found',
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'deleted' => true,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Purge all stored events. Use with extreme caution.
+     *
+     * DELETE /api/analytics/store
+     */
+    public function eventStorePurge(): JsonResponse
+    {
+        try {
+            $store = $this->resolveEventStore();
+            $result = $store->purge();
+
+            return response()->json([
+                'status' => $result ? 'ok' : 'error',
+                'message' => $result ? 'All stored events purged' : 'Purge failed',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Resolve the event store from the container.
+     *
+     * Falls back to a NullEventStore if the store is not registered.
+     */
+    private function resolveEventStore(): \ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface
+    {
+        try {
+            $store = app(\ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface::class);
+
+            return $store instanceof \ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface
+                ? $store
+                : new \ZeroBoiler\Analytics\Store\NullEventStore;
+        } catch (\Throwable) {
+            return new \ZeroBoiler\Analytics\Store\NullEventStore;
+        }
+    }
 }
