@@ -4388,5 +4388,99 @@ return [
             'slow_dispatch_ms' => (float) env('ANALYTICS_OBSERVABILITY_SLOW_MS', 1000.0), // 1 second
             'latency_buckets' => (int) env('ANALYTICS_OBSERVABILITY_LATENCY_BUCKETS', 50),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Transport Layer (v20.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Abstract HTTP transport with configurable retry, timeout, and circuit
+        | breaker for analytics provider dispatch. Wraps HTTP client calls with
+        | production-grade reliability features. Per-provider circuit state tracking.
+        |
+        | Inspired by Segment's transport layer, RudderStack's batching transport,
+        | and the circuit breaker pattern from Michael Nygard.
+        |
+        */
+        'transport' => [
+            'enabled' => env('ANALYTICS_TRANSPORT_ENABLED', true),
+            'default_timeout' => (int) env('ANALYTICS_TRANSPORT_TIMEOUT', 5), // seconds
+            'default_retries' => (int) env('ANALYTICS_TRANSPORT_RETRIES', 2),
+            'circuit_threshold' => (float) env('ANALYTICS_TRANSPORT_CIRCUIT_THRESHOLD', 5.0),
+            'circuit_reset_timeout' => (int) env('ANALYTICS_TRANSPORT_CIRCUIT_RESET', 60), // seconds
+            'circuit_half_open_max' => (int) env('ANALYTICS_TRANSPORT_HALF_OPEN_MAX', 3),
+            'metrics_ttl' => (int) env('ANALYTICS_TRANSPORT_METRICS_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Correlation Matrix (v20.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Statistical cross-event correlation scoring using Jaccard similarity.
+        | Analyzes event co-occurrence patterns to identify significant
+        | relationships between tracked events for funnel insights.
+        |
+        | Inspired by PostHog's Event Correlation, Amplitude's Compass,
+        | and Mixpanel's Signal feature.
+        |
+        */
+        'correlation' => [
+            'enabled' => env('ANALYTICS_CORRELATION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CORRELATION_CACHE_TTL', 600), // 10 minutes
+            'min_event_count' => (int) env('ANALYTICS_CORRELATION_MIN_COUNT', 5),
+            'min_correlation' => (float) env('ANALYTICS_CORRELATION_MIN_SCORE', 0.1),
+            'max_pairs' => (int) env('ANALYTICS_CORRELATION_MAX_PAIRS', 100),
+            'time_window' => (int) env('ANALYTICS_CORRELATION_TIME_WINDOW', 86400), // 24 hours
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Data Lake Export (v20.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | S3/GCS-compatible event export for data warehousing and ETL processing.
+        | Supports batch exports, incremental exports, partitioned output,
+        | and configurable file formats (JSONL, CSV).
+        |
+        | Inspired by Segment's Warehouse sync, RudderStack's Object Storage
+        | destination, and the analytics data lake pattern.
+        |
+        */
+        'data_lake' => [
+            'enabled' => env('ANALYTICS_DATA_LAKE_ENABLED', false),
+            'storage' => env('ANALYTICS_DATA_LAKE_STORAGE', 'null'), // s3, gcs, local, null
+            'bucket' => env('ANALYTICS_DATA_LAKE_BUCKET', ''),
+            'prefix' => env('ANALYTICS_DATA_LAKE_PREFIX', 'analytics/events/'),
+            'format' => env('ANALYTICS_DATA_LAKE_FORMAT', 'jsonl'), // jsonl, csv, ndjson
+            'batch_size' => (int) env('ANALYTICS_DATA_LAKE_BATCH_SIZE', 10000),
+            'retention_days' => (int) env('ANALYTICS_DATA_LAKE_RETENTION', 365),
+            'partition_by_date' => env('ANALYTICS_DATA_LAKE_PARTITION', true),
+            'compress' => env('ANALYTICS_DATA_LAKE_COMPRESS', true),
+            'timeout' => (int) env('ANALYTICS_DATA_LAKE_TIMEOUT', 300), // 5 minutes
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | SDK Scope Tokens (v20.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Scoped write tokens for client-side permission management. Generates
+        | and validates tokens that control which analytics operations a
+        | client-side SDK is authorized to perform. Tokens define allowed
+        | event types, rate limits, and data access boundaries.
+        |
+        | Inspired by Segment's write keys, PostHog project API keys,
+        | and Plausible's site-specific API tokens.
+        |
+        */
+        'sdk_tokens' => [
+            'enabled' => env('ANALYTICS_SDK_TOKENS_ENABLED', false),
+            'token_ttl' => (int) env('ANALYTICS_SDK_TOKENS_TTL', 7776000), // 90 days
+            'default_rate_limit' => (int) env('ANALYTICS_SDK_TOKENS_RATE_LIMIT', 100), // per minute
+            'max_tokens_per_scope' => (int) env('ANALYTICS_SDK_TOKENS_MAX_PER_SCOPE', 10),
+            'hash_algorithm' => env('ANALYTICS_SDK_TOKENS_HASH', 'sha256'),
+            'signing_key' => env('ANALYTICS_SDK_TOKENS_SIGNING_KEY', ''),
+        ],
     ],
 ];

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-18.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-20.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **8 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [Quick Start](#quick-start)
++- [What's New in v20.0.0](#whats-new-in-v20000)
 - [What's New in v18.0.0](#whats-new-in-v18000)
 - [What's New in v17.0.0](#whats-new-in-v17000)
 - [What's New in v16.0.0](#whats-new-in-v16000)
@@ -103,6 +104,42 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v20.0.0
+
+### 🚀 Event Transport Layer
+- **`EventTransportService`** — Abstract HTTP transport with configurable retry, timeout, and circuit breaker for analytics provider dispatch. Tracks per-provider circuit state (closed/open/half-open), consecutive failure counts, and latency histograms with p50/p95/p99 percentile computation. Inspired by Segment's transport layer and RudderStack's batching transport.
+- **Circuit breaker pattern** — Automatic provider isolation when failure threshold is exceeded. Configurable reset timeout with half-open probe mechanism for gradual recovery.
+- **Latency tracking** — Per-provider dispatch latency statistics with configurable sample retention.
+- **`transport` config section** — 7 configurable options: `enabled`, `default_timeout`, `default_retries`, `circuit_threshold`, `circuit_reset_timeout`, `circuit_half_open_max`, `metrics_ttl`.
+
+### 🔗 Event Correlation Matrix
+- **`EventCorrelationMatrixService`** — Statistical cross-event correlation scoring using Jaccard similarity coefficient. Analyzes event co-occurrence patterns to identify significant relationships between tracked events. Used for funnel insight generation, user behavior prediction, and instrumentation gap detection.
+- **`computeJaccard()`** — Computes Jaccard similarity between two event user-sets. Score of 1.0 = perfect overlap, 0.0 = no overlap.
+- **`computeAllPairs()`** — Batch computation of all significant event pairs with configurable min_correlation threshold and max_pairs limit.
+- **`findCorrelatedEvents()`** — "Users who did X also did Y" — directional correlation with forward/backward percentages.
+- **`correlation` config section** — 6 configurable options: `enabled`, `cache_ttl`, `min_event_count`, `min_correlation`, `max_pairs`, `time_window`.
+
+### 📦 Data Lake Export
+- **`DataLakeExportService`** — S3/GCS-compatible event export pipeline for data warehousing and ETL processing. Supports batch exports, partitioned output by date, and configurable file formats (JSONL, CSV, NDJSON).
+- **Storage key generation** — Convention-based path generation: `{prefix}/{YYYY/MM/DD}/{filename}.{format}[.gz]`.
+- **Job tracking** — Export job lifecycle management (pending → running → completed/failed) with cache-persisted status.
+- **Config validation** — Validates storage backend, bucket, format, and compression settings.
+- **`data_lake` config section** — 11 configurable options: `enabled`, `storage`, `bucket`, `prefix`, `format`, `batch_size`, `retention_days`, `partition_by_date`, `compress`, `timeout`.
+
+### 🔑 SDK Scope Token System
+- **`SdkScopeTokenService`** — Scoped write tokens for client-side permission management. Generates and validates tokens controlling which analytics operations a client-side SDK is authorized to perform.
+- **Permission scoping** — Fine-grained permissions: `track`, `batch`, `identify`, `consent`, `pageview`.
+- **Category scoping** — Restrict tokens to specific event categories: `ecommerce`, `saas`, `engagement`, `custom`.
+- **Rate limiting** — Per-token rate limits with per-minute sliding window enforcement.
+- **Token lifecycle** — Generation, validation, permission checks, rate limit checks, revocation with configurable TTL and hash-based storage.
+- **`sdk_tokens` config section** — 6 configurable options: `enabled`, `token_ttl`, `default_rate_limit`, `max_tokens_per_scope`, `hash_algorithm`, `signing_key`.
+
+### 🔄 Version Sweep
+- Version bumped to 20.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS `getVersion()` + `_getInternalVersion()`, Svelte composables, TypeScript definitions, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`.
+
+### 🧪 Tests
+- **`V2000TransportCorrelationDataLakeSdkTokenTest`** — 40+ tests covering EventTransportService (circuit breaker states, success/failure recording, latency stats, reset, half-open probing), EventCorrelationMatrixService (Jaccard computation, all-pairs analysis, correlated events, user events), DataLakeExportService (format conversion, storage key generation, config validation, job tracking), SdkScopeTokenService (token generation, permission checks, category access, rate limiting, revocation, config), config integrity (transport + correlation + data_lake + sdk_tokens sections), version sweep.
 
 ## What's New in v18.0.0
 

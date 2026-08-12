@@ -239,6 +239,10 @@ use ZeroBoiler\Analytics\Services\AnalyticsApiGuard;
 use ZeroBoiler\Analytics\Services\AnalyticsObservabilityService;
 use ZeroBoiler\Analytics\Services\EventDeconflictionService;
 use ZeroBoiler\Analytics\Services\SaaSOnboardingFunnelService;
+use ZeroBoiler\Analytics\Services\EventTransportService;
+use ZeroBoiler\Analytics\Services\EventCorrelationMatrixService;
+use ZeroBoiler\Analytics\Services\DataLakeExportService;
+use ZeroBoiler\Analytics\Services\SdkScopeTokenService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -246,7 +250,7 @@ use ZeroBoiler\Analytics\Services\SaaSOnboardingFunnelService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 19.0.0
+ * @version 20.0.0
  *
  * @since 1.0.0
  */
@@ -620,6 +624,46 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSOnboardingFunnelService($manager, $cache, $config);
+        });
+
+        // Event Transport Service (v20.0.0)
+        $this->app->singleton(EventTransportService::class, function (Application $app): EventTransportService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventTransportService($cache, $config);
+        });
+
+        // Event Correlation Matrix Service (v20.0.0)
+        $this->app->singleton(EventCorrelationMatrixService::class, function (Application $app): EventCorrelationMatrixService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCorrelationMatrixService($cache, $config);
+        });
+
+        // Data Lake Export Service (v20.0.0)
+        $this->app->singleton(DataLakeExportService::class, function (Application $app): DataLakeExportService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DataLakeExportService($cache, $config);
+        });
+
+        // SDK Scope Token Service (v20.0.0)
+        $this->app->singleton(SdkScopeTokenService::class, function (Application $app): SdkScopeTokenService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SdkScopeTokenService($cache, $config);
         });
 
         // Session analytics service

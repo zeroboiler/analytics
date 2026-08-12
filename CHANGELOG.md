@@ -2,6 +2,30 @@
 
 All notable changes to the package will be documented in this file.
 
+## [20.0.0] - 2026-08-12
+
+### Added
+
+- **Event Transport Layer** — `EventTransportService` provides abstract HTTP transport with configurable retry, timeout, and circuit breaker for analytics provider dispatch. Tracks per-provider circuit state (closed/open/half_open), consecutive failure counts, and latency histograms with p50/p95/p99 percentile computation.
+- **Circuit breaker pattern** — Automatic provider isolation when failure threshold is exceeded. Configurable reset timeout with half-open probe mechanism for gradual recovery.
+- **Latency tracking** — Per-provider dispatch latency statistics with configurable sample retention (max 500 samples).
+- **Event Correlation Matrix** — `EventCorrelationMatrixService` provides statistical cross-event correlation scoring using Jaccard similarity coefficient. Analyzes event co-occurrence patterns for funnel insights, user behavior prediction, and instrumentation gap detection.
+- **Jaccard computation** — `computeJaccard()`, `computeAllPairs()`, `findCorrelatedEvents()` methods for cross-event analysis.
+- **Data Lake Export** — `DataLakeExportService` provides S3/GCS-compatible event export pipeline for data warehousing. Supports JSONL, CSV, NDJSON formats with date-partitioned output, compression, and configurable retention.
+- **Export job tracking** — Lifecycle management for export jobs (pending → running → completed/failed) with cache persistence.
+- **SDK Scope Token System** — `SdkScopeTokenService` generates and validates scoped write tokens for client-side permission management. Controls which analytics operations a client-side SDK is authorized to perform.
+- **Permission scoping** — Fine-grained permissions: `track`, `batch`, `identify`, `consent`, `pageview`.
+- **Category scoping** — Restrict tokens to event categories: `ecommerce`, `saas`, `engagement`, `custom`.
+- **Per-token rate limiting** — Sliding window rate enforcement with configurable per-minute limits.
+- **4 new config sections** — `transport` (7 options), `correlation` (6 options), `data_lake` (11 options), `sdk_tokens` (6 options).
+- **4 new singleton registrations** — EventTransportService, EventCorrelationMatrixService, DataLakeExportService, SdkScopeTokenService registered in AnalyticsServiceProvider.
+- **V2000TransportCorrelationDataLakeSdkTokenTest** — 40+ tests covering all new services, config integrity, and version sweep.
+
+### Changed
+
+- **Version sweep** — 19.0.0 → 20.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS `getVersion()` + `_getInternalVersion()`, Svelte composables, TypeScript definitions, `AnalyticsServiceProvider` docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge.
+- **README** — Added v20.0.0 ToC entry and What's New section with full feature documentation.
+
 ## [19.0.0] - 2026-08-12
 
 ### Added

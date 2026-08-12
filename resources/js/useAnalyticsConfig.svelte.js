@@ -5,7 +5,7 @@
  * Automatically reacts to page navigation and prop changes.
  *
  * @package ZeroBoiler Analytics
- * @version 19.0.0
+ * @version 20.0.0
  */
 
 import { derived } from 'svelte/store';
