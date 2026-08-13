@@ -41,7 +41,7 @@ final class AnalyticsTrendForecastCommand extends Command
 
     private EventTrendForecastService $service;
 
-    public function __construct(EventTrendForecastService $service)
+    public function __construct(EventTrendForecastService $service): void
     {
         parent::__construct();
         $this->service = $service;

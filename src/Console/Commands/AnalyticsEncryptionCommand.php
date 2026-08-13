@@ -39,7 +39,7 @@ final class AnalyticsEncryptionCommand extends Command
 
     private EventPayloadEncryptionService $encryptionService;
 
-    public function __construct(EventPayloadEncryptionService $encryptionService)
+    public function __construct(EventPayloadEncryptionService $encryptionService): void
     {
         parent::__construct();
         $this->encryptionService = $encryptionService;

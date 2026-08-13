@@ -252,7 +252,7 @@ final class AnalyticsQueryBuilder
             'category_breakdown' => $engine->categoryBreakdown($this->periodDays),
             'retention_cohort' => $this->executeRetentionCohort($engine),
             'saas_dashboard' => $engine->saasDashboardSummary('USD', $this->periodDays),
-            default => throw new \RuntimeException("Unknown query type: {$this->queryType}"),
+            default => throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException("Unknown query type: {$this->queryType}"),
         };
     }
 
@@ -376,7 +376,7 @@ final class AnalyticsQueryBuilder
     private function executeTimeSeries(EventQueryEngine $engine): array
     {
         if ($this->events === []) {
-            throw new \RuntimeException('Time-series query requires at least one event. Use ->events() or ->event().');
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException('Time-series query requires at least one event. Use ->events() or ->event().');
         }
 
         return $engine->timeSeries($this->events, $this->periodDays);
@@ -390,7 +390,7 @@ final class AnalyticsQueryBuilder
     private function executeFunnel(EventQueryEngine $engine): array
     {
         if ($this->funnelSteps === []) {
-            throw new \RuntimeException('Funnel query requires at least one step. Use ->steps() or ->funnel(name, steps).');
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException('Funnel query requires at least one step. Use ->steps() or ->funnel(name, steps).');
         }
 
         return $engine->funnelAnalysis(
@@ -418,7 +418,7 @@ final class AnalyticsQueryBuilder
     private function executeConversion(EventQueryEngine $engine): array
     {
         if ($this->conversionFrom === '' || $this->conversionTo === '') {
-            throw new \RuntimeException('Conversion query requires from and to events. Use ->conversion(from, to).');
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException('Conversion query requires from and to events. Use ->conversion(from, to).');
         }
 
         return $engine->conversionRate($this->conversionFrom, $this->conversionTo, $this->periodDays);

@@ -102,7 +102,7 @@ final class SchemaDrivenEventBuilder
                 $errors = implode('; ', $result['errors']);
 
                 if ($this->strictMode) {
-                    throw new \InvalidArgumentException(
+                    throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
                         "Schema validation failed for event '{$eventName}': {$errors}",
                     );
                 }
@@ -119,7 +119,7 @@ final class SchemaDrivenEventBuilder
                 $errors = implode('; ', $result['errors']);
 
                 if ($this->strictMode) {
-                    throw new \InvalidArgumentException(
+                    throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
                         "Schema registry validation failed for event '{$eventName}': {$errors}",
                     );
                 }

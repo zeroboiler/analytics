@@ -61,7 +61,7 @@ final class TypedEventBuilder
     /**
      * @param  string  $name  Event name
      */
-    private function __construct(string $name)
+    private function __construct(string $name): void
     {
         $this->name = $name;
     }
@@ -91,7 +91,7 @@ final class TypedEventBuilder
     public static function catalogEvent(string $name): self
     {
         if (! EventCatalog::has($name)) {
-            throw new \InvalidArgumentException(
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
                 "Event '{$name}' does not exist in the EventCatalog. " .
                 "Available events: " . implode(', ', array_slice(EventCatalog::names(), 0, 10)) .
                 ' (+' . (EventCatalog::count() - 10) . ' more)',
@@ -233,7 +233,7 @@ final class TypedEventBuilder
     {
         if ($this->errors !== []) {
             $errorMsg = implode('; ', $this->errors);
-            throw new \RuntimeException(
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException(
                 "Cannot build event '{$this->name}': {$errorMsg}",
             );
         }

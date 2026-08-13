@@ -127,7 +127,7 @@ trait HasEventSchema
         $errors = $this->validateParams($params);
 
         if ($errors !== []) {
-            throw new \InvalidArgumentException(
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
                 "Invalid params for event '{$this->eventName()}': " . implode('; ', $errors)
             );
         }

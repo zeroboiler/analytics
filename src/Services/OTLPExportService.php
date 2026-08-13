@@ -372,7 +372,7 @@ final class OTLPExportService
             $ch = curl_init($this->endpoint);
 
             if ($ch === false) {
-                throw new \RuntimeException('Failed to initialize cURL');
+                throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException('Failed to initialize cURL');
             }
 
             $httpHeaders = [

@@ -120,7 +120,7 @@ final class AnalyticsWireProtocol
         $data = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
         if (! is_array($data)) {
-            throw new \InvalidArgumentException('Wire payload must be a JSON object');
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException('Wire payload must be a JSON object');
         }
 
         // Batch envelope — extract first event
@@ -133,7 +133,7 @@ final class AnalyticsWireProtocol
             return $this->arrayToEvent($data['event']);
         }
 
-        throw new \InvalidArgumentException(
+        throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
             'Wire payload missing "event" or "events" field. Got keys: ' .
             implode(', ', array_keys($data)),
         );
@@ -152,13 +152,13 @@ final class AnalyticsWireProtocol
         $data = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
         if (! is_array($data)) {
-            throw new \InvalidArgumentException('Wire payload must be a JSON object');
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException('Wire payload must be a JSON object');
         }
 
         // Batch envelope
         if (isset($data['batch']) && $data['batch'] === true && isset($data['events'])) {
             if (! is_array($data['events'])) {
-                throw new \InvalidArgumentException('Wire batch "events" must be an array');
+                throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException('Wire batch "events" must be an array');
             }
 
             return array_map(
@@ -172,7 +172,7 @@ final class AnalyticsWireProtocol
             return [$this->arrayToEvent($data['event'])];
         }
 
-        throw new \InvalidArgumentException(
+        throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
             'Wire payload missing "event" or "events" field',
         );
     }

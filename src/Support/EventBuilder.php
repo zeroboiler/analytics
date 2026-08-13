@@ -321,7 +321,7 @@ final class EventBuilder
     public function build(): AnalyticsEvent
     {
         if ($this->name === '') {
-            throw new \InvalidArgumentException('Event name cannot be empty');
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException('Event name cannot be empty');
         }
 
         // Catalog validation (soft — logs warning, doesn't throw)

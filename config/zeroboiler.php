@@ -6196,5 +6196,80 @@ return [
                 'excellent' => (float) env('ANALYTICS_PMF_THRESHOLD_EXCELLENT', 75.0),
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Privacy Impact Assessment (v62.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | GDPR Article 35 Data Protection Impact Assessment (DPIA) service.
+        | Automatically evaluates privacy risks for analytics processing activities
+        | and generates structured DPIA reports for regulatory compliance.
+        |
+        | A DPIA is required when processing is likely to result in high risk
+        | to the rights and freedoms of natural persons. This service helps
+        | SaaS applications continuously monitor for triggering conditions.
+        |
+        | Options:
+        |   - high_risk_categories: Event categories that auto-trigger DPIA requirements
+        |   - assessment_frequency_days: How often assessments should be reviewed
+        |   - cross_border_transfers: Jurisdictions where data is transferred
+        |
+        */
+        'privacy_impact_assessment' => [
+            'enabled' => env('ANALYTICS_PIA_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PIA_CACHE_TTL', 86400), // 24 hours
+            'auto_assess' => env('ANALYTICS_PIA_AUTO_ASSESS', true),
+            'required_for_new_events' => env('ANALYTICS_PIA_REQUIRE_NEW_EVENTS', false),
+            'reviewer_email' => env('ANALYTICS_PIA_REVIEWER_EMAIL'),
+            'dpo_email' => env('ANALYTICS_PIA_DPO_EMAIL'),
+            'assessment_frequency_days' => (int) env('ANALYTICS_PIA_FREQUENCY', 365),
+            'high_risk_categories' => ['security', 'ecommerce'],
+            'processing_purposes' => ['analytics', 'improvement', 'security'],
+            'retention_review_days' => (int) env('ANALYTICS_PIA_RETENTION_REVIEW', 90),
+            'cross_border_transfers' => ['US', 'EU'],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Consent Receipt Registry (v62.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | GDPR-compliant consent receipt recording and audit system.
+        | Maintains a cryptographic hash chain of consent receipts that serve
+        | as legally defensible proof of consent for regulatory audits.
+        |
+        | Each receipt records what was consented to, when, by whom, and
+        | includes a hash chain for tamper detection (similar to blockchain).
+        |
+        | Supports consent history queries, integrity verification, and
+        | regulatory export in JSON format.
+        |
+        | Options:
+        |   - retention_days: How long receipts are kept (default: 7 years per GDPR)
+        |   - include_hash_chain: Enable cryptographic chain for tamper detection
+        |   - max_receipts_per_client: Maximum receipts stored per client ID
+        |   - auto_record_consent_changes: Automatically record when consent changes
+        |
+        */
+        'consent_receipt' => [
+            'enabled' => env('ANALYTICS_CONSENT_RECEIPT_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CONSENT_RECEIPT_CACHE_TTL', 7776000), // 90 days
+            'retention_days' => (int) env('ANALYTICS_CONSENT_RECEIPT_RETENTION', 2555), // 7 years
+            'include_hash_chain' => env('ANALYTICS_CONSENT_RECEIPT_HASH_CHAIN', true),
+            'include_ip' => env('ANALYTICS_CONSENT_RECEIPT_INCLUDE_IP', true),
+            'include_user_agent' => env('ANALYTICS_CONSENT_RECEIPT_INCLUDE_UA', false),
+            'require_auth' => env('ANALYTICS_CONSENT_RECEIPT_REQUIRE_AUTH', false),
+            'max_receipts_per_client' => (int) env('ANALYTICS_CONSENT_RECEIPT_MAX_PER_CLIENT', 100),
+            'auto_record_consent_changes' => env('ANALYTICS_CONSENT_RECEIPT_AUTO_RECORD', true),
+            'purposes' => [
+                'analytics_storage',
+                'ad_storage',
+                'ad_user_data',
+                'ad_personalization',
+                'functionality_storage',
+                'personalization_storage',
+            ],
+        ],
     ],
 ];

@@ -53,7 +53,7 @@ final class UnifiedHealthEndpointService
         private readonly ?AnalyticsDataQualityFirewall $qualityFirewall = null,
         private readonly ?EventFraudDetectionService $fraudDetection = null,
         private readonly ?ProductMarketFitScoringService $pmfScoring = null,
-    ) {}
+    ): void {}
 
     /**
      * Run a full unified health check.

@@ -312,7 +312,7 @@ final class EventForwardingService
         $endpoint = (string) ($forwarderConfig['url'] ?? $typeConfig['endpoint']);
 
         if ($endpoint === '') {
-            throw new \RuntimeException("No endpoint configured for forwarder '{$name}'");
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException("No endpoint configured for forwarder '{$name}'");
         }
 
         $headers = $this->buildHeaders($name, $type, $forwarderConfig, $typeConfig);

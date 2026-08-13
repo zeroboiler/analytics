@@ -130,14 +130,14 @@ final class SdkScopeTokenService
         // Validate permissions
         foreach ($permissions as $perm) {
             if (! in_array($perm, self::ALL_PERMISSIONS, true)) {
-                throw new \InvalidArgumentException("Invalid permission: {$perm}");
+                throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException("Invalid permission: {$perm}");
             }
         }
 
         // Validate categories
         foreach ($categories as $cat) {
             if (! in_array($cat, self::ALL_CATEGORIES, true)) {
-                throw new \InvalidArgumentException("Invalid event category: {$cat}");
+                throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException("Invalid event category: {$cat}");
             }
         }
 
@@ -146,7 +146,7 @@ final class SdkScopeTokenService
         $existingTokens = $this->cache->get($scopeKey, []);
 
         if (count($existingTokens) >= $this->maxTokensPerScope) {
-            throw new \RuntimeException("Maximum tokens per scope reached: {$this->maxTokensPerScope}");
+            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException("Maximum tokens per scope reached: {$this->maxTokensPerScope}");
         }
 
         // Generate token

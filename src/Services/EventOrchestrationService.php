@@ -858,7 +858,7 @@ final class EventOrchestrationService
     private function ensurePipelineExists(string $pipelineName): void
     {
         if (! isset($this->pipelines[$pipelineName])) {
-            throw new \InvalidArgumentException(
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
                 "Orchestration pipeline '{$pipelineName}' is not defined. " .
                 'Available: ' . implode(', ', array_keys($this->pipelines)),
             );

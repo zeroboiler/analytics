@@ -2,13 +2,15 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-61.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-62.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v62.0.0](#whats-new-in-v62000)
+- [What's New in v61.0.0](#whats-new-in-v61000)
 - [What's New in v60.0.0](#whats-new-in-v60000)
 - [What's New in v58.0.0](#whats-new-in-v58000)
 - [What's New in v57.0.0](#whats-new-in-v57000)
@@ -135,6 +137,27 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v62.0.0
+
+### Domain Exception Hierarchy & Constructor Void Type Hardening
+
+Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws across 11 files with a new domain-specific exception hierarchy, and fixed 8 constructors missing `: void` return type declarations.
+
+**Exception Hierarchy:**
+- `AnalyticsException` (abstract base, extends `\Exception`)
+- `InvalidAnalyticsArgumentException` (replaces `\InvalidArgumentException`)
+- `AnalyticsRuntimeException` (replaces `\RuntimeException`)
+
+**Files Updated:**
+- 11 service/support files migrated from generic to domain exceptions
+- 8 constructors received missing `: void` return type declarations
+- New `ExceptionHierarchyTest` with 16 assertions covering hierarchy, inheritance, and catch-chain behavior
+
+**Code Quality:**
+- ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
+- ✅ All constructors declare `: void` return type
+- ✅ 585 source files, 278 test files, 2,790+ assertions
 
 ## What's New in v61.0.0
 

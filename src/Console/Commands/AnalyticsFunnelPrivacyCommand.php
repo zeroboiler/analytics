@@ -35,7 +35,7 @@ final class AnalyticsFunnelPrivacyCommand extends Command
     public function __construct(
         ?DeclarativeFunnelService $funnelService = null,
         ?PrivacyCollectionService $privacyService = null,
-    ) {
+    ): void {
         parent::__construct();
         $this->funnelService = $funnelService;
         $this->privacyService = $privacyService;

@@ -273,7 +273,7 @@ final class SaaSMetricsBenchmarkService
         $benchmark = $this->getBenchmark($metric);
 
         if ($benchmark === null) {
-            throw new \InvalidArgumentException("Unknown benchmark metric: {$metric}");
+            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException("Unknown benchmark metric: {$metric}");
         }
 
         $percentile = $this->calculatePercentile($value, $benchmark);

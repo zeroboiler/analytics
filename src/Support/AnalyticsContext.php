@@ -73,7 +73,7 @@ final class AnalyticsContext
         bool $emitTiming = true,
         bool $emitErrors = true,
         bool $emitLifecycle = false,
-    ) {
+    ): void {
         $this->label = $label;
         $this->source = $source;
         $this->emitTiming = $emitTiming;

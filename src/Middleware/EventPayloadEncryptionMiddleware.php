@@ -36,7 +36,7 @@ final class EventPayloadEncryptionMiddleware implements AnalyticsMiddlewareInter
     /**
      * @param  EventPayloadEncryptionService  $encryptionService  Field-level encryption service
      */
-    public function __construct(EventPayloadEncryptionService $encryptionService)
+    public function __construct(EventPayloadEncryptionService $encryptionService): void
     {
         $this->encryptionService = $encryptionService;
     }
