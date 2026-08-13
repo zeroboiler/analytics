@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException;
 
 /**
  * Event lifecycle hooks — before/after dispatch callback registry.

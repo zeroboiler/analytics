@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-65.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-66.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v66.0.0](#whats-new-in-v66000)
 - [What's New in v62.0.0](#whats-new-in-v62000)
 +- [What's New in v64.0.0](#whats-new-in-v64000)
 +- [What's New in v63.0.0](#whats-new-in-v63000)
@@ -139,6 +140,68 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v66.0.0
+
+### Event Blueprint System — Reusable, Versioned Event Templates
+
+**EventBlueprint DTO** — new immutable DTO representing a reusable event template with name, label, description, base event reference, default parameters, required parameters, type constraints, priority, version, and metadata. Supports validation (`validateParams()`), deprecation tracking, and round-trip serialization via `fromArray()` / `toArray()`.
+
+**EventBlueprintRegistry** — new singleton registry service managing the complete blueprint lifecycle. Features:
+- Runtime registration via `register()` or `registerFromArray()`
+- Config-driven registration from `config/zeroboiler.php` → `blueprints.library`
+- 22 built-in blueprints covering SaaS lifecycle (signup, login, trial, subscription, plan upgrade, cancellation), e-commerce (product viewed, cart added, checkout, purchase, refund), engagement (page viewed, search, share, form, scroll, error), and identity (user identified)
+- Cache-backed persistence with 24h TTL
+- Factory method `build()` for creating validated events from blueprints
+- `buildUnsafe()` for non-throwing builds with error/warning collection
+- `byCategory()` grouping, `diagnostics()` summary, `validateRegistry()` consistency check
+- Resolution order: runtime → cache → config → built-in
+
+**EventBuilder::fromBlueprint()** — new shorthand factory method on EventBuilder for constructing events from registered blueprints with a single call: `EventBuilder::fromBlueprint('saas.signup.email', ['user_id' => 'usr_1'])`.
+
+**AnalyticsBlueprintCommand** — new admin command `zb:analytics:blueprints` with options:
+- `--list` — list all registered blueprints in a table
+- `--inspect=saas.signup.email` — detailed view of a single blueprint
+- `--validate` — validate the entire blueprint registry for consistency
+- `--build=blueprint_name --params='{"user_id":"usr_1"}'` — test building events
+- `--json` — machine-readable output
+
+### Segment-Compatible Export Service
+
+**SegmentExportService** — converts ZeroBoiler analytics events to Segment's HTTP API v2 JSON format. Supports all five core Segment event types:
+- **Identify** — userId + traits extraction
+- **Track** — event name mapping with catalog metadata enrichment
+- **Page** — page title, URL, path extraction
+- **Group** — groupId + traits for organization tracking
+- **Alias** — identity merging (previousId → newId)
+
+Features: `toBatch()` for multi-event export, `autoConvert()` for automatic type detection, `buildBatchRequest()` for ready-to-POST payloads, comprehensive event name mapping (`sign_up` → "Signed Up", `purchase` → "Order Completed", etc.), and catalog metadata enrichment (`_zb_category`, `_zb_ga4`, `_zb_meta`).
+
+**Config section** — new `segment_export` config in `config/zeroboiler.php` with `enabled`, `write_key`, `api_url`, `batch_size`, and `timeout` settings.
+
+### Event Lifecycle Hooks
+
+**EventLifecycleHooks** — new before/after dispatch callback registry for event enrichment, filtering, and side-effects:
+- `beforeDispatch()` — modify or abort events before dispatch (return null to skip)
+- `afterDispatch()` — post-dispatch processing with per-provider results
+- `onError()` — error handling for dispatch failures (non-throwing)
+- `finally()` — cleanup hooks that always run
+- Chain execution in registration order for before hooks, reverse for after
+- `clear()`, `clearBefore()`, `clearAfter()`, `clearErrors()`, `clearFinally()` management
+- `summary()` diagnostic, `hasHooks()` check, `isExecuting()` re-entrance guard
+
+**Config section** — new `lifecycle_hooks` config with `enabled`, `max_hooks`, and `timeout` settings.
+
+### Config & AnalyticsConfig Updates
+
+**Config** — three new sections in `config/zeroboiler.php`:
+- `blueprints` — blueprint library config with cache TTL
+- `segment_export` — Segment API settings
+- `lifecycle_hooks` — hook configuration
+
+**AnalyticsConfig** — 12 new type-safe accessors: `blueprintsEnabled()`, `blueprintsCacheTtl()`, `blueprintsLibrary()`, `segmentExportEnabled()`, `segmentWriteKey()`, `segmentApiUrl()`, `segmentBatchSize()`, `segmentTimeout()`, `lifecycleHooksEnabled()`, `lifecycleHooksMax()`, `lifecycleHooksTimeout()`. All three new features are included in `compactSummary()` output.
+
+---
 
 ## What's New in v64.0.0
 

@@ -6,7 +6,7 @@
 
 declare(strict_types=1);
 
-namespace ZeroBoiler\Analytics\DTO;
+namespace ZeroBoiler\Analytics\Blueprints;
 
 /**
  * Immutable DTO representing a reusable event blueprint.

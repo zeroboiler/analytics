@@ -10,9 +10,7 @@ namespace ZeroBoiler\Analytics\Blueprints;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\EventBlueprint;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException;
 use ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException;
 
 /**
