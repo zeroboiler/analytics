@@ -47,7 +47,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  *
  * @since 30.0.0
  */
-class AnalyticsEventModel extends Model
+final class AnalyticsEventModel extends Model
 {
     use HasUuids;
     use Prunable;
