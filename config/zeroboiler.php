@@ -895,7 +895,7 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
-        | Event Timeline (v10.3.0)
+        | Event Timeline (v74.0.0)
         |-------------------------------------------------------------------------- 
         |
         | Chronological event timeline for user journey analysis and dashboard

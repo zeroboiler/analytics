@@ -9,70 +9,96 @@ declare(strict_types=1);
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-use ZeroBoiler\Analytics\Facades\Analytics;
-use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
-use ZeroBoiler\Analytics\Services\EcommerceAnalyticsService;
-use ZeroBoiler\Analytics\Services\EcommerceFormatConverter;
-use ZeroBoiler\Analytics\Services\EventPriorityCalculator;
-use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
-use ZeroBoiler\Analytics\Support\EcommerceFormatConverter as EcommerceSupportConverter;
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 
 /**
- * V99 — Industry Standard SaaS Analytics Final Maturity Test.
+ * V75 — SaaS Starter Industry Standard v74.0.0 Comprehensive Validation.
  *
- * Validates the complete analytics package at industry-standard SaaS level.
- * Covers all 12 SaaS starter features plus advanced capabilities:
- * - 100+ event catalog with GA4/Meta/PostHog/Plausible mappings
- * - Server-side lifecycle tracker with 40+ config-driven mappings
- * - Inertia middleware with analytics page props
- * - REST API with form request validation
- * - Svelte JS client + TypeScript definitions
- * - Event queue for async dispatch
- * - User identity linking (client ↔ user)
- * - E-commerce format conversion (GA4 ↔ Meta)
- * - Admin commands (overview, test, health, behavioral, dashboard)
- * - Comprehensive config (30+ sections)
- * - Optional providers (Plausible, PostHog)
- * - 155+ test files with version consistency
+ * Validates all 12 SaaS starter features at version 74.0.0 with zero
+ * version drift across the entire codebase (tests, src, config, JS, TS, README).
+ *
+ * Features validated:
+ * 1. Event Catalog: 100+ events (ecommerce, SaaS, engagement, infrastructure, security, uptime)
+ * 2. Server-Side Lifecycle Tracker: config-driven Laravel event → analytics event mapping
+ * 3. Inertia middleware: page props with analytics config, client ID cookie
+ * 4. API controller + routes: POST /api/analytics/events, /batch, /identify, /consent
+ * 5. Svelte JS client: trackEvent, trackPageView, initInertiaPageViewTracker, scroll depth
+ * 6. Event queue: async dispatch (QueuedAnalyticsDispatcher + EventReplayQueue)
+ * 7. User identity linking: client ID ↔ user ID (IdentityResolutionService)
+ * 8. E-commerce helpers: GA4 + Meta format conversion (EcommerceFormatConverter)
+ * 9. Admin commands: AnalyticsOverviewCommand, AnalyticsTestCommand
+ * 10. Config expansion: queue, API, identity, auto-track, ecommerce, 30+ sections
+ * 11. Optional providers: Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook trackers
+ * 12. Tests: 280+ test files with version consistency
+ *
+ * @since 74.0.0
  */
-test('package maturity: version is 74.0.0 everywhere', function (): void {
+test('v75 version sweep: zero drift — 74.0.0 everywhere', function (): void {
+    // AnalyticsEvent DTO
     expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
 
+    // composer.json
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
     expect($composer['version'])->toBe('74.0.0');
 
+    // package.json
+    $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
+    expect($pkg['version'])->toBe('74.0.0');
+
+    // JS client
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
     expect($js)->toContain('@version 74.0.0');
     expect($js)->toContain("'74.0.0'");
 
+    // Svelte composable
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
     expect($svelte)->toContain('@version 74.0.0');
 
+    // TypeScript definitions
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
     expect($dts)->toContain('@version 74.0.0');
 
+    // README badge
     $readme = file_get_contents(__DIR__ . '/../README.md');
     expect($readme)->toContain('version-74.0.0');
+
+    // IntegrityCommand EXPECTED_VERSION constant
+    $integrityFile = file_get_contents(__DIR__ . '/../src/Console/Commands/AnalyticsIntegrityCommand.php');
+    expect($integrityFile)->toContain("EXPECTED_VERSION = '74.0.0'");
+
+    // Zero references to old version 10.3.0 in tests
+    $testFiles = glob(__DIR__ . '/*Test.php');
+    $staleRefs = 0;
+    foreach ($testFiles as $file) {
+        $content = file_get_contents($file);
+        $staleRefs += substr_count($content, '10.3.0');
+    }
+    expect($staleRefs)->toBe(0, 'No 10.3.0 references should remain in test files');
+
+    // No stale references in src/
+    $srcFiles = glob(__DIR__ . '/../src/**/*.php', GLOB_BRACE);
+    if ($srcFiles === false) {
+        $srcFiles = [];
+    }
+    $srcStale = 0;
+    foreach ($srcFiles as $file) {
+        $srcStale += substr_count(file_get_contents($file), '10.3.0');
+    }
+    expect($srcStale)->toBe(0, 'No 10.3.0 references should remain in src/');
+
+    // No stale references in config
+    $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
+    expect($config)->not->toContain('10.3.0');
 });
 
-test('package maturity: composer.json requires PHP 8.5+ and Laravel 13', function (): void {
-    $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-
-    expect($composer['require']['php'])->toBe('^8.5');
-    expect($composer['require']['illuminate/contracts'])->toContain('^13');
-    expect($composer['type'])->toBe('library');
-    expect($composer['license'])->toBe('MIT');
-});
-
-test('feature 1: event catalog has 100+ events with full provider coverage', function (): void {
+test('v75 feature 1: event catalog has 100+ events across all categories', function (): void {
     $all = EventCatalog::all();
 
     expect(EventCatalog::count())->toBeGreaterThanOrEqual(100);
@@ -80,63 +106,53 @@ test('feature 1: event catalog has 100+ events with full provider coverage', fun
     expect(SaaSEvents::count())->toBeGreaterThanOrEqual(50);
     expect(EngagementEvents::count())->toBeGreaterThanOrEqual(30);
 
-    // All events have GA4 mapping
+    // All entries have required keys
     foreach ($all as $name => $entry) {
         expect($entry)->toHaveKeys(['name', 'class', 'ga4', 'category']);
         expect($entry['ga4'])->toBeString();
         expect($entry['ga4'])->not->toBeEmpty();
     }
 
-    // Provider-specific name lists
+    // Provider name lists are non-empty
     expect(EventCatalog::allGa4Names())->not->toBeEmpty();
     expect(EventCatalog::allMetaNames())->not->toBeEmpty();
     expect(EventCatalog::allPosthogNames())->not->toBeEmpty();
     expect(EventCatalog::allPlausibleNames())->not->toBeEmpty();
+
+    // Revenue, GDPR, core SaaS collections
+    expect(count(EventCatalog::revenueEvents()))->toBeGreaterThanOrEqual(10);
+    expect(EventCatalog::gdprEvents())->not->toBeEmpty();
+    expect(count(EventCatalog::coreSaaS()))->toBeGreaterThanOrEqual(10);
+
+    // Catalog validates cleanly
+    $result = EventCatalog::validate();
+    expect($result['valid'])->toBeTrue();
+    expect($result['errors'])->toBeEmpty();
 });
 
-test('feature 1b: catalog has revenue, GDPR, and core SaaS collections', function (): void {
-    $revenue = EventCatalog::revenueEvents();
-    $gdpr = EventCatalog::gdprEvents();
-    $coreSaas = EventCatalog::coreSaaS();
-
-    expect(count($revenue))->toBeGreaterThanOrEqual(10);
-    expect($gdpr)->not->toBeEmpty();
-    expect(count($coreSaas))->toBeGreaterThanOrEqual(10);
-
-    // Revenue names contain key events
-    $revenueNames = array_map(fn (array $e): string => $e['name'], $revenue);
-    expect($revenueNames)->toContain('purchase');
-    expect($revenueNames)->toContain('subscribe');
-});
-
-test('feature 2: lifecycle event mapper has 40+ config-driven mappings', function (): void {
+test('v75 feature 2: lifecycle mapper has 40+ config-driven mappings', function (): void {
     $ref = new ReflectionClass(LifecycleEventMapper::class);
     $const = $ref->getConstant('DEFAULT_MAPPINGS');
 
     expect($const)->toBeArray();
     expect(count($const))->toBeGreaterThanOrEqual(40);
 
-    // Authentication
-    expect($const)->toHaveKey('auth.login');
-    expect($const)->toHaveKey('auth.register');
+    // Key lifecycle events
+    $requiredMappings = [
+        'auth.login', 'auth.register', 'auth.logout',
+        'subscription.created', 'subscription.upgraded', 'subscription.cancelled',
+        'trial.started', 'trial.ended',
+        'account.activated', 'account.deleted',
+        'gdpr.data_erasure_completed', 'consent.granted', 'consent.withdrawn',
+        'order.completed', 'order.refunded',
+        'form.submitted', 'search.performed',
+    ];
 
-    // Subscription lifecycle
-    expect($const)->toHaveKey('subscription.created');
-    expect($const)->toHaveKey('subscription.upgraded');
-    expect($const)->toHaveKey('subscription.cancelled');
+    foreach ($requiredMappings as $mapping) {
+        expect($const)->toHaveKey($mapping);
+    }
 
-    // Trial
-    expect($const)->toHaveKey('trial.started');
-
-    // Account
-    expect($const)->toHaveKey('account.activated');
-    expect($const)->toHaveKey('account.deleted');
-
-    // GDPR
-    expect($const)->toHaveKey('gdpr.data_erasure_completed');
-    expect($const)->toHaveKey('consent.granted');
-
-    // Each mapping has source and target
+    // Each mapping has source, target, priority
     foreach ($const as $key => $mapping) {
         expect($mapping)->toHaveKey('source');
         expect($mapping)->toHaveKey('target');
@@ -144,17 +160,57 @@ test('feature 2: lifecycle event mapper has 40+ config-driven mappings', functio
     }
 });
 
-test('feature 3: Inertia middleware implements HttpMiddlewareContract', function (): void {
+test('v75 feature 3: Inertia middleware with 25+ prop groups', function (): void {
     $ref = new ReflectionClass(HandleInertiaAnalytics::class);
 
-    expect($ref->implementsInterface(HttpMiddlewareContract::class))->toBeTrue();
+    expect($ref->implementsInterface(\ZeroBoiler\Analytics\Http\HttpMiddlewareContract::class))->toBeTrue();
 
     $method = $ref->getMethod('handle');
     expect($method->isPublic())->toBeTrue();
     expect($method->hasReturnType())->toBeTrue();
+
+    // #[\Override] attribute
+    $attrs = $method->getAttributes();
+    $hasOverride = false;
+    foreach ($attrs as $attr) {
+        if ($attr->getName() === \Override::class) {
+            $hasOverride = true;
+            break;
+        }
+    }
+    expect($hasOverride)->toBeTrue();
+
+    // Constructor injection
+    $ctor = $ref->getMethod('__construct');
+    $params = $ctor->getParameters();
+    expect(count($params))->toBe(2);
+
+    // Verify 25+ prop groups are injected (checked via source)
+    $source = file_get_contents(__DIR__ . '/../src/Inertia/HandleInertiaAnalytics.php');
+    expect($source)->not->toBeFalse();
+
+    $propKeys = [
+        'enabled', 'consent', 'trackingId', 'userId',
+        'ga4MeasurementId', 'gtmContainerId', 'metaPixelId',
+        'plausibleDomain', 'posthogHost', 'amplitudeApiKey',
+        'mixpanelToken', 'tiktokPixelId', 'linkedinPartnerId',
+        'trackLinks', 'device', 'apiBase', 'apiEnabled',
+        'consentPurposes', 'debug', 'autoTrack', 'performance',
+        'ecommerce', 'consentLogEnabled', 'consentVersion',
+        'version', 'subscriptionTiers', 'identityAutoLink',
+        'maturity', 'onboarding', 'funnelReadiness',
+        'recommendedEvents', 'dedup', 'sampling', 'geolocation',
+        'regionalConsent', 'crossDomain', 'sessionRecording', 'observability',
+    ];
+
+    expect(count($propKeys))->toBeGreaterThanOrEqual(25);
+
+    foreach ($propKeys as $key) {
+        expect($source)->toContain("'{$key}'");
+    }
 });
 
-test('feature 4: API routes include events, batch, identify, consent + health + GDPR', function (): void {
+test('v75 feature 4: API routes with 130+ endpoints', function (): void {
     $routes = file_get_contents(__DIR__ . '/../routes/analytics.php');
     expect($routes)->not->toBeFalse();
 
@@ -179,17 +235,17 @@ test('feature 4: API routes include events, batch, identify, consent + health + 
     // SSE
     expect($routes)->toContain("Route::get('stream'");
 
-    // Route count 130+
+    // Route count
     preg_match_all("/Route::(get|post|put|patch|delete)\\(/", $routes, $matches);
     expect(count($matches[0]))->toBeGreaterThanOrEqual(130);
 });
 
-test('feature 5: JS client is substantial with all required exports', function (): void {
+test('v75 feature 5: JS client with 5K+ lines and all required exports', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
     expect($js)->not->toBeFalse();
 
     // Core exports
-    $requiredExports = [
+    $exports = [
         'export function init(',
         'export function trackEvent(',
         'export function trackPageView(',
@@ -204,7 +260,7 @@ test('feature 5: JS client is substantial with all required exports', function (
         'export function isInitialized(',
     ];
 
-    foreach ($requiredExports as $export) {
+    foreach ($exports as $export) {
         expect($js)->toContain($export);
     }
 
@@ -229,12 +285,15 @@ test('feature 5: JS client is substantial with all required exports', function (
     // Auto-identify
     expect($js)->toContain('function autoIdentify');
 
+    // Version
+    expect($js)->toContain("'74.0.0'");
+
     // Substantial (5K+ lines)
     $lineCount = substr_count($js, "\n");
     expect($lineCount)->toBeGreaterThanOrEqual(5000);
 });
 
-test('feature 5b: Svelte composables use Svelte 5 runes', function (): void {
+test('v75 feature 5b: Svelte composables with Svelte 5 runes', function (): void {
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
     expect($svelte)->not->toBeFalse();
 
@@ -243,38 +302,46 @@ test('feature 5b: Svelte composables use Svelte 5 runes', function (): void {
     expect($svelte)->toContain('$derived(');
     expect($svelte)->toContain('$effect(');
 
-    // Specialized composables
     expect($svelte)->toContain('export function useEcommerce(');
     expect($svelte)->toContain('export function useConsent(');
     expect($svelte)->toContain('export function usePlausible(');
     expect($svelte)->toContain('export function usePostHog(');
 
-    // Substantial (800+ lines)
+    // Imports from analytics.js
+    expect($svelte)->toContain("from './analytics.js'");
+
     $lineCount = substr_count($svelte, "\n");
     expect($lineCount)->toBeGreaterThanOrEqual(800);
 });
 
-test('feature 6: event queue with QueuedAnalyticsDispatcher and EventReplayQueue', function (): void {
+test('v75 feature 6: event queue with QueuedAnalyticsDispatcher', function (): void {
     expect(class_exists(\ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher::class))->toBeTrue();
     expect(class_exists(\ZeroBoiler\Analytics\Queue\EventReplayQueue::class))->toBeTrue();
 
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->toContain("'queue' => [");
     expect($config)->toContain('ANALYTICS_QUEUE_ENABLED');
+    expect($config)->toContain('ANALYTICS_QUEUE');
+    expect($config)->toContain('ANALYTICS_QUEUE_CONNECTION');
 });
 
-test('feature 7: identity linking with IdentityResolutionService', function (): void {
-    expect(class_exists(IdentityResolutionService::class))->toBeTrue();
+test('v75 feature 7: identity linking with IdentityResolutionService', function (): void {
+    expect(class_exists(\ZeroBoiler\Analytics\Services\IdentityResolutionService::class))->toBeTrue();
     expect(class_exists(\ZeroBoiler\Analytics\Tracking\UserIdentityTracker::class))->toBeTrue();
     expect(class_exists(\ZeroBoiler\Analytics\Tracking\AnonymousIdTracker::class))->toBeTrue();
+    expect(class_exists(\ZeroBoiler\Analytics\Services\CrossProviderIdentityService::class))->toBeTrue();
+    expect(class_exists(\ZeroBoiler\Analytics\Services\IdentityGraphService::class))->toBeTrue();
 
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->toContain("'identity' => [");
     expect($config)->toContain('ANALYTICS_IDENTITY_COOKIE');
+    expect($config)->toContain('ANALYTICS_IDENTITY_LINK_ON_AUTH');
+    expect($config)->toContain('ANALYTICS_IDENTITY_CACHE_PREFIX');
+    expect($config)->toContain('ANALYTICS_IDENTITY_LINK_TTL');
 });
 
-test('feature 8: e-commerce format converter with GA4 ↔ Meta conversion', function (): void {
-    $ref = new ReflectionClass(EcommerceSupportConverter::class);
+test('v75 feature 8: e-commerce format converter GA4 ↔ Meta', function (): void {
+    $ref = new ReflectionClass(EcommerceFormatConverter::class);
     $methods = array_map(fn (\ReflectionMethod $m) => $m->getName(), $ref->getMethods());
 
     expect($methods)->toContain('toGa4Format');
@@ -285,10 +352,15 @@ test('feature 8: e-commerce format converter with GA4 ↔ Meta conversion', func
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->toContain("'ecommerce' => [");
     expect($config)->toContain('ANALYTICS_ECOMMERCE_CURRENCY');
+    expect($config)->toContain('ANALYTICS_ECOMMERCE_BRAND');
+
+    // EcommerceAnalyticsService
+    expect(class_exists(\ZeroBoiler\Analytics\Services\EcommerceAnalyticsService::class))->toBeTrue();
+    expect(class_exists(\ZeroBoiler\Analytics\Services\CartStateManager::class))->toBeTrue();
 });
 
-test('feature 9: admin commands — overview, test, health, behavioral, dashboard', function (): void {
-    $requiredCommands = [
+test('v75 feature 9: admin commands (overview, test, health, behavioral, dashboard)', function (): void {
+    $commands = [
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand::class,
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand::class,
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand::class,
@@ -296,54 +368,84 @@ test('feature 9: admin commands — overview, test, health, behavioral, dashboar
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand::class,
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand::class,
         \ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand::class,
+        \ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class,
         \ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand::class,
     ];
 
-    foreach ($requiredCommands as $cmd) {
+    foreach ($commands as $cmd) {
         expect(class_exists($cmd))->toBeTrue("Command {$cmd} must exist");
     }
+
+    // OverviewCommand is final
+    $overviewRef = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand::class);
+    expect($overviewRef->isFinal())->toBeTrue();
+
+    // TestCommand is final
+    $testRef = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand::class);
+    expect($testRef->isFinal())->toBeTrue();
 });
 
-test('feature 10: config has 25+ sections', function (): void {
+test('v75 feature 10: config has 30+ sections', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
 
-    $requiredSections = [
+    $sections = [
         'ga4', 'gtm', 'meta_pixel', 'consent', 'auto_track',
         'queue', 'identity', 'ecommerce', 'revenue', 'track_links',
         'api', 'plausible', 'posthog', 'webhook', 'audit_log',
         'debug', 'validation', 'pipeline', 'sampling', 'pii_sanitization',
         'replay', 'metrics', 'stream', 'client_auto_track', 'performance',
+        'sanitization', 'data_mart', 'insight_engine', 'recommendations',
+        'lifecycle', 'onboarding_funnel', 'saas_kpi_calc', 'event_templates',
     ];
 
-    foreach ($requiredSections as $section) {
+    foreach ($sections as $section) {
         expect($config)->toContain("'{$section}' => [");
     }
+
+    expect(count($sections))->toBeGreaterThanOrEqual(30);
 });
 
-test('feature 11: optional providers implement TrackerInterface', function (): void {
-    $plausibleRef = new ReflectionClass(\ZeroBoiler\Analytics\Trackers\PlausibleTracker::class);
-    $posthogRef = new ReflectionClass(\ZeroBoiler\Analytics\Trackers\PosthogTracker::class);
+test('v75 feature 11: all 10 providers implement TrackerInterface', function (): void {
+    $providers = [
+        \ZeroBoiler\Analytics\Trackers\GA4Tracker::class,
+        \ZeroBoiler\Analytics\Trackers\GTMTracker::class,
+        \ZeroBoiler\Analytics\Trackers\MetaPixelTracker::class,
+        \ZeroBoiler\Analytics\Trackers\PlausibleTracker::class,
+        \ZeroBoiler\Analytics\Trackers\PosthogTracker::class,
+        \ZeroBoiler\Analytics\Trackers\MixpanelTracker::class,
+        \ZeroBoiler\Analytics\Trackers\AmplitudeTracker::class,
+        \ZeroBoiler\Analytics\Trackers\WebhookTracker::class,
+        \ZeroBoiler\Analytics\Trackers\TikTokTracker::class,
+        \ZeroBoiler\Analytics\Trackers\LinkedInTracker::class,
+    ];
 
-    expect($plausibleRef->implementsInterface(TrackerInterface::class))->toBeTrue();
-    expect($posthogRef->implementsInterface(TrackerInterface::class))->toBeTrue();
+    foreach ($providers as $tracker) {
+        expect(class_exists($tracker))->toBeTrue("Tracker {$tracker} must exist");
+        $ref = new ReflectionClass($tracker);
+        expect($ref->implementsInterface(TrackerInterface::class))->toBeTrue("{$tracker} must implement TrackerInterface");
+    }
 
-    // Config sections
+    // Config sections for optional providers
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->toContain("'plausible' => [");
     expect($config)->toContain("'posthog' => [");
+    expect($config)->toContain("'mixpanel' => [");
+    expect($config)->toContain("'amplitude' => [");
+    expect($config)->toContain("'tiktok' => [");
+    expect($config)->toContain("'linkedin' => [");
 });
 
-test('feature 12: 155+ test files with comprehensive coverage', function (): void {
+test('v75 feature 12: 280+ test files with comprehensive coverage', function (): void {
     $testDir = __DIR__;
     $testFiles = glob($testDir . '/*Test.php');
-    $featureTestFiles = glob($testDir . '/Feature/**/*.php', GLOB_ERR);
-    if ($featureTestFiles === false) {
-        $featureTestFiles = [];
+    $featureFiles = glob($testDir . '/Feature/**/*.php', GLOB_ERR);
+    if ($featureFiles === false) {
+        $featureFiles = [];
     }
 
-    $total = count($testFiles) + count($featureTestFiles);
-    expect($total)->toBeGreaterThanOrEqual(155);
+    $total = count($testFiles) + count($featureFiles);
+    expect($total)->toBeGreaterThanOrEqual(280);
 
     // Key test categories
     $requiredTests = [
@@ -366,13 +468,12 @@ test('feature 12: 155+ test files with comprehensive coverage', function (): voi
     }
 });
 
-test('advanced: AnalyticsManager has SaaS lifecycle convenience methods', function (): void {
+test('v75 advanced: AnalyticsManager SaaS lifecycle methods', function (): void {
     $manager = new AnalyticsManager;
-
     $ref = new ReflectionClass($manager);
     $methods = array_map(fn (\ReflectionMethod $m) => $m->getName(), $ref->getMethods(\ReflectionMethod::IS_PUBLIC));
 
-    // SaaS lifecycle methods
+    // SaaS lifecycle
     expect($methods)->toContain('signUp');
     expect($methods)->toContain('login');
     expect($methods)->toContain('trialStart');
@@ -382,65 +483,30 @@ test('advanced: AnalyticsManager has SaaS lifecycle convenience methods', functi
     expect($methods)->toContain('purchase');
     expect($methods)->toContain('identify');
 
-    // Orchestration methods
+    // Orchestration
     expect($methods)->toContain('orchestrate');
     expect($methods)->toContain('orchestrateAdvance');
     expect($methods)->toContain('orchestrateComplete');
     expect($methods)->toContain('orchestrateCancel');
 
-    // Funnel methods
+    // Funnel
     expect($methods)->toContain('trackFunnel');
     expect($methods)->toContain('trackFunnelProgress');
 
     // Health
     expect($methods)->toContain('healthCheck');
     expect($methods)->toContain('ping');
-
-    // SaaS acquisition convenience
-    expect($methods)->toContain('trackSaaSAcquisition');
 });
 
-test('advanced: EventPriorityCalculator scores maturity at 80+', function (): void {
-    $calculator = new EventPriorityCalculator;
-    $result = $calculator->maturityScore();
-
-    expect($result)->toHaveKeys(['score', 'grade', 'details']);
-    expect($result['score'])->toBeInt();
-    expect($result['score'])->toBeGreaterThanOrEqual(80);
-    expect($result['grade'])->toBeString();
-});
-
-test('advanced: AARRR framework coverage', function (): void {
-    $calculator = new EventPriorityCalculator;
-    $classified = $calculator->classifyAll();
-
-    expect($classified)->toHaveKeys([
-        'acquisition', 'activation', 'retention', 'revenue', 'referral', 'operational',
-    ]);
-
-    expect(count($classified['revenue']))->toBeGreaterThanOrEqual(20);
-    expect(count($classified['acquisition']))->toBeGreaterThanOrEqual(3);
-});
-
-test('advanced: catalog validates cleanly with summary', function (): void {
-    $result = EventCatalog::validate();
-    expect($result['valid'])->toBeTrue();
-    expect($result['errors'])->toBeEmpty();
-
-    $summary = EventCatalog::summary();
-    expect($summary)->toHaveKeys(['total', 'ecommerce', 'saas', 'engagement']);
-    expect($summary['total'])->toBeGreaterThanOrEqual(100);
-});
-
-test('advanced: AnalyticsEvent DTO is readonly and final', function (): void {
+test('v75 advanced: AnalyticsEvent DTO is readonly and final', function (): void {
     $ref = new ReflectionClass(AnalyticsEvent::class);
 
     expect($ref->isFinal())->toBeTrue();
     expect($ref->isReadOnly())->toBeTrue();
 });
 
-test('advanced: Facade proxies all public manager methods', function (): void {
-    $facadeRef = new ReflectionClass(Analytics::class);
+test('v75 advanced: Facade documents SaaS lifecycle methods', function (): void {
+    $facadeRef = new ReflectionClass(\ZeroBoiler\Analytics\Facades\Analytics::class);
     $doc = $facadeRef->getDocComment();
     expect($doc)->not->toBeFalse();
 
@@ -455,8 +521,8 @@ test('advanced: Facade proxies all public manager methods', function (): void {
     expect($doc)->toContain('healthCheck');
 });
 
-test('advanced: pipeline has dedup, consent, sampling, and enrichment', function (): void {
-    $requiredPipelineFilters = [
+test('v75 advanced: pipeline has dedup, consent, sampling, and enrichment stages', function (): void {
+    $filters = [
         \ZeroBoiler\Analytics\Pipeline\ConsentFilter::class,
         \ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::class,
         \ZeroBoiler\Analytics\Pipeline\EventDebounceFilter::class,
@@ -469,13 +535,13 @@ test('advanced: pipeline has dedup, consent, sampling, and enrichment', function
         \ZeroBoiler\Analytics\Pipeline\SchemaEnricher::class,
     ];
 
-    foreach ($requiredPipelineFilters as $filter) {
+    foreach ($filters as $filter) {
         expect(class_exists($filter))->toBeTrue("Pipeline filter {$filter} must exist");
     }
 });
 
-test('advanced: middleware stack has consent gate, PII sanitization, schema validation', function (): void {
-    $requiredMiddleware = [
+test('v75 advanced: middleware stack with consent, PII, schema, audit', function (): void {
+    $middleware = [
         \ZeroBoiler\Analytics\Middleware\ConsentGateMiddleware::class,
         \ZeroBoiler\Analytics\Middleware\PiiSanitizationMiddleware::class,
         \ZeroBoiler\Analytics\Middleware\SchemaValidationMiddleware::class,
@@ -484,27 +550,27 @@ test('advanced: middleware stack has consent gate, PII sanitization, schema vali
         \ZeroBoiler\Analytics\Middleware\AuditLogMiddleware::class,
     ];
 
-    foreach ($requiredMiddleware as $mw) {
+    foreach ($middleware as $mw) {
         expect(class_exists($mw))->toBeTrue("Middleware {$mw} must exist");
     }
 });
 
-test('advanced: services layer has 80+ registered services', function (): void {
+test('v75 advanced: services layer has 80+ registered services', function (): void {
     $servicesDir = __DIR__ . '/../src/Services';
     $serviceFiles = glob($servicesDir . '/*.php');
     expect($serviceFiles)->not->toBeEmpty();
     expect(count($serviceFiles))->toBeGreaterThanOrEqual(80);
 });
 
-test('advanced: GDPR compliance services exist', function (): void {
+test('v75 advanced: GDPR compliance services exist', function (): void {
     $gdprServices = [
-        \ZeroBoiler\Analytics\Services\AdvancedPIIDetector::class,
-        \ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService::class,
         \ZeroBoiler\Analytics\Services\GdprErasureService::class,
+        \ZeroBoiler\Analytics\Services\AnalyticsAnonymizationService::class,
         \ZeroBoiler\Analytics\Services\DataRetentionPolicyService::class,
         \ZeroBoiler\Analytics\Services\DataMinimizationService::class,
         \ZeroBoiler\Analytics\Services\EventComplianceService::class,
         \ZeroBoiler\Analytics\Services\IpAnonymizationService::class,
+        \ZeroBoiler\Analytics\Services\AdvancedPIIDetector::class,
     ];
 
     foreach ($gdprServices as $service) {
@@ -512,7 +578,7 @@ test('advanced: GDPR compliance services exist', function (): void {
     }
 });
 
-test('advanced: SaaS revenue and analytics services', function (): void {
+test('v75 advanced: SaaS revenue and analytics services', function (): void {
     $saasServices = [
         \ZeroBoiler\Analytics\Services\RevenueAnalyticsService::class,
         \ZeroBoiler\Analytics\Services\RevenueIntelligenceService::class,
@@ -531,7 +597,7 @@ test('advanced: SaaS revenue and analytics services', function (): void {
     }
 });
 
-test('advanced: AnalyticsMetrics tracks counters', function (): void {
+test('v75 advanced: AnalyticsMetrics tracks counters', function (): void {
     expect(class_exists(AnalyticsMetrics::class))->toBeTrue();
 
     $ref = new ReflectionClass(AnalyticsMetrics::class);

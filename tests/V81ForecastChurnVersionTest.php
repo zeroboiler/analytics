@@ -16,7 +16,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 // ─── Version Consistency ─────────────────────────────────────────────
 
 test('AnalyticsEvent VERSION is 2.82.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('10.3.0');
+    expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
 });
 
 test('AnalyticsEvent VERSION is a valid semver string', function (): void {

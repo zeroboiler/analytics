@@ -344,7 +344,7 @@ describe('WeeklyDigestService', function (): void {
 
 describe('Version Consistency v3.6.0', function (): void {
     it('AnalyticsEvent::VERSION is 3.6.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('10.3.0');
+        expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
     });
 
     it('new services exist and are final classes', function (): void {

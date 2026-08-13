@@ -30,7 +30,7 @@ test('SchemaDrivenEventBuilder has version 2.95.0 in docblock', function (): voi
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('10.3.0');
+    expect($doc)->toContain('74.0.0');
 });
 
 test('SchemaDrivenEventBuilder constructor accepts nullable parameters', function (): void {
@@ -331,7 +331,7 @@ test('SchemaDiffReporter has version 2.95.0 in docblock', function (): void {
     $doc = $reflection->getDocComment();
 
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('10.3.0');
+    expect($doc)->toContain('74.0.0');
 });
 
 // ─── SchemaDiffReporter: report() ────────────────────────────────────────
@@ -566,6 +566,6 @@ test('Version 2.95.0 is consistent across key files', function (): void {
     $spReflection = new ReflectionClass(\ZeroBoiler\Analytics\AnalyticsServiceProvider::class);
     $spFile = file_get_contents($spReflection->getFileName());
 
-    expect($managerFile)->toContain('10.3.0');
-    expect($spFile)->toContain('10.3.0');
+    expect($managerFile)->toContain('74.0.0');
+    expect($spFile)->toContain('74.0.0');
 });

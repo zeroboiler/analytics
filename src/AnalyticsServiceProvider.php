@@ -2775,7 +2775,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventStreamProcessorService($cache, $streamConfig);
         });
 
-        // Event Timeline Service (v10.3.0) — chronological event timelines
+        // Event Timeline Service (v74.0.0) — chronological event timelines
         $this->app->singleton(EventTimelineService::class, function (Application $app): EventTimelineService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');

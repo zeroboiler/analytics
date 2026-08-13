@@ -43,9 +43,9 @@ describe('Phase 5: Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('10.3.0');
-        expect(AnalyticsEvent::VERSION)->toBe('10.3.0');
-        expect((new AnalyticsManager)->version())->toBe('10.3.0');
+        expect($composer['version'])->toBe('74.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
+        expect((new AnalyticsManager)->version())->toBe('74.0.0');
     });
 });
 
@@ -597,11 +597,11 @@ describe('Phase 5: v3.1-v3.3 Service Audit', function () {
         }
     });
 
-    test('AnalyticsHealthCheckService version is 10.3.0', function (): void {
+    test('AnalyticsHealthCheckService version is 74.0.0', function (): void {
         $r = new ReflectionClass(\ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService::class);
         expect($r->isFinal())->toBeTrue();
 
         $versionConstant = $r->getConstant('VERSION');
-        expect($versionConstant)->toBe('10.3.0');
+        expect($versionConstant)->toBe('74.0.0');
     });
 });

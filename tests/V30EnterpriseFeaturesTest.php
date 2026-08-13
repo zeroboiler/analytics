@@ -656,7 +656,7 @@ final class V30EnterpriseFeaturesTest extends TestCase
         $composerJson = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
         $version = $composerJson['version'];
 
-        $this->assertSame('10.3.0', $version);
+        $this->assertSame('74.0.0', $version);
     }
 
     // ── Integration Checks ──────────────────────────────────────────

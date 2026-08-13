@@ -564,10 +564,10 @@ describe('v3.4.0 Version Consistency', function () {
         expect($reflection->isFinal())->toBeTrue();
     });
 
-    it('version is 10.3.0 across PHP and JS', function () {
+    it('version is 74.0.0 across PHP and JS', function () {
         $phpVersion = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
 
-        expect($phpVersion)->toBe('10.3.0');
+        expect($phpVersion)->toBe('74.0.0');
     });
 
     it('EventCollection implements Countable and IteratorAggregate', function () {
@@ -588,13 +588,13 @@ describe('v3.4.0 Version Consistency', function () {
             ->and($config['analytics']['dispatcher'])->toHaveKey('debug');
     });
 
-    it('composer.json version is 10.3.0', function () {
+    it('composer.json version is 74.0.0', function () {
         $composer = json_decode(
             file_get_contents(__DIR__ . '/../composer.json'),
             true,
         );
 
-        expect($composer['version'])->toBe('10.3.0');
+        expect($composer['version'])->toBe('74.0.0');
     });
 
     it('AnalyticsEventDispatcher is registered in ServiceProvider', function () {
@@ -607,13 +607,13 @@ describe('v3.4.0 Version Consistency', function () {
     it('JS client library version is 3.5.0', function () {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($js)->toContain("'10.3.0'");
+        expect($js)->toContain("'74.0.0'");
     });
 
-    it('Svelte composable version is 10.3.0', function () {
+    it('Svelte composable version is 74.0.0', function () {
         $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
 
-        expect($svelte)->toContain('@version 10.3.0');
+        expect($svelte)->toContain('@version 74.0.0');
     });
 
     it('Svelte composable exports usePlausible composable', function () {
