@@ -2254,4 +2254,47 @@ final class AnalyticsConfig
     {
         return (int) $this->get('inspector.ttl', 300);
     }
+
+    // ── Event Validation Pipeline (v69.0.0) ──────────────────────────
+
+    public function validationPipelineEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.enabled', true);
+    }
+
+    public function validationPipelineFailFast(): bool
+    {
+        return (bool) $this->get('validation_pipeline.fail_fast', false);
+    }
+
+    /** @return array<string, mixed> */
+    public function validationPipelineConfig(): array
+    {
+        return (array) $this->get('validation_pipeline', []);
+    }
+
+    public function vpCatalogMembershipEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.catalog_membership.enforce_membership', true);
+    }
+
+    public function vpSchemaValidationEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.schema_validation.enabled', false);
+    }
+
+    public function vpPiiScanningEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.pii_scanning.enabled', true);
+    }
+
+    public function vpDataQualityEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.data_quality.enabled', true);
+    }
+
+    public function vpComplianceEnabled(): bool
+    {
+        return (bool) $this->get('validation_pipeline.compliance.enabled', true);
+    }
 }

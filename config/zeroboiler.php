@@ -1014,6 +1014,52 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Event Validation Pipeline (v69.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Unified multi-stage validation pipeline that composes catalog membership,
+        | schema validation, PII scanning, data quality, and GDPR compliance into
+        | a single validation pass. Each stage produces structured diagnostics with
+        | error codes, severity levels, and performance metrics.
+        |
+        | Configure individual stages or disable the entire pipeline.
+        | Used by EventValidationPipeline, zb:analytics:pipeline:validate command,
+        | and the validation API endpoints.
+        |
+        */
+        'validation_pipeline' => [
+            'enabled' => env('ANALYTICS_VALIDATION_PIPELINE_ENABLED', true),
+            'fail_fast' => env('ANALYTICS_VALIDATION_PIPELINE_FAIL_FAST', false),
+            'catalog_membership' => [
+                'enforce_membership' => env('ANALYTICS_VP_CATALOG_MEMBERSHIP', true),
+                'max_name_length' => (int) env('ANALYTICS_VP_MAX_NAME_LENGTH', 100),
+                'enforce_snake_case' => env('ANALYTICS_VP_SNAKE_CASE', true),
+            ],
+            'schema_validation' => [
+                'enabled' => env('ANALYTICS_VP_SCHEMA_ENABLED', false),
+                'enforce_required' => env('ANALYTICS_VP_SCHEMA_REQUIRED', true),
+                'strict_types' => env('ANALYTICS_VP_SCHEMA_STRICT_TYPES', false),
+                'max_param_count' => (int) env('ANALYTICS_VP_MAX_PARAMS', 100),
+                'max_key_length' => (int) env('ANALYTICS_VP_MAX_KEY_LENGTH', 100),
+            ],
+            'pii_scanning' => [
+                'enabled' => env('ANALYTICS_VP_PII_ENABLED', true),
+                'extra_disallowed_keys' => [],
+                'skip_patterns' => [],
+            ],
+            'data_quality' => [
+                'enabled' => env('ANALYTICS_VP_QUALITY_ENABLED', true),
+                'min_completeness' => (float) env('ANALYTICS_VP_MIN_COMPLETENESS', 0.3),
+                'max_empty_params' => (int) env('ANALYTICS_VP_MAX_EMPTY_PARAMS', 10),
+            ],
+            'compliance' => [
+                'enabled' => env('ANALYTICS_VP_COMPLIANCE_ENABLED', true),
+                'require_consent_for_pii' => env('ANALYTICS_VP_CONSENT_PII', true),
+            ],
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | Event Pipeline
         |--------------------------------------------------------------------------

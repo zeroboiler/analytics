@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
@@ -3200,6 +3201,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDebugCommand::class,
                 AnalyticsFunnelPrivacyCommand::class,
                 AnalyticsTrendForecastCommand::class,
+                AnalyticsPipelineValidateCommand::class,
             ]);
         }
 

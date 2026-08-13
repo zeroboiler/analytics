@@ -780,4 +780,10 @@ Route::prefix('analytics')->group(function () {
     Route::get('dispatch-dedup/stats', [AnalyticsEventController::class, 'dispatchDedupStats']);
     Route::post('dispatch-dedup/check', [AnalyticsEventController::class, 'dispatchDedupCheck']);
     Route::post('dispatch-dedup/clear', [AnalyticsEventController::class, 'dispatchDedupClear']);
+
+    // Event Validation Pipeline (v69.0.0)
+    Route::get('pipeline/validate/status', [AnalyticsEventController::class, 'pipelineValidateStatus']);
+    Route::get('pipeline/validate/stages', [AnalyticsEventController::class, 'pipelineValidateStages']);
+    Route::post('pipeline/validate/event', [AnalyticsEventController::class, 'pipelineValidateEvent']);
+    Route::post('pipeline/validate/batch', [AnalyticsEventController::class, 'pipelineValidateBatch']);
 });

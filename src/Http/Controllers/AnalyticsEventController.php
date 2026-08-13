@@ -13020,4 +13020,145 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Validation Pipeline (v69.0.0) ────────────────────────────
+
+    /**
+     * Get validation pipeline status and summary.
+     *
+     * GET /api/analytics/pipeline/validate/status
+     */
+    public function pipelineValidateStatus(): JsonResponse
+    {
+        try {
+            $config = app(\Illuminate\Contracts\Config\Repository::class);
+            $pipelineConfig = $config->get('zeroboiler.analytics.validation_pipeline', []);
+            $enabled = (bool) ($pipelineConfig['enabled'] ?? true);
+
+            $pipeline = \ZeroBoiler\Analytics\Pipeline\Validation\EventValidationPipeline::withDefaults($pipelineConfig);
+            $summary = $pipeline->summary();
+
+            return response()->json([
+                'enabled' => $enabled,
+                'pipeline' => $summary,
+                'stage_count' => $pipeline->count(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get validation pipeline stage details.
+     *
+     * GET /api/analytics/pipeline/validate/stages
+     */
+    public function pipelineValidateStages(): JsonResponse
+    {
+        try {
+            $config = app(\Illuminate\Contracts\Config\Repository::class);
+            $pipelineConfig = $config->get('zeroboiler.analytics.validation_pipeline', []);
+
+            $pipeline = \ZeroBoiler\Analytics\Pipeline\Validation\EventValidationPipeline::withDefaults($pipelineConfig);
+
+            return response()->json([
+                'stages' => $pipeline->stageNames(),
+                'descriptions' => $pipeline->stageDescriptions(),
+                'summary' => $pipeline->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate a single event through the pipeline.
+     *
+     * POST /api/analytics/pipeline/validate/event
+     * Body: { "name": "page_view", "params": {...} }
+     */
+    public function pipelineValidateEvent(Request $request): JsonResponse
+    {
+        try {
+            $name = $request->input('name', '');
+            $params = $request->input('params', []);
+
+            if ($name === '') {
+                return response()->json(['status' => 'error', 'error' => 'Event name is required'], 422);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $name,
+                params: is_array($params) ? $params : [],
+            );
+
+            $config = app(\Illuminate\Contracts\Config\Repository::class);
+            $pipelineConfig = $config->get('zeroboiler.analytics.validation_pipeline', []);
+
+            $pipeline = \ZeroBoiler\Analytics\Pipeline\Validation\EventValidationPipeline::withDefaults($pipelineConfig);
+            $report = $pipeline->validate($event);
+
+            return response()->json($report);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate multiple events through the pipeline in batch.
+     *
+     * POST /api/analytics/pipeline/validate/batch
+     * Body: { "events": [{ "name": "page_view", "params": {...} }, ...] }
+     */
+    public function pipelineValidateBatch(Request $request): JsonResponse
+    {
+        try {
+            $events = $request->input('events', []);
+
+            if (! is_array($events) || $events === []) {
+                return response()->json(['status' => 'error', 'error' => 'events array is required'], 422);
+            }
+
+            $config = app(\Illuminate\Contracts\Config\Repository::class);
+            $pipelineConfig = $config->get('zeroboiler.analytics.validation_pipeline', []);
+
+            $pipeline = \ZeroBoiler\Analytics\Pipeline\Validation\EventValidationPipeline::withDefaults($pipelineConfig);
+
+            $results = [];
+            $passed = 0;
+            $failed = 0;
+
+            foreach (array_slice($events, 0, 100) as $input) {
+                $name = $input['name'] ?? '';
+                $params = $input['params'] ?? [];
+
+                if ($name === '') {
+                    continue;
+                }
+
+                $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                    name: $name,
+                    params: is_array($params) ? $params : [],
+                );
+
+                $report = $pipeline->validate($event);
+                $results[] = $report;
+
+                if ($report['valid']) {
+                    $passed++;
+                } else {
+                    $failed++;
+                }
+            }
+
+            return response()->json([
+                'total' => count($results),
+                'passed' => $passed,
+                'failed' => $failed,
+                'results' => $results,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
