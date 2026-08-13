@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-63.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-64.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [What's New in v62.0.0](#whats-new-in-v62000)
++- [What's New in v64.0.0](#whats-new-in-v64000)
 +- [What's New in v63.0.0](#whats-new-in-v63000)
 - [What's New in v61.0.0](#whats-new-in-v61000)
 - [What's New in v60.0.0](#whats-new-in-v60000)
@@ -138,6 +139,22 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v64.0.0
+
+### AnalyticsConfig Provider Parity & Diagnostic API
+
+**AnalyticsConfig — Mixpanel, Amplitude, TikTok, LinkedIn accessors** — added missing `mixpanelEnabled()`, `mixpanelToken()`, `mixpanelHost()`, `amplitudeEnabled()`, `amplitudeApiKey()`, `amplitudeHost()`, `tiktokEnabled()`, `tiktokPixelId()`, `linkedinEnabled()`, `linkedinPartnerId()` methods. The type-safe config accessor now covers all 10 supported providers (previously only GA4, GTM, Meta, Plausible, PostHog, Webhook had accessors).
+
+**`enabledProviders()`** — new method on AnalyticsConfig that returns a flat `list<string>` of currently enabled provider names. Useful for health checks, diagnostic commands, and dashboard widgets that need to know which providers are active without iterating nested config.
+
+**`compactSummary()`** — new flat diagnostic summary alongside the existing nested `summary()`. Returns a single-level associative array with version, provider list, consent default, queue settings, identity config, sampling, PII, debug, validation, fingerprint, event count, and category count. Designed for CLI output and quick health checks.
+
+**`summary()` enhancement** — existing `summary()` method now includes Mixpanel, Amplitude, TikTok, and LinkedIn provider sections alongside the previously supported providers.
+
+**Version Sweep:** 63.0.0 → 64.0.0 across AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, composer.json, package.json, README badge, ServiceProvider docblock, JS client version, TypeScript declaration.
+
+---
 
 ## What's New in v63.0.0
 

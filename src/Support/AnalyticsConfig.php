@@ -1285,6 +1285,22 @@ final class AnalyticsConfig
                 'enabled' => $this->webhookEnabled(),
                 'url' => $this->webhookUrl(),
             ],
+            'mixpanel' => [
+                'enabled' => $this->mixpanelEnabled(),
+                'token' => $this->mixpanelToken(),
+            ],
+            'amplitude' => [
+                'enabled' => $this->amplitudeEnabled(),
+                'api_key' => $this->amplitudeApiKey(),
+            ],
+            'tiktok' => [
+                'enabled' => $this->tiktokEnabled(),
+                'pixel_id' => $this->tiktokPixelId(),
+            ],
+            'linkedin' => [
+                'enabled' => $this->linkedinEnabled(),
+                'partner_id' => $this->linkedinPartnerId(),
+            ],
             'consent' => [
                 'default' => $this->consentDefault(),
                 'purposes_count' => count($this->consentPurposes()),
@@ -1973,5 +1989,154 @@ final class AnalyticsConfig
     public function readinessMinimumScore(): int
     {
         return (int) $this->get('readiness.minimum_score', 80);
+    }
+
+    // ── Mixpanel (v64.0.0) ────────────────────────────────────────────
+
+    public function mixpanelEnabled(): bool
+    {
+        return (bool) $this->get('mixpanel.enabled', false);
+    }
+
+    public function mixpanelToken(): string
+    {
+        return (string) $this->get('mixpanel.token', '');
+    }
+
+    public function mixpanelHost(): string
+    {
+        return (string) $this->get('mixpanel.host', 'https://api.mixpanel.com');
+    }
+
+    // ── Amplitude (v64.0.0) ─────────────────────────────────────────────
+
+    public function amplitudeEnabled(): bool
+    {
+        return (bool) $this->get('amplitude.enabled', false);
+    }
+
+    public function amplitudeApiKey(): string
+    {
+        return (string) $this->get('amplitude.api_key', '');
+    }
+
+    public function amplitudeHost(): string
+    {
+        return (string) $this->get('amplitude.host', 'https://api2.amplitude.com');
+    }
+
+    // ── TikTok (v64.0.0) ──────────────────────────────────────────────
+
+    public function tiktokEnabled(): bool
+    {
+        return (bool) $this->get('tiktok.enabled', false);
+    }
+
+    public function tiktokPixelId(): string
+    {
+        return (string) $this->get('tiktok.pixel_id', '');
+    }
+
+    // ── LinkedIn (v64.0.0) ────────────────────────────────────────────
+
+    public function linkedinEnabled(): bool
+    {
+        return (bool) $this->get('linkedin.enabled', false);
+    }
+
+    public function linkedinPartnerId(): string
+    {
+        return (string) $this->get('linkedin.partner_id', '');
+    }
+
+    // ── Quick Diagnostic (v64.0.0) ──────────────────────────────────────
+
+    /**
+     * Get a list of currently enabled provider names.
+     *
+     * Useful for dashboards, diagnostic commands, and health checks.
+     *
+     * @return list<string>
+     */
+    public function enabledProviders(): array
+    {
+        $providers = [];
+
+        if ($this->ga4Enabled()) {
+            $providers[] = 'ga4';
+        }
+
+        if ($this->gtmEnabled()) {
+            $providers[] = 'gtm';
+        }
+
+        if ($this->metaPixelEnabled()) {
+            $providers[] = 'meta_pixel';
+        }
+
+        if ($this->plausibleEnabled()) {
+            $providers[] = 'plausible';
+        }
+
+        if ($this->posthogEnabled()) {
+            $providers[] = 'posthog';
+        }
+
+        if ($this->mixpanelEnabled()) {
+            $providers[] = 'mixpanel';
+        }
+
+        if ($this->amplitudeEnabled()) {
+            $providers[] = 'amplitude';
+        }
+
+        if ($this->tiktokEnabled()) {
+            $providers[] = 'tiktok';
+        }
+
+        if ($this->linkedinEnabled()) {
+            $providers[] = 'linkedin';
+        }
+
+        if ($this->webhookEnabled()) {
+            $providers[] = 'webhook';
+        }
+
+        return $providers;
+    }
+
+    /**
+     * Get a compact, single-level config summary for diagnostics.
+     *
+     * Unlike summary() which returns nested arrays per section,
+     * this returns a flat associative array with the most important
+     * values for quick diagnostic display, CLI output, and health checks.
+     *
+     * @return array<string, mixed>
+     */
+    public function compactSummary(): array
+    {
+        return [
+            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+            'providers' => $this->enabledProviders(),
+            'provider_count' => count($this->enabledProviders()),
+            'consent_default' => $this->consentDefault(),
+            'queue_enabled' => $this->queueEnabled(),
+            'queue_name' => $this->queueName(),
+            'auto_track' => $this->autoTrackEnabled(),
+            'api_enabled' => $this->apiEnabled(),
+            'api_base_url' => $this->apiBaseUrl(),
+            'identity_cookie' => $this->identityCookieName(),
+            'ecommerce_currency' => $this->ecommerceCurrency(),
+            'sampling_enabled' => $this->samplingEnabled(),
+            'sampling_rate' => $this->samplingRate(),
+            'pii_enabled' => $this->piiEnabled(),
+            'debug_enabled' => $this->debugEnabled(),
+            'validation_strict' => $this->validationStrict(),
+            'replay_enabled' => $this->replayEnabled(),
+            'fingerprint_enabled' => (bool) $this->get('fingerprint.enabled', true),
+            'event_count' => \ZeroBoiler\Analytics\Events\EventCatalog::count(),
+            'event_categories' => count(\ZeroBoiler\Analytics\Events\EventCatalog::byCategory()),
+        ];
     }
 }
