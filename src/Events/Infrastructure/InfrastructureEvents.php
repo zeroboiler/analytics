@@ -246,6 +246,26 @@ final class InfrastructureEvents
     }
 
     /**
+     * Get all TikTok event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function tiktokNames(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get all LinkedIn event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function linkedinNames(): array
+    {
+        return [];
+    }
+
+    /**
      * Check if an event name exists in this catalog.
      */
     public static function has(string $name): bool

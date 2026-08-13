@@ -247,4 +247,24 @@ final class UptimeEvents
             fn (?string $name): bool => $name !== null,
         ));
     }
+
+    /**
+     * Get all TikTok event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function tiktokNames(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get all LinkedIn event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function linkedinNames(): array
+    {
+        return [];
+    }
 }

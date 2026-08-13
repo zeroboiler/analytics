@@ -285,6 +285,46 @@ final class EventCatalog
     }
 
     /**
+     * Get all unique TikTok event names across all categories.
+     *
+     * Uses the native `tiktok` field in each catalog entry.
+     * Events with null tiktok mapping are filtered out.
+     *
+     * @return list<string>
+     */
+    public static function allTikTokNames(): array
+    {
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::tiktokNames(),
+            SaaSEvents::tiktokNames(),
+            EngagementEvents::tiktokNames(),
+            SecurityEvents::tiktokNames(),
+            UptimeEvents::tiktokNames(),
+            InfrastructureEvents::tiktokNames(),
+        ))));
+    }
+
+    /**
+     * Get all unique LinkedIn event names across all categories.
+     *
+     * Uses the native `linkedin` field in each catalog entry.
+     * Events with null linkedin mapping are filtered out.
+     *
+     * @return list<string>
+     */
+    public static function allLinkedInNames(): array
+    {
+        return array_values(array_unique(array_filter(array_merge(
+            EcommerceEvents::linkedinNames(),
+            SaaSEvents::linkedinNames(),
+            EngagementEvents::linkedinNames(),
+            SecurityEvents::linkedinNames(),
+            UptimeEvents::linkedinNames(),
+            InfrastructureEvents::linkedinNames(),
+        ))));
+    }
+
+    /**
      * Search events by name pattern (partial match).
      *
      * @return list<EventEntry>
@@ -322,6 +362,8 @@ final class EventCatalog
             'plausible' => self::allPlausibleNames(),
             'mixpanel' => self::allMixpanelNames(),
             'amplitude' => self::allAmplitudeNames(),
+            'tiktok' => self::allTikTokNames(),
+            'linkedin' => self::allLinkedInNames(),
         ];
     }
 
@@ -503,6 +545,30 @@ final class EventCatalog
         $entry = self::get($name);
 
         return $entry['amplitude'] ?? null;
+    }
+
+    /**
+     * Get the TikTok event name for a given catalog event name.
+     *
+     * @return string|null TikTok event name or null if not supported
+     */
+    public static function tiktokNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['tiktok'] ?? null;
+    }
+
+    /**
+     * Get the LinkedIn event name for a given catalog event name.
+     *
+     * @return string|null LinkedIn event name or null if not supported
+     */
+    public static function linkedinNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['linkedin'] ?? null;
     }
 
     /**
@@ -804,6 +870,8 @@ final class EventCatalog
                 'plausible' => self::providerCount('plausible'),
                 'mixpanel' => self::providerCount('mixpanel'),
                 'amplitude' => self::providerCount('amplitude'),
+                'tiktok' => self::providerCount('tiktok'),
+                'linkedin' => self::providerCount('linkedin'),
             ],
         ];
     }
@@ -1419,6 +1487,8 @@ final class EventCatalog
                 'plausible' => $entry['plausible'] ?? null,
                 'mixpanel' => $entry['mixpanel'] ?? null,
                 'amplitude' => $entry['amplitude'] ?? null,
+                'tiktok' => $entry['tiktok'] ?? null,
+                'linkedin' => $entry['linkedin'] ?? null,
                 'category' => $entry['category'] ?? 'unknown',
             ];
         }

@@ -337,7 +337,7 @@ use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 64.0.0
+ * @version 65.0.0
  *
  * @since 1.0.0
  */

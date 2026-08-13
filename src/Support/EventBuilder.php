@@ -148,6 +148,336 @@ final class EventBuilder
     }
 
     /**
+     * Create a login event builder.
+     *
+     * @param  string|null  $method  Login method (email, google, github, sso, etc.)
+     */
+    public static function login(?string $method = null): self
+    {
+        $builder = (new self('login'));
+
+        if ($method !== null) {
+            $builder->param('login_method', $method);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a start_trial event builder.
+     *
+     * @param  string|null  $planName  Plan name (e.g. 'pro', 'business')
+     */
+    public static function startTrial(?string $planName = null): self
+    {
+        $builder = (new self('start_trial'))->priority('critical');
+
+        if ($planName !== null) {
+            $builder->param('plan_name', $planName);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a trial_converted event builder.
+     *
+     * @param  string|null  $planName  Converted plan name
+     */
+    public static function trialConverted(?string $planName = null): self
+    {
+        $builder = (new self('trial_converted'))->priority('critical');
+
+        if ($planName !== null) {
+            $builder->param('plan_name', $planName);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a subscribe event builder.
+     *
+     * @param  string|null  $planName  Subscription plan name
+     * @param  float|null  $value  Subscription value
+     * @param  string  $currency  ISO 4217 currency code
+     */
+    public static function subscribe(?string $planName = null, ?float $value = null, string $currency = 'USD'): self
+    {
+        $builder = (new self('subscribe'))->priority('critical');
+
+        if ($planName !== null) {
+            $builder->param('plan_name', $planName);
+        }
+
+        if ($value !== null) {
+            $builder->param('value', $value);
+            $builder->param('currency', $currency);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a plan_upgrade event builder.
+     *
+     * @param  string|null  $fromPlan  Previous plan name
+     * @param  string|null  $toPlan  New plan name
+     */
+    public static function planUpgrade(?string $fromPlan = null, ?string $toPlan = null): self
+    {
+        $builder = (new self('plan_upgrade'))->priority('critical');
+
+        if ($fromPlan !== null) {
+            $builder->param('from_plan', $fromPlan);
+        }
+
+        if ($toPlan !== null) {
+            $builder->param('to_plan', $toPlan);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a cancellation event builder.
+     *
+     * @param  string|null  $reason  Cancellation reason
+     */
+    public static function cancellation(?string $reason = null): self
+    {
+        $builder = (new self('cancellation'))->priority('critical');
+
+        if ($reason !== null) {
+            $builder->param('reason', $reason);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a view_item event builder.
+     *
+     * @param  string  $itemId  Product/item ID
+     * @param  string|null  $itemName  Product/item name
+     * @param  string|null  $category  Item category
+     * @param  float|null  $price  Item price
+     */
+    public static function viewItem(string $itemId, ?string $itemName = null, ?string $category = null, ?float $price = null): self
+    {
+        return (new self('view_item'))
+            ->param('item_id', $itemId)
+            ->param('item_name', $itemName)
+            ->param('item_category', $category)
+            ->param('price', $price);
+    }
+
+    /**
+     * Create an add_to_cart event builder.
+     *
+     * @param  string  $itemId  Product/item ID
+     * @param  string|null  $itemName  Product/item name
+     * @param  float|null  $price  Item price
+     * @param  int|null  $quantity  Quantity added
+     */
+    public static function addToCart(string $itemId, ?string $itemName = null, ?float $price = null, ?int $quantity = null): self
+    {
+        $builder = (new self('add_to_cart'))
+            ->param('item_id', $itemId)
+            ->param('item_name', $itemName)
+            ->param('price', $price);
+
+        if ($quantity !== null) {
+            $builder->param('quantity', $quantity);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a refund event builder.
+     *
+     * @param  string  $transactionId  Original transaction ID
+     * @param  float  $value  Refund amount
+     * @param  string  $currency  ISO 4217 currency code
+     */
+    public static function refund(string $transactionId, float $value, string $currency = 'USD'): self
+    {
+        return (new self('refund'))
+            ->param('transaction_id', $transactionId)
+            ->param('value', $value)
+            ->param('currency', $currency)
+            ->priority('critical');
+    }
+
+    /**
+     * Create a search event builder.
+     *
+     * @param  string  $query  Search query string
+     * @param  int|null  $resultCount  Number of results returned
+     */
+    public static function search(string $query, ?int $resultCount = null): self
+    {
+        $builder = (new self('search'))
+            ->param('search_term', $query);
+
+        if ($resultCount !== null) {
+            $builder->param('results_count', $resultCount);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a share event builder.
+     *
+     * @param  string  $method  Share method (email, twitter, linkedin, copy_link, etc.)
+     * @param  string|null  $contentType  Content type being shared
+     * @param  string|null  $itemId  Shared item ID
+     */
+    public static function share(string $method, ?string $contentType = null, ?string $itemId = null): self
+    {
+        $builder = (new self('share'))
+            ->param('method', $method);
+
+        if ($contentType !== null) {
+            $builder->param('content_type', $contentType);
+        }
+
+        if ($itemId !== null) {
+            $builder->param('item_id', $itemId);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a form_start event builder.
+     *
+     * @param  string|null  $formId  Form identifier
+     * @param  string|null  $formName  Human-readable form name
+     */
+    public static function formStart(?string $formId = null, ?string $formName = null): self
+    {
+        return (new self('form_start'))
+            ->param('form_id', $formId)
+            ->param('form_name', $formName);
+    }
+
+    /**
+     * Create a form_submit event builder.
+     *
+     * @param  string|null  $formId  Form identifier
+     * @param  string|null  $formName  Human-readable form name
+     * @param  bool|null  $success  Whether the submission was successful
+     */
+    public static function formSubmit(?string $formId = null, ?string $formName = null, ?bool $success = null): self
+    {
+        $builder = (new self('form_submit'))
+            ->param('form_id', $formId)
+            ->param('form_name', $formName);
+
+        if ($success !== null) {
+            $builder->param('success', $success);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a scroll_depth event builder.
+     *
+     * @param  int  $percent  Scroll percentage (0-100)
+     * @param  string|null  $direction  Scroll direction (vertical|horizontal)
+     */
+    public static function scrollDepth(int $percent, ?string $direction = null): self
+    {
+        return (new self('scroll_depth'))
+            ->param('percent', min(100, max(0, $percent)))
+            ->param('direction', $direction);
+    }
+
+    /**
+     * Create an error event builder.
+     *
+     * @param  string  $message  Error message
+     * @param  string|null  $severity  Error severity (fatal|error|warning)
+     * @param  string|null  $source  Error source (js|php|api)
+     */
+    public static function error(string $message, ?string $severity = null, ?string $source = null): self
+    {
+        return (new self('error'))
+            ->param('message', $message)
+            ->param('severity', $severity)
+            ->param('source', $source);
+    }
+
+    /**
+     * Create an identify event builder.
+     *
+     * @param  string  $userId  User ID to identify
+     * @param  array<string, mixed>  $traits  User traits (email_hash, name, plan, etc.)
+     */
+    public static function identify(string $userId, array $traits = []): self
+    {
+        return (new self('identify'))
+            ->user($userId)
+            ->params($traits)
+            ->priority('critical');
+    }
+
+    /**
+     * Create a begin_checkout event builder.
+     *
+     * @param  float|null  $value  Cart total value
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  int|null  $itemCount  Number of items in cart
+     */
+    public static function beginCheckout(?float $value = null, string $currency = 'USD', ?int $itemCount = null): self
+    {
+        $builder = (new self('begin_checkout'));
+
+        if ($value !== null) {
+            $builder->param('value', $value);
+            $builder->param('currency', $currency);
+        }
+
+        if ($itemCount !== null) {
+            $builder->param('item_count', $itemCount);
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Create a feature_used event builder.
+     *
+     * @param  string  $featureName  Feature identifier
+     * @param  string|null  $category  Feature category
+     */
+    public static function featureUsed(string $featureName, ?string $category = null): self
+    {
+        return (new self('feature_used'))
+            ->param('feature_name', $featureName)
+            ->param('feature_category', $category);
+    }
+
+    /**
+     * Create an onboarding_step event builder.
+     *
+     * @param  int  $step  Step number (1-based)
+     * @param  string|null  $stepName  Step display name
+     * @param  bool|null  $completed  Whether the step was completed
+     */
+    public static function onboardingStep(int $step, ?string $stepName = null, ?bool $completed = null): self
+    {
+        return (new self('onboarding_step'))
+            ->param('step_number', $step)
+            ->param('step_name', $stepName)
+            ->param('completed', $completed);
+    }
+
+    /**
      * Add a parameter to the event.
      *
      * @param  string  $key  Parameter key
@@ -456,7 +786,7 @@ final class EventBuilder
     /**
      * Get the resolved provider event names for this event.
      *
-     * @return array{ga4: string, meta: string|null, posthog: string|null, plausible: string|null}
+     * @return array{ga4: string, meta: string|null, posthog: string|null, plausible: string|null, tiktok: string|null, linkedin: string|null}
      */
     public function getProviderNames(): array
     {
@@ -468,6 +798,8 @@ final class EventBuilder
                 'meta' => null,
                 'posthog' => null,
                 'plausible' => null,
+                'tiktok' => null,
+                'linkedin' => null,
             ];
         }
 
@@ -476,6 +808,8 @@ final class EventBuilder
             'meta' => $entry['meta'] ?? null,
             'posthog' => $entry['posthog'] ?? null,
             'plausible' => $entry['plausible'] ?? null,
+            'tiktok' => $entry['tiktok'] ?? null,
+            'linkedin' => $entry['linkedin'] ?? null,
         ];
     }
 
