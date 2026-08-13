@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-71.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-72.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v72.0.0](#whats-new-in-v72000)
 +- [What's New in v71.0.0](#whats-new-in-v71000)
 +- [What's New in v70.0.0](#whats-new-in-v70000)
 +- [What's New in v67.0.0](#whats-new-in-v67000)
@@ -360,16 +361,16 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 **Code Quality:**
 - ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
 - ✅ All constructors declare `: void` return type
-- ✅ 585 source files, 280 test files, 16,700+ assertions
+- ✅ 616 source files, 288 test files, 16,700+ assertions
 
 ## What's New in v61.0.0
 
 ### Production-Ready Hardening — Phase 2-3-4 Quality Audit
 
-Deep manual code review and quality hardening across all 579 source files and 277 test files.
+Deep manual code review and quality hardening across all 616 source files and 288 test files.
 
 **Code Quality:**
-- ✅ All 579 source files use `declare(strict_types=1)`
+- ✅ All 616 source files use `declare(strict_types=1)`
 - ✅ All public classes use `final` (or `final readonly` where applicable)
 - ✅ All constructor methods declare `: void` return type
 - ✅ All public methods have return type declarations
@@ -381,7 +382,7 @@ Deep manual code review and quality hardening across all 579 source files and 27
 - ✅ `#[\Override]` attributes on interface implementations
 
 **Test Coverage:**
-- 16,700+ assertions across 280 test files
+- 16,700+ assertions across 288 test files
 - AnalyticsFake for full facade interception testing
 - `WithAnalyticsFake` trait for test isolation
 
@@ -1790,7 +1791,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~235K source, 263 test files, 15800+ assertions
+**LOC:** ~240K source, 288 test files, 15800+ assertions
 
 ## What's New in v10.8.0
 
@@ -3973,6 +3974,67 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v72.0.0
+
+### Event Audit Trail & Attribution Trail
+
+Comprehensive audit trail for every dispatched analytics event and full UTM/referrer attribution tracking — inspired by **Segment Audit Log**, **Datadog Audit Trail**, **Mixpanel Attribution**, and **Google Attribution**.
+
+**New Service: `EventAuditTrailService`**
+- Records detailed dispatch context for each event: unique audit ID, event name, client/user identity, timestamp, per-provider dispatch results (success/failure/latency), pipeline stage timings, consent state, and source channel
+- Cache-backed ring buffer with configurable retention (default 30 days) and max entries (default 10,000)
+- FIFO eviction when max entries exceeded
+- Search by event name, client ID, user ID, source, and time range with offset/limit pagination
+- Statistics with period filtering (all/day/week/month)
+- Summary with top events, sources, and failure counts
+- GDPR-compliant data erasure by client ID or user ID
+
+**New Service: `EventAttributionTrailService`**
+- Tracks complete UTM and referrer journey from first touch through every touchpoint
+- Per-identity records: first-touch, last-touch, multi-touch history (configurable depth, default 50), referrer chain (default 20), conversion event association
+- Attribution model computation: first-touch, last-touch, linear (equal credit), time-decay (exponential with 7-day half-life)
+- Cross-identity statistics: top sources, mediums, campaigns, conversion counts
+- GDPR-compliant data erasure by client ID
+
+**New Command: `zb:analytics:console`**
+- Interactive analytics console for operators with multiple actions:
+  - `--action=send` — send test events to all providers with per-provider latency tracking
+  - `--action=audit-trail` — inspect audit trail entries
+  - `--action=attribution` — view attribution trail for a specific client
+  - `--action=catalog` — show event catalog overview with category breakdown
+  - `--action=health` — provider health check
+  - `--action=stats` — pipeline statistics including consent state
+  - `--action=overview` — default dashboard with all key metrics
+- `--json` flag for machine-readable output on all actions
+
+**New API Endpoints (Event Audit Trail):**
+- `GET /api/analytics/audit-trail` — recent entries (configurable limit)
+- `GET /api/analytics/audit-trail/{auditId}` — specific entry
+- `GET /api/analytics/audit-trail/search/{eventName}` — search with filters
+- `GET /api/analytics/audit-trail/stats/{period}` — statistics
+- `GET /api/analytics/audit-trail/summary` — summary
+- `DELETE /api/analytics/audit-trail` — clear all
+- `DELETE /api/analytics/audit-trail/client/{clientId}` — GDPR erasure
+- `DELETE /api/analytics/audit-trail/user/{userId}` — GDPR erasure
+
+**New API Endpoints (Event Attribution Trail):**
+- `GET /api/analytics/attribution-trail/{clientId}` — full trail
+- `GET /api/analytics/attribution-trail/{clientId}/first-touch` — first-touch data
+- `GET /api/analytics/attribution-trail/{clientId}/last-touch` — last-touch data
+- `GET /api/analytics/attribution-trail/{clientId}/attribute` — multi-model attribution
+- `GET /api/analytics/attribution-trail/stats` — cross-identity statistics
+- `DELETE /api/analytics/attribution-trail/{clientId}` — GDPR erasure
+
+**New Config Sections:**
+- `zeroboiler.analytics.audit_trail` — enabled, ttl, max_entries
+- `zeroboiler.analytics.attribution_trail` — enabled, ttl, max_touch_history, max_referrer_chain
+
+**Tests:**
+- `V72AuditTrailAttributionConsoleTest` — 18 test cases covering audit trail service (enabled/disabled, record, search, statistics, count, summary), attribution trail service (enabled/disabled, empty trail, first/last touch, attribution models, statistics, count, disabled recording), version sweep, and event catalog validation
+
+**Version Sweep:**
+- All version references unified to v72.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
 
 ## What's New in v71.0.0
 

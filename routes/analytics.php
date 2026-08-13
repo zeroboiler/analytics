@@ -793,4 +793,22 @@ Route::prefix('analytics')->group(function () {
     Route::get('transform/mappings/provider/{provider}', [AnalyticsEventController::class, 'transformMappingsByProvider']);
     Route::post('transform/preview', [AnalyticsEventController::class, 'transformPreview']);
     Route::post('transform/validate', [AnalyticsEventController::class, 'transformValidate']);
+
+    // Event Audit Trail (v72.0.0)
+    Route::get('audit-trail', [AnalyticsEventController::class, 'auditTrailRecent']);
+    Route::get('audit-trail/{auditId}', [AnalyticsEventController::class, 'auditTrailGet']);
+    Route::get('audit-trail/search/{eventName}', [AnalyticsEventController::class, 'auditTrailSearch']);
+    Route::get('audit-trail/stats/{period}', [AnalyticsEventController::class, 'auditTrailStats']);
+    Route::get('audit-trail/summary', [AnalyticsEventController::class, 'auditTrailSummary']);
+    Route::delete('audit-trail', [AnalyticsEventController::class, 'auditTrailClear']);
+    Route::delete('audit-trail/client/{clientId}', [AnalyticsEventController::class, 'auditTrailEraseClient']);
+    Route::delete('audit-trail/user/{userId}', [AnalyticsEventController::class, 'auditTrailEraseUser']);
+
+    // Event Attribution Trail (v72.0.0)
+    Route::get('attribution-trail/{clientId}', [AnalyticsEventController::class, 'attributionTrailGet']);
+    Route::get('attribution-trail/{clientId}/first-touch', [AnalyticsEventController::class, 'attributionTrailFirstTouch']);
+    Route::get('attribution-trail/{clientId}/last-touch', [AnalyticsEventController::class, 'attributionTrailLastTouch']);
+    Route::get('attribution-trail/{clientId}/attribute', [AnalyticsEventController::class, 'attributionTrailAttribute']);
+    Route::get('attribution-trail/stats', [AnalyticsEventController::class, 'attributionTrailStats']);
+    Route::delete('attribution-trail/{clientId}', [AnalyticsEventController::class, 'attributionTrailErase']);
 });

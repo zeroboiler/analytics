@@ -6525,5 +6525,46 @@ return [
                 // ],
             ],
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Audit Trail (v72.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Comprehensive audit trail for every dispatched analytics event.
+        | Records audit ID, event name, client/user identity, timestamp,
+        | per-provider dispatch results (success/failure/latency), pipeline
+        | stage timings, consent state, and source channel.
+        |
+        | Cache-backed with configurable retention and max entries (ring buffer).
+        | Provides search, statistics, and GDPR-compliant data erasure.
+        |
+        */
+        'audit_trail' => [
+            'enabled' => env('ANALYTICS_AUDIT_TRAIL_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_AUDIT_TRAIL_TTL', 2592000), // 30 days (seconds)
+            'max_entries' => (int) env('ANALYTICS_AUDIT_TRAIL_MAX_ENTRIES', 10000),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Attribution Trail (v72.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Attribution trail tracking the complete UTM and referrer journey
+        | from first touch through every subsequent touchpoint. Maintains
+        | per-identity records with first-touch, last-touch, multi-touch
+        | history, referrer chain, and conversion event association.
+        |
+        | Supports multiple attribution models (first-touch, last-touch,
+        | linear, time-decay) for comparison.
+        |
+        */
+        'attribution_trail' => [
+            'enabled' => env('ANALYTICS_ATTRIBUTION_TRAIL_ENABLED', true),
+            'ttl' => (int) env('ANALYTICS_ATTRIBUTION_TRAIL_TTL', 2592000), // 30 days (seconds)
+            'max_touch_history' => (int) env('ANALYTICS_ATTRIBUTION_TRAIL_MAX_TOUCH', 50),
+            'max_referrer_chain' => (int) env('ANALYTICS_ATTRIBUTION_TRAIL_MAX_REFERRER', 20),
+        ],
     ],
 ];

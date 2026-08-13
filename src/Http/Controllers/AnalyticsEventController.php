@@ -13268,4 +13268,245 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Audit Trail (v72.0.0) ────────────────────────────────────
+
+    /**
+     * Get recent audit trail entries.
+     */
+    public function auditTrailRecent(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $limit = (int) request()->query('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'entries' => $service->recent(min($limit, 100)),
+                'total' => $service->count(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a specific audit trail entry by audit ID.
+     */
+    public function auditTrailGet(string $auditId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $entry = $service->getByAuditId($auditId);
+
+            if ($entry === null) {
+                return response()->json(['status' => 'not_found', 'audit_id' => $auditId], 404);
+            }
+
+            return response()->json(['status' => 'ok', 'entry' => $entry]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Search audit trail by event name.
+     */
+    public function auditTrailSearch(string $eventName): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $limit = (int) request()->query('limit', 50);
+            $offset = (int) request()->query('offset', 0);
+            $clientId = request()->query('client_id');
+            $userId = request()->query('user_id');
+
+            $filters = ['event_name' => $eventName, 'limit' => $limit, 'offset' => $offset];
+            if (is_string($clientId) && $clientId !== '') {
+                $filters['client_id'] = $clientId;
+            }
+            if (is_string($userId) && $userId !== '') {
+                $filters['user_id'] = $userId;
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'entries' => $service->search($filters),
+                'event_name' => $eventName,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get audit trail statistics for a time period.
+     */
+    public function auditTrailStats(string $period = 'all'): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'stats' => $service->statistics($period),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get audit trail summary.
+     */
+    public function auditTrailSummary(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'summary' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear the entire audit trail.
+     */
+    public function auditTrailClear(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $service->clear();
+
+            return response()->json(['status' => 'ok', 'message' => 'Audit trail cleared']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GDPR erasure — erase audit trail for a client ID.
+     */
+    public function auditTrailEraseClient(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $erased = $service->eraseFor('client', $clientId);
+
+            return response()->json(['status' => 'ok', 'erased' => $erased]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GDPR erasure — erase audit trail for a user ID.
+     */
+    public function auditTrailEraseUser(string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAuditTrailService::class);
+            $erased = $service->eraseFor('user', $userId);
+
+            return response()->json(['status' => 'ok', 'erased' => $erased]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Attribution Trail (v72.0.0) ─────────────────────────────
+
+    /**
+     * Get the full attribution trail for a client.
+     */
+    public function attributionTrailGet(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+            $trail = $service->getTrail($clientId);
+
+            return response()->json(['status' => 'ok', 'trail' => $trail]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get first-touch attribution for a client.
+     */
+    public function attributionTrailFirstTouch(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+            $firstTouch = $service->firstTouch($clientId);
+
+            return response()->json(['status' => 'ok', 'client_id' => $clientId, 'first_touch' => $firstTouch]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get last-touch attribution for a client.
+     */
+    public function attributionTrailLastTouch(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+            $lastTouch = $service->lastTouch($clientId);
+
+            return response()->json(['status' => 'ok', 'client_id' => $clientId, 'last_touch' => $lastTouch]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compute attribution across models for a client.
+     */
+    public function attributionTrailAttribute(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+            $conversionEvent = (string) request()->query('conversion_event', 'conversion');
+            $result = $service->attribute($clientId, $conversionEvent);
+
+            return response()->json(['status' => 'ok', 'client_id' => $clientId, 'attribution' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get attribution trail statistics.
+     */
+    public function attributionTrailStats(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+
+            return response()->json(['status' => 'ok', 'stats' => $service->statistics()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GDPR erasure — erase attribution trail for a client.
+     */
+    public function attributionTrailErase(string $clientId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventAttributionTrailService::class);
+            $service->eraseFor($clientId);
+
+            return response()->json(['status' => 'ok', 'message' => 'Attribution trail erased']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

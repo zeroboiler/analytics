@@ -19,6 +19,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
@@ -287,6 +288,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
 use ZeroBoiler\Analytics\Services\EventReplayAuditService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataRetentionService;
 use ZeroBoiler\Analytics\Services\EventDependencyGraphService;
+use ZeroBoiler\Analytics\Services\EventAuditTrailService;
+use ZeroBoiler\Analytics\Services\EventAttributionTrailService;
 use ZeroBoiler\Analytics\Services\MultiCurrencyRevenueNormalizer;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyGraphCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayAuditCommand;
@@ -2934,6 +2937,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Audit Trail Service (v72.0.0)
+        $this->app->singleton(EventAuditTrailService::class, function (Application $app): EventAuditTrailService {
+            return new EventAuditTrailService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Attribution Trail Service (v72.0.0)
+        $this->app->singleton(EventAttributionTrailService::class, function (Application $app): EventAttributionTrailService {
+            return new EventAttributionTrailService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Analytics Data Retention Service (v39.0.0)
         $this->app->singleton(AnalyticsDataRetentionService::class, function (Application $app): AnalyticsDataRetentionService {
             return new AnalyticsDataRetentionService(
@@ -3212,6 +3231,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsTrendForecastCommand::class,
                 AnalyticsPipelineValidateCommand::class,
                 AnalyticsTransformCommand::class,
+                AnalyticsConsoleCommand::class,
             ]);
         }
 
