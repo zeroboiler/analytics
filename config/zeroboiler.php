@@ -687,6 +687,21 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Revenue Waterfall (v78.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the RevenueWaterfallService which tracks MRR
+        | movements (new, expansion, contraction, reactivation, churn) and
+        | provides waterfall chart data and growth rate calculations.
+        |
+        */
+        'revenue_waterfall' => [
+            'cache_ttl' => (int) env('ANALYTICS_REVENUE_WATERFALL_CACHE_TTL', 300), // 5 minutes
+            'currency' => env('ANALYTICS_REVENUE_WATERFALL_CURRENCY', 'USD'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Dashboard (v23.0.0)
         |--------------------------------------------------------------------------
         |

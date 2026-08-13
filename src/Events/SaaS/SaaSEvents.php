@@ -851,6 +851,45 @@ final class SaaSEvents
                 'tiktok' => null,
                 'linkedin' => null,
             ],
+            // Revenue waterfall tracking (v78.0.0)
+            'mrr_movement' => [
+                'name' => 'mrr_movement',
+                'class' => MrrMovementEvent::class,
+                'ga4' => 'mrr_movement',
+                'meta' => null,
+                'posthog' => 'mrr_movement',
+                'plausible' => null,
+                'mixpanel' => 'MRR Movement',
+                'amplitude' => 'MRR Movement',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            // Feature flag analytics (v78.0.0)
+            'feature_flag_evaluated' => [
+                'name' => 'feature_flag_evaluated',
+                'class' => FeatureFlagEvaluatedEvent::class,
+                'ga4' => 'feature_flag_evaluated',
+                'meta' => null,
+                'posthog' => '$feature_flag',
+                'plausible' => null,
+                'mixpanel' => 'Feature Flag Evaluated',
+                'amplitude' => 'Feature Flag Evaluated',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            // Growth milestone tracking (v78.0.0)
+            'growth_milestone' => [
+                'name' => 'growth_milestone',
+                'class' => GrowthMilestoneEvent::class,
+                'ga4' => 'growth_milestone',
+                'meta' => null,
+                'posthog' => 'growth_milestone',
+                'plausible' => null,
+                'mixpanel' => 'Growth Milestone',
+                'amplitude' => 'Growth Milestone',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
         ];
 
         return self::$catalog;

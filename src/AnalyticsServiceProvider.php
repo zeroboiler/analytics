@@ -20,6 +20,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
@@ -196,6 +197,9 @@ use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\Services\RegionalConsentService;
 use ZeroBoiler\Analytics\Services\PLGScoringService;
+use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
+use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
+use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
@@ -960,6 +964,48 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $manager,
                 $config,
                 $app->make('cache'),
+            );
+        });
+
+        // Feature Flag Analytics Service — variant distribution & conversion tracking (v78.0.0)
+        $this->app->singleton(FeatureFlagAnalyticsService::class, function (Application $app): FeatureFlagAnalyticsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FeatureFlagAnalyticsService(
+                $app->make('cache'),
+                $manager,
+                $config,
+            );
+        });
+
+        // Revenue Waterfall Service — MRR movement tracking (v78.0.0)
+        $this->app->singleton(RevenueWaterfallService::class, function (Application $app): RevenueWaterfallService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new RevenueWaterfallService(
+                $app->make('cache'),
+                $manager,
+                $config,
+            );
+        });
+
+        // SaaS Growth Metrics Service — activation, stickiness, virality, retention (v78.0.0)
+        $this->app->singleton(SaaSGrowthMetricsService::class, function (Application $app): SaaSGrowthMetricsService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSGrowthMetricsService(
+                $app->make('cache'),
+                $manager,
+                $config,
             );
         });
 
@@ -3274,6 +3320,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsConsoleCommand::class,
                 AnalyticsExperimentCommand::class,
                 AnalyticsContractCommand::class,
+                AnalyticsRevenueWaterfallCommand::class,
             ]);
         }
 
