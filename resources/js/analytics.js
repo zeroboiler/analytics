@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 69.0.0
+ * @version 71.0.0
  */
 
 let trackingId = null;
@@ -407,7 +407,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-       return '69.0.0';
+       return '71.0.0';
 }
 
 /**
@@ -4229,7 +4229,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-        return '69.0.0';
+        return '71.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -7157,4 +7157,148 @@ export async function resetFirstValue(userId, milestone) {
     } catch {
         return false;
     }
+}
+
+// ─── Intelligence Gateway (v71.0.0) ─────────────────────────────────────
+
+/**
+ * Fetch the full analytics intelligence dashboard payload.
+ *
+ * Returns a comprehensive health overview including provider status,
+ * catalog coverage, anomaly detection, funnel health, churn signals,
+ * revenue health, pipeline status, data quality, privacy compliance,
+ * and an overall health score with alerts.
+ *
+ * GET /api/analytics/intelligence
+ *
+ * @param {Object} [options] - Request options
+ * @param {string[]} [options.include] - Include only specified sections
+ * @param {string[]} [options.exclude] - Exclude specified sections
+ * @returns {Promise<Object|null>} Intelligence dashboard payload
+ *
+ * @example
+ * const dashboard = await getIntelligenceDashboard();
+ * console.log(`Score: ${dashboard.overall_score}/100 (${dashboard.overall_grade})`);
+ * for (const alert of dashboard.alerts) {
+ *     console.warn(`[${alert.severity}] ${alert.message}`);
+ * }
+ */
+export async function getIntelligenceDashboard(options = {}) {
+    if (!initialized) return null;
+
+    try {
+        const params = new URLSearchParams();
+        if (options.include && options.include.length > 0) {
+            params.append('include', options.include.join(','));
+        }
+        if (options.exclude && options.exclude.length > 0) {
+            params.append('exclude', options.exclude.join(','));
+        }
+
+        const query = params.toString();
+        const url = query ? `${apiBaseUrl}/intelligence?${query}` : `${apiBaseUrl}/intelligence`;
+
+        const response = await fetch(url, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Fetch a lightweight analytics heartbeat for uptime monitoring.
+ *
+ * Returns a minimal payload suitable for high-frequency health checks:
+ * status, version, provider count, event count, and a quick score.
+ *
+ * GET /api/analytics/intelligence/heartbeat
+ *
+ * @returns {Promise<Object|null>} Heartbeat payload
+ *
+ * @example
+ * const heartbeat = await getIntelligenceHeartbeat();
+ * if (heartbeat.status !== 'healthy') {
+ *     console.warn(`Analytics degraded: ${heartbeat.score}/100`);
+ * }
+ */
+export async function getIntelligenceHeartbeat() {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/intelligence/heartbeat`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Start a real-time intelligence monitor with configurable polling.
+ *
+ * Polls the heartbeat endpoint at the specified interval and
+ * invokes callbacks on state change or alert detection.
+ *
+ * @param {Object} options - Monitor options
+ * @param {number} [options.interval=30000] - Polling interval in ms
+ * @param {Function} [options.onUpdate] - Callback invoked with each heartbeat payload
+ * @param {Function} [options.onAlert] - Callback invoked when score drops below threshold
+ * @param {number} [options.alertThreshold=40] - Score threshold for alerting
+ * @returns {Function} Cleanup function — call to stop polling
+ *
+ * @example
+ * const cleanup = startIntelligenceMonitor({
+ *     interval: 15000,
+ *     onUpdate: (hb) => console.log(`Score: ${hb.score}`),
+ *     onAlert: (hb) => sendSlackNotification(`Analytics ${hb.status}: ${hb.score}/100`),
+ * });
+ * // Later:
+ * cleanup();
+ */
+export function startIntelligenceMonitor(options = {}) {
+    const interval = options.interval || 30000;
+    const onUpdate = options.onUpdate || (() => {});
+    const onAlert = options.onAlert || (() => {});
+    const alertThreshold = options.alertThreshold || 40;
+
+    let running = true;
+    let previousStatus = null;
+
+    const poll = async () => {
+        if (!running) return;
+
+        const heartbeat = await getIntelligenceHeartbeat();
+        if (!heartbeat) return;
+
+        // Always invoke update callback
+        onUpdate(heartbeat);
+
+        // Invoke alert callback on status change or low score
+        if (heartbeat.score < alertThreshold || (previousStatus !== null && previousStatus !== heartbeat.status)) {
+            onAlert(heartbeat);
+        }
+
+        previousStatus = heartbeat.status;
+
+        if (running) {
+            setTimeout(poll, interval);
+        }
+    };
+
+    // Start first poll immediately
+    poll();
+
+    // Return cleanup function
+    return () => {
+        running = false;
+    };
 }

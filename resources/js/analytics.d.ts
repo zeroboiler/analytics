@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 67.0.0
+ * @version 71.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -1798,3 +1798,173 @@ export function getFirstValueScore(userId: string): Promise<FirstValueScoreResul
  * POST /api/analytics/first-value/reset/{userId}
  */
 export function resetFirstValue(userId: string, milestone?: string): Promise<boolean>;
+
+// ─── Intelligence Gateway (v71.0.0) ─────────────────────────────────────
+
+/**
+ * Intelligence dashboard alert.
+ */
+export interface IntelligenceAlert {
+  severity: 'critical' | 'warning' | 'info';
+  source: string;
+  message: string;
+}
+
+/**
+ * Provider health entry in the intelligence dashboard.
+ */
+export interface IntelligenceProviderHealth {
+  enabled: boolean;
+  configured: boolean;
+  healthy: boolean;
+  latency_ms?: number | null;
+  last_check?: string | null;
+}
+
+/**
+ * Full intelligence dashboard payload.
+ */
+export interface IntelligenceDashboard {
+  timestamp: string;
+  version: string;
+  provider_health: {
+    providers: Record<string, IntelligenceProviderHealth>;
+    enabled_count: number;
+    total: number;
+  };
+  catalog_coverage: {
+    total: number;
+    by_category: Record<string, number>;
+    industry_standard_coverage: number;
+    starter_coverage: number;
+    essential_coverage: number;
+    instrumented: number;
+    gap_count: number;
+    top_gaps: string[];
+  };
+  anomaly_summary: {
+    enabled: boolean;
+    recent_anomalies: number;
+    severity_breakdown: Record<string, number>;
+    last_checked: string | null;
+    status: string;
+  };
+  funnel_health: {
+    signup_to_trial: number | null;
+    trial_to_paid: number | null;
+    signup_to_paid: number | null;
+    status: string;
+    events_tracked: string[];
+  };
+  churn_signals: {
+    enabled: boolean;
+    risk_level: string;
+    signal_events: string[];
+    retention_signals_count: number;
+    status: string;
+  };
+  revenue_health: {
+    billing_events_tracked: number;
+    revenue_events: string[];
+    ecommerce_currency: string;
+    subscription_tiers: number;
+    status: string;
+  };
+  pipeline_health: {
+    queue_enabled: boolean;
+    queue_connection: string | null;
+    auto_utm: boolean;
+    auto_timestamp: boolean;
+    sampling_enabled: boolean;
+    sampling_rate: number;
+    pii_enabled: boolean;
+    consent_log_enabled: boolean;
+    validation_strict: boolean;
+    status: string;
+  };
+  data_quality: {
+    dedup_window: number;
+    pii_strategy: string;
+    pii_custom_fields: number;
+    sampling_deterministic: boolean;
+    quality_score: number;
+  };
+  fallback_status: {
+    enabled: boolean;
+    providers: Record<string, string>;
+    status: string;
+  };
+  budget_utilization: {
+    enabled: boolean;
+    utilization_percent: number | null;
+    remaining_percent: number | null;
+    status: string;
+  };
+  privacy_compliance: {
+    consent_default: string;
+    consent_log_enabled: boolean;
+    consent_log_ttl: number;
+    gdpr_compliant: boolean;
+    status: string;
+  };
+  transformation_status: {
+    enabled: boolean;
+    cache_ttl: number;
+    strict: boolean;
+    mapping_count: number;
+    status: string;
+  };
+  overall_score: number;
+  overall_grade: string;
+  alerts: IntelligenceAlert[];
+}
+
+/**
+ * Intelligence heartbeat payload for uptime monitoring.
+ */
+export interface IntelligenceHeartbeat {
+  status: 'healthy' | 'degraded' | 'critical';
+  version: string;
+  timestamp: string;
+  enabled_providers: number;
+  total_providers: number;
+  catalog_events: number;
+  score: number;
+  grade: string;
+}
+
+/**
+ * Intelligence gateway request options.
+ */
+export interface IntelligenceDashboardOptions {
+  include?: string[];
+  exclude?: string[];
+}
+
+/**
+ * Intelligence monitor options.
+ */
+export interface IntelligenceMonitorOptions {
+  interval?: number;
+  onUpdate?: (heartbeat: IntelligenceHeartbeat) => void;
+  onAlert?: (heartbeat: IntelligenceHeartbeat) => void;
+  alertThreshold?: number;
+}
+
+/**
+ * Fetch the full analytics intelligence dashboard payload.
+ * GET /api/analytics/intelligence
+ */
+export function getIntelligenceDashboard(options?: IntelligenceDashboardOptions): Promise<IntelligenceDashboard | null>;
+
+/**
+ * Fetch a lightweight analytics heartbeat for uptime monitoring.
+ * GET /api/analytics/intelligence/heartbeat
+ */
+export function getIntelligenceHeartbeat(): Promise<IntelligenceHeartbeat | null>;
+
+/**
+ * Start a real-time intelligence monitor with configurable polling.
+ * Returns a cleanup function.
+ */
+export function startIntelligenceMonitor(options?: IntelligenceMonitorOptions): () => void;

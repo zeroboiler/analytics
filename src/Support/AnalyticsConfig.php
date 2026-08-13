@@ -2324,4 +2324,31 @@ final class AnalyticsConfig
 
         return is_array($mappings) ? $mappings : [];
     }
+
+    // ── Intelligence Gateway (v71.0.0) ────────────────────────────────
+
+    public function intelligenceEnabled(): bool
+    {
+        return (bool) $this->get('intelligence.enabled', true);
+    }
+
+    public function intelligenceCacheTtl(): int
+    {
+        return (int) $this->get('intelligence.cache_ttl', 60);
+    }
+
+    public function intelligenceAlertThreshold(): int
+    {
+        return (int) $this->get('intelligence.alert_threshold', 60);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function intelligenceDisabledSections(): array
+    {
+        $sections = $this->get('intelligence.disabled_sections', []);
+
+        return is_array($sections) ? $sections : [];
+    }
 }

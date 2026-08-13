@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-70.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-71.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v71.0.0](#whats-new-in-v71000)
 +- [What's New in v70.0.0](#whats-new-in-v70000)
 +- [What's New in v67.0.0](#whats-new-in-v67000)
 +- [What's New in v66.0.0](#whats-new-in-v66000)
@@ -3972,6 +3973,40 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v71.0.0
+
+### Analytics Intelligence Gateway
+A unified real-time SaaS health monitoring dashboard that aggregates 12 subsystems into a single API endpoint for ops teams and executive dashboards.
+
+**New Service: `AnalyticsIntelligenceGateway`**
+- Full dashboard payload aggregating: provider health, catalog coverage, anomaly detection, funnel health, churn prediction signals, revenue health, pipeline health, data quality, provider fallback status, event budget utilization, privacy compliance, and transformation engine status
+- Configurable section filtering via `include`/`exclude` options
+- Overall health score (0-100) with letter grades (A+ through F) and automatic alert generation
+- Lightweight heartbeat endpoint for high-frequency uptime monitoring
+- Graceful degradation — each subsystem is optional, missing services don't break the gateway
+
+**New Command: `zb:analytics:intelligence`**
+- Console dashboard with provider table, catalog coverage, anomaly status, funnel rates, pipeline config, and privacy compliance
+- `--json` for machine-readable output
+- `--heartbeat` for lightweight health check
+- `--watch` for continuous 30s polling mode
+- `--sections=*` and `--exclude=*` for filtering
+
+**New JS Client Functions:**
+- `getIntelligenceDashboard(options?)` — fetch full dashboard payload with section filtering
+- `getIntelligenceHeartbeat()` — fetch lightweight heartbeat for uptime monitoring
+- `startIntelligenceMonitor(options?)` — real-time polling monitor with onUpdate/onAlert callbacks
+
+**TypeScript Types:**
+- `IntelligenceDashboard`, `IntelligenceHeartbeat`, `IntelligenceAlert`, `IntelligenceProviderHealth`, `IntelligenceDashboardOptions`, `IntelligenceMonitorOptions`
+
+**Config Accessors (AnalyticsConfig):**
+- `intelligenceEnabled()`, `intelligenceCacheTtl()`, `intelligenceAlertThreshold()`, `intelligenceDisabledSections()`
+
+**Version Sweep:**
+- All version references (AnalyticsEvent::VERSION, composer.json, package.json, README, IntegrityCommand, JS client, Svelte composables, TypeScript definitions) unified to v71.0.0
+- Fixed AnalyticsEvent::VERSION drift (was 68.0.0, now 71.0.0)
 
 ## What's New in v70.0.0
 
