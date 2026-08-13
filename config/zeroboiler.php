@@ -6029,5 +6029,87 @@ return [
             'csv_columns' => null, // null = all default columns; ['id', 'event_name', 'client_id', ...]
             'include_metadata' => env('ANALYTICS_EXPORT_METADATA', true),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Declarative Funnel Definitions (v58.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Config-driven funnel definitions with automatic step tracking.
+        | Each funnel is an ordered list of steps. When the associated event
+        | fires, the DeclarativeFunnelService automatically advances the
+        | funnel state for the user/client.
+        |
+        | Steps:
+        |   - name: Human-readable step name
+        |   - event: Analytics event name that triggers this step
+        |   - timeout: Optional per-step timeout in seconds
+        |
+        | completion_event: Optional event name that marks funnel as complete
+        |   (useful when the last step event is shared across funnels).
+        |
+        | abandonment_timeout: Seconds of inactivity before marking funnel
+        |   as abandoned. 0 = no abandonment tracking.
+        |
+        */
+        'funnels' => [
+            'enabled' => env('ANALYTICS_FUNNELS_ENABLED', true),
+            'cache_prefix' => env('ANALYTICS_FUNNELS_CACHE_PREFIX', 'zb_funnel_'),
+            'cache_ttl' => (int) env('ANALYTICS_FUNNELS_CACHE_TTL', 86400), // 24 hours
+            'definitions' => [
+                // Example: SaaS signup funnel
+                // 'signup' => [
+                //     'steps' => [
+                //         ['name' => 'visit_landing', 'event' => 'page_view', 'timeout' => 0],
+                //         ['name' => 'start_registration', 'event' => 'form_start'],
+                //         ['name' => 'submit_registration', 'event' => 'sign_up'],
+                //         ['name' => 'verify_email', 'event' => 'email_verified'],
+                //     ],
+                //     'abandonment_timeout' => 3600,
+                // ],
+                // Example: Purchase funnel
+                // 'purchase' => [
+                //     'steps' => [
+                //         ['name' => 'view_product', 'event' => 'view_item'],
+                //         ['name' => 'add_to_cart', 'event' => 'add_to_cart'],
+                //         ['name' => 'checkout', 'event' => 'begin_checkout'],
+                //         ['name' => 'pay', 'event' => 'purchase'],
+                //     ],
+                //     'completion_event' => 'purchase',
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Privacy-Preserving Cookieless Collection (v58.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Server-side cookieless event collection using fingerprint-based
+        | identifiers. Designed for strict GDPR environments where no cookies
+        | can be set (e.g., before consent is granted).
+        |
+        | Uses SHA-256 hashed IP + User-Agent to create stable anonymous
+        | identifiers without persistent storage on the client.
+        |
+        | Inspired by Plausible Analytics and Simple Analytics cookieless mode.
+        |
+        | Options:
+        |   - hash_algorithm: Hash function (sha256, sha384, sha512)
+        |   - salt: Optional salt for fingerprint hashing (rotate for privacy)
+        |   - ip_anonymization: Zero last octet (IPv4) / last 48 bits (IPv6)
+        |   - signals: Server signals used for fingerprint composition
+        |
+        */
+        'privacy_collection' => [
+            'enabled' => env('ANALYTICS_PRIVACY_COLLECTION_ENABLED', false),
+            'hash_algorithm' => env('ANALYTICS_PRIVACY_HASH_ALGORITHM', 'sha256'),
+            'salt' => env('ANALYTICS_PRIVACY_SALT'),
+            'cache_ttl' => (int) env('ANALYTICS_PRIVACY_CACHE_TTL', 86400), // 24 hours
+            'cache_prefix' => env('ANALYTICS_PRIVACY_CACHE_PREFIX', 'zb_privacy_'),
+            'ip_anonymization' => env('ANALYTICS_PRIVACY_IP_ANONYMIZATION', true),
+            'signals' => ['ip', 'user_agent', 'accept_language'],
+            'max_entries' => (int) env('ANALYTICS_PRIVACY_MAX_ENTRIES', 100000),
+        ],
     ],
 ];

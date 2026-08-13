@@ -320,6 +320,9 @@ use ZeroBoiler\Analytics\Services\UtmParameterManager;
 use ZeroBoiler\Analytics\Services\CohortFunnelMatrixService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsUtmCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortFunnelCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsFunnelPrivacyCommand;
+use ZeroBoiler\Analytics\Services\DeclarativeFunnelService;
+use ZeroBoiler\Analytics\Services\PrivacyCollectionService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -327,7 +330,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortFunnelCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 57.0.0
+ * @version 58.0.0
  *
  * @since 1.0.0
  */
@@ -629,6 +632,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
+        });
+
+        // Declarative Funnel Service (v58.0.0) — config-driven funnel definitions
+        $this->app->singleton(DeclarativeFunnelService::class, function (Application $app): DeclarativeFunnelService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new DeclarativeFunnelService($manager, $queue, $cache, $config);
+        });
+
+        // Privacy-Preserving Cookieless Collection (v58.0.0)
+        $this->app->singleton(PrivacyCollectionService::class, function (Application $app): PrivacyCollectionService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PrivacyCollectionService($manager, $queue, $cache, $config);
         });
 
         // Event time-series aggregation engine (v6.0.0)
@@ -3059,6 +3090,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEncryptionCommand::class,
                 AnalyticsUtmCommand::class,
                 AnalyticsCohortFunnelCommand::class,
+                AnalyticsFunnelPrivacyCommand::class,
             ]);
         }
 

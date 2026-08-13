@@ -1,7 +1,7 @@
 {
     "name": "@zeroboiler/analytics",
-    "version": "57.0.0",
-    "description": "Client-side analytics library for ZeroBoiler Analytics — Svelte/Inertia/Laravel apps",
+    "version": "58.0.0",
+    "description": "Client-side analytics library for ZeroBoiler Analytics \u2014 Svelte/Inertia/Laravel apps",
     "type": "module",
     "main": "./dist/analytics.js",
     "module": "./dist/analytics.js",
@@ -61,8 +61,8 @@
         "eslint": "^9.0.0"
     },
     "scripts": {
-        "build": "echo 'Build handled by consuming app — ZeroBoiler Analytics is a library'",
-        "typecheck": "echo 'No build step — types defined in analytics.d.ts'",
+        "build": "echo 'Build handled by consuming app \u2014 ZeroBoiler Analytics is a library'",
+        "typecheck": "echo 'No build step \u2014 types defined in analytics.d.ts'",
         "lint": "echo 'Lint handled by consuming app'",
         "prepublishOnly": "echo 'This package is distributed via the Laravel PHP package. Copy resources/js/ to your project.'"
     }

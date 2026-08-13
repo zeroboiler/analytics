@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-57.0.0-blue)](https://github.com/zeroboiler/analytics)]|
-|[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
+|[![Latest Version](https://img.shields.io/badge/version-58.0.0-blue)](https://github.com/zeroboiler/analytics)|
+[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v58.0.0](#whats-new-in-v58000)
 - [What's New in v57.0.0](#whats-new-in-v57000)
 - [What's New in v56.0.0](#whats-new-in-v56000)
 - [What's New in v54.0.0](#whats-new-in-v54000)
@@ -133,6 +134,30 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v58.0.0
+
+### Declarative Funnel Definitions & Privacy-Preserving Cookieless Collection
+
+Config-driven funnel tracking with automatic step progression and abandonment detection. Define conversion funnels (signup, purchase, trial-to-paid) entirely in config — no code changes needed when adding new funnels.
+
+**Declarative Funnel Service:**
+- Define multi-step funnels in `config/zeroboiler.php` with ordered steps mapped to event names
+- Automatic step progression when matching events are dispatched
+- Time-to-convert tracking per step and per funnel
+- Funnel abandonment detection with configurable timeout
+- Cache-persisted funnel state per user/client identity
+- Multi-funnel concurrent tracking support
+- `zb:analytics:funnel-privacy` admin command for funnel diagnostics
+
+**Privacy-Preserving Cookieless Collection:**
+- Server-side cookieless event collection using fingerprint-based identifiers
+- SHA-256 hashed IP + User-Agent fingerprinting (no cookies required)
+- IP anonymization (last octet zeroed for IPv4, last 48 bits for IPv6)
+- Configurable hashing algorithm and salt rotation
+- Anonymous ID resolution for cross-request correlation without cookies
+- Perfect for strict GDPR environments and pre-consent tracking
+- Inspired by Plausible Analytics and Simple Analytics cookieless mode
 
 ## What's New in v57.0.0
 
@@ -1458,7 +1483,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **Version sweep:** 10.9.0 → 11.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider docblock, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge
 
-**LOC:** ~235K source, 262 test files, 15800+ assertions
+**LOC:** ~235K source, 263 test files, 15800+ assertions
 
 ## What's New in v10.8.0
 
