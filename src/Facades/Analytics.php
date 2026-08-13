@@ -175,6 +175,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{valid: bool, errors: list<string>, warnings: list<string>, event_count: int} wireValidate(string $payload)
  * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedEvent(string $name)
  * @method static \ZeroBoiler\Analytics\Support\TypedEventBuilder typedCatalogEvent(string $name)
+ * @method static \ZeroBoiler\Analytics\Services\AutoInstrumentationEngine autoInstrument()
  *
  * Privacy & Correlation Methods (v42.0.0)
  * @method static float addPrivacyNoise(float $value, ?float $delta = null)

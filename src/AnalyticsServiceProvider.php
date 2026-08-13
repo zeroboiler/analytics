@@ -306,6 +306,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService;
 use ZeroBoiler\Analytics\Services\EventLineageTrackerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsLineageCommand;
+use ZeroBoiler\Analytics\Services\AutoInstrumentationEngine;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -313,7 +314,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsLineageCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 49.0.0
+ * @version 50.0.0
  *
  * @since 1.0.0
  */
@@ -565,6 +566,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new PLGScoringService($manager, $cache, $config);
+        });
+
+        // Auto-instrumentation engine (v50.0.0) — config-driven Eloquent model event tracking
+        $this->app->singleton(AutoInstrumentationEngine::class, function (Application $app): AutoInstrumentationEngine {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
+            $dispatcher = $app->make('events');
+
+            return new AutoInstrumentationEngine($config, $manager, $dispatcher);
         });
 
         // Event time-series aggregation engine (v6.0.0)
@@ -3049,6 +3062,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $modelEvents = $autoTrack['models'] ?? [];
         if (! empty($modelEvents)) {
             $tracker->registerModelListeners($modelEvents);
+        }
+
+        // Boot auto-instrumentation engine (v50.0.0)
+        try {
+            $engine = $this->app->make(AutoInstrumentationEngine::class);
+            $engine->boot();
+        } catch (\Throwable) {
+            // Non-critical — auto-instrumentation is optional
         }
     }
 

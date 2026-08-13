@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-48.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-50.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v50.0.0](#whats-new-in-v50000)
 - [What's New in v48.0.0](#whats-new-in-v48000)
 - [What's New in v47.0.0](#whats-new-in-v47000)
 - [What's New in v46.0.0](#whats-new-in-v46000)
@@ -126,6 +127,53 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v50.0.0
+
+### 🤖 Auto-Instrumentation Engine
+- **AutoInstrumentationEngine** — Config-driven Eloquent model event → analytics event mapping (Segment Source equivalent)
+  - Map `User::created` → `sign_up`, `Order::created` → `purchase`, etc.
+  - Configurable param mapping (`name` → `full_name`), sensitive param exclusion (`password`, `remember_token`)
+  - Automatic user ID extraction from model `getAuthIdentifier()` or `user_id` attribute
+  - UTM parameter auto-injection from current request
+  - Custom param extractors and event transformers via `addParamExtractor()` / `addEventTransformer()`
+  - Consent-aware — respects GDPR consent before dispatch
+  - Manual trigger via `trigger()` for non-Eloquent events
+
+```php
+// config/analytics.php
+'auto_instrument' => [
+    'enabled' => true,
+    'models' => [
+        \App\Models\User::class => [
+            'created' => 'sign_up',
+            'deleted' => 'cancellation',
+            'param_map' => ['name' => 'full_name', 'plan' => 'plan_name'],
+            'exclude_params' => ['password', 'remember_token'],
+        ],
+        \App\Models\Order::class => [
+            'created' => 'purchase',
+            'param_map' => ['total' => 'value', 'id' => 'transaction_id'],
+        ],
+    ],
+    'extract_user_id' => true,
+    'include_utm' => true,
+],
+
+// Programmatic usage
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+$engine = Analytics::autoInstrument();
+$engine->addParamExtractor(fn ($model, $event) => ['tenant_id' => $model->tenant_id]);
+$engine->trigger('custom_event', $model, ['extra' => 'data']);
+```
+
+### 📝 Facade Enhancement
+- New `Analytics::autoInstrument()` method for accessing the auto-instrumentation engine
+- Registered as singleton in the service provider
+
+### 🧪 Tests
+- **AutoInstrumentationEngineTest** — 8 test cases covering enabled/disabled state, param extraction, param mapping, sensitive exclusion, custom extractors, event transformers, and model mappings
 
 ## What's New in v48.0.0
 
