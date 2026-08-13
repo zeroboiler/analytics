@@ -13,7 +13,7 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 1.0.0
  */
@@ -43,6 +43,8 @@ final class SaaSEvents
                 'plausible' => 'signup',
                 'mixpanel' => 'Sign Up',
                 'amplitude' => 'Sign Up',
+                'tiktok' => 'CompleteRegistration',
+                'linkedin' => 'signup',
             ],
             'login' => [
                 'name' => 'login',
@@ -53,6 +55,8 @@ final class SaaSEvents
                 'plausible' => 'login',
                 'mixpanel' => 'Login',
                 'amplitude' => 'Login',
+                'tiktok' => 'Login',
+                'linkedin' => 'login',
             ],
             'logout' => [
                 'name' => 'logout',
@@ -63,6 +67,8 @@ final class SaaSEvents
                 'plausible' => 'logout',
                 'mixpanel' => 'Logout',
                 'amplitude' => 'Logout',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'start_trial' => [
                 'name' => 'start_trial',
@@ -73,6 +79,8 @@ final class SaaSEvents
                 'plausible' => 'trial_start',
                 'mixpanel' => 'Start Trial',
                 'amplitude' => 'Start Trial',
+                'tiktok' => 'Subscribe',
+                'linkedin' => 'signup',
             ],
             'trial_end' => [
                 'name' => 'trial_end',
@@ -83,6 +91,8 @@ final class SaaSEvents
                 'plausible' => 'trial_end',
                 'mixpanel' => 'Trial End',
                 'amplitude' => 'Trial End',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'subscribe' => [
                 'name' => 'subscribe',
@@ -93,6 +103,8 @@ final class SaaSEvents
                 'plausible' => 'subscription',
                 'mixpanel' => 'Subscribe',
                 'amplitude' => 'Subscribe',
+                'tiktok' => 'Subscribe',
+                'linkedin' => 'purchase',
             ],
             'plan_upgrade' => [
                 'name' => 'plan_upgrade',
@@ -103,6 +115,8 @@ final class SaaSEvents
                 'plausible' => 'plan_upgrade',
                 'mixpanel' => 'Plan Upgrade',
                 'amplitude' => 'Plan Upgrade',
+                'tiktok' => 'Subscribe',
+                'linkedin' => 'purchase',
             ],
             'plan_downgrade' => [
                 'name' => 'plan_downgrade',
@@ -113,6 +127,8 @@ final class SaaSEvents
                 'plausible' => 'plan_downgrade',
                 'mixpanel' => 'Plan Downgrade',
                 'amplitude' => 'Plan Downgrade',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cancellation' => [
                 'name' => 'cancellation',
@@ -123,6 +139,8 @@ final class SaaSEvents
                 'plausible' => 'cancellation',
                 'mixpanel' => 'Cancellation',
                 'amplitude' => 'Cancellation',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'feature_used' => [
                 'name' => 'feature_used',
@@ -133,6 +151,8 @@ final class SaaSEvents
                 'plausible' => 'feature_used',
                 'mixpanel' => 'Feature Used',
                 'amplitude' => 'Feature Used',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'revenue_tracked' => [
                 'name' => 'revenue_tracked',
@@ -143,6 +163,8 @@ final class SaaSEvents
                 'plausible' => 'revenue',
                 'mixpanel' => 'Revenue Tracked',
                 'amplitude' => 'Revenue Tracked',
+                'tiktok' => 'CompletePayment',
+                'linkedin' => 'purchase',
             ],
             // Cohort analytics events (typed classes)
             'cohort_assigned' => [

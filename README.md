@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-50.1.0-blue)](https://github.com/zeroboiler/analytics)]|
+|[![Latest Version](https://img.shields.io/badge/version-51.1.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v51.1.0](#whats-new-in-v51100)
 - [What's New in v50.0.0](#whats-new-in-v50000)
 - [What's New in v48.0.0](#whats-new-in-v48000)
 - [What's New in v47.0.0](#whats-new-in-v47000)
@@ -127,6 +128,21 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v51.1.0
+
+### 🌐 TikTok & LinkedIn Provider Coverage Parity
+
+Full 10-provider mapping coverage for SaaS and Engagement event catalogs:
+
+- **SaaS Events** — TikTok & LinkedIn mappings for 11 core events: `sign_up`, `login`, `logout`, `start_trial`, `trial_end`, `subscribe`, `plan_upgrade`, `plan_downgrade`, `cancellation`, `feature_used`, `revenue_tracked`
+  - TikTok: `CompleteRegistration`, `Login`, `Subscribe`, `CompletePayment`
+  - LinkedIn: `signup`, `login`, `purchase`
+- **Engagement Events** — TikTok & LinkedIn mappings for 9 core events: `page_view`, `scroll_depth`, `click`, `form_start`, `form_submit`, `search`, `share`, `error`
+  - TikTok: `Pageview`, `ClickButton`, `SubmitForm`, `Search`
+  - LinkedIn: `page_view`
+- **PHPStan type parity** — `EventEntry` type updated across SaaS and Engagement catalogs with `tiktok: string|null, linkedin: string|null`
+- **Version sweep** — 51.0.0 across all version references
 
 ## What's New in v50.0.0
 

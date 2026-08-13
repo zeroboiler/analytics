@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\Events\Engagement\OnboardingCompletedEvent;
  * Provides a central registry for event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 1.0.0
  */
@@ -49,6 +49,8 @@ final class EngagementEvents
                 'plausible' => 'pageview',
                 'mixpanel' => 'Page View',
                 'amplitude' => 'Page View',
+                'tiktok' => 'Pageview',
+                'linkedin' => 'page_view',
             ],
             'scroll_depth' => [
                 'name' => 'scroll_depth',
@@ -59,6 +61,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Scroll Depth',
                 'amplitude' => 'Scroll Depth',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'click' => [
                 'name' => 'click',
@@ -69,6 +73,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Click',
                 'amplitude' => 'Click',
+                'tiktok' => 'ClickButton',
+                'linkedin' => null,
             ],
             'form_start' => [
                 'name' => 'form_start',
@@ -79,6 +85,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Form Start',
                 'amplitude' => 'Form Start',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'form_submit' => [
                 'name' => 'form_submit',
@@ -89,6 +97,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Form Submit',
                 'amplitude' => 'Form Submit',
+                'tiktok' => 'SubmitForm',
+                'linkedin' => null,
             ],
             'search' => [
                 'name' => 'search',
@@ -99,6 +109,8 @@ final class EngagementEvents
                 'plausible' => 'search',
                 'mixpanel' => 'Search',
                 'amplitude' => 'Search',
+                'tiktok' => 'Search',
+                'linkedin' => null,
             ],
             'share' => [
                 'name' => 'share',
@@ -109,6 +121,8 @@ final class EngagementEvents
                 'plausible' => 'share',
                 'mixpanel' => 'Share',
                 'amplitude' => 'Share',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'error' => [
                 'name' => 'error',
@@ -119,6 +133,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Error',
                 'amplitude' => 'Error',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'time_on_page' => [
                 'name' => 'time_on_page',

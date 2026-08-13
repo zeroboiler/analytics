@@ -2,6 +2,18 @@
 
 All notable changes to the package will be documented in this file.
 
+## [51.1.0] - 2026-08-13
+
+### Added
+
+- **TikTok & LinkedIn provider mappings for SaaS Events** — `SaaSEvents` catalog entries now include `tiktok` and `linkedin` provider mappings for all core SaaS lifecycle events: `sign_up` (CompleteRegistration/signup), `login` (Login/login), `start_trial` (Subscribe/signup), `subscribe` (Subscribe/purchase), `plan_upgrade` (Subscribe/purchase), `revenue_tracked` (CompletePayment/purchase), `logout`, `trial_end`, `plan_downgrade`, `cancellation`, `feature_used`. PHPStan `EventEntry` type updated to include `tiktok: string|null, linkedin: string|null`.
+- **TikTok & LinkedIn provider mappings for Engagement Events** — `EngagementEvents` catalog entries now include `tiktok` and `linkedin` provider mappings for all core engagement events: `page_view` (Pageview/page_view), `click` (ClickButton), `form_submit` (SubmitForm), `search` (Search), `scroll_depth`, `share`, `error`, `form_start`. PHPStan `EventEntry` type updated to include `tiktok: string|null, linkedin: string|null`.
+- **V51ProviderCoverageParityTest** — 25+ test cases covering TikTok/LinkedIn mapping coverage for SaaS events (sign_up, login, subscribe, start_trial, plan_upgrade, revenue_tracked, logout, trial_end, plan_downgrade, cancellation, feature_used), Engagement events (page_view, click, form_submit, search, scroll_depth, share, error, form_start), Ecommerce baseline (existing tiktokNames/linkedinNames consistency), phpstan type consistency, version sweep 51.0.0.
+
+### Changed
+
+- **Version sweep** — 50.0.0/50.1.0 → 51.0.0/51.1.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, README badge, CHANGELOG.
+
 ## [48.0.0] - 2026-08-12
 
 ### Added
