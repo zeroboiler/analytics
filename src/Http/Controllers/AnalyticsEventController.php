@@ -12229,4 +12229,311 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Analytics Data Explorer (v60.0.0) ────────────────────────────────────
+
+    /**
+     * Get Data Explorer service health.
+     *
+     * GET /api/analytics/explorer/health
+     */
+    public function explorerHealth(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            return response()->json($service->health());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Explore events with flexible filtering and aggregation.
+     *
+     * GET /api/analytics/explorer/explore?period=24h&group_by=event_name&granularity=hour&limit=50
+     */
+    public function explorerExplore(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $filters = $request->only(['event_name', 'category', 'provider', 'user_id', 'client_id']);
+            $groupBy = $request->query('group_by', 'event_name');
+            $period = $request->query('period', '24h');
+            $granularity = $request->query('granularity', 'hour');
+            $limit = (int) $request->query('limit', 50);
+
+            $result = $service->explore($filters, $groupBy, $period, $granularity, $limit);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top events by count with trend analysis.
+     *
+     * GET /api/analytics/explorer/top-events?period=24h&limit=20&category=ecommerce
+     */
+    public function explorerTopEvents(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $period = $request->query('period', '24h');
+            $limit = (int) $request->query('limit', 20);
+            $category = $request->query('category');
+
+            $result = $service->topEvents(
+                $period,
+                $limit,
+                is_string($category) ? $category : null,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Drill down into a specific event's parameters.
+     *
+     * GET /api/analytics/explorer/drill-down/{eventName}?period=24h
+     */
+    public function explorerDrillDown(Request $request, string $eventName): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $period = $request->query('period', '24h');
+            $filters = $request->only(['provider', 'user_id', 'client_id']);
+
+            $result = $service->drillDown($eventName, $filters, $period);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compare events between two time periods.
+     *
+     * GET /api/analytics/explorer/compare?event=purchase&period_a=7d&period_b=previous_7d
+     */
+    public function explorerCompare(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $eventName = $request->query('event', '*');
+            $periodA = $request->query('period_a', '7d');
+            $periodB = $request->query('period_b', 'previous_7d');
+            $category = $request->query('category');
+
+            $result = $service->compare(
+                is_string($eventName) ? $eventName : '*',
+                is_string($periodA) ? $periodA : '7d',
+                is_string($periodB) ? $periodB : 'previous_7d',
+                is_string($category) ? $category : null,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Funnel analysis via the Data Explorer.
+     *
+     * GET /api/analytics/explorer/funnel?steps[]=sign_up&steps[]=trial_start&steps[]=subscription&period=7d
+     */
+    public function explorerFunnel(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $steps = $request->query('steps', []);
+            $period = $request->query('period', '7d');
+            $category = $request->query('category');
+
+            $result = $service->funnel(
+                is_array($steps) ? $steps : [],
+                is_string($period) ? $period : '7d',
+                is_string($category) ? $category : null,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Correlation Analyzer — Time-Lagged (v60.0.0) ──────────────────
+
+    /**
+     * Get Correlation Analyzer service health.
+     *
+     * GET /api/analytics/correlation-analyzer/health
+     */
+    public function correlationAnalyzerHealth(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            return response()->json($service->health());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compute cross-correlation function between two events.
+     *
+     * GET /api/analytics/correlation-analyzer/cross-correlation?event_a=sign_up&event_b=purchase&period=30d
+     */
+    public function correlationAnalyzerCrossCorrelation(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $eventA = $request->query('event_a', '');
+            $eventB = $request->query('event_b', '');
+            $period = $request->query('period', '30d');
+            $lagOffsets = $request->query('lag_offsets');
+
+            if ($eventA === '' || $eventB === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'event_a and event_b query parameters are required.',
+                ], 422);
+            }
+
+            $result = $service->crossCorrelation(
+                $eventA,
+                $eventB,
+                is_string($period) ? $period : '30d',
+                is_array($lagOffsets) ? $lagOffsets : null,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Analyze event transition patterns (A→B sequences).
+     *
+     * GET /api/analytics/correlation-analyzer/transition?event_a=page_view&event_b=sign_up&period=30d&window_hours=24
+     */
+    public function correlationAnalyzerTransition(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $eventA = $request->query('event_a', '');
+            $eventB = $request->query('event_b', '');
+            $period = $request->query('period', '30d');
+            $windowHours = (int) $request->query('window_hours', 24);
+
+            if ($eventA === '' || $eventB === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'event_a and event_b query parameters are required.',
+                ], 422);
+            }
+
+            $result = $service->transitionAnalysis(
+                $eventA,
+                $eventB,
+                is_string($period) ? $period : '30d',
+                $windowHours,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compute multi-event correlation matrix with time lag.
+     *
+     * GET /api/analytics/correlation-analyzer/matrix?events[]=sign_up&events[]=login&events[]=purchase&period=30d&lag_hours=0
+     */
+    public function correlationAnalyzerMatrix(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $events = $request->query('events', []);
+            $period = $request->query('period', '30d');
+            $lagHours = (int) $request->query('lag_hours', 0);
+
+            if (! is_array($events) || count($events) < 2) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'At least 2 events are required in the events[] query parameter.',
+                ], 422);
+            }
+
+            $result = $service->correlationMatrix(
+                is_array($events) ? $events : [],
+                is_string($period) ? $period : '30d',
+                $lagHours,
+            );
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the application cache repository.
+     *
+     * @return \Illuminate\Contracts\Cache\Repository
+     */
+    private function cache(): \Illuminate\Contracts\Cache\Repository
+    {
+        /** @var \Illuminate\Contracts\Cache\Repository $cache */
+        $cache = app(\Illuminate\Contracts\Cache\Repository::class);
+
+        return $cache;
+    }
 }

@@ -324,6 +324,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsFunnelPrivacyCommand;
 use ZeroBoiler\Analytics\Services\DeclarativeFunnelService;
 use ZeroBoiler\Analytics\Services\PrivacyCollectionService;
 use ZeroBoiler\Analytics\Services\EventTrendForecastService;
+use ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService;
+use ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
 
 /**
@@ -332,7 +334,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 59.0.0
+ * @version 60.0.0
  *
  * @since 1.0.0
  */
@@ -686,6 +688,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventTrendForecastService($manager, $cache, $config);
+        });
+
+        // Analytics Data Explorer (v60.0.0) — ad-hoc querying, drill-down, funnel, comparison
+        $this->app->singleton(AnalyticsDataExplorerService::class, function (Application $app): AnalyticsDataExplorerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsDataExplorerService($cache, $config);
+        });
+
+        // Event Correlation Analyzer (v60.0.0) — time-lagged Pearson correlation, CCF, transitions
+        $this->app->singleton(EventCorrelationAnalyzerService::class, function (Application $app): EventCorrelationAnalyzerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCorrelationAnalyzerService($cache, $config);
         });
 
         // Analytics data bus for conditional routing

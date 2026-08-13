@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-59.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-60.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v60.0.0](#whats-new-in-v60000)
 - [What's New in v58.0.0](#whats-new-in-v58000)
 - [What's New in v57.0.0](#whats-new-in-v57000)
 - [What's New in v56.0.0](#whats-new-in-v56000)
@@ -158,6 +159,39 @@ Forward-looking trend projection for analytics event streams using industry-stan
 - `--days=30 --horizon=7 --json` — Configurable windows and JSON output
 
 **Configuration:** New `trend_forecast` config section with cache TTL, forecast horizon, confidence level, seasonal analysis toggle, and history window settings.
+
+## What's New in v60.0.0
+
+### Analytics Data Explorer & Event Correlation Analyzer
+
+Two powerful new services for advanced analytics data exploration and time-lagged event correlation analysis. Designed as building blocks for analytics dashboards, data exploration UIs, and behavioral pattern detection.
+
+**Analytics Data Explorer** (`AnalyticsDataExplorerService`):
+- Flexible ad-hoc event querying with multi-dimensional aggregation
+- Time-range filtering with configurable granularity (minute/hour/day/week/month)
+- Event name and category filtering
+- Parameter/property drill-down with top-value analysis
+- Top-N event queries with automatic trend direction classification (rising/falling/stable)
+- Period comparison (current vs. previous) with change percentages
+- Funnel analysis with step-level conversion rates
+- Cache-backed with deterministic cache keys for repeatable queries
+- API endpoints: `GET /api/analytics/explorer/{explore,top-events,drill-down/{event},compare,funnel,health}`
+
+**Event Correlation Analyzer** (`EventCorrelationAnalyzerService`):
+- Time-lagged Pearson correlation (Cross-Correlation Function) between event pairs
+- Configurable lag offsets (0h to 72h default, up to 24 steps)
+- Significance classification (strong/moderate/weak/none) based on correlation thresholds
+- Event transition analysis (A→B sequences within time windows)
+- Conversion rate and lift calculation for event pairs
+- Multi-event correlation matrix with configurable lag offsets
+- Peak lag identification — discover "event A predicts event B in N hours"
+- Cache-backed with 10-minute TTL for heavy computation
+- API endpoints: `GET /api/analytics/correlation-analyzer/{health,cross-correlation,transition,matrix}`
+
+**Version Consistency:**
+- All active version references unified to v60.0.0 across PHP, JS, and package manifests
+- `AnalyticsEvent::VERSION`, `analytics.js getVersion()`, `composer.json`, `package.json`, README badge
+- Integrity command updated to expect v60.0.0
 
 ## What's New in v58.0.0
 

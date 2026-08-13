@@ -745,4 +745,18 @@ Route::prefix('analytics')->group(function () {
     // Export Formatting (v54.0.0)
     Route::get('export/formats', [AnalyticsEventController::class, 'exportFormats']);
     Route::post('export/transform', [AnalyticsEventController::class, 'exportTransform']);
+
+    // Analytics Data Explorer (v60.0.0)
+    Route::get('explorer/health', [AnalyticsEventController::class, 'explorerHealth']);
+    Route::get('explorer/explore', [AnalyticsEventController::class, 'explorerExplore']);
+    Route::get('explorer/top-events', [AnalyticsEventController::class, 'explorerTopEvents']);
+    Route::get('explorer/drill-down/{eventName}', [AnalyticsEventController::class, 'explorerDrillDown']);
+    Route::get('explorer/compare', [AnalyticsEventController::class, 'explorerCompare']);
+    Route::get('explorer/funnel', [AnalyticsEventController::class, 'explorerFunnel']);
+
+    // Event Correlation Analyzer — Time-Lagged (v60.0.0)
+    Route::get('correlation-analyzer/health', [AnalyticsEventController::class, 'correlationAnalyzerHealth']);
+    Route::get('correlation-analyzer/cross-correlation', [AnalyticsEventController::class, 'correlationAnalyzerCrossCorrelation']);
+    Route::get('correlation-analyzer/transition', [AnalyticsEventController::class, 'correlationAnalyzerTransition']);
+    Route::get('correlation-analyzer/matrix', [AnalyticsEventController::class, 'correlationAnalyzerMatrix']);
 });
