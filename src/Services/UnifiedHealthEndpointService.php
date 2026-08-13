@@ -197,7 +197,7 @@ final class UnifiedHealthEndpointService
             'subsystems' => $subsystems,
             'warnings' => $warnings,
             'recommendations' => $recommendations,
-            'version' => '56.0.0',
+            'version' => '57.0.0',
         ];
     }
 
