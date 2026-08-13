@@ -136,9 +136,8 @@ final class EventTransformationEngine
         $key = $mapping->key();
         $this->mappings[$key] = $mapping;
 
-        // Rebuild indexes
-        $this->byEvent[$mapping->eventName][] = $mapping;
-        $this->byProvider[$mapping->provider][] = $mapping;
+        // Rebuild indexes to keep them consistent
+        $this->rebuildIndexes();
 
         // Persist to cache
         $this->persistMappings();
