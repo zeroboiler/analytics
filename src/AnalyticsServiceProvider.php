@@ -25,6 +25,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
+use ZeroBoiler\Analytics\Http\Middleware\VerifySdkToken;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 use ZeroBoiler\Analytics\Pipeline\EventPipeline;
@@ -3315,6 +3316,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $router->aliasMiddleware(
                 'analytics.first-touch',
                 \ZeroBoiler\Analytics\Middleware\FirstTouchUTMMiddleware::class,
+            );
+            $router->aliasMiddleware(
+                'analytics.sdk',
+                VerifySdkToken::class,
             );
         }
     }

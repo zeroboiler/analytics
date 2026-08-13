@@ -6644,5 +6644,28 @@ return [
             'severity' => env('ANALYTICS_CONTRACT_TESTING_SEVERITY', 'warn'), // 'reject'|'warn'|'off'
             'cache_ttl' => (int) env('ANALYTICS_CONTRACT_TESTING_CACHE_TTL', 3600),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | SDK Authentication (v77.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Middleware-based SDK token authentication for API endpoints.
+        | When enabled, the `analytics.sdk` middleware validates incoming
+        | requests against scoped SDK tokens managed by SdkScopeTokenService.
+        |
+        | Tokens can be passed via:
+        | - Authorization: Bearer <token> header
+        | - X-ZB-SDK-Token header
+        | - zb_sdk_token query parameter
+        |
+        | When disabled, routes fall back to default auth (auth:sanctum).
+        |
+        */
+        'sdk_auth' => [
+            'enabled' => env('ANALYTICS_SDK_AUTH_ENABLED', false),
+            'required_permission' => env('ANALYTICS_SDK_AUTH_PERMISSION', ''), // empty = any valid token
+            'enforce_rate_limit' => env('ANALYTICS_SDK_AUTH_RATE_LIMIT', true),
+        ],
     ],
 ];

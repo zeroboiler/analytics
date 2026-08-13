@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-76.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-77.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v77.0.0](#whats-new-in-v77000)
 +- [What's New in v76.0.0](#whats-new-in-v76000)
 +- [What's New in v75.0.0](#whats-new-in-v75000)
 +- [What's New in v74.0.0](#whats-new-in-v74000)
@@ -3977,6 +3978,28 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v77.0.0
+
+### SDK Token Authentication Middleware
+
+**New Middleware: `VerifySdkToken`** — middleware-based SDK token authentication for API endpoints, allowing client-side SDKs to authenticate via scoped tokens instead of Sanctum sessions.
+
+Capabilities:
+- **3 token delivery methods**: `Authorization: Bearer ***` header, `X-ZB-SDK-Token` header, `zb_sdk_token` query parameter
+- **Permission enforcement**: optional `required_permission` config per route group (e.g., `batch`, `track`, `identify`, `consent`, `pageview`)
+- **Rate limiting integration**: per-token per-minute rate limits via `SdkScopeTokenService`, with `429 Too Many Requests` response and `Retry-After` header
+- **Graceful fallback**: when `sdk_auth.enabled = false`, requests pass through to default auth (auth:sanctum)
+- **Request attributes**: `zb_sdk_authenticated`, `zb_sdk_token_raw`, `zb_sdk_rate_remaining`, `zb_sdk_rate_reset` for downstream controllers
+
+**Middleware Registration:** `analytics.sdk` alias in `AnalyticsServiceProvider`
+
+**New Config Section:** `zeroboiler.analytics.sdk_auth`
+- `enabled`, `required_permission`, `enforce_rate_limit`
+
+**Tests:** `V7700SdkAuthMiddlewareTest` — 11 test cases covering disabled passthrough, service disabled passthrough, missing token (401), invalid token (401), Bearer header acceptance, SDK header acceptance, query parameter acceptance, wrong permission rejection (403), rate limit info attachment, authenticated flag setting, and request metadata propagation
+
+**Version Sweep:** 76.0.0 → 77.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION
 
 ## What's New in v76.0.0
 
