@@ -5815,5 +5815,44 @@ return [
             'max_top_events' => (int) env('ANALYTICS_ROLLUP_MAX_TOP_EVENTS', 20),
             'max_unique_trackers' => (int) env('ANALYTICS_ROLLUP_MAX_UNIQUE_TRACKERS', 10000),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Payload Encryption (v53.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Field-level AES-256-CBC encryption for sensitive analytics event parameters.
+        | Encrypts individual fields before dispatch to analytics providers while
+        | preserving the ability to decrypt for internal reporting and audit.
+        |
+        | Unlike PII sanitization (which hashes/removes) or anonymization (which
+        | HMACs one-way), this service provides reversible encryption with key
+        | rotation support.
+        |
+        | Global fields are encrypted across ALL events. Per-event rules add or
+        | exclude fields for specific events. Use 'except:field_name' syntax to
+        | exclude a global field from a specific event.
+        |
+        | Supports wildcard patterns: 'user_*' matches 'user_email', 'user_name', etc.
+        |
+        | Inspired by Segment's EncryptionMiddleware and mParticle's data encryption.
+        |
+        */
+        'encryption' => [
+            'enabled' => env('ANALYTICS_ENCRYPTION_ENABLED', false),
+            'prefix' => env('ANALYTICS_ENCRYPTION_PREFIX', 'enc:v1:'),
+            'global_fields' => [
+                // Fields encrypted across ALL events
+                // 'email',
+                // 'phone',
+                // 'ip_address',
+                // 'user_*',
+            ],
+            'event_rules' => [
+                // Per-event field rules
+                // 'purchase' => ['credit_card', 'billing_address'],
+                // 'sign_up' => ['except:ip_address'], // excludes ip_address from sign_up events
+            ],
+        ],
     ],
 ];

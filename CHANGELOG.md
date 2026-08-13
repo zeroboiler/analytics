@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [53.0.0] - 2026-08-13
+
+### Added
+
+- **EventPayloadEncryptionService** — Field-level AES-256-CBC encryption for sensitive analytics event parameters. Encrypts individual fields (not entire payloads) with config-driven global and per-event field rules. Supports wildcard matching (`user_*`), `except:` syntax for exclusions, oversized value hashing (>4KB), key rotation, selective decryption for reporting, and encryption health reports. Fail-safe hashing on encryption failure.
+- **EventPayloadEncryptionMiddleware** — Pipeline middleware (priority 45) that automatically encrypts matching event parameters before provider dispatch. Runs before provider dispatch, after PII sanitization.
+- **AnalyticsEncryptionCommand** (`zb:analytics:encryption`) — Admin CLI with 5 subcommands: `status` (encryption config and health), `encrypt` (encrypt sample payload), `decrypt` (decrypt encrypted payload or specific field), `fields` (list encrypted fields for an event), `rotate` (simulate key rotation).
+- **1 new config section** — `encryption` (4 options: enabled, prefix, global_fields, event_rules).
+- **2 new singleton registrations** — EventPayloadEncryptionService and EventPayloadEncryptionMiddleware registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsEncryptionCommand registered in ServiceProvider commands.
+- **V100EventPayloadEncryptionTest** — 40+ test cases covering construction, config, encryptValue, decryptValue, round-trip, encryptParams, decryptParams, decryptField, isEncryptedValue, countEncryptedFields, getFieldsForEvent, shouldEncryptFieldForEvent, wildcard matching, except: syntax, rotateEncryption, healthReport, middleware integration, command signature, and version sweep.
+
+### Changed
+
+- **Version sweep** — 52.0.0 → 53.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
+
 ## [52.0.0] - 2026-08-13
 
 ### Added

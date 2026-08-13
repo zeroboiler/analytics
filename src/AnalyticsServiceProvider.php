@@ -9,6 +9,7 @@ namespace ZeroBoiler\Analytics;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -308,7 +309,10 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsLineageCommand;
 use ZeroBoiler\Analytics\Services\AutoInstrumentationEngine;
 use ZeroBoiler\Analytics\Services\AnalyticsRollupService;
+use ZeroBoiler\Analytics\Services\EventPayloadEncryptionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRollupCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsEncryptionCommand;
+use ZeroBoiler\Analytics\Middleware\EventPayloadEncryptionMiddleware;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -316,7 +320,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsRollupCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 52.0.0
+ * @version 53.0.0
  *
  * @since 1.0.0
  */
@@ -587,6 +591,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsRollupService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event payload encryption service (v53.0.0)
+        $this->app->singleton(EventPayloadEncryptionService::class, function (Application $app): EventPayloadEncryptionService {
+            return new EventPayloadEncryptionService(
+                $app->make(Encrypter::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event payload encryption middleware (v53.0.0)
+        $this->app->singleton(EventPayloadEncryptionMiddleware::class, function (Application $app): EventPayloadEncryptionMiddleware {
+            return new EventPayloadEncryptionMiddleware(
+                $app->make(EventPayloadEncryptionService::class),
             );
         });
 
@@ -2997,6 +3016,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSelfHealCommand::class,
                 AnalyticsLineageCommand::class,
                 AnalyticsRollupCommand::class,
+                AnalyticsEncryptionCommand::class,
             ]);
         }
 

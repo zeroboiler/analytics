@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-52.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|||[![Latest Version](https://img.shields.io/badge/version-53.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v53.0.0](#whats-new-in-v53000)
 - [What's New in v52.0.0](#whats-new-in-v52000)
 - [What's New in v51.1.0](#whats-new-in-v51100)
 - [What's New in v50.0.0](#whats-new-in-v50000)
@@ -129,6 +130,44 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v53.0.0
+
+### Event Payload Encryption Engine
+
+Field-level AES-256-CBC encryption for sensitive analytics event parameters. Provides reversible encryption (unlike PII sanitization which hashes/removes) so encrypted data can be decrypted for internal reporting and audit while protecting it from provider access.
+
+**New files:**
+- `EventPayloadEncryptionService` — Core encryption/decryption service with global and per-event field rules, wildcard matching, `except:` syntax for exclusions, key rotation support, and automatic fail-safe hashing for oversized values
+- `EventPayloadEncryptionMiddleware` — Pipeline middleware (priority 45) that automatically encrypts matching fields before provider dispatch
+- `AnalyticsEncryptionCommand` (`zb:analytics:encryption`) — Management CLI with `status`, `encrypt`, `decrypt`, `fields`, and `rotate` subcommands
+
+**Features:**
+- Config-driven global field rules (`email`, `phone`, `ip_address`, wildcard `user_*`)
+- Per-event field rules with `except:` syntax for exclusions
+- Automatic oversized value hashing (values > 4KB hashed instead of encrypted)
+- Encryption prefix marker (`enc:v1:`) for identifying encrypted values
+- Full round-trip encrypt → decrypt with original value preservation
+- Key rotation support via `rotateEncryption()` method
+- Health report with cipher info and field configuration summary
+- Fail-safe: returns SHA-256 hash if encryption fails
+
+**Configuration:**
+```php
+'encryption' => [
+    'enabled' => env('ANALYTICS_ENCRYPTION_ENABLED', false),
+    'prefix' => env('ANALYTICS_ENCRYPTION_PREFIX', 'enc:v1:'),
+    'global_fields' => ['email', 'phone', 'ip_address'],
+    'event_rules' => [
+        'purchase' => ['credit_card', 'billing_address'],
+        'sign_up' => ['except:ip_address'],
+    ],
+],
+```
+
+**Version sweep** — 52.0.0 → 53.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js`, `resources/js/analytics.d.ts`, README badge, CHANGELOG, ToC.
+
+---
 
 ## What's New in v52.0.0
 

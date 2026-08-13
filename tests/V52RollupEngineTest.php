@@ -513,8 +513,8 @@ describe('AnalyticsRollupCommand', function (): void {
 });
 
 describe('Version Consistency', function (): void {
-    it('AnalyticsEvent::VERSION matches expected v52.0.0', function (): void {
-        // After version sweep this should be 52.0.0
-        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('52.0.0');
+    it('AnalyticsEvent::VERSION matches expected v53.0.0', function (): void {
+        // After version sweep this should be 53.0.0
+        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('53.0.0');
     });
 });
