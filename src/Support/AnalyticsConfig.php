@@ -2297,4 +2297,31 @@ final class AnalyticsConfig
     {
         return (bool) $this->get('validation_pipeline.compliance.enabled', true);
     }
+
+    // ── Event Payload Transformation Engine (v70.0.0) ──────────────
+
+    public function transformationEnabled(): bool
+    {
+        return (bool) $this->get('transformation.enabled', true);
+    }
+
+    public function transformationCacheTtl(): int
+    {
+        return (int) $this->get('transformation.cache_ttl', 3600);
+    }
+
+    public function transformationStrict(): bool
+    {
+        return (bool) $this->get('transformation.strict', false);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function transformationMappings(): array
+    {
+        $mappings = $this->get('transformation.mappings', []);
+
+        return is_array($mappings) ? $mappings : [];
+    }
 }

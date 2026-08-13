@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|![Latest Version](https://img.shields.io/badge/version-69.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-70.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v70.0.0](#whats-new-in-v70000)
 +- [What's New in v67.0.0](#whats-new-in-v67000)
 +- [What's New in v66.0.0](#whats-new-in-v66000)
 - [What's New in v62.0.0](#whats-new-in-v62000)
@@ -3971,6 +3972,54 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v70.0.0
+
+### Event Payload Transformation Engine
+
+Provider-specific event payload transformation system inspired by **Segment Protocols**, **RudderStack Transformations**, and **mParticle Data Planning** — the industry standard for per-provider event mapping.
+
+**New files:**
+- `DTO/EventTransformationRule` — Immutable DTO for single field transformation rules (rename, drop, cast, default, conditional)
+- `DTO/ProviderEventMapping` — Groups rules for an event type targeting a specific provider
+- `DTO/TransformedPayload` — Transformation result with audit trail and warnings
+- `Services/EventTransformationEngine` — Core engine that applies rules per provider
+- `Console/Commands/AnalyticsTransformCommand` — CLI: `zb:analytics:transform preview|preview-all|validate|list|export`
+
+**Capabilities:**
+- **Field renaming**: `item_id` → `content_id` for Meta Pixel
+- **Field dropping**: Exclude sensitive/unsupported fields per provider
+- **Type casting**: string `"1.99"` → float `1.99`
+- **Default values**: `currency: "USD"` if missing
+- **Field whitelisting**: Only include specified fields per provider
+- **Event name overrides**: `form_submit` → `Lead` for Meta Pixel
+- **Static overrides**: Merge static fields into every payload
+- **Validation**: Detects conflicting renames, invalid cast types, duplicate fields
+- **Cache-backed**: Mappings cached with configurable TTL
+
+**New API endpoints:**
+- `GET /api/analytics/transform/mappings` — List all mappings
+- `GET /api/analytics/transform/mappings/event/{eventName}` — Mappings for an event
+- `GET /api/analytics/transform/mappings/provider/{provider}` — Mappings for a provider
+- `POST /api/analytics/transform/preview` — Preview transformation with event params
+- `POST /api/analytics/transform/validate` — Validate all mappings
+
+**Config section:** `zeroboiler.analytics.transformation`
+
+**CLI usage:**
+```bash
+# Preview how 'purchase' looks for Meta Pixel
+php artisan zb:analytics:transform preview --event=purchase --provider=meta
+
+# Preview across all providers
+php artisan zb:analytics:transform preview-all --event=purchase
+
+# Validate all mappings
+php artisan zb:analytics:transform validate
+
+# List all registered mappings
+php artisan zb:analytics:transform list
+```
 
 ## Quick Start
 

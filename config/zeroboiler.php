@@ -6453,5 +6453,77 @@ return [
                 'personalization_storage',
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Payload Transformation Engine (v70.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Provider-specific event payload transformation rules. Inspired by
+        | Segment Protocols, RudderStack Transformations, and mParticle
+        | Data Planning — the industry standard for per-provider event mapping.
+        |
+        | Define field-level transformation rules that are applied before
+        | events are dispatched to each provider:
+        |
+        | - rename: Change field names per provider (e.g., item_id → content_id)
+        | - drop: Exclude fields from specific providers
+        | - cast: Convert field types (e.g., string "1.99" → float 1.99)
+        | - default: Provide fallback values for missing fields
+        | - allow_only: Whitelist — only include specified fields
+        | - static_overrides: Merge static fields into every payload
+        | - event_name_override: Map event names to provider equivalents
+        |
+        | Rule types per field:
+        |   source_field:     (required) The original parameter name
+        |   target_field:     (optional) New name for this provider
+        |   cast_to:          (optional) 'string'|'int'|'float'|'bool'
+        |   default_value:    (optional) Fallback if source is missing
+        |   drop_if_missing:  (optional) Omit if source is missing (default: false)
+        |   drop_always:      (optional) Always exclude this field (default: false)
+        |
+        | Example mapping — rename + drop + cast for Meta Pixel purchase:
+        |   'mappings' => [
+        |       [
+        |           'event' => 'purchase',
+        |           'provider' => 'meta',
+        |           'event_name_override' => 'Purchase',
+        |           'rules' => [
+        |               ['source_field' => 'transaction_id', 'target_field' => 'order_id'],
+        |               ['source_field' => 'value', 'cast_to' => 'float'],
+        |               ['source_field' => 'internal_score', 'drop_always' => true],
+        |               ['source_field' => 'currency', 'default_value' => 'USD'],
+        |           ],
+        |           'static_overrides' => ['event_source' => 'server'],
+        |       ],
+        |   ],
+        |
+        */
+        'transformation' => [
+            'enabled' => env('ANALYTICS_TRANSFORMATION_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_TRANSFORMATION_CACHE_TTL', 3600), // 1 hour
+            'strict' => env('ANALYTICS_TRANSFORMATION_STRICT', false), // true = drop events with missing required fields
+            'mappings' => [
+                // Example: Rename purchase fields for Meta Pixel
+                // [
+                //     'event' => 'purchase',
+                //     'provider' => 'meta',
+                //     'event_name_override' => 'Purchase',
+                //     'rules' => [
+                //         ['source_field' => 'transaction_id', 'target_field' => 'order_id'],
+                //         ['source_field' => 'value', 'cast_to' => 'float'],
+                //         ['source_field' => 'currency', 'default_value' => 'USD'],
+                //     ],
+                //     'static_overrides' => ['event_source' => 'server'],
+                // ],
+                //
+                // Example: Whitelist fields for Plausible (privacy-focused, fewer fields)
+                // [
+                //     'event' => 'page_view',
+                //     'provider' => 'plausible',
+                //     'allow_only' => ['url', 'referrer', 'title'],
+                // ],
+            ],
+        ],
     ],
 ];

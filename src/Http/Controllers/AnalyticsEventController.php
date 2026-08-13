@@ -13161,4 +13161,111 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Payload Transformation Engine (v70.0.0) ──────────────
+
+    /**
+     * List all transformation mappings.
+     */
+    public function transformMappings(): JsonResponse
+    {
+        try {
+            $engine = app(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class);
+
+            return response()->json([
+                'count' => $engine->mappingCount(),
+                'mappings' => $engine->exportMappings(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get transformation mappings for a specific event.
+     */
+    public function transformMappingsByEvent(string $eventName): JsonResponse
+    {
+        try {
+            $engine = app(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class);
+            $mappings = $engine->mappingsForEvent($eventName);
+
+            return response()->json([
+                'event' => $eventName,
+                'count' => count($mappings),
+                'mappings' => array_map(fn ($m) => $m->toArray(), $mappings),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get transformation mappings for a specific provider.
+     */
+    public function transformMappingsByProvider(string $provider): JsonResponse
+    {
+        try {
+            $engine = app(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class);
+            $mappings = $engine->mappingsForProvider($provider);
+
+            return response()->json([
+                'provider' => $provider,
+                'count' => count($mappings),
+                'mappings' => array_map(fn ($m) => $m->toArray(), $mappings),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Preview transformation of an event for one or more providers.
+     */
+    public function transformPreview(Request $request): JsonResponse
+    {
+        try {
+            $eventName = $request->input('event', '');
+            $params = $request->input('params', []);
+            $providers = $request->input('providers', []);
+
+            if ($eventName === '') {
+                return response()->json(['status' => 'error', 'error' => 'event name is required'], 422);
+            }
+
+            if (! is_array($providers) || $providers === []) {
+                $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: is_array($params) ? $params : [],
+            );
+
+            $engine = app(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class);
+            $results = $engine->transformForAll($event, $providers);
+
+            return response()->json([
+                'event' => $eventName,
+                'results' => array_map(fn ($r) => $r->toArray(), $results),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate all registered transformation mappings.
+     */
+    public function transformValidate(): JsonResponse
+    {
+        try {
+            $engine = app(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class);
+            $result = $engine->validateMappings();
+
+            return response()->json($result, $result['valid'] ? 200 : 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

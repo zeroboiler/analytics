@@ -786,4 +786,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('pipeline/validate/stages', [AnalyticsEventController::class, 'pipelineValidateStages']);
     Route::post('pipeline/validate/event', [AnalyticsEventController::class, 'pipelineValidateEvent']);
     Route::post('pipeline/validate/batch', [AnalyticsEventController::class, 'pipelineValidateBatch']);
+
+    // Event Payload Transformation Engine (v70.0.0)
+    Route::get('transform/mappings', [AnalyticsEventController::class, 'transformMappings']);
+    Route::get('transform/mappings/event/{eventName}', [AnalyticsEventController::class, 'transformMappingsByEvent']);
+    Route::get('transform/mappings/provider/{provider}', [AnalyticsEventController::class, 'transformMappingsByProvider']);
+    Route::post('transform/preview', [AnalyticsEventController::class, 'transformPreview']);
+    Route::post('transform/validate', [AnalyticsEventController::class, 'transformValidate']);
 });

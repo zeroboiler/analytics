@@ -18,6 +18,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
@@ -3137,6 +3138,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Payload Transformation Engine (v70.0.0) — provider-specific field mapping
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventTransformationEngine {
+            return new \ZeroBoiler\Analytics\Services\EventTransformationEngine(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+            );
+        });
     }
 
     /**
@@ -3202,6 +3211,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsFunnelPrivacyCommand::class,
                 AnalyticsTrendForecastCommand::class,
                 AnalyticsPipelineValidateCommand::class,
+                AnalyticsTransformCommand::class,
             ]);
         }
 
