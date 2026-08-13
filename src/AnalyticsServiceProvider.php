@@ -367,7 +367,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 81.0.0
+ * @version 82.0.0
  *
  * @since 1.0.0
  */
@@ -3888,6 +3888,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // Deploy Gate (v80.0.0)
                 Route::post('analytics/deploy-gate', [$controller, 'deployGateEvaluate']);
                 Route::get('analytics/deploy-gate/quick', [$controller, 'deployGateQuick']);
+
+                // Funnel Velocity Analyzer (v82.0.0)
+                Route::get('analytics/funnel-velocity/{funnelName}', [$controller, 'funnelVelocityReport']);
+                Route::get('analytics/funnel-velocity/{funnelName}/{fromStep}/{toStep}', [$controller, 'funnelStepVelocity']);
+                Route::get('analytics/funnel-velocity/{funnelName}/dropout', [$controller, 'funnelDropoutAnalysis']);
+                Route::get('analytics/funnel-velocity/{funnelName}/predict/{step}', [$controller, 'funnelPredictCompletion']);
+
+                // Privacy-Aware Event Router (v82.0.0)
+                Route::post('analytics/privacy/route', [$controller, 'privacyRouteEvent']);
+                Route::post('analytics/privacy/route-batch', [$controller, 'privacyRouteBatch']);
+                Route::get('analytics/privacy/zones', [$controller, 'privacyZones']);
+                Route::get('analytics/privacy/zone/{zone}/blocked-fields', [$controller, 'privacyBlockedFields']);
+                Route::get('analytics/privacy/zone/{zone}/providers', [$controller, 'privacyAllowedProviders']);
+
+                // Revenue Signal Detector (v82.0.0)
+                Route::get('analytics/signals/churn/{userId}', [$controller, 'revenueChurnScore']);
+                Route::get('analytics/signals/expansion/{userId}', [$controller, 'revenueExpansionScore']);
+                Route::get('analytics/signals/report/{userId}', [$controller, 'revenueSignalReport']);
+                Route::get('analytics/signals/top-at-risk', [$controller, 'revenueTopAtRisk']);
+                Route::get('analytics/signals/top-expansion', [$controller, 'revenueTopExpansion']);
             });
     }
 
