@@ -759,4 +759,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('correlation-analyzer/cross-correlation', [AnalyticsEventController::class, 'correlationAnalyzerCrossCorrelation']);
     Route::get('correlation-analyzer/transition', [AnalyticsEventController::class, 'correlationAnalyzerTransition']);
     Route::get('correlation-analyzer/matrix', [AnalyticsEventController::class, 'correlationAnalyzerMatrix']);
+
+    // Product-Market Fit Scoring (v61.0.0)
+    Route::post('pmf/score', [AnalyticsEventController::class, 'pmfScore']);
+    Route::get('pmf/summary', [AnalyticsEventController::class, 'pmfSummary']);
+
+    // First-Value Detection (v61.0.0)
+    Route::get('first-value/score/{userId}', [AnalyticsEventController::class, 'firstValueScore']);
+    Route::post('first-value/reset/{userId}', [AnalyticsEventController::class, 'firstValueReset']);
 });

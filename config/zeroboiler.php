@@ -6137,5 +6137,64 @@ return [
             'signals' => ['ip', 'user_agent', 'accept_language'],
             'max_entries' => (int) env('ANALYTICS_PRIVACY_MAX_ENTRIES', 100000),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | First-Value Detection (v61.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Detects and tracks "aha moment" milestones for each user. When a user
+        | performs a key action for the first time (first search, first feature,
+        | first integration), a dedicated 'first_value' event is fired.
+        |
+        | The detection is cache-backed and idempotent — each milestone fires
+        | only once per user. Used for activation analytics and PMF scoring.
+        |
+        */
+        'first_value' => [
+            'enabled' => env('ANALYTICS_FIRST_VALUE_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FIRST_VALUE_CACHE_TTL', 7776000), // 90 days
+            'milestones' => [
+                // Custom milestones override the built-in defaults.
+                // Each milestone maps to a tracked event name.
+                // 'my_milestone' => [
+                //     'event' => 'custom_action',
+                //     'label' => 'My Custom Milestone',
+                //     'weight' => 2.0,
+                //     'category' => 'custom',
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Product-Market Fit Scoring (v61.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Computes a PMF score (0-100) based on aggregated analytics signals:
+        | activation rate, week-2 retention, feature adoption depth, organic
+        | growth rate, and an NPS proxy score.
+        |
+        | Weights control the relative contribution of each signal.
+        | Thresholds define the grade boundaries (D through A+).
+        |
+        */
+        'pmf' => [
+            'enabled' => env('ANALYTICS_PMF_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PMF_CACHE_TTL', 3600), // 1 hour
+            'weights' => [
+                'activation_rate' => (float) env('ANALYTICS_PMF_WEIGHT_ACTIVATION', 0.25),
+                'retention_week2' => (float) env('ANALYTICS_PMF_WEIGHT_RETENTION', 0.25),
+                'feature_depth' => (float) env('ANALYTICS_PMF_WEIGHT_FEATURE_DEPTH', 0.20),
+                'organic_growth' => (float) env('ANALYTICS_PMF_WEIGHT_ORGANIC', 0.15),
+                'nps_proxy' => (float) env('ANALYTICS_PMF_WEIGHT_NPS', 0.15),
+            ],
+            'thresholds' => [
+                'very_early' => (float) env('ANALYTICS_PMF_THRESHOLD_VERY_EARLY', 25.0),
+                'early' => (float) env('ANALYTICS_PMF_THRESHOLD_EARLY', 40.0),
+                'strong' => (float) env('ANALYTICS_PMF_THRESHOLD_STRONG', 60.0),
+                'excellent' => (float) env('ANALYTICS_PMF_THRESHOLD_EXCELLENT', 75.0),
+            ],
+        ],
     ],
 ];

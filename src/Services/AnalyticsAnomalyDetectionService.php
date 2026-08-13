@@ -54,7 +54,7 @@ final class AnalyticsAnomalyDetectionService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly array $config = [],
-    ) {
+    ): void {
     }
 
     /**

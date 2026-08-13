@@ -89,7 +89,7 @@ final class AutoInstrumentationEngine
         ConfigRepository $config,
         AnalyticsManager $manager,
         EventDispatcher $dispatcher,
-    ) {
+    ): void {
         $this->config = $config->get('zeroboiler.analytics.auto_instrument', []);
         $this->manager = $manager;
         $this->dispatcher = $dispatcher;

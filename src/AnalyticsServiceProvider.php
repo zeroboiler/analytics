@@ -300,6 +300,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsDataQualityFirewall;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFlowCommand;
 
 use ZeroBoiler\Analytics\Services\EventFraudDetectionService;
+use ZeroBoiler\Analytics\Services\FirstValueDetectorService;
 use ZeroBoiler\Analytics\Services\ProductMarketFitScoringService;
 use ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFraudCommand;
@@ -334,7 +335,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 60.0.0
+ * @version 61.0.0
  *
  * @since 1.0.0
  */
@@ -3016,6 +3017,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProductMarketFitScoringService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
+            );
+        });
+
+        // First-Value Detection Service (v61.0.0) — "aha moment" milestone tracking
+        $this->app->singleton(FirstValueDetectorService::class, function (Application $app): FirstValueDetectorService {
+            return new FirstValueDetectorService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class)->get('zeroboiler.analytics.first_value', []),
             );
         });
 

@@ -299,16 +299,16 @@ describe('EventCorrelationAnalyzerService', function (): void {
 });
 
 describe('Version Consistency', function (): void {
-    test('all version references are 60.0.0', function (): void {
+    test('all version references are 61.0.0', function (): void {
         // Verify DTO version
-        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('60.0.0');
+        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('61.0.0');
 
         // Verify composer.json version
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-        expect($composer['version'])->toBe('60.0.0');
+        expect($composer['version'])->toBe('61.0.0');
 
         // Verify package.json version
         $package = json_decode(file_get_contents(base_path('package.json')), true);
-        expect($package['version'])->toBe('60.0.0');
+        expect($package['version'])->toBe('61.0.0');
     });
 });

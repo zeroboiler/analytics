@@ -53,7 +53,7 @@ final class AnalyticsFlowCommand extends Command
     /**
      * Create a new AnalyticsFlowCommand.
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         parent::__construct();
 

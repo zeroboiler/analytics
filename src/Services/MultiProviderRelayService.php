@@ -45,7 +45,7 @@ final class MultiProviderRelayService
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ) {
+    ): void {
         $this->loadRelayConfigurations();
     }
 
