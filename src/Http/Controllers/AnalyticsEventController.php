@@ -31,6 +31,7 @@ use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
 use ZeroBoiler\Analytics\Services\EventSourceTagger;
 use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
@@ -146,6 +147,8 @@ final class AnalyticsEventController extends Controller
 
     private ?LifecycleEventMapper $lifecycleMapper;
 
+    private ?LifecycleEventSubscriber $lifecycleSubscriber;
+
     private ?EventCorrelationService $correlationService;
 
     private ?AnalyticsConfigValidator $configValidator;
@@ -218,6 +221,7 @@ final class AnalyticsEventController extends Controller
      * @param  EventAlertRulesService|null  $alertRulesService  Optional alert rules service
      * @param  FunnelDataBuilderService|null  $funnelDataBuilderService  Optional funnel data builder service
      * @param  LifecycleEventMapper|null  $lifecycleMapper  Optional lifecycle event mapper service
+     * @param  LifecycleEventSubscriber|null  $lifecycleSubscriber  Optional lifecycle subscriber (v79.0.0)
      * @param  EventCorrelationService|null  $correlationService  Optional event correlation service
      * @param  AnalyticsConfigValidator|null  $configValidator  Optional config validator service
      * @param  EventSourceTagger|null  $sourceTagger  Optional event source tagger service
@@ -237,6 +241,7 @@ final class AnalyticsEventController extends Controller
         ?EventAlertRulesService $alertRulesService = null,
         ?FunnelDataBuilderService $funnelDataBuilderService = null,
         ?LifecycleEventMapper $lifecycleMapper = null,
+        ?LifecycleEventSubscriber $lifecycleSubscriber = null,
         ?EventCorrelationService $correlationService = null,
         ?AnalyticsConfigValidator $configValidator = null,
         ?EventSourceTagger $sourceTagger = null,
@@ -282,6 +287,7 @@ final class AnalyticsEventController extends Controller
         $this->alertRulesService = $alertRulesService;
         $this->funnelDataBuilderService = $funnelDataBuilderService;
         $this->lifecycleMapper = $lifecycleMapper;
+        $this->lifecycleSubscriber = $lifecycleSubscriber;
         $this->correlationService = $correlationService;
         $this->configValidator = $configValidator;
         $this->sourceTagger = $sourceTagger;
@@ -1416,6 +1422,34 @@ final class AnalyticsEventController extends Controller
             'version' => AnalyticsEvent::VERSION,
             'mapper' => $this->lifecycleMapper->summary(),
             'mappings' => $this->lifecycleMapper->getMappings(),
+        ]);
+    }
+
+    /**
+     * Get lifecycle subscriber diagnostic summary.
+     *
+     * GET /api/analytics/lifecycle/subscriber
+     *
+     * Returns the status of the LifecycleEventSubscriber, including
+     * registered mapping count, keys, queue configuration, and
+     * any registration errors.
+     *
+     * @since 79.0.0
+     */
+    public function lifecycleSubscriber(): JsonResponse
+    {
+        if ($this->lifecycleSubscriber === null) {
+            return response()->json([
+                'status' => 'not_available',
+                'message' => 'LifecycleEventSubscriber not injected. Register via ServiceProvider.',
+                'version' => AnalyticsEvent::VERSION,
+            ], 503);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => AnalyticsEvent::VERSION,
+            'subscriber' => $this->lifecycleSubscriber->diagnosticSummary(),
         ]);
     }
 
@@ -14218,6 +14252,179 @@ final class AnalyticsEventController extends Controller
                 'status' => 'ok',
                 'milestones' => $service->milestones(),
             ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Event Health Scoring — Get health score for a specific event.
+     *
+     * GET /api/analytics/health/event/{eventName}
+     *
+     * @param  string  $eventName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function eventHealthScore(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventHealthScoringEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\EventHealthScoringEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'version' => AnalyticsEvent::VERSION,
+                'health' => $engine->scoreEvent($eventName),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Event Health Scoring — Get system-wide health summary.
+     *
+     * GET /api/analytics/health/system
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function eventHealthSystem(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventHealthScoringEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\EventHealthScoringEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'health' => $engine->systemHealth(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Event Health Scoring — Get health scores for all tracked events.
+     *
+     * GET /api/analytics/health/events
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function eventHealthAll(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventHealthScoringEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\EventHealthScoringEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'events' => $engine->scoreAllEvents(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Event Health Scoring — Get only degrading events.
+     *
+     * GET /api/analytics/health/degrading?threshold=60
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function eventHealthDegrading(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventHealthScoringEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\EventHealthScoringEngine::class);
+            $threshold = (int) $request->query('threshold', 60);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'threshold' => $threshold,
+                'degrading' => $engine->getDegradingEvents($threshold),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Event Health Scoring — Get recent health alerts.
+     *
+     * GET /api/analytics/health/alerts
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function eventHealthAlerts(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventHealthScoringEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\EventHealthScoringEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'alerts' => $engine->getRecentAlerts(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Deploy Gate — Run all pre-deployment checks.
+     *
+     * POST /api/analytics/deploy-gate
+     * Body: {include_health?: bool, event_names?: string[]}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deployGateEvaluate(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsDeployGate $gate */
+            $gate = app(\ZeroBoiler\Analytics\Services\AnalyticsDeployGate::class);
+
+            $options = [
+                'include_health' => (bool) ($request->input('include_health', false)),
+                'event_names' => $request->input('event_names'),
+            ];
+
+            $result = $gate->evaluate($options);
+
+            return response()->json($result, $result['passed'] ? 200 : 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Deploy Gate — Quick pass/fail check (CI script friendly).
+     *
+     * GET /api/analytics/deploy-gate/quick
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deployGateQuick(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsDeployGate $gate */
+            $gate = app(\ZeroBoiler\Analytics\Services\AnalyticsDeployGate::class);
+
+            $passed = $gate->quickCheck() === 0;
+
+            return response()->json([
+                'status' => $passed ? 'passed' : 'failed',
+                'passed' => $passed,
+                'version' => AnalyticsEvent::VERSION,
+            ], $passed ? 200 : 422);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }

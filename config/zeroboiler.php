@@ -508,6 +508,11 @@ return [
                 // 'app.custom_event' => ['source' => 'app.custom_event', 'target' => '\\App\\Analytics\\Events\\CustomEvent::class'],
             ],
             'override_defaults' => env('ANALYTICS_LIFECYCLE_OVERRIDE_DEFAULTS', false),
+
+            // Queue lifecycle events asynchronously (v79.0.0)
+            // When true, LifecycleEventSubscriber dispatches lifecycle events
+            // through the configured queue connection instead of synchronous tracking.
+            'queue_events' => env('ANALYTICS_LIFECYCLE_QUEUE_EVENTS', false),
         ],
 
         /*
@@ -6715,6 +6720,45 @@ return [
             'enabled' => env('ANALYTICS_SDK_AUTH_ENABLED', false),
             'required_permission' => env('ANALYTICS_SDK_AUTH_PERMISSION', ''), // empty = any valid token
             'enforce_rate_limit' => env('ANALYTICS_SDK_AUTH_RATE_LIMIT', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Health Scoring Engine (v80.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Per-event health monitoring across five dimensions: freshness, volume,
+        | schema compliance, provider delivery, and data quality. Produces
+        | composite health scores (0-100) with A+–F grades.
+        |
+        | Used by EventHealthScoringEngine service and zb:analytics:event-health CLI.
+        |
+        */
+        'event_health' => [
+            'enabled' => env('ANALYTICS_EVENT_HEALTH_ENABLED', true),
+            'freshness_threshold' => (int) env('ANALYTICS_EVENT_HEALTH_FRESHNESS_THRESHOLD', 3600), // seconds
+            'volume_drop_threshold' => (float) env('ANALYTICS_EVENT_HEALTH_VOLUME_DROP_THRESHOLD', 0.3), // 0-1
+            'volume_spike_multiplier' => (float) env('ANALYTICS_EVENT_HEALTH_VOLUME_SPIKE_MULTIPLIER', 5.0),
+            'min_volume_sample' => (int) env('ANALYTICS_EVENT_HEALTH_MIN_VOLUME_SAMPLE', 10),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Deploy Gate (v80.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Pre-deployment analytics validation for CI/CD pipelines. Blocks deploys
+        | that would break analytics instrumentation. Runs catalog integrity,
+        | schema coverage, provider compatibility, lifecycle mapping, and
+        | breaking change detection checks.
+        |
+        | Used by AnalyticsDeployGate service and zb:analytics:deploy-gate CLI.
+        |
+        */
+        'deploy_gate' => [
+            'block_on_warnings' => env('ANALYTICS_DEPLOY_GATE_BLOCK_ON_WARNINGS', false),
+            'min_health_score' => (int) env('ANALYTICS_DEPLOY_GATE_MIN_HEALTH_SCORE', 40),
+            'skip_events' => [], // event names to skip during gate checks
         ],
     ],
 ];

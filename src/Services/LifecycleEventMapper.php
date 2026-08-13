@@ -1325,4 +1325,58 @@ final class LifecycleEventMapper
             'event_keys' => $keys,
         ];
     }
+
+    /**
+     * Get a single default mapping by event key.
+     *
+     * Returns null if the key does not exist in DEFAULT_MAPPINGS.
+     *
+     * @return array{source: string, target: string, params_extractor?: string, condition?: string, priority?: int}|null
+     *
+     * @since 79.0.0
+     */
+    public static function getDefaultMapping(string $eventKey): ?array
+    {
+        return self::DEFAULT_MAPPINGS[$eventKey] ?? null;
+    }
+
+    /**
+     * Build an analytics event from a mapping target class and payload.
+     *
+     * Public wrapper around the private buildEvent() method for use
+     * by LifecycleEventSubscriber's programmatic track() method.
+     *
+     * @param  string  $targetClass  Fully-qualified analytics event class name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @param  string|null  $extractor  Optional named extractor method
+     *
+     * @since 79.0.0
+     */
+    public function buildEventFromMapping(string $targetClass, array $params, ?string $extractor = null): AnalyticsEvent
+    {
+        return $this->buildEvent($targetClass, $params, $extractor);
+    }
+
+    /**
+     * Get all currently registered (enabled) mappings.
+     *
+     * Returns a map of event key → enabled status for mappings that
+     * passed the isEnabled() check during registration.
+     *
+     * @return array<string, bool>
+     *
+     * @since 79.0.0
+     */
+    public function getRegisteredMappings(): array
+    {
+        $registered = [];
+
+        foreach (array_keys($this->activeMappings) as $key) {
+            if ($this->isMappingEnabled($key)) {
+                $registered[$key] = true;
+            }
+        }
+
+        return $registered;
+    }
 }

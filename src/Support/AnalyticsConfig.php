@@ -2393,4 +2393,54 @@ final class AnalyticsConfig
     {
         return (float) $this->get('geographic_analytics.engagement_weight_sessions', 0.2);
     }
+
+    /**
+     * Get event health scoring configuration.
+     *
+     * @return array{enabled: bool, freshness_threshold: int, volume_drop_threshold: float, volume_spike_multiplier: float, min_volume_sample: int}
+     */
+    public function eventHealthConfig(): array
+    {
+        return [
+            'enabled' => (bool) $this->get('event_health.enabled', true),
+            'freshness_threshold' => (int) $this->get('event_health.freshness_threshold', 3600),
+            'volume_drop_threshold' => (float) $this->get('event_health.volume_drop_threshold', 0.3),
+            'volume_spike_multiplier' => (float) $this->get('event_health.volume_spike_multiplier', 5.0),
+            'min_volume_sample' => (int) $this->get('event_health.min_volume_sample', 10),
+        ];
+    }
+
+    /**
+     * Get deploy gate configuration.
+     *
+     * @return array{block_on_warnings: bool, min_health_score: int, skip_events: list<string>}
+     */
+    public function deployGateConfig(): array
+    {
+        return [
+            'block_on_warnings' => (bool) $this->get('deploy_gate.block_on_warnings', false),
+            'min_health_score' => (int) $this->get('deploy_gate.min_health_score', 40),
+            'skip_events' => (array) $this->get('deploy_gate.skip_events', []),
+        ];
+    }
+
+    public function eventHealthEnabled(): bool
+    {
+        return (bool) $this->get('event_health.enabled', true);
+    }
+
+    public function eventHealthFreshnessThreshold(): int
+    {
+        return (int) $this->get('event_health.freshness_threshold', 3600);
+    }
+
+    public function deployGateBlockOnWarnings(): bool
+    {
+        return (bool) $this->get('deploy_gate.block_on_warnings', false);
+    }
+
+    public function deployGateMinHealthScore(): int
+    {
+        return (int) $this->get('deploy_gate.min_health_score', 40);
+    }
 }

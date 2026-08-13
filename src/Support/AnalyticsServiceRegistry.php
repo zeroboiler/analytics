@@ -42,6 +42,7 @@ final class AnalyticsServiceRegistry
         'alertRulesService' => \ZeroBoiler\Analytics\Services\EventAlertRulesService::class,
         'funnelDataBuilderService' => \ZeroBoiler\Analytics\Services\FunnelDataBuilderService::class,
         'lifecycleMapper' => \ZeroBoiler\Analytics\Services\LifecycleEventMapper::class,
+        'lifecycleSubscriber' => \ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber::class,
         'correlationService' => \ZeroBoiler\Analytics\Services\EventCorrelationService::class,
         'configValidator' => \ZeroBoiler\Analytics\Services\AnalyticsConfigValidator::class,
         'sourceTagger' => \ZeroBoiler\Analytics\Services\EventSourceTagger::class,

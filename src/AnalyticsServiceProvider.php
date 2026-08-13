@@ -21,6 +21,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
@@ -84,6 +86,7 @@ use ZeroBoiler\Analytics\Services\EventAlertRulesService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 use ZeroBoiler\Analytics\Services\FunnelDataBuilderService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
 use ZeroBoiler\Analytics\Services\EventSourceTagger;
 use ZeroBoiler\Analytics\Services\ReferrerTrackingService;
@@ -200,6 +203,8 @@ use ZeroBoiler\Analytics\Services\PLGScoringService;
 use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
 use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
+use ZeroBoiler\Analytics\Services\EventHealthScoringEngine;
+use ZeroBoiler\Analytics\Services\AnalyticsDeployGate;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
@@ -358,7 +363,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 67.0.0
+ * @version 80.0.0
  *
  * @since 1.0.0
  */
@@ -995,6 +1000,23 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Health Scoring Engine (v80.0.0) — per-event health monitoring
+        $this->app->singleton(EventHealthScoringEngine::class, function (Application $app): EventHealthScoringEngine {
+            return new EventHealthScoringEngine(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Deploy Gate (v80.0.0) — pre-deployment CI/CD validation
+        $this->app->singleton(AnalyticsDeployGate::class, function (Application $app): AnalyticsDeployGate {
+            return new AnalyticsDeployGate(
+                $app->make(ConfigRepository::class),
+                $app->make('cache'),
+                $app->make(EventHealthScoringEngine::class),
+            );
+        });
+
         // SaaS Growth Metrics Service — activation, stickiness, virality, retention (v78.0.0)
         $this->app->singleton(SaaSGrowthMetricsService::class, function (Application $app): SaaSGrowthMetricsService {
             /** @var AnalyticsManager $manager */
@@ -1625,6 +1647,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new LifecycleEventMapper($manager, $config);
+        });
+
+        // Lifecycle event subscriber — bridges mapper + tracker + queue (v79.0.0)
+        $this->app->singleton(LifecycleEventSubscriber::class, function (Application $app): LifecycleEventSubscriber {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var LifecycleEventMapper $mapper */
+            $mapper = $app->make(LifecycleEventMapper::class);
+            /** @var ServerSideTracker $tracker */
+            $tracker = $app->make(ServerSideTracker::class);
+            /** @var QueuedAnalyticsDispatcher $queue */
+            $queue = $app->make(QueuedAnalyticsDispatcher::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new LifecycleEventSubscriber($manager, $mapper, $tracker, $queue, $config);
         });
 
         // Event correlation service for pattern detection and predictive analytics
@@ -3321,6 +3359,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsExperimentCommand::class,
                 AnalyticsContractCommand::class,
                 AnalyticsRevenueWaterfallCommand::class,
+                AnalyticsEventHealthCommand::class,
+                AnalyticsDeployGateCommand::class,
             ]);
         }
 
@@ -3376,11 +3416,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
      */
     private function registerAutoTracking(): void
     {
-        $tracker = $this->app->make(ServerSideTracker::class);
-        /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
-        $dispatcher = $this->app->make('events');
-
-        $tracker->register($dispatcher);
+        // Register the unified lifecycle event subscriber (v79.0.0)
+        // This bridges the config-driven LifecycleEventMapper with the
+        // legacy ServerSideTracker and optional queued dispatch.
+        try {
+            $subscriber = $this->app->make(LifecycleEventSubscriber::class);
+            /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
+            $dispatcher = $this->app->make('events');
+            $subscriber->register($dispatcher);
+        } catch (\Throwable) {
+            // Fallback: register only the legacy tracker
+            $tracker = $this->app->make(ServerSideTracker::class);
+            /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
+            $dispatcher = $this->app->make('events');
+            $tracker->register($dispatcher);
+        }
 
         // Register custom application events from config
         $config = $this->app->make(ConfigRepository::class);
@@ -3469,6 +3519,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
                 // Lifecycle mapping endpoint
                 Route::get('analytics/lifecycle', [$controller, 'lifecycle']);
+
+                // Lifecycle subscriber diagnostic endpoint (v79.0.0)
+                Route::get('analytics/lifecycle/subscriber', [$controller, 'lifecycleSubscriber']);
 
                 // Event correlation endpoints
                 Route::get('analytics/correlation/patterns', [$controller, 'correlationPatterns']);
@@ -3781,6 +3834,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/adoption/recent/{userId}', [$controller, 'featureAdoptionRecent']);
                 Route::get('analytics/adoption/streak/{userId}/{featureName}', [$controller, 'featureAdoptionStreak']);
                 Route::delete('analytics/adoption/profile/{userId}', [$controller, 'featureAdoptionClear']);
+
+                // Event Health Scoring (v80.0.0)
+                Route::get('analytics/health/event/{eventName}', [$controller, 'eventHealthScore']);
+                Route::get('analytics/health/system', [$controller, 'eventHealthSystem']);
+                Route::get('analytics/health/events', [$controller, 'eventHealthAll']);
+                Route::get('analytics/health/degrading', [$controller, 'eventHealthDegrading']);
+                Route::get('analytics/health/alerts', [$controller, 'eventHealthAlerts']);
+
+                // Deploy Gate (v80.0.0)
+                Route::post('analytics/deploy-gate', [$controller, 'deployGateEvaluate']);
+                Route::get('analytics/deploy-gate/quick', [$controller, 'deployGateQuick']);
             });
     }
 
