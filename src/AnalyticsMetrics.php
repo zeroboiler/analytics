@@ -37,6 +37,9 @@ final class AnalyticsMetrics
     /** @var array<string, int> */
     private array $deduplicated = [];
 
+    /** @var array<string, int> Generic counters for extensibility (enrichment, custom metrics) */
+    private array $counters = [];
+
     private bool $enabled;
 
     private bool $logOnFlush;
@@ -118,6 +121,42 @@ final class AnalyticsMetrics
     }
 
     /**
+     * Increment a generic counter by name.
+     *
+     * Used by extension services (enrichment orchestrator, custom plugins)
+     * to track arbitrary metrics without modifying the core counters.
+     *
+     * @param  string  $key  Counter name (e.g. 'enrichment.enriched', 'enrichment.dropped')
+     * @param  int  $amount  Amount to increment (default: 1)
+     */
+    public function increment(string $key, int $amount = 1): void
+    {
+        if (! $this->enabled) {
+            return;
+        }
+
+        $this->counters[$key] = ($this->counters[$key] ?? 0) + $amount;
+    }
+
+    /**
+     * Get the value of a generic counter.
+     */
+    public function counter(string $key): int
+    {
+        return $this->counters[$key] ?? 0;
+    }
+
+    /**
+     * Get all generic counters.
+     *
+     * @return array<string, int>
+     */
+    public function counters(): array
+    {
+        return $this->counters;
+    }
+
+    /**
      * Get total dispatched events across all providers.
      */
     public function totalDispatched(): int
@@ -172,7 +211,7 @@ final class AnalyticsMetrics
     /**
      * Get a full metrics summary.
      *
-     * @return array{dispatched: array<string, int>, failed: array<string, int>, filtered: int, deduplicated: int, total_dispatched: int, total_failed: int}
+     * @return array{dispatched: array<string, int>, failed: array<string, int>, filtered: int, deduplicated: int, total_dispatched: int, total_failed: int, counters: array<string, int>}
      */
     public function summary(): array
     {
@@ -183,6 +222,7 @@ final class AnalyticsMetrics
             'deduplicated' => $this->deduplicated['total'] ?? 0,
             'total_dispatched' => $this->totalDispatched(),
             'total_failed' => $this->totalFailed(),
+            'counters' => $this->counters,
         ];
     }
 
@@ -195,6 +235,7 @@ final class AnalyticsMetrics
         $this->failed = [];
         $this->filtered = [];
         $this->deduplicated = [];
+        $this->counters = [];
     }
 
     /**

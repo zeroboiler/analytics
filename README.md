@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-56.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|||[![Latest Version](https://img.shields.io/badge/version-57.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v57.0.0](#whats-new-in-v57000)
 - [What's New in v56.0.0](#whats-new-in-v56000)
 - [What's New in v54.0.0](#whats-new-in-v54000)
 - [What's New in v53.0.0](#whats-new-in-v53000)
@@ -132,6 +133,63 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v57.0.0
+
+### Event Enrichment Plugin System — Config-Driven, Extensible Pipeline Architecture
+
+Introduces a fully-featured plugin architecture for event enrichment, allowing third-party packages and application code to register plugins that transform, augment, or filter analytics events before they are dispatched to providers. Completes the plugin ecosystem alongside the existing EventPluginRegistry (event discovery).
+
+**EventEnrichmentPlugin** — Interface contract for enrichment plugins. Defines `name()`, `priority()`, `shouldEnrich()`, and `enrich()` methods. Plugins return an enriched event or `null` to drop it. Priority-based execution order (higher runs first). Graceful error handling — exceptions in plugins do not crash the pipeline.
+
+```php
+use ZeroBoiler\Analytics\Enrichment\EventEnrichmentPlugin;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
+final class GeoEnrichmentPlugin implements EventEnrichmentPlugin
+{
+    public function name(): string { return 'geo_enrichment'; }
+    public function priority(): int { return 100; }
+    public function shouldEnrich(AnalyticsEvent $event): bool { return true; }
+    public function enrich(AnalyticsEvent $event): ?AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: $event->name,
+            params: array_merge($event->params, ['country' => $this->detectCountry()]),
+            clientId: $event->clientId,
+            userId: $event->userId,
+            timestamp: $event->timestamp,
+        );
+    }
+}
+```
+
+**EventEnrichmentRegistry** — Central registry for enrichment plugins. Supports config-driven plugin loading (class list in `enrichment_plugins.plugins`), programmatic registration via `register()`, per-plugin enable/disable, priority sorting, and diagnostic summaries. Singleton registered in ServiceProvider.
+
+```php
+$registry = app(\ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry::class);
+$registry->register(new GeoEnrichmentPlugin);
+$registry->disable('geo_enrichment');
+$summary = $registry->summary();
+```
+
+**EventEnrichmentOrchestrator** — Pipeline executor that runs registered plugins in priority order. Tracks per-plugin metrics (count, drop count, avg time), total enriched/dropped/passed counts, and integrates with AnalyticsMetrics generic counters. Exceptions in plugins are caught and logged without dropping events. Singleton registered in ServiceProvider.
+
+```php
+$orchestrator = app(\ZeroBoiler\Analytics\Enrichment\EventEnrichmentOrchestrator::class);
+$result = $orchestrator->enrich($event); // AnalyticsEvent|null
+$metrics = $orchestrator->metrics();
+```
+
+**1 new config section** — `enrichment_plugins` (4 options: enabled, debug, disabled, plugins).
+
+**AnalyticsMetrics extension** — Added generic `increment()`, `counter()`, and `counters()` methods for extensibility. Counters are included in `summary()` and cleared on `flush()`.
+
+**EventEnrichmentPluginTest** — 27 test cases covering registry (creation, registration, replacement, priority sorting, enable/disable, remove, lookup, global disable, diagnostic summary, config loading), orchestrator (no plugins, single plugin, multiple priority order, drop events, non-matching events, shouldEnrich skip, exception handling, registry bypass, metrics tracking, drop metrics, reset), and AnalyticsMetrics extension (increment, custom amount, all counters, disabled state, summary integration, flush).
+
+### Changed
+
+- **Version sweep** — 56.0.0 → 57.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsServiceProvider` version annotation, README badge, ToC.
 
 ## What's New in v56.0.0
 

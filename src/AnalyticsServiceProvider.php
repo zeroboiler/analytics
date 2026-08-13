@@ -171,6 +171,9 @@ use ZeroBoiler\Analytics\Services\NotificationWebhookService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Events\EventPluginRegistry;
+use ZeroBoiler\Analytics\Enrichment\EventEnrichmentPlugin;
+use ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry;
+use ZeroBoiler\Analytics\Enrichment\EventEnrichmentOrchestrator;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
@@ -324,7 +327,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortFunnelCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 56.0.0
+ * @version 57.0.0
  *
  * @since 1.0.0
  */
@@ -2269,6 +2272,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventPluginRegistry($config);
+        });
+
+        // Event Enrichment Plugin System (v57.0.0) — third-party event enrichment plugins
+        $this->app->singleton(EventEnrichmentRegistry::class, function (Application $app): EventEnrichmentRegistry {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventEnrichmentRegistry($config);
+        });
+
+        $this->app->singleton(EventEnrichmentOrchestrator::class, function (Application $app): EventEnrichmentOrchestrator {
+            $registry = $app->make(EventEnrichmentRegistry::class);
+            $metrics = $app->make(AnalyticsMetrics::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $debug = (bool) ($config->get('zeroboiler.analytics.enrichment_plugins.debug', false));
+
+            return new EventEnrichmentOrchestrator($registry, $metrics, $debug);
         });
 
         // AI-Powered Analytics Intelligence Service (v5.0.0)

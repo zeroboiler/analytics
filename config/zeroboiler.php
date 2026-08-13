@@ -4022,6 +4022,36 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Enrichment Plugins (v57.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven event enrichment plugin system. Allows third-party packages
+        | and application code to register enrichment plugins that transform,
+        | augment, or filter analytics events before dispatch.
+        |
+        | Plugins implement EventEnrichmentPlugin and are resolved from the container
+        | or instantiated directly. They run in priority order (highest first).
+        |
+        | Set 'enabled' to false to bypass all enrichment plugins.
+        | Use 'disabled' to individually disable plugins by name.
+        |
+        | Example:
+        |   'plugins' => [
+        |       \App\Analytics\Enrichment\GeoEnrichmentPlugin::class,
+        |       \App\Analytics\Enrichment\RevenueTagPlugin::class,
+        |   ],
+        |   'disabled' => ['geo_enrichment'],
+        |
+        */
+        'enrichment_plugins' => [
+            'enabled' => env('ANALYTICS_ENRICHMENT_PLUGINS_ENABLED', true),
+            'debug' => env('ANALYTICS_ENRICHMENT_PLUGINS_DEBUG', false),
+            'disabled' => [],
+            'plugins' => [],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Event Co-occurrence Matrix (v7.2.0)
         |-------------------------------------------------------------------------- 
         |
