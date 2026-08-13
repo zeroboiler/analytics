@@ -7017,3 +7017,144 @@ function trackLinkedInEvent(eventName, params = {}) {
         // Silently fail
     }
 }
+
+// ─── Product-Market Fit Scoring Client (v61.0.0) ───────────────────────
+
+/**
+ * Compute the Product-Market Fit score from analytics signals.
+ *
+ * POST /api/analytics/pmf/score
+ *
+ * @param {object} signals - Analytics signals
+ * @param {number} [signals.activation_rate] - Signup → first-feature conversion rate (%)
+ * @param {number} [signals.retention_week2] - Week-2 retention rate (%)
+ * @param {number} [signals.feature_depth_score] - Feature adoption breadth (%)
+ * @param {number} [signals.organic_growth_rate] - Organic/viral growth rate (%)
+ * @param {number} [signals.nps_proxy] - User satisfaction proxy score (0-100)
+ * @returns {Promise<object|null>} PMF score with grade, breakdown, and recommendations
+ *
+ * @example
+ * const pmf = await computePMFScore({
+ *     activation_rate: 55,
+ *     retention_week2: 42,
+ *     feature_depth_score: 68,
+ * });
+ * console.log(`PMF Score: ${pmf.score}/100 (Grade: ${pmf.grade})`);
+ */
+export async function computePMFScore(signals = {}) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/pmf/score`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(signals),
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get a compact PMF summary for dashboard display.
+ *
+ * GET /api/analytics/pmf/summary
+ *
+ * @param {object} [params] - Optional signal overrides via query params
+ * @returns {Promise<object|null>} PMF summary with readiness metrics
+ *
+ * @example
+ * const summary = await getPMFSummary({ activation_rate: 60 });
+ * console.log(`Coverage: ${summary.readiness.coverage}% signals provided`);
+ */
+export async function getPMFSummary(params = {}) {
+    if (!initialized) return null;
+
+    try {
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null) {
+                query.set(key, String(value));
+            }
+        }
+
+        const response = await fetch(`${apiBaseUrl}/pmf/summary?${query}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+// ─── First-Value Detection Client (v61.0.0) ───────────────────────────
+
+/**
+ * Get the first-value achievement score for a user.
+ *
+ * Shows which "aha moment" milestones the user has achieved
+ * and their weighted progress score.
+ *
+ * GET /api/analytics/first-value/score/{userId}
+ *
+ * @param {string} userId - The user identifier
+ * @returns {Promise<object|null>} First-value score with milestone details
+ *
+ * @example
+ * const score = await getFirstValueScore('user-123');
+ * console.log(`Progress: ${score.percentage}% of milestones achieved`);
+ * for (const [key, milestone] of Object.entries(score.milestones)) {
+ *     if (milestone.achieved) console.log(`✓ ${milestone.label}`);
+ * }
+ */
+export async function getFirstValueScore(userId) {
+    if (!initialized) return null;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/first-value/score/${encodeURIComponent(userId)}`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!response.ok) return null;
+
+        return await response.json();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Reset first-value milestones for a user.
+ *
+ * POST /api/analytics/first-value/reset/{userId}
+ *
+ * @param {string} userId - The user identifier
+ * @param {string} [milestone] - Optional specific milestone key to reset (all if omitted)
+ * @returns {Promise<boolean>} True if reset was successful
+ *
+ * @example
+ * await resetFirstValue('user-123'); // Reset all
+ * await resetFirstValue('user-123', 'first_search'); // Reset specific
+ */
+export async function resetFirstValue(userId, milestone) {
+    if (!initialized) return false;
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/first-value/reset/${encodeURIComponent(userId)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(milestone ? { milestone } : {}),
+        });
+
+        return response.ok;
+    } catch {
+        return false;
+    }
+}

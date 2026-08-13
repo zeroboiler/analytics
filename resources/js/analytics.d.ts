@@ -1707,3 +1707,94 @@ export interface ObservabilityConfig {
   enabled: boolean;
   slowDispatchMs: number;
 }
+
+// ─── Product-Market Fit Scoring (v61.0.0) ────────────────────────────────
+
+/**
+ * Analytics signals used to compute PMF score.
+ */
+export interface PMFSignals {
+  activation_rate?: number;
+  retention_week2?: number;
+  feature_depth_score?: number;
+  organic_growth_rate?: number;
+  nps_proxy?: number;
+}
+
+/**
+ * PMF score result with grade, breakdown, and recommendations.
+ */
+export interface PMFScoreResult {
+  status: string;
+  score: number;
+  grade: string;
+  grade_label: string;
+  breakdown: Record<string, number>;
+  signals_received: string[];
+  recommendations: string[];
+}
+
+/**
+ * Compact PMF summary for dashboard display.
+ */
+export interface PMFSummaryResult {
+  status: string;
+  pmf_score: number;
+  pmf_grade: string;
+  pmf_grade_label: string;
+  readiness: {
+    signals_count: number;
+    max_signals: number;
+    coverage: number;
+  };
+  top_signal: string | null;
+  weakest_signal: string | null;
+}
+
+/**
+ * Compute the Product-Market Fit score from analytics signals.
+ * POST /api/analytics/pmf/score
+ */
+export function computePMFScore(signals?: PMFSignals): Promise<PMFScoreResult | null>;
+
+/**
+ * Get a compact PMF summary for dashboard display.
+ * GET /api/analytics/pmf/summary
+ */
+export function getPMFSummary(params?: PMFSignals): Promise<PMFSummaryResult | null>;
+
+// ─── First-Value Detection (v61.0.0) ───────────────────────────────────
+
+/**
+ * A single milestone in the first-value detection system.
+ */
+export interface FirstValueMilestone {
+  achieved: boolean;
+  label: string;
+  weight: number;
+  category: string;
+}
+
+/**
+ * First-value score result for a user.
+ */
+export interface FirstValueScoreResult {
+  status: string;
+  user_id: string;
+  score: number;
+  max_score: number;
+  percentage: number;
+  milestones: Record<string, FirstValueMilestone>;
+}
+
+/**
+ * Get the first-value achievement score for a user.
+ * GET /api/analytics/first-value/score/{userId}
+ */
+export function getFirstValueScore(userId: string): Promise<FirstValueScoreResult | null>;
+
+/**
+ * Reset first-value milestones for a user.
+ * POST /api/analytics/first-value/reset/{userId}
+ */
+export function resetFirstValue(userId: string, milestone?: string): Promise<boolean>;

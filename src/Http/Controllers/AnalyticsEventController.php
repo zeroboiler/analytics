@@ -12536,4 +12536,118 @@ final class AnalyticsEventController extends Controller
 
         return $cache;
     }
+
+    // ─── Product-Market Fit Scoring (v61.0.0) ──────────────────────────
+
+    /**
+     * Compute PMF score from analytics signals.
+     *
+     * POST /api/analytics/pmf/score
+     * Body: { activation_rate, retention_week2, feature_depth_score, organic_growth_rate, nps_proxy }
+     */
+    public function pmfScore(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\ProductMarketFitScoringService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $signals = $request->json()->all();
+            if (! is_array($signals)) {
+                $signals = [];
+            }
+
+            $result = $service->compute($signals);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get PMF summary with readiness metrics.
+     *
+     * GET /api/analytics/pmf/summary?activation_rate=60&retention_week2=40
+     */
+    public function pmfSummary(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\ProductMarketFitScoringService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $signals = $request->query->all();
+
+            $result = $service->summary($signals);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── First-Value Detection (v61.0.0) ───────────────────────────────
+
+    /**
+     * Get first-value achievement score for a user.
+     *
+     * GET /api/analytics/first-value/score/{userId}
+     */
+    public function firstValueScore(string $userId): JsonResponse
+    {
+        try {
+            $fvConfig = $this->config->get('zeroboiler.analytics.first_value', []);
+
+            $service = new \ZeroBoiler\Analytics\Services\FirstValueDetectorService(
+                $this->cache(),
+                is_array($fvConfig) ? $fvConfig : [],
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'user_id' => $userId,
+                ...$service->getScore($userId),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reset first-value milestones for a user.
+     *
+     * POST /api/analytics/first-value/reset/{userId}
+     * Body: { milestone?: string } — if omitted, resets all milestones
+     */
+    public function firstValueReset(Request $request, string $userId): JsonResponse
+    {
+        try {
+            $fvConfig = $this->config->get('zeroboiler.analytics.first_value', []);
+
+            $service = new \ZeroBoiler\Analytics\Services\FirstValueDetectorService(
+                $this->cache(),
+                is_array($fvConfig) ? $fvConfig : [],
+            );
+
+            $milestone = $request->json('milestone');
+
+            if (is_string($milestone) && $milestone !== '') {
+                $service->resetMilestone($userId, $milestone);
+            } else {
+                $service->resetAll($userId);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => is_string($milestone) && $milestone !== ''
+                    ? "Milestone '{$milestone}' reset for user {$userId}"
+                    : "All milestones reset for user {$userId}",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
