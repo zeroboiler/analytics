@@ -13958,4 +13958,268 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Revenue Waterfall (v78.0.0) ─────────────────────────────────
+
+    /**
+     * Get revenue waterfall for a period.
+     */
+    public function revenueWaterfall(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueWaterfallService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueWaterfallService::class);
+            $period = request()->input('period', 'current_month');
+
+            return response()->json([
+                'status' => 'ok',
+                'waterfall' => $service->waterfall($period),
+                'movements' => $service->movementSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get MRR trend data for the last N months.
+     */
+    public function revenueWaterfallTrend(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueWaterfallService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueWaterfallService::class);
+            $months = (int) request()->input('months', 12);
+
+            return response()->json([
+                'status' => 'ok',
+                'trend' => $service->mrrTrend(min($months, 36)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get net MRR retention rate.
+     */
+    public function revenueNetMrrRetention(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueWaterfallService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueWaterfallService::class);
+            $period = request()->input('period', 'current_month');
+
+            return response()->json([
+                'status' => 'ok',
+                'retention' => $service->netMrrRetentionRate($period),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get MRR movement summary.
+     */
+    public function revenueMovementSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueWaterfallService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueWaterfallService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'movements' => $service->movementSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Feature Flag Analytics (v78.0.0) ──────────────────────────────
+
+    /**
+     * List all tracked feature flags.
+     */
+    public function featureFlagList(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'flags' => $service->allFlags(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get variant distribution for a specific flag.
+     */
+    public function featureFlagDistribution(string $flagKey): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'distribution' => $service->variantDistribution($flagKey),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get conversion rates per variant for a flag.
+     */
+    public function featureFlagConversions(string $flagKey): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'conversions' => $service->conversionRates($flagKey),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get feature flag adoption summary.
+     */
+    public function featureFlagAdoption(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'adoption' => $service->adoptionSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── SaaS Growth Metrics (v78.0.0) ─────────────────────────────────
+
+    /**
+     * Get comprehensive growth dashboard summary.
+     */
+    public function growthDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'dashboard' => $service->dashboardSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get activation rate.
+     */
+    public function growthActivation(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+            $period = request()->input('period', 'last_30_days');
+
+            return response()->json([
+                'status' => 'ok',
+                'activation' => $service->activationRate($period),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get stickiness rate (DAU/MAU).
+     */
+    public function growthStickiness(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+            $period = request()->input('period', 'last_30_days');
+
+            return response()->json([
+                'status' => 'ok',
+                'stickiness' => $service->stickinessRate($period),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get virality coefficient (K-factor).
+     */
+    public function growthVirality(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'virality' => $service->viralityCoefficient(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get retention curve data.
+     */
+    public function growthRetention(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'retention' => $service->retentionCurve(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get growth milestones.
+     */
+    public function growthMilestones(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'milestones' => $service->milestones(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

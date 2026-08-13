@@ -1,5 +1,21 @@
 # Changelog
 
+## [78.0.0] - 2026-08-13
+
+### Added
+- **RevenueWaterfallService** — MRR movement tracking (new, expansion, contraction, reactivation, churn) with waterfall chart data, net MRR retention rate, and 12-month MRR trend
+- **FeatureFlagAnalyticsService** — Feature flag evaluation tracking, variant distribution analysis, conversion rate tracking, and feature adoption measurement for any feature flag provider
+- **SaaSGrowthMetricsService** — Industry-standard growth metrics: activation rate, stickiness (DAU/MAU), virality coefficient (K-factor), retention curves (D1/D3/D7/D14/D30), and growth milestone tracking
+- **MrrMovementEvent** — SaaS event class for MRR movement tracking with movement type, amount, currency, customer/plan context
+- **FeatureFlagEvaluatedEvent** — SaaS event class for feature flag evaluations with variant, first-exposure, experiment context
+- **GrowthMilestoneEvent** — SaaS event class for growth milestones (activation, power_user, advocate, team_scale, revenue_tier)
+- **AnalyticsRevenueWaterfallCommand** — CLI command `zb:analytics:revenue-waterfall` with --growth, --flags, --retention, --trend, --clear-cache options
+- 14 new API endpoints: revenue waterfall, feature flag analytics, growth metrics
+- 3 new config sections: `revenue_waterfall`, `feature_flags`, `growth_metrics`
+
+### Changed
+- Version sweep from 77.0.0 to 78.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, IntegrityCommand, JS client
+
 ## [75.0.0] - 2026-08-13
 
 ### Fixed

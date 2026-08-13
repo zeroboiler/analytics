@@ -262,6 +262,55 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Revenue Waterfall (v78.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | MRR movement tracking: new, expansion, contraction, reactivation, churn.
+        | Used by RevenueWaterfallService for revenue waterfall charts and
+        | net MRR retention rate calculation.
+        |
+        */
+        'revenue_waterfall' => [
+            'enabled' => env('ANALYTICS_REVENUE_WATERFALL_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_REVENUE_WATERFALL_CACHE_TTL', 300), // 5 minutes
+            'currency' => env('ANALYTICS_REVENUE_WATERFALL_CURRENCY', 'USD'),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Feature Flag Analytics (v78.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Track feature flag evaluations, variant distribution, and
+        | conversion rates for A/B testing and feature adoption analysis.
+        |
+        */
+        'feature_flags' => [
+            'enabled' => env('ANALYTICS_FEATURE_FLAGS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FEATURE_FLAGS_CACHE_TTL', 300), // 5 minutes
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Growth Metrics (v78.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Industry-standard growth metrics: activation rate, stickiness (DAU/MAU),
+        | virality coefficient (K-factor), retention curves, and milestone tracking.
+        |
+        */
+        'growth_metrics' => [
+            'enabled' => env('ANALYTICS_GROWTH_METRICS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_GROWTH_METRICS_CACHE_TTL', 3600), // 1 hour
+            'activation_events' => [
+                // Events that count as user activation (aha moment).
+                // Customize for your product.
+                // 'first_project_created', 'first_api_call', 'team_invited',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | SaaS Event Templates (v6.9.0)
         |--------------------------------------------------------------------------
         |

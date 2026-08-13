@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-77.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-78.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v78.0.0](#whats-new-in-v78000)
 +- [What's New in v77.0.0](#whats-new-in-v77000)
 +- [What's New in v76.0.0](#whats-new-in-v76000)
 +- [What's New in v75.0.0](#whats-new-in-v75000)
@@ -4000,6 +4001,125 @@ Capabilities:
 **Tests:** `V7700SdkAuthMiddlewareTest` — 11 test cases covering disabled passthrough, service disabled passthrough, missing token (401), invalid token (401), Bearer header acceptance, SDK header acceptance, query parameter acceptance, wrong permission rejection (403), rate limit info attachment, authenticated flag setting, and request metadata propagation
 
 **Version Sweep:** 76.0.0 → 77.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION
+
+## What's New in v78.0.0
+
+### Revenue Waterfall, Feature Flag Analytics & SaaS Growth Metrics
+
+**Three major new services** for industry-standard SaaS analytics tracking, completing the full revenue lifecycle and growth measurement stack.
+
+#### New Services
+
+1. **RevenueWaterfallService** — MRR movement tracking inspired by ChartMogul and Baremetrics
+   - Track MRR movements: `new`, `expansion`, `contraction`, `reactivation`, `churn`
+   - Revenue waterfall chart data (starting MRR → movements → ending MRR)
+   - Net MRR retention rate calculation
+   - 12-month MRR trend analysis
+   - Movement summary with per-type counts and average deal sizes
+
+2. **FeatureFlagAnalyticsService** — Feature flag evaluation → conversion tracking
+   - Track any feature flag provider (LaunchDarkly, Unleash, Flagsmith, Optimizely, custom)
+   - Variant distribution analysis (control/treatment/variants)
+   - Conversion rate tracking per variant
+   - Feature adoption ranking
+   - First-exposure detection for clean A/B test measurement
+
+3. **SaaSGrowthMetricsService** — North Star & product-led growth metrics
+   - Activation rate (aha moment completion rate)
+   - Stickiness rate (DAU/MAU ratio)
+   - Virality coefficient (K-factor: invites × conversion rate)
+   - Retention curves (D1, D3, D7, D14, D30)
+   - Growth milestone tracking (activation, power user, advocate, team scale, revenue tier)
+   - Growth dashboard summary endpoint
+
+#### New Event Classes (SaaS Category)
+
+| Event | Description |
+|-------|-------------|
+| `MrrMovementEvent` | MRR movement tracking (new/expansion/contraction/reactivation/churn) |
+| `FeatureFlagEvaluatedEvent` | Feature flag evaluation with variant, first-exposure, experiment context |
+| `GrowthMilestoneEvent` | Growth milestone tracking with type, name, value, time-to-milestone |
+
+#### New CLI Command
+
+```bash
+# Revenue waterfall with growth dashboard
+php artisan zb:analytics:revenue-waterfall --growth --flags --retention
+
+# MRR trend for last 12 months
+php artisan zb:analytics:revenue-waterfall --trend --json
+
+# Clear all waterfall/growth/flag cache
+php artisan zb:analytics:revenue-waterfall --clear-cache
+```
+
+#### New API Endpoints (14 routes)
+
+```
+GET  /api/analytics/revenue/waterfall          — Revenue waterfall data
+GET  /api/analytics/revenue/waterfall/trend     — MRR trend (12 months)
+GET  /api/analytics/revenue/net-mrr-retention   — Net MRR retention rate
+GET  /api/analytics/revenue/movements           — Movement summary
+GET  /api/analytics/feature-flags               — List all tracked flags
+GET  /api/analytics/feature-flags/{key}/distribution  — Variant distribution
+GET  /api/analytics/feature-flags/{key}/conversions    — Conversion rates
+GET  /api/analytics/feature-flags/adoption      — Feature adoption summary
+GET  /api/analytics/growth/dashboard            — Growth dashboard summary
+GET  /api/analytics/growth/activation           — Activation rate
+GET  /api/analytics/growth/stickiness           — DAU/MAU stickiness
+GET  /api/analytics/growth/virality             — K-factor
+GET  /api/analytics/growth/retention             — Retention curve
+GET  /api/analytics/growth/milestones           — Growth milestones
+```
+
+#### New Config Sections
+
+```php
+// config/zeroboiler.php
+'revenue_waterfall' => [
+    'enabled' => env('ANALYTICS_REVENUE_WATERFALL_ENABLED', true),
+    'cache_ttl' => 300,   // 5 minutes
+    'currency' => 'USD',
+],
+'feature_flags' => [
+    'enabled' => env('ANALYTICS_FEATURE_FLAGS_ENABLED', true),
+    'cache_ttl' => 300,   // 5 minutes
+],
+'growth_metrics' => [
+    'enabled' => env('ANALYTICS_GROWTH_METRICS_ENABLED', true),
+    'cache_ttl' => 3600,  // 1 hour
+    'activation_events' => [
+        // 'first_project_created', 'first_api_call', 'team_invited',
+    ],
+],
+```
+
+**Usage Example:**
+
+```php
+use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
+use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
+use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
+
+// Record MRR movements
+$waterfall->recordMovement('expansion', 29.00, [
+    'customer_id' => 'cust_123',
+    'plan_id' => 'pro',
+    'previous_plan_id' => 'starter',
+]);
+
+// Track feature flag evaluation
+$flags->trackEvaluation('new_dashboard_v2', 'treatment', isFirstExposure: true);
+$flags->trackConversion('new_dashboard_v2', 'treatment', 'purchase', ['value' => 99.99]);
+
+// Track growth milestones
+$growth->trackMilestone('activation', 'Completed first project', daysSinceSignup: 2);
+$growth->trackMilestone('power_user', 'Sent 1000 messages', milestoneValue: 1000);
+```
+
+**Tests:** `V7800RevenueWaterfallGrowthMetricsFeatureFlagTest` — comprehensive test suite covering all three services, event classes, validation, and API endpoints
+
+**Version Sweep:** 77.0.0 → 78.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client
 
 ## What's New in v76.0.0
 

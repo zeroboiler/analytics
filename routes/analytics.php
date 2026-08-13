@@ -821,4 +821,24 @@ Route::prefix('analytics')->group(function () {
     Route::post('experiments/health', [AnalyticsEventController::class, 'experimentHealth']);
     Route::get('experiments/{experimentId}', [AnalyticsEventController::class, 'experimentGetAnalysis']);
     Route::delete('experiments/{experimentId}', [AnalyticsEventController::class, 'experimentClearAnalysis']);
+
+    // Revenue Waterfall (v78.0.0)
+    Route::get('revenue/waterfall', [AnalyticsEventController::class, 'revenueWaterfall']);
+    Route::get('revenue/waterfall/trend', [AnalyticsEventController::class, 'revenueWaterfallTrend']);
+    Route::get('revenue/net-mrr-retention', [AnalyticsEventController::class, 'revenueNetMrrRetention']);
+    Route::get('revenue/movements', [AnalyticsEventController::class, 'revenueMovementSummary']);
+
+    // Feature Flag Analytics (v78.0.0)
+    Route::get('feature-flags', [AnalyticsEventController::class, 'featureFlagList']);
+    Route::get('feature-flags/{flagKey}/distribution', [AnalyticsEventController::class, 'featureFlagDistribution']);
+    Route::get('feature-flags/{flagKey}/conversions', [AnalyticsEventController::class, 'featureFlagConversions']);
+    Route::get('feature-flags/adoption', [AnalyticsEventController::class, 'featureFlagAdoption']);
+
+    // SaaS Growth Metrics (v78.0.0)
+    Route::get('growth/dashboard', [AnalyticsEventController::class, 'growthDashboard']);
+    Route::get('growth/activation', [AnalyticsEventController::class, 'growthActivation']);
+    Route::get('growth/stickiness', [AnalyticsEventController::class, 'growthStickiness']);
+    Route::get('growth/virality', [AnalyticsEventController::class, 'growthVirality']);
+    Route::get('growth/retention', [AnalyticsEventController::class, 'growthRetention']);
+    Route::get('growth/milestones', [AnalyticsEventController::class, 'growthMilestones']);
 });
