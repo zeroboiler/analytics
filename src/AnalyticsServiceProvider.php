@@ -204,6 +204,9 @@ use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
 use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
 use ZeroBoiler\Analytics\Services\EventHealthScoringEngine;
+use ZeroBoiler\Analytics\Services\RevenueForecastService;
+use ZeroBoiler\Analytics\Services\ChurnPredictionService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsForecastCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsDeployGate;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
@@ -363,7 +366,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 80.0.0
+ * @version 81.0.0
  *
  * @since 1.0.0
  */
@@ -1014,6 +1017,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
                 $app->make('cache'),
                 $app->make(EventHealthScoringEngine::class),
+            );
+        });
+
+        // Revenue Forecast Service (v81.0.0) — MRR forecasting, LTV, runway
+        $this->app->singleton(RevenueForecastService::class, function (Application $app): RevenueForecastService {
+            return new RevenueForecastService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Churn Prediction Service (v81.0.0) — weighted risk signal scoring
+        $this->app->singleton(ChurnPredictionService::class, function (Application $app): ChurnPredictionService {
+            return new ChurnPredictionService(
+                $app->make(ConfigRepository::class),
             );
         });
 
@@ -3361,6 +3378,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsRevenueWaterfallCommand::class,
                 AnalyticsEventHealthCommand::class,
                 AnalyticsDeployGateCommand::class,
+                AnalyticsForecastCommand::class,
             ]);
         }
 

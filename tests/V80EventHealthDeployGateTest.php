@@ -18,10 +18,10 @@ use ZeroBoiler\Analytics\Services\AnalyticsDeployGate;
  *
  * @since 80.0.0
  */
-describe('V80 Event Health + Deploy Gate', function (): void {
+describe('V81 Event Health + Deploy Gate + Forecast', function (): void {
     beforeAll(function (): void {
         // Verify version consistency
-        expect(AnalyticsEvent::VERSION)->toBe('80.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('81.0.0');
     });
 
     describe('EventHealthScoringEngine', function (): void {
