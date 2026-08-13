@@ -28,7 +28,7 @@ abstract class AnalyticsException extends Exception
      * @param  int  $code  Application-specific error code (default: 0)
      * @param  Exception|null  $previous  The exception chain predecessor
      */
-    public function __construct(string $message, int $code = 0, ?Exception $previous = null)
+    public function __construct(string $message, int $code = 0, ?Exception $previous = null): void
     {
         parent::__construct($message, $code, $previous);
     }
