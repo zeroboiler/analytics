@@ -287,15 +287,15 @@ describe('v2.44.0 Config Integrity + AnalyticsConfig Expansion', function (): vo
     test('version is 2.45.0 across all markers', function (): void {
         // Check composer.json
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('75.0.0');
+        expect($composer['version'])->toBe('76.0.0');
 
         // Check JS client
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect(str_contains($js, "'75.0.0'"))->toBeTrue();
+        expect(str_contains($js, "'76.0.0'"))->toBeTrue();
 
         // Check TypeScript definitions
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect(str_contains($dts, '75.0.0'))->toBeTrue();
+        expect(str_contains($dts, '76.0.0'))->toBeTrue();
     });
 
     test('config file has no duplicate attribution keys', function (): void {

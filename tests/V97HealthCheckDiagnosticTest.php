@@ -18,7 +18,7 @@ test('AnalyticsHealthCheckService::ping returns valid structure', function (): v
     $result = $service->ping();
 
     expect($result)->toHaveKeys(['status', 'version', 'providers_configured', 'catalog_size']);
-    expect($result['version'])->toBe('75.0.0');
+    expect($result['version'])->toBe('76.0.0');
     expect($result['providers_configured'])->toBeInt();
     expect($result['providers_configured'])->toBeGreaterThanOrEqual(0);
     expect($result['catalog_size'])->toBeInt();
@@ -44,7 +44,7 @@ test('AnalyticsHealthCheckService::run returns valid structure', function (): vo
     $result = $service->run();
 
     expect($result)->toHaveKeys(['status', 'version', 'overall_score', 'timestamp', 'subsystems', 'recommendations']);
-    expect($result['version'])->toBe('75.0.0');
+    expect($result['version'])->toBe('76.0.0');
     expect($result['overall_score'])->toBeInt();
     expect($result['overall_score'])->toBeGreaterThanOrEqual(0);
     expect($result['overall_score'])->toBeLessThanOrEqual(100);
@@ -291,7 +291,7 @@ test('AnalyticsHealthCheckService VERSION is 2.98.0', function (): void {
     $reflection = new ReflectionClass(AnalyticsHealthCheckService::class);
     $property = $reflection->getProperty('VERSION');
 
-    expect($property->getValue())->toBe('75.0.0');
+    expect($property->getValue())->toBe('76.0.0');
 });
 
 test('AnalyticsManager::healthCheck delegates to service', function (): void {
@@ -299,7 +299,7 @@ test('AnalyticsManager::healthCheck delegates to service', function (): void {
     $result = $manager->healthCheck();
 
     expect($result)->toHaveKeys(['status', 'version', 'overall_score', 'timestamp', 'subsystems', 'recommendations']);
-    expect($result['version'])->toBe('75.0.0');
+    expect($result['version'])->toBe('76.0.0');
     expect($result['subsystems'])->toHaveKeys(['providers', 'catalog', 'aarr_coverage']);
 });
 
@@ -308,12 +308,12 @@ test('AnalyticsManager::ping delegates to service', function (): void {
     $result = $manager->ping();
 
     expect($result)->toHaveKeys(['status', 'version', 'providers_configured', 'catalog_size']);
-    expect($result['version'])->toBe('75.0.0');
+    expect($result['version'])->toBe('76.0.0');
 });
 
 test('version is 2.98.0', function (): void {
     $manager = new AnalyticsManager;
 
-    expect($manager->version())->toBe('75.0.0');
-    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('75.0.0');
+    expect($manager->version())->toBe('76.0.0');
+    expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('76.0.0');
 });

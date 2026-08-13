@@ -15,13 +15,13 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
- * Tests for v75.0.0 — Event Catalog Provider Coverage Parity.
+ * Tests for v76.0.0 — Event Catalog Provider Coverage Parity.
  *
  * Validates that every event catalog entry across all 6 categories
  * includes consistent provider mapping fields: ga4, meta, posthog,
  * plausible, mixpanel, amplitude, tiktok, linkedin.
  *
- * @since 75.0.0
+ * @since 76.0.0
  */
 final class V750ProviderCoverageParityTest extends TestCase
 {
@@ -278,10 +278,10 @@ final class V750ProviderCoverageParityTest extends TestCase
     }
 
     /**
-     * AnalyticsEvent::VERSION is 75.0.0.
+     * AnalyticsEvent::VERSION is 76.0.0.
      */
     public function test_version_is_75(): void
     {
-        $this->assertSame('75.0.0', AnalyticsEvent::VERSION);
+        $this->assertSame('76.0.0', AnalyticsEvent::VERSION);
     }
 }

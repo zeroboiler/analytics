@@ -448,7 +448,7 @@ describe('V52 — Event Taxonomy Service + Catalog Provider Enrichment', functio
     describe('Version consistency', function (): void {
         test('composer.json version is 2.52.0', function (): void {
             $json = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-            expect($json['version'])->toBe('75.0.0');
+            expect($json['version'])->toBe('76.0.0');
         });
 
         test('EventCatalog total count is consistent', function (): void {

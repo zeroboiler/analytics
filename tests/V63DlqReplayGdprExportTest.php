@@ -107,26 +107,26 @@ test('AnalyticsEventController has gdprExport method', function (): void {
 
 test('AnalyticsManager version is 2.63.0', function (): void {
     $manager = new AnalyticsManager;
-    expect($manager->version())->toBe('75.0.0');
+    expect($manager->version())->toBe('76.0.0');
 });
 
 test('version consistency across key files', function (): void {
     // AnalyticsManager
     $manager = new AnalyticsManager;
-    expect($manager->version())->toBe('75.0.0');
+    expect($manager->version())->toBe('76.0.0');
 
     // Composer
     $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-    expect($composer['version'])->toBe('75.0.0');
+    expect($composer['version'])->toBe('76.0.0');
 
     // JS client
     $jsContent = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-    expect($jsContent)->toContain('@version 75.0.0');
-    expect($jsContent)->toContain("return '75.0.0'");
+    expect($jsContent)->toContain('@version 76.0.0');
+    expect($jsContent)->toContain("return '76.0.0'");
 
     // TypeScript
     $tsContent = file_get_contents(__DIR__.'/../resources/js/analytics.d.ts');
-    expect($tsContent)->toContain('@version 75.0.0');
+    expect($tsContent)->toContain('@version 76.0.0');
 });
 
 test('routes file contains DLQ replay routes', function (): void {

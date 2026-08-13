@@ -19,9 +19,9 @@ use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 
 /**
- * V75 — SaaS Starter Industry Standard v75.0.0 Comprehensive Validation.
+ * V75 — SaaS Starter Industry Standard v76.0.0 Comprehensive Validation.
  *
- * Validates all 12 SaaS starter features at version 75.0.0 with zero
+ * Validates all 12 SaaS starter features at version 76.0.0 with zero
  * version drift across the entire codebase (tests, src, config, JS, TS, README).
  *
  * Features validated:
@@ -38,40 +38,40 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
  * 11. Optional providers: Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook trackers
  * 12. Tests: 280+ test files with version consistency
  *
- * @since 75.0.0
+ * @since 76.0.0
  */
-test('v75 version sweep: zero drift — 75.0.0 everywhere', function (): void {
+test('v75 version sweep: zero drift — 76.0.0 everywhere', function (): void {
     // AnalyticsEvent DTO
-    expect(AnalyticsEvent::VERSION)->toBe('75.0.0');
+    expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
 
     // composer.json
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('75.0.0');
+    expect($composer['version'])->toBe('76.0.0');
 
     // package.json
     $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
-    expect($pkg['version'])->toBe('75.0.0');
+    expect($pkg['version'])->toBe('76.0.0');
 
     // JS client
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 75.0.0');
-    expect($js)->toContain("'75.0.0'");
+    expect($js)->toContain('@version 76.0.0');
+    expect($js)->toContain("'76.0.0'");
 
     // Svelte composable
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 75.0.0');
+    expect($svelte)->toContain('@version 76.0.0');
 
     // TypeScript definitions
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($dts)->toContain('@version 75.0.0');
+    expect($dts)->toContain('@version 76.0.0');
 
     // README badge
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-75.0.0');
+    expect($readme)->toContain('version-76.0.0');
 
     // IntegrityCommand EXPECTED_VERSION constant
     $integrityFile = file_get_contents(__DIR__ . '/../src/Console/Commands/AnalyticsIntegrityCommand.php');
-    expect($integrityFile)->toContain("EXPECTED_VERSION = '75.0.0'");
+    expect($integrityFile)->toContain("EXPECTED_VERSION = '76.0.0'");
 
     // Zero references to old version 10.3.0 in tests
     $testFiles = glob(__DIR__ . '/*Test.php');
@@ -286,7 +286,7 @@ test('v75 feature 5: JS client with 5K+ lines and all required exports', functio
     expect($js)->toContain('function autoIdentify');
 
     // Version
-    expect($js)->toContain("'75.0.0'");
+    expect($js)->toContain("'76.0.0'");
 
     // Substantial (5K+ lines)
     $lineCount = substr_count($js, "\n");
