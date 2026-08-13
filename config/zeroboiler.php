@@ -6598,5 +6598,33 @@ return [
             'engagement_weight_users' => (float) env('ANALYTICS_GEO_ANALYTICS_WEIGHT_USERS', 0.4),
             'engagement_weight_sessions' => (float) env('ANALYTICS_GEO_ANALYTICS_WEIGHT_SESSIONS', 0.2),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Experiment Analysis Engine (v74.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Bayesian and Frequentist hypothesis testing for A/B experiments.
+        | Provides comprehensive statistical analysis including:
+        | - Two-proportion z-test and Welch's t-test (Frequentist)
+        | - Beta-Binomial Monte Carlo analysis (Bayesian)
+        | - Wilson score confidence intervals
+        | - Cohen's h effect sizes
+        | - Bonferroni/Šidák/Holm-Bonferroni multi-variant corrections
+        | - O'Brien-Fleming sequential testing with alpha spending
+        | - MDE calculator and sample size planning
+        |
+        | Used by ExperimentAnalysisEngine service and zb:analytics:experiment CLI.
+        |
+        */
+        'experiment_analysis' => [
+            'enabled' => env('ANALYTICS_EXPERIMENT_ANALYSIS_ENABLED', true),
+            'alpha' => (float) env('ANALYTICS_EXPERIMENT_ANALYSIS_ALPHA', 0.05),
+            'power' => (float) env('ANALYTICS_EXPERIMENT_ANALYSIS_POWER', 0.80),
+            'method' => env('ANALYTICS_EXPERIMENT_ANALYSIS_METHOD', 'both'), // 'frequentist'|'bayesian'|'both'
+            'sequential_alpha_spend_rate' => (float) env('ANALYTICS_EXPERIMENT_ANALYSIS_SEQUENTIAL_RATE', 0.5),
+            'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_ANALYSIS_MIN_SAMPLE', 100),
+            'max_sequential_peeks' => (int) env('ANALYTICS_EXPERIMENT_ANALYSIS_MAX_PEEKS', 10),
+        ],
     ],
 ];

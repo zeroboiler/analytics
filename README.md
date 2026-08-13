@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-73.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-74.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v74.0.0](#whats-new-in-v74000)
 +- [What's New in v73.0.0](#whats-new-in-v72000)
 +- [What's New in v71.0.0](#whats-new-in-v71000)
 +- [What's New in v70.0.0](#whats-new-in-v70000)
@@ -3974,6 +3975,55 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v74.0.0
+
+### Experiment Analysis Engine — Bayesian & Frequentist Hypothesis Testing
+
+Comprehensive statistical analysis for A/B tests and multi-variant experiments, inspired by **Optimizely Stats Engine**, **Eppo Experiment Platform**, **Vercel Edge Analytics**, and **Google Optimize**.
+
+**New Service: `ExperimentAnalysisEngine`**
+- **Frequentist tests**: Two-proportion z-test for conversion rates, Welch's t-test for continuous/revenue metrics
+- **Bayesian analysis**: Beta-Binomial Monte Carlo model (20,000 simulations) with probability of being best, probability of beating control, expected loss, 95% credible intervals
+- **Effect sizes**: Relative uplift, absolute lift, Cohen's h
+- **Confidence intervals**: Wilson score interval (more accurate for small samples than Wald)
+- **Multi-variant corrections**: Bonferroni, Šidák, Holm-Bonferroni step-down procedure
+- **Sequential testing**: O'Brien-Fleming alpha spending function with early stopping boundaries, Pocock and linear alternatives
+- **Sample size planning**: MDE (Minimum Detectable Effect) calculator with Bonferroni correction for multiple comparisons
+- **Revenue/metric analysis**: Two-sample t-test for ARPU, AOV, and continuous metrics
+- **Quick significance**: Single-pair variant comparison for rapid checks
+- **Experiment health assessment**: Sample ratio mismatch (SRM) detection, conversion count checks, traffic imbalance detection, zero-conversion variant warnings
+- Configurable: alpha (0.05), power (0.80), analysis method (frequentist/bayesian/both), min sample size, max sequential peeks
+
+**New Command: `zb:analytics:experiment`**
+- Interactive CLI with 7 actions:
+  - `{experimentId}` — view cached analysis results for an experiment
+  - `health` — assess experiment data quality (sample size, SRM, traffic balance)
+  - `sample-size` — calculate required sample size given baseline rate and MDE
+  - `mde` — calculate minimum detectable effect for a given sample size
+  - `sequential` — check sequential test boundaries at a given peek
+  - `quick` — quick significance test for two variants
+- `--json` flag for machine-readable output on all actions
+- `--control`, `--method`, `--metric`, `--alpha`, `--power`, `--correction` options
+
+**New API Endpoints:**
+- `POST /api/analytics/experiments/analyze` — full Bayesian + Frequentist analysis
+- `POST /api/analytics/experiments/quick-significance` — quick two-variant test
+- `POST /api/analytics/experiments/sample-size` — sample size calculator
+- `POST /api/analytics/experiments/mde` — MDE calculator
+- `POST /api/analytics/experiments/sequential` — sequential test boundary check
+- `POST /api/analytics/experiments/health` — experiment data health assessment
+- `GET /api/analytics/experiments/{experimentId}` — get cached analysis
+- `DELETE /api/analytics/experiments/{experimentId}` — clear cached analysis
+
+**New Config Section:**
+- `zeroboiler.analytics.experiment_analysis` — enabled, alpha, power, method, sequential_alpha_spend_rate, min_sample_size, max_sequential_peeks
+
+**Tests:**
+- `V74ExperimentAnalysisEngineTest` — 32 test cases covering class existence, constructor, configuration, full analysis structure, empty variants, caching, frequentist significance detection, missing control, Bayesian P(Best) and credible intervals, effect size computation, Wilson score intervals, multi-variant correction (Bonferroni/Šidák comparison), sequential test continuation, sample size calculator, MDE calculator, quick significance, experiment health assessment (low sample size, balanced traffic), full analysis pipeline integration, and CLI command registration
+
+**Version Sweep:**
+- All version references unified to v74.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
 
 ## What's New in v73.0.0
 

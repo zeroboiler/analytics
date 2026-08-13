@@ -342,6 +342,8 @@ use ZeroBoiler\Analytics\Services\EventSessionContextService;
 use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
 use ZeroBoiler\Analytics\Services\GeographicAnalyticsService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGeoCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsExperimentCommand;
+use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -3179,6 +3181,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new GeographicAnalyticsService($cache, $config, $metrics);
         });
+
+        // Experiment Analysis Engine (v74.0.0) — Bayesian + Frequentist hypothesis testing
+        $this->app->singleton(ExperimentAnalysisEngine::class, function (Application $app): ExperimentAnalysisEngine {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ExperimentAnalysisEngine($cache, $config);
+        });
     }
 
     /**
@@ -3247,6 +3259,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsPipelineValidateCommand::class,
                 AnalyticsTransformCommand::class,
                 AnalyticsConsoleCommand::class,
+                AnalyticsExperimentCommand::class,
             ]);
         }
 

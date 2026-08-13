@@ -58,6 +58,7 @@ use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
+use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
 use ZeroBoiler\Analytics\Services\EventDataMartService;
@@ -13671,6 +13672,190 @@ final class AnalyticsEventController extends Controller
             $service->eraseFor($clientId);
 
             return response()->json(['status' => 'ok', 'message' => 'Attribution trail erased']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Experiment Analysis Engine (v74.0.0) ───────────────────────────
+
+    /**
+     * Run comprehensive experiment analysis (Bayesian + Frequentist).
+     */
+    public function experimentAnalyze(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $experimentId = (string) $request->input('experiment_id', 'manual');
+            $variants = (array) $request->input('variants', []);
+            $controlId = $request->input('control_id');
+            $metricType = (string) $request->input('metric_type', 'conversion_rate');
+            $method = (string) $request->input('method', 'both');
+
+            if (empty($variants)) {
+                return response()->json(['status' => 'error', 'error' => 'variants array is required'], 422);
+            }
+
+            $result = $engine->analyze(
+                $experimentId,
+                $variants,
+                is_string($controlId) && $controlId !== '' ? $controlId : null,
+                $metricType,
+                $method,
+            );
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Quick significance test for two variants.
+     */
+    public function experimentQuickSignificance(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $result = $engine->quickSignificance(
+                (int) $request->input('control_conversions', 0),
+                (int) $request->input('control_exposures', 0),
+                (int) $request->input('treatment_conversions', 0),
+                (int) $request->input('treatment_exposures', 0),
+            );
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate required sample size for a given MDE.
+     */
+    public function experimentSampleSize(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $result = $engine->calculateSampleSize(
+                (float) $request->input('baseline_rate', 0.05),
+                (float) $request->input('mde', 0.10),
+                $request->has('alpha') ? (float) $request->input('alpha') : null,
+                $request->has('power') ? (float) $request->input('power') : null,
+                $request->has('num_variants') ? (int) $request->input('num_variants') : null,
+            );
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate MDE for a given sample size.
+     */
+    public function experimentMDE(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $result = $engine->calculateMDE(
+                (float) $request->input('baseline_rate', 0.05),
+                (int) $request->input('sample_size', 1000),
+                $request->has('alpha') ? (float) $request->input('alpha') : null,
+                $request->has('power') ? (float) $request->input('power') : null,
+            );
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Check sequential test boundaries.
+     */
+    public function experimentSequential(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $result = $engine->sequentialTest(
+                (string) $request->input('experiment_id', 'manual'),
+                (int) $request->input('peek', 1),
+                (int) $request->input('max_peeks', 10),
+                (float) $request->input('z_score', 0.0),
+                (string) $request->input('spending_function', 'obrien_fleming'),
+            );
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Assess experiment data health.
+     */
+    public function experimentHealth(Request $request): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+
+            $variants = (array) $request->input('variants', []);
+
+            if (empty($variants)) {
+                return response()->json(['status' => 'error', 'error' => 'variants array is required'], 422);
+            }
+
+            $result = $engine->assessExperimentHealth($variants);
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cached experiment analysis.
+     */
+    public function experimentGetAnalysis(string $experimentId): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+            $result = $engine->getCachedAnalysis($experimentId);
+
+            if ($result === null) {
+                return response()->json(['status' => 'not_found', 'message' => "No analysis found for experiment: {$experimentId}"], 404);
+            }
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear cached experiment analysis.
+     */
+    public function experimentClearAnalysis(string $experimentId): JsonResponse
+    {
+        try {
+            /** @var ExperimentAnalysisEngine $engine */
+            $engine = app(ExperimentAnalysisEngine::class);
+            $engine->clearAnalysis($experimentId);
+
+            return response()->json(['status' => 'ok', 'message' => "Analysis cleared for experiment: {$experimentId}"]);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
