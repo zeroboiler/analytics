@@ -33,7 +33,7 @@ final readonly class TransformedPayload
         public array $applied = [],
         public bool $dropped = false,
         public array $warnings = [],
-    ) {}
+    ): void {}
 
     /**
      * Create a "dropped" result — event should not be sent to this provider.

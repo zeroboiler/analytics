@@ -36,7 +36,7 @@ final readonly class EventTransformationRule
         public bool $dropIfMissing = false,
         public bool $dropAlways = false,
         public ?callable $condition = null,
-    ) {}
+    ): void {}
 
     /**
      * Create a "rename" rule — changes field name for the target provider.

@@ -74,7 +74,7 @@ final class EventTransformationEngine
     public function __construct(
         ConfigRepository $config,
         CacheRepository $cache,
-    ) {
+    ): void {
         $this->cache = $cache;
         $this->enabled = (bool) $config->get('zeroboiler.analytics.transformation.enabled', true);
         $this->cacheTtl = (int) $config->get('zeroboiler.analytics.transformation.cache_ttl', 3600);

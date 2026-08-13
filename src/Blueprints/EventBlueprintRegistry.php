@@ -47,7 +47,7 @@ final class EventBlueprintRegistry
     /**
      * @param  CacheRepository  $cache  Cache repository for blueprint caching
      */
-    public function __construct(CacheRepository $cache)
+    public function __construct(CacheRepository $cache): void
     {
         $this->cache = $cache;
     }
