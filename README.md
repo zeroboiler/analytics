@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-55.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|||[![Latest Version](https://img.shields.io/badge/version-56.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v56.0.0](#whats-new-in-v56000)
 - [What's New in v54.0.0](#whats-new-in-v54000)
 - [What's New in v53.0.0](#whats-new-in-v53000)
 - [What's New in v52.0.0](#whats-new-in-v52000)
@@ -131,6 +132,50 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v56.0.0
+
+### Cohort × Funnel Matrix Engine — Cross-Dimensional Conversion Analytics
+
+Intersects user cohorts with conversion funnels to produce heatmap-ready matrices, step performance analysis, drop-off rankings, velocity indices, and side-by-side cohort comparisons. Inspired by Amplitude Pathfinder × Cohort and Mixpanel Cohort Funnels.
+
+**CohortFunnelMatrixService** — Core engine for cross-dimensional cohort-funnel analysis. Produces structured matrix data (rows = cohorts, columns = funnel steps) with counts, step-to-step conversion rates, cumulative rates, and time-to-convert metrics. Supports 4 predefined funnel templates (onboarding, purchase, saas_conversion, engagement) and custom funnel registration. Includes heatmap generation (2D array for D3/Chart.js), cohort comparison diff view, velocity index scoring (0-100), step performance analysis with standard deviation, and drop-off severity ranking (critical/high/medium/low). Configurable max cohorts/steps bounds, caching, and disabled-state safety.
+
+```php
+use ZeroBoiler\Analytics\Services\CohortFunnelMatrixService;
+
+$service = app(CohortFunnelMatrixService::class);
+
+// Build matrix
+$matrix = $service->buildMatrix(
+    ['2026-W28', '2026-W29', '2026-W30'],
+    ['sign_up', 'verified', 'active', 'trial_started', 'subscribe'],
+    $cohortData,
+);
+
+// Heatmap for visualization
+$heatmap = $service->heatmap($cohorts, $steps, $cohortData);
+
+// Velocity index
+$velocity = $service->velocityIndex('2026-W29', $steps, $stepData);
+
+// Compare two cohorts
+$comparison = $service->compareCohorts('2026-W28', '2026-W30', $steps, $cohortData);
+```
+
+**AnalyticsCohortFunnelCommand** (`zb:analytics:cohort-funnel`) — Admin CLI with 9 actions: `config`, `templates`, `build`, `compare`, `heatmap`, `velocity`, `analysis`, `dropoff`, `clear-cache`. Supports `--template`, `--cohorts`, `--steps`, `--json` options.
+
+**1 new config section** — `cohort_funnel_matrix` (6 options: enabled, cache_ttl, max_cohorts, max_steps, cohort_dimensions, custom_funnels).
+
+**1 new singleton registration** — CohortFunnelMatrixService registered in AnalyticsServiceProvider.
+
+**Command registration** — AnalyticsCohortFunnelCommand registered in ServiceProvider commands.
+
+**V5600CohortFunnelMatrixEngineTest** — 30+ test cases covering construction, config summary, funnel templates (all 4 defaults, unknown, custom registration), buildMatrix (basic, disabled, max_cohorts, time_to_convert, empty data, single-step), buildFromTemplate, compareCohorts (step-by-step deltas, disabled), heatmap (generation, disabled), velocityIndex (computation, disabled, zero counts), stepPerformanceAnalysis (across cohorts, disabled), dropoffRanking (severity classification, single-step, critical detection), buildMatrixCached, clearCache, version consistency, command signature.
+
+### Changed
+
+- **Version sweep** — 55.0.0 → 56.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
 
 ## What's New in v54.0.0
 

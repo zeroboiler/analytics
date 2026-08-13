@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [56.0.0] - 2026-08-13
+
+### Added
+
+- **CohortFunnelMatrixService** — Cross-dimensional cohort × funnel matrix analytics engine. Intersects user cohorts with conversion funnels to produce structured matrix data (rows = cohorts, columns = funnel steps) with counts, step-to-step conversion rates, cumulative rates, and time-to-convert metrics. Includes heatmap generation (2D array for D3/Chart.js), cohort comparison diff view, velocity index scoring (0-100 composite), step performance analysis with standard deviation, and drop-off severity ranking (critical/high/medium/low). Supports 4 predefined funnel templates (onboarding, purchase, saas_conversion, engagement) and runtime custom funnel registration. Configurable max cohorts/steps bounds, cache-backed matrix computation, and disabled-state safety.
+- **AnalyticsCohortFunnelCommand** (`zb:analytics:cohort-funnel`) — Admin CLI with 9 actions: `config` (show service configuration), `templates` (list all funnel templates), `build` (build cohort×funnel matrix), `compare` (side-by-side cohort diff), `heatmap` (heatmap-ready matrix), `velocity` (velocity index for a cohort), `analysis` (step performance across cohorts), `dropoff` (drop-off severity ranking), `clear-cache` (flush cached matrices). Supports `--template`, `--cohorts`, `--steps`, `--json` options. Includes built-in sample data for demonstration.
+- **1 new config section** — `cohort_funnel_matrix` (6 options: enabled, cache_ttl, max_cohorts, max_steps, cohort_dimensions, custom_funnels).
+- **1 new singleton registration** — CohortFunnelMatrixService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsCohortFunnelCommand registered in ServiceProvider commands.
+- **V5600CohortFunnelMatrixEngineTest** — 30+ test cases covering construction (default/enabled), configSummary, funnelTemplates (all 4 defaults, unknown template, custom registration), buildMatrix (2 cohorts × 5 steps, disabled state, max_cohorts enforcement, time_to_convert computation, empty data, single-step funnel), buildFromTemplate (valid/unknown template), compareCohorts (step-by-step delta computation, disabled state), heatmap (generation with min/max, disabled state), velocityIndex (computation with bounds, disabled, zero counts), stepPerformanceAnalysis (best/worst/most-variable step, disabled state), dropoffRanking (severity classification, single-step edge case, critical detection), buildMatrixCached (cache wrapper), clearCache, version consistency, command signature.
+
+### Changed
+
+- **Version sweep** — 55.0.0 → 56.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
+
 ## [55.0.0] - 2026-08-13
 
 ### Added

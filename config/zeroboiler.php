@@ -3705,6 +3705,29 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Cohort × Funnel Matrix Engine (v56.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Cross-dimensional cohort and funnel matrix analytics. Intersects user
+        | cohorts with conversion funnels to produce heatmap-ready data, step
+        | performance analysis, drop-off rankings, and velocity indices.
+        |
+        | Inspired by Amplitude Pathfinder × Cohort and Mixpanel Cohort Funnels.
+        |
+        */
+        'cohort_funnel_matrix' => [
+            'enabled' => env('ANALYTICS_COHORT_FUNNEL_MATRIX_ENABLED', false),
+            'cache_ttl' => (int) env('ANALYTICS_COHORT_FUNNEL_MATRIX_CACHE_TTL', 600), // 10 minutes
+            'max_cohorts' => (int) env('ANALYTICS_COHORT_FUNNEL_MATRIX_MAX_COHORTS', 24),
+            'max_steps' => (int) env('ANALYTICS_COHORT_FUNNEL_MATRIX_MAX_STEPS', 20),
+            'cohort_dimensions' => ['period', 'source', 'plan', 'tier', 'device'],
+            'custom_funnels' => [
+                // 'custom_checkout' => ['landing', 'signup', 'payment', 'done'],
+            ],
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | Event Broadcasting (v5.0.0)
         |--------------------------------------------------------------------------
