@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-51.1.0-blue)](https://github.com/zeroboiler/analytics)]|
+||[![Latest Version](https://img.shields.io/badge/version-52.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v52.0.0](#whats-new-in-v52000)
 - [What's New in v51.1.0](#whats-new-in-v51100)
 - [What's New in v50.0.0](#whats-new-in-v50000)
 - [What's New in v48.0.0](#whats-new-in-v48000)
@@ -128,6 +129,71 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v52.0.0
+
+### Pre-computed Analytics Rollup Engine
+
+Maintains materialized time-series aggregations in the cache layer so dashboard widgets and API endpoints can query aggregate metrics without scanning raw event data. Supports hourly, daily, and weekly granularities with configurable TTL and bounded unique tracking.
+
+**AnalyticsRollupService** — Record events for automatic rollup computation at all active granularities. Query aggregated data with top events ranking, category distribution percentages, and unique user/client counts. Compare trends between consecutive periods with delta and percentage change. Generate sparkline data for event-specific time-series visualization.
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsRollupService;
+
+$rollup = app(AnalyticsRollupService::class);
+
+// Automatic recording — call from your event dispatch pipeline
+$rollup->record('purchase', 'ecommerce', 'ga4', $userId, $clientId);
+
+// Query aggregated data for current day
+$data = $rollup->query('daily');
+// → total, events, categories, providers, unique_users, top_events, category_distribution
+
+// Trend comparison (today vs yesterday)
+$trend = $rollup->trend('daily');
+// → current, previous, delta, pct_change
+
+// Sparkline for a specific event
+$sparkline = $rollup->sparkline('page_view', 'hourly', 24);
+// → [{period: '2026-08-13T14', count: 42}, ...]
+```
+
+**AnalyticsRollupCommand** (`zb:analytics:rollup`) — CLI for rollup management with 6 modes:
+
+```bash
+php artisan zb:analytics:rollup summary          # Service configuration
+php artisan zb:analytics:rollup stats             # Data volume per granularity
+php artisan zb:analytics:rollup query --granularity=daily
+php artisan zb:analytics:rollup trend --granularity=daily
+php artisan zb:analytics:rollup sparkline --event=page_view --periods=48
+php artisan zb:analytics:rollup clear              # Flush rollup cache
+```
+
+**4 new API endpoints:**
+
+| Endpoint | Description |
+|---|---|
+| `GET /api/analytics/rollup?granularity=daily&period=2026-08-13` | Query rollup data |
+| `GET /api/analytics/rollup/summary` | Service configuration |
+| `GET /api/analytics/rollup/trend?granularity=daily` | Period comparison |
+| `GET /api/analytics/rollup/stats` | Data volume statistics |
+
+**Config:**
+
+```php
+// config/zeroboiler.php → analytics.rollup
+'rollup' => [
+    'enabled' => true,
+    'granularities' => ['hourly', 'daily', 'weekly'],
+    'cache_prefix' => 'zb_rollup_',
+    'hourly_ttl' => 7200,       // 2 hours
+    'daily_ttl' => 604800,      // 7 days
+    'weekly_ttl' => 2592000,     // 30 days
+    'max_top_events' => 20,
+    'max_unique_trackers' => 10000,
+],
+```
 
 ## What's New in v51.1.0
 

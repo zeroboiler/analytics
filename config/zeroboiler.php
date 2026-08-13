@@ -5789,5 +5789,31 @@ return [
             'track_providers' => env('ANALYTICS_EVENT_LINEAGE_TRACK_PROVIDERS', true),
             'skip_stages' => [], // e.g., ['timestamp'] to skip high-frequency no-op stages
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Pre-computed Analytics Rollups (v52.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Maintains materialized time-series aggregations in the cache layer so
+        | dashboard widgets and API endpoints can query aggregate metrics without
+        | scanning raw event data. Rollups are computed at configurable granularities
+        | (hourly, daily, weekly) and include event counts by name, category, and
+        | provider, plus unique user/client tracking with bounded sets.
+        |
+        | Inspired by Materialized Views in data warehousing, ClickHouse rollup
+        | tables, and Mixpanel/Amplitude pre-aggregated dashboard metrics.
+        |
+        */
+        'rollup' => [
+            'enabled' => env('ANALYTICS_ROLLUP_ENABLED', true),
+            'granularities' => ['hourly', 'daily', 'weekly'], // active rollup granularities
+            'cache_prefix' => env('ANALYTICS_ROLLUP_CACHE_PREFIX', 'zb_rollup_'),
+            'hourly_ttl' => (int) env('ANALYTICS_ROLLUP_HOURLY_TTL', 7200), // 2 hours
+            'daily_ttl' => (int) env('ANALYTICS_ROLLUP_DAILY_TTL', 604800), // 7 days
+            'weekly_ttl' => (int) env('ANALYTICS_ROLLUP_WEEKLY_TTL', 2592000), // 30 days
+            'max_top_events' => (int) env('ANALYTICS_ROLLUP_MAX_TOP_EVENTS', 20),
+            'max_unique_trackers' => (int) env('ANALYTICS_ROLLUP_MAX_UNIQUE_TRACKERS', 10000),
+        ],
     ],
 ];

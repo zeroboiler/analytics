@@ -307,6 +307,8 @@ use ZeroBoiler\Analytics\Services\EventLineageTrackerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSelfHealCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsLineageCommand;
 use ZeroBoiler\Analytics\Services\AutoInstrumentationEngine;
+use ZeroBoiler\Analytics\Services\AnalyticsRollupService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsRollupCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -314,7 +316,7 @@ use ZeroBoiler\Analytics\Services\AutoInstrumentationEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 50.0.0
+ * @version 52.0.0
  *
  * @since 1.0.0
  */
@@ -578,6 +580,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $dispatcher = $app->make('events');
 
             return new AutoInstrumentationEngine($config, $manager, $dispatcher);
+        });
+
+        // Pre-computed analytics rollup engine (v52.0.0)
+        $this->app->singleton(AnalyticsRollupService::class, function (Application $app): AnalyticsRollupService {
+            return new AnalyticsRollupService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
         });
 
         // Event time-series aggregation engine (v6.0.0)
@@ -2986,6 +2996,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsHealthSummaryCommand::class,
                 AnalyticsSelfHealCommand::class,
                 AnalyticsLineageCommand::class,
+                AnalyticsRollupCommand::class,
             ]);
         }
 
@@ -3329,6 +3340,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/workspace/{workspaceId}/funnels', [$controller, 'workspaceFunnels']);
                 Route::get('analytics/workspace/{workspaceId}/revenue', [$controller, 'workspaceRevenue']);
                 Route::post('analytics/workspace/compare', [$controller, 'workspaceCompare']);
+
+                // Analytics Rollups (v52.0.0)
+                Route::get('analytics/rollup', [$controller, 'rollupQuery']);
+                Route::get('analytics/rollup/summary', [$controller, 'rollupSummary']);
+                Route::get('analytics/rollup/trend', [$controller, 'rollupTrend']);
+                Route::get('analytics/rollup/stats', [$controller, 'rollupStats']);
             });
 
         // Authenticated endpoints

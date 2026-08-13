@@ -2,6 +2,22 @@
 
 All notable changes to the package will be documented in this file.
 
+## [52.0.0] - 2026-08-13
+
+### Added
+
+- **AnalyticsRollupService** — Pre-computed analytics rollup engine that maintains materialized time-series aggregations in the cache layer. Supports hourly, daily, and weekly granularities with event counts by name, category, and provider. Includes unique user and client tracking with bounded sets (configurable max). Inspired by Materialized Views in data warehousing, ClickHouse rollup tables, and Mixpanel/Amplitude pre-aggregated dashboard metrics.
+- **AnalyticsRollupCommand** (`zb:analytics:rollup`) — Admin CLI with 6 modes: `summary` (service configuration), `stats` (data volume per granularity), `query` (full rollup data with top events and category distribution), `trend` (period-over-period comparison with delta and percentage change), `sparkline` (event count sparkline for last N periods), `clear` (flush rollup data). `--granularity`, `--period`, `--event`, `--periods`, `--json` options.
+- **4 new API endpoints** — `GET /api/analytics/rollup` (query rollup data), `GET /api/analytics/rollup/summary` (service config), `GET /api/analytics/rollup/trend` (period comparison), `GET /api/analytics/rollup/stats` (data volume statistics).
+- **1 new config section** — `rollup` (9 options: enabled, granularities, cache_prefix, hourly_ttl, daily_ttl, weekly_ttl, max_top_events, max_unique_trackers).
+- **1 new singleton registration** — AnalyticsRollupService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsRollupCommand registered in ServiceProvider commands.
+- **V52RollupEngineTest** — 20+ test cases covering AnalyticsRollupService (construction, disabled mode, event recording, unique tracking, bounded sets, query with period override, query summary, trend computation, zero-previous-period handling, sparkline data, stats, TTL per granularity, config summary) and AnalyticsRollupCommand (signature, description).
+
+### Changed
+
+- **Version sweep** — 51.0.0/51.1.0 → 52.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
+
 ## [51.1.0] - 2026-08-13
 
 ### Added

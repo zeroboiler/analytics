@@ -11945,4 +11945,73 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Analytics Rollups (v52.0.0) ──────────────────────────────────
+
+    /**
+     * Query pre-computed rollup data.
+     *
+     * GET /api/analytics/rollup?granularity=daily&period=2026-08-13
+     */
+    public function rollupQuery(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsRollupService::class);
+            $granularity = $request->query('granularity', 'daily');
+            $period = $request->query('period');
+
+            return response()->json($service->query($granularity, $period));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get rollup service summary (configuration).
+     *
+     * GET /api/analytics/rollup/summary
+     */
+    public function rollupSummary(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsRollupService::class);
+
+            return response()->json($service->summary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get rollup trend comparison between periods.
+     *
+     * GET /api/analytics/rollup/trend?granularity=daily
+     */
+    public function rollupTrend(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsRollupService::class);
+            $granularity = $request->query('granularity', 'daily');
+
+            return response()->json($service->trend($granularity));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get rollup data volume statistics.
+     *
+     * GET /api/analytics/rollup/stats
+     */
+    public function rollupStats(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsRollupService::class);
+
+            return response()->json($service->stats());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
