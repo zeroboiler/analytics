@@ -501,6 +501,38 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | UTM Parameter Manager (v55.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Unified UTM parameter management: validation, sanitization, extraction,
+        | URL decoration (adding UTM to outbound links), and cleaning (stripping
+        | internal tracking params like fbclid, gclid from URLs).
+        |
+        | Used by UtmParameterManager service and AnalyticsUtmCommand.
+        |
+        */
+        'utm_manager' => [
+            'enabled' => env('ANALYTICS_UTM_MANAGER_ENABLED', true),
+            'max_value_length' => (int) env('ANALYTICS_UTM_MAX_VALUE_LENGTH', 500),
+            'max_key_length' => (int) env('ANALYTICS_UTM_MAX_KEY_LENGTH', 100),
+            'lowercase_source_medium' => env('ANALYTICS_UTM_LOWERCASE', true),
+            'trim_values' => env('ANALYTICS_UTM_TRIM', true),
+            'strip_html' => env('ANALYTICS_UTM_STRIP_HTML', true),
+            'aliases' => [
+                // Map non-standard param names to canonical UTM names
+                // 'source' => 'utm_source',
+                // 'medium' => 'utm_medium',
+                // 'campaign' => 'utm_campaign',
+            ],
+            'required_for_completeness' => ['utm_source', 'utm_medium', 'utm_campaign'],
+            'internal_params' => [
+                // Additional custom internal tracking params to strip
+                // 'custom_tracker_id',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | User Journey Orchestration (v22.0.0)
         |--------------------------------------------------------------------------
         |

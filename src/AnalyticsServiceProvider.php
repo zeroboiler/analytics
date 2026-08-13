@@ -313,6 +313,8 @@ use ZeroBoiler\Analytics\Services\EventPayloadEncryptionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRollupCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEncryptionCommand;
 use ZeroBoiler\Analytics\Middleware\EventPayloadEncryptionMiddleware;
+use ZeroBoiler\Analytics\Services\UtmParameterManager;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsUtmCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -320,7 +322,7 @@ use ZeroBoiler\Analytics\Middleware\EventPayloadEncryptionMiddleware;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 54.0.0
+ * @version 55.0.0
  *
  * @since 1.0.0
  */
@@ -606,6 +608,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventPayloadEncryptionMiddleware::class, function (Application $app): EventPayloadEncryptionMiddleware {
             return new EventPayloadEncryptionMiddleware(
                 $app->make(EventPayloadEncryptionService::class),
+            );
+        });
+
+        // UTM Parameter Manager (v55.0.0)
+        $this->app->singleton(UtmParameterManager::class, function (Application $app): UtmParameterManager {
+            return new UtmParameterManager(
+                $app->make(ConfigRepository::class),
             );
         });
 
@@ -3017,6 +3026,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsLineageCommand::class,
                 AnalyticsRollupCommand::class,
                 AnalyticsEncryptionCommand::class,
+                AnalyticsUtmCommand::class,
             ]);
         }
 

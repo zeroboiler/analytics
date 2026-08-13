@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [55.0.0] - 2026-08-13
+
+### Added
+
+- **UtmParameterManager** — Config-driven UTM parameter management service. Provides unified extraction, validation, sanitization, and normalization of campaign tracking parameters across the analytics stack. Supports alias resolution (non-standard param names → canonical UTM names), URL decoration (adding UTM params to outbound links), URL cleaning (stripping 28+ internal tracking params like fbclid, gclid, msclkid, twclid, etc.), completeness scoring (0–100%), and configurable value sanitization (trimming, HTML stripping, source/medium lowercasing).
+- **AnalyticsUtmCommand** (`zb:analytics:utm`) — Admin CLI with 8 subcommands: `config` (show UTM manager configuration), `validate` (validate UTM params in a URL), `clean` (strip internal tracking params), `decorate` (add UTM params to a URL), `extract` (extract and sanitize UTM from URL), `score` (compute completeness score), `aliases` (show configured and default aliases), `internal` (list all internal params to strip). Supports `--url`, `--source`, `--medium`, `--campaign`, `--json` options.
+- **1 new config section** — `utm_manager` (11 options: enabled, max_value_length, max_key_length, lowercase_source_medium, trim_values, strip_html, aliases, required_for_completeness, internal_params).
+- **1 new singleton registration** — UtmParameterManager registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsUtmCommand registered in ServiceProvider commands.
+- **V5500UtmParameterManagerTest** — 40+ test cases covering construction, config summary, standard params, internal params, URL extraction, array extraction, alias resolution, validation (complete/incomplete/empty/oversized), sanitization (value/params/lowercase/extract-and-sanitize), URL decoration (fresh/merge/empty/malformed), URL cleaning (fbclid/gclid/multi/custom/no-query/only-internal), clean-and-decorate, completeness scoring (100/66/0/custom), isUtmParam, and version consistency.
+
+### Changed
+
+- **Version sweep** — 54.0.0 → 55.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG.
+
 ## [53.0.0] - 2026-08-13
 
 ### Added
