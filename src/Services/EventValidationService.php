@@ -170,6 +170,9 @@ final class EventValidationService
 
     /**
      * Sanitize a parameter value recursively.
+     *
+     * @param  mixed  $value  The value to sanitize (string, array, or scalar)
+     * @return mixed The sanitized value
      */
     private function sanitizeValue(mixed $value): mixed
     {

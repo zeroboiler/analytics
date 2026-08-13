@@ -51,6 +51,9 @@ final readonly class EventParam
 
     /**
      * Sanitize a value according to this param's constraints.
+     *
+     * @param  mixed  $value  The raw value to sanitize
+     * @return mixed The sanitized value, matching param type constraints
      */
     public function sanitize(mixed $value): mixed
     {

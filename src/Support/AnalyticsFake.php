@@ -1580,6 +1580,10 @@ final class AnalyticsFake
      *
      * Uses the real AnalyticsManager to build event params, then intercepts
      * the resulting track() call so nothing actually dispatches.
+     *
+     * @param  string  $method  The method name being called
+     * @param  array  $args  The arguments passed to the method
+     * @return mixed The intercepted result (mocked analytics data)
      */
     public function __call(string $method, array $args): mixed
     {

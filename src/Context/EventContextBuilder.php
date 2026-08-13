@@ -426,6 +426,10 @@ final class EventContextBuilder
 
     /**
      * Get a specific context value.
+     *
+     * @param  string  $key  Context key
+     * @param  mixed  $default  Fallback value
+     * @return mixed The context value, or $default
      */
     public function get(string $key, mixed $default = null): mixed
     {
