@@ -47,7 +47,7 @@ final class SegmentExportService
     /**
      * @param  string  $writeKey  Segment write key for payload validation
      */
-    public function __construct(string $writeKey = '')
+    public function __construct(string $writeKey = ''): void
     {
         $this->writeKey = $writeKey;
     }

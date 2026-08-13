@@ -1,5 +1,15 @@
 # Changelog
+## [67.2.0] - 2026-08-13
+
+### Fixed
+- Added missing `:void` return type on `SegmentExportService`, `SaaSCoverageReportService`, and `EventSessionContext` constructors
+
 ## [67.1.0] - 2026-08-13
+## [67.2.0] - 2026-08-13
+
+### Fixed
+- Added missing `:void` return type on `SegmentExportService`, `SaaSCoverageReportService`, and `EventSessionContext` constructors
+
 
 ### Fixed
 - Added missing `:void` return type on `AnalyticsException::__construct()`

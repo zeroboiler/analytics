@@ -2206,6 +2206,52 @@ final class AnalyticsConfig
             'lifecycle_hooks_enabled' => $this->lifecycleHooksEnabled(),
             'event_count' => \ZeroBoiler\Analytics\Events\EventCatalog::count(),
             'event_categories' => count(\ZeroBoiler\Analytics\Events\EventCatalog::byCategory()),
+            'rum_enabled' => $this->rumEnabled(),
+            'inspector_enabled' => $this->inspectorEnabled(),
         ];
+    }
+
+    // ── RUM — Real User Monitoring (v68.0.0) ──────────────────────────
+
+    public function rumEnabled(): bool
+    {
+        return (bool) $this->get('rum.enabled', false);
+    }
+
+    public function rumMaxSamples(): int
+    {
+        return (int) $this->get('rum.max_samples', 10000);
+    }
+
+    public function rumTtl(): int
+    {
+        return (int) $this->get('rum.ttl', 86400);
+    }
+
+    public function rumWindow(): string
+    {
+        return (string) $this->get('rum.window', '24h');
+    }
+
+    public function rumAlertingEnabled(): bool
+    {
+        return (bool) $this->get('rum.alerting_enabled', true);
+    }
+
+    // ── Event Inspector (v68.0.0) ─────────────────────────────────────
+
+    public function inspectorEnabled(): bool
+    {
+        return (bool) $this->get('inspector.enabled', false);
+    }
+
+    public function inspectorMaxTraces(): int
+    {
+        return (int) $this->get('inspector.max_traces', 500);
+    }
+
+    public function inspectorTtl(): int
+    {
+        return (int) $this->get('inspector.ttl', 300);
     }
 }
