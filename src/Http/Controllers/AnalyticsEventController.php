@@ -58,6 +58,7 @@ use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
 use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
+use ZeroBoiler\Analytics\Services\EventContractTestService;
 use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
 use ZeroBoiler\Analytics\Services\EventCatalogValidator;
@@ -13856,6 +13857,103 @@ final class AnalyticsEventController extends Controller
             $engine->clearAnalysis($experimentId);
 
             return response()->json(['status' => 'ok', 'message' => "Analysis cleared for experiment: {$experimentId}"]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Contract Testing (v76.0.0) ─────────────────────────────────
+
+    /**
+     * List all registered provider contracts.
+     */
+    public function contractList(): JsonResponse
+    {
+        try {
+            /** @var EventContractTestService $service */
+            $service = app(EventContractTestService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'contracts' => $service->getContracts(),
+                'count' => $service->contractCount(),
+                'enabled' => $service->isEnabled(),
+                'severity' => $service->getSeverity(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate the entire event catalog against all provider contracts.
+     */
+    public function contractCatalog(): JsonResponse
+    {
+        try {
+            /** @var EventContractTestService $service */
+            $service = app(EventContractTestService::class);
+            $result = $service->validateCatalog();
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get contract coverage for a specific provider.
+     */
+    public function contractProviderCoverage(string $provider): JsonResponse
+    {
+        try {
+            $allowed = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+
+            if (! in_array($provider, $allowed, true)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Invalid provider: {$provider}. Allowed: " . implode(', ', $allowed),
+                ], 422);
+            }
+
+            /** @var EventContractTestService $service */
+            $service = app(EventContractTestService::class);
+            $result = $service->providerCoverage($provider);
+
+            return response()->json(['status' => 'ok'] + $result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate a specific event against all provider contracts.
+     *
+     * Body: { "event": "purchase", "params": {"transaction_id": "txn_001", "value": 99.99} }
+     */
+    public function contractValidateEvent(): JsonResponse
+    {
+        try {
+            $eventName = request()->input('event', '');
+            $params = request()->input('params', []);
+
+            if ($eventName === '' || ! is_string($eventName)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Parameter "event" is required and must be a string.',
+                ], 422);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: is_array($params) ? $params : [],
+            );
+
+            /** @var EventContractTestService $service */
+            $service = app(EventContractTestService::class);
+            $result = $service->validateEvent($event);
+
+            return response()->json(['status' => 'ok'] + $result);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }

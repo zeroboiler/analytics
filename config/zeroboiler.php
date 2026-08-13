@@ -6626,5 +6626,23 @@ return [
             'min_sample_size' => (int) env('ANALYTICS_EXPERIMENT_ANALYSIS_MIN_SAMPLE', 100),
             'max_sequential_peeks' => (int) env('ANALYTICS_EXPERIMENT_ANALYSIS_MAX_PEEKS', 10),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Contract Testing — Provider-specific event contract validation
+        |--------------------------------------------------------------------------
+        |
+        | Validates event payloads against provider-specific contracts before
+        | dispatch. Inspired by Segment Protocols, PostHog Property Validation,
+        | and Amplitude's Event Validator.
+        |
+        | Used by EventContractTestService service and zb:analytics:contract CLI.
+        |
+        */
+        'contract_testing' => [
+            'enabled' => env('ANALYTICS_CONTRACT_TESTING_ENABLED', true),
+            'severity' => env('ANALYTICS_CONTRACT_TESTING_SEVERITY', 'warn'), // 'reject'|'warn'|'off'
+            'cache_ttl' => (int) env('ANALYTICS_CONTRACT_TESTING_CACHE_TTL', 3600),
+        ],
     ],
 ];

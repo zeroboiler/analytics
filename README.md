@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-75.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-76.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v76.0.0](#whats-new-in-v76000)
 +- [What's New in v75.0.0](#whats-new-in-v75000)
 +- [What's New in v74.0.0](#whats-new-in-v74000)
 +- [What's New in v73.0.0](#whats-new-in-v72000)
@@ -3977,6 +3978,36 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
 
+## What's New in v76.0.0
+
+### Event Contract Testing Engine — Provider-Specific Contract Validation
+
+**New Service: `EventContractTestService`** — validates event payloads against provider-specific contracts before dispatch, inspired by **Segment Protocols**, **PostHog Property Validation**, and **Amplitude's Event Validator**.
+
+Capabilities:
+- **GA4 contracts**: purchase (requires `transaction_id`, `value`; max 25 items; currency enum), view_item, add_to_cart, refund, begin_checkout
+- **Meta Pixel contracts**: Purchase (requires `value`, `currency`; max 100 content_ids), ViewContent, AddToCart, InitiateCheckout, CompleteRegistration, Subscribe
+- **PostHog contracts**: $signup (requires `$distinct_id`; max 100 properties), $pageview — with reserved property detection ($device_id, $session_id, $set, etc.)
+- **Plausible contracts**: pageview (max 10 props; no spaces in event names)
+- **8 provider validation**: GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn
+- **Validation rules**: required params, enum constraints, max items/content_ids, reserved properties, parameter length (500 chars), event name length (100 chars), Plausible name format
+- **Severity levels**: `reject` (block dispatch), `warn` (log only), `off` (skip)
+- **Per-provider pass/fail** reporting with detailed violation messages
+
+**New Command: `zb:analytics:contract`**
+- 5 actions: `validate` (single event), `catalog` (entire catalog), `coverage` (per-provider), `list` (registered contracts), `test` (built-in test suite)
+- `--event`, `--provider`, `--json`, `--severity` options
+
+**New Config Section:** `zeroboiler.analytics.contract_testing`
+- `enabled`, `severity`, `cache_ttl`
+
+**Tests:** `V76EventContractTestServiceTest` — 30+ test cases covering constructor/config, severity constants, contract registration, event validation (required params, enum constraints, max items, reserved properties, param length, event name length, Plausible format), disabled/skipped validation, per-provider validation, catalog validation, provider coverage, violation structure, and production readiness (final class, namespace, @since, return types, strict_types)
+
+### Version Sweep
+
+All internal version references updated from `75.0.0` to `76.0.0` across:
+- `composer.json`, `README.md` badge, `config/zeroboiler.php`
+
 ## What's New in v75.0.0
 
 ### Event Catalog Provider Coverage Parity — Full TikTok/LinkedIn Audit
@@ -4194,6 +4225,44 @@ php artisan zb:analytics:transform validate
 # List all registered mappings
 php artisan zb:analytics:transform list
 ```
+
+## What's New in v76.0.0
+
+**Event Contract Testing Engine** — validates event payloads against provider-specific contracts before dispatch.
+
+### New Features
+
+- **EventContractTestService** — provider-specific contract validation engine
+  - GA4 contracts: required params, max items (25), currency enum, transaction_id/value enforcement
+  - Meta Pixel contracts: required value/currency, max content IDs (100), param length limits
+  - PostHog contracts: reserved property detection ($device_id, $session_id, etc.), max properties (100)
+  - Plausible contracts: no-spaces event name validation, max 10 custom properties
+  - Global: max param value length (500 chars), max event name length (100 chars)
+  - Per-event validation against ALL 8 providers simultaneously
+  - Severity levels: reject (block dispatch), warn (log + dispatch), off
+  - Full catalog validation with A+ through F coverage grading
+
+- **AnalyticsContractCommand** — `zb:analytics:contract` CLI
+  - `validate` — validate a specific event against all provider contracts
+  - `catalog` — validate the entire event catalog, per-provider pass/fail breakdown
+  - `coverage` — show per-provider contract coverage with top violations
+  - `list` — list all registered contracts with required params
+  - `test` — run a built-in test suite of 4 events (valid + invalid)
+
+- **4 New API Endpoints**
+  - `GET /api/analytics/contracts` — list all contracts, count, enabled status
+  - `GET /api/analytics/contracts/catalog` — full catalog contract validation
+  - `GET /api/analytics/contracts/coverage/{provider}` — per-provider coverage report
+  - `POST /api/analytics/contracts/validate` — validate a specific event payload
+
+- **Config Expansion** — new `contract_testing` section
+  ```php
+  'contract_testing' => [
+      'enabled' => env('ANALYTICS_CONTRACT_TESTING_ENABLED', true),
+      'severity' => env('ANALYTICS_CONTRACT_SEVERITY', 'warn'), // reject|warn|off
+      'cache_ttl' => 3600,
+  ],
+  ```
 
 ## Quick Start
 

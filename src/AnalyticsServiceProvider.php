@@ -343,6 +343,8 @@ use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
 use ZeroBoiler\Analytics\Services\GeographicAnalyticsService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGeoCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExperimentCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsContractCommand;
+use ZeroBoiler\Analytics\Services\EventContractTestService;
 use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
 
 /**
@@ -3191,6 +3193,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new ExperimentAnalysisEngine($cache, $config);
         });
+
+        // Event Contract Testing Engine (v76.0.0) — provider-specific contract validation
+        $this->app->singleton(EventContractTestService::class, function (Application $app): EventContractTestService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventContractTestService($cache, $config);
+        });
     }
 
     /**
@@ -3260,6 +3272,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsTransformCommand::class,
                 AnalyticsConsoleCommand::class,
                 AnalyticsExperimentCommand::class,
+                AnalyticsContractCommand::class,
             ]);
         }
 
@@ -3633,6 +3646,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/geo/top-events', [$controller, 'geoTopEvents']);
                 Route::get('analytics/geo/anomalies', [$controller, 'geoAnomalies']);
                 Route::get('analytics/geo/continents', [$controller, 'geoContinents']);
+
+                // Event Contract Testing (v76.0.0)
+                Route::get('analytics/contracts', [$controller, 'contractList']);
+                Route::get('analytics/contracts/catalog', [$controller, 'contractCatalog']);
+                Route::get('analytics/contracts/coverage/{provider}', [$controller, 'contractProviderCoverage']);
+                Route::post('analytics/contracts/validate', [$controller, 'contractValidateEvent']);
             });
 
         // Authenticated endpoints
