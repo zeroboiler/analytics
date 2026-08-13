@@ -41,7 +41,7 @@ use RuntimeException;
  *   zeroboiler.analytics.encryption.global_fields (list of field names)
  *   zeroboiler.analytics.encryption.event_rules (per-event field rules)
  *
- * @since 53.0.0
+ * @since 54.0.0
  */
 final class EventPayloadEncryptionService
 {

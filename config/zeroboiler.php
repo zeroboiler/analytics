@@ -5854,5 +5854,95 @@ return [
                 // 'sign_up' => ['except:ip_address'], // excludes ip_address from sign_up events
             ],
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Anomaly Detection & Automated Alerting (v54.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Real-time statistical anomaly detection for analytics event patterns.
+        | Uses sliding-window baselines to detect rate spikes/drops, provider
+        | failures, composition drift, and client count anomalies.
+        |
+        | Alerts fire through configured channels (log, webhook, email) with
+        | configurable cooldown to prevent alert fatigue.
+        |
+        | Inspired by Datadog Monitor, Honeycomb Burn Rate, Amplitude Anomaly Detection.
+        |
+        */
+        'anomaly_detection' => [
+            'enabled' => env('ANALYTICS_ANOMALY_ENABLED', false),
+            'window_seconds' => (int) env('ANALYTICS_ANOMALY_WINDOW', 300), // 5 minutes
+            'baseline_windows' => (int) env('ANALYTICS_ANOMALY_BASELINE', 12), // 12 × 5min = 1 hour
+            'sensitivity' => (float) env('ANALYTICS_ANOMALY_SENSITIVITY', 3.0), // standard deviations
+            'alert_cooldown' => (int) env('ANALYTICS_ANOMALY_COOLDOWN', 900), // 15 minutes
+            'min_events_threshold' => (int) env('ANALYTICS_ANOMALY_MIN_EVENTS', 10),
+            'channels' => ['log'], // 'log', 'webhook', 'email'
+            'webhook_url' => env('ANALYTICS_ANOMALY_WEBHOOK_URL'),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Multi-Provider Event Relay (v54.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Cross-provider event forwarding for events that should be sent to
+        | secondary providers outside the default dispatch chain.
+        |
+        | Define per-event or category-level relay rules. Events matching the
+        | rules are automatically forwarded to configured relay endpoints.
+        |
+        | Example:
+        |   'relay' => [
+        |       'enabled' => true,
+        |       'providers' => [
+        |           'custom_webhook' => [
+        |               'enabled' => true,
+        |               'url' => 'https://hooks.myapp.com/analytics',
+        |               'headers' => ['Authorization' => 'Bearer xyz'],
+        |               'format' => 'segment',
+        |               'retry' => 2,
+        |               'timeout' => 5,
+        |           ],
+        |       ],
+        |       'rules' => [
+        |           '*' => ['custom_webhook'],         // Relay ALL events
+        |           'purchase' => ['custom_webhook'],   // Relay purchase events only
+        |           'ecommerce:*' => ['custom_webhook'], // Relay all ecommerce events
+        |       ],
+        |       'exclude' => [
+        |           'page_view', // Exclude page_view from relay
+        |       ],
+        |   ],
+        |
+        */
+        'relay' => [
+            'enabled' => env('ANALYTICS_RELAY_ENABLED', false),
+            'providers' => [
+                // Configure relay provider endpoints
+            ],
+            'rules' => [
+                // Per-event and category-level relay rules
+                // '*' => ['custom_webhook'],
+            ],
+            'exclude' => [
+                // Event patterns to exclude from relay
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Export Formatting (v54.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Configuration for the AnalyticsExportFormatterService.
+        | Controls default export format and column selection for CSV exports.
+        |
+        */
+        'export' => [
+            'default_format' => env('ANALYTICS_EXPORT_FORMAT', 'csv'), // csv, segment, bigquery, snowplow
+            'csv_columns' => null, // null = all default columns; ['id', 'event_name', 'client_id', ...]
+            'include_metadata' => env('ANALYTICS_EXPORT_METADATA', true),
+        ],
     ],
 ];

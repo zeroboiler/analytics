@@ -320,7 +320,7 @@ use ZeroBoiler\Analytics\Middleware\EventPayloadEncryptionMiddleware;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 53.0.0
+ * @version 54.0.0
  *
  * @since 1.0.0
  */
@@ -594,7 +594,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event payload encryption service (v53.0.0)
+        // Event payload encryption service (v54.0.0)
         $this->app->singleton(EventPayloadEncryptionService::class, function (Application $app): EventPayloadEncryptionService {
             return new EventPayloadEncryptionService(
                 $app->make(Encrypter::class),
@@ -602,7 +602,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event payload encryption middleware (v53.0.0)
+        // Event payload encryption middleware (v54.0.0)
         $this->app->singleton(EventPayloadEncryptionMiddleware::class, function (Application $app): EventPayloadEncryptionMiddleware {
             return new EventPayloadEncryptionMiddleware(
                 $app->make(EventPayloadEncryptionService::class),

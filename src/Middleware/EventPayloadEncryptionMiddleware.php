@@ -25,7 +25,7 @@ use ZeroBoiler\Analytics\Services\EventPayloadEncryptionService;
  * @see \ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareInterface
  * @see \ZeroBoiler\Analytics\Services\EventPayloadEncryptionService
  *
- * @since 53.0.0
+ * @since 54.0.0
  */
 final class EventPayloadEncryptionMiddleware implements AnalyticsMiddlewareInterface
 {

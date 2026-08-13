@@ -12014,4 +12014,219 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Anomaly Detection & Alerting (v54.0.0) ──────────────────────────
+
+    /**
+     * Get anomaly detection status.
+     *
+     * GET /api/analytics/anomaly/status
+     */
+    public function anomalyStatus(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $config = $this->config->get('zeroboiler.analytics.anomaly_detection', []);
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService(
+                app(\Illuminate\Contracts\Cache\Repository::class),
+                $config,
+            );
+
+            return response()->json($service->status());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get anomaly detection metrics for dashboard rendering.
+     *
+     * GET /api/analytics/anomaly/metrics
+     */
+    public function anomalyMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $config = $this->config->get('zeroboiler.analytics.anomaly_detection', []);
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService(
+                app(\Illuminate\Contracts\Cache\Repository::class),
+                $config,
+            );
+
+            return response()->json($service->metrics());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Run anomaly detection check.
+     *
+     * GET /api/analytics/anomaly/check
+     */
+    public function anomalyCheck(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $config = $this->config->get('zeroboiler.analytics.anomaly_detection', []);
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService(
+                app(\Illuminate\Contracts\Cache\Repository::class),
+                $config,
+            );
+
+            $anomalies = $service->detectAnomalies();
+
+            return response()->json([
+                'status' => 'ok',
+                'anomalies' => $anomalies,
+                'count' => count($anomalies),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get recent anomaly alerts.
+     *
+     * GET /api/analytics/anomaly/alerts
+     */
+    public function anomalyAlerts(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $config = $this->config->get('zeroboiler.analytics.anomaly_detection', []);
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService(
+                app(\Illuminate\Contracts\Cache\Repository::class),
+                $config,
+            );
+
+            $status = $service->status();
+
+            return response()->json([
+                'status' => 'ok',
+                'alerts' => $status['recent_alerts'] ?? [],
+                'count' => count($status['recent_alerts'] ?? []),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear all anomaly detection data.
+     *
+     * DELETE /api/analytics/anomaly
+     */
+    public function anomalyClear(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $config = $this->config->get('zeroboiler.analytics.anomaly_detection', []);
+            $service = new \ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService(
+                app(\Illuminate\Contracts\Cache\Repository::class),
+                $config,
+            );
+
+            $service->clear();
+
+            return response()->json(['status' => 'ok', 'message' => 'Anomaly detection data cleared']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Multi-Provider Event Relay (v54.0.0) ──────────────────────────
+
+    /**
+     * Get relay service status.
+     *
+     * GET /api/analytics/relay/status
+     */
+    public function relayStatus(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\MultiProviderRelayService($this->config);
+
+            return response()->json($service->status());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get relay dispatch metrics.
+     *
+     * GET /api/analytics/relay/metrics
+     */
+    public function relayMetrics(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\MultiProviderRelayService($this->config);
+
+            return response()->json($service->getMetrics());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Export Formatting (v54.0.0) ──────────────────────────
+
+    /**
+     * Get supported export formats.
+     *
+     * GET /api/analytics/export/formats
+     */
+    public function exportFormats(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            'formats' => \ZeroBoiler\Analytics\Services\AnalyticsExportFormatterService::supportedFormats(),
+            'default' => $this->config->get('zeroboiler.analytics.export.default_format', 'csv'),
+        ]);
+    }
+
+    /**
+     * Transform events into a specific export format.
+     *
+     * POST /api/analytics/export/transform
+     * Body: { "format": "csv|segment|bigquery|snowplow", "columns": [...] }
+     */
+    public function exportTransform(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $request->validate([
+                'format' => 'required|string|in:csv,segment,bigquery,snowplow',
+                'columns' => 'array',
+                'columns.*' => 'string',
+            ]);
+
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsExportFormatterService::class);
+            $format = $request->input('format');
+            $columns = $request->input('columns');
+            $includeMetadata = $this->config->get('zeroboiler.analytics.export.include_metadata', true);
+
+            // Build query from event model
+            $query = \ZeroBoiler\Analytics\Models\AnalyticsEventModel::query()
+                ->orderBy('created_at', 'desc')
+                ->limit(100);
+
+            $events = $query->get();
+
+            if ($includeMetadata) {
+                $result = $service->exportWithMetadata($events, $format);
+            } else {
+                $data = match ($format) {
+                    'csv' => $service->toCsv($events, $columns),
+                    'segment' => $service->toSegmentFormat($events),
+                    'bigquery' => $service->toBigQueryFormat($events),
+                    'snowplow' => $service->toSnowplowFormat($events),
+                    default => $service->toCsv($events, $columns),
+                };
+                $result = ['format' => $format, 'event_count' => $events->count(), 'data' => $data];
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                ...$result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

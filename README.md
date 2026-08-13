@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-53.0.0-blue)](https://github.com/zeroboiler/analytics)]|
+|||[![Latest Version](https://img.shields.io/badge/version-54.0.0-blue)](https://github.com/zeroboiler/analytics)]|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
+- [What's New in v54.0.0](#whats-new-in-v54000)
 - [What's New in v53.0.0](#whats-new-in-v53000)
 - [What's New in v52.0.0](#whats-new-in-v52000)
 - [What's New in v51.1.0](#whats-new-in-v51100)
@@ -130,6 +131,132 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v54.0.0
+
+### Real-Time Anomaly Detection & Automated Alerting
+
+Statistical anomaly detection service for analytics event patterns. Uses sliding-window baselines to detect rate spikes/drops, provider failures, composition drift, and unique client count anomalies with configurable sensitivity and cooldown-based alerting.
+
+**AnalyticsAnomalyDetectionService** — Monitors event dispatch patterns using standard deviation analysis against configurable rolling baselines. Supports rate anomaly detection (volume spike/drop), provider failure detection, composition drift detection (new/unusual events), and client count anomaly detection (possible bot/attack).
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsAnomalyDetectionService;
+
+$detection = app(AnalyticsAnomalyDetectionService::class);
+
+// Record events for baseline tracking
+$detection->recordEvent('purchase', 'ga4', $clientId, $userId);
+
+// Check for anomalies
+$anomalies = $detection->detectAnomalies();
+// → [{type: 'rate_anomaly', severity: 'critical', message: '...', deviation: 4.2}, ...]
+
+// Get metrics for dashboard
+$metrics = $detection->metrics();
+// → rate_deviation, provider_balance, composition_drift, client_spike, anomaly_count_24h
+
+// Register custom alert callback
+$detection->onAlert(function (string $type, array $data): void {
+    // Send to Slack, PagerDuty, etc.
+});
+```
+
+**Configuration:**
+```php
+'anomaly_detection' => [
+    'enabled' => true,
+    'window_seconds' => 300,     // 5 minute windows
+    'baseline_windows' => 12,   // 1 hour baseline
+    'sensitivity' => 3.0,       // standard deviations
+    'alert_cooldown' => 900,    // 15 min between repeated alerts
+    'min_events_threshold' => 10,
+    'channels' => ['log'],
+],
+```
+
+### Multi-Provider Event Relay
+
+Cross-provider event forwarding for events that should be broadcast to secondary providers outside the default dispatch chain. Supports per-event rules, category-level wildcards, exclusion patterns, and multiple payload formats.
+
+**MultiProviderRelayService** — Forwards dispatched events to configured relay endpoints with automatic format transformation. Supports batch relay, provider-specific retry/timeout, and per-event exclusion rules.
+
+```php
+use ZeroBoiler\Analytics\Services\MultiProviderRelayService;
+
+$relay = app(MultiProviderRelayService::class);
+
+// Relay a single event to all matching providers
+$relayed = $relay->relay($event);
+// → ['custom_webhook', 'data_warehouse']
+
+// Batch relay with consolidated payloads
+$results = $relay->relayBatch($events);
+// → ['custom_webhook' => 25, 'data_warehouse' => 25]
+
+// Monitor relay health
+$status = $relay->status();
+$metrics = $relay->getMetrics();
+```
+
+### Analytics Data Export Formatter
+
+Industry-standard export format transformer. Converts analytics events to CSV, Segment JSON, GA4 BigQuery schema, and Snowplow self-describing format for data warehouse loading and third-party integrations.
+
+**AnalyticsExportFormatterService** — Transforms event collections into multiple export formats with metadata manifests including time ranges, category distributions, and provider breakdowns.
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsExportFormatterService;
+
+$formatter = app(AnalyticsExportFormatterService::class);
+
+// Export to CSV
+$csv = $formatter->toCsv($events, ['id', 'event_name', 'client_id']);
+
+// Export to Segment specification
+$segment = $formatter->toSegmentFormat($events);
+
+// Export to GA4 BigQuery schema
+$bigquery = $formatter->toBigQueryFormat($events);
+
+// Export with metadata manifest
+$export = $formatter->exportWithMetadata($events, 'bigquery');
+// → {meta: {exported_at, total_events, time_range, ...}, data: [...]}
+```
+
+### New CLI Command: `zb:analytics:anomaly`
+
+```bash
+# Run anomaly check
+php artisan zb:analytics:anomaly check
+
+# View status dashboard
+php artisan zb:analytics:anomaly status
+
+# View metrics
+php artisan zb:analytics:anomaly metrics --format=json
+
+# Clear detection data
+php artisan zb:analytics:anomaly clear
+```
+
+### New API Endpoints
+
+```
+GET  /api/analytics/anomaly/status     — Anomaly detection status
+GET  /api/analytics/anomaly/metrics    — Dashboard metrics
+GET  /api/analytics/anomaly/check      — Run anomaly detection
+GET  /api/analytics/anomaly/alerts     — Recent alerts
+DELETE /api/analytics/anomaly          — Clear detection data
+GET  /api/analytics/relay/status       — Relay service status
+GET  /api/analytics/relay/metrics      — Relay dispatch metrics
+GET  /api/analytics/export/formats     — Supported export formats
+POST /api/analytics/export/transform   — Transform events to format
+```
+
+### Version sweep — 53.0.0 → 54.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `AnalyticsServiceProvider`, `resources/js/analytics.js`, `resources/js/analytics.d.ts`, README badge.
+
+---
 
 ## What's New in v53.0.0
 

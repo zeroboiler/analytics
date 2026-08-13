@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Services\EventPayloadEncryptionService;
  * - fields: List fields that would be encrypted for a given event
  * - rotate: Re-encrypt sample payload (simulates key rotation)
  *
- * @since 53.0.0
+ * @since 54.0.0
  */
 final class AnalyticsEncryptionCommand extends Command
 {
@@ -35,7 +35,7 @@ final class AnalyticsEncryptionCommand extends Command
     ';
 
     /** @var string */
-    protected $description = 'Manage event payload encryption (v53.0.0)';
+    protected $description = 'Manage event payload encryption (v54.0.0)';
 
     private EventPayloadEncryptionService $encryptionService;
 
@@ -82,7 +82,7 @@ final class AnalyticsEncryptionCommand extends Command
                 ['Cipher', $report['cipher']],
                 ['Global Fields', (string) $report['global_fields_count']],
                 ['Event Rules', (string) $report['event_rules_count']],
-                ['Version', '53.0.0'],
+                ['Version', '54.0.0'],
             ],
         );
 

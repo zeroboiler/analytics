@@ -730,4 +730,19 @@ Route::prefix('analytics')->group(function () {
     Route::get('lineage/providers/reliability', [AnalyticsEventController::class, 'lineageProviderReliability']);
     Route::get('lineage/export', [AnalyticsEventController::class, 'lineageExportCompliance']);
     Route::delete('lineage', [AnalyticsEventController::class, 'lineagePurge']);
+
+    // Anomaly Detection & Alerting (v54.0.0)
+    Route::get('anomaly/status', [AnalyticsEventController::class, 'anomalyStatus']);
+    Route::get('anomaly/metrics', [AnalyticsEventController::class, 'anomalyMetrics']);
+    Route::get('anomaly/check', [AnalyticsEventController::class, 'anomalyCheck']);
+    Route::get('anomaly/alerts', [AnalyticsEventController::class, 'anomalyAlerts']);
+    Route::delete('anomaly', [AnalyticsEventController::class, 'anomalyClear']);
+
+    // Multi-Provider Event Relay (v54.0.0)
+    Route::get('relay/status', [AnalyticsEventController::class, 'relayStatus']);
+    Route::get('relay/metrics', [AnalyticsEventController::class, 'relayMetrics']);
+
+    // Export Formatting (v54.0.0)
+    Route::get('export/formats', [AnalyticsEventController::class, 'exportFormats']);
+    Route::post('export/transform', [AnalyticsEventController::class, 'exportTransform']);
 });
