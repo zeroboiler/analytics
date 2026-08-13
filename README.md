@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-67.2.0-blue)](https://github.com/zeroboiler/analytics)|
+|![Latest Version](https://img.shields.io/badge/version-68.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -141,6 +141,63 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v68.0.0
+
+### Real User Monitoring (RUM) — Core Web Vitals Aggregation
+
+**WebVitalsAggregatorService** — new Real User Monitoring service that aggregates Core Web Vitals metrics (LCP, FID, CLS, INP, TTFB, FCP) reported by the client-side PerformanceObserver API. Features:
+
+- **Percentile distribution**: p25, p50, p75, p90, p95, p99 per metric per page
+- **Google threshold-based rating**: good / needs-improvement / poor classification
+- **Threshold alerting**: automatic poor-metric detection with log warnings
+- **Batch ingestion**: accept single or multiple metrics in one request
+- **Dashboard summary**: overall score, worst metrics, per-page breakdown
+- **Core Web Vitals assessment**: pass/fail based on p75 thresholds for LCP + CLS + INP
+
+API endpoints:
+- `POST /api/analytics/vitals` — ingest single or batch Web Vitals metrics
+- `GET /api/analytics/vitals/summary?page=` — full RUM dashboard
+- `GET /api/analytics/vitals/metric/{metric}?page=` — percentile stats
+- `GET /api/analytics/vitals/assessment?page=` — Core Web Vitals pass/fail
+- `GET /api/analytics/vitals/pages` — tracked pages list
+
+Config section `zeroboiler.analytics.rum`: `enabled`, `max_samples`, `ttl`, `window`, `alerting_enabled`.
+
+### Event Inspector Service — Debug-Mode Lifecycle Tracking
+
+**EventInspectorService** — new debug-mode event lifecycle inspector that captures detailed traces through each stage of the analytics pipeline: dispatch → middleware → enrichment → validation → provider dispatch → complete/error. Features:
+
+- **Per-event trace**: full stage-by-stage trace with duration and context
+- **Trace index**: recent events list with reverse-chronological ordering
+- **Runtime toggle**: enable/disable at runtime for debugging sessions
+- **Ring buffer**: configurable max traces with automatic cleanup
+
+API endpoints:
+- `GET /api/analytics/inspector/summary` — inspector status and stats
+- `GET /api/analytics/inspector/traces?limit=` — recent traces with full details
+- `GET /api/analytics/inspector/trace/{eventId}` — specific event trace
+
+Config section `zeroboiler.analytics.inspector`: `enabled`, `max_traces`, `ttl`.
+
+### Analytics Debug Command
+
+**`zb:analytics:debug`** — unified CLI command for event inspection and RUM analysis. Subcommands:
+- `inspector:show` — display recent event traces with stage details
+- `inspector:clear` — clear inspector data
+- `inspector:enable` / `inspector:disable` — toggle at runtime
+- `rum:summary` — display RUM dashboard with all metrics
+- `rum:metric --metric=LCP --page=` — percentile stats for a specific metric
+- `rum:assessment` — Core Web Vitals pass/fail check
+- `rum:clear` — clear all RUM data
+
+All subcommands support `--json` output for CI/CD integration.
+
+### AnalyticsConfig Expansion
+
+New config accessors for RUM and Inspector settings: `rumEnabled()`, `rumMaxSamples()`, `rumTtl()`, `rumWindow()`, `rumAlertingEnabled()`, `inspectorEnabled()`, `inspectorMaxTraces()`, `inspectorTtl()`. Added to `compactSummary()` output.
+
+---
 
 ## What's New in v67.0.0
 

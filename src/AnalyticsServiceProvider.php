@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
@@ -107,6 +108,8 @@ use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
+use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
+use ZeroBoiler\Analytics\Services\EventInspectorService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
 use ZeroBoiler\Analytics\Services\CampaignRoiService;
@@ -2052,6 +2055,32 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Web Vitals Aggregator Service — RUM (v68.0.0)
+        $this->app->singleton(WebVitalsAggregatorService::class, function (Application $app): WebVitalsAggregatorService {
+            $config = $app->make(AnalyticsConfig::class);
+
+            return new WebVitalsAggregatorService(
+                $app->make('cache'),
+                maxSamples: $config->rumMaxSamples(),
+                ttl: $config->rumTtl(),
+                window: $config->rumWindow(),
+                enabled: $config->rumEnabled(),
+                alertingEnabled: $config->rumAlertingEnabled(),
+            );
+        });
+
+        // Event Inspector Service (v68.0.0)
+        $this->app->singleton(EventInspectorService::class, function (Application $app): EventInspectorService {
+            $config = $app->make(AnalyticsConfig::class);
+
+            return new EventInspectorService(
+                $app->make('cache'),
+                enabled: $config->inspectorEnabled(),
+                maxTraces: $config->inspectorMaxTraces(),
+                ttl: $config->inspectorTtl(),
+            );
+        });
+
         // Privacy Sandbox Service (v2.93.0)
         $this->app->singleton(PrivacySandboxService::class, function (Application $app): PrivacySandboxService {
             return new PrivacySandboxService(
@@ -3168,6 +3197,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsUtmCommand::class,
                 AnalyticsCohortFunnelCommand::class,
                 AnalyticsCoverageCommand::class,
+                AnalyticsDebugCommand::class,
                 AnalyticsFunnelPrivacyCommand::class,
                 AnalyticsTrendForecastCommand::class,
             ]);
@@ -3519,6 +3549,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/rollup/summary', [$controller, 'rollupSummary']);
                 Route::get('analytics/rollup/trend', [$controller, 'rollupTrend']);
                 Route::get('analytics/rollup/stats', [$controller, 'rollupStats']);
+
+                // RUM — Real User Monitoring / Web Vitals (v68.0.0)
+                Route::post('analytics/vitals', [$controller, 'ingestVitals']);
+                Route::get('analytics/vitals/summary', [$controller, 'vitalsSummary']);
+                Route::get('analytics/vitals/metric/{metric}', [$controller, 'vitalsMetric']);
+                Route::get('analytics/vitals/assessment', [$controller, 'vitalsAssessment']);
+                Route::get('analytics/vitals/pages', [$controller, 'vitalsPages']);
+
+                // Event Inspector (v68.0.0)
+                Route::get('analytics/inspector/summary', [$controller, 'inspectorSummary']);
+                Route::get('analytics/inspector/traces', [$controller, 'inspectorRecentTraces']);
+                Route::get('analytics/inspector/trace/{eventId}', [$controller, 'inspectorTrace']);
             });
 
         // Authenticated endpoints

@@ -12838,4 +12838,186 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── RUM — Real User Monitoring / Web Vitals (v68.0.0) ───────────
+
+    /**
+     * Ingest Web Vitals metrics (single or batch).
+     *
+     * POST /api/analytics/vitals
+     *
+     * Body: { metrics: [{ metric, value, rating?, page_path?, client_id?, navigation_type? }] }
+     *       or single: { metric, value, rating?, page_path?, client_id?, navigation_type? }
+     */
+    public function ingestVitals(Request $request): JsonResponse
+    {
+        try {
+            $rum = app(\ZeroBoiler\Analytics\Services\WebVitalsAggregatorService::class);
+
+            $data = $request->json()->all();
+
+            // Support batch format
+            if (isset($data['metrics']) && is_array($data['metrics'])) {
+                $result = $rum->ingestBatch($data['metrics']);
+
+                return response()->json([
+                    'status' => 'ok',
+                    'stored' => $result['stored'],
+                    'alerts' => $result['alerts'],
+                ]);
+            }
+
+            // Single metric format
+            if (isset($data['metric'], $data['value'])) {
+                $result = $rum->ingest(
+                    metricName: (string) $data['metric'],
+                    value: (float) $data['value'],
+                    rating: $data['rating'] ?? null,
+                    pagePath: $data['page_path'] ?? null,
+                    clientId: $data['client_id'] ?? null,
+                    navigationType: $data['navigation_type'] ?? null,
+                );
+
+                return response()->json([
+                    'status' => 'ok',
+                    'stored' => $result['stored'],
+                    'alert' => $result['alert'],
+                    'alert_reason' => $result['alert_reason'] ?? null,
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'error' => 'Provide {metric, value} for single or {metrics: [{metric, value, ...}]} for batch',
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get RUM dashboard summary.
+     *
+     * GET /api/analytics/vitals/summary?page=/some-path
+     */
+    public function vitalsSummary(Request $request): JsonResponse
+    {
+        try {
+            $rum = app(\ZeroBoiler\Analytics\Services\WebVitalsAggregatorService::class);
+
+            return response()->json($rum->dashboardSummary(
+                $request->query('page'),
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get percentile stats for a specific RUM metric.
+     *
+     * GET /api/analytics/vitals/metric/{metric}?page=/some-path
+     */
+    public function vitalsMetric(Request $request, string $metric): JsonResponse
+    {
+        try {
+            $rum = app(\ZeroBoiler\Analytics\Services\WebVitalsAggregatorService::class);
+
+            return response()->json($rum->percentileStats(
+                strtoupper($metric),
+                $request->query('page'),
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get Core Web Vitals pass/fail assessment.
+     *
+     * GET /api/analytics/vitals/assessment?page=/some-path
+     */
+    public function vitalsAssessment(Request $request): JsonResponse
+    {
+        try {
+            $rum = app(\ZeroBoiler\Analytics\Services\WebVitalsAggregatorService::class);
+
+            return response()->json($rum->coreWebVitalsAssessment(
+                $request->query('page'),
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get list of tracked pages with RUM data.
+     *
+     * GET /api/analytics/vitals/pages
+     */
+    public function vitalsPages(): JsonResponse
+    {
+        try {
+            $rum = app(\ZeroBoiler\Analytics\Services\WebVitalsAggregatorService::class);
+
+            return response()->json([
+                'pages' => $rum->trackedPages(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Inspector (v68.0.0) ───────────────────────────────────
+
+    /**
+     * Get Event Inspector summary.
+     *
+     * GET /api/analytics/inspector/summary
+     */
+    public function inspectorSummary(): JsonResponse
+    {
+        try {
+            $inspector = app(\ZeroBoiler\Analytics\Services\EventInspectorService::class);
+
+            return response()->json($inspector->summary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get recent event traces from the inspector.
+     *
+     * GET /api/analytics/inspector/traces?limit=10
+     */
+    public function inspectorRecentTraces(Request $request): JsonResponse
+    {
+        try {
+            $inspector = app(\ZeroBoiler\Analytics\Services\EventInspectorService::class);
+            $limit = (int) $request->query('limit', 10);
+
+            return response()->json([
+                'traces' => $inspector->recentTraces(min($limit, 50)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a specific event trace.
+     *
+     * GET /api/analytics/inspector/trace/{eventId}
+     */
+    public function inspectorTrace(string $eventId): JsonResponse
+    {
+        try {
+            $inspector = app(\ZeroBoiler\Analytics\Services\EventInspectorService::class);
+
+            return response()->json($inspector->getTrace($eventId));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
