@@ -500,6 +500,32 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Event Trend Forecast Engine (v59.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Forward-looking trend projection for analytics event streams using
+        | linear regression, Holt's double exponential smoothing, and seasonal
+        | decomposition. Produces forecast points with confidence intervals
+        | for dashboard rendering, alerting, and capacity planning.
+        |
+        | Used by EventTrendForecastService and AnalyticsTrendForecastCommand.
+        | Complements EventTimeSeriesService (backward-looking) and
+        | RevenueForecastService (revenue-specific forecasting).
+        |
+        */
+        'trend_forecast' => [
+            'enabled' => env('ANALYTICS_TREND_FORECAST_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_TREND_FORECAST_CACHE_TTL', 600), // 10 minutes
+            'forecast_horizon' => (int) env('ANALYTICS_TREND_FORECAST_HORIZON', 7), // days
+            'confidence_level' => (float) env('ANALYTICS_TREND_FORECAST_CONFIDENCE', 0.95),
+            'min_data_points_ratio' => (float) env('ANALYTICS_TREND_FORECAST_MIN_RATIO', 0.3),
+            'seasonal_enabled' => env('ANALYTICS_TREND_FORECAST_SEASONAL', true),
+            'seasonal_periods' => ['daily', 'weekly'],
+            'max_history_days' => (int) env('ANALYTICS_TREND_FORECAST_HISTORY_DAYS', 30),
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | UTM Parameter Manager (v55.0.0)
         |--------------------------------------------------------------------------

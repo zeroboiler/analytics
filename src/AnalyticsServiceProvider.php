@@ -323,6 +323,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCohortFunnelCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFunnelPrivacyCommand;
 use ZeroBoiler\Analytics\Services\DeclarativeFunnelService;
 use ZeroBoiler\Analytics\Services\PrivacyCollectionService;
+use ZeroBoiler\Analytics\Services\EventTrendForecastService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -330,7 +332,7 @@ use ZeroBoiler\Analytics\Services\PrivacyCollectionService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 58.0.0
+ * @version 59.0.0
  *
  * @since 1.0.0
  */
@@ -672,6 +674,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventTimeSeriesService($manager, $cache, $config);
+        });
+
+        // Event trend forecasting engine (v59.0.0) — linear regression, Holt's smoothing, seasonal decomposition
+        $this->app->singleton(EventTrendForecastService::class, function (Application $app): EventTrendForecastService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventTrendForecastService($manager, $cache, $config);
         });
 
         // Analytics data bus for conditional routing
@@ -3091,6 +3105,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsUtmCommand::class,
                 AnalyticsCohortFunnelCommand::class,
                 AnalyticsFunnelPrivacyCommand::class,
+                AnalyticsTrendForecastCommand::class,
             ]);
         }
 

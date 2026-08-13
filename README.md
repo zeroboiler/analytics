@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-58.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-59.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -134,6 +134,30 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v59.0.0
+
+### Event Trend Forecast Engine — Linear Regression, Holt's Smoothing & Seasonal Decomposition
+
+Forward-looking trend projection for analytics event streams using industry-standard statistical methods — no external ML dependencies.
+
+**EventTrendForecastService:**
+- **Linear Regression**: Ordinary least-squares fit with R² coefficient of determination
+- **Holt's Double Exponential Smoothing**: Adaptive alpha estimation with trend component
+- **Seasonal Decomposition**: Daily and weekly periodic pattern extraction via averaging
+- **Compound Growth Rate**: Historical growth computation for trend classification
+- **Confidence Intervals**: Z-score-based upper/lower bounds that widen with forecast horizon
+- **Blended Forecast**: 60% regression + 40% Holt's smoothing for robust projections
+- Per-event, per-category, and comparative multi-event forecasts with trend classification (up/down/flat/volatile)
+
+**AnalyticsTrendForecastCommand (`php artisan analytics:trend-forecast`):**
+- `--event=page_view` — Single event forecast with full report
+- `--category=saas` — Category-level aggregate forecast
+- `--events=login sign_up purchase` — Comparative multi-event analysis
+- `--changes` — Detect trend acceleration/deceleration across all catalog events
+- `--days=30 --horizon=7 --json` — Configurable windows and JSON output
+
+**Configuration:** New `trend_forecast` config section with cache TTL, forecast horizon, confidence level, seasonal analysis toggle, and history window settings.
 
 ## What's New in v58.0.0
 
