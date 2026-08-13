@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-66.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-67.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v67.0.0](#whats-new-in-v67000)
 +- [What's New in v66.0.0](#whats-new-in-v66000)
 - [What's New in v62.0.0](#whats-new-in-v62000)
 +- [What's New in v64.0.0](#whats-new-in-v64000)
@@ -140,6 +141,50 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v67.0.0
+
+### SaaS Analytics Coverage Report — 12-Capability Audit System
+
+**SaaSCoverageReportService** — new comprehensive audit service that evaluates all 12 core SaaS analytics capabilities required for industry-standard product analytics. Each capability is scored as implemented, partial, or missing with detailed evidence and actionable recommendations:
+
+| # | Capability | Weight |
+|---|-----------|--------|
+| 1 | Event Catalog (Ecommerce, SaaS, Engagement) | 10 |
+| 2 | Server-Side Lifecycle Tracker | 8 |
+| 3 | Inertia Middleware (page props, client ID cookie) | 8 |
+| 4 | API Controller & Routes (events/batch/identify/consent) | 10 |
+| 5 | JS Client Library (trackEvent, scroll depth, Svelte) | 8 |
+| 6 | Event Queue (async dispatch) | 7 |
+| 7 | User Identity Linking (client ID ↔ user ID) | 8 |
+| 8 | E-commerce Helpers (GA4 + Meta format conversion) | 7 |
+| 9 | Admin Commands (Overview, Test, Health) | 6 |
+| 10 | Config Expansion (queue, API, identity, ecommerce) | 8 |
+| 11 | Optional Providers (Plausible, PostHog, Mixpanel) | 6 |
+| 12 | Tests & README | 6 |
+
+Features:
+- Weighted scoring system (0-100) with letter grades (A+ to F)
+- Evidence-based evaluation with file existence and config checks
+- Cache-backed audit results with 1h TTL
+- Quick `summary()` method for CI/CD health gates
+- Config-driven — reads actual configuration to determine status
+- `clearCache()` for fresh audits after config changes
+
+**AnalyticsCoverageCommand** (`zb:analytics:coverage`) — new admin command with options:
+- `--json` — machine-readable JSON output
+- `--summary` — score and grade only
+- `--missing` — show only gaps (missing/partial capabilities)
+- `--clear-cache` — flush cached report before running
+
+**1 new config section** — `saas_coverage` (cache_ttl setting)
+**1 new singleton registration** — SaaSCoverageReportService in ServiceProvider
+**Command registration** — AnalyticsCoverageCommand in ServiceProvider commands
+**V6700 test suite** — 10 test cases covering audit, caching, summary, version consistency, command signature
+
+**Version Sweep:** 66.0.0 → 67.0.0 across composer.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, resources/js/analytics.js, resources/js/analytics.d.ts, README badge, CHANGELOG.
+
+---
 
 ## What's New in v66.0.0
 

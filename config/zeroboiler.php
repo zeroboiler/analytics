@@ -577,6 +577,21 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | SaaS Coverage Report (v67.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Configuration for the SaaS Analytics Coverage Report service that audits
+        | all 12 core capabilities required for industry-standard SaaS analytics.
+        | The coverage report scores each capability and produces a weighted
+        | overall score (0-100) with letter grades (A+ to F).
+        |
+        */
+        'saas_coverage' => [
+            'cache_ttl' => (int) env('ANALYTICS_SAAS_COVERAGE_CACHE_TTL', 3600), // 1 hour
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Trend Forecast Engine (v59.0.0)
         |-------------------------------------------------------------------------- 
         |

@@ -5154,6 +5154,40 @@ final class AnalyticsEventController extends Controller
         return response()->json($service->ping());
     }
 
+    // ─── SaaS Coverage Report (v67.0.0) ────────────────────────────────
+
+    /**
+     * Generate full SaaS analytics coverage audit report.
+     *
+     * GET /api/analytics/coverage
+     *
+     * Returns the complete 12-capability audit with scores, evidence,
+     * and recommendations for each capability.
+     */
+    public function coverageReport(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSCoverageReportService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSCoverageReportService::class);
+
+        return response()->json($service->auditCached());
+    }
+
+    /**
+     * Get SaaS coverage summary — score, grade, and counts.
+     *
+     * GET /api/analytics/coverage/summary
+     *
+     * Lightweight endpoint returning only the overall score, grade,
+     * and count of implemented/partial/missing capabilities.
+     */
+    public function coverageSummary(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaaSCoverageReportService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaaSCoverageReportService::class);
+
+        return response()->json($service->summary());
+    }
+
     // ─── Event Rules Engine (v3.1.0) ─────────────────────────────────
 
     /**

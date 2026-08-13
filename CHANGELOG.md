@@ -2,6 +2,21 @@
 
 All notable changes to the package will be documented in this file.
 
+## [67.0.0] - 2026-08-13
+
+### Added
+
+- **SaaSCoverageReportService** — Comprehensive audit service that evaluates all 12 core SaaS analytics capabilities (event catalog, lifecycle tracker, Inertia middleware, API controller, JS client, event queue, identity linking, ecommerce helpers, admin commands, config expansion, optional providers, tests). Produces weighted scores (0-100) with letter grades (A+ to F), evidence-based evaluation, and actionable recommendations. Cache-backed with 1h TTL.
+- **AnalyticsCoverageCommand** (`zb:analytics:coverage`) — Admin CLI with 4 options: `--json` (machine-readable), `--summary` (score + grade only), `--missing` (show only gaps), `--clear-cache` (flush before running).
+- **1 new config section** — `saas_coverage` (cache_ttl option).
+- **1 new singleton registration** — SaaSCoverageReportService registered in AnalyticsServiceProvider.
+- **Command registration** — AnalyticsCoverageCommand registered in ServiceProvider commands.
+- **V6700SaaSCoverageReportServiceTest** — 10 test cases covering audit (all 12 capabilities, full implementation), auditCached consistency, summary counts, clearCache, cacheTtl, version matching, command signature, and capability key validation.
+
+### Changed
+
+- **Version sweep** — 66.0.0 → 67.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
+
 ## [56.0.0] - 2026-08-13
 
 ### Added

@@ -14,6 +14,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
@@ -105,6 +106,7 @@ use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
+use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
 use ZeroBoiler\Analytics\Services\EventEnvelopeService;
 use ZeroBoiler\Analytics\Services\CampaignRoiService;
@@ -337,7 +339,7 @@ use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 65.0.0
+ * @version 67.0.0
  *
  * @since 1.0.0
  */
@@ -2042,6 +2044,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // SaaS Coverage Report Service (v67.0.0)
+        $this->app->singleton(SaaSCoverageReportService::class, function (Application $app): SaaSCoverageReportService {
+            return new SaaSCoverageReportService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Privacy Sandbox Service (v2.93.0)
         $this->app->singleton(PrivacySandboxService::class, function (Application $app): PrivacySandboxService {
             return new PrivacySandboxService(
@@ -3157,6 +3167,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEncryptionCommand::class,
                 AnalyticsUtmCommand::class,
                 AnalyticsCohortFunnelCommand::class,
+                AnalyticsCoverageCommand::class,
                 AnalyticsFunnelPrivacyCommand::class,
                 AnalyticsTrendForecastCommand::class,
             ]);

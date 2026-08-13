@@ -261,6 +261,10 @@ Route::prefix('analytics')->group(function () {
     Route::get('health-check', [AnalyticsEventController::class, 'healthCheck']);
     Route::get('ping', [AnalyticsEventController::class, 'ping']);
 
+    // SaaS Coverage Report (v67.0.0)
+    Route::get('coverage', [AnalyticsEventController::class, 'coverageReport']);
+    Route::get('coverage/summary', [AnalyticsEventController::class, 'coverageSummary']);
+
     // Event Rules Engine (v3.1.0)
     Route::get('rules', [AnalyticsEventController::class, 'rulesList']);
     Route::post('rules/evaluate', [AnalyticsEventController::class, 'rulesEvaluate']);

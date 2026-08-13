@@ -743,8 +743,8 @@ test('Lifecycle hooks error hooks swallow exceptions', function (): void {
 
 // ── Version Consistency ────────────────────────────────────────────
 
-test('AnalyticsEvent::VERSION is 66.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('66.0.0');
+test('AnalyticsEvent::VERSION is 67.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('67.0.0');
 });
 
 test('EventBuilder has fromBlueprint static method', function (): void {
