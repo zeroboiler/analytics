@@ -189,6 +189,10 @@ describe('V81 Event Health + Deploy Gate + Forecast', function (): void {
             expect(class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand::class))->toBeTrue();
         });
 
+        it('AnalyticsForecastCommand exists and is final', function (): void {
+            expect(class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsForecastCommand::class))->toBeTrue();
+        });
+
         it('EventHealthCommand has correct signature', function (): void {
             $command = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand::class);
             $prop = $command->getProperty('signature');
@@ -220,6 +224,24 @@ describe('V81 Event Health + Deploy Gate + Forecast', function (): void {
 
         it('DeployGateCommand declares strict types', function (): void {
             $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Console/Commands/AnalyticsDeployGateCommand.php');
+            expect($contents)->toContain('declare(strict_types=1)');
+        });
+
+        it('AnalyticsForecastCommand has correct signature', function (): void {
+            $command = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsForecastCommand::class);
+            $prop = $command->getProperty('signature');
+            $signature = $prop->getDefaultValue();
+            expect($signature)->toContain('zb:analytics:forecast');
+            expect($signature)->toContain('mrr');
+            expect($signature)->toContain('ltv');
+            expect($signature)->toContain('runway');
+            expect($signature)->toContain('churn-score');
+            expect($signature)->toContain('--json');
+            expect($signature)->toContain('--months=');
+        });
+
+        it('AnalyticsForecastCommand declares strict types', function (): void {
+            $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Console/Commands/AnalyticsForecastCommand.php');
             expect($contents)->toContain('declare(strict_types=1)');
         });
     });
@@ -287,10 +309,23 @@ describe('V81 Event Health + Deploy Gate + Forecast', function (): void {
             expect($contents)->toContain('singleton(AnalyticsDeployGate::class');
         });
 
+        it('registers RevenueForecastService singleton', function (): void {
+            $contents = file_get_contents(dirname(__DIR__, 2) . '/src/AnalyticsServiceProvider.php');
+            expect($contents)->toContain('RevenueForecastService::class');
+            expect($contents)->toContain('singleton(RevenueForecastService::class');
+        });
+
+        it('registers ChurnPredictionService singleton', function (): void {
+            $contents = file_get_contents(dirname(__DIR__, 2) . '/src/AnalyticsServiceProvider.php');
+            expect($contents)->toContain('ChurnPredictionService::class');
+            expect($contents)->toContain('singleton(ChurnPredictionService::class');
+        });
+
         it('registers CLI commands', function (): void {
             $contents = file_get_contents(dirname(__DIR__, 2) . '/src/AnalyticsServiceProvider.php');
             expect($contents)->toContain('AnalyticsEventHealthCommand::class');
             expect($contents)->toContain('AnalyticsDeployGateCommand::class');
+            expect($contents)->toContain('AnalyticsForecastCommand::class');
         });
 
         it('registers routes', function (): void {
@@ -306,33 +341,33 @@ describe('V81 Event Health + Deploy Gate + Forecast', function (): void {
     });
 
     describe('Version Consistency', function (): void {
-        it('VERSION is 80.0.0 across all files', function (): void {
+        it('VERSION is 81.0.0 across all files', function (): void {
             // Check AnalyticsEvent
-            expect(AnalyticsEvent::VERSION)->toBe('80.0.0');
+            expect(AnalyticsEvent::VERSION)->toBe('81.0.0');
 
             // Check IntegrityCommand
             $integrity = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class);
-            expect($integrity->getConstant('EXPECTED_VERSION'))->toBe('80.0.0');
+            expect($integrity->getConstant('EXPECTED_VERSION'))->toBe('81.0.0');
 
             // Check composer.json
             $composer = json_decode(file_get_contents(dirname(__DIR__, 2) . '/composer.json'), true);
-            expect($composer['version'])->toBe('80.0.0');
+            expect($composer['version'])->toBe('81.0.0');
 
             // Check package.json
             $pkg = json_decode(file_get_contents(dirname(__DIR__, 2) . '/package.json'), true);
-            expect($pkg['version'])->toBe('80.0.0');
+            expect($pkg['version'])->toBe('81.0.0');
         });
 
         it('JS client version matches', function (): void {
             $js = file_get_contents(dirname(__DIR__, 2) . '/resources/js/analytics.js');
-            expect($js)->toContain("'80.0.0'");
+            expect($js)->toContain("'81.0.0'");
             // Should not have old version
-            expect($js)->not->toContain("'79.0.0'");
+            expect($js)->not->toContain("'80.0.0'");
         });
 
         it('README badge version matches', function (): void {
             $readme = file_get_contents(dirname(__DIR__, 2) . '/README.md');
-            expect($readme)->toContain('version-80.0.0');
+            expect($readme)->toContain('version-81.0.0');
         });
     });
 });

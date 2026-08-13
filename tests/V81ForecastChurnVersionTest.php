@@ -11,12 +11,12 @@ use ZeroBoiler\Analytics\Services\RevenueForecastService;
 use ZeroBoiler\Analytics\Services\ChurnPredictionService;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 
-// ─── v2.81.0 — Revenue Forecasting + Churn Prediction + Version Unification ───
+// ─── v81.0.0 — Revenue Forecasting + Churn Prediction + Version Unification ───
 
 // ─── Version Consistency ─────────────────────────────────────────────
 
-test('AnalyticsEvent VERSION is 2.82.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
+test('AnalyticsEvent VERSION is 81.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('81.0.0');
 });
 
 test('AnalyticsEvent VERSION is a valid semver string', function (): void {
