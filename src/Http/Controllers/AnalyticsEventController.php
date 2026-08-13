@@ -13021,6 +13021,172 @@ final class AnalyticsEventController extends Controller
         }
     }
 
+    // ── Geographic Analytics (v73.0.0) ──────────────────────────────────
+
+    /**
+     * Get geographic analytics summary.
+     *
+     * GET /api/analytics/geo/summary
+     */
+    public function geoSummary(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->summary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get country-level event breakdown.
+     *
+     * GET /api/analytics/geo/countries
+     */
+    public function geoCountries(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->countryBreakdown());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get region-level event breakdown.
+     *
+     * GET /api/analytics/geo/regions?country=US
+     */
+    public function geoRegions(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->regionBreakdown($request->query('country')));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get city-level event breakdown.
+     *
+     * GET /api/analytics/geo/cities?country=US&limit=20
+     */
+    public function geoCities(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+            $country = $request->query('country');
+            $limit = (int) $request->query('limit', 20);
+
+            return response()->json($service->cityBreakdown($country, $limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get timezone distribution.
+     *
+     * GET /api/analytics/geo/timezones
+     */
+    public function geoTimezones(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->timezoneDistribution());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get country engagement heatmap.
+     *
+     * GET /api/analytics/geo/engagement
+     */
+    public function geoEngagement(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->engagementHeatmap());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get regional conversion funnel.
+     *
+     * GET /api/analytics/geo/funnel?entry=sign_up&conversion=purchase
+     */
+    public function geoFunnel(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+            $entry = $request->query('entry', 'sign_up');
+            $conversion = $request->query('conversion', 'purchase');
+
+            return response()->json($service->regionalConversion($entry, $conversion));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top events per country.
+     *
+     * GET /api/analytics/geo/top-events
+     */
+    public function geoTopEvents(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->topEventsPerCountry());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get geo anomaly detection results.
+     *
+     * GET /api/analytics/geo/anomalies
+     */
+    public function geoAnomalies(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->detectAnomalies());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get continent-level breakdown.
+     *
+     * GET /api/analytics/geo/continents
+     */
+    public function geoContinents(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\GeographicAnalyticsService::class);
+
+            return response()->json($service->continentBreakdown());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
     // ── Event Validation Pipeline (v69.0.0) ────────────────────────────
 
     /**

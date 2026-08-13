@@ -2351,4 +2351,46 @@ final class AnalyticsConfig
 
         return is_array($sections) ? $sections : [];
     }
+
+    // ── Geographic Analytics (v73.0.0) ────────────────────────────
+
+    public function geoAnalyticsEnabled(): bool
+    {
+        return (bool) $this->get('geographic_analytics.enabled', true);
+    }
+
+    public function geoAnalyticsCacheTtl(): int
+    {
+        return (int) $this->get('geographic_analytics.cache_ttl', 300);
+    }
+
+    public function geoAnalyticsTopRegionsLimit(): int
+    {
+        return (int) $this->get('geographic_analytics.top_regions_limit', 20);
+    }
+
+    public function geoAnalyticsTopEventsPerRegion(): int
+    {
+        return (int) $this->get('geographic_analytics.top_events_per_region', 5);
+    }
+
+    public function geoAnalyticsAnomalyThreshold(): int
+    {
+        return (int) $this->get('geographic_analytics.anomaly_threshold_multiplier', 3);
+    }
+
+    public function geoAnalyticsEngagementWeightEvents(): float
+    {
+        return (float) $this->get('geographic_analytics.engagement_weight_events', 0.4);
+    }
+
+    public function geoAnalyticsEngagementWeightUsers(): float
+    {
+        return (float) $this->get('geographic_analytics.engagement_weight_users', 0.4);
+    }
+
+    public function geoAnalyticsEngagementWeightSessions(): float
+    {
+        return (float) $this->get('geographic_analytics.engagement_weight_sessions', 0.2);
+    }
 }

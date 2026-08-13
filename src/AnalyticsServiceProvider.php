@@ -340,6 +340,8 @@ use ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
 use ZeroBoiler\Analytics\Services\EventSessionContextService;
 use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
+use ZeroBoiler\Analytics\Services\GeographicAnalyticsService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGeoCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -3165,6 +3167,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
             );
         });
+
+        // Geographic Analytics (v73.0.0)
+        $this->app->singleton(GeographicAnalyticsService::class, function (Application $app): GeographicAnalyticsService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $app->make(AnalyticsMetrics::class);
+
+            return new GeographicAnalyticsService($cache, $config, $metrics);
+        });
     }
 
     /**
@@ -3221,6 +3235,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsHealthSummaryCommand::class,
                 AnalyticsSelfHealCommand::class,
                 AnalyticsLineageCommand::class,
+                AnalyticsGeoCommand::class,
                 AnalyticsRollupCommand::class,
                 AnalyticsEncryptionCommand::class,
                 AnalyticsUtmCommand::class,
@@ -3593,6 +3608,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/inspector/summary', [$controller, 'inspectorSummary']);
                 Route::get('analytics/inspector/traces', [$controller, 'inspectorRecentTraces']);
                 Route::get('analytics/inspector/trace/{eventId}', [$controller, 'inspectorTrace']);
+
+                // Geographic Analytics (v73.0.0)
+                Route::get('analytics/geo/summary', [$controller, 'geoSummary']);
+                Route::get('analytics/geo/countries', [$controller, 'geoCountries']);
+                Route::get('analytics/geo/regions', [$controller, 'geoRegions']);
+                Route::get('analytics/geo/cities', [$controller, 'geoCities']);
+                Route::get('analytics/geo/timezones', [$controller, 'geoTimezones']);
+                Route::get('analytics/geo/engagement', [$controller, 'geoEngagement']);
+                Route::get('analytics/geo/funnel', [$controller, 'geoFunnel']);
+                Route::get('analytics/geo/top-events', [$controller, 'geoTopEvents']);
+                Route::get('analytics/geo/anomalies', [$controller, 'geoAnomalies']);
+                Route::get('analytics/geo/continents', [$controller, 'geoContinents']);
             });
 
         // Authenticated endpoints

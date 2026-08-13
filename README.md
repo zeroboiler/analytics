@@ -2,14 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-72.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-73.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
-+- [What's New in v72.0.0](#whats-new-in-v72000)
++- [What's New in v73.0.0](#whats-new-in-v72000)
 +- [What's New in v71.0.0](#whats-new-in-v71000)
 +- [What's New in v70.0.0](#whats-new-in-v70000)
 +- [What's New in v67.0.0](#whats-new-in-v67000)
@@ -3975,7 +3975,7 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
 
-## What's New in v72.0.0
+## What's New in v73.0.0
 
 ### Event Audit Trail & Attribution Trail
 
@@ -4034,7 +4034,7 @@ Comprehensive audit trail for every dispatched analytics event and full UTM/refe
 - `V72AuditTrailAttributionConsoleTest` — 18 test cases covering audit trail service (enabled/disabled, record, search, statistics, count, summary), attribution trail service (enabled/disabled, empty trail, first/last touch, attribution models, statistics, count, disabled recording), version sweep, and event catalog validation
 
 **Version Sweep:**
-- All version references unified to v72.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
+- All version references unified to v73.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
 
 ## What's New in v71.0.0
 

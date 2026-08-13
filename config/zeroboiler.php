@@ -6566,5 +6566,37 @@ return [
             'max_touch_history' => (int) env('ANALYTICS_ATTRIBUTION_TRAIL_MAX_TOUCH', 50),
             'max_referrer_chain' => (int) env('ANALYTICS_ATTRIBUTION_TRAIL_MAX_REFERRER', 20),
         ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Geographic Analytics (v73.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Regional event aggregation and geo intelligence service. Aggregates
+        | analytics events by country, region, city, timezone, and continent to
+        | provide geographic breakdowns, engagement heatmaps, regional conversion
+        | funnels, timezone distributions, and geo anomaly detection.
+        |
+        | Data is sourced from GeolocationEnricher pipeline output (geo_country,
+        | geo_region, geo_city, geo_timezone, geo_continent params).
+        |
+        | Engagement score is a weighted composite of normalized events (0.4),
+        | users (0.4), and sessions (0.5). Scores range from 0 to 100 with
+        | letter grades A (≥80), B (≥60), C (≥40), D (≥20), F (<20).
+        |
+        | Inspired by GA4 Geographic reports, Amplitude Geo Analytics,
+        | and Mixpanel Geographic Insights.
+        |
+        */
+        'geographic_analytics' => [
+            'enabled' => env('ANALYTICS_GEO_ANALYTICS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_GEO_ANALYTICS_CACHE_TTL', 300), // 5 minutes
+            'top_regions_limit' => (int) env('ANALYTICS_GEO_ANALYTICS_TOP_REGIONS', 20),
+            'top_events_per_region' => (int) env('ANALYTICS_GEO_ANALYTICS_TOP_EVENTS', 5),
+            'anomaly_threshold_multiplier' => (int) env('ANALYTICS_GEO_ANALYTICS_ANOMALY_THRESHOLD', 3), // 3x baseline = anomaly
+            'engagement_weight_events' => (float) env('ANALYTICS_GEO_ANALYTICS_WEIGHT_EVENTS', 0.4),
+            'engagement_weight_users' => (float) env('ANALYTICS_GEO_ANALYTICS_WEIGHT_USERS', 0.4),
+            'engagement_weight_sessions' => (float) env('ANALYTICS_GEO_ANALYTICS_WEIGHT_SESSIONS', 0.2),
+        ],
     ],
 ];
