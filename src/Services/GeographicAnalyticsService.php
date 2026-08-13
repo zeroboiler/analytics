@@ -451,15 +451,15 @@ final class GeographicAnalyticsService
                 arsort($eventsByName);
 
                 $topEvents = [];
-                $eventCount = 0;
+                $inner = 0;
 
-                foreach ($eventsByName as $eventName => $eventCount) {
-                    if ($eventCount >= $this->topEventsPerRegionLimit) {
+                foreach ($eventsByName as $eventName => $evtCount) {
+                    $topEvents[] = ['event' => $eventName, 'count' => $evtCount];
+                    $inner++;
+
+                    if ($inner >= $this->topEventsPerRegionLimit) {
                         break;
                     }
-
-                    $topEvents[] = ['event' => $eventName, 'count' => $eventCount];
-                    $eventCount++;
                 }
 
                 $result[$code] = array_slice($topEvents, 0, $this->topEventsPerRegionLimit);
