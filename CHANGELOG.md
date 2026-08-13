@@ -1,4 +1,14 @@
 # Changelog
+
+## [75.0.0] - 2026-08-13
+
+### Fixed
+- **PHPStan EventEntry type consistency**: Added missing `tiktok: null, linkedin: null` fields to all event catalog entries across SecurityEvents (5), UptimeEvents (5), InfrastructureEvents (10), SaaSEvents (55), and EngagementEvents (26)
+- Updated `@phpstan-type EventEntry` in Security, Uptime, and Infrastructure catalogs to include `tiktok: string|null, linkedin: string|null`
+
+### Changed
+- Version sweep from 74.0.0 to 75.0.0 across all source files, config, routes, JS client, README, and 91 test files
+
 ## [67.2.0] - 2026-08-13
 
 ### Fixed

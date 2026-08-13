@@ -282,5 +282,5 @@ test('EventAffinityService lift returns 0 for insufficient data', function (): v
 
 test('composer.json version is current', function (): void {
     $json = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($json['version'])->toBe('74.0.0');
+    expect($json['version'])->toBe('75.0.0');
 });

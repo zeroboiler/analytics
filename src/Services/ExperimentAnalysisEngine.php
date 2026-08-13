@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\Events\Engagement\ExperimentResultEvent;
  *
  * Configuration: `zeroboiler.analytics.experiment_analysis`
  *
- * @since 74.0.0
+ * @since 75.0.0
  */
 final class ExperimentAnalysisEngine
 {

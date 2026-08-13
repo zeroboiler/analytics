@@ -249,7 +249,7 @@ describe('EventAliasResolver — v2.49 alias management', function (): void {
         $summary = $resolver->summary();
 
         expect($summary)->toHaveKeys(['alias_count', 'canonical_count', 'categories', 'version']);
-        expect($summary['version'])->toBe('74.0.0');
+        expect($summary['version'])->toBe('75.0.0');
         expect($summary['alias_count'])->toBeGreaterThan(50);
         expect($summary['canonical_count'])->toBe(EventCatalog::count());
         expect($summary['categories'])->toHaveKeys(['ecommerce', 'saas', 'engagement']);
@@ -456,7 +456,7 @@ describe('EventCacheService — v2.49 core', function (): void {
         $stats = $service->stats();
 
         expect($stats)->toHaveKeys(['hits', 'misses', 'hit_rate', 'memory_items', 'memory_max', 'l2_enabled', 'l2_ttl', 'version']);
-        expect($stats['version'])->toBe('74.0.0');
+        expect($stats['version'])->toBe('75.0.0');
         expect($stats['memory_max'])->toBe(100);
         expect($stats['l2_ttl'])->toBe(7200);
         expect($stats['l2_enabled'])->toBeTrue();
@@ -502,51 +502,51 @@ describe('EventCacheService — v2.49 core', function (): void {
 
 describe('Version — v2.49 consistency', function (): void {
     it('manager version is 2.50.0', function (): void {
-        expect($this->manager->version())->toBe('74.0.0');
+        expect($this->manager->version())->toBe('75.0.0');
     });
 
     it('composer version is 2.50.0', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        expect($composer['version'])->toBe('74.0.0');
+        expect($composer['version'])->toBe('75.0.0');
     });
 
     it('JS client version is 2.50.0', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($js)->toContain("'74.0.0'");
+        expect($js)->toContain("'75.0.0'");
     });
 
     it('TypeScript definitions version is 2.50.0', function (): void {
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
 
-        expect($dts)->toContain('74.0.0');
+        expect($dts)->toContain('75.0.0');
     });
 
     it('EventSourceTagger version is 2.50.0', function (): void {
         $tagger = file_get_contents(__DIR__ . '/../src/Services/EventSourceTagger.php');
 
-        expect($tagger)->toContain("'74.0.0'");
+        expect($tagger)->toContain("'75.0.0'");
     });
 
     it('EventForwardingService version is 2.50.0', function (): void {
         $forwarding = file_get_contents(__DIR__ . '/../src/Services/EventForwardingService.php');
 
-        expect($forwarding)->toContain("'74.0.0'");
+        expect($forwarding)->toContain("'75.0.0'");
     });
 
     it('AnalyticsEventRouter version is 2.50.0', function (): void {
         $router = file_get_contents(__DIR__ . '/../src/Services/AnalyticsEventRouter.php');
 
-        expect($router)->toContain("'74.0.0'");
+        expect($router)->toContain("'75.0.0'");
     });
 
     it('controller version strings are 2.50.0', function (): void {
         $controller = file_get_contents(__DIR__ . '/../src/Http/Controllers/AnalyticsEventController.php');
 
-        expect($controller)->toContain("'74.0.0'");
-        expect($controller)->not->toContain("'74.0.0'");
-        expect($controller)->not->toContain("'74.0.0'");
+        expect($controller)->toContain("'75.0.0'");
+        expect($controller)->not->toContain("'75.0.0'");
+        expect($controller)->not->toContain("'75.0.0'");
     });
 });
 

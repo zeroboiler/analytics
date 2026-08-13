@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * computing sample sizes, checking sequential tests, and assessing
  * experiment health.
  *
- * @since 74.0.0
+ * @since 75.0.0
  */
 final class AnalyticsExperimentCommand extends Command
 {

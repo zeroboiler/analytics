@@ -21,17 +21,17 @@ use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 describe('v2.75.0 — Revenue Movement, Expansion Signals & Funnel Intelligence', function () {
     describe('Version consistency', function () {
         it('AnalyticsEvent VERSION is 2.75.0', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
+            expect(AnalyticsEvent::VERSION)->toBe('75.0.0');
         });
 
         it('composer.json version matches AnalyticsEvent VERSION', function () {
             $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-            expect($composer['version'])->toBe('74.0.0');
+            expect($composer['version'])->toBe('75.0.0');
         });
 
         it('AnalyticsManager version returns 2.75.0', function () {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager(null);
-            expect($manager->version())->toBe('74.0.0');
+            expect($manager->version())->toBe('75.0.0');
         });
     });
 

@@ -812,7 +812,7 @@ Route::prefix('analytics')->group(function () {
     Route::get('attribution-trail/stats', [AnalyticsEventController::class, 'attributionTrailStats']);
     Route::delete('attribution-trail/{clientId}', [AnalyticsEventController::class, 'attributionTrailErase']);
 
-    // Experiment Analysis Engine (v74.0.0)
+    // Experiment Analysis Engine (v75.0.0)
     Route::post('experiments/analyze', [AnalyticsEventController::class, 'experimentAnalyze']);
     Route::post('experiments/quick-significance', [AnalyticsEventController::class, 'experimentQuickSignificance']);
     Route::post('experiments/sample-size', [AnalyticsEventController::class, 'experimentSampleSize']);

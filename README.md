@@ -2,13 +2,14 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-74.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-75.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
++- [What's New in v75.0.0](#whats-new-in-v75000)
 +- [What's New in v74.0.0](#whats-new-in-v74000)
 +- [What's New in v73.0.0](#whats-new-in-v72000)
 +- [What's New in v71.0.0](#whats-new-in-v71000)
@@ -3975,6 +3976,32 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/funnels` — funnel conversion rates
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
+
+## What's New in v75.0.0
+
+### Event Catalog Provider Coverage Parity — Full TikTok/LinkedIn Audit
+
+**PHPStan Type Consistency Fix** — all event catalog entries across all 6 categories (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure) now include `tiktok` and `linkedin` provider mapping fields. Previously, newer events added in v2.78+ (cohort analytics, billing, GDPR, product analytics) were missing these fields, causing PHPStan `EventEntry` type violations.
+
+Changes:
+- **SecurityEvents**: Added `tiktok: null, linkedin: null` to all 5 security event entries
+- **UptimeEvents**: Added `tiktok: null, linkedin: null` to all 5 uptime event entries
+- **InfrastructureEvents**: Added `tiktok: null, linkedin: null` to all 10 infrastructure event entries
+- **SaaS Events**: Added `tiktok: null, linkedin: null` to 55 SaaS event entries that were missing provider fields
+- **EngagementEvents**: Added `tiktok: null, linkedin: null` to 26 engagement event entries that were missing provider fields
+- Updated PHPStan `@phpstan-type EventEntry` across Security, Uptime, and Infrastructure catalogs to include `tiktok: string|null, linkedin: string|null`
+
+This ensures **full provider coverage parity** — every catalog entry now has consistent fields across all 9 providers (ga4, meta, posthog, plausible, mixpanel, amplitude, tiktok, linkedin).
+
+### Version Sweep
+
+All internal version references updated from `74.0.0` to `75.0.0` across:
+- `composer.json`, `package.json`
+- `AnalyticsEvent::VERSION` constant
+- `resources/js/analytics.js` (3 version strings)
+- `config/zeroboiler.php`, `routes/analytics.php`
+- `AnalyticsServiceProvider`, `AnalyticsEventController`
+- Console commands, services, and all test files
 
 ## What's New in v74.0.0
 

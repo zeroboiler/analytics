@@ -347,7 +347,7 @@ describe('v2.61.0 — Event Catalog Expansion + Telemetry + Svelte Tracker', fun
     describe('Version consistency', function (): void {
         test('composer.json version is 2.61.0', function (): void {
             $json = json_decode(file_get_contents(__DIR__.'/../../composer.json'), true);
-            expect($json['version'])->toBe('74.0.0');
+            expect($json['version'])->toBe('75.0.0');
         });
 
         test('JS client version is 2.61.0', function (): void {
@@ -357,7 +357,7 @@ describe('v2.61.0 — Event Catalog Expansion + Telemetry + Svelte Tracker', fun
 
         test('AnalyticsManager version is 2.61.0', function (): void {
             $manager = new \ZeroBoiler\Analytics\AnalyticsManager();
-            expect($manager->version())->toBe('74.0.0');
+            expect($manager->version())->toBe('75.0.0');
         });
 
         test('No stale 2.59.0 or 2.60.0 references in src', function (): void {

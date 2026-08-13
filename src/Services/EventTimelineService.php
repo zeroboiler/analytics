@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Inspired by Amplitude User Lookup, Mixpanel User Profile, and
  * PostHog User Activity feeds.
  *
- * @since 74.0.0
+ * @since 75.0.0
  */
 final class EventTimelineService
 {

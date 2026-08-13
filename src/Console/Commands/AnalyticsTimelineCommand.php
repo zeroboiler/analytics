@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\Services\EventTimelineService;
  * Displays chronological event timelines, session groups, and gap analysis
  * for debugging user journeys and funnel progression.
  *
- * @since 74.0.0
+ * @since 75.0.0
  */
 final class AnalyticsTimelineCommand extends Command
 {

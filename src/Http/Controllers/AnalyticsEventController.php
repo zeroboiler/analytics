@@ -13677,7 +13677,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ── Experiment Analysis Engine (v74.0.0) ───────────────────────────
+    // ── Experiment Analysis Engine (v75.0.0) ───────────────────────────
 
     /**
      * Run comprehensive experiment analysis (Bayesian + Frequentist).

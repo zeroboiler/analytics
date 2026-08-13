@@ -259,8 +259,8 @@ test('feature 12: event catalog validator checks catalog membership', function (
     expect($validator->getCategory('nonexistent_event'))->toBeNull();
 });
 
-test('feature 13: version consistency — AnalyticsEvent::VERSION is 74.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('74.0.0');
+test('feature 13: version consistency — AnalyticsEvent::VERSION is 75.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('75.0.0');
 });
 
 test('feature 14: catalog completeness maintained at 100+ events', function (): void {
@@ -313,37 +313,37 @@ test('feature 18: JS client version is synced to 4.5.0', function (): void {
     $jsContent = is_string($js) ? $js : '';
 
     // getVersion() returns correct version
-    expect($jsContent)->toContain("return '74.0.0'");
+    expect($jsContent)->toContain("return '75.0.0'");
 
     // Header version is correct
-    expect($jsContent)->toContain('@version 74.0.0');
+    expect($jsContent)->toContain('@version 75.0.0');
 });
 
 test('feature 19: TypeScript definitions version is 4.5.0', function (): void {
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
     $dtsContent = is_string($dts) ? $dts : '';
 
-    expect($dtsContent)->toContain('@version 74.0.0');
+    expect($dtsContent)->toContain('@version 75.0.0');
 });
 
 test('feature 20: Svelte composables version is 4.5.0', function (): void {
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
     $svelteContent = is_string($svelte) ? $svelte : '';
 
-    expect($svelteContent)->toContain('@version 74.0.0');
+    expect($svelteContent)->toContain('@version 75.0.0');
 });
 
 test('feature 21: composer.json version is 4.5.0', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
     expect($composer)->not->toBeNull();
-    expect($composer['version'])->toBe('74.0.0');
+    expect($composer['version'])->toBe('75.0.0');
 });
 
 test('feature 22: ServiceProvider docblock version is 4.5.0', function (): void {
     $provider = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
     $providerContent = is_string($provider) ? $provider : '';
 
-    expect($providerContent)->toContain('@version 74.0.0');
+    expect($providerContent)->toContain('@version 75.0.0');
 });
 
 test('feature 23: AnalyticsManager duplicate docblock removed', function (): void {
@@ -389,18 +389,18 @@ test('feature 24: new service files exist with strict types and proper namespace
     expect($validatorContent)->toContain('public function __construct');
 
     // Docblock with version
-    expect($auditContent)->toContain('@version 74.0.0');
-    expect($validatorContent)->toContain('@version 74.0.0');
+    expect($auditContent)->toContain('@version 75.0.0');
+    expect($validatorContent)->toContain('@version 75.0.0');
 });
 
-test('feature 25: README documents v74.0.0 features', function (): void {
+test('feature 25: README documents v75.0.0 features', function (): void {
     $readme = file_get_contents(__DIR__ . '/../README.md');
     $readmeContent = is_string($readme) ? $readme : '';
 
-    expect($readmeContent)->toContain("What's New in v74.0.0");
+    expect($readmeContent)->toContain("What's New in v75.0.0");
     expect($readmeContent)->toContain('AnalyticsConfigAuditService');
     expect($readmeContent)->toContain('EventCatalogValidator');
     expect($readmeContent)->toContain('config/audit');
     expect($readmeContent)->toContain('catalog/validate');
-    expect($readmeContent)->toContain('version-74.0.0');
+    expect($readmeContent)->toContain('version-75.0.0');
 });

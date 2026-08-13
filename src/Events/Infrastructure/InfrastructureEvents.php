@@ -15,7 +15,7 @@ namespace ZeroBoiler\Analytics\Events\Infrastructure;
  * Covers feature flags, experiments, SRE/error budgets, incidents, deployments,
  * maintenance windows, and pipeline reliability.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 46.0.0
  */
@@ -45,6 +45,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Feature Flag Evaluated',
                 'amplitude' => 'Feature Flag Evaluated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'experiment_exposed' => [
                 'name' => 'experiment_exposed',
@@ -55,6 +57,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Experiment Exposed',
                 'amplitude' => 'Experiment Exposed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'error_budget_burned' => [
                 'name' => 'error_budget_burned',
@@ -65,6 +69,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Error Budget Burned',
                 'amplitude' => 'Error Budget Burned',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'slo_breach' => [
                 'name' => 'slo_breach',
@@ -75,6 +81,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'SLO Breach',
                 'amplitude' => 'SLO Breach',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'deployment_rolled_back' => [
                 'name' => 'deployment_rolled_back',
@@ -85,6 +93,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Deployment Rolled Back',
                 'amplitude' => 'Deployment Rolled Back',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'incident_started' => [
                 'name' => 'incident_started',
@@ -95,6 +105,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Incident Started',
                 'amplitude' => 'Incident Started',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'incident_resolved' => [
                 'name' => 'incident_resolved',
@@ -105,6 +117,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Incident Resolved',
                 'amplitude' => 'Incident Resolved',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'maintenance_started' => [
                 'name' => 'maintenance_started',
@@ -115,6 +129,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Maintenance Started',
                 'amplitude' => 'Maintenance Started',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'maintenance_ended' => [
                 'name' => 'maintenance_ended',
@@ -125,6 +141,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Maintenance Ended',
                 'amplitude' => 'Maintenance Ended',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'pipeline_failure' => [
                 'name' => 'pipeline_failure',
@@ -135,6 +153,8 @@ final class InfrastructureEvents
                 'plausible' => null,
                 'mixpanel' => 'Pipeline Failure',
                 'amplitude' => 'Pipeline Failure',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
         ];
 

@@ -176,6 +176,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Assigned',
                 'amplitude' => 'Cohort Assigned',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cohort_retention' => [
                 'name' => 'cohort_retention',
@@ -186,6 +188,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Retention',
                 'amplitude' => 'Cohort Retention',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cohort_churn' => [
                 'name' => 'cohort_churn',
@@ -196,6 +200,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Churn',
                 'amplitude' => 'Cohort Churn',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cohort_conversion' => [
                 'name' => 'cohort_conversion',
@@ -206,6 +212,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Conversion',
                 'amplitude' => 'Cohort Conversion',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cohort_migration' => [
                 'name' => 'cohort_migration',
@@ -216,6 +224,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Migration',
                 'amplitude' => 'Cohort Migration',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'cohort_engagement' => [
                 'name' => 'cohort_engagement',
@@ -226,6 +236,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Cohort Engagement',
                 'amplitude' => 'Cohort Engagement',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'invite_sent' => [
                 'name' => 'invite_sent',
@@ -236,6 +248,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Invite Sent',
                 'amplitude' => 'Invite Sent',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'integration_connected' => [
                 'name' => 'integration_connected',
@@ -246,6 +260,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Integration Connected',
                 'amplitude' => 'Integration Connected',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'subscription_renewal' => [
                 'name' => 'subscription_renewal',
@@ -256,6 +272,8 @@ final class SaaSEvents
                 'plausible' => 'subscription_renewal',
                 'mixpanel' => 'Subscription Renewal',
                 'amplitude' => 'Subscription Renewal',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Account lifecycle events
             'account_activated' => [
@@ -267,6 +285,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Account Activated',
                 'amplitude' => 'Account Activated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'account_deactivated' => [
                 'name' => 'account_deactivated',
@@ -277,6 +297,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Account Deactivated',
                 'amplitude' => 'Account Deactivated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'password_changed' => [
                 'name' => 'password_changed',
@@ -287,6 +309,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Password Changed',
                 'amplitude' => 'Password Changed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'password_reset' => [
                 'name' => 'password_reset',
@@ -297,6 +321,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Password Reset',
                 'amplitude' => 'Password Reset',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'profile_updated' => [
                 'name' => 'profile_updated',
@@ -307,6 +333,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Profile Updated',
                 'amplitude' => 'Profile Updated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'email_verified' => [
                 'name' => 'email_verified',
@@ -317,6 +345,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Email Verified',
                 'amplitude' => 'Email Verified',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // B2B / Team events
             'team_created' => [
@@ -328,6 +358,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Team Created',
                 'amplitude' => 'Team Created',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'team_member_joined' => [
                 'name' => 'team_member_joined',
@@ -338,6 +370,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Team Member Joined',
                 'amplitude' => 'Team Member Joined',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'team_member_removed' => [
                 'name' => 'team_member_removed',
@@ -348,6 +382,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Team Member Removed',
                 'amplitude' => 'Team Member Removed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'role_changed' => [
                 'name' => 'role_changed',
@@ -358,6 +394,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Role Changed',
                 'amplitude' => 'Role Changed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Billing events
             'payment_failed' => [
@@ -369,6 +407,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Payment Failed',
                 'amplitude' => 'Payment Failed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'payment_succeeded' => [
                 'name' => 'payment_succeeded',
@@ -379,6 +419,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Payment Succeeded',
                 'amplitude' => 'Payment Succeeded',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'payment_method_added' => [
                 'name' => 'payment_method_added',
@@ -389,6 +431,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Payment Method Added',
                 'amplitude' => 'Payment Method Added',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'invoice_generated' => [
                 'name' => 'invoice_generated',
@@ -399,6 +443,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Invoice Generated',
                 'amplitude' => 'Invoice Generated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'credit_applied' => [
                 'name' => 'credit_applied',
@@ -409,6 +455,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Credit Applied',
                 'amplitude' => 'Credit Applied',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Operational events
             'feature_limit_reached' => [
@@ -420,6 +468,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Feature Limit Reached',
                 'amplitude' => 'Feature Limit Reached',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'integration_failed' => [
                 'name' => 'integration_failed',
@@ -430,6 +480,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Integration Failed',
                 'amplitude' => 'Integration Failed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Feature discovery & exposure
             'feature_impression' => [
@@ -441,6 +493,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Feature Impression',
                 'amplitude' => 'Feature Impression',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Multi-tenant workspace creation
             'workspace_created' => [
@@ -452,6 +506,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Workspace Created',
                 'amplitude' => 'Workspace Created',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Conversion & growth events (v2.66.0)
             'trial_converted' => [
@@ -463,6 +519,8 @@ final class SaaSEvents
                 'plausible' => 'conversion',
                 'mixpanel' => 'Trial Converted',
                 'amplitude' => 'Trial Converted',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'subscription_resumed' => [
                 'name' => 'subscription_resumed',
@@ -473,6 +531,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Subscription Resumed',
                 'amplitude' => 'Subscription Resumed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'milestone_reached' => [
                 'name' => 'milestone_reached',
@@ -483,6 +543,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Milestone Reached',
                 'amplitude' => 'Milestone Reached',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Subscription lifecycle — pause/resume
             'subscription_paused' => [
@@ -494,6 +556,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Subscription Paused',
                 'amplitude' => 'Subscription Paused',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Revenue movement events
             'subscription_value_changed' => [
@@ -505,6 +569,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Subscription Value Changed',
                 'amplitude' => 'Subscription Value Changed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Expansion & limit signals
             'usage_quota_reached' => [
@@ -516,6 +582,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Usage Quota Reached',
                 'amplitude' => 'Usage Quota Reached',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Dunning / billing retry
             'billing_retry' => [
@@ -527,6 +595,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Billing Retry',
                 'amplitude' => 'Billing Retry',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // SLA compliance event
             'sla_breach' => [
@@ -538,6 +608,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Sla Breach',
                 'amplitude' => 'Sla Breach',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Payment method update event
             'payment_method_updated' => [
@@ -549,6 +621,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Payment Method Updated',
                 'amplitude' => 'Payment Method Updated',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Product-Led Growth events (v2.78.0)
             'feature_adopted' => [
@@ -560,6 +634,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Feature Adopted',
                 'amplitude' => 'Feature Adopted',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'expansion_revenue' => [
                 'name' => 'expansion_revenue',
@@ -570,6 +646,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Expansion Revenue',
                 'amplitude' => 'Expansion Revenue',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Data portability events (v2.86.0)
             'export' => [
@@ -581,6 +659,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Export',
                 'amplitude' => 'Export',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'import' => [
                 'name' => 'import',
@@ -591,6 +671,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Import',
                 'amplitude' => 'Import',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // GDPR compliance & account lifecycle (v2.90.0)
             'account_deleted' => [
@@ -602,6 +684,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Account Deleted',
                 'amplitude' => 'Account Deleted',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Subscription lifecycle (v2.90.0)
             'subscription_created' => [
@@ -613,6 +697,8 @@ final class SaaSEvents
                 'plausible' => 'subscription',
                 'mixpanel' => 'Subscription Created',
                 'amplitude' => 'Subscription Created',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'subscription_cancelled' => [
                 'name' => 'subscription_cancelled',
@@ -623,6 +709,8 @@ final class SaaSEvents
                 'plausible' => 'cancellation',
                 'mixpanel' => 'Subscription Cancelled',
                 'amplitude' => 'Subscription Cancelled',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Trial lifecycle (v2.90.0)
             'trial_expired' => [
@@ -634,6 +722,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Trial Expired',
                 'amplitude' => 'Trial Expired',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Plan management (v2.90.0)
             'plan_changed' => [
@@ -645,6 +735,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Plan Changed',
                 'amplitude' => 'Plan Changed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // GDPR compliance events (v2.93.0)
             'data_subject_access_request' => [
@@ -656,6 +748,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Data Subject Access Request',
                 'amplitude' => 'Data Subject Access Request',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'data_erasure_completed' => [
                 'name' => 'data_erasure_completed',
@@ -666,6 +760,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Data Erasure Completed',
                 'amplitude' => 'Data Erasure Completed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Product analytics & activation signals (v22.0.0)
             'first_value' => [
@@ -677,6 +773,8 @@ final class SaaSEvents
                 'plausible' => 'activation',
                 'mixpanel' => 'First Value',
                 'amplitude' => 'First Value',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'upcoming_renewal' => [
                 'name' => 'upcoming_renewal',
@@ -687,6 +785,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Upcoming Renewal',
                 'amplitude' => 'Upcoming Renewal',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'retention_risk' => [
                 'name' => 'retention_risk',
@@ -697,6 +797,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Retention Risk',
                 'amplitude' => 'Retention Risk',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'product_analytics' => [
                 'name' => 'product_analytics',
@@ -707,6 +809,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Product Analytics',
                 'amplitude' => 'Product Analytics',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // API telemetry (v27.0.0)
             'api_rate_limited' => [
@@ -718,6 +822,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'API Rate Limited',
                 'amplitude' => 'API Rate Limited',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Webhook delivery monitoring (v27.0.0)
             'webhook_delivered' => [
@@ -729,6 +835,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Webhook Delivered',
                 'amplitude' => 'Webhook Delivered',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Integration engagement tracking (v27.0.0)
             'integration_used' => [
@@ -740,6 +848,8 @@ final class SaaSEvents
                 'plausible' => null,
                 'mixpanel' => 'Integration Used',
                 'amplitude' => 'Integration Used',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
         ];
 

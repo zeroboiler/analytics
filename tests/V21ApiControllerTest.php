@@ -167,7 +167,7 @@ describe('v2.1 — AnalyticsEventController', function () {
             expect($response->status())->toBe(200);
             $data = json_decode($response->getContent(), true);
             expect($data['status'])->toBe('ok');
-            expect($data['version'])->toBe('74.0.0');
+            expect($data['version'])->toBe('75.0.0');
             expect($data['providers'])->toHaveKey('ga4');
             expect($data['consent'])->toHaveKey('analytics_storage');
         });

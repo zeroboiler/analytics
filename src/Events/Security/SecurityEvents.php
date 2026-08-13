@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Provides a central registry for security event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations in security monitoring contexts.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 9.9.0
  */
@@ -45,6 +45,8 @@ final class SecurityEvents
                 'plausible' => null,
                 'mixpanel' => 'Login Attempt',
                 'amplitude' => 'Login Attempt',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'suspicious_activity' => [
                 'name' => 'suspicious_activity',
@@ -55,6 +57,8 @@ final class SecurityEvents
                 'plausible' => null,
                 'mixpanel' => 'Suspicious Activity',
                 'amplitude' => 'Suspicious Activity',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'data_access_audit' => [
                 'name' => 'data_access_audit',
@@ -65,6 +69,8 @@ final class SecurityEvents
                 'plausible' => null,
                 'mixpanel' => 'Data Access Audit',
                 'amplitude' => 'Data Access Audit',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'rate_limit_exceeded' => [
                 'name' => 'rate_limit_exceeded',
@@ -75,6 +81,8 @@ final class SecurityEvents
                 'plausible' => null,
                 'mixpanel' => 'Rate Limit Exceeded',
                 'amplitude' => 'Rate Limit Exceeded',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'mfa_challenge' => [
                 'name' => 'mfa_challenge',
@@ -85,6 +93,8 @@ final class SecurityEvents
                 'plausible' => null,
                 'mixpanel' => 'MFA Challenge',
                 'amplitude' => 'MFA Challenge',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
         ];
 

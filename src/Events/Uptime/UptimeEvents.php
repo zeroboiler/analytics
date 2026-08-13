@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Provides a central registry for uptime event names, classes, and metadata.
  * Use for validation, lookup, and bulk operations in infrastructure monitoring.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}
  *
  * @since 9.9.0
  */
@@ -45,6 +45,8 @@ final class UptimeEvents
                 'plausible' => null,
                 'mixpanel' => 'Service Up',
                 'amplitude' => 'Service Up',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'service_down' => [
                 'name' => 'service_down',
@@ -55,6 +57,8 @@ final class UptimeEvents
                 'plausible' => null,
                 'mixpanel' => 'Service Down',
                 'amplitude' => 'Service Down',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'api_latency' => [
                 'name' => 'api_latency',
@@ -65,6 +69,8 @@ final class UptimeEvents
                 'plausible' => null,
                 'mixpanel' => 'API Latency',
                 'amplitude' => 'API Latency',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'error_spike' => [
                 'name' => 'error_spike',
@@ -75,6 +81,8 @@ final class UptimeEvents
                 'plausible' => null,
                 'mixpanel' => 'Error Spike',
                 'amplitude' => 'Error Spike',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'deployment' => [
                 'name' => 'deployment',
@@ -85,6 +93,8 @@ final class UptimeEvents
                 'plausible' => null,
                 'mixpanel' => 'Deployment',
                 'amplitude' => 'Deployment',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
         ];
 

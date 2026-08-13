@@ -17,7 +17,7 @@ use Illuminate\Cache\Repository as CacheRepo;
 /**
  * @covers \ZeroBoiler\Analytics\Services\EventTimelineService
  *
- * @since 74.0.0
+ * @since 75.0.0
  */
 final class V103EventTimelineServiceTest extends TestCase
 {

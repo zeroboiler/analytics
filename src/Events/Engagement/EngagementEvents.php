@@ -145,6 +145,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Time On Page',
                 'amplitude' => 'Time On Page',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'campaign_attribution' => [
                 'name' => 'campaign_attribution',
@@ -155,6 +157,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Campaign Attribution',
                 'amplitude' => 'Campaign Attribution',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'screen_view' => [
                 'name' => 'screen_view',
@@ -165,6 +169,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Screen View',
                 'amplitude' => 'Screen View',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'ab_test_exposure' => [
                 'name' => 'ab_test_exposure',
@@ -175,6 +181,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Ab Test Exposure',
                 'amplitude' => 'Ab Test Exposure',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'notification' => [
                 'name' => 'notification',
@@ -185,6 +193,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Notification',
                 'amplitude' => 'Notification',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Performance & client-side events
             'web_vitals' => [
@@ -196,6 +206,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Web Vitals',
                 'amplitude' => 'Web Vitals',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'js_error' => [
                 'name' => 'js_error',
@@ -206,6 +218,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Js Error',
                 'amplitude' => 'Js Error',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'timing' => [
                 'name' => 'timing',
@@ -216,6 +230,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Timing',
                 'amplitude' => 'Timing',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Session lifecycle events
             'session_start' => [
@@ -227,6 +243,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Session Start',
                 'amplitude' => 'Session Start',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'session_end' => [
                 'name' => 'session_end',
@@ -237,6 +255,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Session End',
                 'amplitude' => 'Session End',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Link click events
             'outbound_click' => [
@@ -248,6 +268,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Outbound Click',
                 'amplitude' => 'Outbound Click',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Content engagement events
             'file_download' => [
@@ -259,6 +281,8 @@ final class EngagementEvents
                 'plausible' => 'file_download',
                 'mixpanel' => 'File Download',
                 'amplitude' => 'File Download',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'video_play' => [
                 'name' => 'video_play',
@@ -269,6 +293,8 @@ final class EngagementEvents
                 'plausible' => 'video_play',
                 'mixpanel' => 'Video Play',
                 'amplitude' => 'Video Play',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Paid advertising events
             'ad_click' => [
@@ -280,6 +306,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Ad Click',
                 'amplitude' => 'Ad Click',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Content consumption events
             'content_engagement' => [
@@ -291,6 +319,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Content Engagement',
                 'amplitude' => 'Content Engagement',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // SaaS onboarding funnel events
             'onboarding_step' => [
@@ -302,6 +332,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Onboarding Step',
                 'amplitude' => 'Onboarding Step',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Product demand signals
             'feature_request' => [
@@ -313,6 +345,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Feature Request',
                 'amplitude' => 'Feature Request',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // User satisfaction & feedback (v2.79.0)
             'feedback' => [
@@ -324,6 +358,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Feedback',
                 'amplitude' => 'Feedback',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Custom goal conversion tracking (v2.79.0)
             'goal_conversion' => [
@@ -335,6 +371,8 @@ final class EngagementEvents
                 'plausible' => 'goal',
                 'mixpanel' => 'Goal Conversion',
                 'amplitude' => 'Goal Conversion',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // GDPR consent lifecycle events (v2.93.0)
             'consent_granted' => [
@@ -346,6 +384,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Consent Granted',
                 'amplitude' => 'Consent Granted',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             'consent_withdrawn' => [
                 'name' => 'consent_withdrawn',
@@ -356,6 +396,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Consent Withdrawn',
                 'amplitude' => 'Consent Withdrawn',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Onboarding completion (v9.7.0)
             'onboarding_completed' => [
@@ -367,6 +409,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Onboarding Completed',
                 'amplitude' => 'Onboarding Completed',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Performance analytics (v24.0.0)
             'performance_score' => [
@@ -378,6 +422,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Performance Score',
                 'amplitude' => 'Performance Score',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Element visibility via IntersectionObserver (v27.0.0)
             'element_visibility' => [
@@ -389,6 +435,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Element Visibility',
                 'amplitude' => 'Element Visibility',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Text copy/cut tracking (v27.0.0)
             'copy_text' => [
@@ -400,6 +448,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Copy Text',
                 'amplitude' => 'Copy Text',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
             // Element hover/focus tracking (v27.0.0)
             'hover' => [
@@ -411,6 +461,8 @@ final class EngagementEvents
                 'plausible' => null,
                 'mixpanel' => 'Hover',
                 'amplitude' => 'Hover',
+                'tiktok' => null,
+                'linkedin' => null,
             ],
         ];
 

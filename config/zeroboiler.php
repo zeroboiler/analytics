@@ -895,7 +895,7 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
-        | Event Timeline (v74.0.0)
+        | Event Timeline (v75.0.0)
         |-------------------------------------------------------------------------- 
         |
         | Chronological event timeline for user journey analysis and dashboard
@@ -6601,7 +6601,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Experiment Analysis Engine (v74.0.0)
+        | Experiment Analysis Engine (v75.0.0)
         |--------------------------------------------------------------------------
         |
         | Bayesian and Frequentist hypothesis testing for A/B experiments.
