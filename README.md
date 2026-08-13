@@ -9,131 +9,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 
 ## Table of Contents
 
-+- [What's New in v78.0.0](#whats-new-in-v78000)
-+- [What's New in v77.0.0](#whats-new-in-v77000)
-+- [What's New in v76.0.0](#whats-new-in-v76000)
-+- [What's New in v75.0.0](#whats-new-in-v75000)
-+- [What's New in v74.0.0](#whats-new-in-v74000)
-+- [What's New in v73.0.0](#whats-new-in-v72000)
-+- [What's New in v71.0.0](#whats-new-in-v71000)
-+- [What's New in v70.0.0](#whats-new-in-v70000)
-+- [What's New in v67.0.0](#whats-new-in-v67000)
-+- [What's New in v66.0.0](#whats-new-in-v66000)
-- [What's New in v62.0.0](#whats-new-in-v62000)
-+- [What's New in v64.0.0](#whats-new-in-v64000)
-+- [What's New in v63.0.0](#whats-new-in-v63000)
-- [What's New in v61.0.0](#whats-new-in-v61000)
-- [What's New in v60.0.0](#whats-new-in-v60000)
-- [What's New in v58.0.0](#whats-new-in-v58000)
-- [What's New in v57.0.0](#whats-new-in-v57000)
-- [What's New in v56.0.0](#whats-new-in-v56000)
-- [What's New in v54.0.0](#whats-new-in-v54000)
-- [What's New in v53.0.0](#whats-new-in-v53000)
-- [What's New in v52.0.0](#whats-new-in-v52000)
-- [What's New in v51.1.0](#whats-new-in-v51100)
-- [What's New in v50.0.0](#whats-new-in-v50000)
-- [What's New in v48.0.0](#whats-new-in-v48000)
-- [What's New in v47.0.0](#whats-new-in-v47000)
-- [What's New in v46.0.0](#whats-new-in-v46000)
-- [What's New in v45.0.0](#whats-new-in-v45000)
-- [What's New in v44.0.0](#whats-new-in-v44000)
-- [What's New in v43.0.0](#whats-new-in-v43000)
 - [Quick Start](#quick-start)
-- [What's New in v40.0.0](#whats-new-in-v40000)
-+- [What's New in v41.0.0](#whats-new-in-v41000)
-+- [What's New in v39.0.0](#whats-new-in-v39000)
-+- [What's New in v38.0.0](#whats-new-in-v38000)
-+- [What's New in v37.0.0](#whats-new-in-v37000)
-+- [What's New in v36.0.0](#whats-new-in-v36000)
-+- [What's New in v35.0.0](#whats-new-in-v35000)
-+- [What's New in v33.0.0](#whats-new-in-v33000)
-+- [What's New in v31.0.0](#whats-new-in-v31000)
-+- [What's New in v30.0.0](#whats-new-in-v30000)
-- [What's New in v28.0.0](#whats-new-in-v28000)
-- [What's New in v25.0.0](#whats-new-in-v25000)
-- [What's New in v24.0.0](#whats-new-in-v24000)
-|- [What's New in v23.0.0](#whats-new-in-v23000)
-- [What's New in v22.0.0](#whats-new-in-v22000)
-+- [What's New in v21.0.0](#whats-new-in-v21000)
-+- [What's New in v20.0.0](#whats-new-in-v20000)
-- [What's New in v18.0.0](#whats-new-in-v18000)
-- [What's New in v17.0.0](#whats-new-in-v17000)
-- [What's New in v16.0.0](#whats-new-in-v16000)
-+- [What's New in v15.0.0](#whats-new-in-v15000)
-+- [What's New in v14.0.0](#whats-new-in-v14000)
-+- [What's New in v13.0.0](#whats-new-in-v13000)
-+- [What's New in v12.0.0](#whats-new-in-v12000)
-+- [What's New in v11.0.0](#whats-new-in-v11000)
-+- [What's New in v10.9.0](#whats-new-in-v1090)
-+- [What's New in v10.8.0](#whats-new-in-v1080)
-+- [What's New in v10.6.0](#whats-new-in-v1060)
-+- [What's New in v10.5.0](#whats-new-in-v1050)
-+- [What's New in v10.4.0](#whats-new-in-v1040)
-+- [What's New in v10.3.0](#whats-new-in-v1030)
-+- [What's New in v10.2.0](#whats-new-in-v1020)
-+- [What's New in v10.1.0](#whats-new-in-v1010)
-- [What's New in v10.0.0](#whats-new-in-v10000)
-- [What's New in v9.9.0](#whats-new-in-v990)
-- [What's New in v9.8.0](#whats-new-in-v980)
-- [What's New in v9.7.0](#whats-new-in-v970)
-+- [What's New in v9.6.0](#whats-new-in-v960)
-- [What's New in v9.4.0](#whats-new-in-v940)
-- [What's New in v9.3.0](#whats-new-in-v930)
-- [What's New in v9.1.0](#whats-new-in-v910)
-- [What's New in v9.0.0](#whats-new-in-v900)
-- [What's New in v8.9.0](#whats-new-in-v890)
-- [What's New in v8.8.0](#whats-new-in-v880)
-- [What's New in v8.7.0](#whats-new-in-v870)
-- [What's New in v8.6.0](#whats-new-in-v860)
-- [What's New in v8.5.0](#whats-new-in-v850)
-- [What's New in v8.4.0](#whats-new-in-v840)
-- [What's New in v8.3.0](#whats-new-in-v830)
-- [What's New in v8.2.0](#whats-new-in-v820)
-- [What's New in v8.0.0](#whats-new-in-v8000)
-- [What's New in v7.9.0](#whats-new-in-v790)
-- [What's New in v7.8.0](#whats-new-in-v780)
-- [What's New in v7.7.0](#whats-new-in-v770)
-- [What's New in v7.6.0](#whats-new-in-v760)
-- [What's New in v7.4.0](#whats-new-in-v740)
-- [What's New in v7.3.0](#whats-new-in-v730)
-- [What's New in v7.1.0](#whats-new-in-v7100)
-- [What's New in v7.0.0](#whats-new-in-v7000)
-- [What's New in v6.9.0](#whats-new-in-v6900)
-- [What's New in v6.8.0](#whats-new-in-v6800)
-- [What's New in v6.7.0](#whats-new-in-v6700)
-- [What's New in v6.5.0](#whats-new-in-v6500)
-- [What's New in v6.2.0](#whats-new-in-v6200)
-- [What's New in v6.1.0](#whats-new-in-v6100)
-- [What's New in v5.9.0](#whats-new-in-v5900)
-- [What's New in v5.8.0](#whats-new-in-v5800)
-- [What's New in v5.2.0](#whats-new-in-v5200)
-- [What's New in v5.0.0](#whats-new-in-v5000)
-- [What's New in v4.5.0](#whats-new-in-v4500)
-- [What's New in v4.4.0](#whats-new-in-v4400)
-- [What's New in v4.3.0](#whats-new-in-v4300)
-- [What's New in v4.2.0](#whats-new-in-v4200)
-- [What's New in v4.1.0](#whats-new-in-v4100)
-- [What's New in v4.0.0](#whats-new-in-v4000)
-- [What's New in v3.9.0](#whats-new-in-v3900)
-- [What's New in v3.8.0](#whats-new-in-v3800)
-- [What's New in v3.7.0](#whats-new-in-v3700)
-- [What's New in v3.6.0](#whats-new-in-v3600)
-- [What's New in v3.5.0](#whats-new-in-v3500)
-- [What's New in v3.4.0](#whats-new-in-v3400)
-- [What's New in v3.3.1](#whats-new-in-v3331)
-- [What's New in v3.3.0](#whats-new-in-v3300)
-- [What's New in v3.2.0](#whats-new-in-v3200)
-- [What's New in v3.1.0](#whats-new-in-v3100)
-- [What's New in v3.0.0](#whats-new-in-v3000)
-- [What's New in v2.98.0](#whats-new-in-v2980)
-- [What's New in v2.97.0](#whats-new-in-v2970)
-- [What's New in v2.96.0](#whats-new-in-v2960)
-- [What's New in v2.95.0](#whats-new-in-v2950)
-- [What's New in v2.94.0](#whats-new-in-v2940)
-- [What's New in v2.93.0](#whats-new-in-v2930)
-- [What's New in v2.92.0](#whats-new-in-v2920)
-- [What's New in v2.91.0](#whats-new-in-v2910)
-- [What's New in v2.88.0](#whats-new-in-v2880)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Configuration](#configuration)
@@ -148,9 +24,40 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
+- [Changelog](#changelog)
 - [License](#license)
 
-## What's New in v68.0.0
+## Quick Start
+
+```bash
+composer require zeroboiler/analytics
+php artisan vendor:publish --tag=zeroboiler-analytics-config
+```
+
+```env
+ANALYTICS_GA4_ENABLED=true
+ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+ANALYTICS_GA4_API_SECRET=your_secret
+```
+
+```php
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+Analytics::track('button_click', ['element' => 'buy_now']);
+Analytics::purchase('TXN-12345', 99.99, [['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2]]);
+```
+
+```javascript
+// Svelte/Inertia
+import { init, trackEvent, trackPageView } from '../resources/js/analytics';
+
+init(page.props);
+await trackEvent('tutorial_completed', { duration_seconds: 300 });
+```
+
+Done. That's it.
+
+### What's New in v68.0.0
 
 ### Real User Monitoring (RUM) — Core Web Vitals Aggregation
 
@@ -207,7 +114,7 @@ New config accessors for RUM and Inspector settings: `rumEnabled()`, `rumMaxSamp
 
 ---
 
-## What's New in v67.0.0
+### What's New in v67.0.0
 
 ### SaaS Analytics Coverage Report — 12-Capability Audit System
 
@@ -251,7 +158,7 @@ Features:
 
 ---
 
-## What's New in v66.0.0
+### What's New in v66.0.0
 
 ### Event Blueprint System — Reusable, Versioned Event Templates
 
@@ -313,7 +220,7 @@ Features: `toBatch()` for multi-event export, `autoConvert()` for automatic type
 
 ---
 
-## What's New in v64.0.0
+### What's New in v64.0.0
 
 ### AnalyticsConfig Provider Parity & Diagnostic API
 
@@ -329,7 +236,7 @@ Features: `toBatch()` for multi-event export, `autoConvert()` for automatic type
 
 ---
 
-## What's New in v63.0.0
+### What's New in v63.0.0
 
 ### Event Session Context Service & Provider Dispatch Deduplication
 
@@ -347,7 +254,7 @@ Features: `toBatch()` for multi-event export, `autoConvert()` for automatic type
 
 ---
 
-## What's New in v62.0.0
+### What's New in v62.0.0
 
 ### Domain Exception Hierarchy & Constructor Void Type Hardening
 
@@ -368,7 +275,7 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 - ✅ All constructors declare `: void` return type
 - ✅ 616 source files, 288 test files, 16,700+ assertions
 
-## What's New in v61.0.0
+### What's New in v61.0.0
 
 ### Production-Ready Hardening — Phase 2-3-4 Quality Audit
 
@@ -391,7 +298,7 @@ Deep manual code review and quality hardening across all 616 source files and 28
 - AnalyticsFake for full facade interception testing
 - `WithAnalyticsFake` trait for test isolation
 
-## What's New in v59.0.0
+### What's New in v59.0.0
 
 ### Event Trend Forecast Engine — Linear Regression, Holt's Smoothing & Seasonal Decomposition
 
@@ -415,7 +322,7 @@ Forward-looking trend projection for analytics event streams using industry-stan
 
 **Configuration:** New `trend_forecast` config section with cache TTL, forecast horizon, confidence level, seasonal analysis toggle, and history window settings.
 
-## What's New in v60.0.0
+### What's New in v60.0.0
 
 ### Analytics Data Explorer & Event Correlation Analyzer
 
@@ -448,7 +355,7 @@ Two powerful new services for advanced analytics data exploration and time-lagge
 - `AnalyticsEvent::VERSION`, `analytics.js getVersion()`, `composer.json`, `package.json`, README badge
 - Integrity command updated to expect v60.0.0
 
-## What's New in v58.0.0
+### What's New in v58.0.0
 
 ### Declarative Funnel Definitions & Privacy-Preserving Cookieless Collection
 
@@ -472,7 +379,7 @@ Config-driven funnel tracking with automatic step progression and abandonment de
 - Perfect for strict GDPR environments and pre-consent tracking
 - Inspired by Plausible Analytics and Simple Analytics cookieless mode
 
-## What's New in v57.0.0
+### What's New in v57.0.0
 
 ### Event Enrichment Plugin System — Config-Driven, Extensible Pipeline Architecture
 
@@ -529,7 +436,7 @@ $metrics = $orchestrator->metrics();
 
 - **Version sweep** — 56.0.0 → 57.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsServiceProvider` version annotation, README badge, ToC.
 
-## What's New in v56.0.0
+### What's New in v56.0.0
 
 ### Cohort × Funnel Matrix Engine — Cross-Dimensional Conversion Analytics
 
@@ -573,7 +480,7 @@ $comparison = $service->compareCohorts('2026-W28', '2026-W30', $steps, $cohortDa
 
 - **Version sweep** — 55.0.0 → 56.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `UnifiedHealthEndpointService`, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), `resources/js/analytics.d.ts` (header), README badge, CHANGELOG, ToC.
 
-## What's New in v54.0.0
+### What's New in v54.0.0
 
 ### Real-Time Anomaly Detection & Automated Alerting
 
@@ -699,7 +606,7 @@ POST /api/analytics/export/transform   — Transform events to format
 
 ---
 
-## What's New in v53.0.0
+### What's New in v53.0.0
 
 ### Event Payload Encryption Engine
 
@@ -737,7 +644,7 @@ Field-level AES-256-CBC encryption for sensitive analytics event parameters. Pro
 
 ---
 
-## What's New in v52.0.0
+### What's New in v52.0.0
 
 ### Pre-computed Analytics Rollup Engine
 
@@ -802,7 +709,7 @@ php artisan zb:analytics:rollup clear              # Flush rollup cache
 ],
 ```
 
-## What's New in v51.1.0
+### What's New in v51.1.0
 
 ### 🌐 TikTok & LinkedIn Provider Coverage Parity
 
@@ -817,7 +724,7 @@ Full 10-provider mapping coverage for SaaS and Engagement event catalogs:
 - **PHPStan type parity** — `EventEntry` type updated across SaaS and Engagement catalogs with `tiktok: string|null, linkedin: string|null`
 - **Version sweep** — 51.0.0 across all version references
 
-## What's New in v50.0.0
+### What's New in v50.0.0
 
 ### 🤖 Auto-Instrumentation Engine
 - **AutoInstrumentationEngine** — Config-driven Eloquent model event → analytics event mapping (Segment Source equivalent)
@@ -864,7 +771,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### 🧪 Tests
 - **AutoInstrumentationEngineTest** — 8 test cases covering enabled/disabled state, param extraction, param mapping, sensitive exclusion, custom extractors, event transformers, and model mappings
 
-## What's New in v48.0.0
+### What's New in v48.0.0
 
 ### 🔗 Event Correlation Engine Service
 - **EventCorrelationEngineService** — Detects statistically significant causal relationships between analytics events using temporal proximity analysis
@@ -929,7 +836,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - AnalyticsSelfHealingService registered as singleton (with optional DeadLetterQueueService injection)
 - AnalyticsSelfHealCommand registered in console commands
 
-## What's New in v47.0.0
+### What's New in v47.0.0
 
 ### 🕵️ Event Fraud Detection Service
 - **EventFraudDetectionService** — Real-time fraud signal detection for analytics events
@@ -1001,7 +908,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - UnifiedHealthEndpointService registered as singleton (with optional service injection)
 - AnalyticsFraudCommand and AnalyticsHealthSummaryCommand registered in console commands
 
-## What's New in v46.0.0
+### What's New in v46.0.0
 
 ### 🔀 Event Flow Analysis Service
 - **EventFlowAnalysisService** — Real-time user event flow/journey analysis (Amplitude Pathfinder, Mixpanel Journeys pattern)
@@ -1051,7 +958,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - ProviderEventCompatibilityMatrix already registered (existing)
 - AnalyticsFlowCommand registered in console commands
 
-## What's New in v45.0.0
+### What's New in v45.0.0
 
 ### 🏗️ Infrastructure Events Category (10 new events)
 - **InfrastructureEvents** catalog — New event category for DevOps, SRE, and platform engineering tracking
@@ -1096,7 +1003,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 
 ---
 
-## What's New in v44.0.0
+### What's New in v44.0.0
 
 ### 📋 Event Versioning & Deprecation API
 - **EventDeprecationService** — Config-driven event lifecycle management with deprecation detection, auto-redirect, and blocking
@@ -1114,7 +1021,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 
 ---
 
-## What's New in v43.0.0
+### What's New in v43.0.0
 
 ### 🎯 Event TTL & Auto-Expiry Service
 - **EventTtlService** — Configurable time-to-live rules for events with per-event and per-category overrides
@@ -1169,7 +1076,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - TrafficSpikeShield: Disabled mode, critical events, throttle during cooldown, threshold passthrough, cooldown management, status
 - EventReplaySimulator: Batch generation, dispatch callback, simulation source, e-commerce scenario, SaaS lifecycle, event mix normalization
 
-## What's New in v41.0.0
+### What's New in v41.0.0
 
 ### 🎯 Analytics Context Manager
 - **AnalyticsContext** — Scoped analytics context for automatic source tagging, timing, and error handling. Wraps any closure in a measured analytics context that:
@@ -1232,7 +1139,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### Changed
 - **Version sweep** — 40.0.0 → 41.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge.
 
-## What's New in v39.0.0
+### What's New in v39.0.0
 
 ### 🔒 Event Replay Audit Trail
 - **EventReplayAuditService** — Comprehensive audit trail for every event replay operation. Records single and bulk replays with full context: audit ID, event name, archive ID, triggered by (user ID), source (archive/dlq/manual/api/command), per-provider success/failure, execution duration. Cache-backed with 30-day retention, audit ID index for fast lookups, configurable auto-record toggle.
@@ -1249,7 +1156,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### Changed
 - **Version sweep** — 38.0.0 → 39.0.0 across `composer.json`, `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
 
-## What's New in v38.0.0
+### What's New in v38.0.0
 
 ### 🔭 OpenTelemetry (OTLP) Export Bridge
 - **OTLPExportService** — Bridges ZeroBoiler analytics events to any OTLP-compatible collector (Grafana Tempo, Jaeger, Honeycomb, Datadog, OpenSearch, SigNoz, etc.). Converts AnalyticsEvent DTOs into OTLP ResourceSpans JSON format with:
@@ -1277,7 +1184,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### 🔄 Version Sweep
 - Version bumped to 38.0.0 across `composer.json`, `package.json` (34.0.0 → 38.0.0), `AnalyticsEvent::VERSION`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, `resources/js/analytics.js` (header + `getVersion()` + `_getInternalVersion()`), all 3 Svelte composables, TypeScript definitions `analytics.d.ts`, README badge, CHANGELOG, ToC.
 
-## What's New in v36.0.0
+### What's New in v36.0.0
 
 ### 🔄 Event Ingestion Pipeline
 - **EventIngestionService** — Centralized event ingestion pipeline that is the single entry point for all incoming analytics events regardless of source (API, server-side, webhook, replay, batch, edge proxy).
@@ -1312,7 +1219,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### 🧪 Tests
 - **V3600IngestionCostSchedulerTest** — 40+ test cases covering EventIngestionService (construct, ingest valid/rejected events, batch deduplication, metrics, aggregated stats, disabled state), EventCostTracker (cost estimation, priority multipliers, cost weights, daily/monthly breakdowns, budget enforcement, tenant cost, per-provider costs, dispatch recording), AnalyticsCommandScheduler (built-in tasks, custom registration, toggle, remove, due tasks, config-driven tasks), and version sweep (strict types, final classes, return type declarations, readonly DTO).
 
-## What's New in v35.0.0
+### What's New in v35.0.0
 
 ### 🌐 Cross-Provider Identity Synchronization
 - **CrossProviderIdentityService** — Synchronizes user identity and traits across all 10 analytics providers when a user is identified (login, register, or explicit identify call).
@@ -1350,7 +1257,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### ⚙️ Config
 - New `cross_provider_identity` config section with per-provider sync toggles
 
-## What's New in v34.0.0
+### What's New in v34.0.0
 
 ### 📊 User Engagement Scoring Service
 - **UserEngagementScoringService** — Composite engagement scoring (0–100) per user based on five configurable weighted signals: frequency, recency, breadth, lifecycle progress, and revenue contribution.
@@ -1378,7 +1285,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### ⚙️ Config
 - New `engagement_scoring` config section with `weights`, `cache_ttl`, `recency_half_life`, and `max_events_window` settings.
 
-## What's New in v33.0.0
+### What's New in v33.0.0
 
 ### 🧪 AnalyticsTestCommand — Full 10-Provider Validation
 - **AnalyticsTestCommand rebuilt** — `zb:analytics:test` now validates all 10 configured analytics providers (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn). Previous version only tested 5 providers.
@@ -1396,7 +1303,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 ### 🧪 Tests
 - **`V3300TestCommandRebuildVersionSweepTest`** — 35+ assertions covering AnalyticsTestCommand (construction, all 10 providers, dry-run mode, JSON output, consent display, catalog summary, disabled providers, error handling), version consistency across all 12 markers, file integrity, strict types.
 
-## What's New in v31.0.0
+### What's New in v31.0.0
 
 ### 🚀 Event Stream Processing Engine
 
@@ -1411,7 +1318,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - **Comprehensive test suite** — 20 Pest tests covering: enabled/disabled states, stream event creation, position tracking, time-since-previous, pattern discovery, auto-funnel detection, client stream analysis, anomaly detection, client stream clearing, global stats, ID generation, DTO serialization, fallback client IDs, and category resolution.
 - **Version sweep** — 30.0.0 → 31.0.0 across all version markers (PHP, JS, Svelte composables, README).
 
-## What's New in v28.0.0
+### What's New in v28.0.0
 
 ### 🚀 Industry-Standard SaaS Analytics Upgrade
 
@@ -1420,7 +1327,7 @@ $engine->trigger('custom_event', $model, ['extra' => 'data']);
 - **AnalyticsOverviewCommand (rebuilt)** — `zb:analytics:overview` command now works correctly after binary corruption fix. Displays provider status table, catalog stats, consent state, and supports `--json`, `--providers`, `--catalog`, and `--health` flags.
 - **Version sweep** — 27.0.0 → 28.0.0 across all version markers.
 
-## What's New in v26.0.0
+### What's New in v26.0.0
 
 ### 🚀 Full Event Catalog Shorthand API
 - **35 new convenience methods** on `AnalyticsManager` and `Analytics` facade — one-liner tracking for every event in the catalog.
@@ -1463,7 +1370,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🧪 Tests
 - **`V2600EventCatalogShorthandTest`** — 60+ assertions covering all 35 new shorthand methods (ecommerce, engagement, SaaS lifecycle), event name verification, parameter correctness, optional param behavior, Facade proxy verification, catalog consistency, version sweep.
 
-## What's New in v25.0.0
+### What's New in v25.0.0
 
 ### 🔍 Event Hash Deduplication Pipeline Middleware
 - **`EventHashDedupFilter`** — Pipeline-stage event deduplication using SHA-256 content hashing. Computes a deterministic hash from event name + sorted parameters and checks against an in-memory seen-set. Events with identical content within a single request lifecycle are silently dropped. Prevents duplicate dispatch during eager Inertia re-renders and API retries.
@@ -1493,7 +1400,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 
 ---
 
-## What's New in v24.0.0
+### What's New in v24.0.0
 
 ### 🚀 Performance Score Service
 - **`PerformanceScoreService`** — Server-side Web Vitals aggregation and scoring. Computes 0-100 performance scores using Google's recommended thresholds (LCP 25%, INP 30%, CLS 25%, TTFB 20% weight). Supports p75 aggregation across multiple page views, cache-backed score storage, and per-page/session scoring.
@@ -1529,7 +1436,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 
 ---
 
-## What's New in v23.0.0
+### What's New in v23.0.0
 
 ### 📊 Analytics Dashboard Service
 - **`AnalyticsDashboardService`** — Pre-computed dashboard data aggregator for admin interfaces. Provides single-request `overview()` returning 8 widgets: event volume (by provider/category), provider health (enabled/dispatched/failed/success_rate per provider), catalog summary (total events/category counts/provider coverage), funnel distribution (signup → trial → subscribe → upgrade → cancellation), revenue breakdown (MRR/ARR from subscription tiers), SaaS health score (from SaaSHealthScoreService), and consent stats. All data is cache-backed with configurable TTL (default 5 min). Individual `widget()` access for partial dashboard updates.
@@ -1551,7 +1458,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### Tests
 - **`V2300DashboardIdempotencyWebhookDlqTest`** — 30+ assertions covering DashboardService (overview, event volume, provider health, catalog summary, funnel, revenue, widget access), IdempotencyKeyService (disabled/client_key/fingerprint/hybrid strategies, deterministic hashing, param normalization, mark/forget), WebhookEventSubscriptionService (config, event matching, disabled mode, format), version consistency, catalog integrity.
 
-## What's New in v22.0.0
+### What's New in v22.0.0
 
 ### 🎯 Industry-Standard SaaS Starter Upgrade
 
@@ -1576,7 +1483,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 #### Tests
 - `V2200SaaSStarterFeatureFlagJourneyUpgradeTest` — 30+ assertions covering new event classes, catalog integrity, FeatureFlagService, JourneyOrchestrator, and version sweep.
 
-## What's New in v21.0.0
+### What's New in v21.0.0
 
 ### 🔍 Event Schema Runtime Validator
 - **`EventSchemaRuntimeValidator`** — Validates dispatched events against registered parameter schemas. Checks required parameters, value types, string lengths, numeric ranges, and regex patterns before dispatch. Configurable strict/warn/off enforcement modes. Batch validation API for bulk event processing.
@@ -1602,7 +1509,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🏷️ Event Classification Service
 - **`EventClassificationService`** — ML-ready event classification engine. Auto-classifies events into 8 semantic categories (conversion, intent, engagement, navigation, transaction, identity, error, search) using name patterns, parameter indicators, and catalog membership. Auto-tagging with source, identity, monetary value, and catalog tags.
 
-## What's New in v20.0.0
+### What's New in v20.0.0
 
 ### 🚀 Event Transport Layer
 - **`EventTransportService`** — Abstract HTTP transport with configurable retry, timeout, and circuit breaker for analytics provider dispatch. Tracks per-provider circuit state (closed/open/half-open), consecutive failure counts, and latency histograms with p50/p95/p99 percentile computation. Inspired by Segment's transport layer and RudderStack's batching transport.
@@ -1638,7 +1545,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🧪 Tests
 - **`V2000TransportCorrelationDataLakeSdkTokenTest`** — 40+ tests covering EventTransportService (circuit breaker states, success/failure recording, latency stats, reset, half-open probing), EventCorrelationMatrixService (Jaccard computation, all-pairs analysis, correlated events, user events), DataLakeExportService (format conversion, storage key generation, config validation, job tracking), SdkScopeTokenService (token generation, permission checks, category access, rate limiting, revocation, config), config integrity (transport + correlation + data_lake + sdk_tokens sections), version sweep.
 
-## What's New in v18.0.0
+### What's New in v18.0.0
 
 ### 📊 Analytics Observability Service
 - **`AnalyticsObservabilityService`** — Dispatch-level observability for the analytics pipeline. Tracks per-provider latency histograms (p50, p95, p99), success/failure rates, error budgets, slow dispatch detection, and filter pipeline metrics. Inspired by OpenTelemetry metrics and Segment's Observability API.
@@ -1663,7 +1570,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🧪 Tests
 - **`V1800VersionSweepAndEcommerceConverterTest`** — 23 tests covering version alignment, Mixpanel/Amplitude converter correctness, `buildForAllProviders()` output, empty items edge cases, and Meta mapping coverage.
 
-## What's New in v17.0.0
+### What's New in v17.0.0
 
 ### 🛡️ API Guard + Event Budget Enforcement
 - **`AnalyticsApiGuard` registered as config-driven singleton** — Pre-dispatch request validation and rate limiting. Validates payload size, event name lengths, and batch sizes before event processing. Configured via new `zeroboiler.analytics.api_guard` config section with env-driven defaults.
@@ -1683,7 +1590,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🧪 Tests
 - **`V1700IndustryStandardSaaSUpgradeTest`** — 15 test cases covering: version consistency (composer.json, AnalyticsEvent, package.json, IntegrityCommand), EventBudgetService (constructor, operations, client limit, sample policy, topClients, resetClient/resetUser), AnalyticsApiGuard (validation, disabled mode, batch validation), EventDeconflictionService (collision analysis, similar names), config integrity (api_guard + budget sections), EventCatalog validation, ServiceProvider version docblock.
 
-## What's New in v16.0.0
+### What's New in v16.0.0
 
 ### 💰 SaaS Revenue Convenience Methods
 - **`trackMrr()`** — Track Monthly Recurring Revenue movements (new, expansion, contraction, churn, reactivation). Each call includes amount, currency, movement type, plan name, and user ID. Critical for subscription analytics dashboards.
@@ -1711,7 +1618,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### 🔄 Version Sweep
 - Version bumped to 16.0.0 across all layers: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand, DiagnosticCommand, README badge, CHANGELOG.
 
-## What's New in v15.0.0
+### What's New in v15.0.0
 
 ### 🔧 Lifecycle Config Section
 - **New `zeroboiler.analytics.lifecycle` config section** — Declarative lifecycle event mapping configuration. Toggle individual mappings on/off, add custom event-to-analytics-class mappings via `custom_mappings`, and control whether custom mappings override defaults. Previously LifecycleEventMapper read from this config key but it returned an empty array — now fully documented with env-driven defaults.
@@ -1722,7 +1629,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 ### ⚡ SaaS Convenience: `trialConverted()`
 - **New `trialConverted()` shorthand on AnalyticsManager** — Tracks trial-to-paid conversion with plan name, amount, and currency. Critical metric for SaaS conversion funnel analysis. Companion to existing `trialStart()` and `subscription()` methods.
 
-## What's New in v14.0.0
+### What's New in v14.0.0
 
 ### 🔗 Plausible Self-Hosted & PostHog CAPI
 - **PlausibleTracker self-hosted support** — New `customScriptUrl` parameter for self-hosted Plausible instances. New `trackGoal()` and `trackPageView()` methods for custom goal and pageview tracking.
@@ -1730,7 +1637,7 @@ Analytics::paymentSucceeded(99.00, 'stripe');
 - **Singleton registration** — Both Plausible and PostHog trackers registered as config-driven singletons in ServiceProvider.
 - **Comprehensive tracker test suite** — 40+ test cases covering construction, consent, CAPI, identity, feature flags, and interface contracts.
 
-## What's New in v13.0.0
+### What's New in v13.0.0
 
 ### 🧪 Complete AnalyticsFake — Industry-Standard Test Double
 Full drop-in replacement for AnalyticsManager with 90+ proxy methods, 15 assertion helpers, and interceptor support. Every public method on the AnalyticsManager facade now works seamlessly in tests without any real dispatch.
@@ -1757,7 +1664,7 @@ Full drop-in replacement for AnalyticsManager with 90+ proxy methods, 15 asserti
 
 **Version sweep:** 12.0.0 → 13.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, README badge, IntegrityCommand, DiagnosticCommand, CHANGELOG.
 
-## What's New in v12.0.0
+### What's New in v12.0.0
 
 ### 🛡️ Production-Grade Event Sanitization & Offline Buffering
 
@@ -1780,7 +1687,7 @@ Industry-standard event data quality and offline reliability. This release adds 
 
 **Version sweep:** 11.0.0 → 12.0.0 across `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, JS client, Svelte composables, TypeScript definitions, ServiceProvider, README badge, `AnalyticsIntegrityCommand::EXPECTED_VERSION`
 
-## What's New in v11.0.0
+### What's New in v11.0.0
 
 ### 🔥 Major Release — Pipeline Smoke Test & GDPR Consent Compliance
 
@@ -1798,7 +1705,7 @@ Industry-standard end-to-end validation and regulatory compliance tools. This re
 
 **LOC:** ~240K source, 288 test files, 15800+ assertions
 
-## What's New in v10.8.0
+### What's New in v10.8.0
 
 ### 🔗 Lifecycle Event Mapper Expansion
 
@@ -1814,7 +1721,7 @@ New lifecycle mappings for SLA, feature adoption, and revenue expansion events. 
 
 **Test:** `V108LifecycleExpansionAndVersionSweepTest` — 35+ assertions covering version consistency, new catalog entries, provider coverage, format conversion, and cross-category integration
 
-## What's New in v10.6.0
+### What's New in v10.6.0
 
 ### 🔗 Mixpanel & Amplitude Provider Parity
 
@@ -1847,7 +1754,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 
 **Tests:** `MixpanelAmplitudeParityTest` — 35 assertions covering catalog fields, provider lookups, transformer maps, and naming conventions
 
-## What's New in v10.5.0
+### What's New in v10.5.0
 
 ### 🔄 Event Normalization Service (`EventNormalizationService`)
 - **Provider-agnostic event normalization** — Convert a single `AnalyticsEvent` into all provider-specific formats (GA4, GTM, Meta Pixel, PostHog, Plausible, Mixpanel, Amplitude, Webhook) in one call
@@ -1889,7 +1796,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 - `V105EventNormalizationConsistencyTest` — 30+ assertions covering normalization across all providers, batch normalization, provider name resolution, target providers, stats, coverage report, catalog integrity, provider config, naming convention, identity consistency, config validity, debug mode, sampling rate, full check with scoring, and cache invalidation
 - `EventCatalogTest` — expanded with SecurityEvents, UptimeEvents, Mixpanel/Amplitude name assertions, EventTransformer Mixpanel/Amplitude transform tests, updated category counts
 
-## What's New in v9.8.0
+### What's New in v9.8.0
 
 ### 🌐 Cross-Domain Tracking (`CrossDomainTrackingService`)
 - **Multi-domain visitor stitching** — Unify analytics across `app.example.com`, `docs.example.com`, `blog.example.com` and more
@@ -1937,7 +1844,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 - `GET /analytics/rate-limits/advanced` — Advanced rate limiter status
 - `GET /analytics/rate-limits/advanced/{clientId}` — Per-client rate limit status
 
-## What's New in v9.7.0
+### What's New in v9.7.0
 
 ### 🎯 Analytics Instrumentation Advisor (`AnalyticsInstrumentationAdvisor`)
 - **Code-snippet level guidance** — Generates a prioritized instrumentation plan with ready-to-use PHP and JavaScript code examples for every industry-standard event
@@ -1961,7 +1868,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 ### 🔧 Version Sweep
 - 9.6.0 → 9.7.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
-## What's New in v9.6.0
+### What's New in v9.6.0
 
 ### 📊 Event Impact Score Service (`EventImpactScoreService`)
 - **Composite event value scoring** — Computes weighted impact scores (0–1) for every catalog event based on:
@@ -2002,7 +1909,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 
 ---
 
-## What's New in v9.4.0
+### What's New in v9.4.0
 
 ### 🔄 Provider Fallback Service (`ProviderFallbackService`)
 - **Multi-provider failover strategy** — When a primary analytics provider fails (circuit breaker opens), events are automatically redirected to configured fallback providers. Ordered chain evaluation — first healthy provider receives the event.
@@ -2032,7 +1939,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 ### Config: `fallback` section
 - New `zeroboiler.analytics.fallback` with enabled flag, max chain depth, cache prefix, and per-provider chains.
 
-## What's New in v9.3.0
+### What's New in v9.3.0
 
 ### 🛡️ Event Idempotency Service (`EventIdempotencyService`)
 - **Server-side deduplication** — Prevents duplicate analytics event dispatches using idempotency keys
@@ -2087,7 +1994,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 
 ---
 
-## What's New in v9.2.0
+### What's New in v9.2.0
 
 ### 🧠 SaaS Lifecycle Observer
 - **`SaaSLifecycleObserver`** — Real-time SaaS health monitoring service
@@ -2124,7 +2031,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 
 ---
 
-## What's New in v9.1.0
+### What's New in v9.1.0
 
 ### 🏗️ Architecture: AnalyticsServiceRegistry
 - New `AnalyticsServiceRegistry` — lightweight service locator for the analytics controller
@@ -2144,7 +2051,7 @@ Full event catalog parity for Mixpanel and Amplitude — matching the existing P
 - `GET /api/analytics/sse/health` — SSE buffer health check
 - Supports cursor-based resume, event name filtering, category filtering, and provider filtering
 
-## What's New in v9.0.0
+### What's New in v9.0.0
 
 ### Event Delivery Confirmation System
 
@@ -2185,7 +2092,7 @@ ANALYTICS_DELIVERY_CONFIRMATION_OUTAGE_THRESHOLD=10
 ANALYTICS_DELIVERY_CONFIRMATION_SLA_TARGET=99.5
 ```
 
-## What's New in v8.9.0
+### What's New in v8.9.0
 
 ### Analytics Guard Rails Engine
 
@@ -2228,7 +2135,7 @@ GET  /analytics/guard-rails/validate-name       — Validate event name
 ],
 ```
 
-## What's New in v8.8.0
+### What's New in v8.8.0
 
 ### Event Correlation Heatmap Service
 
@@ -2262,7 +2169,7 @@ Unified health monitoring for the entire analytics stack. Aggregates health data
 - **Time-series history** — Record periodic data points for trend chart rendering
 - **Admin command** — `zb:analytics:health-monitor --json --record --history`
 
-## What's New in v8.7.0
+### What's New in v8.7.0
 
 ### Cross-Device Identity Graph
 
@@ -2305,7 +2212,7 @@ GET  /api/analytics/identity-graph/fingerprint      — Generate device fingerpr
 ],
 ```
 
-## What's New in v8.6.0
+### What's New in v8.6.0
 
 ### High-Level E-Commerce Shorthands
 
@@ -2331,7 +2238,7 @@ PostHog and Plausible providers now support full e-commerce event parameter conv
 - Fixed Bearer token template literal in streaming endpoint
 - Full version sweep to 8.6.0 across all entry points (composer.json, package.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, ServiceProvider, README badge)
 
-## What's New in v8.5.0
+### What's New in v8.5.0
 
 ### Event Context Snapshot & User Journey Reconstruction
 
@@ -2423,7 +2330,7 @@ Reports: configuration overview, event catalog coverage & validation, provider s
 
 **Tests** — 24 new tests in `V850ContextSnapshotAndJourneyReconstructionTest.php` covering snapshot capture, IP anonymization, behavioral scoring, journey recording/finalization, funnel analysis, parameter sanitization, GDPR erasure, and cross-service integration.
 
-## What's New in v8.4.0
+### What's New in v8.4.0
 
 ### Event Schema Validation Engine + Bot Detection Service
 
@@ -2479,7 +2386,7 @@ Inspired by Cloudflare Bot Management, FingerprintJS, Segment Protocols, and Pos
 
 **Version sweep** — 8.3.0 → 8.4.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client (getVersion + _getInternalVersion), Svelte composable, TypeScript definitions, ServiceProvider.
 
-## What's New in v8.3.0
+### What's New in v8.3.0
 
 ### Dashboard Widget Service + npm Package Configuration
 
@@ -2527,7 +2434,7 @@ $stats = $service->stats();
 
 **Version sweep** — 8.2.0 → 8.3.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + header), Svelte composable, TypeScript definitions.
 
-## What's New in v8.2.0
+### What's New in v8.2.0
 
 ### Event Fingerprinting & SSE Provider Filtering
 
@@ -2559,7 +2466,7 @@ $seen = $service->hasSeenBatch([$event1, $event2]); // true
 
 **Version sweep** — 8.0.0/8.1.0 → 8.2.0 across composer.json, AnalyticsEvent::VERSION, JS client (getVersion + header), Svelte composable, TypeScript definitions, ServiceProvider, README badge.
 
-## What's New in v8.0.0
+### What's New in v8.0.0
 
 ### Session Analytics & Funnel Aggregation — Industry-Standard SaaS Dashboard Engine
 
@@ -2572,7 +2479,7 @@ $seen = $service->hasSeenBatch([$event1, $event2]); // true
 - **API Endpoints** — `GET /api/analytics/sessions/{clientId}`, `GET /sessions/{clientId}/{sessionId}`, `GET /sessions/{clientId}/stats`, `POST /sessions/end/{clientId}/{sessionId}`, `GET /funnels/aggregated/{funnelName}`, `GET /funnels/aggregated`, `GET /funnels/definitions`.
 - **Config** — `sessionizer` section (session_ttl, max_sessions_per_client, cache_prefix). `funnel_definitions` for custom funnels. `classification` toggle for auto-enrichment.
 
-## What's New in v7.9.0
+### What's New in v7.9.0
 
 ### Multi-Touch Attribution & Feature Matrix Benchmark
 
@@ -2585,7 +2492,7 @@ $seen = $service->hasSeenBatch([$event1, $event2]); // true
 - **10 new API endpoints** — Attribution (models, attribute, compare, by-channel, by-campaign, efficiency) and Feature Matrix (matrix, summary, gaps, compare/{competitor}).
 - **Version sweep** — 7.8.0 → 7.9.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, README badge.
 
-## What's New in v7.8.0
+### What's New in v7.8.0
 
 ### Event Plugin Registry & Integrity Check
 
@@ -2597,7 +2504,7 @@ Third-party Laravel packages can now register their analytics events with the Ze
 - **Config: `event_plugins` section** — New `zeroboiler.analytics.event_plugins` with `enabled`, `debug`, `plugins` settings.
 - **Version sweep** — 7.6.0/7.7.0 → 7.8.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composable, TypeScript definitions, ServiceProvider, README badge.
 
-## What's New in v7.7.0
+### What's New in v7.7.0
 
 ### Event Signal Intelligence
 
@@ -2628,7 +2535,7 @@ $report = $service->report();
 
 **Config**: `zeroboiler.analytics.signal_intelligence`
 
-## What's New in v7.6.0
+### What's New in v7.6.0
 
 ### Cohort Waterfall Analysis
 
@@ -2678,7 +2585,7 @@ $analysis = $service->analyze(
 
 **API**: `POST /api/analytics/funnel-intelligence`, `/compare`
 
-## What's New in v7.4.0
+### What's New in v7.4.0
 
 ### PostHog CAPI (Server-Side Conversions API)
 
@@ -2751,7 +2658,7 @@ $: if (page.props.zbAnalytics?.enabled) {
 
 ---
 
-## What's New in v7.3.0
+### What's New in v7.3.0
 
 ### Alert Notification Dispatcher
 
@@ -2804,7 +2711,7 @@ Alert notification summary is available for admin dashboards via the `summary()`
 
 ---
 
-## What's New in v7.1.0
+### What's New in v7.1.0
 
 ### Event Recommendation Engine
 
@@ -2869,7 +2776,7 @@ $metaMapped = $analyzer->mappedEvents(['sign_up', 'purchase'], 'meta');
 ],
 ```
 
-## What's New in v7.0.0
+### What's New in v7.0.0
 
 ### Event Data Mart Service
 
@@ -2901,7 +2808,7 @@ $mart->clear();
 
 **Test suite:** `V700EventDataMartServiceTest` — 25+ Pest test cases.
 
-## What's New in v6.9.0
+### What's New in v6.9.0
 
 ### SaaS Event Template Service
 
@@ -2996,7 +2903,7 @@ New `event_templates` config section:
 ],
 ```
 
-## What's New in v6.4.0
+### What's New in v6.4.0
 
 ### SaaS Revenue Event Builder
 
@@ -3038,7 +2945,7 @@ Added `subscription.resumed` and `subscription.paused` lifecycle event toggles i
 
 New `V640IndustryStandardSaaSUpgradeTest` with 40+ test cases validating all 12 feature areas: event catalog coverage (90+ events), lifecycle mapper defaults, cross-provider format conversion, SaaS revenue event builder, config section completeness, version consistency, strict types enforcement, queue serialization, identity linking, GDPR consent, and end-to-end SaaS lifecycle flow.
 
-## What's New in v6.3.0
+### What's New in v6.3.0
 
 ### TypeScript Type Definitions
 
@@ -3113,7 +3020,7 @@ ANALYTICS_FIRST_TOUCH_COOKIE_DOMAIN=          # null = current domain
 - **Request attributes** — `_zb_first_touch` available to all downstream middleware
 - **Graceful degradation** — Invalid cookie data silently ignored, no exceptions
 
-## What's New in v6.7.0
+### What's New in v6.7.0
 
 ### Production Readiness Test Suite
 
@@ -3130,7 +3037,7 @@ Comprehensive 50+ test case suite (`V670SaaSStarterProductionReadinessTest`) val
 - **Funnel templates** — Signup, trial, checkout, and onboarding funnels verified
 - **PHP 8.5 strict types** — All source files enforce `declare(strict_types=1)`
 
-## What's New in v6.5.0
+### What's New in v6.5.0
 
 ### Config Export API
 
@@ -3193,7 +3100,7 @@ Config `aliases` section now includes categorized default alias examples for aut
 
 New interfaces: `SamplingConfig`, `GeolocationConfig`, `RegionalConsentConfig`. Added to `ZbAnalyticsProps`.
 
-## What's New in v6.2.0
+### What's New in v6.2.0
 
 ### AARRR Framework (SaaS Growth Metrics)
 
@@ -3258,7 +3165,7 @@ php artisan zb:analytics:setup --fix
 ],
 ```
 
-## What's New in v6.1.0
+### What's New in v6.1.0
 
 ### Typed Event Parameter Schemas
 
@@ -3287,7 +3194,7 @@ $errors = EventParameterSchemas::validate('purchase', [
 - **Runtime validation** — `validate()` returns typed errors for missing required params and type mismatches
 - **Full coverage** — All 15 ecommerce events, 50+ SaaS lifecycle events, 30+ engagement events
 
-## What's New in v5.9.0
+### What's New in v5.9.0
 
 ### Industry Standard SaaS Analytics Readiness
 
@@ -3297,7 +3204,7 @@ Comprehensive version integrity sweep and industry-standard compliance verificat
 - **New V59 test suite** — 35+ test cases validating: version integrity, event catalog coverage (90+ events across 3 categories), cross-provider format conversion (GA4↔Meta), lifecycle event mapper config-driven mappings, API controller completeness, Inertia middleware SaaS props, Consent Mode v2 GDPR compliance, identity client ID ↔ user ID linking, optional providers (Plausible, PostHog), admin commands, PHP 8.5 `declare(strict_types=1)` enforcement on all source files, config section completeness (22 sections), JS client batch queue implementation, provider health monitor, event routing configuration, and end-to-end SaaS funnel flows
 - **Strict types verified** — all 340+ PHP source files confirmed to use `declare(strict_types=1)`
 
-## What's New in v5.8.0
+### What's New in v5.8.0
 
 ### Provider Health Monitor
 
@@ -3372,7 +3279,7 @@ await trackEcommerceWithProviders('purchase', {
 - `GET /api/analytics/provider-health/{provider}` — Single provider health detail
 - `POST /api/analytics/provider-health/reset` — Reset health stats
 
-## What's New in v5.4.0
+### What's New in v5.4.0
 
 ### Event Schema JSON Generator
 
@@ -3486,7 +3393,7 @@ ANALYTICS_REGIONAL_CONSENT_GDPR_DEFAULT=denied
 - `regional_consent` config section added
 - 3 new PHP classes with strict types, return types, and docblocks
 
-## What's New in v5.9.0
+### What's New in v5.9.0
 
 ### Universal Cross-Provider Format Conversion
 
@@ -3515,7 +3422,7 @@ $ga4 = EcommerceFormatConverter::fromGa4Format('meta', 'Purchase', $metaParams);
 - Version synchronized across PHP, JS client, Svelte composables, and TypeScript definitions (5.9.0)
 - `EcommerceFormatConverter` now imports `EventCatalog` for provider name resolution
 
-## What's New in v5.2.0
+### What's New in v5.2.0
 
 ### Serializable Queue Jobs (Breaking Improvement)
 
@@ -3537,7 +3444,7 @@ ANALYTICS_QUEUE_MAX_BATCH_SIZE=50
 - `QueuedAnalyticsDispatcher::getMaxBatchSize()` added for programmatic batch size inspection
 - `EventPipeline` data bus, session analytics, and cohort analytics services now use serializable jobs
 
-## What's New in v6.8.0
+### What's New in v6.8.0
 
 ### Checkout Flow Tracker
 
@@ -3638,7 +3545,7 @@ $result = $validator->validateAll($event, ['ga4', 'meta', 'posthog']);
 - **PostHog**: Reserved `$properties` detection, `$currency` format warning
 - **Plausible**: No spaces in event names, max length, params warning (Plausible ignores properties)
 
-## What's New in v10.4.0
+### What's New in v10.4.0
 
 ### 🧪 AnalyticsFake — Test Fake for Analytics Events
 
@@ -3693,7 +3600,7 @@ it('identifies user on login', function () {
 
 ---
 
-## What's New in v10.3.0
+### What's New in v10.3.0
 
 ### 📊 Event Timeline Service (`EventTimelineService`)
 
@@ -3743,7 +3650,7 @@ php artisan zb:analytics:timeline {clientId} --user --gaps --sessions --json --l
 ### 🔢 Version Sweep
 - 10.2.0 → 10.3.0 across composer.json, AnalyticsEvent::VERSION, JS client, Svelte composables, TypeScript definitions, ServiceProvider, IntegrityCommand EXPECTED_VERSION, README badge
 
-## What's New in v10.2.0
+### What's New in v10.2.0
 
 ### 🔗 9-Provider Full Client Coverage
 
@@ -3759,7 +3666,7 @@ php artisan zb:analytics:timeline {clientId} --user --gaps --sessions --json --l
 - **`EventCatalog::billingEvents()`** — New method returning all billing and revenue-related SaaS events for financial lifecycle tracking
 - **`EventCatalog::providerCoverage()`** — Enhanced with per-provider count breakdown
 
-## What's New in v10.1.0
+### What's New in v10.1.0
 
 ### 🔧 Production Readiness Refactor
 
@@ -3768,7 +3675,7 @@ php artisan zb:analytics:timeline {clientId} --user --gaps --sessions --json --l
 - **Service provider cleanup** — Consolidated service registrations and streamlined boot logic
 - **Test stability** — Verified all test files pass with consistent assertions
 
-## What's New in v10.0.0
+### What's New in v10.0.0
 
 **Mixpanel & Amplitude Trackers — 8-Provider SaaS Analytics**
 
@@ -3813,7 +3720,7 @@ php artisan zb:analytics:timeline {clientId} --user --gaps --sessions --json --l
 - `src/Trackers/AmplitudeTracker.php` — Amplitude server-side tracker
 - `tests/V1000MixpanelAmplitudeTrackersTest.php` — Integration tests
 
-## What's New in v9.9.0
+### What's New in v9.9.0
 
 **Security & Uptime Event Categories — Industry-Standard SaaS Analytics Expansion**
 
@@ -3848,7 +3755,7 @@ New event categories for comprehensive SaaS observability:
 - `src/Events/Security/` — 5 event classes + SecurityEvents catalog
 - `src/Events/Uptime/` — 5 event classes + UptimeEvents catalog
 
-## What's New in v10.9.0
+### What's New in v10.9.0
 
 ### SaaS Identity Linking — One-Call Auth Flow
 
@@ -3888,7 +3795,7 @@ Analytics::amplitude(); // AmplitudeTracker     ← NEW in v10.9.0
 
 23 new test cases (150+ assertions) validate the entire API surface: event catalog integrity, SaaS lifecycle methods, tracker accessors, GDPR compliance, funnel tracking, orchestration, B2B groups, PLG scoring, and time-series analytics.
 
-## What's New in v30.0.0
+### What's New in v30.0.0
 
 ### Event Store — Persistent Event Storage Layer
 
@@ -3929,7 +3836,7 @@ php artisan migrate --path=vendor/zeroboiler/analytics/database/migrations
 - `database/migrations/2026_08_12_000000_create_analytics_events_table.php`
 - `tests/V300EventStorePersistentStorageTest.php` (23 test cases)
 
-## What's New in v37.0.0
+### What's New in v37.0.0
 
 ### Event Router Service — Provider-Aware Destination Routing
 Segment/RudderStack-style destination filtering. Route events to specific analytics providers based on configurable rules:
@@ -3980,7 +3887,7 @@ $overview = $workspace->getOverview('workspace-123');
 - `GET /api/analytics/workspace/{id}/revenue` — revenue totals
 - `POST /api/analytics/workspace/compare` — multi-workspace comparison
 
-## What's New in v77.0.0
+### What's New in v77.0.0
 
 ### SDK Token Authentication Middleware
 
@@ -4002,7 +3909,7 @@ Capabilities:
 
 **Version Sweep:** 76.0.0 → 77.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION
 
-## What's New in v78.0.0
+### What's New in v78.0.0
 
 ### Revenue Waterfall, Feature Flag Analytics & SaaS Growth Metrics
 
@@ -4121,7 +4028,7 @@ $growth->trackMilestone('power_user', 'Sent 1000 messages', milestoneValue: 1000
 
 **Version Sweep:** 77.0.0 → 78.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, JS client
 
-## What's New in v76.0.0
+### What's New in v76.0.0
 
 ### Event Contract Testing Engine — Provider-Specific Contract Validation
 
@@ -4151,7 +4058,7 @@ Capabilities:
 All internal version references updated from `75.0.0` to `76.0.0` across:
 - `composer.json`, `README.md` badge, `config/zeroboiler.php`
 
-## What's New in v75.0.0
+### What's New in v75.0.0
 
 ### Event Catalog Provider Coverage Parity — Full TikTok/LinkedIn Audit
 
@@ -4177,7 +4084,7 @@ All internal version references updated from `74.0.0` to `75.0.0` across:
 - `AnalyticsServiceProvider`, `AnalyticsEventController`
 - Console commands, services, and all test files
 
-## What's New in v74.0.0
+### What's New in v74.0.0
 
 ### Experiment Analysis Engine — Bayesian & Frequentist Hypothesis Testing
 
@@ -4226,7 +4133,7 @@ Comprehensive statistical analysis for A/B tests and multi-variant experiments, 
 **Version Sweep:**
 - All version references unified to v74.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
 
-## What's New in v73.0.0
+### What's New in v73.0.0
 
 ### Event Audit Trail & Attribution Trail
 
@@ -4287,7 +4194,7 @@ Comprehensive audit trail for every dispatched analytics event and full UTM/refe
 **Version Sweep:**
 - All version references unified to v73.0.0 (AnalyticsEvent::VERSION, composer.json, package.json, IntegrityCommand, JS client)
 
-## What's New in v71.0.0
+### What's New in v71.0.0
 
 ### Analytics Intelligence Gateway
 A unified real-time SaaS health monitoring dashboard that aggregates 12 subsystems into a single API endpoint for ops teams and executive dashboards.
@@ -4321,7 +4228,7 @@ A unified real-time SaaS health monitoring dashboard that aggregates 12 subsyste
 - All version references (AnalyticsEvent::VERSION, composer.json, package.json, README, IntegrityCommand, JS client, Svelte composables, TypeScript definitions) unified to v71.0.0
 - Fixed AnalyticsEvent::VERSION drift (was 68.0.0, now 71.0.0)
 
-## What's New in v70.0.0
+### What's New in v70.0.0
 
 ### Event Payload Transformation Engine
 
@@ -4369,7 +4276,7 @@ php artisan zb:analytics:transform validate
 php artisan zb:analytics:transform list
 ```
 
-## What's New in v76.0.0
+### What's New in v76.0.0
 
 **Event Contract Testing Engine** — validates event payloads against provider-specific contracts before dispatch.
 
@@ -4407,37 +4314,7 @@ php artisan zb:analytics:transform list
   ],
   ```
 
-## Quick Start
-
-```bash
-composer require zeroboiler/analytics
-php artisan vendor:publish --tag=zeroboiler-analytics-config
-```
-
-```env
-ANALYTICS_GA4_ENABLED=true
-ANALYTICS_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
-ANALYTICS_GA4_API_SECRET=your_secret
-```
-
-```php
-use ZeroBoiler\Analytics\Facades\Analytics;
-
-Analytics::track('button_click', ['element' => 'buy_now']);
-Analytics::purchase('TXN-12345', 99.99, [['item_id' => 'SKU-001', 'item_name' => 'Widget', 'price' => 49.99, 'quantity' => 2]]);
-```
-
-```javascript
-// Svelte/Inertia
-import { init, trackEvent, trackPageView } from '../resources/js/analytics';
-
-init(page.props);
-await trackEvent('tutorial_completed', { duration_seconds: 300 });
-```
-
-Done. That's it.
-
-## What's New in v5.0.0
+### What's New in v5.0.0
 
 **AI Analytics Intelligence, A/B Experiment Tracking, SaaS QuickStart, Full Version Sweep**
 
@@ -4538,7 +4415,7 @@ $quick->trackOnboardingSequence($userId, [
 ],
 ```
 
-## What's New in v5.0.0
+### What's New in v5.0.0
 
 **Industry Standard SaaS Analytics Maturity — Dashboard, Taxonomy, Multi-Tenant, Event Broadcasting**
 
@@ -4632,7 +4509,7 @@ Event::listen(AnalyticsEventOccurred::class, function (AnalyticsEventOccurred $e
 | `GET /api/analytics/tenant/{id}/stats` | Tenant statistics |
 | `GET /api/analytics/tenant/{id}/revenue` | Tenant revenue |
 
-## What's New in v4.5.0
+### What's New in v4.5.0
 
 **Config Audit API, Catalog Validator, Version Sync, Code Quality Fixes**
 
@@ -4721,7 +4598,7 @@ $suggestions = $validator->suggest('pur');
 - `EventCatalogValidator` registered as singleton
 - Both injected into `AnalyticsEventController` for API access
 
-## What's New in v4.4.0
+### What's New in v4.4.0
 
 **Event Cost Tracking & Notification Webhooks**
 
@@ -4892,7 +4769,7 @@ Each webhook supports two filters to prevent noise:
 
 Rate limiting (configurable per-webhook) prevents alert fatigue during sustained anomalies.
 
-## What's New in v4.3.0
+### What's New in v4.3.0
 
 **Event Budget & Throttling, Analytics Diagnostics Command, Event Sequencing Analysis**
 
@@ -4961,7 +4838,7 @@ php artisan zb:analytics:diagnostics --json
 
 Output shows pass/warn/fail for each check with actionable messages.
 
-## What's New in v4.2.0
+### What's New in v4.2.0
 
 **Event Impact Analytics, Feature Adoption API, Governance Mutation Endpoints, JS Client Version Sync**
 
@@ -5057,7 +4934,7 @@ ANALYTICS_EVENT_IMPACT_MIN_SAMPLE_SIZE=30
 
 New tests in `V42ImpactAdoptionGovernanceRoutesTest.php` covering Event Impact API, Feature Adoption API, and Governance mutation endpoints.
 
-## What's New in v4.1.0
+### What's New in v4.1.0
 
 **Event Governance & Data Quality Framework**
 
@@ -5158,7 +5035,7 @@ $report = $governance->report();
 // → ['governance_score' => 87.5, 'naming_score' => 98.0, 'quality_score' => 92.3, ...]
 ```
 
-## What's New in v4.0.0
+### What's New in v4.0.0
 
 **Event Archive Service, Analytics Replay Command, Archive API Endpoints**
 
@@ -5220,7 +5097,7 @@ ANALYTICS_ARCHIVE_MAX_EVENTS=10000
 ANALYTICS_ARCHIVE_CACHE_PREFIX=zb_archive_
 ```
 
-## What's New in v3.9.0
+### What's New in v3.9.0
 
 **Event Archetype System, Config Drift Detection, k-Anonymity Aggregation**
 
@@ -5303,7 +5180,7 @@ New config sections in `zeroboiler.php`:
 - Fixed missing controller methods for v3.9.0 API routes (archetype, anonymized aggregation, config drift endpoints) — all 11 route handler methods added to `AnalyticsEventController`
 - Fixed version inconsistency: `composer.json`, README badge, and test assertions updated to `3.9.0`
 
-## What's New in v3.8.0
+### What's New in v3.8.0
 
 **API Form Requests & Event Tracing**
 
@@ -5365,7 +5242,7 @@ $cleanParams = $service->strip($traced->params);
 - Updated Svelte composable version
 - 30+ comprehensive tests for TraceContext, EventTraceService, and all FormRequest classes
 
-## What's New in v3.7.0
+### What's New in v3.7.0
 
 **Event Enrichment, Subscription Lifecycle API, and Revenue Intelligence**
 
@@ -5435,7 +5312,7 @@ $report = $intel->report([
 ]);
 ```
 
-## What's New in v3.6.0
+### What's New in v3.6.0
 
 **Growth Metrics, Onboarding Wizard, and Weekly Digest Services — SaaS Product Analytics Suite**
 
@@ -5459,7 +5336,7 @@ v3.6.0 adds three production-ready services for SaaS product teams: a Growth Met
 - Services are auto-registered via ServiceProvider as singletons
 - Growth metrics and digest rely on `EventStreamService` ring buffer; no database migrations required
 
-## What's New in v3.5.0
+### What's New in v3.5.0
 
 **SaaS Starter Industry Standard Final Upgrade — Full 12-Point Checklist Closure**
 
@@ -5477,7 +5354,7 @@ v3.5.0 is the capstone release that validates ZeroBoiler Analytics as a complete
 - README now fully documents all releases from v2.88.0 through v3.5.0
 - Total: 234K LOC PHP source, 7.5K LOC JS client, 1.6K LOC Svelte composables, 252 test files, 16,900+ test assertions, 130+ API routes, 100+ event classes, 8 provider trackers
 
-## What's New in v3.4.0
+### What's New in v3.4.0
 
 **EventCollection DTO, AnalyticsEventDispatcher, Plausible/PostHog Svelte Composables**
 
@@ -5495,7 +5372,7 @@ v3.4.0 adds batch-oriented event processing, a dedicated dispatcher service, and
 
 - New tests in `V340EventDispatcherCollectionComposablesTest.php` covering EventCollection, AnalyticsEventDispatcher, and all new Svelte composables
 
-## What's New in v3.3.1
+### What's New in v3.3.1
 
 **Phase 2-3-4 Production Readiness Audit**
 
@@ -5508,7 +5385,7 @@ v3.3.1 is a maintenance release addressing production readiness across the entir
 - Production readiness audit across Phase 2 (identity, consent, GDPR), Phase 3 (pipeline, queue, replay), and Phase 4 (observability, monitoring)
 - All version assertions in tests corrected to match current version
 
-## What's New in v3.3.0
+### What's New in v3.3.0
 
 **Svelte 5 Composables, Lifecycle Config Sync, Version Sweep**
 
@@ -5522,7 +5399,7 @@ v3.3.0 adds a comprehensive Svelte 5 reactive composable layer and lifecycle con
 - **Lifecycle Config Sync** — Server-side lifecycle event mapper configuration automatically exposed to Inertia props for client-side event name awareness. Version hash for change detection
 - **Version Bump to 3.3.0** — All version strings swept across PHP source, JS client, Svelte composables, and tests
 
-## What's New in v3.2.0
+### What's New in v3.2.0
 
 **Identity Resolution Service + Event Debounce Service**
 
@@ -5540,7 +5417,7 @@ v3.2.0 adds two critical production services for user identity management and ev
 
 - New tests in `Feature/Services/IdentityResolutionServiceTest.php` and `Feature/Services/EventDebounceServiceTest.php`
 
-## What's New in v3.1.0
+### What's New in v3.1.0
 
 **Behavioral Analytics Engine — Product Intelligence for SaaS**
 
@@ -5593,7 +5470,7 @@ v3.1.0 adds industry-standard behavioral analytics: event rules engine, user pro
 - Config sections are optional — sensible defaults provided
 - Event rules engine is disabled by default — enable with `ANALYTICS_RULES_ENABLED=true`
 
-## What's New in v3.0.0
+### What's New in v3.0.0
 
 **Major Release — Production-Grade Analytics Platform**
 
@@ -5620,7 +5497,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - Minimum PHP requirement remains 8.5
 - Minimum Laravel requirement remains 13.0
 
-## What's New in v2.98.0
+### What's New in v2.98.0
 
 - **EventBuilder (Fluent API)** — Type-safe, declarative event construction with catalog-aware validation. Static factories for common events: `EventBuilder::purchase()`, `::signUp()`, `::pageView()`. Chain `->param()`, `->params()`, `->items()`, `->client()`, `->user()`, `->priority()`, and finish with `->build()`, `->dispatch()`, or `->dispatchAsync()`
 - **SessionReplayService** — Cache-based session event recording for user journey reconstruction. Ring buffer (configurable max events + TTL), timeline with duration/summary, per-user session indexing, revenue/error event detection. Ideal for support debugging and behavior analysis
@@ -5629,7 +5506,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Config: PII Detection** — `ANALYTICS_PII_DETECTION_ENABLED` (default: false), `ANALYTICS_PII_DETECTION_THRESHOLD` (0.5), `ANALYTICS_PII_DETECTION_CUSTOM_PATTERNS`
 - **Version bump to 2.98.0** — 23 files updated across PHP source, tests, JS client, TypeScript definitions, config, and documentation
 
-## What's New in v2.97.0
+### What's New in v2.97.0
 
 - **Comprehensive Health Check Service** — `AnalyticsHealthCheckService` runs a full diagnostic across 12 subsystems: providers, catalog, AARRR coverage, identity tracking, queue, GDPR, consent mode, lifecycle mapper, auto-tracking, dedup, API, and pipeline. Returns per-subsystem scores, overall health status, and prioritized recommendations
 - **Health Check API Endpoints** — `GET /api/analytics/health-check` for full diagnostic, `GET /api/analytics/ping` for lightweight monitoring (version + provider count + catalog size). Both public endpoints for dashboards and uptime monitoring
@@ -5639,7 +5516,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Comprehensive Test Suite** — 25 new tests covering all health check subsystems, recommendation sorting, status determination, version consistency, and facade delegation
 - **Version bump to 2.97.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
-## What's New in v2.96.0
+### What's New in v2.96.0
 
 - **SaaS Lifecycle Convenience Methods** — `Analytics::signUp()`, `Analytics::login()` (with auto identity linking), `Analytics::trialStart()`, `Analytics::subscription()`, `Analytics::planUpgrade()`, `Analytics::cancellation()` — the 6 essential SaaS events as one-liners on the AnalyticsManager and Facade
 - **SaaS Acquisition Funnel Shortcut** — `Analytics::trackSaaSAcquisition()` fires the full signup → trial → subscribe sequence in a single call, with `skip_trial` and custom params support
@@ -5650,7 +5527,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Admin command features** — Overview command updated with SaaS lifecycle convenience methods
 - **Version bump to 2.96.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
-## What's New in v2.95.0
+### What's New in v2.95.0
 
 - **Server-Sent Events (SSE) Controller** — Real-time event streaming via persistent HTTP connections with cursor-based resume, event filtering, category filtering, and configurable heartbeat. Endpoints: `GET /api/analytics/sse`, `/sse/info`, `/sse/health`
 - **EventWindowAggregator** — Time-windowed event counting (minute/hour/day) in cache for dashboard sparkline charts. Provides `lastNMinutes()`, `lastNHours()`, `lastNDays()` with configurable TTLs
@@ -5662,7 +5539,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **EventStreamService enhancements** — Added `getEventsSince()`, `getBufferSize()`, `getCurrentCount()`, `getCurrentCursor()`, `getBufferUtilization()` for SSE controller integration
 - **Version bump to 2.95.0** — All version assertions across source, config, JS client, TypeScript definitions, and tests updated
 
-## What's New in v2.94.0
+### What's New in v2.94.0
 
 - **SchemaDrivenEventBuilder** — Schema-driven event builder that validates parameters against EventPropertySchema and EventSchemaRegistry for type coercion, default values, and required field enforcement
 - **SchemaDiffReporter** — Schema coverage and diff reporter comparing EventCatalog, EventPropertySchema, and EventSchemaRegistry for gap analysis
@@ -5670,7 +5547,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **AnalyticsSchemaExportCommand** — `zb:analytics:schema:export` Artisan command to export event schemas as JSON, TypeScript, or summary with optional coverage report
 - **Phase 2-3-4 production readiness audit** — Tests updated for new services and commands (9 console commands, SchemaDrivenEventBuilder, SchemaDiffReporter finality)
 
-## What's New in v2.93.0
+### What's New in v2.93.0
 
 - **FunnelProgressTracker** — Cache-persisted funnel progress tracking with completion percentage, step timing, automatic advancement/regression detection, and `funnel_step`/`funnel_completed` event dispatch. Configurable TTL and known funnel names.
 - **AnalyticsManager::funnelProgress()** — Convenience method that delegates to FunnelProgressTracker for stateful funnel tracking
@@ -5679,7 +5556,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Version bump to 2.93.0** — All 100+ version assertions across source, config, JS client, TypeScript definitions, and tests updated
 - **22 new tests** — V93FunnelProgressTrackerTest covering FunnelProgressTracker structure, public method signatures, functional behavior (advancement, regression, completion), config integration, AnalyticsManager delegation, ServiceProvider registration, and version consistency
 
-## What's New in v2.92.0
+### What's New in v2.92.0
 
 - **Onboarding Completion Service** — OnboardingCompletionService tracks multi-step user onboarding with configurable required/optional milestones, time-to-completion tracking, completion percentage, and automatic `onboarding_completed` event dispatch
 - **EventCatalog::enterpriseComplianceEvents()** — GDPR Article 30, SOC2 CC7, ISO 27001 compliance event set for enterprise audit trails (24 events)
@@ -5689,7 +5566,7 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Version bump to 2.92.0** — Config, ServiceProvider, schema versioning updated
 - **13 new tests** — V92OnboardingComplianceDauMauTest covering new catalog methods, OnboardingCompletionService, version consistency, and file quality
 
-## What's New in v2.91.0
+### What's New in v2.91.0
 
 - **Privacy Sandbox & Cart Affinity** — PrivacySandboxService for first-party data strategies, CartStateManager for abandoned cart analytics with item-level tracking
 - **Event Affinity Service** — EventAffinityService for cross-event correlation and user behavior pattern detection
@@ -5697,13 +5574,13 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **Version consistency sweep** — All 158 hardcoded version assertions across test files updated to 2.91.0
 - **Stale version reference cleanup** — V43 stale version guard updated to check for removed 2.90.0 references
 
-## What's New in v2.88.0
+### What's New in v2.88.0
 
 - **Phase 2-3-4 production readiness** — Comprehensive Phase234ProductionTest expanded from 6 to 40+ assertions: strict types, license headers, return types on all public methods (AnalyticsManager, AnalyticsMetrics, EventInterceptorRegistry), final class audit (core classes, DTOs, trackers, enterprise services), #[Override] validation, TrackerInterface compliance, DTO readonly checks, EventPriority enum integrity, version consistency across all sources, config section completeness, Facade @method documentation, ServiceProvider binding audit (80+ singletons, 7 commands)
 - **Version consistency fix** — All hardcoded VERSION assertions across 15+ test files updated to match current version
 - **CHANGES.md removed** — Single source of truth is CHANGELOG.md
 
-## What's New in v2.87.0
+### What's New in v2.87.0
 
 - **ExportEvent & ImportEvent** — Data portability tracking for GDPR compliance monitoring, churn prediction (exports often precede cancellation), and power user identification (high imports = active usage)
 - **EventCatalog::quickStart()** — 12 essential "hello world" events every SaaS should track on day one, with funnel coverage analysis (signup, trial, revenue, engagement)
