@@ -6760,5 +6760,64 @@ return [
             'min_health_score' => (int) env('ANALYTICS_DEPLOY_GATE_MIN_HEALTH_SCORE', 40),
             'skip_events' => [], // event names to skip during gate checks
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Funnel Velocity Analyzer (v82.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Real-time funnel step velocity tracking with per-step timing analytics.
+        | Computes median/p95 time-to-advance, dropout rates, bottleneck detection,
+        | and completion time prediction for multi-step funnels.
+        |
+        | Used by FunnelVelocityAnalyzer service.
+        |
+        */
+        'funnel_velocity' => [
+            'enabled' => env('ANALYTICS_FUNNEL_VELOCITY_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_FUNNEL_VELOCITY_CACHE_TTL', 86400), // 24 hours
+            'window_hours' => (int) env('ANALYTICS_FUNNEL_VELOCITY_WINDOW_HOURS', 72),
+            'bottleneck_threshold' => (float) env('ANALYTICS_FUNNEL_VELOCITY_BOTTLENECK_THRESHOLD', 75.0),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Privacy-Aware Event Router (v82.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Routes analytics events based on geographic privacy zone (GDPR, CCPA,
+        | LGPD, PIPEDA) with automatic field stripping and consent enforcement.
+        | Prevents PII leakage to non-compliant providers.
+        |
+        | Used by PrivacyAwareEventRouter service.
+        |
+        */
+        'privacy_router' => [
+            'enabled' => env('ANALYTICS_PRIVACY_ROUTER_ENABLED', true),
+            'default_zone' => env('ANALYTICS_PRIVACY_ROUTER_DEFAULT_ZONE', 'none'),
+            'custom_block_fields' => [
+                // 'gdpr' => ['custom_pii_field'],
+            ],
+            'provider_allowlists' => [
+                // 'gdpr' => ['ga4', 'plausible'],  // Only GDPR-safe providers
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revenue Signal Detector (v82.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | SaaS revenue signal detection from user event pattern analysis.
+        | Computes churn risk scores, expansion opportunity scores, and
+        | recommended actions based on configurable event signal weights.
+        |
+        | Used by RevenueSignalDetector service.
+        |
+        */
+        'revenue_signals' => [
+            'enabled' => env('ANALYTICS_REVENUE_SIGNALS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_REVENUE_SIGNALS_CACHE_TTL', 3600), // 1 hour
+        ],
     ],
 ];

@@ -273,7 +273,7 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 **Code Quality:**
 - ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
 - ✅ All constructors declare `: void` return type
-- ✅ 636 source files, 299 test files, 22,000+ assertions
+- ✅ 636 source files, 299 test files, 19,000+ assertions
 
 ### What's New in v61.0.0
 
@@ -294,7 +294,7 @@ Deep manual code review and quality hardening across all 636 source files and 29
 - ✅ `#[\Override]` attributes on interface implementations
 
 **Test Coverage:**
-- 22,000+ assertions across 299 test files
+- 19,000+ assertions across 299 test files
 - AnalyticsFake for full facade interception testing
 - `WithAnalyticsFake` trait for test isolation
 

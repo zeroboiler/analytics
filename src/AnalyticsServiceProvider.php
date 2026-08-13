@@ -205,6 +205,7 @@ use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
 use ZeroBoiler\Analytics\Services\EventHealthScoringEngine;
 use ZeroBoiler\Analytics\Services\RevenueForecastService;
+use ZeroBoiler\Analytics\Services\RevenueSignalDetector;
 use ZeroBoiler\Analytics\Services\ChurnPredictionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsForecastCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsDeployGate;
@@ -1030,6 +1031,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Churn Prediction Service (v81.0.0) — weighted risk signal scoring
         $this->app->singleton(ChurnPredictionService::class, function (Application $app): ChurnPredictionService {
             return new ChurnPredictionService(
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Funnel Velocity Analyzer (v82.0.0) — real-time funnel step timing analytics
+        $this->app->singleton(FunnelVelocityAnalyzer::class, function (Application $app): FunnelVelocityAnalyzer {
+            return new FunnelVelocityAnalyzer(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Privacy-Aware Event Router (v82.0.0) — privacy zone-based event routing
+        $this->app->singleton(PrivacyAwareEventRouter::class, function (Application $app): PrivacyAwareEventRouter {
+            $routerConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.privacy_router', []);
+            /** @var array<string, mixed> $routerConfig */
+
+            return new PrivacyAwareEventRouter($routerConfig);
+        });
+
+        // Revenue Signal Detector (v82.0.0) — churn/expansion signal detection
+        $this->app->singleton(RevenueSignalDetector::class, function (Application $app): RevenueSignalDetector {
+            return new RevenueSignalDetector(
+                $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
         });
