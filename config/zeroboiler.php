@@ -6252,6 +6252,51 @@ return [
         |   - auto_record_consent_changes: Automatically record when consent changes
         |
         */
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Session Context Service (v63.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Builds rich session/device context for analytics events. Extracts
+        | browser, OS, device type, screen info, UTM, and geolocation data
+        | from HTTP requests and attaches to events as structured params.
+        |
+        | Features:
+        |   - device_parsing: Parse User-Agent for browser, OS, device type
+        |   - geolocation: IP-based geo lookup (via GeolocationEnricher)
+        |   - fingerprinting: SHA-256 device fingerprint generation
+        |   - Configurable cache TTLs for device and geo lookups
+        |
+        */
+        'session_context' => [
+            'enabled' => env('ANALYTICS_SESSION_CONTEXT_ENABLED', false),
+            'device_parsing' => env('ANALYTICS_SESSION_CONTEXT_DEVICE_PARSING', true),
+            'geolocation' => env('ANALYTICS_SESSION_CONTEXT_GEOLOCATION', false),
+            'fingerprinting' => env('ANALYTICS_SESSION_CONTEXT_FINGERPRINTING', false),
+            'device_cache_ttl' => (int) env('ANALYTICS_SESSION_CONTEXT_DEVICE_CACHE_TTL', 86400), // 24 hours
+            'geo_cache_ttl' => (int) env('ANALYTICS_SESSION_CONTEXT_GEO_CACHE_TTL', 604800), // 7 days
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Provider Dispatch Deduplication (v63.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Prevents duplicate event dispatches to the same provider within a
+        | configurable time window. Uses content-based hashing (event name +
+        | key params + client/user ID) to identify duplicates.
+        |
+        | Critical-priority events bypass dedup automatically.
+        | Configure window_seconds based on your frontend retry/retry behavior.
+        |
+        */
+        'dispatch_dedup' => [
+            'enabled' => env('ANALYTICS_DISPATCH_DEDUP_ENABLED', false),
+            'window_seconds' => (int) env('ANALYTICS_DISPATCH_DEDUP_WINDOW', 10), // 10 seconds
+            'hash_algorithm' => env('ANALYTICS_DISPATCH_DEDUP_HASH', 'xxh128'), // xxh128, sha256, md5
+            'cache_prefix' => env('ANALYTICS_DISPATCH_DEDUP_CACHE_PREFIX', 'zb_dedup_'),
+        ],
+
         'consent_receipt' => [
             'enabled' => env('ANALYTICS_CONSENT_RECEIPT_ENABLED', true),
             'cache_ttl' => (int) env('ANALYTICS_CONSENT_RECEIPT_CACHE_TTL', 7776000), // 90 days

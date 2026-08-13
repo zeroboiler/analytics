@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-62.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-63.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -10,6 +10,7 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 ## Table of Contents
 
 - [What's New in v62.0.0](#whats-new-in-v62000)
++- [What's New in v63.0.0](#whats-new-in-v63000)
 - [What's New in v61.0.0](#whats-new-in-v61000)
 - [What's New in v60.0.0](#whats-new-in-v60000)
 - [What's New in v58.0.0](#whats-new-in-v58000)
@@ -137,6 +138,24 @@ Industry-standard SaaS analytics for Laravel — production-ready event tracking
 - [Troubleshooting](#troubleshooting)
 - [Upgrading](#upgrading)
 - [License](#license)
+
+## What's New in v63.0.0
+
+### Event Session Context Service & Provider Dispatch Deduplication
+
+**EventSessionContext DTO** — a new immutable DTO (`src/DTO/EventSessionContext.php`) that captures the full session/device context of an analytics event including session ID, client ID, user ID, device fingerprint, IP, User-Agent, parsed browser/OS/device type, screen dimensions, viewport size, language, timezone, geolocation (country/region/city), page URL/title, referrer, and UTM parameters. Supports `fromRequest()`, `fromArray()`, `toArray()`, `with()` (immutable update), `hasUtmData()`, and `utmArray()` methods.
+
+**EventSessionContextService** — service that builds rich session contexts from HTTP requests with optional device parsing (User-Agent → browser/OS/device type), geolocation enrichment, and fingerprint generation. Caches device and geo lookups with configurable TTLs. Provides `buildFromRequest()`, `attachToEvent()`, and `enrichDeviceContext()` methods.
+
+**ProviderDispatchDedupService** — prevents duplicate event dispatches to the same provider within a configurable time window. Uses content-based hashing (event name + filtered params + client/user ID) to identify duplicates. Critical-priority events bypass dedup automatically. Supports batch provider checking and custom time windows.
+
+**New Config Sections:**
+- `zeroboiler.analytics.session_context` — enable/disable device parsing, geolocation, fingerprinting, configure cache TTLs
+- `zeroboiler.analytics.dispatch_dedup` — enable/disable, configure dedup window, hash algorithm, cache prefix
+
+**Version Sweep:** 62.0.0 → 63.0.0 across AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, composer.json, README badge, ServiceProvider docblock.
+
+---
 
 ## What's New in v62.0.0
 

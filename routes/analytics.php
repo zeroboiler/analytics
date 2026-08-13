@@ -767,4 +767,13 @@ Route::prefix('analytics')->group(function () {
     // First-Value Detection (v61.0.0)
     Route::get('first-value/score/{userId}', [AnalyticsEventController::class, 'firstValueScore']);
     Route::post('first-value/reset/{userId}', [AnalyticsEventController::class, 'firstValueReset']);
+
+    // Event Session Context (v63.0.0)
+    Route::get('session-context/stats', [AnalyticsEventController::class, 'sessionContextStats']);
+    Route::post('session-context/build', [AnalyticsEventController::class, 'sessionContextBuild']);
+
+    // Provider Dispatch Deduplication (v63.0.0)
+    Route::get('dispatch-dedup/stats', [AnalyticsEventController::class, 'dispatchDedupStats']);
+    Route::post('dispatch-dedup/check', [AnalyticsEventController::class, 'dispatchDedupCheck']);
+    Route::post('dispatch-dedup/clear', [AnalyticsEventController::class, 'dispatchDedupClear']);
 });

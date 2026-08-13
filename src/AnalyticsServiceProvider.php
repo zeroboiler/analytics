@@ -328,6 +328,8 @@ use ZeroBoiler\Analytics\Services\EventTrendForecastService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataExplorerService;
 use ZeroBoiler\Analytics\Services\EventCorrelationAnalyzerService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
+use ZeroBoiler\Analytics\Services\EventSessionContextService;
+use ZeroBoiler\Analytics\Services\ProviderDispatchDedupService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -335,7 +337,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTrendForecastCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 61.0.0
+ * @version 63.0.0
  *
  * @since 1.0.0
  */
@@ -709,6 +711,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventCorrelationAnalyzerService($cache, $config);
+        });
+
+        // Event Session Context Service (v63.0.0)
+        $this->app->singleton(EventSessionContextService::class, function (Application $app): EventSessionContextService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventSessionContextService($cache, $config);
+        });
+
+        // Provider Dispatch Deduplication Service (v63.0.0)
+        $this->app->singleton(ProviderDispatchDedupService::class, function (Application $app): ProviderDispatchDedupService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderDispatchDedupService($cache, $config);
         });
 
         // Analytics data bus for conditional routing

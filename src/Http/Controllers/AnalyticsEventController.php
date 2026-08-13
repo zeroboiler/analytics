@@ -12650,4 +12650,158 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Session Context (v63.0.0) ──────────────────────────────
+
+    /**
+     * Get session context service statistics.
+     *
+     * GET /api/analytics/session-context/stats
+     */
+    public function sessionContextStats(): JsonResponse
+    {
+        try {
+            $ctxConfig = $this->config->get('zeroboiler.analytics.session_context', []);
+            /** @var array<string, mixed> $ctxConfig */
+
+            $service = new \ZeroBoiler\Analytics\Services\EventSessionContextService(
+                $this->cache(),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'stats' => $service->getStats(),
+                'config' => $ctxConfig,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Build a session context from the current request.
+     *
+     * POST /api/analytics/session-context/build
+     * Body: { client_id?: string, user_id?: string, session_id?: string }
+     */
+    public function sessionContextBuild(Request $request): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSessionContextService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $clientId = $request->json('client_id');
+            $userId = $request->json('user_id');
+            $sessionId = $request->json('session_id');
+
+            $context = $service->buildFromRequest(
+                $request,
+                is_string($clientId) && $clientId !== '' ? $clientId : null,
+                is_string($userId) && $userId !== '' ? $userId : null,
+                is_string($sessionId) && $sessionId !== '' ? $sessionId : null,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'context' => $context->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Provider Dispatch Deduplication (v63.0.0) ──────────────────────
+
+    /**
+     * Get dispatch deduplication service statistics.
+     *
+     * GET /api/analytics/dispatch-dedup/stats
+     */
+    public function dispatchDedupStats(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\ProviderDispatchDedupService(
+                $this->cache(),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'stats' => $service->getStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Check if an event should be dispatched to a provider.
+     *
+     * POST /api/analytics/dispatch-dedup/check
+     * Body: { event_name: string, params: object, client_id?: string, user_id?: string, provider: string, priority?: string }
+     */
+    public function dispatchDedupCheck(Request $request): JsonResponse
+    {
+        try {
+            $eventName = (string) $request->json('event_name', '');
+            $params = $request->json('params', []);
+            $clientId = $request->json('client_id');
+            $userId = $request->json('user_id');
+            $provider = (string) $request->json('provider', 'ga4');
+            $priority = $request->json('priority');
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: is_array($params) ? $params : [],
+                clientId: is_string($clientId) && $clientId !== '' ? $clientId : null,
+                userId: is_string($userId) && $userId !== '' ? $userId : null,
+                priority: is_string($priority) && $priority !== '' ? $priority : null,
+            );
+
+            $service = new \ZeroBoiler\Analytics\Services\ProviderDispatchDedupService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $shouldDispatch = $service->shouldDispatch($event, $provider);
+            $hash = $service->buildHash($event, $provider);
+
+            return response()->json([
+                'status' => 'ok',
+                'should_dispatch' => $shouldDispatch,
+                'hash' => $hash,
+                'provider' => $provider,
+                'event_name' => $eventName,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear dispatch deduplication state.
+     *
+     * POST /api/analytics/dispatch-dedup/clear
+     */
+    public function dispatchDedupClear(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\ProviderDispatchDedupService(
+                $this->cache(),
+                $this->config,
+            );
+
+            $service->clear();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Dispatch dedup cache cleared',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
