@@ -501,6 +501,82 @@ return [
 
         /*
         |-------------------------------------------------------------------------- 
+        | Event Blueprints (v66.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Reusable, versioned event templates that enforce consistent parameter
+        | naming and structure across codebases. Inspired by Segment's Event Spec
+        | and RudderStack's event templates.
+        |
+        | Define custom blueprints in the 'library' array. Each blueprint has:
+        |   - name: Unique identifier (dot.case, e.g. 'saas.signup.email')
+        |   - label: Human-readable name
+        |   - base_event: Catalog event this blueprint wraps
+        |   - required_params: Parameter keys that must be provided
+        |   - default_params: Pre-filled parameter values
+        |   - param_types: Type validation for parameters
+        |   - priority: Default event priority
+        |
+        | Built-in blueprints are automatically available (saas.*, ecommerce.*,
+        | engagement.*, identity.*). Add custom ones below.
+        |
+        */
+        'blueprints' => [
+            'enabled' => env('ANALYTICS_BLUEPRINTS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_BLUEPRINTS_CACHE_TTL', 86400), // 24 hours
+            'library' => [
+                // Example custom blueprint:
+                // 'saas.invitation.sent' => [
+                //     'name' => 'saas.invitation.sent',
+                //     'label' => 'Team Invitation Sent',
+                //     'description' => 'User sent a team invitation',
+                //     'base_event' => 'invite_sent',
+                //     'category' => 'saas',
+                //     'default_params' => [],
+                //     'required_params' => ['inviter_id', 'invitee_email'],
+                //     'param_types' => ['inviter_id' => 'string', 'invitee_email' => 'string'],
+                //     'priority' => 'normal',
+                //     'version' => '1.0.0',
+                //     'metadata' => ['owner' => 'growth'],
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Segment Export (v66.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Segment-compatible event export configuration. When enabled, events can
+        | be exported in Segment's HTTP API v2 JSON format for migration, A/B
+        | testing between platforms, or dual-dispatch to Segment.
+        |
+        */
+        'segment_export' => [
+            'enabled' => env('ANALYTICS_SEGMENT_EXPORT_ENABLED', false),
+            'write_key' => env('ANALYTICS_SEGMENT_WRITE_KEY', ''),
+            'api_url' => env('ANALYTICS_SEGMENT_API_URL', 'https://api.segment.io/v1/batch'),
+            'batch_size' => (int) env('ANALYTICS_SEGMENT_BATCH_SIZE', 100),
+            'timeout' => (int) env('ANALYTICS_SEGMENT_TIMEOUT', 10),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Event Lifecycle Hooks (v66.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Pre/post-dispatch hooks for event enrichment, filtering, and side-effects.
+        | When enabled, registered before/after hooks run for every tracked event.
+        |
+        */
+        'lifecycle_hooks' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_HOOKS_ENABLED', true),
+            'max_hooks' => (int) env('ANALYTICS_LIFECYCLE_HOOKS_MAX', 50),
+            'timeout' => (int) env('ANALYTICS_LIFECYCLE_HOOKS_TIMEOUT', 5),
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | Event Trend Forecast Engine (v59.0.0)
         |-------------------------------------------------------------------------- 
         |

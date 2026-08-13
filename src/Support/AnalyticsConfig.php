@@ -474,6 +474,72 @@ final class AnalyticsConfig
         return (float) $this->get('replay.max_delay', 60.0);
     }
 
+    // ── Blueprints ─────────────────────────────────────────────────────
+
+    public function blueprintsEnabled(): bool
+    {
+        return (bool) $this->get('blueprints.enabled', true);
+    }
+
+    public function blueprintsCacheTtl(): int
+    {
+        return (int) $this->get('blueprints.cache_ttl', 86400);
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public function blueprintsLibrary(): array
+    {
+        $library = $this->get('blueprints.library', []);
+
+        return is_array($library) ? $library : [];
+    }
+
+    // ── Segment Export ────────────────────────────────────────────────
+
+    public function segmentExportEnabled(): bool
+    {
+        return (bool) $this->get('segment_export.enabled', false);
+    }
+
+    public function segmentWriteKey(): string
+    {
+        return (string) $this->get('segment_export.write_key', '');
+    }
+
+    public function segmentApiUrl(): string
+    {
+        return (string) $this->get('segment_export.api_url', 'https://api.segment.io/v1/batch');
+    }
+
+    public function segmentBatchSize(): int
+    {
+        return (int) $this->get('segment_export.batch_size', 100);
+    }
+
+    public function segmentTimeout(): int
+    {
+        return (int) $this->get('segment_export.timeout', 10);
+    }
+
+    // ── Lifecycle Hooks ───────────────────────────────────────────────
+
+    public function lifecycleHooksEnabled(): bool
+    {
+        return (bool) $this->get('lifecycle_hooks.enabled', true);
+    }
+
+    public function lifecycleHooksMax(): int
+    {
+        return (int) $this->get('lifecycle_hooks.max_hooks', 50);
+    }
+
+    public function lifecycleHooksTimeout(): int
+    {
+        return (int) $this->get('lifecycle_hooks.timeout', 5);
+    }
+
     public function replayJitter(): float
     {
         return (float) $this->get('replay.jitter', 0.2);
@@ -2135,6 +2201,9 @@ final class AnalyticsConfig
             'validation_strict' => $this->validationStrict(),
             'replay_enabled' => $this->replayEnabled(),
             'fingerprint_enabled' => (bool) $this->get('fingerprint.enabled', true),
+            'blueprints_enabled' => $this->blueprintsEnabled(),
+            'segment_export_enabled' => $this->segmentExportEnabled(),
+            'lifecycle_hooks_enabled' => $this->lifecycleHooksEnabled(),
             'event_count' => \ZeroBoiler\Analytics\Events\EventCatalog::count(),
             'event_categories' => count(\ZeroBoiler\Analytics\Events\EventCatalog::byCategory()),
         ];

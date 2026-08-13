@@ -478,6 +478,53 @@ final class EventBuilder
     }
 
     /**
+     * Create an event from a registered blueprint.
+     *
+     * Looks up the blueprint by name, merges defaults with overrides,
+     * validates required params, and returns a builder pre-configured
+     * with the blueprint's base event and priority.
+     *
+     * @param  string  $blueprintName  Blueprint identifier (e.g. 'saas.signup.email')
+     * @param  array<string, mixed>  $params  Override/default params
+     * @return self
+     *
+     * @throws \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException
+     *
+     * @since 66.0.0
+     */
+    public static function fromBlueprint(string $blueprintName, array $params = []): self
+    {
+        $container = \Illuminate\Support\Facades\App::getContainer();
+
+        if ($container === null || ! $container->has(\ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry::class)) {
+            return new self($blueprintName);
+        }
+
+        $registry = $container->make(\ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry::class);
+        $event = $registry->buildUnsafe($blueprintName, $params);
+
+        if ($event['errors'] !== []) {
+            // Log warnings but don't throw — return the event as-is
+            if (function_exists('logger')) {
+                logger()->warning('[ZeroBoiler] Blueprint validation warnings: ' . implode('; ', $event['errors']));
+            }
+        }
+
+        $builtEvent = $event['event'];
+        $builder = new self($builtEvent->name);
+
+        foreach ($builtEvent->params as $key => $value) {
+            $builder->param($key, $value);
+        }
+
+        if ($builtEvent->priority !== null) {
+            $builder->priority($builtEvent->priority);
+        }
+
+        return $builder;
+    }
+
+    /**
      * Add a parameter to the event.
      *
      * @param  string  $key  Parameter key
