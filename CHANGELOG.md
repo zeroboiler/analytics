@@ -1,5 +1,17 @@
 # Changelog
 
+## [100.1.0] - 2026-08-14
+
+### Added
+- Phase 28 production audit — 26 new assertions (20542 → 20568+)
+- Tracker interface compliance (all 10 trackers)
+- Exception hierarchy and finality checks
+- Source file strict_types verification across 680 files
+- Facade docblock completeness
+
+### Changed
+- Version bump to 100.1.0
+
 ## [89.0.0] - 2026-08-14
 
 ### Added

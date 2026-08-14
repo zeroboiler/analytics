@@ -935,4 +935,15 @@ Route::prefix('analytics')->group(function () {
     // Product Analytics Maturity (v87.0.0)
     Route::get('maturity', [AnalyticsEventController::class, 'maturityAssessment']);
     Route::get('maturity/quick', [AnalyticsEventController::class, 'maturityQuick']);
+
+    // SaaS Funnel Definitions (v101.0.0)
+    Route::get('funnels/definitions', [AnalyticsEventController::class, 'funnelDefinitions']);
+    Route::get('funnels/definitions/{key}', [AnalyticsEventController::class, 'funnelDefinitionDetail']);
+    Route::get('funnels/definitions/coverage', [AnalyticsEventController::class, 'funnelDefinitionsCoverage']);
+    Route::get('funnels/definitions/validate', [AnalyticsEventController::class, 'funnelDefinitionsValidate']);
+
+    // SaaS Readiness Assessment (v101.0.0)
+    Route::get('readiness/assessment', [AnalyticsEventController::class, 'saasReadinessAssessment']);
+    Route::get('readiness/summary', [AnalyticsEventController::class, 'saasReadinessSummary']);
+    Route::get('readiness/recommendations', [AnalyticsEventController::class, 'saasReadinessRecommendations']);
 });

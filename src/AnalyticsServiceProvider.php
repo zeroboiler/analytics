@@ -197,6 +197,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsAIService;
 use ZeroBoiler\Analytics\Services\EventExperimentTracker;
 use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
+use ZeroBoiler\Analytics\Services\SaaSReadinessAssessment;
 use ZeroBoiler\Analytics\Services\AnalyticsDataService;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
 use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
@@ -2604,6 +2605,41 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSQuickStartService($manager);
+        });
+
+        // SaaS Funnel Definitions (v101.0.0) — stateless, no DI needed
+        // SaaSReadinessAssessment is instantiated per-request with tracked events;
+        // registered as scoped so each request gets its own instance when resolved.
+        $this->app->scoped(SaaSReadinessAssessment::class, function (Application $app): SaaSReadinessAssessment {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $analyticsConfig = $config->get('zeroboiler.analytics', []);
+            /** @var array{providers?: array<string, array{enabled?: bool}>, queue?: array{enabled?: bool}, api?: array{enabled?: bool}, identity?: array{enabled?: bool}, lifecycle?: array{enabled?: bool}, auto_track?: array{enabled?: bool}, ecommerce?: array{enabled?: bool}, consent?: array{enabled?: bool}} $analyticsConfig */
+
+            // Derive enabled providers from config
+            $enabledProviders = [];
+            $providersConfig = $analyticsConfig['providers'] ?? [];
+            foreach (['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'] as $provider) {
+                $enabledProviders[$provider] = ($providersConfig[$provider]['enabled'] ?? false) === true;
+            }
+
+            // Derive config flags
+            $configFlags = [
+                'identity' => ($analyticsConfig['identity']['enabled'] ?? true) === true,
+                'queue' => ($analyticsConfig['queue']['enabled'] ?? false) === true,
+                'auto_track' => ($analyticsConfig['auto_track']['enabled'] ?? false) === true,
+                'ecommerce' => ($analyticsConfig['ecommerce']['enabled'] ?? true) === true,
+                'api' => ($analyticsConfig['api']['enabled'] ?? false) === true,
+                'lifecycle' => ($analyticsConfig['lifecycle']['enabled'] ?? false) === true,
+                'consent' => ($analyticsConfig['consent']['enabled'] ?? true) === true,
+            ];
+
+            return new SaaSReadinessAssessment(
+                trackedEvents: [],
+                enabledProviders: $enabledProviders,
+                configFlags: $configFlags,
+            );
         });
 
         // Analytics Data Service (v5.0.0) — cache-backed dashboard queries

@@ -16382,4 +16382,200 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── SaaS Funnel Definitions (v101.0.0) ────────────────────────────
+
+    /**
+     * List all SaaS funnel definition templates.
+     *
+     * Returns pre-built funnel definitions for common SaaS analytics patterns.
+     * Each definition includes ordered steps, expected conversion windows,
+     * and AARRR pillar classification.
+     */
+    public function funnelDefinitions(Request $request): JsonResponse
+    {
+        try {
+            $funnels = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::all();
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'total' => count($funnels),
+                    'funnels' => $funnels,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a specific funnel definition by key.
+     */
+    public function funnelDefinitionDetail(string $key): JsonResponse
+    {
+        try {
+            $funnel = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::get($key);
+
+            if ($funnel === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => "Funnel definition '{$key}' not found",
+                    'available_keys' => \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::keys(),
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $funnel,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get funnel coverage report based on tracked events.
+     *
+     * Accepts a list of tracked event names and returns coverage analysis
+     * for each funnel definition.
+     */
+    public function funnelDefinitionsCoverage(Request $request): JsonResponse
+    {
+        try {
+            $trackedEvents = $request->input('tracked_events', []);
+            /** @var list<string> $trackedEvents */
+
+            $coverage = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::coverageReport($trackedEvents);
+            $instrumented = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::fullyInstrumented($trackedEvents);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'tracked_count' => count($trackedEvents),
+                    'coverage' => $coverage,
+                    'fully_instrumented_funnels' => count($instrumented),
+                    'fully_instrumented_keys' => array_column($instrumented, 'key'),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate all funnel definitions.
+     */
+    public function funnelDefinitionsValidate(): JsonResponse
+    {
+        try {
+            $result = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::validate();
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── SaaS Readiness Assessment (v101.0.0) ─────────────────────────
+
+    /**
+     * Run full SaaS analytics readiness assessment.
+     *
+     * Evaluates event coverage, provider mappings, funnel readiness,
+     * AARRR coverage, identity tracking, e-commerce readiness, and
+     * configuration quality. Returns scores, findings, and recommendations.
+     */
+    public function saasReadinessAssessment(Request $request): JsonResponse
+    {
+        try {
+            $trackedEvents = $request->input('tracked_events', []);
+            /** @var list<string> $trackedEvents */
+            $enabledProviders = $request->input('enabled_providers', []);
+            /** @var array<string, bool> $enabledProviders */
+            $configFlags = $request->input('config_flags', []);
+            /** @var array<string, bool> $configFlags */
+
+            $assessment = new \ZeroBoiler\Analytics\Services\SaaSReadinessAssessment(
+                trackedEvents: $trackedEvents,
+                enabledProviders: $enabledProviders,
+                configFlags: $configFlags,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $assessment->assess(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get quick SaaS readiness summary.
+     */
+    public function saasReadinessSummary(Request $request): JsonResponse
+    {
+        try {
+            $trackedEvents = $request->input('tracked_events', []);
+            /** @var list<string> $trackedEvents */
+            $enabledProviders = $request->input('enabled_providers', []);
+            /** @var array<string, bool> $enabledProviders */
+            $configFlags = $request->input('config_flags', []);
+            /** @var array<string, bool> $configFlags */
+
+            $assessment = new \ZeroBoiler\Analytics\Services\SaaSReadinessAssessment(
+                trackedEvents: $trackedEvents,
+                enabledProviders: $enabledProviders,
+                configFlags: $configFlags,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $assessment->quickSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top-priority readiness improvement recommendations.
+     */
+    public function saasReadinessRecommendations(Request $request): JsonResponse
+    {
+        try {
+            $trackedEvents = $request->input('tracked_events', []);
+            /** @var list<string> $trackedEvents */
+            $enabledProviders = $request->input('enabled_providers', []);
+            /** @var array<string, bool> $enabledProviders */
+            $configFlags = $request->input('config_flags', []);
+            /** @var array<string, bool> $configFlags */
+            $limit = $request->input('limit', 5);
+            /** @var int $limit */
+
+            $assessment = new \ZeroBoiler\Analytics\Services\SaaSReadinessAssessment(
+                trackedEvents: $trackedEvents,
+                enabledProviders: $enabledProviders,
+                configFlags: $configFlags,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $assessment->topRecommendations(max(1, min(20, (int) $limit))),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

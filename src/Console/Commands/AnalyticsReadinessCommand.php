@@ -9,150 +9,231 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
+use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\SaaSReadinessAssessment;
+use ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions;
 
 /**
- * SaaS Starter production readiness check.
+ * Displays a comprehensive SaaS analytics readiness assessment.
  *
- * Runs a comprehensive checklist validating provider configuration,
- * consent defaults, queue setup, identity tracking, event validation,
- * GDPR compliance, and recommended settings for production readiness.
+ * Evaluates 7 dimensions of analytics instrumentation quality:
+ * event coverage, provider coverage, funnel readiness, AARRR
+ * coverage, identity tracking, e-commerce readiness, and
+ * configuration quality.
  *
- * Returns 0 if all required checks pass and score meets minimum threshold.
- * Returns 1 if any required check fails or score is below threshold.
- *
- * @since 1.0.0
+ * @since 101.0.0
  */
 final class AnalyticsReadinessCommand extends Command
 {
     protected $signature = 'zb:analytics:readiness
         {--json : Output as JSON}
-        {--no-cache : Force fresh assessment (ignore cache)}';
+        {--recommendations : Show only top recommendations}
+        {--funnels : Show funnel coverage details}
+        {--dimension=* : Assess specific dimensions only}';
 
-    protected $description = 'Run production readiness check for ZeroBoiler Analytics';
-
-    private readonly AnalyticsReadinessService $service;
-
-    public function __construct(AnalyticsReadinessService $service): void
-    {
-        parent::__construct();
-        $this->service = $service;
-    }
+    protected $description = 'Display SaaS analytics readiness assessment with actionable recommendations';
 
     /**
-     * Execute the readiness check.
+     * Execute the console command.
      */
     #[\Override]
     public function handle(): int
     {
-        if ($this->option('no-cache')) {
-            $this->service->invalidateCache();
-            $report = $this->service->assess();
-        } else {
-            $report = $this->service->assessCached();
+        $outputJson = (bool) $this->option('json');
+        $showRecommendations = (bool) $this->option('recommendations');
+        $showFunnels = (bool) $this->option('funnels');
+        $specificDimensions = (array) $this->option('dimension');
+
+        $report = $this->buildReport();
+
+        if ($outputJson) {
+            $this->line(json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+            return self::SUCCESS;
         }
 
-        if ($this->option('json')) {
-            $this->line(json_encode($report->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-            return $report->ready ? 0 : 1;
-        }
-
-        $this->renderReport($report);
-
-        return $report->ready ? 0 : 1;
-    }
-
-    /**
-     * Render a human-readable readiness report.
-     */
-    private function renderReport(mixed $report): void
-    {
+        // Header
         $this->newLine();
-        $this->info('🚀 ZeroBoiler Analytics — Production Readiness Check');
+        $this->line('  <options=bold;bg=blue;fg=white> 📊 SaaS Analytics Readiness Assessment </>');
+        $this->line('  <fg=cyan>ZeroBoiler Analytics v' . $report['version'] . '</>');
         $this->newLine();
 
-        // Score bar
-        $score = $report->score;
-        $bar = $this->buildScoreBar($score);
-        $gradeColor = match ($report->grade) {
+        // Overall score
+        $grade = $report['overall_grade'];
+        $gradeColor = match ($grade) {
             'A' => 'green',
-            'B' => 'green',
+            'B' => 'blue',
             'C' => 'yellow',
             'D' => 'red',
-            'F' => 'red',
-            default => 'white',
+            default => 'red',
         };
+        $score = $report['overall_score'];
 
-        $this->line("  Score: <fg={$gradeColor};options=bold>{$score}%</> (Grade {$report->grade})");
-        $this->line("  {$bar}");
-        $this->line("  {$report->passCount}/{$report->totalChecks} checks passed" . ($report->failCount > 0 ? ", {$report->failCount} failed" : '') . ($report->warnCount > 0 ? ", {$report->warnCount} warnings" : ''));
+        $this->line("  Overall Score: <options=bold;fg={$gradeColor}>{$score}/100</> (Grade: <options=bold;fg={$gradeColor}>{$grade}</>)");
+        $this->line("  Tracked Events: {$report['tracked_count']}/{$report['total_catalog_events']} ({$report['coverage_percent']}%)");
         $this->newLine();
 
-        // Required checks
-        $this->line('<fg=cyan;options=bold>REQUIRED CHECKS</>');
-        $this->line('─────────────────────────');
+        if ($showRecommendations) {
+            $this->showRecommendations($report);
 
-        foreach ($report->results as $name => $result) {
-            $icon = $this->statusIcon($result->status);
-            $label = $result->message ?? $name;
-            $color = match ($result->status) {
-                'pass' => 'green',
-                'warn' => 'yellow',
-                'fail' => 'red',
-                default => 'white',
+            return self::SUCCESS;
+        }
+
+        if ($showFunnels) {
+            $this->showFunnelCoverage();
+
+            return self::SUCCESS;
+        }
+
+        // Dimension scores
+        $this->line('  <options=bold>Dimension Scores:</options>');
+        $this->line('  ─────────────────────────────────────────────────────');
+
+        $dimensions = $report['dimensions'];
+
+        if ($specificDimensions !== []) {
+            $dimensions = array_filter(
+                $dimensions,
+                fn (string $key): bool => in_array($key, $specificDimensions, true),
+                ARRAY_FILTER_USE_KEY,
+            );
+        }
+
+        foreach ($dimensions as $key => $dimension) {
+            $statusIcon = match ($dimension['status']) {
+                'excellent' => '<fg=green>✓</>',
+                'good' => '<fg=green>✓</>',
+                'fair' => '<fg=yellow>⚠</>',
+                'poor' => '<fg=red>✗</>',
+                'missing' => '<fg=red>✗</>',
             };
-            $this->line("  {$icon} <fg={$color}>{$label}</>");
+
+            $percent = $dimension['percent'];
+            $percentColor = match (true) {
+                $percent >= 90.0 => 'green',
+                $percent >= 70.0 => 'blue',
+                $percent >= 50.0 => 'yellow',
+                default => 'red',
+            };
+
+            $bar = $this->renderBar($percent);
+            $this->line("  {$statusIcon} <fg=white>{$dimension['name']}</>: <options=bold;fg={$percentColor}>{$percent}%</> {$bar}");
+
+            // Show key findings
+            foreach ($dimension['findings'] as $finding) {
+                $this->line("      <fg=gray>→ {$finding}</>");
+            }
         }
 
         $this->newLine();
 
-        // Verdict
-        if ($report->ready) {
-            $this->line("<fg=green;options=bold>✅ READY FOR PRODUCTION</> (score {$score}% >= {$report->minimumScore}%, all required checks pass)");
-        } else {
-            $reason = $report->requiredFails > 0
-                ? "{$report->requiredFails} required check(s) failed"
-                : "score {$score}% < minimum {$report->minimumScore}%";
-            $this->line("<fg=red;options=bold>❌ NOT READY FOR PRODUCTION</> — {$reason}");
+        // Top recommendations
+        $assessment = new SaaSReadinessAssessment;
+        $recs = $assessment->topRecommendations(3);
+
+        if ($recs !== []) {
+            $this->line('  <options=bold>Top Recommendations:</options>');
+            $this->line('  ─────────────────────────────────────────────────────');
+
+            foreach ($recs as $i => $rec) {
+                $impactColor = match ($rec['impact']) {
+                    'high' => 'red',
+                    'medium' => 'yellow',
+                    default => 'gray',
+                };
+                $num = $i + 1;
+                $this->line("  <fg=white>{$num}.</> [{$rec['impact']}] <fg=white>{$rec['action']}</>");
+            }
+
             $this->newLine();
-            $this->line('  Fix the failed checks above before deploying to production.');
         }
 
-        $this->newLine();
+        // Timestamp
+        $this->line("  <fg=gray>Generated: {$report['generated_at']}</>");
+
+        return self::SUCCESS;
     }
 
     /**
-     * Build a visual score bar.
-     *
-     * @return string
+     * Show only recommendations.
      */
-    private function buildScoreBar(int $score): string
+    private function showRecommendations(array $report): void
     {
-        $width = 30;
-        $filled = (int) round(($score / 100) * $width);
-        $empty = $width - $filled;
+        $assessment = new SaaSReadinessAssessment;
+        $recs = $assessment->topRecommendations(10);
 
-        $bar = str_repeat('█', $filled) . str_repeat('░', $empty);
+        $this->line("  Overall: <options=bold>{$report['overall_score']}/100</> (Grade: {$report['overall_grade']})");
+        $this->newLine();
 
-        $color = $score >= 80 ? 'green' : ($score >= 50 ? 'yellow' : 'red');
+        if ($recs === []) {
+            $this->line('  <fg=green>✓ No recommendations — your analytics are fully instrumented!</>');
+
+            return;
+        }
+
+        foreach ($recs as $i => $rec) {
+            $impactColor = match ($rec['impact']) {
+                'high' => 'red',
+                'medium' => 'yellow',
+                default => 'gray',
+            };
+            $num = $i + 1;
+            $this->line("  <fg=white>{$num}.</> <fg={$impactColor}>[{$rec['impact']}]</> <fg=white>{$rec['action']}</>");
+            $this->line("      <fg=gray>Dimension: {$rec['description']}</>");
+        }
+    }
+
+    /**
+     * Show funnel coverage details.
+     */
+    private function showFunnelCoverage(): void
+    {
+        $coverage = SaaSFunnelDefinitions::coverageReport([]);
+
+        $this->line('  <options=bold>Funnel Definitions Coverage:</options>');
+        $this->line('  ─────────────────────────────────────────────────────');
+        $this->line('  <fg=gray>Note: No tracked events provided. Showing required events for each funnel.</>');
+        $this->newLine();
+
+        foreach ($coverage as $key => $funnel) {
+            $statusIcon = match ($funnel['status']) {
+                'complete' => '<fg=green>✓</>',
+                'partial' => '<fg=yellow>⚠</>',
+                default => '<fg=red>○</>',
+            };
+
+            $this->line("  {$statusIcon} <fg=white>{$funnel['funnel']}</> ({$key})");
+            $this->line("      Steps: {$funnel['total_steps']}, Required events: " . implode(', ', $funnel['missing_events']));
+        }
+    }
+
+    /**
+     * Build the assessment report.
+     */
+    private function buildReport(): array
+    {
+        $assessment = new SaaSReadinessAssessment;
+
+        return $assessment->assess();
+    }
+
+    /**
+     * Render a visual progress bar.
+     */
+    private function renderBar(float $percent): string
+    {
+        $width = 20;
+        $filled = (int) round(($percent / 100.0) * $width);
+
+        $bar = str_repeat('█', $filled) . str_repeat('░', $width - $filled);
+
+        $color = match (true) {
+            $percent >= 90.0 => 'green',
+            $percent >= 70.0 => 'blue',
+            $percent >= 50.0 => 'yellow',
+            default => 'red',
+        };
 
         return "<fg={$color}>{$bar}</>";
-    }
-
-    /**
-     * Get a status icon for a check result.
-     *
-     * @param  string  $status
-     * @return string
-     */
-    private function statusIcon(string $status): string
-    {
-        return match ($status) {
-            'pass' => '✓',
-            'warn' => '⚠',
-            'fail' => '✗',
-            default => '?',
-        };
     }
 }
