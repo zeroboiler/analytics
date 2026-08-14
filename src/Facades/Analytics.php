@@ -61,7 +61,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static bool shouldLogEvents()
  * @method static void setDebug(bool $enabled)
  * @method static void resetIdentity()
- * @method static array{ecommerce: int, saas: int, engagement: int, total: int} eventCatalogSummary()
+ * @method static array{ecommerce: int, saas: int, engagement: int, marketing: int, infrastructure: int, security: int, uptime: int, total: int} eventCatalogSummary()
  * @method static bool eventExists(string $eventName)
  * @method static string|null eventCategory(string $eventName)
  * @method static int totalEventCount()

@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-123.0.0-blue)](https://github.com/zeroboiler/analytics)|
-[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
+|[![Latest Version](https://img.shields.io/badge/version-124.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with 176 typed events, 7 categories, 318 services, 71 artisan commands, a fully-featured JS client (~8000 LOC), 5 Svelte composables, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with 176+ typed events, 7 categories, 318 services, 71 artisan commands, a fully-featured JS client (~8000 LOC), 5 Svelte composables, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v124.0.0
+
+**Phase 124 — Full 7-Category Event Catalog Summary Alignment**:
+
+- **`eventCatalogSummary()` now covers all 7 categories** — Previously only counted ecommerce, saas, and engagement. Now also includes marketing, infrastructure, security, and uptime in the summary array and total count
+- **Facade docblock updated** — `Analytics::eventCatalogSummary()` return type now reflects all 7 categories + total
+- **AnalyticsFake parity** — `AnalyticsFake::eventCatalogSummary()` also updated to cover all 7 categories
+- **New V124 test** — `V124EventCatalogAllCategoriesTest` validates all 7 categories have non-zero counts, EventCatalog::count() equals the sum of individual catalogs, and byCategory/category methods resolve all 7 categories
+- **No breaking changes** — The return array gained 4 new keys (marketing, infrastructure, security, uptime) but existing keys are unchanged
 
 ### What's New in v123.0.0
 

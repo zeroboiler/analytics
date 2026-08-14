@@ -1386,19 +1386,27 @@ final class AnalyticsManager
      * Dynamically computes counts from the category catalogs
      * rather than using hard-coded values.
      *
-     * @return array{ecommerce: int, saas: int, engagement: int, total: int}
+     * @return array{ecommerce: int, saas: int, engagement: int, marketing: int, infrastructure: int, security: int, uptime: int, total: int}
      */
     public function eventCatalogSummary(): array
     {
         $ecommerce = \ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents::count();
         $saas = \ZeroBoiler\Analytics\Events\SaaS\SaaSEvents::count();
         $engagement = \ZeroBoiler\Analytics\Events\Engagement\EngagementEvents::count();
+        $marketing = \ZeroBoiler\Analytics\Events\Marketing\MarketingEvents::count();
+        $infrastructure = \ZeroBoiler\Analytics\Events\Infrastructure\InfrastructureEvents::count();
+        $security = \ZeroBoiler\Analytics\Events\Security\SecurityEvents::count();
+        $uptime = \ZeroBoiler\Analytics\Events\Uptime\UptimeEvents::count();
 
         return [
             'ecommerce' => $ecommerce,
             'saas' => $saas,
             'engagement' => $engagement,
-            'total' => $ecommerce + $saas + $engagement,
+            'marketing' => $marketing,
+            'infrastructure' => $infrastructure,
+            'security' => $security,
+            'uptime' => $uptime,
+            'total' => $ecommerce + $saas + $engagement + $marketing + $infrastructure + $security + $uptime,
         ];
     }
 
