@@ -489,15 +489,15 @@ describe('AnalyticsQueryBuilder', function (): void {
 
         it('throws on time-series without events', function (): void {
             AnalyticsQueryBuilder::make()->execute();
-        })->throws(RuntimeException::class, 'Time-series query requires at least one event');
+        })->throws(\ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException::class, 'Time-series query requires at least one event');
 
         it('throws on funnel without steps', function (): void {
             AnalyticsQueryBuilder::make()->funnel('empty')->execute();
-        })->throws(RuntimeException::class, 'Funnel query requires at least one step');
+        })->throws(\ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException::class, 'Funnel query requires at least one step');
 
         it('throws on conversion without events', function (): void {
             AnalyticsQueryBuilder::make()->conversion('', '')->execute();
-        })->throws(RuntimeException::class, 'Conversion query requires from and to events');
+        })->throws(\ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException::class, 'Conversion query requires from and to events');
     });
 
     describe('executeValues', function (): void {
