@@ -9,10 +9,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 
 /**
  * OpenAPI 3.0 specification generator from the analytics event catalog.
@@ -48,9 +45,6 @@ final class EventSchemaOpenApiGenerator
 
     /** @var array<string, mixed> Additional contact/server/externalDocs info */
     private array $info;
-
-    /** @var array<string, mixed> Resolved event schemas (cached per request) */
-    private array $schemaCache = [];
 
     /**
      * @param  ConfigRepository  $config  Analytics configuration

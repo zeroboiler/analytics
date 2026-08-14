@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-126.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-127.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with 176+ typed events, 7 categories, 318 services, 71 artisan commands, a fully-featured JS client (~8000 LOC), 5 Svelte composables, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,10 +57,35 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+### What's New in v127.0.0
+
+**Phase 127 — OpenAPI Event Schema Generator & API Documentation**:
+
+- **`EventSchemaOpenApiGenerator`** — Generates machine-readable OpenAPI 3.0.3 specification from the analytics event catalog and API routes. Covers all 35+ API endpoint definitions with request/response schemas, security schemes (Sanctum Bearer + SDK Token), tag-based grouping (23 endpoint categories), and configurable metadata (title, description, contact, license). Supports both JSON and YAML export formats.
+- **JSON export** — `GET /api/analytics/openapi-spec` — Returns the full OpenAPI spec as JSON. Compatible with Swagger UI, Redoc, and any OpenAPI 3.0 tooling.
+- **YAML export** — `GET /api/analytics/openapi.yaml` — Returns the full OpenAPI spec in YAML format. Direct import into API gateways, documentation generators, and CI/CD pipelines.
+- **Endpoint summary** — `GET /api/analytics/openapi/endpoints` — Flat list of all API endpoints with HTTP method, path, description, and tag groupings. Quick reference for developers and dashboards.
+- **New config section** — `zeroboiler.analytics.openapi` with `enabled`, `title`, `description`, `version`, `contact`, and `license` settings. Metadata is customizable to match your application's documentation standards.
+- **15 test cases** — Comprehensive coverage for OpenAPI spec structure, info section customization, all core endpoints (events, batch, identify, consent, health, catalog, schemas, identity, GDPR, openapi), request body schema validation, security scheme definitions, error response schemas, JSON output validation, YAML output validation, endpoint summary format, tag coverage, response code completeness, and specific request schema validations (identify, consent, delete).
+- **Version sweep** — All package files synced to 127.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider, JS client, TypeScript definitions).
+
+### What's New in v126.0.0
+
+**Phase 126 — Unified Category Dispatchers & Event Field Validation Integration**:
+
+- **`Analytics::trackEcommerceEvent()`** — Category-scoped ecommerce dispatcher. Accepts event name + params, validates against EcommerceEvents catalog, injects currency/value/transaction_id from options, and dispatches to all providers. Returns true if event was found in catalog, false otherwise.
+- **`Analytics::trackSaaSLifecycle()`** — Category-scoped SaaS lifecycle dispatcher. Validates against SaaSEvents catalog and dispatches with category context.
+- **`Analytics::trackEngagement()`** — Category-scoped engagement dispatcher. Validates against EngagementEvents catalog.
+- **`Analytics::trackByCategory()`** — Universal category-aware dispatcher. Auto-detects category from EventCatalog::getCategory() and routes to the appropriate category dispatcher. Fallback to generic `track()` for unregistered events.
+- **AnalyticsFake parity** — All 4 new dispatchers have no-op implementations in AnalyticsFake (returns true) for seamless test environment usage.
+- **Facade docblock** — All 4 new methods documented in the Analytics facade with full parameter types and return types.
+- **JS client parity** — `trackEcommerceEvent()`, `trackSaaSLifecycle()`, `trackEngagement()`, `trackByCategory()` exported from analytics.js with catalog validation.
+- **TypeScript types** — All 4 new functions with typed option interfaces.
+- **No breaking changes** — All new methods are additive.
+
 ### What's New in v125.0.0
 
 **Phase 125 — Event Field Validation & Coercion Engine**:
-
 - **`EventFieldCoercer`** — Automatic type coercion service for analytics event parameters. Converts strings to int/float/bool/array/numeric before validation. Supports JSON decode, comma-split, truthy/falsy string variants ("true"/"1"/"yes"), and intelligent numeric detection ("42" → int, "42.5" → float). Strict mode with exception throwing or fail-open with original value preservation. Configurable debug logging and coercion tracking.
 - **`EventFieldValidator`** — Config-driven per-event field validation with 8 rule types: required, type, nullable, min/max, enum, regex, and format (email, url, uuid, currency_code, iso_date, iso_datetime). Supports default values for missing fields, wildcard event patterns ("saas_*" matches all SaaS events), and global rules applied to all events. Priority: event-specific → wildcard → global. Includes `saasPresetRules()` factory with pre-configured rules for purchase, sign_up, page_view, add_to_cart, begin_checkout, refund, login, plan_upgrade, start_trial, search, and share events.
 - **`FieldValidationStage`** — New `ValidationStageInterface` pipeline stage (priority 15, runs before schema validation at 20). Integrates EventFieldValidator into the existing EventValidationPipeline. Returns coerced params in metrics for caller use with readonly AnalyticsEvent DTOs.

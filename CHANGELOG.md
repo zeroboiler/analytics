@@ -1,5 +1,30 @@
 # Changelog
 
+## [127.0.0] - 2026-08-14
+
+### Added
+- **EventSchemaOpenApiGenerator** — Machine-readable OpenAPI 3.0.3 specification generator from the analytics event catalog. Covers 35+ API endpoints with request/response schemas, security schemes (Sanctum Bearer + SDK Token), tag-based grouping (23 categories), and configurable metadata (title, description, contact, license). Supports JSON and YAML export formats.
+- **GET /api/analytics/openapi-spec** — OpenAPI specification export (JSON format). Compatible with Swagger UI, Redoc, and OpenAPI tooling.
+- **GET /api/analytics/openapi.yaml** — OpenAPI specification export (YAML format). Direct import into API gateways and documentation generators.
+- **GET /api/analytics/openapi/endpoints** — Flat endpoint summary list with method, path, description, and tags.
+- **Config section `zeroboiler.analytics.openapi`** — Customizable OpenAPI spec metadata (title, description, version, contact, license).
+- **V127 test suite** — 15 test cases covering OpenAPI spec structure, info customization, all core endpoints, request body schemas, security schemes, error responses, JSON/YAML output, endpoint summary, tag coverage, and response codes.
+
+### Changed
+- Version bump: 126.0.0 → 127.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider, JS client, TypeScript definitions.
+- README updated with v127.0.0 and v126.0.0 "What's New" sections.
+
+## [126.0.0] - 2026-08-14
+
+### Added
+- **Unified Category Dispatchers** — `Analytics::trackEcommerceEvent()`, `trackSaaSLifecycle()`, `trackEngagement()`, `trackByCategory()` — Category-scoped event dispatchers that validate against the event catalog before dispatching. Returns true/false based on catalog membership.
+- **AnalyticsFake parity** — All 4 new dispatchers have no-op implementations.
+- **JS client parity** — `trackEcommerceEvent()`, `trackSaaSLifecycle()`, `trackEngagement()`, `trackByCategory()` exported from analytics.js.
+- **TypeScript types** — All 4 new functions with typed option interfaces.
+
+### Changed
+- Version bump: 125.0.0 → 126.0.0 across composer.json, JS client, TypeScript definitions, AnalyticsManager, AnalyticsFake, Analytics facade.
+
 ## [120.0.0] - 2026-08-14
 
 ### Added
