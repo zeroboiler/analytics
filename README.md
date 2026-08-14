@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-96.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-97.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,35 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v97.0.0
+
+**Session Replay Svelte Composable** — Reactive Svelte composable for session recording and replay analytics integration. Bridges client-side session recording events with the ZeroBoiler analytics pipeline:
+
+- **`useSessionReplay()`**: Full reactive composable with `start()`, `stop()`, `pause()`, `resume()` lifecycle methods
+- **DOM mutation capture**: MutationObserver-based DOM change tracking with configurable batch intervals
+- **Sanitized DOM snapshots**: Automatic PII redaction for passwords, credit cards, SSN fields, and `[data-sensitive]` elements
+- **Click event capture**: Privacy-safe CSS selector generation using `data-testid` > `id` > `tag.class` hierarchy
+- **JS error capture**: Automatic error tracking during recording sessions
+- **Duration tracking**: Configurable max recording duration with auto-stop
+- **Quality settings**: Configurable capture quality, FPS, and max duration
+- **Provider integration**: Auto-detects PostHog session replay, Hotjar, or custom providers from Inertia props
+- **Error recovery**: Recording errors surfaced via reactive `recordingError` store — never breaks the app
+- **Session replay events**: Dispatched through standard analytics pipeline as `session_replay_start`, `session_replay_stop`, `session_replay_snapshot`, `session_replay_event`, `session_replay_pause`, `session_replay_resume`
+
+**Version 97.0.0 — Full SaaS Analytics Suite Summary** — The package now provides a complete industry-standard SaaS analytics solution:
+
+- **Event Catalog**: 100+ typed events across Ecommerce (15), SaaS (65+), Engagement (35+), Security (8), Infrastructure (10) categories
+- **10 Provider Trackers**: GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook
+- **Full JS Client**: 7,400+ line analytics.js with batch queue, offline recovery, Web Vitals, consent sync, auto-identify
+- **6 Svelte Composables**: `useAnalytics`, `useAnalyticsConfig`, `useLifecycle`, `usePerformanceTracker`, `useSessionReplay`, plus convenience stores
+- **Server-Side Auto-Tracking**: Config-driven Laravel event → analytics event mapping with model listeners
+- **Inertia Middleware**: Full page props injection with tracking ID cookie, consent, provider config, maturity scores
+- **API Controller**: 200+ endpoints for events, batch, identify, consent, dashboards, funnels, cohorts, revenue, benchmarks
+- **Queue System**: Async dispatch via serializable job classes compatible with all queue drivers
+- **Identity Resolution**: Client ID ↔ User ID linking with auth state change detection
+- **E-commerce Helpers**: Multi-provider format conversion (GA4 ↔ Meta ↔ PostHog)
+- **80+ Admin Commands**: Overview, test, health, coverage, readiness, deployment gate, GDPR export, and more
 
 ### What's New in v92.0.0
 

@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 96.0.0
+ * @version 97.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2235,7 +2235,7 @@ export interface LifecycleApiResponse {
   updated_at?: number;
 }
 
-// ─── SaaS Event Shortcut Helpers (v96.0.0) ───────────────────────────
+// ─── SaaS Event Shortcut Helpers (v97.0.0) ───────────────────────────
 
 /**
  * Options for trackSignUp shortcut.
@@ -2314,3 +2314,59 @@ export function trackCancellation(options?: TrackCancellationOptions): Promise<v
  * Track a feature usage event.
  */
 export function trackFeatureUsed(feature: string, extra?: Record<string, unknown>): Promise<void>;
+
+// ─── Session Replay Composable Types (v97.0.0) ────────────────────────
+
+/** Options for useSessionReplay composable. */
+export interface SessionReplayOptions {
+  /** Automatically start recording on mount */
+  autoStart?: boolean;
+  /** Capture DOM mutation snapshots */
+  captureDOM?: boolean;
+  /** Capture JS errors during recording */
+  captureErrors?: boolean;
+  /** Capture click events during recording */
+  captureClicks?: boolean;
+  /** Recording quality (0.0-1.0) */
+  quality?: number;
+  /** Max recording duration in seconds */
+  maxDuration?: number;
+  /** Interval between DOM snapshots (ms) */
+  snapshotIntervalMs?: number;
+}
+
+/** Return type of useSessionReplay composable. */
+export interface SessionReplayAPI {
+  recordingActive: import('svelte/store').Writable<boolean>;
+  recordingSessionId: import('svelte/store').Writable<string | null>;
+  recordingProvider: import('svelte/store').Writable<string>;
+  recordingSettings: import('svelte/store').Writable<{
+    quality: number;
+    fps: number;
+    maxDuration: number;
+  }>;
+  eventCount: import('svelte/store').Writable<number>;
+  sessionReplayAvailable: import('svelte/store').Writable<boolean>;
+  recordingError: import('svelte/store').Writable<string | null>;
+  start: () => void;
+  stop: () => void;
+  pause: () => void;
+  resume: () => void;
+  captureSnapshot: () => void;
+  captureEvent: (type: string, data?: Record<string, unknown>) => void;
+  sessionDuration: import('svelte/store').Readable<number>;
+  isActive: () => boolean;
+}
+
+/**
+ * Session replay analytics composable for Svelte.
+ *
+ * @param options - Configuration options
+ * @returns SessionReplayAPI
+ */
+export declare function useSessionReplay(options?: SessionReplayOptions): SessionReplayAPI;
+
+/**
+ * Convenience shorthand for useSessionReplay.
+ */
+export declare function sessionReplay(options?: SessionReplayOptions): SessionReplayAPI;

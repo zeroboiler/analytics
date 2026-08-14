@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * All methods delegate to AnalyticsManager::trackEvent() and respect
  * consent state, debug mode, DataBus routing, and interceptors.
  *
- * @since 96.0.0
+ * @since 97.0.0
  */
 final class SaaSEventHelpers
 {
