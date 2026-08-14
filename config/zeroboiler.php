@@ -118,6 +118,81 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Lifecycle Event Mapping (v99.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven mapping of application events to analytics events.
+        | Extends the built-in ServerSideTracker with custom event mappings.
+        | Used by LifecycleEventMapper to register listeners on the event dispatcher.
+        |
+        | Each entry maps a source event (Laravel or custom) to a ZeroBoiler analytics event.
+        | The `params_extractor` is a method name on the event class that returns
+        | an associative array of event parameters.
+        |
+        */
+        'lifecycle' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_ENABLED', true),
+            'queue_events' => env('ANALYTICS_LIFECYCLE_QUEUE_EVENTS', false),
+            'custom_mappings' => [
+                // Example: Map your custom application events to analytics events
+                // 'team.invited' => \App\Analytics\Events\TeamInvitedEvent::class,
+                // 'workspace.created' => \App\Analytics\Events\WorkspaceCreatedEvent::class,
+                // 'billing.upgraded' => \ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent::class,
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Configuration (v99.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Configuration for the analytics API endpoints exposed at /api/analytics.
+        | Controls authentication, rate limiting, SDK token validation, and
+        | API availability.
+        |
+        */
+        'api' => [
+            'enabled' => env('ANALYTICS_API_ENABLED', true),
+            'base_url' => env('ANALYTICS_API_BASE_URL', '/api/analytics'),
+            'rate_limit' => (int) env('ANALYTICS_API_RATE_LIMIT', 120),
+            'rate_limit_per_minute' => (int) env('ANALYTICS_API_RATE_LIMIT_MINUTE', 60),
+            'sdk_token' => env('ANALYTICS_API_SDK_TOKEN'),
+            'require_auth' => env('ANALYTICS_API_REQUIRE_AUTH', true),
+            'allow_public_health' => env('ANALYTICS_API_PUBLIC_HEALTH', true),
+            'batch_max_size' => (int) env('ANALYTICS_API_BATCH_MAX', 25),
+            'event_name_max_length' => (int) env('ANALYTICS_API_EVENT_NAME_MAX', 100),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Client-Side Auto-Tracking (v99.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Controls which client-side auto-tracking features are enabled.
+        | These settings are exposed via Inertia props (zbAnalytics.autoTrack)
+        | and respected by the JS client library's initFullStack() function.
+        |
+        | All features are enabled by default. Set individual features to false
+        | to disable them.
+        |
+        */
+        'client_auto_track' => [
+            'page_views' => env('ANALYTICS_CLIENT_PAGE_VIEWS', true),
+            'scroll_depth' => env('ANALYTICS_CLIENT_SCROLL_DEPTH', true),
+            'form_tracking' => env('ANALYTICS_CLIENT_FORM_TRACKING', true),
+            'error_tracking' => env('ANALYTICS_CLIENT_ERROR_TRACKING', true),
+            'link_tracking' => env('ANALYTICS_CLIENT_LINK_TRACKING', false),
+            'session_tracking' => env('ANALYTICS_CLIENT_SESSION_TRACKING', true),
+            'idle_timeout' => (int) env('ANALYTICS_CLIENT_IDLE_TIMEOUT', 1800),
+            'error_ignore_patterns' => [
+                // Regex patterns to ignore for JS error tracking
+                // 'ResizeObserver loop',
+                // 'Non-Error promise rejection',
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Revenue Checksum Verification (v88.0.0)
         |--------------------------------------------------------------------------
         |

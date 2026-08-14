@@ -12,6 +12,7 @@ use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 
 /**
  * Sends a test event to all configured analytics providers.
@@ -27,6 +28,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *   --validate            Use GA4 debug/validation endpoint instead of live
  *   --json                Output results as JSON
  *   --dry-run             Show what would be dispatched without actually dispatching
+ *   --lifecycle           Test lifecycle event mapping registration and dispatch
  *
  * @since 1.0.0
  * @version 35.0.0
@@ -37,7 +39,8 @@ final class AnalyticsTestCommand extends Command
         {--event=zb_test_event : Custom event name to send}
         {--validate : Use GA4 debug endpoint instead of live endpoint}
         {--json : Output results as machine-readable JSON}
-        {--dry-run : Show what would be dispatched without sending}';
+        {--dry-run : Show what would be dispatched without sending}
+        {--lifecycle : Test lifecycle event mapping registration and dispatch}';
 
     protected $description = 'Send a test event to all 10 configured analytics providers';
 
@@ -86,6 +89,12 @@ final class AnalyticsTestCommand extends Command
         if ($dryRun) {
             $this->line("── DRY RUN MODE (no events dispatched) ──");
             $this->newLine();
+        }
+
+        // Lifecycle test mode: validate all lifecycle mappings
+        $testLifecycle = (bool) $this->option('lifecycle');
+        if ($testLifecycle) {
+            return $this->testLifecycleMappings($outputJson, $dryRun);
         }
 
         // Test all 10 providers
@@ -211,6 +220,130 @@ final class AnalyticsTestCommand extends Command
         }
 
         return count($failed) > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * Test lifecycle event mappings registration and dispatch.
+     *
+     * Validates that all built-in and custom lifecycle mappings are properly
+     * registered, have valid source and target classes, and can be resolved
+     * from the container.
+     *
+     * @param  bool  $outputJson  Whether to output as JSON
+     * @param  bool  $dryRun  Whether to skip actual event dispatch
+     * @return int  Exit code (SUCCESS or FAILURE)
+     */
+    private function testLifecycleMappings(bool $outputJson, bool $dryRun): int
+    {
+        $start = microtime(true);
+        $results = [];
+        $errors = 0;
+
+        try {
+            $mapper = app(LifecycleEventMapper::class);
+        } catch (\Throwable $e) {
+            if ($outputJson) {
+                $this->line(json_encode([
+                    'error' => 'Failed to resolve LifecycleEventMapper',
+                    'message' => $e->getMessage(),
+                ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+            } else {
+                $this->error("Failed to resolve LifecycleEventMapper: {$e->getMessage()}");
+            }
+
+            return self::FAILURE;
+        }
+
+        // Get all registered mappings via reflection
+        $ref = new \ReflectionClass($mapper);
+        $defaultMappings = $ref->getConstant('DEFAULT_MAPPINGS');
+
+        if (! is_array($defaultMappings)) {
+            $this->error('LifecycleEventMapper::DEFAULT_MAPPINGS is not accessible');
+
+            return self::FAILURE;
+        }
+
+        /** @var array<string, array{source: string, target: class-string, params_extractor?: string, priority?: int}> $defaultMappings */
+
+        foreach ($defaultMappings as $key => $mapping) {
+            $sourceClass = $mapping['source'] ?? '';
+            $targetClass = $mapping['target'] ?? '';
+            $extractor = $mapping['params_extractor'] ?? null;
+            $valid = true;
+            $issues = [];
+
+            // Validate source class exists (Laravel framework classes may not be available)
+            if ($sourceClass !== '' && ! class_exists($sourceClass) && ! interface_exists($sourceClass)) {
+                $valid = false;
+                $issues[] = "source class '{$sourceClass}' does not exist";
+            }
+
+            // Validate target class exists
+            if ($targetClass !== '' && ! class_exists($targetClass)) {
+                $valid = false;
+                $issues[] = "target class '{$targetClass}' does not exist";
+            }
+
+            if (! $valid) {
+                $errors++;
+            }
+
+            $results[] = [
+                'mapping' => $key,
+                'source' => $sourceClass,
+                'target' => $targetClass,
+                'extractor' => $extractor,
+                'valid' => $valid,
+                'issues' => $issues,
+            ];
+        }
+
+        $elapsed = round((microtime(true) - $start) * 1000);
+
+        if ($outputJson) {
+            $this->line(json_encode([
+                'version' => AnalyticsEvent::VERSION,
+                'mode' => 'lifecycle_test',
+                'elapsed_ms' => $elapsed,
+                'dry_run' => $dryRun,
+                'total_mappings' => count($results),
+                'valid' => count($results) - $errors,
+                'invalid' => $errors,
+                'mappings' => $results,
+            ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+        } else {
+            $this->info('🔄 Lifecycle Event Mapping Test');
+            $this->info("   Version: " . AnalyticsEvent::VERSION);
+            $this->line("   Total mappings: " . count($results));
+            $this->newLine();
+
+            foreach ($results as $r) {
+                $icon = $r['valid'] ? '✅' : '⚠️';
+                $this->line("  {$icon} {$r['mapping']}");
+                $this->line("      source: {$r['source']}");
+                $this->line("      target: {$r['target']}");
+
+                if (! empty($r['issues'])) {
+                    foreach ($r['issues'] as $issue) {
+                        $this->warn("      ⚠ {$issue}");
+                    }
+                }
+            }
+
+            $this->newLine();
+            $this->info('═══════════════════════════════════════════════════════');
+            $this->info("  Lifecycle Test Complete — {$elapsed}ms");
+            $this->line("  Mappings: " . count($results) . " total, " . (count($results) - $errors) . ' valid, ' . $errors . ' invalid');
+            if ($errors === 0) {
+                $this->info('  ✅ All lifecycle mappings are valid');
+            } else {
+                $this->warn("  ⚠️  {$errors} mapping(s) have issues (source classes may require Laravel framework)");
+            }
+            $this->info('═══════════════════════════════════════════════════════');
+        }
+
+        return $errors > 0 ? self::FAILURE : self::SUCCESS;
     }
 
     /**

@@ -7,9 +7,12 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Console\Commands;
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
 
 /**
  * Displays a comprehensive overview of the analytics configuration,
@@ -62,6 +65,9 @@ final class AnalyticsOverviewCommand extends Command
      */
     private function buildOverview(): array
     {
+        /** @var ConfigRepository $config */
+        $config = app(ConfigRepository::class);
+
         return [
             'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
             'providers' => $this->getProviderStatus(),
@@ -69,6 +75,10 @@ final class AnalyticsOverviewCommand extends Command
             'consent' => $this->manager->getConsent()->toArray(),
             'enabled_count' => $this->countEnabledProviders(),
             'total_providers' => 10,
+            'lifecycle' => $this->getLifecycleStats($config),
+            'queue' => $this->getQueueStats($config),
+            'api' => $this->getApiStats($config),
+            'auto_track' => $this->getAutoTrackStats($config),
         ];
     }
 
@@ -159,6 +169,81 @@ final class AnalyticsOverviewCommand extends Command
     }
 
     /**
+     * Get lifecycle event mapping statistics.
+     *
+     * @return array{enabled: bool, built_in_count: int, custom_count: int, queue_events: bool}
+     */
+    private function getLifecycleStats(ConfigRepository $config): array
+    {
+        $lifecycleConfig = $config->get('zeroboiler.analytics.lifecycle', []);
+        /** @var array{enabled?: bool, queue_events?: bool, custom_mappings?: array<string, string>} $lifecycleConfig */
+        $customMappings = $lifecycleConfig['custom_mappings'] ?? [];
+
+        return [
+            'enabled' => $lifecycleConfig['enabled'] ?? true,
+            'built_in_count' => LifecycleEventMapper::DEFAULT_MAPPING_COUNT,
+            'custom_count' => count($customMappings),
+            'queue_events' => $lifecycleConfig['queue_events'] ?? false,
+        ];
+    }
+
+    /**
+     * Get queue configuration statistics.
+     *
+     * @return array{enabled: bool, queue: string, connection: string|null, max_batch_size: int}
+     */
+    private function getQueueStats(ConfigRepository $config): array
+    {
+        $queueConfig = $config->get('zeroboiler.analytics.queue', []);
+        /** @var array{enabled?: bool, queue?: string, connection?: string|null, max_batch_size?: int} $queueConfig */
+
+        return [
+            'enabled' => $queueConfig['enabled'] ?? true,
+            'queue' => $queueConfig['queue'] ?? 'analytics',
+            'connection' => $queueConfig['connection'] ?? null,
+            'max_batch_size' => $queueConfig['max_batch_size'] ?? 50,
+        ];
+    }
+
+    /**
+     * Get API configuration statistics.
+     *
+     * @return array{enabled: bool, base_url: string, rate_limit: int, sdk_token_configured: bool, batch_max_size: int}
+     */
+    private function getApiStats(ConfigRepository $config): array
+    {
+        $apiConfig = $config->get('zeroboiler.analytics.api', []);
+        /** @var array{enabled?: bool, base_url?: string, rate_limit?: int, sdk_token?: string|null, batch_max_size?: int} $apiConfig */
+        $sdkToken = $apiConfig['sdk_token'] ?? null;
+
+        return [
+            'enabled' => $apiConfig['enabled'] ?? true,
+            'base_url' => $apiConfig['base_url'] ?? '/api/analytics',
+            'rate_limit' => $apiConfig['rate_limit'] ?? 120,
+            'sdk_token_configured' => is_string($sdkToken) && $sdkToken !== '',
+            'batch_max_size' => $apiConfig['batch_max_size'] ?? 25,
+        ];
+    }
+
+    /**
+     * Get client-side auto-tracking configuration.
+     *
+     * @return array{page_views: bool, scroll_depth: bool, form_tracking: bool, error_tracking: bool, session_tracking: bool}
+     */
+    private function getAutoTrackStats(ConfigRepository $config): array
+    {
+        $autoTrackConfig = $config->get('zeroboiler.analytics.client_auto_track', []);
+
+        return [
+            'page_views' => $autoTrackConfig['page_views'] ?? true,
+            'scroll_depth' => $autoTrackConfig['scroll_depth'] ?? true,
+            'form_tracking' => $autoTrackConfig['form_tracking'] ?? true,
+            'error_tracking' => $autoTrackConfig['error_tracking'] ?? true,
+            'session_tracking' => $autoTrackConfig['session_tracking'] ?? true,
+        ];
+    }
+
+    /**
      * Count the number of enabled analytics providers.
      */
     private function countEnabledProviders(): int
@@ -226,6 +311,22 @@ final class AnalyticsOverviewCommand extends Command
             $icon = $state === 'granted' ? '✅' : '🚫';
             $this->line("   {$icon} {$signal}: <{$state === 'granted' ? 'info' : 'comment'}>{$state}</>");
         }
+
+        // Lifecycle & Infrastructure summary
+        $this->newLine();
+        $this->info('🔄 Lifecycle & Infrastructure');
+        $lifecycle = $overview['lifecycle'];
+        $this->line('   Lifecycle tracking: <info>'.($lifecycle['enabled'] ? 'ON' : 'OFF').'</info>');
+        $this->line('   Built-in mappings: <info>'.$lifecycle['built_in_count'].'</info>');
+        $this->line('   Custom mappings: <info>'.$lifecycle['custom_count'].'</info>');
+        $this->line('   Lifecycle queue: <info>'.($lifecycle['queue_events'] ? 'ASYNC' : 'SYNC').'</info>');
+        $queue = $overview['queue'];
+        $this->line('   Event queue: <info>'.($queue['enabled'] ? 'ON' : 'OFF').'</info> ('.$queue['queue'].($queue['connection'] ? ', '.$queue['connection'].' connection' : '').', max '.$queue['max_batch_size'].')');
+        $api = $overview['api'];
+        $this->line('   API endpoint: <info>'.($api['enabled'] ? 'ENABLED' : 'DISABLED').'</info> ('.$api['base_url'].', rate limit '.$api['rate_limit'].'/min)');
+        $this->line('   SDK token: <info>'.($api['sdk_token_configured'] ? 'CONFIGURED' : 'NOT SET').'</info>');
+        $autoTrack = $overview['auto_track'];
+        $this->line('   Auto-track: <info>'.implode(', ', array_filter(array_keys($autoTrack), fn (string $k): bool => $autoTrack[$k])).'</info>');
 
         $this->newLine();
         $this->comment('Use --providers, --catalog, or --health for detailed output.');

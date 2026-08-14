@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-98.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-99.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,17 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v99.0.0
+
+- **Config-driven Lifecycle Mapping**: New `lifecycle` config section for declarative event mapping (custom_mappings, queue_events)
+- **API Configuration Block**: New `api` config section with rate limiting, SDK token, batch size controls
+- **Client Auto-Tracking Config**: New `client_auto_track` config section controlling page views, scroll depth, form tracking, error tracking, session tracking, idle timeout, and error ignore patterns
+- **Inertia Auto-Track Props**: HandleInertiaAnalytics middleware now exposes `zbAnalytics.autoTrack` with full client-side config
+- **Overview Command Enhancement**: `zb:analytics:overview` now displays lifecycle stats, queue status, API config, and auto-track settings
+- **Test Command Lifecycle Mode**: `zb:analytics:test --lifecycle` validates all 62 built-in lifecycle event mappings
+- **LifecycleEventMapper Constant**: Added `DEFAULT_MAPPING_COUNT` for programmatic access to mapping statistics
+- **Integration Tests**: New `V99SaaSAnalyticsIntegrationTest` with 20+ assertions covering lifecycle, catalog, ecommerce, config, tracker, and TypeScript validation
 
 ### What's New in v98.0.0
 

@@ -122,6 +122,20 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $analyticsProps['apiBase'] = $this->config->get('zeroboiler.analytics.api.base_url', '/api/analytics');
         $analyticsProps['apiEnabled'] = (bool) $this->config->get('zeroboiler.analytics.api.enabled', true);
 
+        // Client-side auto-tracking configuration (v99.0.0)
+        $autoTrack = $this->config->get('zeroboiler.analytics.client_auto_track', []);
+        /** @var array{page_views?: bool, scroll_depth?: bool, form_tracking?: bool, error_tracking?: bool, link_tracking?: bool, session_tracking?: bool, idle_timeout?: int, error_ignore_patterns?: list<string>} $autoTrack */
+        $analyticsProps['autoTrack'] = [
+            'pageViews' => (bool) ($autoTrack['page_views'] ?? true),
+            'scrollDepth' => (bool) ($autoTrack['scroll_depth'] ?? true),
+            'formTracking' => (bool) ($autoTrack['form_tracking'] ?? true),
+            'errorTracking' => (bool) ($autoTrack['error_tracking'] ?? true),
+            'linkTracking' => (bool) ($autoTrack['link_tracking'] ?? false),
+            'sessionTracking' => (bool) ($autoTrack['session_tracking'] ?? true),
+            'idleTimeout' => (int) ($autoTrack['idle_timeout'] ?? 1800),
+            'errorIgnorePatterns' => (array) ($autoTrack['error_ignore_patterns'] ?? []),
+        ];
+
         // Consent purposes (granular GDPR consent for consent banners)
         $consentPurposes = $this->config->get('zeroboiler.analytics.consent.purposes', []);
         /** @var array<string, array{label: string, required: bool, default: bool}> $consentPurposes */

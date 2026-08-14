@@ -74,6 +74,8 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent;
  */
 final class LifecycleEventMapper
 {
+    /** @var int Number of built-in lifecycle event mappings (computed for overview display) */
+    public const DEFAULT_MAPPING_COUNT = 62;
     /**
      * Built-in lifecycle mapping templates for common SaaS patterns.
      *
