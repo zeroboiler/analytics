@@ -53,7 +53,7 @@ final class EventBlueprintBuilder
 
     private readonly ConfigRepository $config;
 
-    private function __construct(string $name, ConfigRepository $config)
+    private function __construct(string $name, ConfigRepository $config): void
     {
         $this->name = $name;
         $this->config = $config;
