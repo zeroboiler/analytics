@@ -81,7 +81,7 @@ final readonly class ProjectionDefinition
         public array $filters = [],
         public array $tags = [],
         public bool $public = false,
-    ) {}
+    ): void {}
 
     /**
      * Validate the projection definition.

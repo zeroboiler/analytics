@@ -31,7 +31,7 @@ final class OnboardingCallCompletedEvent extends AnalyticsEvent
         ?string $clientId = null,
         ?string $userId = null,
         ?string $timestamp = null,
-    ) {
+    ): void {
         parent::__construct(
             name: $name,
             params: $params,

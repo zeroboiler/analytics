@@ -69,7 +69,7 @@ final class FeatureGatingAnalyticsService
      * @param  ConfigRepository  $config  Configuration repository
      * @param  CacheRepository  $cache  Cache repository
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache)
+    public function __construct(ConfigRepository $config, CacheRepository $cache): void
     {
         $this->config = $config;
         $this->cache = $cache;

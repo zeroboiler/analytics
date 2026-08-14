@@ -44,7 +44,7 @@ final class FieldValidationStage implements ValidationStageInterface
     /**
      * @param  EventFieldValidator  $validator  Config-driven field validator
      */
-    public function __construct(EventFieldValidator $validator)
+    public function __construct(EventFieldValidator $validator): void
     {
         $this->validator = $validator;
     }

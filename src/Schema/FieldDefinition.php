@@ -31,7 +31,7 @@ final class FieldDefinition
         public readonly string $description,
         public readonly array $allowedValues = [],
         public readonly mixed $defaultValue = null,
-    ) {}
+    ): void {}
 
     /**
      * Convert to array representation for serialization/documentation.

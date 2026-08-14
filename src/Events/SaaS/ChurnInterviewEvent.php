@@ -31,7 +31,7 @@ final class ChurnInterviewEvent extends AnalyticsEvent
         ?string $clientId = null,
         ?string $userId = null,
         ?\DateTimeImmutable $timestamp = null,
-    ) {
+    ): void {
         parent::__construct(
             name: $name,
             params: $params,

@@ -49,7 +49,7 @@ final class EventSchemaOpenApiGenerator
     /**
      * @param  ConfigRepository  $config  Analytics configuration
      */
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $openApiConfig = $config->get('zeroboiler.analytics.openapi', []);
         /** @var array{title?: string, description?: string, version?: string, contact?: array<string, mixed>, license?: array<string, mixed>, external_docs?: array<string, mixed>} $openApiConfig */

@@ -76,7 +76,7 @@ final readonly class EventSessionContext
         public ?string $utmTerm = null,
         public ?string $utmContent = null,
         public array $extra = [],
-    ) : void {}
+    ): void {}
 
     /**
      * Create an EventSessionContext from an HTTP request.

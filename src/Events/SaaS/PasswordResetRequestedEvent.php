@@ -23,7 +23,7 @@ final class PasswordResetRequestedEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'password_reset_requested',
             params: $params,

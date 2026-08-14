@@ -38,7 +38,7 @@ final readonly class MetricProjectionResult
         public ?\DateTimeImmutable $staleAt = null,
         public bool $cached = false,
         public array $metadata = [],
-    ) {}
+    ): void {}
 
     /**
      * Create a projection result from an array.

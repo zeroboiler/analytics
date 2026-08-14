@@ -48,7 +48,7 @@ final class EventFieldCoercer
      * @param  bool  $debug  Log coercion details for troubleshooting
      * @param  bool  $strict  If true, throw on coercion failure; if false, preserve original
      */
-    public function __construct(bool $debug = false, bool $strict = false)
+    public function __construct(bool $debug = false, bool $strict = false): void
     {
         $this->debug = $debug;
         $this->strict = $strict;
