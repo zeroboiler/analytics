@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 107.0.0
+ * @version 108.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2656,7 +2656,7 @@ export function clearDebugEventLog(): void;
  */
 export function getDebugEventLogStats(): DebugEventLogStats;
 
-// ─── Privacy Action Tracking (v107.0.0) ─────────────────────────
+// ─── Privacy Action Tracking (v108.0.0) ─────────────────────────
 
 /**
  * Supported privacy action types for trackPrivacyAction().

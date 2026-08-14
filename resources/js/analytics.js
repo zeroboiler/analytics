@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 107.0.0
+ * @version 108.0.0
  */
 
 let trackingId = null;
@@ -7721,7 +7721,7 @@ export async function trackGrowthMilestone(milestone, extra = {}) {
     return trackEvent('growth_milestone', { milestone, ...extra }, { immediate: true });
 }
 
-// ─── Privacy Action Tracking (v107.0.0) ──────────────────────────────
+// ─── Privacy Action Tracking (v108.0.0) ──────────────────────────────
 
 /**
  * Track a user-initiated privacy action event.
