@@ -377,7 +377,7 @@ final class EventCatalog
      *
      * Convenience wrapper for resolve() → get().
      *
-     * @return EventEntry|null
+     * @return array|null  Full catalog entry array, or null if not found
      *
      * @since 109.0.0
      */

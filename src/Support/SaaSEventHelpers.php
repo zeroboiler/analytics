@@ -263,7 +263,7 @@ final class SaaSEventHelpers
     {
         $params = array_merge($extra, array_filter([
             'method' => $method,
-        ]));
+        ], fn (mixed $v): bool => $v !== null));
 
         $this->manager->track('logout', $params);
     }
