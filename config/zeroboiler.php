@@ -7813,4 +7813,56 @@ return [
         'critical_threshold' => (float) env('ANALYTICS_EVENT_RELIABILITY_CRITICAL', 0.75),
         'window_seconds' => (int) env('ANALYTICS_EVENT_RELIABILITY_WINDOW', 300),
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Cost Estimation (v139.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Per-provider event cost estimation for SaaS budget planning.
+    | Used by EventCostEstimator to project monthly/yearly analytics spend
+    | and detect when estimated costs exceed the budget threshold.
+    |
+    | Override default industry costs per 1,000 events:
+    |   'ga4' => 0.0,  'posthog' => 0.00025,  'plausible' => 0.0001, etc.
+    |
+    */
+    'event_costs' => [
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_COSTS_CACHE_TTL', 300),
+        'budget' => [
+            'monthly_threshold' => (float) env('ANALYTICS_EVENT_COSTS_BUDGET', 100.0),
+        ],
+        // Per-provider overrides (cost per event in USD, leave empty for defaults)
+        // 'ga4' => 0.0,
+        // 'posthog' => 0.00025,
+        // 'plausible' => 0.0001,
+        // 'mixpanel' => 0.0002,
+        // 'amplitude' => 0.0003,
+        // 'meta_capi' => 0.0002,
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | SaaS Onboarding Funnel (v139.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Standard 5-stage onboarding funnel: Signup → Email Verified →
+    | First Value → Trial Start → Subscription.
+    | Used by SaaSOnboardingFunnelTracker for conversion rate analysis,
+    | drop-off detection, and product analytics dashboards.
+    |
+    */
+    'onboarding_funnel' => [
+        'cache_ttl' => (int) env('ANALYTICS_ONBOARDING_FUNNEL_CACHE_TTL', 3600),
+        // Custom stage overrides (merge with standard 5 stages)
+        // 'custom_stages' => [
+        //     'activation' => [
+        //         'name' => 'Activation',
+        //         'event' => 'account_activated',
+        //         'description' => 'User activates their account',
+        //         'category' => 'saas',
+        //         'successor' => 'trial_start',
+        //     ],
+        // ],
+    ],
 ];

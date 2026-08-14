@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-137.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-139.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v139.0.0
+
+**SaaS Starter Industry-Standard Analytics Upgrade — Event Cost Estimation & Onboarding Funnel Tracking**:
+
+- **`EventCostEstimator` service** — Per-provider event cost estimation for SaaS budget planning. Computes monthly/yearly cost projections by event volume, budget threshold alerts (`isBudgetExceeded()`), cost breakdown by event category, GA4 free tier awareness (10M events/month), and configurable per-event pricing via `zeroboiler.analytics.event_costs`. Supports all 10 providers with industry-standard default costs.
+- **`SaaSOnboardingFunnelTracker` service** — Standard 5-stage SaaS onboarding funnel definition: Sign Up → Email Verified → First Value → Trial Start → Subscription. Provides stage-to-stage conversion rates, biggest drop-off detection (`detectBiggestDropOff()`), overall signup-to-subscription conversion rate, and dashboard-ready funnel summary (`getFunnelSummary()`). Validates stage events against EventCatalog. Customizable via `zeroboiler.analytics.onboarding_funnel`.
+- **Config expansion** — New `event_costs` section (per-provider pricing, budget threshold, cache TTL) and `onboarding_funnel` section (custom stages, cache TTL) in `zeroboiler.php`.
+- **`V139SaaSStarterIndustryStandardUpgradeTest`** — Comprehensive test suite with 25+ assertions covering: EventCostEstimator (cost calculation, monthly/yearly projection, budget detection, category breakdown, all-provider costs), SaaSOnboardingFunnelTracker (stage sequence, conversion rates, drop-off detection, overall rate, dashboard summary, zero-volume edge case, catalog validation), version consistency (139.0.0 across 9 client files), catalog integrity (210+ events), strict_types compliance, and MIT license headers.
+- **Version sweep** — All client files synced to v139.0.0 (analytics.js, analytics.d.ts, 5 Svelte composables, composer.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
 
 ### What's New in v135.0.0
 

@@ -211,6 +211,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCostReportCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsAIService;
 use ZeroBoiler\Analytics\Services\EventExperimentTracker;
 use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
+use ZeroBoiler\Analytics\Services\EventCostEstimator;
+use ZeroBoiler\Analytics\Services\SaaSOnboardingFunnelTracker;
 use ZeroBoiler\Analytics\Services\SaaSReadinessAssessment;
 use ZeroBoiler\Analytics\Services\AnalyticsDataService;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
@@ -2734,6 +2736,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSQuickStartService($manager);
+        });
+
+        // Event Cost Estimator (v139.0.0)
+        $this->app->singleton(EventCostEstimator::class, function (Application $app): EventCostEstimator {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+
+            return new EventCostEstimator($config, $manager, $cache);
+        });
+
+        // SaaS Onboarding Funnel Tracker (v139.0.0)
+        $this->app->singleton(SaaSOnboardingFunnelTracker::class, function (Application $app): SaaSOnboardingFunnelTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+
+            return new SaaSOnboardingFunnelTracker($config, $manager, $cache);
         });
 
         // SaaS Funnel Definitions (v101.0.0) — stateless, no DI needed
