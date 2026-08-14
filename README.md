@@ -79,7 +79,7 @@ Done. That's it.
 - **`EventCatalog::eventPriorityScore()`** — Numeric 0-100 priority score based on category weight, provider coverage, and tag bonuses (revenue, critical, conversion, GDPR). Complements `eventPriority()` which returns string levels.
 - **`EventCatalog::topPriorityEvents()`** — Top-N events by priority score with tags, for admin dashboards and instrumentation guidance.
 - **`EventCatalog::recommendedInstrumentationByScore()`** — Dynamic score-based tiering (starter ≥60, intermediate ≥40, advanced <40) complementing the curated `recommendedInstrumentation()` lists.
-- **`Phase29ProductionAuditTest`** — 40+ assertions covering all new methods: provider parity analysis, event mapping structure, priority scoring bounds, tier classification correctness, and catalog integrity checks.
+- **`Phase29ProductionAuditTest`** — 86 assertions covering all new methods: provider parity analysis, event mapping structure, priority scoring bounds, tier classification correctness, null-safe handling, and catalog integrity checks.
 
 ### What's New in v100.0.0
 

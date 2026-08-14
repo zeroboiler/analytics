@@ -1,5 +1,22 @@
 # Changelog
 
+## [100.2.0] - 2026-08-14
+
+### Added
+- **Provider Coverage Parity API** — 7 new methods on `EventCatalog` for cross-provider gap analysis:
+  - `providerCoverageParity()` — per-provider coverage percentages and gap lists
+  - `eventProviderMapping()` — single-event provider mapping breakdown with null-safe handling
+  - `fullyMappedEvents()` — events with 100% provider coverage
+  - `leastMappedEvents()` — events sorted by fewest provider mappings (candidates for expansion)
+  - `eventPriorityScore()` — 0-100 numeric priority based on category weight, provider coverage, and tag bonuses
+  - `topPriorityEvents()` — top-N events by priority score
+  - `recommendedInstrumentationByScore()` — instrumentation recommendations grouped by score tier (starter/intermediate/advanced)
+- Phase 29 production audit — 86 new assertions covering provider coverage parity API
+- Null-safe guard on `eventProviderMapping()` for unknown events
+
+### Fixed
+- `eventProviderMapping()` now returns safe empty structure for unknown events instead of attempting array access on null
+
 ## [100.1.0] - 2026-08-14
 
 ### Added
