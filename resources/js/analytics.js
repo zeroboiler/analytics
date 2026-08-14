@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 130.0.0
+ * @version 131.0.0
  */
 
 let trackingId = null;
@@ -545,7 +545,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-        return '130.0.0';
+        return '131.0.0';
 }
 
 /**
@@ -4459,7 +4459,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-        return '130.0.0';
+        return '131.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -8012,6 +8012,8 @@ export async function trackSaaSLifecycle(eventName, params = {}) {
         email_verified: true, password_changed: true, profile_updated: true,
         invite_sent: true, integration_connected: true, workspace_created: true,
         role_changed: true, milestone_reached: true, usage_quota_reached: true,
+        onboarding_started: true, invite_accepted: true,
+        password_reset_requested: true, payment_method_removed: true,
     };
 
     const normalized = eventName.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');

@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 130.0.0
+ * @version 131.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2547,6 +2547,7 @@ export const SaaSEvents: Readonly<{
   PAYMENT_FAILED: 'payment_failed';
   PAYMENT_METHOD_ADDED: 'payment_method_added';
   PAYMENT_METHOD_UPDATED: 'payment_method_updated';
+  PAYMENT_METHOD_REMOVED: 'payment_method_removed';
   INVOICE_GENERATED: 'invoice_generated';
   BILLING_RETRY: 'billing_retry';
   CREDIT_APPLIED: 'credit_applied';
@@ -2556,7 +2557,10 @@ export const SaaSEvents: Readonly<{
   ACCOUNT_DELETED: 'account_deleted';
   PASSWORD_CHANGED: 'password_changed';
   PASSWORD_RESET: 'password_reset';
+  PASSWORD_RESET_REQUESTED: 'password_reset_requested';
   PROFILE_UPDATED: 'profile_updated';
+  // Onboarding
+  ONBOARDING_STARTED: 'onboarding_started';
   // Feature
   FEATURE_USED: 'feature_used';
   FEATURE_LIMIT_REACHED: 'feature_limit_reached';
@@ -2567,6 +2571,7 @@ export const SaaSEvents: Readonly<{
   TEAM_MEMBER_REMOVED: 'team_member_removed';
   ROLE_CHANGED: 'role_changed';
   INVITE_SENT: 'invite_sent';
+  INVITE_ACCEPTED: 'invite_accepted';
   WORKSPACE_CREATED: 'workspace_created';
   // Growth
   MILESTONE_REACHED: 'milestone_reached';

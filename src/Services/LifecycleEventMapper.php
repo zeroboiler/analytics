@@ -75,7 +75,7 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent;
 final class LifecycleEventMapper
 {
     /** @var int Number of built-in lifecycle event mappings (computed for overview display) */
-    public const DEFAULT_MAPPING_COUNT = 62;
+    public const DEFAULT_MAPPING_COUNT = 67;
     /**
      * Built-in lifecycle mapping templates for common SaaS patterns.
      *
@@ -266,6 +266,30 @@ final class LifecycleEventMapper
             'source' => 'team.invite_sent',
             'target' => InviteSentEvent::class,
             'params_extractor' => 'extractInviteParams',
+            'priority' => 70,
+        ],
+        'team.invite_accepted' => [
+            'source' => 'team.invite_accepted',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\InviteAcceptedEvent::class,
+            'params_extractor' => 'extractInviteParams',
+            'priority' => 70,
+        ],
+        'onboarding.started' => [
+            'source' => 'onboarding.started',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\OnboardingStartedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 80,
+        ],
+        'auth.password_reset_requested' => [
+            'source' => 'auth.password_reset_requested',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\PasswordResetRequestedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
+            'priority' => 70,
+        ],
+        'billing.payment_method_removed' => [
+            'source' => 'billing.payment_method_removed',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\PaymentMethodRemovedEvent::class,
+            'params_extractor' => 'extractSimpleUserIdParams',
             'priority' => 70,
         ],
 

@@ -890,6 +890,58 @@ final class SaaSEvents
                 'tiktok' => null,
                 'linkedin' => null,
             ],
+            // Onboarding funnel entry (v131.0.0)
+            'onboarding_started' => [
+                'name' => 'onboarding_started',
+                'class' => OnboardingStartedEvent::class,
+                'ga4' => 'onboarding_started',
+                'meta' => 'CompleteRegistration',
+                'posthog' => 'onboarding_started',
+                'plausible' => 'activation',
+                'mixpanel' => 'Onboarding Started',
+                'amplitude' => 'Onboarding Started',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            // B2B invitation conversion (v131.0.0)
+            'invite_accepted' => [
+                'name' => 'invite_accepted',
+                'class' => InviteAcceptedEvent::class,
+                'ga4' => 'invite_accepted',
+                'meta' => 'Lead',
+                'posthog' => 'invite_accepted',
+                'plausible' => null,
+                'mixpanel' => 'Invite Accepted',
+                'amplitude' => 'Invite Accepted',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            // Security & account health signals (v131.0.0)
+            'password_reset_requested' => [
+                'name' => 'password_reset_requested',
+                'class' => PasswordResetRequestedEvent::class,
+                'ga4' => 'password_reset_requested',
+                'meta' => 'CustomEvent',
+                'posthog' => 'password_reset_requested',
+                'plausible' => null,
+                'mixpanel' => 'Password Reset Requested',
+                'amplitude' => 'Password Reset Requested',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            // Payment method lifecycle (v131.0.0)
+            'payment_method_removed' => [
+                'name' => 'payment_method_removed',
+                'class' => PaymentMethodRemovedEvent::class,
+                'ga4' => 'payment_method_removed',
+                'meta' => 'CustomEvent',
+                'posthog' => 'payment_method_removed',
+                'plausible' => null,
+                'mixpanel' => 'Payment Method Removed',
+                'amplitude' => 'Payment Method Removed',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
             // Retention & activation signals (v93.0.0)
             'retention_cohort' => [
                 'name' => 'retention_cohort',

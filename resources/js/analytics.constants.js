@@ -6,7 +6,7 @@
  * of truth for all tracked event names.
  *
  * @package ZeroBoiler Analytics
- * @version 130.0.0
+ * @version 131.0.0
  */
 
 // ─── E-Commerce Events ───────────────────────────────────────────────
@@ -72,6 +72,7 @@ export const SaaSEvents = {
     PAYMENT_FAILED: 'payment_failed',
     PAYMENT_METHOD_ADDED: 'payment_method_added',
     PAYMENT_METHOD_UPDATED: 'payment_method_updated',
+    PAYMENT_METHOD_REMOVED: 'payment_method_removed',
     INVOICE_GENERATED: 'invoice_generated',
     BILLING_RETRY: 'billing_retry',
     CREDIT_APPLIED: 'credit_applied',
@@ -82,7 +83,11 @@ export const SaaSEvents = {
     ACCOUNT_DELETED: 'account_deleted',
     PASSWORD_CHANGED: 'password_changed',
     PASSWORD_RESET: 'password_reset',
+    PASSWORD_RESET_REQUESTED: 'password_reset_requested',
     PROFILE_UPDATED: 'profile_updated',
+
+    // Onboarding
+    ONBOARDING_STARTED: 'onboarding_started',
 
     // Feature
     FEATURE_USED: 'feature_used',
@@ -95,6 +100,7 @@ export const SaaSEvents = {
     TEAM_MEMBER_REMOVED: 'team_member_removed',
     ROLE_CHANGED: 'role_changed',
     INVITE_SENT: 'invite_sent',
+    INVITE_ACCEPTED: 'invite_accepted',
     WORKSPACE_CREATED: 'workspace_created',
 
     // Growth

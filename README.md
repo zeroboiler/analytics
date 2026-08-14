@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-130.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-131.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **180+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **71 artisan commands**, a fully-featured **JS client (~8100 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~2900 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **180+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **72 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~2900 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v131.0.0
+
+**SaaS Starter Industry-Standard Events Expansion**:
+
+- **4 new SaaS event types** — `OnboardingStartedEvent`, `InviteAcceptedEvent`, `PasswordResetRequestedEvent`, `PaymentMethodRemovedEvent` covering onboarding funnel entry, B2B invitation conversion, password reset flow, and payment method lifecycle signals.
+- **SaaS catalog expanded to 75 events** — Total catalog now exceeds **180 typed events** across 8 categories.
+- **5 new lifecycle mappings** — `team.invite_accepted`, `onboarding.started`, `auth.password_reset_requested`, `billing.payment_method_removed` added to `LifecycleEventMapper` (now 67 built-in mappings).
+- **JS client updated** — `trackSaaSLifecycle()` known events list expanded with all 4 new events. `analytics.constants.js` and `analytics.d.ts` updated with new constants.
+- **Cross-provider mappings** — All new events mapped to GA4, Meta Pixel, PostHog, Mixpanel, Amplitude with appropriate event names.
+- **Comprehensive test suite** — `V131SaaSStarterIndustryStandardTest` with 40+ assertions covering catalog counts, core event presence, new events, DTO construction, EventCatalog integration, ecommerce format conversion, and cross-provider mapping coverage.
+- **Version sweep** — All files synced to 131.0.0.
 
 ### What's New in v129.0.0
 
