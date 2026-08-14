@@ -915,26 +915,171 @@ final class EventCatalog
     }
 
     /**
-     * Get SaaS funnel events for conversion tracking.
+     * Get SaaS acquisition & activation funnel events in sequence order.
      *
-     * Returns the essential events that form a SaaS conversion funnel:
-     * sign_up → trial_start → subscribe → plan_upgrade (expansion).
-     * Useful for funnel visualization and drop-off analysis.
+     * Returns the industry-standard SaaS signup funnel events ordered from
+     * first touch to conversion: sign_up → login → start_trial → trial_end →
+     * subscribe → plan_upgrade → plan_downgrade → cancellation.
      *
-     * @return list<EventEntry>
+     * Useful for funnel visualization, conversion rate calculation, and
+     * drop-off analysis dashboards.
+     *
+     * @return list<array{step: int, event: string, entry: EventEntry|null}>
+     *
+     * @since 112.0.0
      */
     public static function saasFunnelEvents(): array
     {
-        $funnelKeys = [
-            'sign_up', 'login', 'start_trial', 'trial_converted', 'subscribe',
-            'plan_upgrade', 'plan_downgrade', 'cancellation', 'subscription_resumed',
-            'subscription_paused', 'milestone_reached',
+        $steps = [
+            'sign_up',
+            'login',
+            'start_trial',
+            'trial_converted',
+            'subscribe',
+            'subscription_renewal',
+            'plan_upgrade',
+            'plan_downgrade',
+            'cancellation',
         ];
 
-        return array_values(array_filter(
-            array_map(fn (string $key): ?array => self::get($key), $funnelKeys),
-            fn (?array $entry): bool => $entry !== null,
-        ));
+        $result = [];
+
+        foreach ($steps as $index => $name) {
+            $result[] = [
+                'step' => $index + 1,
+                'event' => $name,
+                'entry' => self::get($name),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get e-commerce purchase funnel events in sequence order.
+     *
+     * Returns the standard e-commerce funnel: view_item → add_to_cart →
+     * view_cart → begin_checkout → add_payment_info → purchase → refund.
+     *
+     * @return list<array{step: int, event: string, entry: EventEntry|null}>
+     *
+     * @since 112.0.0
+     */
+    public static function ecommerceFunnelEvents(): array
+    {
+        $steps = [
+            'view_item',
+            'select_item',
+            'add_to_cart',
+            'remove_from_cart',
+            'view_cart',
+            'begin_checkout',
+            'add_payment_info',
+            'purchase',
+            'refund',
+        ];
+
+        $result = [];
+
+        foreach ($steps as $index => $name) {
+            $result[] = [
+                'step' => $index + 1,
+                'event' => $name,
+                'entry' => self::get($name),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get engagement funnel events for product usage tracking.
+     *
+     * Returns the standard engagement funnel: page_view → scroll_depth →
+     * click → form_start → form_submit → search → share → error.
+     *
+     * @return list<array{step: int, event: string, entry: EventEntry|null}>
+     *
+     * @since 112.0.0
+     */
+    public static function engagementFunnelEvents(): array
+    {
+        $steps = [
+            'page_view',
+            'scroll_depth',
+            'click',
+            'form_start',
+            'form_submit',
+            'search',
+            'share',
+            'error',
+        ];
+
+        $result = [];
+
+        foreach ($steps as $index => $name) {
+            $result[] = [
+                'step' => $index + 1,
+                'event' => $name,
+                'entry' => self::get($name),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Compute funnel conversion rates from an array of event counts.
+     *
+     * Given an associative array of event_name → count, computes the
+     * step-by-step conversion rates for a given funnel definition.
+     *
+     * @param  array<string, int>  $eventCounts  Event name → occurrence count
+     * @param  'saas'|'ecommerce'|'engagement'  $funnelType  Which funnel to analyze
+     * @return array{steps: list<array{step: int, event: string, count: int, conversion_rate: float|null}>, overall_conversion: float|null}
+     *
+     * @since 112.0.0
+     */
+    public static function funnelConversionRates(array $eventCounts, string $funnelType): array
+    {
+        $funnelEvents = match ($funnelType) {
+            'saas' => self::saasFunnelEvents(),
+            'ecommerce' => self::ecommerceFunnelEvents(),
+            'engagement' => self::engagementFunnelEvents(),
+            default => [],
+        };
+
+        $steps = [];
+        $firstStepCount = null;
+
+        foreach ($funnelEvents as $item) {
+            $count = $eventCounts[$item['event']] ?? 0;
+
+            if ($firstStepCount === null) {
+                $firstStepCount = $count;
+            }
+
+            $steps[] = [
+                'step' => $item['step'],
+                'event' => $item['event'],
+                'count' => $count,
+                'conversion_rate' => $firstStepCount > 0
+                    ? round(($count / $firstStepCount) * 100, 2)
+                    : null,
+            ];
+        }
+
+        $overallConversion = null;
+
+        if ($firstStepCount > 0 && count($steps) > 0) {
+            $lastStepCount = $steps[array_key_last($steps)]['count'];
+            $overallConversion = round(($lastStepCount / $firstStepCount) * 100, 2);
+        }
+
+        return [
+            'steps' => $steps,
+            'overall_conversion' => $overallConversion,
+        ];
     }
 
     /**
@@ -2315,6 +2460,118 @@ final class EventCatalog
         usort($scored, fn (array $a, array $b): int => $a['mapped_count'] <=> $b['mapped_count']);
 
         return array_slice($scored, 0, $limit);
+    }
+
+    /**
+     * Get events filtered by provider coverage requirements.
+     *
+     * Returns events that have mappings for ALL specified providers.
+     * Useful for finding events that can be dispatched to a specific
+     * combination of providers without transformation gaps.
+     *
+     * @param  list<string>  $providers  Provider names (e.g. ['ga4', 'meta', 'posthog'])
+     * @return list<EventEntry>
+     *
+     * @since 112.0.0
+     */
+    public static function filterByProviders(array $providers): array
+    {
+        if ($providers === []) {
+            return array_values(self::all());
+        }
+
+        $all = self::all();
+        $result = [];
+
+        foreach ($all as $entry) {
+            $allMapped = true;
+
+            foreach ($providers as $provider) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value === null || $value === '') {
+                    $allMapped = false;
+                    break;
+                }
+            }
+
+            if ($allMapped) {
+                $result[] = $entry;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get events organized by the AARRR (Pirate Metrics) framework.
+     *
+     * Returns a structured breakdown of all catalog events by their
+     * AARRR stage: Acquisition, Activation, Retention, Revenue, Referral.
+     * Each stage includes the event entries, count, and provider coverage stats.
+     * Events that don't fit any AARRR stage are grouped under 'operational'.
+     *
+     * Uses EventTags for classification rather than hardcoded lists,
+     * ensuring consistency with the tag-based query system.
+     *
+     * @return array{acquisition: array{events: list<EventEntry>, count: int}, activation: array{events: list<EventEntry>, count: int}, retention: array{events: list<EventEntry>, count: int}, revenue: array{events: list<EventEntry>, count: int}, referral: array{events: list<EventEntry>, count: int}, operational: array{events: list<EventEntry>, count: int}, total: int, coverage: array<string, float>}
+     *
+     * @since 112.0.0
+     */
+    public static function aarrrBreakdown(): array
+    {
+        $stages = ['acquisition', 'activation', 'retention', 'revenue', 'referral'];
+        $breakdown = [];
+        $allEvents = self::all();
+        $assigned = [];
+
+        foreach ($stages as $stage) {
+            $taggedNames = EventTags::tagged($stage);
+            $events = [];
+
+            foreach ($taggedNames as $name) {
+                $entry = self::get($name);
+
+                if ($entry !== null) {
+                    $events[] = $entry;
+                    $assigned[$name] = true;
+                }
+            }
+
+            $breakdown[$stage] = [
+                'events' => $events,
+                'count' => count($events),
+            ];
+        }
+
+        // Operational = events not assigned to any AARRR stage
+        $operational = [];
+        foreach ($allEvents as $name => $entry) {
+            if (! isset($assigned[$name])) {
+                $operational[] = $entry;
+            }
+        }
+
+        $breakdown['operational'] = [
+            'events' => $operational,
+            'count' => count($operational),
+        ];
+
+        $total = 0;
+        foreach ($stages as $stage) {
+            $total += $breakdown[$stage]['count'];
+        }
+
+        $breakdown['total'] = $total;
+
+        // Coverage: what percentage of all catalog events are covered by AARRR stages
+        $totalCatalog = count($allEvents);
+        $breakdown['coverage'] = [
+            'aarrr' => $totalCatalog > 0 ? round(($total / $totalCatalog) * 100, 1) : 0.0,
+            'total_catalog' => $totalCatalog,
+        ];
+
+        return $breakdown;
     }
 
     /**

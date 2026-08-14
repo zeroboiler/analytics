@@ -310,6 +310,70 @@ final class AnalyticsManager
     }
 
     /**
+     * Dispatch an event to specific providers only (targeted dispatch).
+     *
+     * Allows sending an event to a subset of enabled providers instead of all.
+     * Useful when certain events should only go to specific providers (e.g.,
+     * PII events only to server-side providers, not client-side pixels).
+     *
+     * @param  AnalyticsEvent  $event  The event to dispatch
+     * @param  list<string>  $providers  Provider names to dispatch to (e.g. ['ga4', 'posthog'])
+     * @return array{dispatched: list<string>, failed: list<string>, skipped: list<string>}
+     *
+     * @since 112.0.0
+     */
+    public function trackTo(AnalyticsEvent $event, array $providers): array
+    {
+        $trackerMap = [
+            'ga4' => fn () => $this->ga4,
+            'gtm' => fn () => $this->gtm,
+            'meta' => fn () => $this->meta,
+            'plausible' => fn () => $this->plausible,
+            'posthog' => fn () => $this->posthog,
+            'webhook' => fn () => $this->webhook,
+            'mixpanel' => fn () => $this->mixpanel,
+            'amplitude' => fn () => $this->amplitude,
+            'tiktok' => fn () => $this->tiktok,
+            'linkedin' => fn () => $this->linkedin,
+        ];
+
+        $result = [
+            'dispatched' => [],
+            'failed' => [],
+            'skipped' => [],
+        ];
+
+        foreach ($providers as $provider) {
+            $getter = $trackerMap[$provider] ?? null;
+
+            if ($getter === null) {
+                $result['skipped'][] = $provider;
+
+                continue;
+            }
+
+            $tracker = $getter();
+
+            if (! $tracker->isEnabled()) {
+                $result['skipped'][] = $provider;
+
+                continue;
+            }
+
+            try {
+                $tracker->track($event);
+                $this->metrics->recordDispatch($provider);
+                $result['dispatched'][] = $provider;
+            } catch (\Throwable $e) {
+                $this->metrics->recordFailure($provider, $e->getMessage());
+                $result['failed'][] = $provider;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Dispatch an event directly to all enabled trackers (bypasses DataBus).
      *
      * Use this when you want to ensure the event goes to all providers

@@ -1,5 +1,20 @@
 # Changelog
 
+## [112.0.0] - 2026-08-14
+
+### Added
+- **Phase 40 — Industry-Standard SaaS Funnel Analytics**:
+  - `EventCatalog::saasFunnelEvents()` — Structured SaaS acquisition funnel with step numbers: sign_up → login → start_trial → trial_converted → subscribe → subscription_renewal → plan_upgrade → plan_downgrade → cancellation
+  - `EventCatalog::ecommerceFunnelEvents()` — E-commerce purchase funnel: view_item → select_item → add_to_cart → remove_from_cart → view_cart → begin_checkout → add_payment_info → purchase → refund
+  - `EventCatalog::engagementFunnelEvents()` — Product engagement funnel: page_view → scroll_depth → click → form_start → form_submit → search → share → error
+  - `EventCatalog::funnelConversionRates()` — Compute step-by-step and overall conversion rates from event count arrays (supports saas/ecommerce/engagement funnel types)
+  - `EventCatalog::filterByProviders()` — Filter events that have mappings for ALL specified providers
+  - `EventCatalog::aarrrBreakdown()` — AARRR (Pirate Metrics) framework breakdown with Acquisition, Activation, Retention, Revenue, Referral stages, coverage stats, and operational remainder
+- **V1120IndustryStandardSaaSUpgradeTest** — 100+ assertions validating funnel methods, conversion rates, provider filtering, AARRR breakdown, version consistency, and SaaS starter maturity
+
+### Changed
+- **Version bump** — All 7 package files synced to 112.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider)
+
 ## [111.0.0] - 2026-08-14
 
 ### Added

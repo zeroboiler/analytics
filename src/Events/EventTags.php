@@ -67,25 +67,25 @@ final class EventTags
         'checkout_abandon' => ['ecommerce', 'revenue', 'retention', 'funnel'],
 
         // ── SaaS Core ──────────────────────────────────────
-        'sign_up' => ['acquisition', 'conversion', 'pii', 'critical', 'gdpr', 'funnel', 'onboarding'],
+        'sign_up' => ['acquisition', 'conversion', 'pii', 'critical', 'gdpr', 'funnel', 'onboarding', 'activation'],
         'login' => ['authentication', 'pii', 'critical', 'gdpr', 'retention', 'session'],
         'logout' => ['authentication', 'pii', 'gdpr', 'session'],
-        'start_trial' => ['conversion', 'funnel', 'onboarding'],
+        'start_trial' => ['conversion', 'funnel', 'onboarding', 'activation'],
         'trial_end' => ['retention', 'conversion', 'funnel'],
         'subscribe' => ['revenue', 'conversion', 'billing', 'critical', 'funnel'],
         'plan_upgrade' => ['revenue', 'conversion', 'billing', 'critical', 'plg'],
         'plan_downgrade' => ['revenue', 'billing', 'retention'],
         'cancellation' => ['retention', 'revenue', 'billing', 'critical'],
-        'feature_used' => ['engagement', 'retention', 'onboarding', 'plg'],
+        'feature_used' => ['engagement', 'retention', 'onboarding', 'plg', 'activation'],
         'revenue_tracked' => ['revenue', 'critical'],
 
         // ── SaaS Account ──────────────────────────────────
-        'account_activated' => ['authentication', 'gdpr', 'onboarding'],
+        'account_activated' => ['authentication', 'gdpr', 'onboarding', 'activation'],
         'account_deactivated' => ['authentication', 'gdpr', 'retention'],
         'password_changed' => ['authentication', 'pii', 'gdpr', 'security'],
         'password_reset' => ['authentication', 'pii', 'gdpr', 'security'],
         'profile_updated' => ['pii', 'gdpr', 'engagement'],
-        'email_verified' => ['authentication', 'gdpr', 'onboarding', 'funnel'],
+        'email_verified' => ['authentication', 'gdpr', 'onboarding', 'funnel', 'activation'],
 
         // ── SaaS Teams ────────────────────────────────────
         'team_created' => ['b2b', 'plg', 'acquisition'],
@@ -105,7 +105,7 @@ final class EventTags
         'billing_retry' => ['billing', 'revenue', 'retention', 'critical'],
 
         // ── SaaS Growth ───────────────────────────────────
-        'milestone_reached' => ['engagement', 'retention', 'onboarding', 'plg'],
+        'milestone_reached' => ['engagement', 'retention', 'onboarding', 'plg', 'activation'],
         'feature_adopted' => ['engagement', 'plg', 'retention'],
         'expansion_revenue' => ['revenue', 'plg', 'critical'],
         'workspace_created' => ['b2b', 'acquisition', 'plg'],
@@ -126,7 +126,7 @@ final class EventTags
         'subscription_resumed' => ['billing', 'revenue', 'retention'],
         'subscription_value_changed' => ['billing', 'revenue', 'critical'],
         'plan_changed' => ['billing', 'revenue'],
-        'trial_converted' => ['conversion', 'revenue', 'funnel', 'critical', 'onboarding'],
+        'trial_converted' => ['conversion', 'revenue', 'funnel', 'critical', 'onboarding', 'activation'],
         'trial_expired' => ['retention', 'funnel'],
 
         // ── Engagement ─────────────────────────────────────
@@ -146,8 +146,8 @@ final class EventTags
         'outbound_click' => ['engagement', 'privacy_safe', 'samplable'],
         'file_download' => ['engagement', 'privacy_safe', 'samplable'],
         'video_play' => ['engagement', 'privacy_safe', 'samplable'],
-        'onboarding_step' => ['engagement', 'onboarding', 'funnel'],
-        'onboarding_completed' => ['engagement', 'onboarding', 'conversion', 'funnel'],
+        'onboarding_step' => ['engagement', 'onboarding', 'funnel', 'activation'],
+        'onboarding_completed' => ['engagement', 'onboarding', 'conversion', 'funnel', 'activation'],
         'feature_request' => ['engagement', 'acquisition'],
         'feedback' => ['engagement', 'retention'],
         'goal_conversion' => ['conversion', 'funnel', 'engagement'],

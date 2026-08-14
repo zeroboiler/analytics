@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-111.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-112.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,30 +57,56 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v110.0.0
+### What's New in v112.0.0
 
-**Phase 38 — SaaS Starter Maturity Audit & Version Integrity Sweep**:
+**Phase 40 — Industry-Standard SaaS Funnel Analytics & Version Sync**:
 
-- **Version integrity sweep** — Fixed stale version assertions in Phase35SaaSStarterAuditTest and Phase36PrivacyInventoryAuditTest (were pinned to 107.0.0, now 110.0.0). SaasStarterTest path resolution fixed to use glob pattern for cross-platform compatibility.
-- **Phase 38 Production Audit** — New comprehensive test suite (`V110SaaSStarterMaturityAuditTest`) with 80+ assertions covering:
-  - All 12 SaaS starter criteria remain valid at v110.0.0
-  - Version consistency across all 7 package files (PHP, composer.json, package.json, 4 JS files)
-  - README badge version alignment
-  - EventCatalog 50+ events across 6+ categories
-  - 10 provider trackers (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn)
-  - Lifecycle mapper 60+ default mappings
-  - AnalyticsEvent readonly DTO with VERSION constant
-  - AnalyticsManager 10 provider accessor methods
-  - EcommerceFormatConverter bidirectional GA4↔Meta↔PostHog conversion
-  - Inertia middleware with client ID cookie management
-  - API controller with track, batch, identify, consent, health endpoints
-  - QueuedAnalyticsDispatcher async dispatch
-  - UserIdentityTracker client ID ↔ user ID linking
-  - Admin commands (AnalyticsOverviewCommand, AnalyticsTestCommand)
-  - Config expansion with 15+ sections
-  - JS client library 5000+ lines with SaaS shorthands
-  - 300+ test files, 56K+ LOC
-- **Version bump** to 110.0.0 across all 7 package files.
+- **`EventCatalog::saasFunnelEvents()`** — Structured SaaS acquisition funnel: returns step-numbered array of sign_up → login → start_trial → trial_converted → subscribe → subscription_renewal → plan_upgrade → plan_downgrade → cancellation with full catalog entries per step.
+- **`EventCatalog::ecommerceFunnelEvents()`** — E-commerce purchase funnel: view_item → select_item → add_to_cart → remove_from_cart → view_cart → begin_checkout → add_payment_info → purchase → refund with step metadata.
+- **`EventCatalog::engagementFunnelEvents()`** — Product engagement funnel: page_view → scroll_depth → click → form_start → form_submit → search → share → error for usage analytics dashboards.
+- **`EventCatalog::funnelConversionRates()`** — Compute step-by-step and overall conversion rates from event count arrays. Accepts `'saas'`, `'ecommerce'`, or `'engagement'` funnel type. Returns per-step conversion_rate and overall_conversion percentage.
+- **`EventCatalog::filterByProviders()`** — Filter events that have mappings for ALL specified providers (e.g. find events with both GA4 and Meta support).
+- **`EventCatalog::aarrrBreakdown()`** — AARRR (Pirate Metrics) framework breakdown: Acquisition, Activation, Retention, Revenue, Referral stages with tag-based classification, coverage stats, and operational remainder.
+- **Version sync** — All 7 package files synced to 112.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider).
+- **V1120IndustryStandardSaaSUpgradeTest** — 100+ assertions validating funnel methods, conversion rate computation, provider filtering, AARRR breakdown, version consistency, and SaaS starter maturity at v112.0.0.
+
+```php
+use ZeroBoiler\Analytics\Events\EventCatalog;
+
+// SaaS acquisition funnel
+$funnel = EventCatalog::saasFunnelEvents();
+// [{step: 1, event: 'sign_up', entry: [...]}, {step: 2, event: 'login', ...}, ...]
+
+// E-commerce funnel
+$ecommerce = EventCatalog::ecommerceFunnelEvents();
+
+// Engagement funnel
+$engagement = EventCatalog::engagementFunnelEvents();
+
+// Compute conversion rates from event counts
+$rates = EventCatalog::funnelConversionRates([
+    'sign_up' => 1000,
+    'start_trial' => 400,
+    'subscribe' => 150,
+    'plan_upgrade' => 45,
+], 'saas');
+// steps: [{step:1, event:'sign_up', count:1000, conversion_rate:100.0}, ...]
+// overall_conversion: 4.5
+
+// Find events with GA4+Meta+PostHog coverage
+$crossProvider = EventCatalog::filterByProviders(['ga4', 'meta', 'posthog']);
+
+// AARRR framework breakdown
+$aarrr = EventCatalog::aarrrBreakdown();
+// {acquisition: {events: [...], count: N}, activation: {...}, ..., coverage: {aarrr: 85.2}}
+```
+
+### What's New in v111.0.0
+
+**Phase 39 — Identity Resolution Enhancement & Config Integrity Audit**:
+
+- **Identity Resolution Enhancement** — UserIdentityTracker upgraded with cache-backed persistent identity linking
+- **V111IdentityResolutionAuditTest** — 60+ assertions validating identity resolution methods
 
 ### What's New in v109.0.0
 
