@@ -2034,4 +2034,315 @@ final class EventCatalog
     {
         return \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::subcategoryFor($eventName);
     }
+
+    // ── Provider Coverage Parity (v100.2.0) ──────────────────────
+
+    /**
+     * Get provider coverage parity analysis with gap detection.
+     *
+     * Extends providerCoverage() with per-provider coverage percentages
+     * and explicit gap lists (events without mappings). Useful for gap
+     * analysis when onboarding new analytics providers.
+     *
+     * @return array{total: int, providers: array<string, array{mapped: int, coverage: float, gaps: list<string>}>}
+     *
+     * @since 100.2.0
+     */
+    public static function providerCoverageParity(): array
+    {
+        $all = self::all();
+        $total = count($all);
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $result = [];
+
+        foreach ($providers as $provider) {
+            $mapped = 0;
+            $gaps = [];
+
+            foreach ($all as $name => $entry) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value !== null && $value !== '') {
+                    $mapped++;
+                } else {
+                    $gaps[] = $name;
+                }
+            }
+
+            $result[$provider] = [
+                'mapped' => $mapped,
+                'coverage' => $total > 0 ? round(($mapped / $total) * 100, 1) : 0.0,
+                'gaps' => $gaps,
+            ];
+        }
+
+        return [
+            'total' => $total,
+            'providers' => $result,
+        ];
+    }
+
+    /**
+     * Get provider mapping breakdown for a specific event.
+     *
+     * Returns which providers have mappings for a given event name.
+     * Useful for checking cross-provider compatibility before dispatch.
+     *
+     * @return array{event: string, providers: array<string, string|null>, mapped_count: int, total_providers: int}
+     *
+     * @since 100.2.0
+     */
+    public static function eventProviderMapping(string $eventName): array
+    {
+        $entry = self::get($eventName);
+
+        if ($entry === null) {
+            return [
+                'event' => $eventName,
+                'providers' => [],
+                'mapped_count' => 0,
+                'total_providers' => 8,
+            ];
+        }
+
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $mappedCount = 0;
+        $mappings = [];
+
+        foreach ($providers as $provider) {
+            $value = $entry[$provider] ?? null;
+            $mappings[$provider] = $value;
+
+            if ($value !== null && $value !== '') {
+                $mappedCount++;
+            }
+        }
+
+        return [
+            'event' => $eventName,
+            'providers' => $mappings,
+            'mapped_count' => $mappedCount,
+            'total_providers' => count($providers),
+        ];
+    }
+
+    /**
+     * Get events that are fully mapped across all 8 providers (100% coverage).
+     *
+     * These events can be dispatched to any provider without transformation.
+     *
+     * @return list<EventEntry>
+     *
+     * @since 100.2.0
+     */
+    public static function fullyMappedEvents(): array
+    {
+        $all = self::all();
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $result = [];
+
+        foreach ($all as $entry) {
+            $allMapped = true;
+
+            foreach ($providers as $provider) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value === null || $value === '') {
+                    $allMapped = false;
+                    break;
+                }
+            }
+
+            if ($allMapped) {
+                $result[] = $entry;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get events with the fewest provider mappings (candidates for expansion).
+     *
+     * Returns events sorted by mapped provider count (ascending).
+     * Useful for identifying which events need additional provider coverage.
+     *
+     * @param  int  $limit  Maximum number of events to return
+     * @return list<array{event: string, category: string, mapped_count: int, gaps: list<string>}>
+     *
+     * @since 100.2.0
+     */
+    public static function leastMappedEvents(int $limit = 10): array
+    {
+        $all = self::all();
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $scored = [];
+
+        foreach ($all as $name => $entry) {
+            $mappedCount = 0;
+            $gaps = [];
+
+            foreach ($providers as $provider) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value !== null && $value !== '') {
+                    $mappedCount++;
+                } else {
+                    $gaps[] = $provider;
+                }
+            }
+
+            $scored[] = [
+                'event' => $name,
+                'category' => $entry['category'] ?? 'unknown',
+                'mapped_count' => $mappedCount,
+                'gaps' => $gaps,
+            ];
+        }
+
+        usort($scored, fn (array $a, array $b): int => $a['mapped_count'] <=> $b['mapped_count']);
+
+        return array_slice($scored, 0, $limit);
+    }
+
+    /**
+     * Get the numeric priority score for an event name (0-100).
+     *
+     * Computes a score based on:
+     * - Category weight (ecommerce=30, saas=25, engagement=20, security=15, uptime=5, infrastructure=5)
+     * - Provider coverage bonus (0-30, proportional to mapped providers)
+     * - Tag bonuses (revenue=+10, critical=+10, conversion=+5, gdpr=+5)
+     *
+     * Complements eventPriority() which returns a string level.
+     *
+     * @return int Priority score 0-100
+     *
+     * @since 100.2.0
+     */
+    public static function eventPriorityScore(string $eventName): int
+    {
+        $entry = self::get($eventName);
+
+        if ($entry === null) {
+            return 0;
+        }
+
+        $categoryWeight = match ($entry['category'] ?? '') {
+            'ecommerce' => 30,
+            'saas' => 25,
+            'engagement' => 20,
+            'security' => 15,
+            'uptime' => 5,
+            'infrastructure' => 5,
+            default => 0,
+        };
+
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $mappedCount = 0;
+
+        foreach ($providers as $provider) {
+            $value = $entry[$provider] ?? null;
+
+            if ($value !== null && $value !== '') {
+                $mappedCount++;
+            }
+        }
+
+        $providerBonus = (int) round(($mappedCount / count($providers)) * 30);
+
+        $tags = EventTags::for($eventName);
+        $tagBonus = 0;
+
+        if (in_array('revenue', $tags, true)) {
+            $tagBonus += 10;
+        }
+        if (in_array('critical', $tags, true)) {
+            $tagBonus += 10;
+        }
+        if (in_array('conversion', $tags, true)) {
+            $tagBonus += 5;
+        }
+        if (in_array('gdpr', $tags, true)) {
+            $tagBonus += 5;
+        }
+
+        return min(100, $categoryWeight + $providerBonus + $tagBonus);
+    }
+
+    /**
+     * Get the top-N highest priority events by numeric score.
+     *
+     * @param  int  $limit  Maximum events to return
+     * @return list<array{event: string, category: string, priority: int, tags: list<string>}>
+     *
+     * @since 100.2.0
+     */
+    public static function topPriorityEvents(int $limit = 20): array
+    {
+        $all = self::all();
+        $scored = [];
+
+        foreach ($all as $name => $entry) {
+            $scored[] = [
+                'event' => $name,
+                'category' => $entry['category'] ?? 'unknown',
+                'priority' => self::eventPriorityScore($name),
+                'tags' => EventTags::for($name),
+            ];
+        }
+
+        usort($scored, fn (array $a, array $b): int => $b['priority'] <=> $a['priority']);
+
+        return array_slice($scored, 0, $limit);
+    }
+
+    /**
+     * Get instrumentation recommendations grouped by priority-score tier.
+     *
+     * Complements recommendedInstrumentation() (which uses curated lists)
+     * with a dynamic score-based grouping.
+     *
+     * @return array{starter: list<array{event: string, priority: int}>, intermediate: list<array{event: string, priority: int}>, advanced: list<array{event: string, priority: int}>}
+     *
+     * @since 100.2.0
+     */
+    public static function recommendedInstrumentationByScore(string $tier = 'starter'): array
+    {
+        $all = self::all();
+        $scored = [];
+
+        foreach ($all as $name => $entry) {
+            $scored[] = [
+                'event' => $name,
+                'category' => $entry['category'] ?? 'unknown',
+                'priority' => self::eventPriorityScore($name),
+            ];
+        }
+
+        usort($scored, fn (array $a, array $b): int => $b['priority'] <=> $a['priority']);
+
+        $tiers = [
+            'starter' => [],
+            'intermediate' => [],
+            'advanced' => [],
+        ];
+
+        foreach ($scored as $item) {
+            $p = $item['priority'];
+
+            if ($p >= 60) {
+                $tiers['starter'][] = $item;
+            } elseif ($p >= 40) {
+                $tiers['intermediate'][] = $item;
+            } else {
+                $tiers['advanced'][] = $item;
+            }
+        }
+
+        if ($tier === 'all') {
+            return $tiers;
+        }
+
+        return $tiers[$tier] ?? $tiers['starter'];
+    }
 }

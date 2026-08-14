@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-100.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-100.2.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -67,6 +67,19 @@ Done. That's it.
 - **`SaaSReadinessAssessmentTest`** — 308 assertions covering readiness scoring, gap detection, readiness gates, and maturity calculations
 - **`SaaSFunnelDefinitionsTest`** — 272 assertions covering all 6 funnel templates, step validation, AARRR classification, and cross-funnel integration
 - **Updated metrics**: 680 source files, 323 test files, 21,350+ assertions
+
+### What's New in v100.2.0
+
+**Provider Coverage Parity & Priority Scoring** — Cross-provider gap analysis and dynamic event instrumentation recommendations:
+
+- **`EventCatalog::providerCoverageParity()`** — Per-provider coverage percentages with explicit gap lists (events without mappings). Identifies which events need additional provider mappings for TikTok, LinkedIn, Meta, and Plausible.
+- **`EventCatalog::eventProviderMapping()`** — Per-event provider mapping breakdown. Returns all 8 provider mappings for any event, with mapped count for quick cross-provider compatibility checks.
+- **`EventCatalog::fullyMappedEvents()`** — Returns all events with 100% provider coverage across all 8 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn).
+- **`EventCatalog::leastMappedEvents()`** — Returns events sorted by fewest provider mappings (ascending), useful for identifying coverage expansion candidates.
+- **`EventCatalog::eventPriorityScore()`** — Numeric 0-100 priority score based on category weight, provider coverage, and tag bonuses (revenue, critical, conversion, GDPR). Complements `eventPriority()` which returns string levels.
+- **`EventCatalog::topPriorityEvents()`** — Top-N events by priority score with tags, for admin dashboards and instrumentation guidance.
+- **`EventCatalog::recommendedInstrumentationByScore()`** — Dynamic score-based tiering (starter ≥60, intermediate ≥40, advanced <40) complementing the curated `recommendedInstrumentation()` lists.
+- **`Phase29ProductionAuditTest`** — 40+ assertions covering all new methods: provider parity analysis, event mapping structure, priority scoring bounds, tier classification correctness, and catalog integrity checks.
 
 ### What's New in v100.0.0
 
