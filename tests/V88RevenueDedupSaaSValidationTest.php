@@ -9,7 +9,6 @@ declare(strict_types=1);
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\EventDedupCacheService;
 use ZeroBoiler\Analytics\Services\RevenueChecksumService;
 use ZeroBoiler\Analytics\Services\SaaSStarterValidationService;
