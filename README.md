@@ -57,6 +57,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+### What's New in v119.0.0
+
+**Phase 48 — SaaS Lifecycle Shorthands & Event Catalog Expansion**:
+
+- **8 new SaaS shorthand functions** — `trackLogin()`, `trackLogout()`, `trackPlanDowngrade()`, `trackTrialConverted()`, `trackTrialExpired()`, `trackPaymentFailed()`, `trackSubscriptionPaused()`, `trackInvoiceGenerated()`. Full JSDoc with typed params. `trackLogin()` auto-calls `identify()` when `userId` is provided.
+- **3 new event categories** — `SecurityEvents` (6 events), `UptimeEvents` (5 events), `InfrastructureEvents` (10 events) added to both JS constants and TypeScript types. `AllEventNames` now spans 6 categories.
+- **useAnalyticsConfig** — Now exposes `amplitudeApiKey`, `mixpanelToken`, `tiktokPixelId`, `linkedinPartnerId` in both the Svelte composable and TypeScript return type.
+- **TypeScript** — All new shorthands fully typed with option interfaces. New union types `SecurityEventName`, `UptimeEventName`, `InfrastructureEventName`.
+
 ### What's New in v118.0.0
 
 **Phase 47 — Event Macro System & Replay Audit**:

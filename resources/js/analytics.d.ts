@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 118.0.0
+ * @version 119.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -26,6 +26,8 @@ export interface ZbAnalyticsProps {
   posthogHost?: string;
   amplitudeApiKey?: string;
   mixpanelToken?: string;
+  tiktokPixelId?: string;
+  linkedinPartnerId?: string;
   trackLinks: TrackLinksConfig;
   device: DeviceContext;
   apiBase: string;
@@ -2144,6 +2146,10 @@ export function useAnalyticsConfig(): Readable<{
   metaPixelId: string | null;
   plausibleDomain: string | null;
   posthogHost: string | null;
+  amplitudeApiKey: string | null;
+  mixpanelToken: string | null;
+  tiktokPixelId: string | null;
+  linkedinPartnerId: string | null;
   apiBase: string;
   apiEnabled: boolean;
   debug: boolean;
@@ -2557,12 +2563,54 @@ export const EngagementEvents: Readonly<{
 }>;
 
 /**
+ * Security event name constants for type-safe event tracking.
+ */
+export const SecurityEvents: Readonly<{
+  LOGIN_ATTEMPT: 'login_attempt';
+  MFA_CHALLENGE: 'mfa_challenge';
+  RATE_LIMIT_EXCEEDED: 'rate_limit_exceeded';
+  SUSPICIOUS_ACTIVITY: 'suspicious_activity';
+  DATA_ACCESS_AUDIT: 'data_access_audit';
+  AI_AGENT_ACCESS: 'ai_agent_access';
+}>;
+
+/**
+ * Uptime/service health event name constants.
+ */
+export const UptimeEvents: Readonly<{
+  API_LATENCY: 'api_latency';
+  DEPLOYMENT: 'deployment';
+  ERROR_SPIKE: 'error_spike';
+  SERVICE_DOWN: 'service_down';
+  SERVICE_UP: 'service_up';
+}>;
+
+/**
+ * Infrastructure/platform event name constants.
+ */
+export const InfrastructureEvents: Readonly<{
+  DEPLOYMENT_ROLLED_BACK: 'deployment_rolled_back';
+  ERROR_BUDGET_BURNED: 'error_budget_burned';
+  EXPERIMENT_EXPOSED: 'experiment_exposed';
+  FEATURE_FLAG_EVALUATED: 'feature_flag_evaluated';
+  INCIDENT_STARTED: 'incident_started';
+  INCIDENT_RESOLVED: 'incident_resolved';
+  MAINTENANCE_STARTED: 'maintenance_started';
+  MAINTENANCE_ENDED: 'maintenance_ended';
+  PIPELINE_FAILURE: 'pipeline_failure';
+  SLO_BREACH: 'slo_breach';
+}>;
+
+/**
  * All event names from all categories.
  */
 export const AllEventNames: Readonly<
   typeof EcommerceEvents &
   typeof SaaSEvents &
-  typeof EngagementEvents
+  typeof EngagementEvents &
+  typeof SecurityEvents &
+  typeof UptimeEvents &
+  typeof InfrastructureEvents
 >;
 
 /** Union type of all valid event names. */
@@ -2577,6 +2625,15 @@ export type SaaSEventName = (typeof SaaSEvents)[keyof typeof SaaSEvents];
 /** Union type of engagement event names. */
 export type EngagementEventName = (typeof EngagementEvents)[keyof typeof EngagementEvents];
 
+/** Union type of security event names. */
+export type SecurityEventName = (typeof SecurityEvents)[keyof typeof SecurityEvents];
+
+/** Union type of uptime event names. */
+export type UptimeEventName = (typeof UptimeEvents)[keyof typeof UptimeEvents];
+
+/** Union type of infrastructure event names. */
+export type InfrastructureEventName = (typeof InfrastructureEvents)[keyof typeof InfrastructureEvents];
+
 /**
  * Type guard: check if a string is a valid event name.
  */
@@ -2585,7 +2642,7 @@ export function isValidEventName(name: string): name is EventName;
 /**
  * Get event names by category.
  */
-export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement'): readonly string[];
+export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement' | 'security' | 'uptime' | 'infrastructure'): readonly string[];
 
 /**
  * Get total count of all events across all categories.
@@ -2723,3 +2780,93 @@ export function trackPrivacyAction(action: PrivacyActionType, options?: PrivacyA
  * });
  */
 export function trackConsentUpdate(options?: ConsentUpdateOptions): Promise<void>;
+
+// ─── SaaS Lifecycle Shorthands — v119.0.0 Additions ──────────────
+
+/** Options for trackLogin shortcut. */
+export interface TrackLoginOptions {
+  method?: string;
+  userId?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackLogout shortcut. */
+export interface TrackLogoutOptions {
+  method?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackPlanDowngrade shortcut. */
+export interface TrackPlanDowngradeOptions {
+  fromPlan?: string;
+  toPlan?: string;
+  valueDifference?: number;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackTrialConverted shortcut. */
+export interface TrackTrialConvertedOptions {
+  plan?: string;
+  value?: number;
+  currency?: string;
+  trialDays?: number;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackTrialExpired shortcut. */
+export interface TrackTrialExpiredOptions {
+  plan?: string;
+  trialDays?: number;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackPaymentFailed shortcut. */
+export interface TrackPaymentFailedOptions {
+  reason?: string;
+  amount?: number;
+  currency?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackSubscriptionPaused shortcut. */
+export interface TrackSubscriptionPausedOptions {
+  plan?: string;
+  reason?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackInvoiceGenerated shortcut. */
+export interface TrackInvoiceGeneratedOptions {
+  invoiceId?: string;
+  amount?: number;
+  currency?: string;
+  billingCycle?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Track a user login event with method attribution. */
+export function trackLogin(options?: TrackLoginOptions): Promise<void>;
+
+/** Track a user logout event. */
+export function trackLogout(options?: TrackLogoutOptions): Promise<void>;
+
+/** Track a plan downgrade event with transition details. */
+export function trackPlanDowngrade(options?: TrackPlanDowngradeOptions): Promise<void>;
+
+/** Track a trial conversion event (trial → paid). */
+export function trackTrialConverted(options?: TrackTrialConvertedOptions): Promise<void>;
+
+/** Track a trial expired event (trial ended without conversion). */
+export function trackTrialExpired(options?: TrackTrialExpiredOptions): Promise<void>;
+
+/** Track a payment failed event with billing context. */
+export function trackPaymentFailed(options?: TrackPaymentFailedOptions): Promise<void>;
+
+/** Track a subscription paused event. */
+export function trackSubscriptionPaused(options?: TrackSubscriptionPausedOptions): Promise<void>;
+
+/** Track an invoice generated event. */
+export function trackInvoiceGenerated(options?: TrackInvoiceGeneratedOptions): Promise<void>;
+
+/** Get all supported category names. */
+export function getCategoryNames(): readonly string[];

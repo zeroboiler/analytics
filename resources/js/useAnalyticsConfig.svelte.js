@@ -5,7 +5,7 @@
  * Automatically reacts to page navigation and prop changes.
  *
  * @package ZeroBoiler Analytics
- * @version 118.0.0
+ * @version 119.0.0
  */
 
 import { derived } from 'svelte/store';
@@ -27,6 +27,10 @@ import { page } from '@inertiajs/svelte';
  *   metaPixelId: string|null,
  *   plausibleDomain: string|null,
  *   posthogHost: string|null,
+ *   amplitudeApiKey: string|null,
+ *   mixpanelToken: string|null,
+ *   tiktokPixelId: string|null,
+ *   linkedinPartnerId: string|null,
  *   apiBase: string,
  *   apiEnabled: boolean,
  *   debug: boolean,
@@ -72,6 +76,10 @@ export function useAnalyticsConfig() {
                 metaPixelId: null,
                 plausibleDomain: null,
                 posthogHost: null,
+                amplitudeApiKey: null,
+                mixpanelToken: null,
+                tiktokPixelId: null,
+                linkedinPartnerId: null,
                 apiBase: '/api/analytics',
                 apiEnabled: false,
                 debug: false,
@@ -99,6 +107,10 @@ export function useAnalyticsConfig() {
             metaPixelId: analytics.metaPixelId ?? null,
             plausibleDomain: analytics.plausibleDomain ?? null,
             posthogHost: analytics.posthogHost ?? null,
+            amplitudeApiKey: analytics.amplitudeApiKey ?? null,
+            mixpanelToken: analytics.mixpanelToken ?? null,
+            tiktokPixelId: analytics.tiktokPixelId ?? null,
+            linkedinPartnerId: analytics.linkedinPartnerId ?? null,
             apiBase: analytics.apiBase ?? '/api/analytics',
             apiEnabled: analytics.apiEnabled ?? false,
             debug: analytics.debug ?? false,

@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 118.0.0
+ * @version 119.0.0
  */
 
 let trackingId = null;
@@ -7627,6 +7627,169 @@ export async function trackCancellation(options = {}) {
  */
 export async function trackFeatureUsed(feature, extra = {}) {
     return trackEvent('feature_used', { feature, ...extra }, { immediate: true });
+}
+
+// ─── SaaS Lifecycle Shorthands — v119.0.0 Additions ─────────────────
+
+/**
+ * Track a user login event with method attribution.
+ *
+ * @param {object} [options] - Login options
+ * @param {string} [options.method] - Login method (email, google, github, sso, etc.)
+ * @param {string} [options.userId] - Authenticated user ID (for auto-identify)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackLogin({ method: 'google', userId: '12345' });
+ */
+export async function trackLogin(options = {}) {
+    const params = { ...options.extra };
+    if (options.method) params.method = options.method;
+    if (options.userId) params.user_id = options.userId;
+    const result = await trackEvent('login', params, { immediate: true });
+    // Auto-identify on login when userId is provided
+    if (options.userId && typeof identify === 'function') {
+        try { await identify(String(options.userId)); } catch { /* silent */ }
+    }
+    return result;
+}
+
+/**
+ * Track a user logout event.
+ *
+ * @param {object} [options] - Logout options
+ * @param {string} [options.method] - Logout method (manual, session_expired, forced)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackLogout({ method: 'manual' });
+ */
+export async function trackLogout(options = {}) {
+    const params = { ...options.extra };
+    if (options.method) params.method = options.method;
+    return trackEvent('logout', params, { immediate: true });
+}
+
+/**
+ * Track a plan downgrade event with transition details.
+ *
+ * @param {object} [options] - Downgrade options
+ * @param {string} [options.fromPlan] - Previous plan name
+ * @param {string} [options.toPlan] - New plan name
+ * @param {number} [options.valueDifference] - Price difference (typically negative)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPlanDowngrade({ fromPlan: 'pro', toPlan: 'starter', valueDifference: -30 });
+ */
+export async function trackPlanDowngrade(options = {}) {
+    const params = { ...options.extra };
+    if (options.fromPlan) params.from_plan = options.fromPlan;
+    if (options.toPlan) params.to_plan = options.toPlan;
+    if (options.valueDifference != null) params.value_difference = options.valueDifference;
+    return trackEvent('plan_downgrade', params, { immediate: true });
+}
+
+/**
+ * Track a trial conversion event (trial → paid).
+ *
+ * @param {object} [options] - Conversion options
+ * @param {string} [options.plan] - Converted plan name
+ * @param {number} [options.value] - Subscription value
+ * @param {string} [options.currency] - Currency code (default from config)
+ * @param {number} [options.trialDays] - Number of trial days before conversion
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackTrialConverted({ plan: 'pro', value: 49, currency: 'USD', trialDays: 14 });
+ */
+export async function trackTrialConverted(options = {}) {
+    const params = { ...options.extra };
+    if (options.plan) params.plan = options.plan;
+    if (options.value != null) params.value = options.value;
+    params.currency = options.currency || config?.ecommerce?.currency || 'USD';
+    if (options.trialDays) params.trial_days = options.trialDays;
+    return trackEvent('trial_converted', params, { immediate: true });
+}
+
+/**
+ * Track a trial expired event (trial ended without conversion).
+ *
+ * @param {object} [options] - Expiration options
+ * @param {string} [options.plan] - Expired trial plan name
+ * @param {number} [options.trialDays] - Number of trial days
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackTrialExpired({ plan: 'pro', trialDays: 14 });
+ */
+export async function trackTrialExpired(options = {}) {
+    const params = { ...options.extra };
+    if (options.plan) params.plan = options.plan;
+    if (options.trialDays) params.trial_days = options.trialDays;
+    return trackEvent('trial_expired', params, { immediate: true });
+}
+
+/**
+ * Track a payment failed event with billing context.
+ *
+ * @param {object} [options] - Payment failure options
+ * @param {string} [options.reason] - Failure reason (card_declined, insufficient_funds, etc.)
+ * @param {number} [options.amount] - Attempted payment amount
+ * @param {string} [options.currency] - Currency code (default from config)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPaymentFailed({ reason: 'card_declined', amount: 49, currency: 'USD' });
+ */
+export async function trackPaymentFailed(options = {}) {
+    const params = { ...options.extra };
+    if (options.reason) params.reason = options.reason;
+    if (options.amount != null) params.amount = options.amount;
+    params.currency = options.currency || config?.ecommerce?.currency || 'USD';
+    return trackEvent('payment_failed', params, { immediate: true });
+}
+
+/**
+ * Track a subscription paused event.
+ *
+ * @param {object} [options] - Pause options
+ * @param {string} [options.plan] - Paused plan name
+ * @param {string} [options.reason] - Pause reason (financial, seasonal, etc.)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ */
+export async function trackSubscriptionPaused(options = {}) {
+    const params = { ...options.extra };
+    if (options.plan) params.plan = options.plan;
+    if (options.reason) params.reason = options.reason;
+    return trackEvent('subscription_paused', params, { immediate: true });
+}
+
+/**
+ * Track an invoice generated event.
+ *
+ * @param {object} [options] - Invoice options
+ * @param {string} [options.invoiceId] - Invoice identifier
+ * @param {number} [options.amount] - Invoice amount
+ * @param {string} [options.currency] - Currency code
+ * @param {string} [options.billingCycle] - Billing cycle (monthly, yearly)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ */
+export async function trackInvoiceGenerated(options = {}) {
+    const params = { ...options.extra };
+    if (options.invoiceId) params.invoice_id = options.invoiceId;
+    if (options.amount != null) params.amount = options.amount;
+    if (options.currency) params.currency = options.currency;
+    if (options.billingCycle) params.billing_cycle = options.billingCycle;
+    return trackEvent('invoice_generated', params, { immediate: true });
 }
 
 // ─── SaaS Account Lifecycle Shorthands (v101.0.0) ─────────────────

@@ -6,7 +6,7 @@
  * of truth for all tracked event names.
  *
  * @package ZeroBoiler Analytics
- * @version 118.0.0
+ * @version 119.0.0
  */
 
 // ─── E-Commerce Events ───────────────────────────────────────────────
@@ -158,6 +158,57 @@ export const EngagementEvents = {
 };
 Object.freeze(EngagementEvents);
 
+// ─── Security Events ──────────────────────────────────────────────
+
+/**
+ * Security event names.
+ * @readonly
+ */
+export const SecurityEvents = {
+    LOGIN_ATTEMPT: 'login_attempt',
+    MFA_CHALLENGE: 'mfa_challenge',
+    RATE_LIMIT_EXCEEDED: 'rate_limit_exceeded',
+    SUSPICIOUS_ACTIVITY: 'suspicious_activity',
+    DATA_ACCESS_AUDIT: 'data_access_audit',
+    AI_AGENT_ACCESS: 'ai_agent_access',
+};
+Object.freeze(SecurityEvents);
+
+// ─── Uptime Events ──────────────────────────────────────────────────
+
+/**
+ * Uptime/service health event names.
+ * @readonly
+ */
+export const UptimeEvents = {
+    API_LATENCY: 'api_latency',
+    DEPLOYMENT: 'deployment',
+    ERROR_SPIKE: 'error_spike',
+    SERVICE_DOWN: 'service_down',
+    SERVICE_UP: 'service_up',
+};
+Object.freeze(UptimeEvents);
+
+// ─── Infrastructure Events ─────────────────────────────────────────
+
+/**
+ * Infrastructure/platform event names.
+ * @readonly
+ */
+export const InfrastructureEvents = {
+    DEPLOYMENT_ROLLED_BACK: 'deployment_rolled_back',
+    ERROR_BUDGET_BURNED: 'error_budget_burned',
+    EXPERIMENT_EXPOSED: 'experiment_exposed',
+    FEATURE_FLAG_EVALUATED: 'feature_flag_evaluated',
+    INCIDENT_STARTED: 'incident_started',
+    INCIDENT_RESOLVED: 'incident_resolved',
+    MAINTENANCE_STARTED: 'maintenance_started',
+    MAINTENANCE_ENDED: 'maintenance_ended',
+    PIPELINE_FAILURE: 'pipeline_failure',
+    SLO_BREACH: 'slo_breach',
+};
+Object.freeze(InfrastructureEvents);
+
 // ─── Unified Event Names ────────────────────────────────────────────
 
 /**
@@ -168,6 +219,9 @@ export const AllEventNames = Object.freeze({
     ...EcommerceEvents,
     ...SaaSEvents,
     ...EngagementEvents,
+    ...SecurityEvents,
+    ...UptimeEvents,
+    ...InfrastructureEvents,
 });
 
 /**
@@ -183,7 +237,7 @@ export function isValidEventName(name) {
 /**
  * Get event names by category.
  *
- * @param {'ecommerce'|'saas'|'engagement'} category
+ * @param {'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'} category
  * @returns {string[]}
  */
 export function getEventNamesByCategory(category) {
@@ -191,6 +245,9 @@ export function getEventNamesByCategory(category) {
         case 'ecommerce': return Object.values(EcommerceEvents);
         case 'saas': return Object.values(SaaSEvents);
         case 'engagement': return Object.values(EngagementEvents);
+        case 'security': return Object.values(SecurityEvents);
+        case 'uptime': return Object.values(UptimeEvents);
+        case 'infrastructure': return Object.values(InfrastructureEvents);
         default: return [];
     }
 }
@@ -202,4 +259,13 @@ export function getEventNamesByCategory(category) {
  */
 export function getTotalEventCount() {
     return Object.keys(AllEventNames).length;
+}
+
+/**
+ * Get all supported category names.
+ *
+ * @returns {readonly string[]}
+ */
+export function getCategoryNames() {
+    return ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure'];
 }

@@ -1,5 +1,32 @@
 # Changelog
 
+## [119.0.0] - 2026-08-14
+
+### Added
+- **Phase 48 — SaaS Lifecycle Shorthands & Event Catalog Expansion**:
+  - `trackLogin()` — Login event with method attribution and auto-identify (calls `identify(userId)` automatically).
+  - `trackLogout()` — Logout event with method attribution (manual, session_expired, forced).
+  - `trackPlanDowngrade()` — Plan downgrade with from/to plan and value difference.
+  - `trackTrialConverted()` — Trial → paid conversion with plan, value, currency, trialDays.
+  - `trackTrialExpired()` — Trial expired without conversion with plan and trialDays.
+  - `trackPaymentFailed()` — Payment failure with reason, amount, currency.
+  - `trackSubscriptionPaused()` — Subscription pause with plan and reason.
+  - `trackInvoiceGenerated()` — Invoice generated with invoiceId, amount, currency, billingCycle.
+  - **Security Events** — `SecurityEvents` constant object (LOGIN_ATTEMPT, MFA_CHALLENGE, RATE_LIMIT_EXCEEDED, SUSPICIOUS_ACTIVITY, DATA_ACCESS_AUDIT, AI_AGENT_ACCESS).
+  - **Uptime Events** — `UptimeEvents` constant object (API_LATENCY, DEPLOYMENT, ERROR_SPIKE, SERVICE_DOWN, SERVICE_UP).
+  - **Infrastructure Events** — `InfrastructureEvents` constant object (DEPLOYMENT_ROLLED_BACK, ERROR_BUDGET_BURNED, EXPERIMENT_EXPOSED, FEATURE_FLAG_EVALUATED, INCIDENT_STARTED, INCIDENT_RESOLVED, MAINTENANCE_STARTED, MAINTENANCE_ENDED, PIPELINE_FAILURE, SLO_BREACH).
+  - `getCategoryNames()` — Returns all 6 category names (ecommerce, saas, engagement, security, uptime, infrastructure).
+  - **TypeScript types** — SecurityEvents, UptimeEvents, InfrastructureEvents constants, SecurityEventName/UptimeEventName/InfrastructureEventName union types, and all 8 new shorthand function signatures with typed option interfaces (TrackLoginOptions, TrackLogoutOptions, TrackPlanDowngradeOptions, TrackTrialConvertedOptions, TrackTrialExpiredOptions, TrackPaymentFailedOptions, TrackSubscriptionPausedOptions, TrackInvoiceGeneratedOptions).
+
+### Changed
+- **AllEventNames** — Now includes SecurityEvents, UptimeEvents, and InfrastructureEvents categories (was 3 categories, now 6).
+- **getEventNamesByCategory()** — Extended JSDoc param type to include 'security', 'uptime', 'infrastructure'.
+- **useAnalyticsConfig** Svelte composable — Now exposes `amplitudeApiKey`, `mixpanelToken`, `tiktokPixelId`, `linkedinPartnerId` provider IDs (fallback and live resolution).
+- **useAnalyticsConfig TypeScript return type** — Added the 4 new provider props to the `Readable<>` interface.
+- **ZbAnalyticsProps** — Added `tiktokPixelId`, `linkedinPartnerId` to the TypeScript config interface.
+- **Version sweep** — All package files synced to 119.0.0 (composer.json, package.json, all JS/TS files, Svelte composables).
+- **CHANGELOG** — v119.0.0 entry added.
+
 ## [118.0.0] - 2026-08-14
 
 ### Added
