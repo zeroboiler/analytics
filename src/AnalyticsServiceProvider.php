@@ -55,6 +55,8 @@ use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 use ZeroBoiler\Analytics\Services\RevenueAttributionService;
 use ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService;
 use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
+use ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService;
+use ZeroBoiler\Analytics\Services\AnalyticsEventReliabilityService;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -524,6 +526,29 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new FeatureGatingAnalyticsService(
                 config: $app->make(ConfigRepository::class),
                 cache: $app->make(CacheRepository::class),
+            );
+        });
+
+        // Pipeline Profiler (v137.0.0)
+        $this->app->singleton(AnalyticsPipelineProfilerService::class, function (Application $app): AnalyticsPipelineProfilerService {
+            $profilerConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.pipeline_profiler', []);
+            /** @var array{slow_threshold_ms?: float, critical_threshold_ms?: float, cache_ttl?: int, max_samples?: int} $profilerConfig */
+
+            return new AnalyticsPipelineProfilerService(
+                manager: $app->make(AnalyticsManager::class),
+                cache: $app->make(CacheRepository::class),
+                config: $profilerConfig,
+            );
+        });
+
+        // Event Reliability (v137.0.0)
+        $this->app->singleton(AnalyticsEventReliabilityService::class, function (Application $app): AnalyticsEventReliabilityService {
+            $reliabilityConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.event_reliability', []);
+            /** @var array{warning_threshold?: float, critical_threshold?: float, window_seconds?: int} $reliabilityConfig */
+
+            return new AnalyticsEventReliabilityService(
+                cache: $app->make(CacheRepository::class),
+                config: $reliabilityConfig,
             );
         });
 

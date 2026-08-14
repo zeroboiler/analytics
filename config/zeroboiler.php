@@ -7776,4 +7776,41 @@ return [
             'reminder_days_before' => [30, 14, 7, 3, 1],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pipeline Profiler (v137.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Analytics dispatch performance profiler. When enabled, tracks per-provider,
+    | per-category, and per-event latency metrics. Provides p95/p99 statistics,
+    | slow event detection, and degradation alerting.
+    |
+    | Used by AnalyticsPipelineProfilerService for operational monitoring.
+    |
+    */
+    'pipeline_profiler' => [
+        'enabled' => env('ANALYTICS_PIPELINE_PROFILER_ENABLED', false),
+        'slow_threshold_ms' => (float) env('ANALYTICS_PIPELINE_PROFILER_SLOW_MS', 500.0),
+        'critical_threshold_ms' => (float) env('ANALYTICS_PIPELINE_PROFILER_CRITICAL_MS', 1000.0),
+        'cache_ttl' => (int) env('ANALYTICS_PIPELINE_PROFILER_CACHE_TTL', 3600),
+        'max_samples' => (int) env('ANALYTICS_PIPELINE_PROFILER_MAX_SAMPLES', 1000),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Reliability (v137.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Event delivery reliability scoring. Tracks success/failure rates per
+    | provider and computes composite reliability scores with letter grades.
+    | Used by AnalyticsEventReliabilityService.
+    |
+    */
+    'event_reliability' => [
+        'enabled' => env('ANALYTICS_EVENT_RELIABILITY_ENABLED', false),
+        'warning_threshold' => (float) env('ANALYTICS_EVENT_RELIABILITY_WARNING', 0.90),
+        'critical_threshold' => (float) env('ANALYTICS_EVENT_RELIABILITY_CRITICAL', 0.75),
+        'window_seconds' => (int) env('ANALYTICS_EVENT_RELIABILITY_WINDOW', 300),
+    ],
 ];
