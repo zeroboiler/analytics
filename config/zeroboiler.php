@@ -3124,6 +3124,23 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Conversion Path Discovery
+        |--------------------------------------------------------------------------
+        |
+        | Analyzes event sequences to discover the most common multi-step
+        | conversion paths. Identifies high-converting patterns, common
+        | drop-off points, and optimal journey sequences.
+        |
+        */
+        'conversion_paths' => [
+            'enabled' => env('ANALYTICS_CONVERSION_PATHS_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CONVERSION_PATHS_CACHE_TTL', 86400),
+            'max_depth' => (int) env('ANALYTICS_CONVERSION_PATHS_MAX_DEPTH', 10),
+            'min_samples' => (int) env('ANALYTICS_CONVERSION_PATHS_MIN_SAMPLES', 3),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Event Impact Scoring (Conversion & Retention Correlation)
         |--------------------------------------------------------------------------
         |

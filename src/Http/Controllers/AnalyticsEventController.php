@@ -14429,4 +14429,651 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Funnel Velocity Analyzer (v82.0.0) ────────────────────────────
+
+    /**
+     * Get the full funnel velocity report.
+     *
+     * GET /api/analytics/funnel-velocity/{funnelName}?total_steps=5
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function funnelVelocityReport(Request $request, string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer $analyzer */
+            $analyzer = app(\ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer::class);
+            $totalSteps = (int) $request->input('total_steps', 5);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $analyzer->funnelVelocityReport($funnelName, $totalSteps),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get velocity for a specific step transition.
+     *
+     * GET /api/analytics/funnel-velocity/{funnelName}/{fromStep}/{toStep}
+     *
+     * @param  string  $funnelName
+     * @param  int  $fromStep
+     * @param  int  $toStep
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function funnelStepVelocity(string $funnelName, int $fromStep, int $toStep): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer $analyzer */
+            $analyzer = app(\ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $analyzer->stepVelocity($funnelName, $fromStep, $toStep),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get step-by-step dropout analysis for a funnel.
+     *
+     * GET /api/analytics/funnel-velocity/{funnelName}/dropout?total_steps=5
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function funnelDropoutAnalysis(Request $request, string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer $analyzer */
+            $analyzer = app(\ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer::class);
+            $totalSteps = (int) $request->input('total_steps', 5);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $analyzer->dropoutAnalysis($funnelName, $totalSteps),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Predict funnel completion time from a given step.
+     *
+     * GET /api/analytics/funnel-velocity/{funnelName}/predict/{step}?total_steps=5
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @param  int  $step
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function funnelPredictCompletion(Request $request, string $funnelName, int $step): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer $analyzer */
+            $analyzer = app(\ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer::class);
+            $totalSteps = (int) $request->input('total_steps', 5);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $analyzer->predictCompletionTime($funnelName, $step, $totalSteps),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Privacy-Aware Event Router (v82.0.0) ─────────────────────────
+
+    /**
+     * Route an event through the privacy-aware router.
+     *
+     * POST /api/analytics/privacy/route
+     * Body: {event_name: string, params: object, zone?: string, client_id?: string, user_id?: string}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function privacyRouteEvent(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter $router */
+            $router = app(\ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter::class);
+
+            $event = new AnalyticsEvent(
+                name: (string) $request->input('event_name', ''),
+                params: (array) $request->input('params', []),
+                clientId: $request->input('client_id'),
+                userId: $request->input('user_id'),
+            );
+
+            $zone = $request->input('zone');
+            $result = $router->route($event, is_string($zone) ? $zone : null);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'zone' => $result['zone'],
+                    'allowed_providers' => $result['allowed_providers'],
+                    'stripped_fields' => $result['stripped_fields'],
+                    'blocked' => $result['blocked'],
+                    'blocked_reason' => $result['blocked_reason'],
+                    'sanitized_params' => $result['event']->toArray()['params'],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Batch route multiple events through the privacy router.
+     *
+     * POST /api/analytics/privacy/route-batch
+     * Body: {events: [{event_name, params, zone?}], zone?: string}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function privacyRouteBatch(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter $router */
+            $router = app(\ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter::class);
+
+            $events = [];
+            foreach ((array) $request->input('events', []) as $eventData) {
+                $events[] = new AnalyticsEvent(
+                    name: (string) ($eventData['event_name'] ?? ''),
+                    params: (array) ($eventData['params'] ?? []),
+                    clientId: $eventData['client_id'] ?? null,
+                    userId: $eventData['user_id'] ?? null,
+                );
+            }
+
+            $zone = $request->input('zone');
+            $results = $router->routeBatch($events, is_string($zone) ? $zone : null);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'count' => count($results),
+                'data' => array_map(static function (array $r): array {
+                    return [
+                        'zone' => $r['zone'],
+                        'allowed_providers' => $r['allowed_providers'],
+                        'stripped_fields' => $r['stripped_fields'],
+                        'blocked' => $r['blocked'],
+                        'blocked_reason' => $r['blocked_reason'],
+                    ];
+                }, $results),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all supported privacy zones.
+     *
+     * GET /api/analytics/privacy/zones
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function privacyZones(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter $router */
+            $router = app(\ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter::class);
+
+            $zones = [];
+            foreach ($router->supportedZones() as $zone) {
+                $zones[$zone] = [
+                    'requires_consent' => $router->requiresConsent($zone),
+                    'strict_mode' => $router->isStrictMode($zone),
+                    'blocked_fields' => $router->getBlockedFields($zone),
+                    'allowed_providers' => $router->getAllowedProviders($zone),
+                ];
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'zones' => $zones,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get blocked fields for a specific privacy zone.
+     *
+     * GET /api/analytics/privacy/zone/{zone}/blocked-fields
+     *
+     * @param  string  $zone
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function privacyBlockedFields(string $zone): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter $router */
+            $router = app(\ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'zone' => $zone,
+                'blocked_fields' => $router->getBlockedFields($zone),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get allowed providers for a specific privacy zone.
+     *
+     * GET /api/analytics/privacy/zone/{zone}/providers
+     *
+     * @param  string  $zone
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function privacyAllowedProviders(string $zone): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter $router */
+            $router = app(\ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'zone' => $zone,
+                'allowed_providers' => $router->getAllowedProviders($zone),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Revenue Signal Detector (v82.0.0) ────────────────────────────
+
+    /**
+     * Get churn risk score for a user.
+     *
+     * GET /api/analytics/signals/churn/{userId}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revenueChurnScore(Request $request, string $userId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueSignalDetector $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\RevenueSignalDetector::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $detector->churnScore(
+                    $userId,
+                    (array) $request->input('event_counts', []),
+                    (array) $request->input('context', []),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get expansion opportunity score for a user.
+     *
+     * GET /api/analytics/signals/expansion/{userId}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revenueExpansionScore(Request $request, string $userId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueSignalDetector $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\RevenueSignalDetector::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $detector->expansionScore(
+                    $userId,
+                    (array) $request->input('event_counts', []),
+                    (array) $request->input('context', []),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get combined revenue signal report for a user.
+     *
+     * GET /api/analytics/signals/report/{userId}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revenueSignalReport(Request $request, string $userId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueSignalDetector $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\RevenueSignalDetector::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $detector->fullSignalReport(
+                    $userId,
+                    (array) $request->input('event_counts', []),
+                    (array) $request->input('context', []),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top at-risk users by churn score.
+     *
+     * GET /api/analytics/signals/top-at-risk?user_ids[]=u1&limit=10
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revenueTopAtRisk(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueSignalDetector $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\RevenueSignalDetector::class);
+
+            $userIds = (array) $request->input('user_ids', []);
+            $limit = (int) $request->input('limit', 10);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $detector->topAtRiskUsers($userIds, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top expansion opportunity users.
+     *
+     * GET /api/analytics/signals/top-expansion?user_ids[]=u1&limit=10
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revenueTopExpansion(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueSignalDetector $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\RevenueSignalDetector::class);
+
+            $userIds = (array) $request->input('user_ids', []);
+            $limit = (int) $request->input('limit', 10);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $detector->topExpansionUsers($userIds, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Conversion Path Discovery (v83.0.0) ──────────────────────────
+
+    /**
+     * Get top conversion paths for a funnel.
+     *
+     * GET /api/analytics/conversion-paths/{funnelName}/top?limit=20
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathTop(Request $request, string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+            $limit = (int) $request->input('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->topConversionPaths($funnelName, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top drop-off paths for a funnel.
+     *
+     * GET /api/analytics/conversion-paths/{funnelName}/drop-offs?limit=20
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathDropOffs(Request $request, string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+            $limit = (int) $request->input('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->topDropOffPaths($funnelName, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get step-by-step conversion analysis for a funnel.
+     *
+     * GET /api/analytics/conversion-paths/{funnelName}/steps
+     *
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathSteps(string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->stepAnalysis($funnelName),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compare two funnels' conversion paths.
+     *
+     * POST /api/analytics/conversion-paths/compare
+     * Body: {funnel_a: string, funnel_b: string}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathCompare(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+
+            $funnelA = (string) $request->input('funnel_a', '');
+            $funnelB = (string) $request->input('funnel_b', '');
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->compareFunnels($funnelA, $funnelB),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get comprehensive funnel summary with paths and step analysis.
+     *
+     * GET /api/analytics/conversion-paths/{funnelName}/summary?limit=20
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $funnelName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathSummary(Request $request, string $funnelName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+            $limit = (int) $request->input('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->funnelSummary($funnelName, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Record a step in a conversion path.
+     *
+     * POST /api/analytics/conversion-paths/step
+     * Body: {funnel: string, identity: string, step: string, metadata?: object}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathRecordStep(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+
+            $service->recordStep(
+                (string) $request->input('funnel', ''),
+                (string) $request->input('identity', ''),
+                (string) $request->input('step', ''),
+                (array) $request->input('metadata', []),
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Mark a user's path as converted.
+     *
+     * POST /api/analytics/conversion-paths/convert
+     * Body: {funnel: string, identity: string, conversion_event?: string}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathConvert(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+
+            $service->markConverted(
+                (string) $request->input('funnel', ''),
+                (string) $request->input('identity', ''),
+                (string) $request->input('conversion_event', 'conversion'),
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Mark a user's path as abandoned.
+     *
+     * POST /api/analytics/conversion-paths/abandon
+     * Body: {funnel: string, identity: string, drop_off_step?: string}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function conversionPathAbandon(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService::class);
+
+            $service->markAbandoned(
+                (string) $request->input('funnel', ''),
+                (string) $request->input('identity', ''),
+                $request->input('drop_off_step'),
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

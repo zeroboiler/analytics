@@ -841,4 +841,14 @@ Route::prefix('analytics')->group(function () {
     Route::get('growth/virality', [AnalyticsEventController::class, 'growthVirality']);
     Route::get('growth/retention', [AnalyticsEventController::class, 'growthRetention']);
     Route::get('growth/milestones', [AnalyticsEventController::class, 'growthMilestones']);
+
+    // Conversion Path Discovery (v83.0.0)
+    Route::post('conversion-paths/step', [AnalyticsEventController::class, 'conversionPathRecordStep']);
+    Route::post('conversion-paths/convert', [AnalyticsEventController::class, 'conversionPathConvert']);
+    Route::post('conversion-paths/abandon', [AnalyticsEventController::class, 'conversionPathAbandon']);
+    Route::get('conversion-paths/{funnelName}/top', [AnalyticsEventController::class, 'conversionPathTop']);
+    Route::get('conversion-paths/{funnelName}/drop-offs', [AnalyticsEventController::class, 'conversionPathDropOffs']);
+    Route::get('conversion-paths/{funnelName}/steps', [AnalyticsEventController::class, 'conversionPathSteps']);
+    Route::get('conversion-paths/{funnelName}/summary', [AnalyticsEventController::class, 'conversionPathSummary']);
+    Route::post('conversion-paths/compare', [AnalyticsEventController::class, 'conversionPathCompare']);
 });

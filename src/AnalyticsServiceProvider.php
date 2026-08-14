@@ -206,6 +206,7 @@ use ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService;
 use ZeroBoiler\Analytics\Services\EventHealthScoringEngine;
 use ZeroBoiler\Analytics\Services\RevenueForecastService;
 use ZeroBoiler\Analytics\Services\RevenueSignalDetector;
+use ZeroBoiler\Analytics\Services\ConversionPathDiscoveryService;
 use ZeroBoiler\Analytics\Services\ChurnPredictionService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsForecastCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsDeployGate;
@@ -367,7 +368,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 82.0.0
+ * @version 83.0.0
  *
  * @since 1.0.0
  */
@@ -1035,7 +1036,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Funnel Velocity Analyzer (v82.0.0) — real-time funnel step timing analytics
+        // Funnel Velocity Analyzer (v83.0.0) — real-time funnel step timing analytics
         $this->app->singleton(FunnelVelocityAnalyzer::class, function (Application $app): FunnelVelocityAnalyzer {
             return new FunnelVelocityAnalyzer(
                 $app->make('cache'),
@@ -1043,7 +1044,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Privacy-Aware Event Router (v82.0.0) — privacy zone-based event routing
+        // Privacy-Aware Event Router (v83.0.0) — privacy zone-based event routing
         $this->app->singleton(PrivacyAwareEventRouter::class, function (Application $app): PrivacyAwareEventRouter {
             $routerConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.privacy_router', []);
             /** @var array<string, mixed> $routerConfig */
@@ -1051,9 +1052,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new PrivacyAwareEventRouter($routerConfig);
         });
 
-        // Revenue Signal Detector (v82.0.0) — churn/expansion signal detection
+        // Revenue Signal Detector (v83.0.0) — churn/expansion signal detection
         $this->app->singleton(RevenueSignalDetector::class, function (Application $app): RevenueSignalDetector {
             return new RevenueSignalDetector(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Conversion Path Discovery Service (v83.0.0) — multi-step conversion path analysis
+        $this->app->singleton(ConversionPathDiscoveryService::class, function (Application $app): ConversionPathDiscoveryService {
+            return new ConversionPathDiscoveryService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
@@ -3889,25 +3898,35 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/deploy-gate', [$controller, 'deployGateEvaluate']);
                 Route::get('analytics/deploy-gate/quick', [$controller, 'deployGateQuick']);
 
-                // Funnel Velocity Analyzer (v82.0.0)
+                // Funnel Velocity Analyzer (v83.0.0)
                 Route::get('analytics/funnel-velocity/{funnelName}', [$controller, 'funnelVelocityReport']);
                 Route::get('analytics/funnel-velocity/{funnelName}/{fromStep}/{toStep}', [$controller, 'funnelStepVelocity']);
                 Route::get('analytics/funnel-velocity/{funnelName}/dropout', [$controller, 'funnelDropoutAnalysis']);
                 Route::get('analytics/funnel-velocity/{funnelName}/predict/{step}', [$controller, 'funnelPredictCompletion']);
 
-                // Privacy-Aware Event Router (v82.0.0)
+                // Privacy-Aware Event Router (v83.0.0)
                 Route::post('analytics/privacy/route', [$controller, 'privacyRouteEvent']);
                 Route::post('analytics/privacy/route-batch', [$controller, 'privacyRouteBatch']);
                 Route::get('analytics/privacy/zones', [$controller, 'privacyZones']);
                 Route::get('analytics/privacy/zone/{zone}/blocked-fields', [$controller, 'privacyBlockedFields']);
                 Route::get('analytics/privacy/zone/{zone}/providers', [$controller, 'privacyAllowedProviders']);
 
-                // Revenue Signal Detector (v82.0.0)
+                // Revenue Signal Detector (v83.0.0)
                 Route::get('analytics/signals/churn/{userId}', [$controller, 'revenueChurnScore']);
                 Route::get('analytics/signals/expansion/{userId}', [$controller, 'revenueExpansionScore']);
                 Route::get('analytics/signals/report/{userId}', [$controller, 'revenueSignalReport']);
                 Route::get('analytics/signals/top-at-risk', [$controller, 'revenueTopAtRisk']);
                 Route::get('analytics/signals/top-expansion', [$controller, 'revenueTopExpansion']);
+
+                // Conversion Path Discovery (v83.0.0)
+                Route::get('analytics/conversion-paths/{funnelName}/top', [$controller, 'conversionPathTop']);
+                Route::get('analytics/conversion-paths/{funnelName}/drop-offs', [$controller, 'conversionPathDropOffs']);
+                Route::get('analytics/conversion-paths/{funnelName}/steps', [$controller, 'conversionPathSteps']);
+                Route::get('analytics/conversion-paths/{funnelName}/summary', [$controller, 'conversionPathSummary']);
+                Route::post('analytics/conversion-paths/compare', [$controller, 'conversionPathCompare']);
+                Route::post('analytics/conversion-paths/step', [$controller, 'conversionPathRecordStep']);
+                Route::post('analytics/conversion-paths/convert', [$controller, 'conversionPathConvert']);
+                Route::post('analytics/conversion-paths/abandon', [$controller, 'conversionPathAbandon']);
             });
     }
 
