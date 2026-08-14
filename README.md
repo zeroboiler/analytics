@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-119.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-120.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -6419,6 +6419,9 @@ v3.0.0 marks the graduation from "SaaS analytics starter" to a full production-g
 - **AnalyticsHealthService** — Programmatic health-check with structured report, warnings, and recommendations
 - **Session & Funnel Tracker** — Session start/end, page counts, duration, and conversion funnel step tracking
 - **AnalyticsDataBus** — Rule-based event routing to selectively dispatch events to specific providers by name, category, param, or PII detection
+- **Heartbeat Monitor** — Production health pulse with per-provider circuit breaker, queue depth tracking, ring-buffer history (24h), aggregate statistics, and staleness detection
+- **Event Bundling** — Groups related SaaS events into named journey bundles (signup_funnel, activation_funnel, etc.) with step tracking, completion/abandonment, and funnel analysis
+- **Feature Flag Observer** — Auto-tracks A/B test exposures and goal conversions as analytics events with deduplication, configurable tracking, and ignore lists
 
 ### E-commerce
 - **13 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion, CheckoutStep
@@ -8135,6 +8138,16 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v120.0.0 — Heartbeat Monitor, Event Bundling, Feature Flag Observer
+
+- **AnalyticsHeartbeatMonitor** — Production health pulse monitoring with circuit breaker per provider, queue depth tracking, ring-buffer history, aggregate statistics, and staleness detection. Config: `heartbeat` section (4 env vars).
+- **SaaSBundleEventService** — Groups related SaaS lifecycle events into named journey bundles (signup_funnel, activation_funnel, billing_funnel, etc.) with step tracking, completion/abandonment events, and funnel analysis support. Config: `bundling` section (3 env vars).
+- **SaaSFeatureFlagObserver** — Auto-tracks feature flag evaluations and conversions as analytics events with deduplication, configurable exposure/conversion tracking, and ignore lists. Config: `feature_flags` expanded with `track_exposures`, `track_conversions`, `ignored_flags`.
+- **Bug fix** — `SaaSFeatureFlagObserver::recordConversion()` now correctly calls `markConversionRecorded()` for deduplication (was missing).
+- **Config** — 3 new sections: `heartbeat`, `bundling`; `feature_flags` expanded with 3 new keys.
+- **Tests** — Phase120HeartbeatBundleObserverAuditTest with 40+ assertions covering class structure, type safety, return types, config, version consistency.
+- **No breaking changes** — All new services are additive singletons registered in ServiceProvider.
 
 ### v2.68.0 — README Comprehensive Update, Package Integrity Verification
 

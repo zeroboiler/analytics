@@ -139,6 +139,7 @@ final class AnalyticsHeartbeatMonitor
         $this->lastDispatchAt = time();
         $this->eventsProcessedSincePulse++;
         $this->setProviderState($provider, 'closed');
+        $this->persistState();
     }
 
     /**
@@ -176,6 +177,7 @@ final class AnalyticsHeartbeatMonitor
         }
 
         $this->providerCircuits[$provider] = $current;
+        $this->persistState();
     }
 
     /**
@@ -190,6 +192,7 @@ final class AnalyticsHeartbeatMonitor
             'since' => time(),
             'failures' => 0,
         ];
+        $this->persistState();
     }
 
     /**
@@ -200,6 +203,7 @@ final class AnalyticsHeartbeatMonitor
     public function setQueueDepth(int $depth): void
     {
         $this->queueDepth = $depth;
+        $this->persistState();
     }
 
     /**
@@ -281,6 +285,7 @@ final class AnalyticsHeartbeatMonitor
         $this->cache->forget(self::CACHE_PREFIX . 'current');
         $this->cache->forget(self::CACHE_PREFIX . 'history');
         $this->cache->forget(self::CACHE_PREFIX . 'first_pulse');
+        $this->cache->forget(self::CACHE_PREFIX . 'state');
         $this->providerCircuits = [];
         $this->lastDispatchAt = null;
         $this->lastErrorAt = null;
@@ -423,6 +428,20 @@ final class AnalyticsHeartbeatMonitor
         }
 
         $this->cache->put(self::CACHE_PREFIX . 'history', $history, 86400);
+    }
+
+    /**
+     * Persist current state to cache for cross-process continuity.
+     */
+    private function persistState(): void
+    {
+        $this->cache->put(self::CACHE_PREFIX . 'state', [
+            'providers' => $this->providerCircuits,
+            'last_dispatch_at' => $this->lastDispatchAt,
+            'last_error_at' => $this->lastErrorAt,
+            'last_error' => $this->lastError,
+            'queue_depth' => $this->queueDepth,
+        ], 86400);
     }
 
     /**

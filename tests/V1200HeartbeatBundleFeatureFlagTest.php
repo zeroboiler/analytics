@@ -36,6 +36,17 @@ describe('AnalyticsHeartbeatMonitor', function (): void {
             ->with('zeroboiler.analytics.heartbeat.failure_threshold', 5)
             ->andReturn(5);
 
+        // Allow persistState calls throughout all tests
+        $this->cache->shouldReceive('put')
+            ->with('zb_heartbeat_state', \Mockery::type('array'), 86400)
+            ->byDefault();
+
+        // Allow loadState to read (returns null = no persisted state)
+        $this->cache->shouldReceive('get')
+            ->with('zb_heartbeat_state')
+            ->andReturn(null)
+            ->byDefault();
+
         $this->monitor = new AnalyticsHeartbeatMonitor($this->cache, $this->config);
     });
 
@@ -65,16 +76,8 @@ describe('AnalyticsHeartbeatMonitor', function (): void {
 
     test('pulse() returns degraded status when failures occurred', function (): void {
         $this->monitor->recordFailure('ga4', 'timeout');
-        $this->cache->shouldReceive('put')->twice();
-        $this->cache->shouldReceive('get')
-            ->with('zb_heartbeat_first_pulse')
-            ->andReturn(time() - 3600);
-        $this->cache->shouldReceive('get')
-            ->with('zb_heartbeat_history', [])
-            ->andReturn([]);
-        $this->cache->shouldReceive('put')
-            ->with('zb_heartbeat_history', \Mockery::type('array'), 86400)
-            ->once();
+        $this->cache->shouldReceive('put')->with('zb_heartbeat_current', \Mockery::type('array'), \Mockery::type('int'))->once();
+        $this->cache->shouldReceive('put')->with('zb_heartbeat_history', \Mockery::type('array'), 86400)->once();
 
         $result = $this->monitor->pulse();
 
@@ -190,6 +193,7 @@ describe('AnalyticsHeartbeatMonitor', function (): void {
         $this->cache->shouldReceive('forget')->with('zb_heartbeat_current')->once();
         $this->cache->shouldReceive('forget')->with('zb_heartbeat_history')->once();
         $this->cache->shouldReceive('forget')->with('zb_heartbeat_first_pulse')->once();
+        $this->cache->shouldReceive('forget')->with('zb_heartbeat_state')->once();
 
         $this->monitor->clear();
 
