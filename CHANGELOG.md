@@ -8,6 +8,19 @@
 ### Added
 - Phase 31 production audit test: strict_types (681 files), license headers, zero TODO/FIXME, exception hierarchy, composer metadata
 
+## [107.0.0] - 2026-08-14
+
+### Added
+- Phase 36 — Privacy Inventory Command & Enhanced Privacy Client API
+- `zb:analytics:privacy-inventory` artisan command with GDPR Article 30 data processing inventory
+- `trackPrivacyAction()` and `trackConsentUpdate()` JS client helpers for GDPR/CCPA audit trail
+
+## [106.0.0] - 2026-08-14
+
+### Added
+- Phase 35 — SaaS Starter Industry Standard Audit
+- Comprehensive SaaS starter validation with industry-standard readiness assessment
+
 ## [105.0.0] - 2026-08-14
 
 ### Fixed
