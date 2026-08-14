@@ -12,6 +12,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
@@ -333,7 +334,7 @@ final class EventForwardingService
                     return $response->status();
                 }
 
-                $lastException = new \RuntimeException("HTTP {$response->status()}: {$response->body()}");
+                $lastException = new AnalyticsRuntimeException("HTTP {$response->status()}: {$response->body()}");
             } catch (\Throwable $e) {
                 $lastException = $e;
             }
@@ -346,7 +347,7 @@ final class EventForwardingService
         }
 
         $this->incrementStat('total_failed');
-        throw $lastException ?? new \RuntimeException("Forwarding to '{$name}' failed after {$attempts} attempts");
+        throw $lastException ?? new AnalyticsRuntimeException("Forwarding to '{$name}' failed after {$attempts} attempts");
     }
 
     /**
