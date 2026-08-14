@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-109.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-110.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,31 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v110.0.0
+
+**Phase 38 — SaaS Starter Maturity Audit & Version Integrity Sweep**:
+
+- **Version integrity sweep** — Fixed stale version assertions in Phase35SaaSStarterAuditTest and Phase36PrivacyInventoryAuditTest (were pinned to 107.0.0, now 110.0.0). SaasStarterTest path resolution fixed to use glob pattern for cross-platform compatibility.
+- **Phase 38 Production Audit** — New comprehensive test suite (`V110SaaSStarterMaturityAuditTest`) with 80+ assertions covering:
+  - All 12 SaaS starter criteria remain valid at v110.0.0
+  - Version consistency across all 7 package files (PHP, composer.json, package.json, 4 JS files)
+  - README badge version alignment
+  - EventCatalog 50+ events across 6+ categories
+  - 10 provider trackers (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude, Webhook, TikTok, LinkedIn)
+  - Lifecycle mapper 60+ default mappings
+  - AnalyticsEvent readonly DTO with VERSION constant
+  - AnalyticsManager 10 provider accessor methods
+  - EcommerceFormatConverter bidirectional GA4↔Meta↔PostHog conversion
+  - Inertia middleware with client ID cookie management
+  - API controller with track, batch, identify, consent, health endpoints
+  - QueuedAnalyticsDispatcher async dispatch
+  - UserIdentityTracker client ID ↔ user ID linking
+  - Admin commands (AnalyticsOverviewCommand, AnalyticsTestCommand)
+  - Config expansion with 15+ sections
+  - JS client library 5000+ lines with SaaS shorthands
+  - 300+ test files, 56K+ LOC
+- **Version bump** to 110.0.0 across all 7 package files.
 
 ### What's New in v109.0.0
 

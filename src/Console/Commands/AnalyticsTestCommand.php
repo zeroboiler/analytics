@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
  *   --lifecycle           Test lifecycle event mapping registration and dispatch
  *
  * @since 1.0.0
- * @version 109.0.0
+ * @version 110.0.0
  */
 final class AnalyticsTestCommand extends Command
 {

@@ -295,8 +295,8 @@ describe('Phase36PrivacyInventoryAudit', function () {
     // ── Version Consistency ──────────────────────────────────────────
 
     describe('Version Consistency', function () {
-        it('version is 107.0.0 across all package files', function () {
-            $version = '107.0.0';
+        it('version is 110.0.0 across all package files', function () {
+            $version = '110.0.0';
 
             // AnalyticsEvent::VERSION
             expect(AnalyticsEvent::VERSION)->toBe($version);
