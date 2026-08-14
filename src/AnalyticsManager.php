@@ -3660,4 +3660,151 @@ final class AnalyticsManager
             'milestone' => $milestone,
         ]));
     }
+
+    // ── Unified Category Dispatchers (v126.0.0) ──────────────────────────
+
+    /**
+     * Track an e-commerce event by name with auto-formatted parameters.
+     *
+     * Unified entry point for all e-commerce events. Accepts the canonical
+     * event name (snake_case, camelCase, or PascalCase) and dispatches to all
+     * enabled providers with the correct parameter format.
+     *
+     * Supported events: view_item, add_to_cart, remove_from_cart, view_cart,
+     * begin_checkout, add_payment_info, purchase, refund, add_to_wishlist,
+     * select_item, select_promotion, view_promotion, checkout_step,
+     * abandoned_cart, checkout_abandon.
+     *
+     * @param  string  $eventName  Event name in any format (e.g. 'ViewItem', 'add_to_cart', 'Purchase')
+     * @param  array<string, mixed>  $params  Event parameters (item data for single-item events, full params for purchase/refund)
+     * @param  array{currency?: string, value?: float, transaction_id?: string, items?: array<int, array<string, mixed>>}  $options  Additional context (currency, value for computed events)
+     * @return bool  True if the event name was found in the catalog
+     *
+     * @since 126.0.0
+     */
+    public function trackEcommerceEvent(string $eventName, array $params = [], array $options = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'ecommerce') {
+            return false;
+        }
+
+        // Auto-compute value for single-item events when not provided
+        if (isset($options['value']) && ! isset($params['value'])) {
+            $params['value'] = $options['value'];
+        }
+        if (isset($options['currency']) && ! isset($params['currency'])) {
+            $params['currency'] = $options['currency'];
+        }
+        if (isset($options['transaction_id']) && ! isset($params['transaction_id'])) {
+            $params['transaction_id'] = $options['transaction_id'];
+        }
+        if (isset($options['items']) && ! isset($params['items'])) {
+            $params['items'] = $options['items'];
+        }
+
+        // Auto-compute value from single item for view_item, add_to_cart, remove_from_cart
+        if (
+            ! isset($params['value'])
+            && isset($params['price'], $params['quantity'])
+            && in_array($resolved, ['view_item', 'add_to_cart', 'remove_from_cart'], true)
+        ) {
+            $params['value'] = (float) $params['price'] * (int) $params['quantity'];
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /**
+     * Track a SaaS lifecycle event by name with auto-formatted parameters.
+     *
+     * Unified entry point for all SaaS events. Accepts the canonical event
+     * name and dispatches to all enabled providers. Supports all 71 SaaS
+     * lifecycle events including auth, subscription, billing, team, and
+     * cohort events.
+     *
+     * Supported events: sign_up, login, logout, start_trial, trial_end,
+     * subscribe, plan_upgrade, plan_downgrade, cancellation, feature_used,
+     * revenue_tracked, trial_converted, team_created, team_member_joined,
+     * payment_failed, payment_succeeded, subscription_renewal, and all
+     * other events in the SaaS catalog.
+     *
+     * @param  string  $eventName  Event name in any format (e.g. 'TrialStart', 'plan_upgrade')
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return bool  True if the event name was found in the SaaS catalog
+     *
+     * @since 126.0.0
+     */
+    public function trackSaaSLifecycle(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'saas') {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /**
+     * Track an engagement event by name with auto-formatted parameters.
+     *
+     * Unified entry point for all engagement events. Accepts the canonical
+     * event name and dispatches to all enabled providers. Supports all
+     * engagement events including page tracking, scroll depth, clicks,
+     * form interactions, search, sharing, errors, and session events.
+     *
+     * Supported events: page_view, scroll_depth, click, form_start,
+     * form_submit, search, share, error, time_on_page, session_start,
+     * session_end, web_vitals, js_error, and all other engagement events.
+     *
+     * @param  string  $eventName  Event name in any format (e.g. 'PageView', 'scroll_depth')
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return bool  True if the event name was found in the engagement catalog
+     *
+     * @since 126.0.0
+     */
+    public function trackEngagement(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'engagement') {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /**
+     * Track an event from any category by name with unified dispatch.
+     *
+     * Cross-category dispatcher that resolves any event name from any
+     * catalog category (ecommerce, saas, engagement, marketing, security,
+     * infrastructure, uptime) and dispatches to all enabled providers.
+     *
+     * @param  string  $eventName  Event name in any format
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return bool  True if the event was found in any catalog
+     *
+     * @since 126.0.0
+     */
+    public function trackByCategory(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null) {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
 }

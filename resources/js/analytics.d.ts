@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 119.0.0
+ * @version 126.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2376,6 +2376,42 @@ export function trackFirstValue(valueEvent: string, extra?: Record<string, unkno
  * Track a growth milestone event.
  */
 export function trackGrowthMilestone(milestone: string, extra?: Record<string, unknown>): Promise<void>;
+
+// ─── Unified Category Dispatchers (v126.0.0) ──────────────────────────
+
+/**
+ * Track an e-commerce event by name (client-side).
+ * Resolves against the known catalog and auto-computes value for single-item events.
+ */
+export function trackEcommerceEvent(
+  eventName: string,
+  params?: Record<string, unknown>,
+  options?: { currency?: string; value?: number; transaction_id?: string; items?: Record<string, unknown>[] },
+): Promise<boolean>;
+
+/**
+ * Track a SaaS lifecycle event by name (client-side).
+ */
+export function trackSaaSLifecycle(
+  eventName: string,
+  params?: Record<string, unknown>,
+): Promise<boolean>;
+
+/**
+ * Track an engagement event by name (client-side).
+ */
+export function trackEngagement(
+  eventName: string,
+  params?: Record<string, unknown>,
+): Promise<boolean>;
+
+/**
+ * Track any event from any category (client-side cross-category dispatcher).
+ */
+export function trackByCategory(
+  eventName: string,
+  params?: Record<string, unknown>,
+): Promise<boolean>;
 
 // ─── Session Replay Composable Types (v98.0.0) ────────────────────────
 

@@ -1861,8 +1861,70 @@ final class AnalyticsFake
             'growthMilestone' => array_merge($args[1] ?? [], [
                 'milestone' => $args[0] ?? '',
             ]),
+            'trackEcommerceEvent' => $args[1] ?? [],
+            'trackSaaSLifecycle' => $args[1] ?? [],
+            'trackEngagement' => $args[1] ?? [],
+            'trackByCategory' => $args[1] ?? [],
             default => $args[0] ?? [],
         };
+    }
+
+    // ── Unified Category Dispatchers (v126.0.0) ──────────────────────────
+
+    /** @param array<string, mixed> $params */
+    public function trackEcommerceEvent(string $eventName, array $params = [], array $options = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'ecommerce') {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /** @param array<string, mixed> $params */
+    public function trackSaaSLifecycle(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'saas') {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /** @param array<string, mixed> $params */
+    public function trackEngagement(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null || \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($resolved) !== 'engagement') {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
+    }
+
+    /** @param array<string, mixed> $params */
+    public function trackByCategory(string $eventName, array $params = []): bool
+    {
+        $resolved = \ZeroBoiler\Analytics\Events\EventCatalog::resolve($eventName);
+
+        if ($resolved === null) {
+            return false;
+        }
+
+        $this->track($resolved, $params);
+
+        return true;
     }
 
     /**

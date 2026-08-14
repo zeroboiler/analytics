@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 121.0.0
+ * @version 126.0.0
  */
 
 let trackingId = null;
@@ -7882,6 +7882,156 @@ export async function trackFirstValue(valueEvent, extra = {}) {
  */
 export async function trackGrowthMilestone(milestone, extra = {}) {
     return trackEvent('growth_milestone', { milestone, ...extra }, { immediate: true });
+}
+
+// ─── Unified Category Dispatchers (v126.0.0) ──────────────────────────
+
+/**
+ * Track an e-commerce event by name (client-side).
+ *
+ * Resolves the event name against the known catalog and dispatches
+ * with auto-computed value for single-item events.
+ *
+ * @param {string} eventName - Event name (e.g. 'view_item', 'AddToCart', 'Purchase')
+ * @param {object} [params] - Event parameters
+ * @param {object} [options] - Additional context (currency, value, transaction_id)
+ * @param {string} [options.currency] - Currency code (default: from config)
+ * @param {number} [options.value] - Pre-computed value
+ * @param {string} [options.transaction_id] - Transaction ID
+ * @param {Array<object>} [options.items] - Line items array
+ * @returns {Promise<boolean>} True if event was valid and tracked
+ *
+ * @example
+ * // View a product
+ * await trackEcommerceEvent('view_item', {
+ *     item_id: 'SKU-001', item_name: 'Widget',
+ *     price: 49.99, quantity: 1, item_category: 'Electronics',
+ * }, { currency: 'USD' });
+ *
+ * // Purchase
+ * await trackEcommerceEvent('purchase', {
+ *     items: [{ item_id: 'SKU-001', price: 49.99, quantity: 2 }],
+ * }, { transaction_id: 'TXN-123', value: 99.98, currency: 'USD' });
+ */
+export async function trackEcommerceEvent(eventName, params = {}, options = {}) {
+    const known = {
+        view_item: true, add_to_cart: true, remove_from_cart: true,
+        view_cart: true, begin_checkout: true, add_payment_info: true,
+        purchase: true, refund: true, add_to_wishlist: true,
+        select_item: true, select_promotion: true, view_promotion: true,
+        checkout_step: true, abandoned_cart: true, checkout_abandon: true,
+    };
+
+    const normalized = eventName.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');
+    if (!known[normalized]) return false;
+
+    // Auto-compute value from single item
+    if (!params.value && params.price && params.quantity) {
+        params.value = parseFloat(params.price) * parseInt(params.quantity, 10);
+    }
+
+    // Merge options into params
+    if (options.currency && !params.currency) params.currency = options.currency;
+    if (options.value !== undefined && !params.value) params.value = options.value;
+    if (options.transaction_id && !params.transaction_id) params.transaction_id = options.transaction_id;
+    if (options.items && !params.items) params.items = options.items;
+
+    await trackEvent(normalized, params, { immediate: true });
+    return true;
+}
+
+/**
+ * Track a SaaS lifecycle event by name (client-side).
+ *
+ * @param {string} eventName - Event name (e.g. 'SignUp', 'trial_start', 'PlanUpgrade')
+ * @param {object} [params] - Event parameters
+ * @returns {Promise<boolean>} True if event was valid and tracked
+ *
+ * @example
+ * await trackSaaSLifecycle('sign_up', { method: 'google' });
+ * await trackSaaSLifecycle('PlanUpgrade', { from_plan: 'starter', to_plan: 'pro' });
+ */
+export async function trackSaaSLifecycle(eventName, params = {}) {
+    const known = {
+        sign_up: true, login: true, logout: true, start_trial: true,
+        trial_end: true, subscribe: true, plan_upgrade: true,
+        plan_downgrade: true, cancellation: true, feature_used: true,
+        revenue_tracked: true, trial_converted: true, team_created: true,
+        team_member_joined: true, payment_failed: true, payment_succeeded: true,
+        subscription_renewal: true, account_activated: true, account_deactivated: true,
+        email_verified: true, password_changed: true, profile_updated: true,
+        invite_sent: true, integration_connected: true, workspace_created: true,
+        role_changed: true, milestone_reached: true, usage_quota_reached: true,
+    };
+
+    const normalized = eventName.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');
+    if (!known[normalized]) return false;
+
+    await trackEvent(normalized, params, { immediate: true });
+    return true;
+}
+
+/**
+ * Track an engagement event by name (client-side).
+ *
+ * @param {string} eventName - Event name (e.g. 'PageView', 'scroll_depth', 'Click')
+ * @param {object} [params] - Event parameters
+ * @returns {Promise<boolean>} True if event was valid and tracked
+ *
+ * @example
+ * await trackEngagement('scroll_depth', { percent: 75 });
+ * await trackEngagement('FormSubmit', { form_id: 'contact', success: true });
+ */
+export async function trackEngagement(eventName, params = {}) {
+    const known = {
+        page_view: true, scroll_depth: true, click: true, form_start: true,
+        form_submit: true, search: true, share: true, error: true,
+        time_on_page: true, session_start: true, session_end: true,
+        web_vitals: true, js_error: true, timing: true,
+        outbound_click: true, file_download: true, video_play: true,
+        content_engagement: true, onboarding_step: true, onboarding_completed: true,
+        feedback: true, goal_conversion: true, feature_request: true,
+    };
+
+    const normalized = eventName.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');
+    if (!known[normalized]) return false;
+
+    await trackEvent(normalized, params, { immediate: true });
+    return true;
+}
+
+/**
+ * Track any event by name from any category (client-side).
+ *
+ * Cross-category dispatcher. Resolves the event name and dispatches
+ * regardless of which catalog it belongs to. Falls back to raw trackEvent
+ * if the name is not in any known catalog.
+ *
+ * @param {string} eventName - Event name in any format
+ * @param {object} [params] - Event parameters
+ * @returns {Promise<boolean>} True if event was resolved from a catalog
+ *
+ * @example
+ * await trackByCategory('purchase', { value: 99.99, currency: 'USD' });
+ * await trackByCategory('SignUp', { method: 'email' });
+ * await trackByCategory('scroll_depth', { percent: 50 });
+ */
+export async function trackByCategory(eventName, params = {}) {
+    const normalized = eventName.toLowerCase().replace(/-/g, '_').replace(/\s+/g, '_');
+
+    // Try category-specific dispatchers first
+    const ecommerceResult = await trackEcommerceEvent(eventName, params);
+    if (ecommerceResult) return true;
+
+    const saasResult = await trackSaaSLifecycle(eventName, params);
+    if (saasResult) return true;
+
+    const engagementResult = await trackEngagement(eventName, params);
+    if (engagementResult) return true;
+
+    // Fallback: just track as a raw event
+    await trackEvent(normalized, params, { immediate: true });
+    return true;
 }
 
 // ─── Privacy Action Tracking (v108.0.0) ──────────────────────────────

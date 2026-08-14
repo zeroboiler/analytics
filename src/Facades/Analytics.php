@@ -180,6 +180,12 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void firstValue(string $eventName, array<string, mixed> $params = [])
  * @method static void growthMilestone(string $milestone, array<string, mixed> $params = [])
  *
+ * Unified Category Dispatchers (v126.0.0)
+ * @method static bool trackEcommerceEvent(string $eventName, array<string, mixed> $params = [], array{currency?: string, value?: float, transaction_id?: string, items?: array<int, array<string, mixed>>} $options = [])
+ * @method static bool trackSaaSLifecycle(string $eventName, array<string, mixed> $params = [])
+ * @method static bool trackEngagement(string $eventName, array<string, mixed> $params = [])
+ * @method static bool trackByCategory(string $eventName, array<string, mixed> $params = [])
+ *
  * Context & Wire Protocol Methods (v41.0.0)
  * @method static mixed contextMeasure(string $label, \Closure $callback)
  * @method static \ZeroBoiler\Analytics\Support\AnalyticsContext createContext(string $label, ?string $source = null)

@@ -377,7 +377,7 @@ final class EventFieldValidator
      */
     private function checkEnum(string $field, mixed $value, array $allowedValues, ?string $customMessage): ?array
     {
-        $stringValue = is_string($value) ? $value : (is_int($value) || is_float($value)) ? (string) $value : null;
+        $stringValue = is_string($value) ? $value : ((is_int($value) || is_float($value)) ? (string) $value : null);
 
         if ($stringValue === null) {
             return $this->makeError(
