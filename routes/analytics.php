@@ -851,4 +851,22 @@ Route::prefix('analytics')->group(function () {
     Route::get('conversion-paths/{funnelName}/steps', [AnalyticsEventController::class, 'conversionPathSteps']);
     Route::get('conversion-paths/{funnelName}/summary', [AnalyticsEventController::class, 'conversionPathSummary']);
     Route::post('conversion-paths/compare', [AnalyticsEventController::class, 'conversionPathCompare']);
+
+    // Provider SLA Monitor (v84.0.0)
+    Route::get('sla/summary', [AnalyticsEventController::class, 'slaSummary']);
+    Route::get('sla/provider/{provider}', [AnalyticsEventController::class, 'slaProviderStatus']);
+    Route::get('sla/health-matrix', [AnalyticsEventController::class, 'slaHealthMatrix']);
+    Route::get('sla/breaches', [AnalyticsEventController::class, 'slaBreachHistory']);
+    Route::get('sla/compliance/{provider}', [AnalyticsEventController::class, 'slaProviderCompliance']);
+
+    // Cost Forecast (v84.0.0)
+    Route::get('cost/forecast', [AnalyticsEventController::class, 'costForecastSummary']);
+    Route::get('cost/forecast/{provider}', [AnalyticsEventController::class, 'costForecastProvider']);
+    Route::get('cost/budget', [AnalyticsEventController::class, 'costBudgetStatus']);
+    Route::get('cost/recommendations', [AnalyticsEventController::class, 'costRecommendations']);
+
+    // Governance Policy Engine (v84.0.0)
+    Route::get('governance/policies', [AnalyticsEventController::class, 'governancePolicies']);
+    Route::get('governance/violations', [AnalyticsEventController::class, 'governanceViolations']);
+    Route::get('governance/violations/stats', [AnalyticsEventController::class, 'governanceViolationStats']);
 });

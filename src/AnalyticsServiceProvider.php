@@ -25,6 +25,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
@@ -249,6 +250,12 @@ use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
 use ZeroBoiler\Analytics\Services\ProviderFallbackService;
+use ZeroBoiler\Analytics\Services\ProviderSLAMonitor;
+use ZeroBoiler\Analytics\Services\AnalyticsCostForecastService;
+use ZeroBoiler\Analytics\Services\EventPolicyEngine;
+use ZeroBoiler\Analytics\DTO\ProviderSLARecord;
+use ZeroBoiler\Analytics\DTO\CostForecastProjection;
+use ZeroBoiler\Analytics\DTO\PolicyViolation;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
@@ -368,7 +375,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 83.0.0
+ * @version 84.0.0
  *
  * @since 1.0.0
  */
@@ -2861,6 +2868,36 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderFallbackService($cache, $config);
         });
 
+        // Provider SLA Monitor (v84.0.0) — uptime, latency, and breach tracking
+        $this->app->singleton(ProviderSLAMonitor::class, function (Application $app): ProviderSLAMonitor {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderSLAMonitor($cache, $config);
+        });
+
+        // Analytics Cost Forecast Service (v84.0.0) — provider cost projections
+        $this->app->singleton(AnalyticsCostForecastService::class, function (Application $app): AnalyticsCostForecastService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsCostForecastService($cache, $config);
+        });
+
+        // Event Policy Engine (v84.0.0) — governance compliance rules
+        $this->app->singleton(EventPolicyEngine::class, function (Application $app): EventPolicyEngine {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventPolicyEngine($cache, $config);
+        });
+
         // B2B Group Analytics Service (v9.5.0) — account/company-level analytics
         $this->app->singleton(GroupAnalyticsService::class, function (Application $app): GroupAnalyticsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
@@ -3413,6 +3450,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEventHealthCommand::class,
                 AnalyticsDeployGateCommand::class,
                 AnalyticsForecastCommand::class,
+                AnalyticsGovernanceCommand::class,
             ]);
         }
 

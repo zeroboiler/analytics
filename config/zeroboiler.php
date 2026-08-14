@@ -6837,4 +6837,124 @@ return [
             'cache_ttl' => (int) env('ANALYTICS_REVENUE_SIGNALS_CACHE_TTL', 3600), // 1 hour
         ],
     ],
+    /*
+    |--------------------------------------------------------------------------
+    | Provider SLA Monitor (v84.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Monitors each analytics provider against SLA targets: uptime, latency,
+    | and error budget. Provides breach detection, compliance percentage
+    | tracking, and health comparison matrix across all providers.
+    |
+    | Inspired by Google Cloud SLI/SLO framework and Datadog SLO monitoring.
+    |
+    */
+    'sla_monitor' => [
+        'enabled' => env('ANALYTICS_SLA_MONITOR_ENABLED', true),
+        'window_seconds' => (int) env('ANALYTICS_SLA_WINDOW_SECONDS', 3600), // 1 hour
+        'retention_windows' => (int) env('ANALYTICS_SLA_RETENTION_WINDOWS', 168), // 7 days hourly
+        'default_uptime_target' => (float) env('ANALYTICS_SLA_DEFAULT_UPTIME', 99.9), // %
+        'default_latency_target' => (float) env('ANALYTICS_SLA_DEFAULT_LATENCY', 500.0), // ms
+        'default_p99_latency_target' => (float) env('ANALYTICS_SLA_DEFAULT_P99_LATENCY', 2000.0), // ms
+        'default_error_budget' => (int) env('ANALYTICS_SLA_DEFAULT_ERROR_BUDGET', 10), // per window
+        'alert_on_breach' => env('ANALYTICS_SLA_ALERT_ON_BREACH', true),
+        'max_breach_history' => (int) env('ANALYTICS_SLA_MAX_BREACH_HISTORY', 1000),
+        'monitored_providers' => ['ga4', 'meta_pixel', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'],
+        'providers' => [
+            // Per-provider SLA overrides (optional)
+            // 'ga4' => [
+            //     'uptime_target' => 99.95,
+            //     'latency_target' => 300.0,
+            //     'p99_latency_target' => 1500.0,
+            //     'error_budget' => 5,
+            // ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Analytics Cost Forecast (v84.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Predicts future analytics costs per provider using historical event
+    | volume data, configured cost-per-event rates, and trend extrapolation.
+    | Provides budget alerting and optimization recommendations.
+    |
+    | Inspired by Segment's billing dashboard and Amplitude's usage analytics.
+    |
+    */
+    'cost_forecast' => [
+        'enabled' => env('ANALYTICS_COST_FORECAST_ENABLED', true),
+        'currency' => env('ANALYTICS_COST_FORECAST_CURRENCY', 'USD'),
+        'history_months' => (int) env('ANALYTICS_COST_FORECAST_HISTORY_MONTHS', 3),
+        'projection_months' => (int) env('ANALYTICS_COST_FORECAST_PROJECTION_MONTHS', 3),
+        'growth_cap' => (float) env('ANALYTICS_COST_FORECAST_GROWTH_CAP', 50.0), // Max 50% growth assumption
+        'alert_on_exceeds_budget' => env('ANALYTICS_COST_FORECAST_ALERT', true),
+        'monthly_budget' => (float) env('ANALYTICS_COST_FORECAST_BUDGET', 1000.0),
+        'cache_ttl' => (int) env('ANALYTICS_COST_FORECAST_CACHE_TTL', 3600),
+        'providers' => [
+            // Cost per 1000 events for each provider
+            // 'ga4' => 0.0,          // GA4 MP is free
+            // 'meta_pixel' => 0.0,   // Meta Pixel is free (server events cost via CAPI)
+            // 'posthog' => 0.00625,  // ~$6.25 per 1M events (PostHog pricing)
+            // 'plausible' => 0.009,  // ~$9 per 1M events
+            // 'mixpanel' => 0.0,     // Free tier available
+            // 'amplitude' => 0.0,    // Free tier available
+            // 'tiktok' => 0.0,       // Free
+            // 'linkedin' => 0.0,      // Free
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Governance Policy Engine (v84.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Declarative compliance policy rules for analytics events. Evaluates
+    | dispatched events against configurable governance policies: parameter
+    | limits, PII detection, rate limiting, event whitelists/blacklists,
+    | and category restrictions.
+    |
+    | Inspired by Datadog Governance API and Snowflake Data Governance.
+    |
+    */
+    'governance_policies' => [
+        'enabled' => env('ANALYTICS_GOVERNANCE_POLICIES_ENABLED', true),
+        'default_action' => env('ANALYTICS_GOVERNANCE_DEFAULT_ACTION', 'warn'), // block, warn, sanitize, transform
+        'max_violation_history' => (int) env('ANALYTICS_GOVERNANCE_MAX_HISTORY', 500),
+        'cache_ttl' => (int) env('ANALYTICS_GOVERNANCE_CACHE_TTL', 3600),
+        'log_violations' => env('ANALYTICS_GOVERNANCE_LOG_VIOLATIONS', true),
+        'pii_patterns' => ['email', 'phone', 'ssn', 'credit_card', 'password', 'token', 'secret', 'api_key', 'authorization', 'cookie'],
+        'rules' => [
+            // Example policies:
+            // 'disallow_sensitive_keys' => [
+            //     'type' => 'disallowed_params',
+            //     'action' => 'sanitize',
+            //     'severity' => 'high',
+            //     'description' => 'Remove sensitive parameter keys from events',
+            //     'config' => ['keys' => ['password', 'token', 'secret', 'api_key', 'credit_card']],
+            // ],
+            // 'max_event_params' => [
+            //     'type' => 'max_params',
+            //     'action' => 'warn',
+            //     'severity' => 'medium',
+            //     'description' => 'Warn when events have too many parameters',
+            //     'config' => ['max' => 100],
+            // ],
+            // 'block_internal_events' => [
+            //     'type' => 'blocked_events',
+            //     'action' => 'block',
+            //     'severity' => 'critical',
+            //     'description' => 'Block internal/debug events from production',
+            //     'config' => ['events' => ['debug_ping', 'internal_test']],
+            // ],
+            // 'pii_auto_detect' => [
+            //     'type' => 'pii_detection',
+            //     'action' => 'sanitize',
+            //     'severity' => 'high',
+            //     'description' => 'Auto-detect and redact PII from event payloads',
+            //     'config' => [],
+            // ],
+        ],
+    ],
 ];

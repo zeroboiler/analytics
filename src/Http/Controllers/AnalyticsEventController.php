@@ -15076,4 +15076,273 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Provider SLA Monitor (v84.0.0) ───────────────────────────────────────
+
+    /**
+     * Get SLA monitoring summary.
+     *
+     * GET /api/analytics/sla/summary
+     */
+    public function slaSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderSLAMonitor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderSLAMonitor::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SLA status for a specific provider.
+     *
+     * GET /api/analytics/sla/provider/{provider}
+     */
+    public function slaProviderStatus(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderSLAMonitor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderSLAMonitor::class);
+
+            $record = $service->currentSLA($provider);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $record?->toArray() ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SLA health comparison matrix.
+     *
+     * GET /api/analytics/sla/health-matrix
+     */
+    public function slaHealthMatrix(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderSLAMonitor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderSLAMonitor::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->healthMatrix(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SLA breach history.
+     *
+     * GET /api/analytics/sla/breaches
+     */
+    public function slaBreachHistory(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderSLAMonitor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderSLAMonitor::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->breachHistory(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SLA compliance percentage for a provider.
+     *
+     * GET /api/analytics/sla/compliance/{provider}
+     */
+    public function slaProviderCompliance(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderSLAMonitor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderSLAMonitor::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'provider' => $provider,
+                    'compliance_24h' => $service->compliancePercentage($provider, 24),
+                    'compliance_7d' => $service->compliancePercentage($provider, 168),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Cost Forecast (v84.0.0) ─────────────────────────────────────────────
+
+    /**
+     * Get cost forecast summary.
+     *
+     * GET /api/analytics/cost/forecast
+     */
+    public function costForecastSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsCostForecastService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsCostForecastService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost forecast for a specific provider.
+     *
+     * GET /api/analytics/cost/forecast/{provider}
+     */
+    public function costForecastProvider(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsCostForecastService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsCostForecastService::class);
+
+            $projection = $service->forecast($provider);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $projection?->toArray() ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get budget status (total projected vs budget).
+     *
+     * GET /api/analytics/cost/budget
+     */
+    public function costBudgetStatus(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsCostForecastService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsCostForecastService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'total_projected' => $service->totalProjectedCost(),
+                    'exceeds_budget' => $service->exceedsBudget(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost optimization recommendations.
+     *
+     * GET /api/analytics/cost/recommendations
+     */
+    public function costRecommendations(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsCostForecastService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsCostForecastService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->optimizationRecommendations(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Governance Policy Engine (v84.0.0) ───────────────────────────────────
+
+    /**
+     * Get governance policies summary.
+     *
+     * GET /api/analytics/governance/policies
+     */
+    public function governancePolicies(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventPolicyEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPolicyEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get governance violation history.
+     *
+     * GET /api/analytics/governance/violations
+     */
+    public function governanceViolations(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventPolicyEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPolicyEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->violationHistory(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get governance violation statistics.
+     *
+     * GET /api/analytics/governance/violations/stats
+     */
+    public function governanceViolationStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventPolicyEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPolicyEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->violationStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
