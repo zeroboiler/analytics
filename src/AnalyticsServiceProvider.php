@@ -143,6 +143,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsTelemetryService;
 use ZeroBoiler\Analytics\Services\EventPriorityGate;
 use ZeroBoiler\Analytics\Services\SaaSConversionService;
 use ZeroBoiler\Analytics\Services\ProviderCircuitBreaker;
+use ZeroBoiler\Analytics\Services\ProviderFailoverService;
 use ZeroBoiler\Analytics\Services\EventComplianceService;
 use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
 use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
@@ -237,6 +238,7 @@ use ZeroBoiler\Analytics\Services\EventTimeSeriesService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPLGScoreCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTimeSeriesCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsFailoverCommand;
 use ZeroBoiler\Analytics\Services\AARRRFrameworkService;
 use ZeroBoiler\Analytics\Services\AnalyticsConfigExportService;
 use ZeroBoiler\Analytics\Support\AnalyticsServiceRegistry;
@@ -2290,6 +2292,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderRateLimitService($app->make('cache'), $config);
         });
 
+        // Provider Auto-Failover Orchestration (v145.0.0)
+        $this->app->singleton(ProviderFailoverService::class, function (Application $app): ProviderFailoverService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderFailoverService($app->make('cache'), $config);
+        });
+
         // Event Schema Versioning (v2.71.0)
         $this->app->singleton(EventSchemaVersioningService::class, function (Application $app): EventSchemaVersioningService {
             /** @var ConfigRepository $config */
@@ -3806,6 +3816,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsPLGScoreCommand::class,
                 AnalyticsTimeSeriesCommand::class,
                 AnalyticsQuickSetupCommand::class,
+                AnalyticsFailoverCommand::class,
                 AnalyticsInsightsCommand::class,
                 AnalyticsSignalIntelligenceCommand::class,
                 AnalyticsIntegrityCommand::class,

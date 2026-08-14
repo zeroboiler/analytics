@@ -3826,7 +3826,7 @@ final class AnalyticsManager
         ]));
     }
 
-    // ── Identity + Event (v144.0.0) ──────────────────────────────────────
+    // ── Identity + Event (v145.0.0) ──────────────────────────────────────
 
     /**
      * Identify a user and track an event in one atomic call.
@@ -3856,7 +3856,7 @@ final class AnalyticsManager
         ]));
     }
 
-    // ── Additional SaaS Convenience Methods (v144.0.0) ─────────────────
+    // ── Additional SaaS Convenience Methods (v145.0.0) ─────────────────
 
     /**
      * Track a web_vitals event (Core Web Vitals from client).

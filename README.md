@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-144.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-145.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **75 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v145.0.0
+
+**Provider Auto-Failover Orchestration — Disaster Recovery for Analytics Providers**:
+
+- **`ProviderFailoverService`** — Automatic failover orchestration for analytics providers. When a provider becomes unavailable (circuit breaker opens), events are automatically routed to pre-configured fallback providers based on priority order. Three strategies supported: `priority` (lowest priority number first), `round_robin` (evenly distributed across fallbacks), and `health_score` (composite score from circuit state, success rate, error rate, and latency). Supports cascading failover up to configurable depth with dead-letter queue fallback.
+- **Recovery Ramp-Up** — Gradual traffic restoration for recovered providers. After a provider's circuit closes, traffic is increased by configurable percentage per minute (default: 10%/min) until full capacity. Prevents thundering herd effects after provider outages.
+- **Failover Audit Trail** — Every failover action logged with timestamps, source/target providers, and reasons. Queryable by date for post-incident analysis and compliance reporting.
+- **Composite Health Scoring** — Provider health computed from circuit state (0-80 base), success rate (±20), error rate (up to -15), and latency (up to -5). Used by the `health_score` strategy for intelligent failover decisions.
+- **`zb:analytics:failover` command** — Artisan command for monitoring failover status, viewing configuration, audit trails, and health scores. Supports `--status`, `--config`, `--audit`, `--summary`, `--health`, and `--json` output modes.
+- **Config expansion** — New `failover` section in `zeroboiler.php` with `enabled`, `strategy`, `max_cascade_depth`, `recovery_ramp_up_percent`, `audit_log_ttl`, per-provider fallback chains, and priority mapping. All settings configurable via environment variables.
+- **Version sweep** — All 11 client files synced to v145.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
+- **Zero breaking changes** — Failover is opt-in (disabled by default). Existing dispatch pipeline unchanged when `ANALYTICS_FAILOVER_ENABLED=false`.
 
 ### What's New in v144.0.0
 

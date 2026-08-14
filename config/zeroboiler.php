@@ -7903,4 +7903,52 @@ return [
         //     ],
         // ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Provider Auto-Failover (v145.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Automatic failover orchestration for analytics providers. When a provider
+    | becomes unavailable (circuit breaker opens), events are automatically
+    | routed to pre-configured fallback providers.
+    |
+    | Strategies:
+    |   - 'priority': Select fallback with lowest priority number first
+    |   - 'round_robin': Cycle through fallbacks evenly
+    |   - 'health_score': Select fallback with highest composite health score
+    |
+    | Recovery ramp-up gradually restores traffic to recovered providers,
+    | preventing thundering herd effects after outages.
+    |
+    */
+    'failover' => [
+        'enabled' => env('ANALYTICS_FAILOVER_ENABLED', false),
+        'strategy' => env('ANALYTICS_FAILOVER_STRATEGY', 'priority'),
+        'max_cascade_depth' => (int) env('ANALYTICS_FAILOVER_MAX_CASCADE_DEPTH', 3),
+        'recovery_ramp_up_percent' => (int) env('ANALYTICS_FAILOVER_RECOVERY_RAMP_UP', 10),
+        'audit_log_ttl' => (int) env('ANALYTICS_FAILOVER_AUDIT_LOG_TTL', 86400),
+        'priority' => [
+            'ga4' => 1,
+            'meta_pixel' => 2,
+            'posthog' => 3,
+            'plausible' => 4,
+            'mixpanel' => 5,
+            'amplitude' => 6,
+            'tiktok' => 7,
+            'linkedin' => 8,
+            'webhook' => 9,
+        ],
+        'providers' => [
+            'ga4' => ['posthog', 'meta_pixel', 'webhook'],
+            'meta_pixel' => ['ga4', 'posthog', 'webhook'],
+            'posthog' => ['ga4', 'meta_pixel', 'webhook'],
+            'plausible' => ['ga4', 'posthog', 'webhook'],
+            'mixpanel' => ['ga4', 'amplitude', 'webhook'],
+            'amplitude' => ['mixpanel', 'ga4', 'webhook'],
+            'tiktok' => ['meta_pixel', 'ga4', 'webhook'],
+            'linkedin' => ['ga4', 'meta_pixel', 'webhook'],
+            'webhook' => ['ga4', 'posthog', 'meta_pixel'],
+        ],
+    ],
 ];

@@ -191,10 +191,10 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static bool trackEngagement(string $eventName, array<string, mixed> $params = [])
  * @method static bool trackByCategory(string $eventName, array<string, mixed> $params = [])
  *
- * Identity + Event (v144.0.0)
+ * Identity + Event (v145.0.0)
  * @method static void identifyAndTrack(string $userId, string $eventName, string|null $clientId = null, array<string, mixed> $params = [], array<string, mixed> $traits = [])
  *
- * Additional Engagement Convenience Methods (v144.0.0)
+ * Additional Engagement Convenience Methods (v145.0.0)
  * @method static void webVitals(string $metricName, float|int $value, array<string, mixed> $params = [])
  * @method static void jsError(string $message, string|null $source = null, int|null $line = null, int|null $col = null, array<string, mixed> $params = [])
  * @method static void timing(string $category, string $variable, int|float $valueMs, array<string, mixed> $params = [])
@@ -205,7 +205,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void hover(string $elementId, int|null $durationMs = null, array<string, mixed> $params = [])
  * @method static void clientError(string $message, string|null $type = null, string|null $source = null, array<string, mixed> $params = [])
  *
- * Additional SaaS Lifecycle Convenience Methods (v144.0.0)
+ * Additional SaaS Lifecycle Convenience Methods (v145.0.0)
  * @method static void consentGrant(array<string, bool>|null $purposes = null, array<string, mixed> $params = [])
  * @method static void consentWithdraw(array<string, bool>|null $purposes = null, array<string, mixed> $params = [])
  * @method static void paymentMethodAdded(string|null $method = null, string|null $provider = null, array<string, mixed> $params = [])
