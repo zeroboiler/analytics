@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-104.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-105.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v105.0.0
+
+**Phase 33 Provider Coverage Parity — Summary & Catalog Enhancements**:
+
+- **EventCatalog::metaNameFor()** — New symmetrical provider name lookup method for Meta Pixel (complements existing `posthogNameFor`, `plausibleNameFor`, `mixpanelNameFor`, `amplitudeNameFor`, `tiktokNameFor`, `linkedinNameFor`)
+- **EventCatalog::summary()** — Now includes `infrastructure` category count and `with_tiktok`/`with_linkedin` provider coverage counts (was missing tiktok/linkedin)
+- **EventCatalog::providerCoverage()** — Now includes `tiktok` and `linkedin` event name lists alongside counts (was only in counts, not in event lists)
+- **EventCatalog::byProvider()** — Updated docblock to reflect all 8 providers (was outdated showing only 6)
+- **Version bump** to 105.0.0 across all package files (composer.json, package.json, analytics.js, AnalyticsEvent.php, README.md)
 
 ### What's New in v104.0.0
 

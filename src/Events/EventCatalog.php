@@ -347,12 +347,12 @@ final class EventCatalog
      * Get events grouped by provider name.
      *
      * Returns arrays keyed by provider name with deduplicated event names.
-     * Includes all supported providers: ga4, meta, posthog, plausible, mixpanel, amplitude.
+     * Includes all supported providers: ga4, meta, posthog, plausible,
+     * mixpanel, amplitude, tiktok, linkedin.
      *
-     * Now uses native catalog fields (posthog, plausible, mixpanel, amplitude) rather than
-     * EventTransformer maps.
+     * Uses native catalog fields rather than EventTransformer maps.
      *
-     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>}
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>, tiktok: list<string>, linkedin: list<string>}
      */
     public static function byProvider(): array
     {
@@ -513,6 +513,20 @@ final class EventCatalog
     }
 
     /**
+     * Get the Meta Pixel event name for a given catalog event name.
+     *
+     * @return string|null Meta Pixel event name or null if not supported
+     *
+     * @since 105.0.0
+     */
+    public static function metaNameFor(string $name): ?string
+    {
+        $entry = self::get($name);
+
+        return $entry['meta'] ?? null;
+    }
+
+    /**
      * Get the Plausible event name for a given catalog event name.
      *
      * @return string|null Plausible event name or null if not supported
@@ -570,6 +584,24 @@ final class EventCatalog
         $entry = self::get($name);
 
         return $entry['linkedin'] ?? null;
+    }
+
+    /**
+     * Get the complete event → Meta Pixel mapping table from catalog entries.
+     *
+     * @return array<string, string|null>
+     *
+     * @since 105.0.0
+     */
+    public static function allMetaMappings(): array
+    {
+        $mappings = [];
+
+        foreach (self::all() as $name => $entry) {
+            $mappings[$name] = $entry['meta'] ?? null;
+        }
+
+        return $mappings;
     }
 
     /**
@@ -692,7 +724,7 @@ final class EventCatalog
     /**
      * Get a summary of the event catalog with counts and breakdown.
      *
-     * @return array{total: int, ecommerce: int, saas: int, engagement: int, security: int, uptime: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int, with_mixpanel: int, with_amplitude: int}
+     * @return array{total: int, ecommerce: int, saas: int, engagement: int, security: int, uptime: int, infrastructure: int, with_ga4: int, with_meta: int, with_posthog: int, with_plausible: int, with_mixpanel: int, with_amplitude: int, with_tiktok: int, with_linkedin: int}
      */
     public static function summary(): array
     {
@@ -704,6 +736,8 @@ final class EventCatalog
         $withPlausible = 0;
         $withMixpanel = 0;
         $withAmplitude = 0;
+        $withTiktok = 0;
+        $withLinkedin = 0;
 
         foreach ($all as $entry) {
             if (isset($entry['ga4'])) {
@@ -724,6 +758,12 @@ final class EventCatalog
             if (isset($entry['amplitude']) && $entry['amplitude'] !== null) {
                 $withAmplitude++;
             }
+            if (isset($entry['tiktok']) && $entry['tiktok'] !== null) {
+                $withTiktok++;
+            }
+            if (isset($entry['linkedin']) && $entry['linkedin'] !== null) {
+                $withLinkedin++;
+            }
         }
 
         return [
@@ -733,12 +773,15 @@ final class EventCatalog
             'engagement' => EngagementEvents::count(),
             'security' => SecurityEvents::count(),
             'uptime' => UptimeEvents::count(),
+            'infrastructure' => InfrastructureEvents::count(),
             'with_ga4' => $withGa4,
             'with_meta' => $withMeta,
             'with_posthog' => $withPosthog,
             'with_plausible' => $withPlausible,
             'with_mixpanel' => $withMixpanel,
             'with_amplitude' => $withAmplitude,
+            'with_tiktok' => $withTiktok,
+            'with_linkedin' => $withLinkedin,
         ];
     }
 
@@ -853,7 +896,7 @@ final class EventCatalog
      * Returns a comprehensive breakdown of event coverage per provider,
      * useful for admin dashboards and readiness checks.
      *
-     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>, counts: array{ga4: int, meta: int, posthog: int, plausible: int, mixpanel: int, amplitude: int}}
+     * @return array{ga4: list<string>, meta: list<string>, posthog: list<string>, plausible: list<string>, mixpanel: list<string>, amplitude: list<string>, tiktok: list<string>, linkedin: list<string>, counts: array{ga4: int, meta: int, posthog: int, plausible: int, mixpanel: int, amplitude: int, tiktok: int, linkedin: int}}
      */
     public static function providerCoverage(): array
     {
@@ -864,6 +907,8 @@ final class EventCatalog
             'plausible' => self::allPlausibleNames(),
             'mixpanel' => self::allMixpanelNames(),
             'amplitude' => self::allAmplitudeNames(),
+            'tiktok' => self::allTikTokNames(),
+            'linkedin' => self::allLinkedInNames(),
             'counts' => [
                 'ga4' => self::providerCount('ga4'),
                 'meta' => self::providerCount('meta'),
