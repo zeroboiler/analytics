@@ -963,4 +963,9 @@ Route::prefix('analytics')->group(function () {
     Route::get('sdk-telemetry/versions', [AnalyticsEventController::class, 'sdkTelemetryVersions']);
     Route::get('sdk-telemetry/health', [AnalyticsEventController::class, 'sdkTelemetryHealth']);
     Route::delete('sdk-telemetry', [AnalyticsEventController::class, 'sdkTelemetryClear']);
+
+    // OpenAPI Specification Export (v127.0.0)
+    Route::get('openapi-spec', [AnalyticsEventController::class, 'openApiSpec']);
+    Route::get('openapi.yaml', [AnalyticsEventController::class, 'openApiYaml']);
+    Route::get('openapi/endpoints', [AnalyticsEventController::class, 'openApiEndpointSummary']);
 });

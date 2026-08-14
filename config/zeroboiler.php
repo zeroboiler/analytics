@@ -7579,4 +7579,32 @@ return [
         'max_batch_size' => (int) env('ANALYTICS_COMPACT_MAX_BATCH', 100),
         'max_payload_bytes' => (int) env('ANALYTICS_COMPACT_MAX_PAYLOAD', 524288), // 512 KB
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | OpenAPI Specification Export (v127.0.0)
+    |------------------------------------------------------------------
+    |
+    | Generates an OpenAPI 3.0.3 specification from the analytics event catalog
+    | and API routes. Export via GET /api/analytics/openapi-spec (JSON) or
+    | GET /api/analytics/openapi.yaml (YAML).
+    |
+    | Customize the spec metadata (title, description, contact, license)
+    | to match your application's documentation standards.
+    |
+    */
+    'openapi' => [
+        'enabled' => env('ANALYTICS_OPENAPI_ENABLED', true),
+        'title' => env('ANALYTICS_OPENAPI_TITLE', 'ZeroBoiler Analytics API'),
+        'description' => env('ANALYTICS_OPENAPI_DESCRIPTION', 'Industry-standard SaaS analytics API for Laravel'),
+        'version' => env('ANALYTICS_OPENAPI_VERSION'), // null = uses package version
+        'contact' => [
+            'name' => env('ANALYTICS_OPENAPI_CONTACT_NAME', 'ZeroBoiler'),
+            'url' => env('ANALYTICS_OPENAPI_CONTACT_URL', 'https://zeroboiler.dev'),
+        ],
+        'license' => [
+            'name' => 'MIT',
+            'url' => 'https://opensource.org/licenses/MIT',
+        ],
+    ],
 ];

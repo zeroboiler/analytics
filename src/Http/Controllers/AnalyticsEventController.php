@@ -10,6 +10,7 @@ namespace ZeroBoiler\Analytics\Http\Controllers;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
@@ -16959,6 +16960,75 @@ final class AnalyticsEventController extends Controller
             }
 
             return response()->json(['status' => 'ok', 'cleared' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export OpenAPI 3.0 specification (JSON).
+     *
+     * GET /api/analytics/openapi-spec
+     * Returns the full machine-readable API specification for Swagger UI, Redoc,
+     * or any OpenAPI-compatible documentation tool.
+     *
+     * @since 127.0.0
+     */
+    public function openApiSpec(): JsonResponse
+    {
+        try {
+            $generator = new \ZeroBoiler\Analytics\Services\EventSchemaOpenApiGenerator($this->config);
+
+            return response()->json(
+                $generator->generate(),
+                200,
+                ['Content-Type' => 'application/json'],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+            );
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export OpenAPI 3.0 specification (YAML).
+     *
+     * GET /api/analytics/openapi.yaml
+     * Returns the full API specification in YAML format for direct import
+     * into documentation tools or API gateways.
+     *
+     * @since 127.0.0
+     */
+    public function openApiYaml(): Response
+    {
+        try {
+            $generator = new \ZeroBoiler\Analytics\Services\EventSchemaOpenApiGenerator($this->config);
+
+            return response($generator->toYaml(), 200, ['Content-Type' => 'application/yaml']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export OpenAPI endpoint summary (flat list).
+     *
+     * GET /api/analytics/openapi/endpoints
+     * Returns a simplified list of all API endpoints with methods, paths,
+     * descriptions, and tag groupings. Useful for quick reference.
+     *
+     * @since 127.0.0
+     */
+    public function openApiEndpointSummary(): JsonResponse
+    {
+        try {
+            $generator = new \ZeroBoiler\Analytics\Services\EventSchemaOpenApiGenerator($this->config);
+
+            return response()->json([
+                'status' => 'ok',
+                'total' => count($generator->endpointSummary()),
+                'endpoints' => $generator->endpointSummary(),
+            ]);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
