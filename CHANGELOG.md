@@ -1,5 +1,15 @@
 # Changelog
 
+## [89.0.0] - 2026-08-14
+
+### Added
+- **Multi-Provider Ecommerce Conversion** — `toGa4Format()` now dispatches to all 10 supported providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn) with event-specific parameter formatting for purchase, refund, add_to_cart, and view_item events
+- **PostHog refund/add_to_cart routing** — `toGa4Format()` now correctly routes PostHog refund events to `ga4ToPosthogRefund()` instead of always using `ga4ToPosthogPurchase()`
+- **V89 Multi-Provider Ecommerce Conversion Test** — 11 test cases validating universal provider dispatch, buildForAllProviders() coverage, catalog name lookups, null safety, Meta→GA4 reverse conversion, and version consistency
+
+### Fixed
+- **Version consistency sweep** — unified version to 89.0.0 across all 8 package files: AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION (was stale at 84.0.0), composer.json (was 88.1.0), package.json (was stale at 86.0.0), JS client, TypeScript declarations, ServiceProvider docblock, README badge
+
 ## [78.0.0] - 2026-08-13
 
 ### Added

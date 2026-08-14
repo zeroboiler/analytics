@@ -1077,10 +1077,48 @@ final class EcommerceFormatConverter
                 ?? ['provider_event' => null, 'provider_params' => $ga4Params],
             'posthog' => [
                 'provider_event' => EventCatalog::posthogNameFor($ga4EventName),
-                'provider_params' => self::ga4ToPosthogPurchase($ga4Params),
+                'provider_params' => match ($ga4EventName) {
+                    'purchase' => self::ga4ToPosthogPurchase($ga4Params),
+                    'refund' => self::ga4ToPosthogRefund($ga4Params),
+                    default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
+                },
             ],
             'plausible' => self::ga4ToPlausibleAuto($ga4EventName, $ga4Params)
                 ?? ['plausible_event' => null, 'plausible_params' => []],
+            'mixpanel' => [
+                'provider_event' => EventCatalog::mixpanelNameFor($ga4EventName),
+                'provider_params' => match ($ga4EventName) {
+                    'purchase' => self::ga4ToMixpanelPurchase($ga4Params),
+                    'refund' => self::ga4ToMixpanelRefund($ga4Params),
+                    'add_to_cart' => self::ga4ToMixpanelProperties($ga4Params['items'] ?? []),
+                    default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
+                },
+            ],
+            'amplitude' => [
+                'provider_event' => EventCatalog::amplitudeNameFor($ga4EventName),
+                'provider_params' => match ($ga4EventName) {
+                    'purchase' => self::ga4ToAmplitudePurchase($ga4Params),
+                    'refund' => self::ga4ToAmplitudeRefund($ga4Params),
+                    default => self::ga4ToAmplitudeProperties($ga4Params['items'] ?? []),
+                },
+            ],
+            'tiktok' => [
+                'provider_event' => EventCatalog::tiktokNameFor($ga4EventName),
+                'provider_params' => match ($ga4EventName) {
+                    'purchase' => self::ga4ToTiktokPurchase($ga4Params),
+                    'refund' => self::ga4ToTiktokRefund($ga4Params),
+                    'add_to_cart' => self::ga4ToTiktokAddToCart($ga4Params),
+                    default => self::ga4ToTiktokProperties($ga4Params['items'] ?? []),
+                },
+            ],
+            'linkedin' => [
+                'provider_event' => EventCatalog::linkedinNameFor($ga4EventName),
+                'provider_params' => match ($ga4EventName) {
+                    'purchase' => self::ga4ToLinkedinPurchase($ga4Params),
+                    'add_to_cart' => self::ga4ToLinkedinAddToCart($ga4Params),
+                    default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
+                },
+            ],
             default => ['provider_event' => $ga4EventName, 'provider_params' => $ga4Params],
         };
     }
