@@ -1602,6 +1602,12 @@ final class AnalyticsFake
             'roleChanged', 'paymentFailed', 'paymentSucceeded',
             'milestoneReached', 'workspaceCreated', 'usageQuotaReached',
             'billingRetry',
+            // SaaS Account Lifecycle (v101.0.0)
+            'accountActivated', 'accountDeactivated', 'featureUsed',
+            'emailVerified', 'passwordChanged', 'profileUpdated',
+            'apiRateLimited', 'invoiceGenerated', 'accountDeleted',
+            'dataErasureCompleted', 'exportEvent', 'importEvent',
+            'firstValue', 'growthMilestone',
         ];
 
         if (in_array($method, $shorthandMethods, true)) {
