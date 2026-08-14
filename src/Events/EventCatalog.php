@@ -2999,4 +2999,500 @@ final class EventCatalog
 
         return $tiers[$tier] ?? $tiers['starter'];
     }
+
+    // ── Phase 42: Event Dependency Graph & Causal Path Analysis ──────
+
+    /**
+     * Define causal dependency edges between events based on funnel ordering.
+     *
+     * Each edge represents a "typically precedes" relationship:
+     * source → target means source usually fires before target in the same session.
+     * Built from the canonical funnel event sequences.
+     *
+     * @return array<string, list<string>>  source event → list of target events
+     *
+     * @since 114.0.0
+     */
+    public static function causalEdges(): array
+    {
+        return [
+            // SaaS acquisition funnel
+            'sign_up' => ['login', 'start_trial', 'email_verified', 'account_activated', 'team_created'],
+            'login' => ['start_trial', 'feature_used', 'plan_upgrade', 'plan_downgrade', 'cancellation'],
+            'start_trial' => ['trial_converted', 'trial_expired', 'trial_end', 'feature_used'],
+            'trial_converted' => ['subscribe', 'subscription_created'],
+            'subscribe' => ['subscription_renewal', 'plan_upgrade', 'plan_downgrade', 'cancellation'],
+            'plan_upgrade' => ['subscription_renewal', 'cancellation', 'plan_downgrade'],
+            'subscription_renewal' => ['subscription_renewal', 'cancellation', 'plan_downgrade'],
+            // E-commerce funnel
+            'view_item' => ['select_item', 'add_to_cart', 'add_to_wishlist'],
+            'select_item' => ['add_to_cart', 'view_cart'],
+            'add_to_cart' => ['remove_from_cart', 'view_cart', 'begin_checkout'],
+            'remove_from_cart' => ['add_to_cart', 'view_cart', 'begin_checkout', 'abandoned_cart'],
+            'view_cart' => ['begin_checkout', 'abandoned_cart'],
+            'begin_checkout' => ['add_payment_info', 'checkout_step', 'checkout_abandon'],
+            'add_payment_info' => ['purchase'],
+            'purchase' => ['refund'],
+            // Engagement funnel
+            'page_view' => ['scroll_depth', 'click', 'form_start', 'search', 'share', 'outbound_click'],
+            'scroll_depth' => ['click', 'form_start'],
+            'click' => ['form_start', 'share', 'outbound_click'],
+            'form_start' => ['form_submit'],
+            'form_submit' => ['sign_up', 'goal_conversion'],
+            // Account lifecycle
+            'email_verified' => ['account_activated', 'onboarding_step', 'onboarding_completed'],
+            'account_activated' => ['onboarding_step', 'feature_used', 'start_trial'],
+            'onboarding_step' => ['onboarding_completed', 'feature_used', 'milestone_reached'],
+            // Team/B2B
+            'team_created' => ['team_member_joined', 'invite_sent', 'integration_connected'],
+            'invite_sent' => ['team_member_joined'],
+            'team_member_joined' => ['feature_used', 'role_changed'],
+            // Billing
+            'payment_method_added' => ['add_payment_info', 'purchase', 'subscribe'],
+            'payment_failed' => ['billing_retry', 'cancellation'],
+            'payment_succeeded' => ['subscription_renewal', 'plan_upgrade'],
+            'billing_retry' => ['payment_succeeded', 'payment_failed', 'cancellation'],
+            // Workspace
+            'workspace_created' => ['team_created', 'integration_connected', 'feature_used'],
+            'integration_connected' => ['feature_used', 'integration_failed'],
+            // Performance
+            'web_vitals' => ['performance_score'],
+            'js_error' => ['error', 'client_error'],
+            'client_error' => ['error'],
+        ];
+    }
+
+    /**
+     * Build a directed adjacency graph from causal edges.
+     *
+     * Returns both forward (outgoing) and reverse (incoming) adjacency lists
+     * for efficient path traversal and ancestor/descendant queries.
+     *
+     * @return array{forward: array<string, list<string>>, reverse: array<string, list<string>>, edge_count: int, node_count: int}
+     *
+     * @since 114.0.0
+     */
+    public static function eventDependencyGraph(): array
+    {
+        $edges = self::causalEdges();
+        $forward = [];
+        $reverse = [];
+
+        foreach ($edges as $source => $targets) {
+            if (! isset($forward[$source])) {
+                $forward[$source] = [];
+            }
+
+            foreach ($targets as $target) {
+                $forward[$source][] = $target;
+
+                if (! isset($reverse[$target])) {
+                    $reverse[$target] = [];
+                }
+                $reverse[$target][] = $source;
+            }
+        }
+
+        // Include nodes that appear only as targets (no outgoing edges)
+        foreach ($reverse as $node => $ancestors) {
+            if (! isset($forward[$node])) {
+                $forward[$node] = [];
+            }
+        }
+
+        // Include nodes that appear only as sources (no incoming edges)
+        foreach ($forward as $node => $descendants) {
+            if (! isset($reverse[$node])) {
+                $reverse[$node] = [];
+            }
+        }
+
+        $allNodes = array_unique(array_merge(array_keys($forward), array_keys($reverse)));
+        $edgeCount = 0;
+
+        foreach ($forward as $targets) {
+            $edgeCount += count($targets);
+        }
+
+        return [
+            'forward' => $forward,
+            'reverse' => $reverse,
+            'edge_count' => $edgeCount,
+            'node_count' => count($allNodes),
+            'nodes' => array_values($allNodes),
+        ];
+    }
+
+    /**
+     * Find all causal paths from one event to another using BFS.
+     *
+     * Returns all simple paths (no cycles) from $from to $to through the
+     * causal dependency graph. Paths are returned sorted by length (shortest first).
+     *
+     * @return list<list<string>>  List of paths, each path is a list of event names from → to
+     *
+     * @since 114.0.0
+     */
+    public static function causalPaths(string $from, string $to, int $maxDepth = 8): array
+    {
+        $graph = self::eventDependencyGraph();
+        $forward = $graph['forward'];
+
+        $paths = [];
+
+        // BFS with path tracking
+        $queue = [[$from]];
+
+        while ($queue !== []) {
+            $path = array_shift($queue);
+            $current = $path[array_key_last($path)];
+
+            if ($current === $to && count($path) > 1) {
+                $paths[] = $path;
+                continue;
+            }
+
+            if (count($path) - 1 >= $maxDepth) {
+                continue;
+            }
+
+            $neighbors = $forward[$current] ?? [];
+
+            foreach ($neighbors as $neighbor) {
+                // Prevent cycles
+                if (in_array($neighbor, $path, true)) {
+                    continue;
+                }
+
+                $queue[] = [...$path, $neighbor];
+            }
+        }
+
+        // Sort by path length (shortest first)
+        usort($paths, fn (array $a, array $b): int => count($a) <=> count($b));
+
+        return $paths;
+    }
+
+    /**
+     * Get all direct ancestors (events that typically precede) for a given event.
+     *
+     * Uses the reverse adjacency list from the dependency graph.
+     *
+     * @return list<string>
+     *
+     * @since 114.0.0
+     */
+    public static function causalAncestors(string $event, int $depth = 1): array
+    {
+        $graph = self::eventDependencyGraph();
+        $reverse = $graph['reverse'];
+
+        if ($depth <= 1) {
+            return $reverse[$event] ?? [];
+        }
+
+        // Multi-depth: BFS on reverse graph
+        $ancestors = [];
+        $visited = [$event => true];
+        $currentLevel = [$event];
+
+        for ($d = 0; $d < $depth; $d++) {
+            $nextLevel = [];
+
+            foreach ($currentLevel as $node) {
+                foreach ($reverse[$node] ?? [] as $parent) {
+                    if (! isset($visited[$parent])) {
+                        $visited[$parent] = true;
+                        $ancestors[] = $parent;
+                        $nextLevel[] = $parent;
+                    }
+                }
+            }
+
+            $currentLevel = $nextLevel;
+        }
+
+        return $ancestors;
+    }
+
+    /**
+     * Get all direct descendants (events that typically follow) for a given event.
+     *
+     * Uses the forward adjacency list from the dependency graph.
+     *
+     * @return list<string>
+     *
+     * @since 114.0.0
+     */
+    public static function causalDescendants(string $event, int $depth = 1): array
+    {
+        $graph = self::eventDependencyGraph();
+        $forward = $graph['forward'];
+
+        if ($depth <= 1) {
+            return $forward[$event] ?? [];
+        }
+
+        // Multi-depth: BFS on forward graph
+        $descendants = [];
+        $visited = [$event => true];
+        $currentLevel = [$event];
+
+        for ($d = 0; $d < $depth; $d++) {
+            $nextLevel = [];
+
+            foreach ($currentLevel as $node) {
+                foreach ($forward[$node] ?? [] as $child) {
+                    if (! isset($visited[$child])) {
+                        $visited[$child] = true;
+                        $descendants[] = $child;
+                        $nextLevel[] = $child;
+                    }
+                }
+            }
+
+            $currentLevel = $nextLevel;
+        }
+
+        return $descendants;
+    }
+
+    /**
+     * Get critical path events for a given funnel type.
+     *
+     * Critical paths are the shortest causal chains from funnel entry to exit.
+     * Returns all shortest paths through the funnel dependency graph.
+     *
+     * @param  'saas'|'ecommerce'|'engagement'  $funnelType
+     * @return array{entry: string, exit: string, critical_paths: list<list<string>>, max_depth: int}
+     *
+     * @since 114.0.0
+     */
+    public static function funnelCriticalPaths(string $funnelType): array
+    {
+        $entryExit = match ($funnelType) {
+            'saas' => ['sign_up', 'cancellation'],
+            'ecommerce' => ['view_item', 'purchase'],
+            'engagement' => ['page_view', 'error'],
+            default => ['', ''],
+        };
+
+        if ($entryExit[0] === '') {
+            return ['entry' => '', 'exit' => '', 'critical_paths' => [], 'max_depth' => 0];
+        }
+
+        $paths = self::causalPaths($entryExit[0], $entryExit[1], 10);
+
+        // Find shortest path length
+        $minLength = PHP_INT_MAX;
+        foreach ($paths as $path) {
+            if (count($path) < $minLength) {
+                $minLength = count($path);
+            }
+        }
+
+        // Filter to only shortest paths
+        $criticalPaths = array_filter(
+            $paths,
+            fn (array $path): bool => count($path) === $minLength
+        );
+
+        return [
+            'entry' => $entryExit[0],
+            'exit' => $entryExit[1],
+            'critical_paths' => array_values($criticalPaths),
+            'max_depth' => $minLength > 0 ? $minLength - 1 : 0,
+        ];
+    }
+
+    /**
+     * Statistical funnel bottleneck analysis using z-score anomaly detection.
+     *
+     * Identifies statistically significant drop-off points in a funnel
+     * by comparing actual transition rates against the mean and standard
+     * deviation of all transitions. Bottlenecks are classified by z-score:
+     *   - |z| < 1.0: normal
+     *   - 1.0 ≤ |z| < 2.0: elevated
+     *   - |z| ≥ 2.0: critical bottleneck
+     *
+     * @param  array<string, int>  $eventCounts  Event name → count
+     * @param  'saas'|'ecommerce'|'engagement'  $funnelType
+     * @return array{transitions: list<array{from: string, to: string, from_count: int, to_count: int, rate: float|null, z_score: float|null, severity: string|null}>, mean_rate: float, std_dev: float, critical_count: int, elevated_count: int}
+     *
+     * @since 114.0.0
+     */
+    public static function funnelBottleneckAnalysis(array $eventCounts, string $funnelType): array
+    {
+        // Get funnel events
+        $funnelEvents = match ($funnelType) {
+            'saas' => self::saasFunnelEvents(),
+            'ecommerce' => self::ecommerceFunnelEvents(),
+            'engagement' => self::engagementFunnelEvents(),
+            default => [],
+        };
+
+        if ($funnelEvents === []) {
+            return [
+                'transitions' => [],
+                'mean_rate' => 0.0,
+                'std_dev' => 0.0,
+                'critical_count' => 0,
+                'elevated_count' => 0,
+            ];
+        }
+
+        // Build transitions
+        $transitions = [];
+        $rates = [];
+
+        for ($i = 0; $i < count($funnelEvents) - 1; $i++) {
+            $fromName = $funnelEvents[$i]['event'];
+            $toName = $funnelEvents[$i + 1]['event'];
+            $fromCount = $eventCounts[$fromName] ?? 0;
+            $toCount = $eventCounts[$toName] ?? 0;
+
+            $rate = $fromCount > 0 ? round((1 - ($toCount / $fromCount)) * 100, 2) : null;
+
+            if ($rate !== null) {
+                $rates[] = $rate;
+            }
+
+            $transitions[] = [
+                'from' => $fromName,
+                'to' => $toName,
+                'from_count' => $fromCount,
+                'to_count' => $toCount,
+                'rate' => $rate,
+                'z_score' => null,
+                'severity' => null,
+            ];
+        }
+
+        // Compute mean and std dev of drop-off rates
+        $n = count($rates);
+        $mean = $n > 0 ? array_sum($rates) / $n : 0.0;
+        $variance = 0.0;
+
+        foreach ($rates as $r) {
+            $variance += ($r - $mean) ** 2;
+        }
+
+        $stdDev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
+
+        // Compute z-scores and severity
+        $criticalCount = 0;
+        $elevatedCount = 0;
+
+        foreach ($transitions as &$transition) {
+            if ($transition['rate'] !== null && $stdDev > 0) {
+                $zScore = ($transition['rate'] - $mean) / $stdDev;
+                $transition['z_score'] = round($zScore, 2);
+
+                $absZ = abs($zScore);
+
+                if ($absZ >= 2.0) {
+                    $transition['severity'] = 'critical';
+                    $criticalCount++;
+                } elseif ($absZ >= 1.0) {
+                    $transition['severity'] = 'elevated';
+                    $elevatedCount++;
+                } else {
+                    $transition['severity'] = 'normal';
+                }
+            }
+        }
+
+        return [
+            'transitions' => $transitions,
+            'mean_rate' => round($mean, 2),
+            'std_dev' => round($stdDev, 2),
+            'critical_count' => $criticalCount,
+            'elevated_count' => $elevatedCount,
+        ];
+    }
+
+    /**
+     * Get event sequence correlation matrix for a funnel type.
+     *
+     * Returns a matrix showing which event pairs tend to co-occur in
+     * sequence within the same funnel. Each cell contains the correlation
+     * strength (0.0 to 1.0) based on the causal edge structure.
+     *
+     * @param  'saas'|'ecommerce'|'engagement'  $funnelType
+     * @return array{funnel: string, events: list<string>, matrix: array<string, array<string, float>>, direct_edges: int, possible_edges: int, density: float}
+     *
+     * @since 114.0.0
+     */
+    public static function eventSequenceCorrelationMatrix(string $funnelType): array
+    {
+        $funnelEvents = match ($funnelType) {
+            'saas' => self::saasFunnelEvents(),
+            'ecommerce' => self::ecommerceFunnelEvents(),
+            'engagement' => self::engagementFunnelEvents(),
+            default => [],
+        };
+
+        if ($funnelEvents === []) {
+            return [
+                'funnel' => $funnelType,
+                'events' => [],
+                'matrix' => [],
+                'direct_edges' => 0,
+                'possible_edges' => 0,
+                'density' => 0.0,
+            ];
+        }
+
+        $eventNames = array_column($funnelEvents, 'event');
+        $edges = self::causalEdges();
+        $matrix = [];
+
+        foreach ($eventNames as $row) {
+            $matrix[$row] = [];
+
+            foreach ($eventNames as $col) {
+                // Direct causal edge → 1.0
+                if (in_array($col, $edges[$row] ?? [], true)) {
+                    $matrix[$row][$col] = 1.0;
+                } elseif ($row === $col) {
+                    // Self → 1.0 (identity)
+                    $matrix[$row][$col] = 1.0;
+                } else {
+                    // Indirect: check if there's a 2-hop path
+                    $hasIndirect = false;
+
+                    foreach ($edges[$row] ?? [] as $intermediate) {
+                        if (in_array($col, $edges[$intermediate] ?? [], true)) {
+                            $hasIndirect = true;
+                            break;
+                        }
+                    }
+
+                    $matrix[$row][$col] = $hasIndirect ? 0.5 : 0.0;
+                }
+            }
+        }
+
+        $n = count($eventNames);
+        $possibleEdges = $n * ($n - 1); // Exclude diagonal
+        $directEdges = 0;
+
+        foreach ($eventNames as $row) {
+            foreach ($eventNames as $col) {
+                if ($row !== $col && ($matrix[$row][$col] ?? 0.0) === 1.0) {
+                    $directEdges++;
+                }
+            }
+        }
+
+        return [
+            'funnel' => $funnelType,
+            'events' => $eventNames,
+            'matrix' => $matrix,
+            'direct_edges' => $directEdges,
+            'possible_edges' => $possibleEdges,
+            'density' => $possibleEdges > 0 ? round($directEdges / $possibleEdges, 4) : 0.0,
+        ];
+    }
 }

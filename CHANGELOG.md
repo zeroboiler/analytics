@@ -1,5 +1,22 @@
 # Changelog
 
+## [114.0.0] - 2026-08-14
+
+### Added
+- **Phase 42 — Event Dependency Graph & Causal Path Analysis**:
+  - `EventCatalog::causalEdges()` — Static causal dependency edges between events based on funnel ordering. 40+ directed edges covering SaaS acquisition, e-commerce, engagement, account lifecycle, team/B2B, billing, and performance event relationships.
+  - `EventCatalog::eventDependencyGraph()` — Full directed adjacency graph with forward/reverse adjacency lists, edge count, node count, and node listing for graph traversal queries.
+  - `EventCatalog::causalPaths(string $from, string $to, int $maxDepth)` — BFS pathfinding returning all simple paths between two events. Supports max-depth limit. Paths sorted by length (shortest first).
+  - `EventCatalog::causalAncestors(string $event, int $depth)` — Multi-depth reverse graph traversal returning all events that typically precede a given event.
+  - `EventCatalog::causalDescendants(string $event, int $depth)` — Multi-depth forward graph traversal returning all events that typically follow a given event.
+  - `EventCatalog::funnelCriticalPaths(string $type)` — Shortest causal chains from funnel entry to exit for SaaS (sign_up→cancellation), e-commerce (view_item→purchase), and engagement (page_view→error) funnels.
+  - `EventCatalog::funnelBottleneckAnalysis(array $counts, string $type)` — Z-score anomaly detection for funnel transitions. Classifies bottlenecks as normal (|z|<1), elevated (1≤|z|<2), or critical (|z|≥2) based on statistical deviation.
+  - `EventCatalog::eventSequenceCorrelationMatrix(string $type)` — N×N correlation matrix with direct (1.0), indirect 2-hop (0.5), and absent (0.0) sequential relationships. Includes graph density calculation.
+- **V1140CausalPathAnalysisTest** — 100+ assertions validating causal edges, dependency graph structure, BFS pathfinding, ancestor/descendant queries, critical paths, z-score bottleneck analysis, correlation matrices, version consistency, and SaaS starter maturity at v114.0.0
+
+### Changed
+- **Version bump** — All 7 package files synced to 114.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider)
+
 ## [113.0.0] - 2026-08-14
 
 ### Added

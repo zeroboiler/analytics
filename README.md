@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-113.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-114.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,9 +57,45 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v112.0.0
+### What's New in v114.0.0
 
-**Phase 40 — Industry-Standard SaaS Funnel Analytics & Version Sync**:
+**Phase 42 — Event Dependency Graph & Causal Path Analysis**:
+
+- **`EventCatalog::causalEdges()`** — Static causal dependency edges between events based on funnel ordering. Defines 40+ directed edges covering SaaS acquisition, e-commerce, engagement, account lifecycle, team/B2B, billing, and performance event relationships.
+- **`EventCatalog::eventDependencyGraph()`** — Full directed adjacency graph with forward and reverse adjacency lists, edge count, node count, and node listing. Supports graph traversal queries.
+- **`EventCatalog::causalPaths(string $from, string $to)`** — BFS-based pathfinding that returns all simple paths between two events through the causal graph. Supports max-depth limit. Paths sorted by length.
+- **`EventCatalog::causalAncestors(string $event, int $depth)`** — Get all events that typically precede a given event. Multi-depth BFS on reverse graph.
+- **`EventCatalog::causalDescendants(string $event, int $depth)`** — Get all events that typically follow a given event. Multi-depth BFS on forward graph.
+- **`EventCatalog::funnelCriticalPaths(string $type)`** — Shortest causal chains from funnel entry to exit (e.g. sign_up → cancellation). Returns all shortest paths for SaaS, e-commerce, and engagement funnels.
+- **`EventCatalog::funnelBottleneckAnalysis(array $counts, string $type)`** — Z-score anomaly detection for funnel transitions. Classifies bottlenecks as normal/elevated/critical based on statistical deviation from mean drop-off rate.
+- **`EventCatalog::eventSequenceCorrelationMatrix(string $type)`** — N×N correlation matrix showing direct (1.0), indirect (0.5), and absent (0.0) sequential relationships between funnel events. Includes graph density calculation.
+- **V1140CausalPathAnalysisTest** — 100+ assertions validating causal edges, dependency graph structure, path finding, ancestor/descendant queries, critical paths, z-score bottleneck analysis, correlation matrices, version consistency, and SaaS starter maturity at v114.0.0.
+
+```php
+use ZeroBoiler\Analytics\Events\EventCatalog;
+
+// Find all causal paths from sign_up to cancellation
+$paths = EventCatalog::causalPaths('sign_up', 'cancellation');
+// [['sign_up', 'login', 'cancellation'], ['sign_up', 'start_trial', 'subscribe', 'cancellation'], ...]
+
+// What events typically precede a purchase?
+$ancestors = EventCatalog::causalAncestors('purchase', 2);
+// ['add_payment_info', 'begin_checkout', 'checkout_step', 'view_cart', ...]
+
+// Critical paths through the SaaS funnel
+$critical = EventCatalog::funnelCriticalPaths('saas');
+// {entry: 'sign_up', exit: 'cancellation', critical_paths: [...], max_depth: N}
+
+// Z-score bottleneck analysis
+$analysis = EventCatalog::funnelBottleneckAnalysis([
+    'sign_up' => 1000, 'login' => 800, 'start_trial' => 400,
+], 'saas');
+// {transitions: [...], mean_rate: 20.0, std_dev: ..., critical_count: 1, elevated_count: 0}
+```
+
+### What's New in v113.0.0
+
+**Phase 41 — Cross-Funnel Correlation & Event Impact Matrix**:
 
 - **`EventCatalog::saasFunnelEvents()`** — Structured SaaS acquisition funnel: returns step-numbered array of sign_up → login → start_trial → trial_converted → subscribe → subscription_renewal → plan_upgrade → plan_downgrade → cancellation with full catalog entries per step.
 - **`EventCatalog::ecommerceFunnelEvents()`** — E-commerce purchase funnel: view_item → select_item → add_to_cart → remove_from_cart → view_cart → begin_checkout → add_payment_info → purchase → refund with step metadata.
