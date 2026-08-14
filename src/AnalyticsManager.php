@@ -1031,6 +1031,100 @@ final class AnalyticsManager
     }
 
     /**
+     * Track an event with debounce — suppresses duplicate events within a time window.
+     *
+     * Uses AnalyticsEventBuffer to deduplicate events by name + clientId + userId.
+     * If the same event was recently flushed, it is silently dropped.
+     * Ideal for high-frequency events like scroll_depth, page_view, click.
+     *
+     * @param  string  $eventName  Event name to track
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return bool True if the event was dispatched, false if debounced (suppressed)
+     *
+     * @since 141.0.0
+     */
+    public function trackDebounced(string $eventName, array $params = []): bool
+    {
+        $event = new AnalyticsEvent(
+            name: $eventName,
+            params: $params,
+            clientId: $params['client_id'] ?? null,
+            userId: $params['user_id'] ?? null,
+        );
+
+        try {
+            $buffer = app(\ZeroBoiler\Analytics\Services\AnalyticsEventBuffer::class);
+        } catch (\Throwable) {
+            // Fallback: dispatch directly if buffer unavailable
+            $this->trackEvent($event);
+
+            return true;
+        }
+
+        if ($buffer->wasRecentlyFlushed($event)) {
+            return false;
+        }
+
+        $buffer->push($event);
+        $this->trackEvent($event);
+
+        return true;
+    }
+
+    /**
+     * Track an event only once per session/lifetime — prevents duplicates entirely.
+     *
+     * Uses AnalyticsEventBuffer to check if an equivalent event has already been
+     * dispatched. If the event is already in the buffer, it is silently dropped.
+     * Ideal for one-time events like sign_up, trial_start, first_value.
+     *
+     * @param  string  $eventName  Event name to track
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return bool True if the event was dispatched, false if it was already tracked
+     *
+     * @since 141.0.0
+     */
+    public function trackOnce(string $eventName, array $params = []): bool
+    {
+        $event = new AnalyticsEvent(
+            name: $eventName,
+            params: $params,
+            clientId: $params['client_id'] ?? null,
+            userId: $params['user_id'] ?? null,
+        );
+
+        try {
+            $buffer = app(\ZeroBoiler\Analytics\Services\AnalyticsEventBuffer::class);
+        } catch (\Throwable) {
+            // Fallback: dispatch directly if buffer unavailable
+            $this->trackEvent($event);
+
+            return true;
+        }
+
+        if ($buffer->has($event)) {
+            return false;
+        }
+
+        $buffer->push($event);
+        $this->trackEvent($event);
+
+        return true;
+    }
+
+    /**
+     * Get the event buffer instance for advanced operations.
+     *
+     * Allows flushing, stats, and manual buffer manipulation.
+     *
+     * @since 141.0.0
+     */
+    public function eventBuffer(): \ZeroBoiler\Analytics\Services\AnalyticsEventBuffer
+    {
+        return app(\ZeroBoiler\Analytics\Services\AnalyticsEventBuffer::class);
+    }
+
+    /**
      * Set user properties / traits on all providers.
      *
      * Sends a $set or $set_once event to PostHog and equivalent user

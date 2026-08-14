@@ -57,6 +57,7 @@ use ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService;
 use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService;
 use ZeroBoiler\Analytics\Services\AnalyticsEventReliabilityService;
+use ZeroBoiler\Analytics\Services\AnalyticsEventBuffer;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -552,6 +553,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsEventReliabilityService(
                 cache: $app->make(CacheRepository::class),
                 config: $reliabilityConfig,
+            );
+        });
+
+        // Event Buffer (v141.0.0) — debounce and dedup support for trackDebounced/trackOnce
+        $this->app->singleton(AnalyticsEventBuffer::class, function (Application $app): AnalyticsEventBuffer {
+            $bufferConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.event_buffer', []);
+            /** @var array{max_capacity?: int, ttl_seconds?: int, dedup_window_seconds?: int} $bufferConfig */
+
+            return new AnalyticsEventBuffer(
+                maxCapacity: (int) ($bufferConfig['max_capacity'] ?? 100),
+                ttlSeconds: (int) ($bufferConfig['ttl_seconds'] ?? 3600),
+                dedupWindowSeconds: (int) ($bufferConfig['dedup_window_seconds'] ?? 10),
             );
         });
 

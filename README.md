@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-140.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-141.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
@@ -56,6 +56,20 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v141.0.0
+
+**Industry-Standard SaaS Analytics Upgrade — Event DTO Enrichment, Event Buffering & Debounce/Once Tracking**:
+
+- **`AnalyticsEvent` DTO enhancement** — Added `category` and `sessionId` fields for industry-standard event context enrichment. Category enables auto-resolution from EventCatalog in pipeline stages. Session ID enables per-session event grouping for cohort and funnel analytics. New immutable helper methods: `withCategory()`, `withSessionId()`, `withMergedParams()` for pipeline-safe event transformation without mutation.
+- **`AnalyticsEventBuffer` service** — Server-side event buffer with TTL, capacity limits, and deduplication fingerprints. Supports `push()`, `flush()`, `flushExpired()`, `wasRecentlyFlushed()`, `has()`, `stats()`. Registered as singleton in ServiceProvider with config-driven settings (`event_buffer.max_capacity`, `event_buffer.ttl_seconds`, `event_buffer.dedup_window_seconds`). Companion to the JS client's batch queue for server-side dedup.
+- **`AnalyticsManager::trackDebounced()`** — Server-side debounced event tracking. Suppresses duplicate events within a configurable time window using AnalyticsEventBuffer. Returns `bool` indicating whether the event was dispatched or debounced. Ideal for high-frequency events like scroll_depth, page_view, click.
+- **`AnalyticsManager::trackOnce()`** — Server-side once-only event tracking. Prevents duplicate tracking entirely using buffer fingerprinting. Returns `bool` indicating whether the event was dispatched or already tracked. Ideal for one-time events like sign_up, trial_start, first_value.
+- **`AnalyticsManager::eventBuffer()`** — Accessor for the event buffer instance for advanced operations (flush, stats, manual manipulation).
+- **JS client additions** — New `trackDeduped()` export (time-window dedup with configurable window), `trackOnce()` export (lifetime dedup per session), `resetOnceTracker()` (for testing), `getUserId()` (from Inertia props). Removed duplicate `getVersion()` and `getClientId()` declarations (existing exports preserved). Fixed `getSamplingDecision()` to correctly return `true` when rate >= 1.0.
+- **Facade updates** — Added `trackDebounced()`, `trackOnce()`, `eventBuffer()` method declarations to `Analytics` facade.
+- **Config expansion** — New `event_buffer` section in `zeroboiler.php` with `max_capacity` (default 100), `ttl_seconds` (default 3600), and `dedup_window_seconds` (default 10).
+- **Version sweep** — All 9 client files synced to v141.0.0 (analytics.js, analytics.d.ts, analytics.constants.js, 5 Svelte composables, composer.json, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
 
 ### What's New in v140.0.0
 

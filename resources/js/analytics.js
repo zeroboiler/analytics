@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 140.0.0
+ * @version 141.0.0
  */
 
 let trackingId = null;
@@ -63,11 +63,125 @@ function shouldSampleEvent(name) {
 export function getSamplingDecision(name) {
     const sampling = config?.sampling || { enabled: false, rate: 1.0, deterministic: true };
     return {
-        sampled: shouldSampleEvent(name),
+        sampled: sampling.rate >= 1.0 || shouldSampleEvent(name),
         rate: sampling.rate,
         deterministic: sampling.deterministic,
         enabled: sampling.enabled,
     };
+}
+
+// ─── Client-Side Debounce & Once Tracking (v141.0.0) ──────────────────
+
+/** @type {Map<string, number>} Debounce timestamps: "eventName:clientId" → last track timestamp */
+const debounceMap = new Map();
+const DEFAULT_DEBOUNCE_MS = 10000; // 10 seconds
+
+/** @type {Set<string>} Once-tracked event fingerprints: "eventName:clientId" */
+const onceSet = new Set();
+
+/**
+ * Generate a debounce/once fingerprint from event name and tracking ID.
+ * @param {string} name
+ * @returns {string}
+ */
+function eventFingerprint(name) {
+    return `${name}:${trackingId || 'anonymous'}`;
+}
+
+/**
+ * Track an event with client-side debounce.
+ * Suppresses duplicate events within a configurable time window.
+ * Ideal for high-frequency events: scroll_depth, page_view, click.
+ *
+ * @param {string} name - Event name
+ * @param {object} [params={}] - Event parameters
+ * @param {number} [windowMs=10000] - Debounce window in milliseconds
+ * @returns {boolean} True if the event was tracked, false if debounced
+ *
+ * @example
+ * // Suppress scroll_depth events within 5 seconds
+ * trackDeduped('scroll_depth', { percent: 75 }, 5000);
+ */
+export function trackDeduped(name, params = {}, windowMs = DEFAULT_DEBOUNCE_MS) {
+    const key = eventFingerprint(name);
+    const now = Date.now();
+    const lastTracked = debounceMap.get(key) || 0;
+
+    if (now - lastTracked < windowMs) {
+        debugLog(name, params, 'debounced', { windowMs, remainingMs: windowMs - (now - lastTracked) });
+        return false;
+    }
+
+    debounceMap.set(key, now);
+    // Clean up old entries periodically
+    if (debounceMap.size > 500) {
+        const cutoff = now - (windowMs * 2);
+        for (const [k, ts] of debounceMap) {
+            if (ts < cutoff) debounceMap.delete(k);
+        }
+    }
+
+    return trackEvent({ name, params });
+}
+
+/**
+ * Track an event only once per session/lifetime.
+ * Prevents duplicate tracking entirely — ideal for sign_up, trial_start, first_value.
+ *
+ * @param {string} name - Event name
+ * @param {object} [params={}] - Event parameters
+ * @returns {boolean} True if the event was tracked, false if already tracked
+ *
+ * @example
+ * // Only fire once, even if called multiple times
+ * trackOnce('sign_up', { method: 'email' });
+ */
+export function trackOnce(name, params = {}) {
+    const key = eventFingerprint(name);
+
+    if (onceSet.has(key)) {
+        debugLog(name, params, 'once_suppressed', {});
+        return false;
+    }
+
+    onceSet.add(key);
+    return trackEvent({ name, params });
+}
+
+/**
+ * Reset the once-tracked set (for testing or session reset).
+ */
+export function resetOnceTracker() {
+    onceSet.clear();
+}
+
+/**
+ * Get the current client tracking ID.
+ * Returns null if the library has not been initialized.
+ *
+ * @returns {string|null}
+ */
+export function getClientId() {
+    return trackingId;
+}
+
+/**
+ * Get the current user ID from the Inertia page props.
+ * Returns null if no user is authenticated or library not initialized.
+ *
+ * @returns {string|null}
+ */
+export function getUserId() {
+    return config?.userId || null;
+}
+
+/**
+ * Get the package version.
+ *
+ * @returns {string}
+ */
+export function getVersion() {
+    return '141.0.0';
 }
 
 // ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
@@ -538,29 +652,9 @@ export function isInitialized() {
 }
 
 /**
- * Get the library version string.
- *
- * Useful for diagnostics, debugging, and API compatibility checks.
- *
- * @returns {string} Semantic version (e.g. '4.2.0')
- */
-export function getVersion() {
-        return '132.0.0';
-}
-
-/**
  * Get the current tracking ID (server-generated, cookie-stored).
  */
 export function getTrackingId() {
-    return trackingId;
-}
-
-/**
- * Get the client ID (alias for getTrackingId — standard analytics SDK name).
- *
- * @returns {string|null}
- */
-export function getClientId() {
     return trackingId;
 }
 

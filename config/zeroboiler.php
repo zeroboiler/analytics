@@ -509,6 +509,22 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Buffer (v141.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Server-side event buffer for debounce and once-only tracking.
+        | Used by AnalyticsManager::trackDebounced() and trackOnce() to
+        | suppress duplicate events within configurable time windows.
+        |
+        */
+        'event_buffer' => [
+            'max_capacity' => (int) env('ANALYTICS_EVENT_BUFFER_MAX_CAPACITY', 100),
+            'ttl_seconds' => (int) env('ANALYTICS_EVENT_BUFFER_TTL', 3600),
+            'dedup_window_seconds' => (int) env('ANALYTICS_EVENT_BUFFER_DEDUP_WINDOW', 10),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Field Validation (v125.0.0)
         |--------------------------------------------------------------------------
         |
