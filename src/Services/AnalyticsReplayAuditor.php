@@ -49,7 +49,7 @@ final class AnalyticsReplayAuditor
      * @param  bool  $success  Whether the replay succeeded
      * @param  string|null  $errorMessage  Error message if replay failed
      * @param  int|null  $attemptNumber  Current attempt number (1-indexed)
-     * @return array{audit_id: string, timestamp: string, event: string, provider: string, success: bool, attempt: int}
+     * @return array{audit_id: string, timestamp: string, event_name: string, provider: string, success: bool, attempt: int, error: string|null, client_id: string|null, user_id: string|null}
      */
     public function record(
         AnalyticsEvent $event,
@@ -65,7 +65,6 @@ final class AnalyticsReplayAuditor
             'audit_id' => $auditId,
             'timestamp' => $now,
             'event_name' => $event->name,
-            'event_id' => $event->id ?? null,
             'provider' => $provider,
             'success' => $success,
             'attempt' => $attemptNumber ?? 1,

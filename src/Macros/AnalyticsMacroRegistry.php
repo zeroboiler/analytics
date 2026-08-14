@@ -120,7 +120,7 @@ final class AnalyticsMacroRegistry
         }
 
         $result = $macro->build($params);
-        $manager->trackEvent($macro->eventName(), $result['params']);
+        $manager->track($macro->eventName(), $result['params']);
     }
 
     /**
