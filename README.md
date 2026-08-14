@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-94.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-95.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -484,7 +484,7 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 **Code Quality:**
 - ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
 - ✅ All constructors declare `: void` return type
-- ✅ 672 source files, 312 test files, 19,600+ assertions
+- ✅ 672 source files, 314 test files, 19,600+ assertions
 
 ### What's New in v61.0.0
 
@@ -7676,6 +7676,16 @@ composer ci  # Pint + PHPStan + Rector + Tests
 - **Alert + funnel routes** registered in ServiceProvider
 - **Facade directDispatch** return type fix (void → bool)
 - **7 new API routes**, **V27 test suite** (35+ cases)
+
+### v95.0.0 — Provider Fallback Expansion, AARRR Classification v2, Priority Gate Extensions
+
+- **ProviderFallbackService expanded to 10 providers** — `validProviders` list now includes `mixpanel`, `amplitude`, `tiktok`, `linkedin` (was 6, now 10). Fallback chain config examples added for all new providers.
+- **EventPriorityGate: security, uptime, infrastructure categories** — Events in `security`, `uptime`, and `infrastructure` catalog categories now resolve to `Normal` priority (previously fell to default). Enables consistent priority classification across all 7 event categories.
+- **EventPriorityCalculator AARRR v2** — 40+ new event-to-category classifications: security events (login_attempt, mfa_challenge, suspicious_activity, etc.) → operational; uptime events (service_down, deployment, slo_breach, etc.) → operational; ecommerce expansion (abandoned_cart, checkout_abandon, wishlist) → revenue; engagement expansion (hover, copy_text, element_visibility) → retention; activation expansion (onboarding_completed, experiment_exposed); consent events → operational; outbound_click → acquisition; feature_flag_evaluated → retention.
+- **Critical SaaS events expanded** — `retention_cohort` added to critical events list for maturity scoring.
+- **Fallback config examples** — New commented chain examples for mixpanel → amplitude → posthog, tiktok → linkedin → meta.
+- **30+ new test cases** — ProviderFallbackService validation with all 10 providers, healthSummary coverage, AARRR classification for all new events, priority gate category resolution, maturity score verification.
+- **Version consistency** — composer.json, README badge aligned to v95.0.0
 
 ### v2.26.0 — Complete Meta Pixel Mapping Coverage, EventCatalog::getCategory()
 

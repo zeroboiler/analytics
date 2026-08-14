@@ -197,6 +197,9 @@ final class EventPriorityGate
         $categoryPriority = match ($category) {
             'ecommerce' => EventPriority::Normal,
             'saas' => EventPriority::Normal,
+            'security' => EventPriority::Normal,
+            'uptime' => EventPriority::Normal,
+            'infrastructure' => EventPriority::Normal,
             'engagement' => EventPriority::Low,
             default => EventPriority::Normal,
         };

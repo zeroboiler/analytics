@@ -149,6 +149,45 @@ final class EventPriorityCalculator
         // Data portability (v2.86.0)
         'export' => self::CATEGORY_OPERATIONAL,
         'import' => self::CATEGORY_ACTIVATION,
+
+        // Security & Uptime (v95.0.0)
+        'login_attempt' => self::CATEGORY_OPERATIONAL,
+        'mfa_challenge' => self::CATEGORY_OPERATIONAL,
+        'rate_limit_exceeded' => self::CATEGORY_OPERATIONAL,
+        'suspicious_activity' => self::CATEGORY_OPERATIONAL,
+        'data_access_audit' => self::CATEGORY_OPERATIONAL,
+        'ai_agent_access' => self::CATEGORY_OPERATIONAL,
+        'api_latency' => self::CATEGORY_OPERATIONAL,
+        'deployment' => self::CATEGORY_OPERATIONAL,
+        'error_spike' => self::CATEGORY_OPERATIONAL,
+        'service_down' => self::CATEGORY_OPERATIONAL,
+        'service_up' => self::CATEGORY_OPERATIONAL,
+        'pipeline_failure' => self::CATEGORY_OPERATIONAL,
+        'slo_breach' => self::CATEGORY_OPERATIONAL,
+        'incident_started' => self::CATEGORY_OPERATIONAL,
+        'incident_resolved' => self::CATEGORY_OPERATIONAL,
+        'maintenance_started' => self::CATEGORY_OPERATIONAL,
+        'maintenance_ended' => self::CATEGORY_OPERATIONAL,
+        'error_budget_burned' => self::CATEGORY_OPERATIONAL,
+        'experiment_exposed' => self::CATEGORY_ACTIVATION,
+        'feature_flag_evaluated' => self::CATEGORY_RETENTION,
+
+        // SaaS expansion (v95.0.0)
+        'abandoned_cart' => self::CATEGORY_REVENUE,
+        'checkout_abandon' => self::CATEGORY_REVENUE,
+        'wishlist' => self::CATEGORY_REVENUE,
+        'retention_cohort' => self::CATEGORY_RETENTION,
+        'activation' => self::CATEGORY_ACTIVATION,
+        'client_error' => self::CATEGORY_OPERATIONAL,
+        'hover' => self::CATEGORY_RETENTION,
+        'copy_text' => self::CATEGORY_RETENTION,
+        'element_visibility' => self::CATEGORY_RETENTION,
+        'onboarding_completed' => self::CATEGORY_ACTIVATION,
+        'performance_score' => self::CATEGORY_OPERATIONAL,
+        'notification_sent' => self::CATEGORY_RETENTION,
+        'consent_granted' => self::CATEGORY_OPERATIONAL,
+        'consent_withdrawn' => self::CATEGORY_OPERATIONAL,
+        'outbound_click' => self::CATEGORY_ACQUISITION,
     ];
 
     /**
@@ -184,6 +223,7 @@ final class EventPriorityCalculator
         'cancellation',
         'page_view',
         'purchase',
+        'retention_cohort',
     ];
 
     /**

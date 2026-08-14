@@ -233,7 +233,7 @@ final class ProviderFallbackService
     {
         $errors = [];
         $warnings = [];
-        $validProviders = ['ga4', 'gtm', 'meta', 'posthog', 'plausible', 'webhook'];
+        $validProviders = ['ga4', 'gtm', 'meta', 'posthog', 'plausible', 'webhook', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
 
         foreach ($this->fallbackChains as $provider => $chain) {
             if (! in_array($provider, $validProviders, true)) {
@@ -322,7 +322,7 @@ final class ProviderFallbackService
         $this->providerStates = $circuitStates;
         $providers = [];
 
-        $allProviders = ['ga4', 'gtm', 'meta', 'posthog', 'plausible', 'webhook'];
+        $allProviders = ['ga4', 'gtm', 'meta', 'posthog', 'plausible', 'webhook', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
 
         foreach ($allProviders as $provider) {
             $state = $circuitStates[$provider] ?? 'closed';

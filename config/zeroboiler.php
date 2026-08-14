@@ -4847,6 +4847,10 @@ return [
                 // 'ga4' => ['gtm', 'meta', 'posthog'],
                 // 'meta' => ['ga4', 'posthog'],
                 // 'posthog' => ['ga4', 'meta'],
+                // 'mixpanel' => ['amplitude', 'posthog'],
+                // 'amplitude' => ['mixpanel', 'posthog'],
+                // 'tiktok' => ['linkedin', 'meta'],
+                // 'linkedin' => ['tiktok', 'meta'],
             ],
         ],
 
