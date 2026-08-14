@@ -9,6 +9,8 @@
   - **V1150ProviderCoverageSummaryTest** — 12 test cases validating provider coverage summary structure, all-10-provider presence, GA4 dominance, gap count correctness (mapped + gaps = total), least-covered filtering, intersection events for single/multi/impossible provider combos, and version integrity documentation.
 
 ### Changed
+- **Version sweep** — All 7 package files synced to 115.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider).
+- **Test version assertions** — V99IndustryStandardSaaSAnalyticsTest, V1140CausalPathAnalysisTest, V1150CrossPlatformAttributionVersionSweepTest, Phase33ProviderCoverageSummaryAuditTest updated from 114.0.0 to 115.0.0.
 - **Version documentation** — README "What's New in v115.0.0" section added documenting Phase 43 Cross-Platform Attribution Service (carried forward from commit 82c8db4).
 - **CHANGELOG** — v115.0.0 entry added for Phase 44.
 

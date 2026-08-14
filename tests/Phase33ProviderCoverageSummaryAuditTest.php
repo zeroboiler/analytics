@@ -161,7 +161,7 @@ it('phase33: All provider NameFor methods are symmetrical', function () {
 
 it('phase33: Version consistency across all package files', function () {
     $version = AnalyticsEvent::VERSION;
-    expect($version)->toBe('114.0.0');
+    expect($version)->toBe('115.0.0');
 
     // Composer.json
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);

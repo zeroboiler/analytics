@@ -50,46 +50,46 @@ use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 // ── Version Consistency ─────────────────────────────────────────────────
 
 it('has correct VERSION constant in AnalyticsEvent', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('114.0.0');
+    expect(AnalyticsEvent::VERSION)->toBe('115.0.0');
 });
 
 it('has correct version in composer.json', function (): void {
     $content = file_get_contents(__DIR__ . '/../composer.json');
     expect($content)->toBeJson();
     $composer = json_decode($content, true);
-    expect($composer['version'])->toBe('114.0.0');
+    expect($composer['version'])->toBe('115.0.0');
 });
 
 it('has correct version in package.json', function (): void {
     $content = file_get_contents(__DIR__ . '/../package.json');
     expect($content)->toBeJson();
     $pkg = json_decode($content, true);
-    expect($pkg['version'])->toBe('114.0.0');
+    expect($pkg['version'])->toBe('115.0.0');
 });
 
 it('has correct version in analytics.js', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($content)->toContain('@version 114.0.0');
+    expect($content)->toContain('@version 115.0.0');
 });
 
 it('has correct version in analytics.d.ts', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($content)->toContain('@version 114.0.0');
+    expect($content)->toContain('@version 115.0.0');
 });
 
 it('has correct version in analytics.constants.js', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.constants.js');
-    expect($content)->toContain('@version 114.0.0');
+    expect($content)->toContain('@version 115.0.0');
 });
 
 it('has correct version in AnalyticsServiceProvider', function (): void {
     $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
-    expect($content)->toContain('@version 114.0.0');
+    expect($content)->toContain('@version 115.0.0');
 });
 
 it('has correct version badge in README', function (): void {
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-114.0.0');
+    expect($readme)->toContain('version-115.0.0');
 });
 
 // ── causalEdges ─────────────────────────────────────────────────────────

@@ -163,8 +163,7 @@ test('providerIntersectionEvents returns events with correct structure', functio
     }
 });
 
-test('version integrity: AnalyticsEvent::VERSION is 114.0.0 (pre-sweep)', function (): void {
-    // This test documents the expected version before Phase 44 version sweep
+test('version integrity: AnalyticsEvent::VERSION is 115.0.0', function (): void {
     expect(AnalyticsEvent::VERSION)
-        ->toBe('114.0.0');
+        ->toBe('115.0.0');
 });
