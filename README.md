@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-87.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-88.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,38 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v88.0.0
+
+**Revenue Checksum Service** — HMAC-SHA256 integrity verification for revenue-critical events. Prevents replay attacks and ensures data integrity between client-side and server-side event dispatch for purchases, subscriptions, refunds, and plan changes. Inspired by Stripe's webhook signature verification:
+
+- **Checksum generation**: Deterministic HMAC covering transaction ID, value, currency, event type, and minute-granularity timestamp
+- **Clock drift tolerance**: Validates against ±1 minute windows to handle client/server time skew
+- **Replay prevention**: Cache-backed seen-checksum tracking with configurable TTL (default 24h)
+- **Event signing**: `signEvent()` attaches checksum and timestamp directly to event params
+- **Signed event validation**: `validateSignedEvent()` validates events with embedded checksums
+- **Flexible enforcement**: `require_checksum` option to make checksum mandatory or optional
+- Config section `zeroboiler.analytics.revenue_checksum`: `enabled`, `secret`, `replay_ttl`, `require_checksum`
+
+**Event Deduplication Cache** — Redis/cache-backed enterprise-grade idempotency service. Prevents duplicate event processing within configurable time windows per event category:
+
+- **Exact strategy**: Deduplicates identical events (same name + identity + parameter content hash)
+- **Fuzzy strategy**: Deduplicates events with same name + identity within the window (rate limiting)
+- **Category-specific windows**: Ecommerce (60s), SaaS (30s), Engagement (10s), Page View (5s), Custom (5s)
+- **Smart parameter hashing**: Excludes internal params (`_` prefix), volatile fields (timestamp, session_id, page_url, referrer)
+- **Pre-emptive dedup**: `markSeen()` for server-side events to prevent duplicate client tracking
+- **Diagnostic summary**: Exposes configuration for admin commands and health checks
+- Config section `zeroboiler.analytics.dedup_cache`: `enabled`, `strategy`, `windows`, `max_keys`
+
+**SaaS Starter Validation Service** — Automated instrumentation completeness scoring against industry-standard SaaS event taxonomies:
+
+- **Four scoring tiers**: Starter (0-40), Growth (41-70), Advanced (71-90), Enterprise (91-100)
+- **Cumulative event requirements**: Each tier includes all lower tier requirements
+- **Provider coverage validation**: Checks minimum provider count per tier (1-4 providers)
+- **Tier auto-detection**: Analyzes current catalog to determine achieved tier
+- **Quick-start checklist**: Prioritized list of events to add for reaching the next tier
+- **Actionable recommendations**: Context-aware suggestions based on current score and gaps
+- **Effort estimation**: Minimal/Moderate/Significant classification for remaining work
 
 ### What's New in v87.0.0
 

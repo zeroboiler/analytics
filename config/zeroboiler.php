@@ -115,6 +115,52 @@ return [
             'connection' => env('ANALYTICS_QUEUE_CONNECTION'),
             'max_batch_size' => (int) env('ANALYTICS_QUEUE_MAX_BATCH_SIZE', 50),
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revenue Checksum Verification (v88.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | HMAC-SHA256 integrity verification for revenue-critical events.
+        | Prevents replay attacks and ensures data integrity for purchases,
+        | subscriptions, refunds, and plan changes.
+        |
+        | Secret defaults to app.key if not explicitly configured.
+        |
+        */
+        'revenue_checksum' => [
+            'enabled' => env('ANALYTICS_REVENUE_CHECKSUM_ENABLED', true),
+            'secret' => env('ANALYTICS_REVENUE_CHECKSUM_SECRET', ''),
+            'replay_ttl' => (int) env('ANALYTICS_REVENUE_CHECKSUM_REPLAY_TTL', 86400), // 24 hours
+            'require_checksum' => env('ANALYTICS_REVENUE_CHECKSUM_REQUIRE', false),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Deduplication Cache (v88.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Redis/cache-backed event deduplication for enterprise-grade idempotency.
+        | Prevents duplicate event processing within configurable time windows.
+        |
+        | Strategies:
+        | - 'exact': deduplicates identical events (same name + params + identity)
+        | - 'fuzzy': deduplicates events with same name + identity within window
+        |
+        */
+        'dedup_cache' => [
+            'enabled' => env('ANALYTICS_DEDUP_CACHE_ENABLED', true),
+            'strategy' => env('ANALYTICS_DEDUP_CACHE_STRATEGY', 'exact'),
+            'windows' => [
+                'ecommerce' => (int) env('ANALYTICS_DEDUP_ECOMMERCE', 60),
+                'saas' => (int) env('ANALYTICS_DEDUP_SAAS', 30),
+                'engagement' => (int) env('ANALYTICS_DEDUP_ENGAGEMENT', 10),
+                'page_view' => (int) env('ANALYTICS_DEDUP_PAGEVIEW', 5),
+                'custom' => (int) env('ANALYTICS_DEDUP_CUSTOM', 5),
+            ],
+            'max_keys' => (int) env('ANALYTICS_DEDUP_MAX_KEYS', 100000),
+        ],
+
         /*
         |--------------------------------------------------------------------------
         | Identity Tracking
