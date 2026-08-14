@@ -11,6 +11,7 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException;
 use ZeroBoiler\Analytics\Services\ChurnPredictionService;
 use ZeroBoiler\Analytics\Services\RevenueForecastService;
 
@@ -63,7 +64,7 @@ final class AnalyticsForecastCommand extends Command
                 'churn-thresholds' => $this->churnThresholds($config),
                 'mrr-movement' => $this->mrrMovement($config, $cache),
                 'cohort-retention' => $this->cohortRetention($config, $cache),
-                default => throw new \InvalidArgumentException("Unknown action: {$action}. Valid actions: mrr, ltv, runway, churn-score, churn-cohort, churn-weights, churn-thresholds, mrr-movement, cohort-retention"),
+                default => throw new InvalidAnalyticsArgumentException("Unknown action: {$action}. Valid actions: mrr, ltv, runway, churn-score, churn-cohort, churn-weights, churn-thresholds, mrr-movement, cohort-retention"),
             };
 
             if ($this->option('json')) {
@@ -73,7 +74,7 @@ final class AnalyticsForecastCommand extends Command
             }
 
             $this->displayResult($action, $result);
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidAnalyticsArgumentException $e) {
             $this->error($e->getMessage());
 
             return 1;

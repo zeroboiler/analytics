@@ -9,6 +9,7 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Events\SaaS\GrowthMilestoneEvent;
 
@@ -62,7 +63,7 @@ final class SaaSGrowthMetricsService
      * @param  int|null  $milestoneValue  Numeric milestone value
      * @param  array<string, mixed>  $context  Additional context
      *
-     * @throws \InvalidArgumentException if milestone type is invalid
+     * @throws \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException if milestone type is invalid
      */
     public function trackMilestone(
         string $milestoneType,
@@ -71,7 +72,7 @@ final class SaaSGrowthMetricsService
         array $context = [],
     ): void {
         if (! in_array($milestoneType, self::VALID_MILESTONE_TYPES, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidAnalyticsArgumentException(
                 sprintf('Invalid milestone type: %s. Must be one of: %s', $milestoneType, implode(', ', self::VALID_MILESTONE_TYPES)),
             );
         }

@@ -724,6 +724,10 @@ Route::prefix('analytics')->group(function () {
     Route::post('simulator/ecommerce', [AnalyticsEventController::class, 'simulatorEcommerce']);
     Route::post('simulator/saas', [AnalyticsEventController::class, 'simulatorSaaSLifecycle']);
 
+    // SaaS Lifecycle Analytics (v94.0.0)
+    Route::get('lifecycle', [AnalyticsEventController::class, 'lifecycle']);
+    Route::get('lifecycle/subscriber', [AnalyticsEventController::class, 'lifecycleSubscriber']);
+
     // Event Lineage Tracker (v49.0.0)
     Route::get('lineage/status', [AnalyticsEventController::class, 'lineageStatus']);
     Route::get('lineage/stats', [AnalyticsEventController::class, 'lineageStats']);

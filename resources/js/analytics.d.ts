@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 91.0.0
+ * @version 94.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -1979,3 +1979,258 @@ export function getIntelligenceHeartbeat(): Promise<IntelligenceHeartbeat | null
  * Returns a cleanup function.
  */
 export function startIntelligenceMonitor(options?: IntelligenceMonitorOptions): () => void;
+
+// ─── Svelte Composable: useAnalytics ─────────────────────────────────
+
+import { Writable, Readable } from 'svelte/store';
+
+/**
+ * Options for the useAnalytics Svelte composable.
+ */
+export interface UseAnalyticsOptions {
+  autoInit?: boolean;
+  trackPageViews?: boolean;
+  autoIdentify?: boolean;
+  autoFlush?: boolean;
+  lifecycleAware?: boolean;
+}
+
+/**
+ * Return type for the useAnalytics Svelte composable.
+ */
+export interface UseAnalyticsReturn {
+  ready: Writable<boolean>;
+  trackingId: Writable<string | null>;
+  userId: Writable<string | null>;
+  authStateChanged: Writable<boolean>;
+  init: () => void;
+  destroy: () => void;
+  track: (name: string, params?: Record<string, unknown>) => Promise<void>;
+  trackProviders: (name: string, params?: Record<string, unknown>, providers?: string[]) => Promise<void>;
+  trackEcommerce: (name: string, data?: Record<string, unknown>) => Promise<void>;
+  trackEcommerceProviders: (name: string, data?: Record<string, unknown>, providers?: string[]) => Promise<void>;
+  trackPageView: (title?: string, location?: string, referrer?: string) => Promise<void>;
+  trackScreenView: (screenName: string, options?: ScreenViewOptions) => Promise<void>;
+  trackDebounced: (name: string, params?: Record<string, unknown>, options?: { delay?: number; immediate?: boolean }) => void;
+  trackThrottled: (name: string, params?: Record<string, unknown>, options?: { interval?: number; trailing?: boolean }) => void;
+  identify: (userId?: string | null) => Promise<void>;
+  updateConsent: (signals: Partial<ConsentState>) => Promise<void>;
+  consent: () => ConsentState | null;
+  flush: () => Promise<void>;
+  version: () => string;
+}
+
+/**
+ * Main Svelte analytics composable.
+ * Provides reactive stores and methods for event tracking,
+ * consent management, and identity linking.
+ */
+export function useAnalytics(options?: UseAnalyticsOptions): UseAnalyticsReturn;
+
+/**
+ * Convenience shorthand for useAnalytics with default options.
+ */
+export function analyticsStore(options?: UseAnalyticsOptions): UseAnalyticsReturn;
+
+// ─── Svelte Composable: useLifecycle ────────────────────────────────
+
+/**
+ * Activation score data.
+ */
+export interface ActivationScoreData {
+  score: number;
+  grade: string;
+  steps: string[];
+  signals: string[];
+}
+
+/**
+ * Churn risk data.
+ */
+export interface ChurnRiskData {
+  riskScore: number;
+  riskLevel: 'critical' | 'high' | 'medium' | 'low';
+  indicators: string[];
+  recommendation: string;
+}
+
+/**
+ * Funnel progress data.
+ */
+export interface FunnelProgressData {
+  steps: string[];
+  completionPct: number;
+  currentStep: string | null;
+  stepsRemaining: number;
+}
+
+/**
+ * Feature adoption data.
+ */
+export interface FeatureAdoptionData {
+  featuresUsed: string[];
+  adoptionCount: number;
+  adoptionDepth: number;
+}
+
+/**
+ * Session engagement data.
+ */
+export interface SessionEngagementData {
+  sessionCount: number;
+  avgSessionsPerDay: number;
+  lastLoginAt: number | null;
+}
+
+/**
+ * Expansion momentum data.
+ */
+export interface ExpansionMomentumData {
+  momentum: number;
+  eventCount: number;
+  totalValue: number;
+}
+
+/**
+ * Options for the useLifecycle Svelte composable.
+ */
+export interface UseLifecycleOptions {
+  autoFetch?: boolean;
+  reactiveToPageProps?: boolean;
+  userId?: string | null;
+  refreshIntervalMs?: number;
+}
+
+/**
+ * Return type for the useLifecycle Svelte composable.
+ */
+export interface UseLifecycleReturn {
+  activationScore: Writable<ActivationScoreData>;
+  churnRisk: Writable<ChurnRiskData>;
+  funnelProgress: Writable<FunnelProgressData>;
+  featureAdoption: Writable<FeatureAdoptionData>;
+  sessionEngagement: Writable<SessionEngagementData>;
+  expansionMomentum: Writable<ExpansionMomentumData>;
+  lifecycleLoaded: Writable<boolean>;
+  fetch: (identity?: string | null) => Promise<void>;
+  refresh: () => Promise<void>;
+  stopAutoRefresh: () => void;
+  activationGrade: Readable<string>;
+  churnLevel: Readable<string>;
+  funnelCompletion: Readable<number>;
+  funnelStepNames: string[];
+  isActive: (threshold?: number) => boolean;
+  isAtRisk: (threshold?: number) => boolean;
+}
+
+/**
+ * SaaS lifecycle analytics composable.
+ * Provides reactive stores for activation scores, churn risk,
+ * funnel progress, feature adoption, and session engagement.
+ */
+export function useLifecycle(options?: UseLifecycleOptions): UseLifecycleReturn;
+
+// ─── Svelte Composable: useAnalyticsConfig ──────────────────────────
+
+/**
+ * Reactive analytics configuration from Inertia page props.
+ */
+export function useAnalyticsConfig(): Readable<{
+  enabled: boolean;
+  trackingId: string | null;
+  userId: string | null;
+  ga4MeasurementId: string | null;
+  gtmContainerId: string | null;
+  metaPixelId: string | null;
+  plausibleDomain: string | null;
+  posthogHost: string | null;
+  apiBase: string;
+  apiEnabled: boolean;
+  debug: boolean;
+  version: string;
+  maturity: { score: number; grade: string } | null;
+  onboarding: { completion: number; gaps: string[] } | null;
+  consent: Record<string, unknown> | null;
+  consentPurposes: Record<string, ConsentPurpose>;
+  autoTrack: Record<string, unknown>;
+  ecommerce: Record<string, unknown>;
+  dedup: Record<string, unknown>;
+  sampling: Record<string, unknown>;
+  identityAutoLink: boolean;
+  recommendedEvents: RecommendedEvent[];
+  funnelReadiness: { signup: number; purchase: number; subscription: number; overall: number };
+}>;
+
+/**
+ * Reactive consent state store.
+ */
+export function useConsentState(): Readable<ConsentState>;
+
+/**
+ * Reactive maturity score store.
+ */
+export function useMaturity(): Readable<{ score: number; grade: string }>;
+
+/**
+ * Reactive funnel readiness store.
+ */
+export function useFunnelReadiness(): Readable<{
+  signup: number;
+  purchase: number;
+  subscription: number;
+  overall: number;
+}>;
+
+// ─── Svelte Composable: usePerformanceTracker ────────────────────────
+
+/**
+ * Performance tracker return type.
+ */
+export interface UsePerformanceTrackerReturn {
+  webVitals: Writable<Record<string, { value: number; rating: string }>>;
+  performanceScore: Writable<{ score: number; rating: string; timestamp: number }>;
+  performanceLabel: Readable<string>;
+  isTracking: Writable<boolean>;
+  start: () => void;
+  stop: () => void;
+  getMetrics: () => Record<string, { value: number; rating: string }>;
+}
+
+/**
+ * Performance tracker options.
+ */
+export interface UsePerformanceTrackerOptions {
+  enabled?: boolean;
+  autoScore?: boolean;
+  scoreDelayMs?: number;
+}
+
+/**
+ * Svelte composable for Core Web Vitals performance tracking.
+ */
+export function usePerformanceTracker(options?: UsePerformanceTrackerOptions): UsePerformanceTrackerReturn;
+
+// ─── Lifecycle API Response ───────────────────────────────────────────
+
+/**
+ * API response for lifecycle data (GET /api/analytics/lifecycle).
+ */
+export interface LifecycleApiResponse {
+  activation_score?: number;
+  activation_steps?: string[];
+  churn_risk_score?: number;
+  churn_indicators?: string[];
+  funnel_progress?: string[];
+  funnel_current_step?: string | null;
+  features_used?: string[];
+  feature_adoption_count?: number;
+  feature_adoption_depth?: number;
+  session_count?: number;
+  avg_sessions_per_day?: number;
+  last_login_at?: number | null;
+  first_login_at?: number | null;
+  expansion_momentum?: number;
+  expansion_event_count?: number;
+  total_expansion_value?: number;
+  updated_at?: number;
+}

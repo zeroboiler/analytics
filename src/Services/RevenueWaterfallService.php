@@ -9,6 +9,7 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
+use ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\SaaS\MrrMovementEvent;
@@ -64,7 +65,7 @@ final class RevenueWaterfallService
      * @param  float  $amount  MRR amount
      * @param  array<string, mixed>  $context  Additional context (customer_id, plan_id, etc.)
      *
-     * @throws \InvalidArgumentException if movement type is invalid
+     * @throws \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException if movement type is invalid
      */
     public function recordMovement(
         string $movementType,
@@ -72,7 +73,7 @@ final class RevenueWaterfallService
         array $context = [],
     ): void {
         if (! in_array($movementType, self::VALID_MOVEMENT_TYPES, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidAnalyticsArgumentException(
                 sprintf('Invalid MRR movement type: %s. Must be one of: %s', $movementType, implode(', ', self::VALID_MOVEMENT_TYPES)),
             );
         }

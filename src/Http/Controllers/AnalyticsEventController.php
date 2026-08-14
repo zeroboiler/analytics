@@ -1411,10 +1411,36 @@ final class AnalyticsEventController extends Controller
      * Returns all registered lifecycle event mappings, their enabled status,
      * and the current mapper configuration. Useful for admin dashboards.
      */
-    public function lifecycle(): JsonResponse
+    public function lifecycle(Request $request): JsonResponse
     {
         if ($this->lifecycleMapper === null) {
             return response()->json(['error' => 'Lifecycle mapper not available'], 503);
+        }
+
+        // If identity query parameter is provided, return lifecycle signals
+        $identity = $request->query('identity');
+        if ($identity !== null && is_string($identity) && $identity !== '') {
+            try {
+                $observer = new \ZeroBoiler\Analytics\Services\SaaSLifecycleObserver(
+                    app(\Illuminate\Contracts\Cache\Repository::class),
+                    app(\Illuminate\Contracts\Config\Repository::class),
+                );
+
+                $signals = $observer->getSignals($identity);
+
+                return response()->json([
+                    'status' => 'ok',
+                    'version' => AnalyticsEvent::VERSION,
+                    'identity' => $identity,
+                    'lifecycle' => $signals,
+                ]);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to retrieve lifecycle signals',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
         }
 
         return response()->json([
