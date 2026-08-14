@@ -427,7 +427,7 @@ final class V122CompactSerializerAndSdkTelemetryTest extends TestCase
              * @param  array<string, mixed>  $defaults
              * @param  array<string, mixed>  $overrides
              */
-            public function __construct(array $defaults, array $overrides)
+            public function __construct(array $defaults, array $overrides): void
             {
                 $this->config = array_replace_recursive($defaults, $overrides);
             }
