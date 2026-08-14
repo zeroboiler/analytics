@@ -1419,6 +1419,27 @@ final class AnalyticsManager
     }
 
     /**
+     * Validate event parameters against configured field rules.
+     *
+     * Uses the EventFieldValidator to check required fields, types,
+     * ranges, enums, and formats. Returns coerced params on success.
+     *
+     * @param  string  $eventName  Event name to validate against
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{valid: bool, errors: list<array{field: string, rule: string, message: string, value?: mixed, severity: string}>, coerced_params: array<string, mixed>, coercions: int}
+     */
+    public function validateEvent(string $eventName, array $params): array
+    {
+        $validator = new \ZeroBoiler\Analytics\Services\EventFieldValidator(
+            rules: $this->config?->get('zeroboiler.analytics.field_validation.rules', []) ?? [],
+            globalRules: $this->config?->get('zeroboiler.analytics.field_validation.global_rules', []) ?? [],
+            enabled: (bool) ($this->config?->get('zeroboiler.analytics.field_validation.enabled', true) ?? true),
+        );
+
+        return $validator->validateRaw($eventName, $params);
+    }
+
+    /**
      * Get the category of an event name.
      *
      * @return string|null Category name or null if not found

@@ -881,6 +881,25 @@ final class AnalyticsFake
         return $entry['category'] ?? null;
     }
 
+    /**
+     * Validate event parameters against configured field rules.
+     *
+     * In test environment, always returns valid with original params (no-op).
+     *
+     * @param  string  $eventName  Event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{valid: bool, errors: list<array{field: string, rule: string, message: string}>, coerced_params: array<string, mixed>, coercions: int}
+     */
+    public function validateEvent(string $eventName, array $params): array
+    {
+        return [
+            'valid' => true,
+            'errors' => [],
+            'coerced_params' => $params,
+            'coercions' => 0,
+        ];
+    }
+
     public function totalEventCount(): int
     {
         return \ZeroBoiler\Analytics\Events\EventCatalog::count();

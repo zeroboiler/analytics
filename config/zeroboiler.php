@@ -504,6 +504,52 @@ return [
         ],
 
         /*
+        |--------------------------------------------------------------------------
+        | Field Validation (v125.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven per-event field validation and type coercion.
+        | Enforces data quality on incoming events by checking required fields,
+        | types, value ranges, enum whitelists, regex patterns, and structural formats.
+        |
+        | Rules are applied in order: event-specific → wildcard → global.
+        | Wildcard patterns support suffix matching (e.g., "saas_*" matches "saas_login").
+        |
+        | Each rule supports: type, required, nullable, min, max, enum, regex, format, default.
+        | Set 'coerce' => false to skip automatic type coercion for a field.
+        |
+        | Use Analytics::validateEvent('purchase', $params) to validate programmatically.
+        |
+        */
+        'field_validation' => [
+            'enabled' => env('ANALYTICS_FIELD_VALIDATION_ENABLED', false),
+            'debug' => env('ANALYTICS_FIELD_VALIDATION_DEBUG', false),
+
+            // Per-event field rules
+            'rules' => [
+                // 'purchase' => [
+                //     'transaction_id' => ['type' => 'string', 'required' => true, 'min' => 1, 'max' => 100],
+                //     'value' => ['type' => 'float', 'required' => true, 'min' => 0],
+                //     'currency' => ['type' => 'string', 'required' => true, 'format' => 'currency_code', 'default' => 'USD'],
+                //     'tax' => ['type' => 'float', 'nullable' => true, 'min' => 0],
+                //     'shipping' => ['type' => 'float', 'nullable' => true, 'min' => 0],
+                //     'items' => ['type' => 'array', 'required' => true, 'min' => 1],
+                // ],
+                // 'sign_up' => [
+                //     'method' => ['type' => 'string', 'enum' => ['email', 'google', 'github', 'sso']],
+                // ],
+                // 'page_view' => [
+                //     'page_location' => ['type' => 'string', 'format' => 'url'],
+                // ],
+            ],
+
+            // Global rules applied to ALL events
+            'global_rules' => [
+                // 'session_id' => ['type' => 'string', 'nullable' => true, 'regex' => '/^[a-f0-9]{32}$/i'],
+            ],
+        ],
+
+        /*
         |-------------------------------------------------------------------------- 
         | Event Data Mart (v7.0.0)
         |-------------------------------------------------------------------------- 

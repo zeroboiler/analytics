@@ -64,6 +64,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static array{ecommerce: int, saas: int, engagement: int, marketing: int, infrastructure: int, security: int, uptime: int, total: int} eventCatalogSummary()
  * @method static bool eventExists(string $eventName)
  * @method static string|null eventCategory(string $eventName)
+ * @method static array{valid: bool, errors: list<array{field: string, rule: string, message: string}>, coerced_params: array<string, mixed>, coercions: int} validateEvent(string $eventName, array<string, mixed> $params)
  * @method static int totalEventCount()
  * @method static void trackError(string $message, string|null $source = null, int|null $line = null, array<string, mixed> $params = [])
  * @method static void mrr(float $amount, int $subscribers = 0, array<string, mixed> $params = [])
