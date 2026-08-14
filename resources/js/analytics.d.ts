@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 145.0.0
+ * @version 146.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────

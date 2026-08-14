@@ -17374,4 +17374,35 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Revenue Attribution Dashboard — revenue-by-channel ROI analysis.
+     *
+     * Returns LTV by channel, CAC recovery, payback periods, and
+     * revenue concentration metrics for SaaS operators.
+     *
+     * @return JsonResponse
+     *
+     * @since 146.0.0
+     */
+    public function revenueAttributionDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\RevenueAttributionDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\RevenueAttributionDashboardService::class);
+
+            $days = (int) request()->input('days', 30);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->dashboard($days),
+                'ltv_by_channel' => $service->ltvByChannel($days),
+                'cac_recovery' => $service->cacRecoveryByChannel($days),
+                'concentration' => $service->revenueConcentrationAnalysis($days),
+                'growth' => $service->channelGrowthTrend($days),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

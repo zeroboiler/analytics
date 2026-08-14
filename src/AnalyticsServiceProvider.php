@@ -18,6 +18,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueAttributionCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
@@ -53,6 +54,7 @@ use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
 use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 use ZeroBoiler\Analytics\Services\RevenueAttributionService;
+use ZeroBoiler\Analytics\Services\RevenueAttributionDashboardService;
 use ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService;
 use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService;
@@ -2300,6 +2302,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderFailoverService($app->make('cache'), $config);
         });
 
+        // Revenue Attribution Dashboard Service (v146.0.0)
+        $this->app->singleton(RevenueAttributionDashboardService::class, function (Application $app): RevenueAttributionDashboardService {
+            return new RevenueAttributionDashboardService(
+                $app->make('zeroboiler.analytics'),
+                $app->make(AnalyticsMetrics::class),
+                $app->make(EventStoreManager::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Event Schema Versioning (v2.71.0)
         $this->app->singleton(EventSchemaVersioningService::class, function (Application $app): EventSchemaVersioningService {
             /** @var ConfigRepository $config */
@@ -3801,6 +3813,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                AnalyticsRevenueAttributionCommand::class,
                 AnalyticsExportCommand::class,
                 RevenueReportCommand::class,
                 AnalyticsHealthCommand::class,

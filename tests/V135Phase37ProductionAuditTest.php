@@ -14,7 +14,7 @@ use ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService;
 use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
 
 beforeEach(function (): void {
-    $this->version = '145.0.0';
+    $this->version = '146.0.0';
 });
 
 describe('Phase 37 — Version & Metadata Consistency', function (): void {
