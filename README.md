@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-91.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-92.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,37 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v92.0.0
+
+**Auto Page-View Middleware** — Server-side automatic `page_view` event dispatch for every HTTP response. Complements the client-side page_view tracking in analytics.js by capturing bot traffic, API-driven navigation, and environments where client-side JS is disabled:
+
+- **`AutoPageViewMiddleware`**: HTTP middleware that auto-dispatches page_view events with URL, referrer, user agent, status code, and response time
+- **Path filtering**: Exclude patterns for internal routes (Telescope, Horizon, Pulse, Ignition, vendor, storage)
+- **Method filtering**: Configurable HTTP method exclusions (default: OPTIONS, HEAD)
+- **Status code filtering**: Only track specific status codes (default: 200, 301-308, 404)
+- **Bot detection**: Lightweight user-agent pattern matching to filter crawlers (configurable: include or exclude)
+- **Sampling rate**: Track only N% of requests for high-traffic sites
+- **URL normalization**: Strip query params, truncate long URLs
+- **Multi-tenant**: Auto-resolves tenant_id from request attributes or user model
+- **Response metadata**: Includes response time (ms), content type, and page title extraction
+- **Middleware alias**: Register as `analytics.pageview` route middleware or global middleware
+- **Non-breaking**: Silently catches exceptions — never breaks the request lifecycle
+- Config section `zeroboiler.analytics.auto_pageview`: `enabled`, `exclude_paths`, `exclude_methods`, `track_api`, `track_status_codes`, `bot_tracking`, `strip_query_params`, `max_url_length`, `sampling_rate`
+
+**Event Broadcast Service** — Real-time analytics event streaming via Laravel Broadcasting (Pusher, Reverb, Soketi, Ably, Redis Pub/Sub):
+
+- **`EventBroadcastService`**: Broadcasts validated analytics events to WebSocket channels for live admin dashboards
+- **Public channel**: `analytics.events` — all qualifying events for global dashboards
+- **Category channels**: `analytics.events.{category}` — filtered by ecommerce, saas, engagement, security
+- **Tenant channels**: `analytics.tenant.{tenantId}` — private multi-tenant event streams
+- **Admin channel**: `analytics.admin` — private admin-only event stream
+- **Batch broadcasting**: `broadcastBatch()` for high-throughput scenarios — sends multiple events as a single WebSocket message
+- **Sensitive param redaction**: Automatic redaction of PII (email, ip, phone, tokens) before broadcasting
+- **Category filtering**: Configurable category whitelist to control which event types are broadcast
+- **Channel introspection**: `channelsFor()` returns all channels an event would broadcast to (for auth)
+- **Non-breaking**: Broadcasting failures are silently caught — never breaks the event pipeline
+- Config section `zeroboiler.analytics.broadcasting`: `enabled`, `public_channel`, `category_channels`, `tenant_channels`, `admin_channel`, `include_params`, `sensitive_params`, `categories`
 
 ### What's New in v90.0.0
 

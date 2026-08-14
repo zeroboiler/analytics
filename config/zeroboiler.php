@@ -7197,4 +7197,65 @@ return [
             'magic_number_target' => (float) env('ANALYTICS_MAGIC_NUMBER_TARGET', 0.75),
         ],
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | Auto Page-View Tracking (v92.0.0)
+    |------------------------------------------------------------------
+    |
+    | Server-side automatic page_view event dispatch for every HTTP response.
+    | Complements client-side page_view tracking by capturing bot traffic,
+    | API-driven navigation, and environments where client JS is disabled.
+    |
+    | Register as route middleware: `analytics.pageview`
+    | Register as global middleware for site-wide auto-tracking.
+    |
+    */
+    'auto_pageview' => [
+        'enabled' => env('ANALYTICS_AUTO_PAGEVIEW_ENABLED', false),
+        'exclude_paths' => [
+            '*/_ignition*',
+            '*/telescope*',
+            '*/horizon*',
+            '*/pulse*',
+            '*/vendor/*',
+            '*/storage/*',
+        ],
+        'exclude_methods' => ['OPTIONS', 'HEAD'],
+        'track_api' => env('ANALYTICS_AUTO_PAGEVIEW_TRACK_API', false),
+        'track_status_codes' => [200, 301, 302, 303, 307, 308, 404],
+        'bot_tracking' => env('ANALYTICS_AUTO_PAGEVIEW_BOT_TRACKING', false),
+        'strip_query_params' => env('ANALYTICS_AUTO_PAGEVIEW_STRIP_QUERY', true),
+        'max_url_length' => (int) env('ANALYTICS_AUTO_PAGEVIEW_MAX_URL_LENGTH', 2048),
+        'sampling_rate' => (float) env('ANALYTICS_AUTO_PAGEVIEW_SAMPLING_RATE', 1.0),
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Broadcasting (v92.0.0)
+    |------------------------------------------------------------------
+    |
+    | Real-time analytics event delivery via Laravel Broadcasting.
+    | Broadcasts events to WebSocket channels (Pusher, Reverb, Soketi, Ably)
+    | for live admin dashboards and real-time activity monitoring.
+    |
+    | Channels:
+    | - `analytics.events` — public channel for all events
+    | - `analytics.events.{category}` — category-scoped events
+    | - `analytics.tenant.{tenantId}` — private multi-tenant channel
+    | - `analytics.admin` — private admin-only event stream
+    |
+    */
+    'broadcasting' => [
+        'enabled' => env('ANALYTICS_BROADCASTING_ENABLED', false),
+        'public_channel_enabled' => env('ANALYTICS_BROADCASTING_PUBLIC', true),
+        'public_channel' => env('ANALYTICS_BROADCASTING_PUBLIC_CHANNEL', 'analytics.events'),
+        'category_channels' => env('ANALYTICS_BROADCASTING_CATEGORY_CHANNELS', true),
+        'tenant_channels' => env('ANALYTICS_BROADCASTING_TENANT_CHANNELS', false),
+        'admin_channel_enabled' => env('ANALYTICS_BROADCASTING_ADMIN_CHANNEL', false),
+        'admin_channel' => env('ANALYTICS_BROADCASTING_ADMIN_CHANNEL_NAME', 'analytics.admin'),
+        'include_params' => env('ANALYTICS_BROADCASTING_INCLUDE_PARAMS', true),
+        'sensitive_params' => ['password', 'token', 'secret', 'api_key', 'credit_card', 'ssn', 'email', 'phone', 'ip'],
+        'categories' => ['ecommerce', 'saas', 'engagement', 'security'],
+    ],
 ];

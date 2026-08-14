@@ -30,6 +30,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCommandCenterCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
+use ZeroBoiler\Analytics\Http\Middleware\AutoPageViewMiddleware;
 use ZeroBoiler\Analytics\Http\Middleware\VerifySdkToken;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
 use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
@@ -373,6 +374,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsExperimentCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsContractCommand;
 use ZeroBoiler\Analytics\Services\EventContractTestService;
 use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
+use ZeroBoiler\Analytics\Services\EventBroadcastService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -380,7 +382,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 91.0.0
+ * @version 92.0.0
  *
  * @since 1.0.0
  */
@@ -3473,6 +3475,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new EventContractTestService($cache, $config);
         });
+
+        // Event Broadcasting Service (v92.0.0) — WebSocket event streaming
+        $this->app->singleton(EventBroadcastService::class, function (Application $app): EventBroadcastService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $broadcaster = $app->bound(\Illuminate\Contracts\Broadcasting\Broadcaster::class)
+                ? $app->make(\Illuminate\Contracts\Broadcasting\Broadcaster::class)
+                : null;
+
+            return new EventBroadcastService($config, $broadcaster);
+        });
     }
 
     /**
@@ -3596,6 +3610,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $router->aliasMiddleware(
                 'analytics.sdk',
                 VerifySdkToken::class,
+            );
+            $router->aliasMiddleware(
+                'analytics.pageview',
+                AutoPageViewMiddleware::class,
             );
         }
     }
