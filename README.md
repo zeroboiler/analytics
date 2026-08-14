@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-89.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-89.1.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -431,7 +431,7 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 **Code Quality:**
 - ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
 - ✅ All constructors declare `: void` return type
-- ✅ 658 source files, 302 test files, 19,400+ assertions
+- ✅ 658 source files, 306 test files, 19,600+ assertions
 
 ### What's New in v61.0.0
 
@@ -452,7 +452,7 @@ Deep manual code review and quality hardening across all 658 source files and 30
 - ✅ `#[\Override]` attributes on interface implementations
 
 **Test Coverage:**
-- 19,400+ assertions across 302 test files
+- 19,600+ assertions across 306 test files
 - AnalyticsFake for full facade interception testing
 - `WithAnalyticsFake` trait for test isolation
 
