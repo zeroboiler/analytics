@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-133.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-134.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **73 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v134.0.0
+
+**Data Residency Routing & Event Consistency Validation — Multi-Region GDPR/CCPA/LGPD Compliance**:
+
+- **`AnalyticsDataResidencyService`** — Multi-region data routing engine that filters analytics events by geographic zone (EU/GDPR, US/CCPA, US-CA/CCPA-Strict, BR/LGPD, CA/PIPEDA). Supports allowed provider lists, blocked PII field enforcement (remove or hash modes), zone detection from IP, and audit trail logging for compliance reporting.
+- **`EventConsistencyValidatorService`** — Cross-provider event delivery consistency validator that detects schema drift, missing translations, parameter completeness failures, provider coverage gaps, and data type mismatches. Provides composite consistency scoring (0-100) with letter grades and priority gap detection for targeted remediation.
+- **`AnalyticsDataGovernanceCommand`** — New artisan command (`zb:analytics:data-governance`) with options: `--residency` (zone audit), `--consistency` (cross-provider consistency), `--gaps` (priority gaps), `--audit` (audit log summary), `--json` (machine-readable output). Displays residency zone rules, consistency scores, and actionable gap recommendations.
+- **Config expansion** — New `data_residency` and `event_consistency` config sections in `zeroboiler.php` with zone definitions, provider allowlists, blocked field rules, consistency thresholds, and cache TTL settings.
+- **Routes** — New data governance API endpoints for runtime zone evaluation, consistency checks, and audit retrieval.
+- **`V134DataGovernanceTest`** — Comprehensive test suite with 50+ assertions covering zone filtering, blocked field enforcement, audit logging, consistency scoring, gap detection, parameter validation, and config integration.
+- **Version sweep** — All new files synced to 134.0.0.
 
 ### What's New in v133.0.0
 

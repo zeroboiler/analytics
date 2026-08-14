@@ -7650,4 +7650,79 @@ return [
             // ],
         ],
     ],
+
+    // ────────────────────────────────────────────────────────────────────
+    // Data Residency (v134.0.0)
+    // ────────────────────────────────────────────────────────────────────
+    //
+    // Multi-region data routing and localization for GDPR, CCPA, LGPD, PIPEDA.
+    // Controls which analytics providers receive data based on user geography.
+    // When enabled, events are filtered through zone rules before dispatch.
+    //
+    // CLI:
+    //   php artisan zb:analytics:data-governance --residency
+    //   php artisan zb:analytics:data-governance --audit
+    //
+    'data_residency' => [
+        'enabled' => env('ANALYTICS_DATA_RESIDENCY_ENABLED', false),
+        'default_zone' => env('ANALYTICS_DATA_RESIDENCY_DEFAULT_ZONE', 'eu'),
+        'audit_ttl' => (int) env('ANALYTICS_DATA_RESIDENCY_AUDIT_TTL', 7776000), // 90 days
+        'cache_ttl' => (int) env('ANALYTICS_DATA_RESIDENCY_CACHE_TTL', 3600),
+        'strict_categories' => ['saas', 'engagement'],
+        'zones' => [
+            'eu' => [
+                'label' => 'European Union (GDPR)',
+                'allowed_providers' => ['ga4', 'gtm', 'plausible', 'posthog', 'mixpanel', 'amplitude'],
+                'blocked_fields' => ['ip_address', 'email', 'phone', 'ssn'],
+                'requires_consent' => true,
+            ],
+            'us' => [
+                'label' => 'United States (CCPA)',
+                'allowed_providers' => ['ga4', 'gtm', 'meta_pixel', 'plausible', 'posthog', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'],
+                'blocked_fields' => ['ssn'],
+                'requires_consent' => false,
+            ],
+            'us-ca' => [
+                'label' => 'California (CCPA Strict)',
+                'allowed_providers' => ['ga4', 'gtm', 'plausible', 'posthog', 'mixpanel', 'amplitude'],
+                'blocked_fields' => ['email', 'phone', 'ssn', 'ip_address'],
+                'requires_consent' => true,
+            ],
+            'br' => [
+                'label' => 'Brazil (LGPD)',
+                'allowed_providers' => ['ga4', 'gtm', 'plausible', 'posthog'],
+                'blocked_fields' => ['email', 'phone', 'ip_address'],
+                'requires_consent' => true,
+            ],
+            'ca' => [
+                'label' => 'Canada (PIPEDA)',
+                'allowed_providers' => ['ga4', 'gtm', 'plausible', 'posthog', 'mixpanel', 'amplitude'],
+                'blocked_fields' => ['sin', 'ip_address'],
+                'requires_consent' => true,
+            ],
+        ],
+    ],
+
+    // ────────────────────────────────────────────────────────────────────
+    // Event Consistency (v134.0.0)
+    // ────────────────────────────────────────────────────────────────────
+    //
+    // Cross-provider event delivery consistency validation. Detects:
+    // - Provider coverage gaps (events missing mappings for enabled providers)
+    // - Schema drift (field name/type mismatches across providers)
+    // - Parameter completeness (required fields missing before dispatch)
+    // - Consistency scoring (0-100 with letter grades)
+    //
+    // CLI:
+    //   php artisan zb:analytics:data-governance --consistency
+    //   php artisan zb:analytics:data-governance --gaps
+    //   php artisan zb:analytics:data-governance --clear-cache
+    //
+    'event_consistency' => [
+        'enabled' => env('ANALYTICS_EVENT_CONSISTENCY_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_CONSISTENCY_CACHE_TTL', 300),
+        'enabled_providers' => ['ga4', 'meta_pixel', 'posthog', 'plausible', 'mixpanel', 'amplitude'],
+        'required_global_fields' => ['event_name', 'timestamp'],
+        'cache_results' => env('ANALYTICS_EVENT_CONSISTENCY_CACHE', true),
+    ],
 ];

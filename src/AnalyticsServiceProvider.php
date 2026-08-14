@@ -190,12 +190,14 @@ use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
-use ZeroBoiler\Analytics\Services\EventGovernanceService;
-use ZeroBoiler\Analytics\Services\EventCostTracker;
-use ZeroBoiler\Analytics\Services\NotificationWebhookService;
-use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
-use ZeroBoiler\Analytics\Services\EventCatalogValidator;
-use ZeroBoiler\Analytics\Events\EventPluginRegistry;
+use ZeroBoiler\\Analytics\\Services\\EventGovernanceService;
+use ZeroBoiler\\Analytics\\Services\\EventCostTracker;
+use ZeroBoiler\\Analytics\\Services\\NotificationWebhookService;
+use ZeroBoiler\\Analytics\\Services\\AnalyticsConfigAuditService;
+use ZeroBoiler\\Analytics\\Services\\EventCatalogValidator;
+use ZeroBoiler\\Analytics\\Events\\EventPluginRegistry;
+use ZeroBoiler\\Analytics\\Services\\AnalyticsDataResidencyService;
+use ZeroBoiler\\Analytics\\Services\\EventConsistencyValidatorService;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentPlugin;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentOrchestrator;
@@ -2586,6 +2588,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Governance (v4.1.0)
         $this->app->singleton(EventGovernanceService::class, function (Application $app): EventGovernanceService {
             return new EventGovernanceService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Data Residency (v134.0.0)
+        $this->app->singleton(AnalyticsDataResidencyService::class, function (Application $app): AnalyticsDataResidencyService {
+            return new AnalyticsDataResidencyService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Consistency Validator (v134.0.0)
+        $this->app->singleton(EventConsistencyValidatorService::class, function (Application $app): EventConsistencyValidatorService {
+            return new EventConsistencyValidatorService(
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
