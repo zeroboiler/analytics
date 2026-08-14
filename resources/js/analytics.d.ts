@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 133.0.0
+ * @version 136.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2777,7 +2777,7 @@ export function isValidEventName(name: string): name is EventName;
 /**
  * Get event names by category.
  */
-export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement' | 'marketing' | 'security' | 'uptime' | 'infrastructure'): readonly string[];
+export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement' | 'marketing' | 'security' | 'uptime' | 'infrastructure' | 'customer_success'): readonly string[];
 
 /**
  * Get total count of all events across all categories.
