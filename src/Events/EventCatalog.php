@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Events;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\SaaS\CustomerSuccessEvents;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventTags;
@@ -22,7 +23,7 @@ use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
  *
  * Provides a single entry point for looking up event names, classes,
  * and provider mappings across Ecommerce, SaaS (including cohort), Engagement,
- * Security, Uptime, Infrastructure, and registered plugin categories.
+ * Security, Uptime, Infrastructure, Marketing, and CustomerSuccess.
  *
  * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}
  *
@@ -45,6 +46,7 @@ final class EventCatalog
             self::withCategory(UptimeEvents::all(), 'uptime'),
             self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             self::withCategory(MarketingEvents::all(), 'marketing'),
+            self::withCategory(CustomerSuccessEvents::all(), 'customer_success'),
         );
     }
 
@@ -91,7 +93,7 @@ final class EventCatalog
     /**
      * Get events grouped by category.
      *
-     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>, security: array<string, EventEntry>, uptime: array<string, EventEntry>, infrastructure: array<string, EventEntry>, marketing: array<string, EventEntry>}
+     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>, security: array<string, EventEntry>, uptime: array<string, EventEntry>, infrastructure: array<string, EventEntry>, marketing: array<string, EventEntry>, customer_success: array<string, EventEntry>}
      */
     public static function byCategory(): array
     {
@@ -103,6 +105,7 @@ final class EventCatalog
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
             'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             'marketing' => self::withCategory(MarketingEvents::all(), 'marketing'),
+            'customer_success' => self::withCategory(CustomerSuccessEvents::all(), 'customer_success'),
         ];
     }
 
@@ -127,13 +130,14 @@ final class EventCatalog
             || SecurityEvents::has($name)
             || UptimeEvents::has($name)
             || InfrastructureEvents::has($name)
-            || MarketingEvents::has($name);
+            || MarketingEvents::has($name)
+            || CustomerSuccessEvents::has($name);
     }
 
     /**
      * Get the category name for a given event name.
      *
-     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|null
+     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|'customer_success'|null
      */
     public static function getCategory(string $name): ?string
     {
@@ -165,6 +169,10 @@ final class EventCatalog
             return 'marketing';
         }
 
+        if (CustomerSuccessEvents::has($name)) {
+            return 'customer_success';
+        }
+
         return null;
     }
 
@@ -179,7 +187,8 @@ final class EventCatalog
             + SecurityEvents::count()
             + UptimeEvents::count()
             + InfrastructureEvents::count()
-            + MarketingEvents::count();
+            + MarketingEvents::count()
+            + CustomerSuccessEvents::count();
     }
 
     /**
@@ -197,7 +206,8 @@ final class EventCatalog
             UptimeEvents::ga4Names(),
             InfrastructureEvents::ga4Names(),
             MarketingEvents::ga4Names(),
-        )));
+            CustomerSuccessEvents::ga4Names(),
+        ))));
     }
 
     /**
@@ -215,6 +225,7 @@ final class EventCatalog
             UptimeEvents::metaNames(),
             InfrastructureEvents::metaNames(),
             MarketingEvents::metaNames(),
+            CustomerSuccessEvents::metaNames(),
         ))));
     }
 
@@ -236,6 +247,7 @@ final class EventCatalog
             UptimeEvents::posthogNames(),
             InfrastructureEvents::posthogNames(),
             MarketingEvents::posthogNames(),
+            CustomerSuccessEvents::posthogNames(),
         ))));
     }
 
@@ -257,6 +269,7 @@ final class EventCatalog
             UptimeEvents::plausibleNames(),
             InfrastructureEvents::plausibleNames(),
             MarketingEvents::plausibleNames(),
+            CustomerSuccessEvents::plausibleNames(),
         ))));
     }
 
@@ -277,6 +290,7 @@ final class EventCatalog
             UptimeEvents::mixpanelNames(),
             InfrastructureEvents::mixpanelNames(),
             MarketingEvents::mixpanelNames(),
+            CustomerSuccessEvents::mixpanelNames(),
         ))));
     }
 
@@ -297,6 +311,7 @@ final class EventCatalog
             UptimeEvents::amplitudeNames(),
             InfrastructureEvents::amplitudeNames(),
             MarketingEvents::amplitudeNames(),
+            CustomerSuccessEvents::amplitudeNames(),
         ))));
     }
 
@@ -318,6 +333,7 @@ final class EventCatalog
             UptimeEvents::tiktokNames(),
             InfrastructureEvents::tiktokNames(),
             MarketingEvents::tiktokNames(),
+            CustomerSuccessEvents::tiktokNames(),
         ))));
     }
 
@@ -339,6 +355,7 @@ final class EventCatalog
             UptimeEvents::linkedinNames(),
             InfrastructureEvents::linkedinNames(),
             MarketingEvents::linkedinNames(),
+            CustomerSuccessEvents::linkedinNames(),
         ))));
     }
 
@@ -435,7 +452,7 @@ final class EventCatalog
      * "trial" within SaaS lifecycle.
      *
      * @param  string  $pattern  Search pattern (partial match, case-insensitive)
-     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'  $category
+     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|'customer_success'  $category
      * @return list<EventEntry>
      *
      * @since 130.0.0
@@ -492,13 +509,14 @@ final class EventCatalog
             ?? SecurityEvents::classFor($name)
             ?? UptimeEvents::classFor($name)
             ?? InfrastructureEvents::classFor($name)
-            ?? MarketingEvents::classFor($name);
+            ?? MarketingEvents::classFor($name)
+            ?? CustomerSuccessEvents::classFor($name);
     }
 
     /**
      * Get all events in a specific category.
      *
-     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'  $category
+     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|'customer_success'  $category
      * @return array<string, EventEntry>
      */
     public static function category(string $category): array
@@ -511,6 +529,7 @@ final class EventCatalog
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
             'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             'marketing' => self::withCategory(MarketingEvents::all(), 'marketing'),
+            'customer_success' => self::withCategory(CustomerSuccessEvents::all(), 'customer_success'),
             default => [],
         };
     }

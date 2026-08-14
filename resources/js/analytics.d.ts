@@ -2727,7 +2727,8 @@ export const AllEventNames: Readonly<
   typeof MarketingEvents &
   typeof SecurityEvents &
   typeof UptimeEvents &
-  typeof InfrastructureEvents
+  typeof InfrastructureEvents &
+  typeof CustomerSuccessEvents
 >;
 
 /** Union type of all valid event names. */
@@ -2753,6 +2754,20 @@ export type UptimeEventName = (typeof UptimeEvents)[keyof typeof UptimeEvents];
 
 /** Union type of infrastructure event names. */
 export type InfrastructureEventName = (typeof InfrastructureEvents)[keyof typeof InfrastructureEvents];
+
+/** Customer success analytics event names. */
+export const CustomerSuccessEvents: Readonly<{
+  readonly SUPPORT_TICKET_CREATED: 'support_ticket_created';
+  readonly NPS_SUBMITTED: 'nps_submitted';
+  readonly HEALTH_SCORE_CHANGED: 'health_score_changed';
+  readonly RENEWAL_REMINDER_SENT: 'renewal_reminder_sent';
+  readonly CHURN_INTERVIEW: 'churn_interview';
+  readonly CUSTOMER_REVIEW: 'customer_review';
+  readonly ONBOARDING_CALL_COMPLETED: 'onboarding_call_completed';
+}>;
+
+/** Union type of customer success event names. */
+export type CustomerSuccessEventName = (typeof CustomerSuccessEvents)[keyof typeof CustomerSuccessEvents];
 
 /**
  * Type guard: check if a string is a valid event name.

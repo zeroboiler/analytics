@@ -17187,4 +17187,191 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Customer Success Analytics (v135.0.0)
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * Get the customer success event catalog.
+     *
+     * Returns all 7 customer success events with their provider mappings.
+     *
+     * @since 135.0.0
+     */
+    public function customerSuccessCatalog(): JsonResponse
+    {
+        try {
+            $catalog = \ZeroBoiler\Analytics\Events\SaaS\CustomerSuccessEvents::all();
+            $subCategories = \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::events('customer_success');
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => \ZeroBoiler\Analytics\Events\SaaS\CustomerSuccessEvents::count(),
+                'events' => $catalog,
+                'sub_category_events' => $subCategories,
+                'category' => \ZeroBoiler\Analytics\Events\SaaS\CustomerSuccessEvents::category(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get customer success KPI summary.
+     *
+     * Computes NPS classification, support velocity, health trend,
+     * and retention metrics from the provided raw metrics.
+     *
+     * Query params: avg_nps, total_tickets_30d, avg_health_score, renewal_rate, churn_rate
+     *
+     * @since 135.0.0
+     */
+    public function customerSuccessKpi(Request $request): JsonResponse
+    {
+        try {
+            $metrics = [
+                'avg_nps' => (int) $request->query('avg_nps', 0),
+                'total_tickets_30d' => (int) $request->query('total_tickets_30d', 0),
+                'avg_health_score' => (float) $request->query('avg_health_score', 50.0),
+                'renewal_rate' => (float) $request->query('renewal_rate', 0.0),
+                'churn_rate' => (float) $request->query('churn_rate', 0.0),
+            ];
+
+            $kpi = \ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService::kpiSummary($metrics);
+
+            return response()->json([
+                'status' => 'ok',
+                'kpi' => $kpi,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Assess churn risk for a customer.
+     *
+     * Query params: health_signal (float), nps_score (int|null), support_ticket_count (int)
+     *
+     * @since 135.0.0
+     */
+    public function customerSuccessChurnRisk(Request $request): JsonResponse
+    {
+        try {
+            $healthSignal = (float) $request->query('health_signal', 0.0);
+            $npsScore = $request->query('nps_score') !== null ? (int) $request->query('nps_score') : null;
+            $supportTicketCount = (int) $request->query('support_ticket_count', 0);
+
+            $risk = \ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService::assessChurnRisk(
+                $healthSignal,
+                $npsScore,
+                $supportTicketCount,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'churn_risk' => $risk,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Feature Gating (v135.0.0)
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * Get feature gating eligibility summary for a plan.
+     *
+     * Query params: plan (string)
+     *
+     * @since 135.0.0
+     */
+    public function featureGatingEligibility(Request $request): JsonResponse
+    {
+        try {
+            $plan = $request->query('plan', '');
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService::class);
+
+            if ($plan === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Missing required query parameter: plan',
+                ], 400);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'plan' => $plan,
+                'enabled' => $service->isEnabled(),
+                'allowed_events' => $service->allowedEventsForPlan($plan),
+                'allowed_count' => count($service->allowedEventsForPlan($plan) ?? []),
+                'blocked_events' => $service->blockedEventsForPlan($plan),
+                'blocked_count' => count($service->blockedEventsForPlan($plan)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get feature gating plan hierarchy and configuration.
+     *
+     * @since 135.0.0
+     */
+    public function featureGatingPlans(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'enabled' => $service->isEnabled(),
+                'hierarchy' => $service->getPlanHierarchy(),
+                'ungated_events' => $service->getUngatedEvents(),
+                'premium_categories' => $service->getPremiumCategories(),
+                'plan_rules' => $service->getPlanEventRules(),
+                'summary' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Check if a specific event is allowed for a given plan.
+     *
+     * Query params: event (string), plan (string)
+     *
+     * @since 135.0.0
+     */
+    public function featureGatingCheck(Request $request): JsonResponse
+    {
+        try {
+            $event = $request->query('event', '');
+            $plan = $request->query('plan', '');
+
+            if ($event === '' || $plan === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Missing required query parameters: event, plan',
+                ], 400);
+            }
+
+            $service = app(\ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $event,
+                'plan' => $plan,
+                'allowed' => $service->isEventAllowed($event, $plan),
+                'gating_enabled' => $service->isEnabled(),
+                'plan_tier' => $service->isPlanAtOrAbove($plan, 'starter') ? 'paid' : 'free',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

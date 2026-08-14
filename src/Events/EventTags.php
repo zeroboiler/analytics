@@ -187,6 +187,15 @@ final class EventTags
         'api_rate_limited' => ['enterprise'],
         'sla_breach' => ['enterprise', 'critical'],
         'webhook_delivered' => ['enterprise'],
+
+        // ── Customer Success (v135.0.0) ────────────────────
+        'support_ticket_created' => ['retention', 'b2b', 'enterprise', 'engagement'],
+        'nps_submitted' => ['retention', 'b2b', 'engagement', 'pii'],
+        'health_score_changed' => ['retention', 'b2b', 'enterprise', 'critical'],
+        'renewal_reminder_sent' => ['retention', 'billing', 'b2b', 'revenue'],
+        'churn_interview' => ['retention', 'b2b', 'engagement', 'pii'],
+        'customer_review' => ['engagement', 'b2b', 'acquisition'],
+        'onboarding_call_completed' => ['onboarding', 'b2b', 'engagement'],
     ];
 
     /**

@@ -46,7 +46,7 @@ final class SaaSEventSubCategories
     private const SUBCATEGORIES = [
         'auth' => [
             'sign_up', 'login', 'logout', 'email_verified',
-            'password_changed', 'password_reset',
+            'password_changed', 'password_reset', 'password_reset_requested',
         ],
         'subscription' => [
             'subscribe', 'plan_upgrade', 'plan_downgrade', 'cancellation',
@@ -59,8 +59,8 @@ final class SaaSEventSubCategories
         ],
         'billing' => [
             'payment_succeeded', 'payment_failed', 'payment_method_added',
-            'payment_method_updated', 'invoice_generated', 'credit_applied',
-            'billing_retry', 'revenue_tracked',
+            'payment_method_updated', 'payment_method_removed',
+            'invoice_generated', 'credit_applied', 'billing_retry', 'revenue_tracked',
         ],
         'team' => [
             'team_created', 'team_member_joined', 'team_member_removed',

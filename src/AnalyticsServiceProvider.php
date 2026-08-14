@@ -53,6 +53,8 @@ use ZeroBoiler\Analytics\Services\GoogleTagManagerService;
 use ZeroBoiler\Analytics\Services\MetaPixelService;
 use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 use ZeroBoiler\Analytics\Services\RevenueAttributionService;
+use ZeroBoiler\Analytics\Services\CustomerSuccessAnalyticsService;
+use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -508,6 +510,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSAnalyticsService($manager);
+        });
+
+        // Customer Success Analytics (v135.0.0)
+        $this->app->singleton(CustomerSuccessAnalyticsService::class, function (Application $app): CustomerSuccessAnalyticsService {
+            return new CustomerSuccessAnalyticsService(
+                cache: $app->make(CacheRepository::class),
+            );
+        });
+
+        // Feature Gating Analytics (v135.0.0)
+        $this->app->singleton(FeatureGatingAnalyticsService::class, function (Application $app): FeatureGatingAnalyticsService {
+            return new FeatureGatingAnalyticsService(
+                config: $app->make(ConfigRepository::class),
+                cache: $app->make(CacheRepository::class),
+            );
         });
 
         // PII sanitization middleware (configurable strategy)

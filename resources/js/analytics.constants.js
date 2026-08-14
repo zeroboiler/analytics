@@ -272,6 +272,26 @@ export const MarketingEvents = {
 };
 Object.freeze(MarketingEvents);
 
+// ─── Customer Success Events ────────────────────────────────────────
+
+/**
+ * Customer success analytics event names.
+ * Tracks health, satisfaction, and retention signals critical for B2B SaaS.
+ * Feeds into health scoring, NPS trending, churn prediction, and expansion revenue.
+ * @readonly
+ * @since 135.0.0
+ */
+export const CustomerSuccessEvents = {
+    SUPPORT_TICKET_CREATED: 'support_ticket_created',
+    NPS_SUBMITTED: 'nps_submitted',
+    HEALTH_SCORE_CHANGED: 'health_score_changed',
+    RENEWAL_REMINDER_SENT: 'renewal_reminder_sent',
+    CHURN_INTERVIEW: 'churn_interview',
+    CUSTOMER_REVIEW: 'customer_review',
+    ONBOARDING_CALL_COMPLETED: 'onboarding_call_completed',
+};
+Object.freeze(CustomerSuccessEvents);
+
 // ─── Unified Event Names ────────────────────────────────────────────
 
 /**
@@ -286,6 +306,7 @@ export const AllEventNames = Object.freeze({
     ...SecurityEvents,
     ...UptimeEvents,
     ...InfrastructureEvents,
+    ...CustomerSuccessEvents,
 });
 
 /**
@@ -313,6 +334,7 @@ export function getEventNamesByCategory(category) {
         case 'security': return Object.values(SecurityEvents);
         case 'uptime': return Object.values(UptimeEvents);
         case 'infrastructure': return Object.values(InfrastructureEvents);
+        case 'customer_success': return Object.values(CustomerSuccessEvents);
         default: return [];
     }
 }
@@ -332,5 +354,5 @@ export function getTotalEventCount() {
  * @returns {readonly string[]}
  */
 export function getCategoryNames() {
-    return ['ecommerce', 'saas', 'engagement', 'marketing', 'security', 'uptime', 'infrastructure'];
+    return ['ecommerce', 'saas', 'engagement', 'marketing', 'security', 'uptime', 'infrastructure', 'customer_success'];
 }

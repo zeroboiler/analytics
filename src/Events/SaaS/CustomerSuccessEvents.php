@@ -186,4 +186,139 @@ final class CustomerSuccessEvents
     {
         return 'customer_success';
     }
+
+    /**
+     * Get all GA4 event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function ga4Names(): array
+    {
+        return array_map(
+            fn (array $entry): string => $entry['ga4'],
+            self::catalog(),
+        );
+    }
+
+    /**
+     * Get all Meta Pixel event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function metaNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['meta'],
+                self::catalog(),
+            ),
+            fn (?string $meta): bool => $meta !== null,
+        ));
+    }
+
+    /**
+     * Get all PostHog event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function posthogNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['posthog'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Plausible event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function plausibleNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['plausible'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Mixpanel event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function mixpanelNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['mixpanel'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all Amplitude event names in this category.
+     *
+     * @return list<string>
+     */
+    public static function amplitudeNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['amplitude'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all TikTok event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function tiktokNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['tiktok'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get all LinkedIn event names in this category (non-null only).
+     *
+     * @return list<string>
+     */
+    public static function linkedinNames(): array
+    {
+        return array_values(array_filter(
+            array_map(
+                fn (array $entry): ?string => $entry['linkedin'] ?? null,
+                self::catalog(),
+            ),
+            fn (?string $name): bool => $name !== null,
+        ));
+    }
+
+    /**
+     * Get the event class for a given event name.
+     *
+     * @return class-string<\ZeroBoiler\Analytics\DTO\AnalyticsEvent>|null
+     */
+    public static function classFor(string $name): ?string
+    {
+        return self::catalog()[$name]['class'] ?? null;
+    }
 }
