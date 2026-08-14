@@ -1,5 +1,22 @@
 # Changelog
 
+## [116.0.0] - 2026-08-14
+
+### Added
+- **Phase 45 — Daily Health Report Service**:
+  - `AnalyticsDailyHealthReportService` — Unified daily health aggregation for SaaS operators. Evaluates 7 health domains (provider_health, pipeline_health, catalog_integrity, data_quality, budget_utilization, consent_compliance, readiness) with weighted scoring (0-100), letter grades (A+ to F), critical issue identification, and actionable recommendations ranked by priority.
+  - `zb:analytics:health-report` — CLI command with `--force`, `--json`, `--domain`, `--compact`, and `--clear-cache` options. Designed for daily cron execution with visual score bars, emoji status indicators, and structured issue/recommendation output.
+  - `GET /api/analytics/health-report` — Public API endpoint for health report retrieval. Supports `?force=1` cache bypass and `?domains=provider_health,consent_compliance` domain filtering.
+  - Config section `daily_health_report` — Cache TTL, critical threshold (default: 30), and warning threshold (default: 60) settings.
+  - Quick accessors: `score()`, `status()`, `criticalIssues()`, `domainScore(string $domain)`, `clearCache()`.
+- **V1160DailyHealthReportServiceTest** — 20 test cases validating service existence, constructor, 7 health domains, domain weights sum to 100, supported grades, report structure, score/status accessors, cache behavior, issue identification, domain scoring, command registration, and package maturity.
+
+### Changed
+- **Version sweep** — All 12 package files synced to 116.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider, 5 Svelte composables).
+- **Test version assertions** — V99IndustryStandardSaaSAnalyticsTest, V1150CrossPlatformAttributionVersionSweepTest updated from 115.0.0 to 116.0.0.
+- **Version documentation** — README "What's New in v116.0.0" section added documenting Phase 45 Daily Health Report Service.
+- **CHANGELOG** — v116.0.0 entry added for Phase 45.
+
 ## [115.0.0] - 2026-08-14
 
 ### Added

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-115.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-116.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,50 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v116.0.0
+
+**Phase 45 — Daily Health Report Service**:
+
+- **`AnalyticsDailyHealthReportService`** — Unified daily health aggregation for SaaS operators. Evaluates 7 health domains (provider health, pipeline health, catalog integrity, data quality, budget utilization, consent compliance, readiness) with weighted scoring (0-100), letter grades (A+ to F), critical issue identification, and actionable recommendations ranked by priority.
+- **`zb:analytics:health-report` command** — CLI for generating daily health reports with `--force`, `--json`, `--domain`, `--compact`, and `--clear-cache` options. Designed for daily cron execution.
+- **`GET /api/analytics/health-report`** — Public API endpoint for health report retrieval with `?force=1` cache bypass and `?domains=provider_health,consent_compliance` filtering.
+- **Config expansion** — `daily_health_report` section with cache TTL, critical threshold, and warning threshold settings.
+- **Quick accessors** — `score()`, `status()`, `criticalIssues()`, `domainScore()`, `clearCache()` for programmatic health monitoring.
+
+```php
+use ZeroBoiler\Analytics\Services\AnalyticsDailyHealthReportService;
+
+$service = app(AnalyticsDailyHealthReportService::class);
+$report = $service->generate();
+
+// Overall: score/100, grade (A+ to F), status (healthy/degraded/critical)
+echo "Score: {$report['overall_score']}/100 [{$report['grade']}]";
+
+// Per-domain scores
+foreach ($report['domains'] as $domain => $data) {
+    echo "{$domain}: {$data['score']}/100 [{$data['status']}]";
+}
+
+// Critical issues and recommendations
+foreach ($report['critical_issues'] as $issue) {
+    echo "[{$issue['severity']}] {$issue['message']}";
+}
+```
+
+```bash
+# CLI — full report
+php artisan zb:analytics:health-report
+
+# JSON output for webhooks
+php artisan zb:analytics:health-report --json --force
+
+# Single domain
+php artisan zb:analytics:health-report --domain=consent_compliance
+
+# Compact
+php artisan zb:analytics:health-report --compact
+```
 
 ### What's New in v115.0.0
 

@@ -11,21 +11,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
-use ZeroBoiler\Analytics\Services\AnalyticsHealthMonitorService;
-use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
-use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
-use ZeroBoiler\Analytics\Services\AnalyticsConfigValidator;
-use ZeroBoiler\Analytics\Services\EventCatalogValidator;
-use ZeroBoiler\Analytics\Services\EventValidationService;
-use ZeroBoiler\Analytics\Services\ProviderHealthMonitor;
-use ZeroBoiler\Analytics\Services\ProviderFallbackService;
-use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
-use ZeroBoiler\Analytics\Services\TrackingGuardRailsService;
-use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
-use ZeroBoiler\Analytics\Services\EventBudgetService;
-use ZeroBoiler\Analytics\Services\AnalyticsConsentComplianceService;
-use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 
 /**
  * Analytics Daily Health Report — unified health aggregation service.
@@ -450,9 +435,10 @@ final class AnalyticsDailyHealthReportService
         }
 
         // Per-category counts
-        $details['ecommerce_events'] = EventCatalog::countByCategory('ecommerce');
-        $details['saas_events'] = EventCatalog::countByCategory('saas');
-        $details['engagement_events'] = EventCatalog::countByCategory('engagement');
+        $byCategory = EventCatalog::byCategory();
+        $details['ecommerce_events'] = count($byCategory['ecommerce'] ?? []);
+        $details['saas_events'] = count($byCategory['saas'] ?? []);
+        $details['engagement_events'] = count($byCategory['engagement'] ?? []);
 
         // SaaS events minimum
         if ($details['saas_events'] < 30) {

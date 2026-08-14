@@ -164,20 +164,20 @@ describe('Phase 43 — Attribution Models via Cache', function () {
 });
 
 describe('Phase 43 — Version Integrity Sweep', function () {
-    test('all PHP/JS/TS/README versions are 115.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('115.0.0');
+    test('all PHP/JS/TS/README versions are 116.0.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('116.0.0');
 
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('115.0.0');
+        expect($composer['version'])->toBe('116.0.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain('@version 115.0.0');
+        expect($js)->toContain('@version 116.0.0');
 
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect($dts)->toContain('@version 115.0.0');
+        expect($dts)->toContain('@version 116.0.0');
     });
 
-    test('all 5 Svelte composables at 115.0.0', function (): void {
+    test('all 5 Svelte composables at 116.0.0', function (): void {
         $svelteFiles = [
             'useAnalytics.svelte.js',
             'useAnalyticsConfig.svelte.js',
@@ -188,24 +188,24 @@ describe('Phase 43 — Version Integrity Sweep', function () {
 
         foreach ($svelteFiles as $file) {
             $content = file_get_contents(__DIR__ . '/../resources/js/' . $file);
-            expect($content)->toContain('@version 115.0.0', "Svelte composable {$file} must be at version 115.0.0");
+            expect($content)->toContain('@version 116.0.0', "Svelte composable {$file} must be at version 116.0.0");
         }
     });
 
-    test('V99 maturity test expects 115.0.0', function (): void {
+    test('V99 maturity test expects 116.0.0', function (): void {
         $v99 = file_get_contents(__DIR__ . '/../tests/V99IndustryStandardSaaSAnalyticsTest.php');
-        expect($v99)->toContain("'115.0.0'");
-        expect($v99)->toContain('version-115.0.0');
+        expect($v99)->toContain("'116.0.0'");
+        expect($v99)->toContain('version-116.0.0');
         expect($v99)->not->toContain("'76.0.0'");
     });
 
-    test('no stale 114.0.0 version references in Svelte files', function (): void {
+    test('no stale 115.0.0 version references in Svelte files', function (): void {
         $svelteFiles = glob(__DIR__ . '/../resources/js/*.svelte.js');
         expect($svelteFiles)->not->toBeEmpty();
 
         foreach ($svelteFiles as $file) {
             $content = file_get_contents($file);
-            expect($content)->not->toContain('@version 114.0.0', basename($file) . ' has stale version 114.0.0');
+            expect($content)->not->toContain('@version 115.0.0', basename($file) . ' has stale version 115.0.0');
         }
     });
 });

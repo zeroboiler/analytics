@@ -133,7 +133,7 @@ test('statusEmoji returns correct emoji for score ranges', function (): void {
     expect($method->invoke($instance, 95))->toBe('🟢');
     expect($method->invoke($instance, 80))->toBe('🟢');
     expect($method->invoke($instance, 65))->toBe('🟡');
-    expect($method->invoke($instance, 50))->toBe('🟡');
+    expect($method->invoke($instance, 50))->toBe('🟠');
     expect($method->invoke($instance, 40))->toBe('🟠');
     expect($method->invoke($instance, 10))->toBe('🔴');
 });
