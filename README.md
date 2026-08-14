@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-139.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-140.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v140.0.0
+
+**Event Template Engine & Blueprint Builder — Config-Driven Event Creation for SaaS**:
+
+- **`EventTemplateEngine` service** — Config-driven template system for rapid analytics event creation. Provides 14 built-in event templates across ecommerce (purchase, add_to_cart, view_item, refund), SaaS (sign_up, trial_start, subscription, plan_upgrade, cancellation), engagement (page_view, form_submit, search, error), and feature usage categories. Each template defines parameter schemas with types, required flags, defaults, enum validation, and descriptions. Templates are loaded from `zeroboiler.analytics.event_templates.definitions` config and can be extended at runtime via `registerTemplate()`.
+- **`EventBlueprintBuilder` service** — Fluent API for programmatic event creation with method chaining. Supports `param()`, `params()`, `clientId()`, `userId()`, `priority()`, `source()`, `critical()`, `fromServer()`, `fromApi()`, `fromClient()`, `withUtm()`, `withSession()`, `withDevice()`, `withAllEnrichment()`, and `build()`. Complements EventTemplateEngine with a code-first approach for dynamically composed events.
+- **Template validation** — `validateEventName()` checks event names against both the template registry and the unified EventCatalog. `getParamSchema()` returns template parameter definitions for auto-form generation. Type coercion handles string/int/float/bool/array conversions automatically.
+- **`V140EventTemplateEngineTest`** — Comprehensive test suite with 35+ assertions covering: template loading, event building with defaults, required param validation, enum validation, type coercion, custom template registration, category grouping, event name validation, summary statistics, param schema extraction, BlueprintBuilder fluent chaining, identity/source/priority shortcuts, serialization, integration compatibility, version consistency, strict_types compliance, MIT license headers, final class verification, and docblock completeness.
+- **Version sweep** — All 9 client files synced to v140.0.0 (analytics.js, analytics.d.ts, analytics.constants.js, 5 Svelte composables, composer.json, AnalyticsEvent::VERSION, README badge).
 
 ### What's New in v139.0.0
 

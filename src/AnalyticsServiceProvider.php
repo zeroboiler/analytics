@@ -194,14 +194,15 @@ use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
-use ZeroBoiler\\Analytics\\Services\\EventGovernanceService;
-use ZeroBoiler\\Analytics\\Services\\EventCostTracker;
-use ZeroBoiler\\Analytics\\Services\\NotificationWebhookService;
-use ZeroBoiler\\Analytics\\Services\\AnalyticsConfigAuditService;
-use ZeroBoiler\\Analytics\\Services\\EventCatalogValidator;
-use ZeroBoiler\\Analytics\\Events\\EventPluginRegistry;
-use ZeroBoiler\\Analytics\\Services\\AnalyticsDataResidencyService;
-use ZeroBoiler\\Analytics\\Services\\EventConsistencyValidatorService;
+use ZeroBoiler\Analytics\Services\EventGovernanceService;
+use ZeroBoiler\Analytics\Services\EventCostTracker;
+use ZeroBoiler\Analytics\Services\NotificationWebhookService;
+use ZeroBoiler\Analytics\Services\AnalyticsConfigAuditService;
+use ZeroBoiler\Analytics\Services\EventCatalogValidator;
+use ZeroBoiler\Analytics\Events\EventPluginRegistry;
+use ZeroBoiler\Analytics\Services\AnalyticsDataResidencyService;
+use ZeroBoiler\Analytics\Services\EventConsistencyValidatorService;
+use ZeroBoiler\Analytics\Services\EventTemplateEngine;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentPlugin;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentOrchestrator;
@@ -2625,6 +2626,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventArchiveService(
                 $app->make(CacheRepository::class),
                 $app->make('zeroboiler.analytics'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Template Engine (v140.0.0)
+        $this->app->singleton(EventTemplateEngine::class, function (Application $app): EventTemplateEngine {
+            return new EventTemplateEngine(
                 $app->make(ConfigRepository::class),
             );
         });

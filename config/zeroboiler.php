@@ -473,6 +473,10 @@ return [
             'auto_utm_attach' => env('ANALYTICS_TEMPLATES_AUTO_UTM', true),
             'auto_user_id_attach' => env('ANALYTICS_TEMPLATES_AUTO_USER_ID', true),
             'include_provider_params' => env('ANALYTICS_TEMPLATES_PROVIDER_PARAMS', true),
+            'definitions' => [
+                // Custom event templates can be defined here.
+                // Example: 'my.custom_event' => ['name' => 'custom_event', 'category' => 'custom', 'params' => [...]],
+            ],
         ],
 
         /*
