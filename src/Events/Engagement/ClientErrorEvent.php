@@ -37,7 +37,7 @@ final class ClientErrorEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'client_error',
             params: array_merge($params, [

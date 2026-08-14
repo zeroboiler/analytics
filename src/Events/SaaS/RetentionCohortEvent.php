@@ -34,7 +34,7 @@ final class RetentionCohortEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'retention_cohort',
             params: array_merge($params, [

@@ -25,7 +25,7 @@ use ZeroBoiler\Analytics\Services\ProviderSLAMonitor;
  * @see \ZeroBoiler\Analytics\Services\AnalyticsCostForecastService
  * @see \ZeroBoiler\Analytics\Services\EventPolicyEngine
  */
-class AnalyticsGovernanceCommand extends Command
+final class AnalyticsGovernanceCommand extends Command
 {
     /**
      * The console command name and signature.

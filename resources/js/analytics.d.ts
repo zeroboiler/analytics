@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 100.0.0
+ * @version 101.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2314,6 +2314,62 @@ export function trackCancellation(options?: TrackCancellationOptions): Promise<v
  * Track a feature usage event.
  */
 export function trackFeatureUsed(feature: string, extra?: Record<string, unknown>): Promise<void>;
+
+// ─── SaaS Account Lifecycle Shorthand Types (v101.0.0) ──────────────
+
+/** Options for trackAccountActivated. */
+export interface TrackAccountActivatedOptions {
+  method?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackAccountDeactivated. */
+export interface TrackAccountDeactivatedOptions {
+  reason?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackEmailVerified. */
+export interface TrackEmailVerifiedOptions {
+  method?: string;
+  extra?: Record<string, unknown>;
+}
+
+/** Options for trackAccountDeleted. */
+export interface TrackAccountDeletedOptions {
+  reason?: string;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Track an account activation event.
+ */
+export function trackAccountActivated(options?: TrackAccountActivatedOptions): Promise<void>;
+
+/**
+ * Track an account deactivation event.
+ */
+export function trackAccountDeactivated(options?: TrackAccountDeactivatedOptions): Promise<void>;
+
+/**
+ * Track an email verification event.
+ */
+export function trackEmailVerified(options?: TrackEmailVerifiedOptions): Promise<void>;
+
+/**
+ * Track an account deletion event.
+ */
+export function trackAccountDeleted(options?: TrackAccountDeletedOptions): Promise<void>;
+
+/**
+ * Track a first value / aha moment event.
+ */
+export function trackFirstValue(valueEvent: string, extra?: Record<string, unknown>): Promise<void>;
+
+/**
+ * Track a growth milestone event.
+ */
+export function trackGrowthMilestone(milestone: string, extra?: Record<string, unknown>): Promise<void>;
 
 // ─── Session Replay Composable Types (v98.0.0) ────────────────────────
 

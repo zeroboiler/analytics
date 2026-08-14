@@ -1,5 +1,19 @@
 # Changelog
 
+## [100.3.0] - 2026-08-14
+
+### Fixed
+- Added `: void` return type to constructors in 5 source files (PHP 8.5 compliance):
+  - `Events/Engagement/ClientErrorEvent`
+  - `Events/SaaS/ActivationEvent`
+  - `Events/SaaS/RetentionCohortEvent`
+  - `Services/SaaSReadinessAssessment`
+  - `Support/SaaSEventHelpers`
+- Added `final` keyword to `AnalyticsGovernanceCommand`
+
+### Added
+- Phase 30 production audit — constructor `:void` and final class compliance tests
+
 ## [100.2.0] - 2026-08-14
 
 ### Added

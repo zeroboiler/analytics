@@ -60,7 +60,7 @@ final class SaaSReadinessAssessment
         array $trackedEvents = [],
         array $enabledProviders = [],
         array $configFlags = [],
-    ) {
+    ): void {
         $this->trackedEvents = $trackedEvents;
         $this->enabledProviders = $enabledProviders;
         $this->configFlags = $configFlags;

@@ -3322,4 +3322,249 @@ final class AnalyticsManager
         }
         $this->track('billing_retry', $payload);
     }
+
+    // ── SaaS Account Lifecycle Shorthands (v101.0.0) ─────────────────
+
+    /**
+     * Track an account_activated event.
+     *
+     * Fires when a user activates their account (e.g., confirms email,
+     * completes verification). Critical for SaaS activation rate metrics.
+     *
+     * @param  string|null  $method  Activation method (email, sso, admin)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function accountActivated(?string $method = null, array $params = []): void
+    {
+        $this->track('account_activated', array_merge($params, array_filter([
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an account_deactivated event.
+     *
+     * Fires when a user deactivates their account (self-service or admin-initiated).
+     * Used for churn prediction and retention analysis.
+     *
+     * @param  string|null  $reason  Deactivation reason (self_service, admin, inactivity)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function accountDeactivated(?string $reason = null, array $params = []): void
+    {
+        $this->track('account_deactivated', array_merge($params, array_filter([
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a feature_used event.
+     *
+     * Fires when a user interacts with a specific product feature.
+     * Essential for feature adoption analysis, product-led growth,
+     * and activation funnel tracking.
+     *
+     * @param  string  $featureName  Feature identifier (e.g., 'api_keys', 'export_csv')
+     * @param  string|null  $category  Feature category (reporting, integrations, billing)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function featureUsed(string $featureName, ?string $category = null, array $params = []): void
+    {
+        $this->track('feature_used', array_merge($params, array_filter([
+            'feature_name' => $featureName,
+            'category' => $category,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an email_verified event.
+     *
+     * Fires when a user verifies their email address.
+     * Part of the SaaS activation funnel.
+     *
+     * @param  string|null  $method  Verification method (link, code, oauth)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function emailVerified(?string $method = null, array $params = []): void
+    {
+        $this->track('email_verified', array_merge($params, array_filter([
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a password_changed event.
+     *
+     * Fires when a user changes their password.
+     * Part of account security event tracking.
+     *
+     * @param  string|null  $method  Change method (self_service, admin_reset, sso)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function passwordChanged(?string $method = null, array $params = []): void
+    {
+        $this->track('password_changed', array_merge($params, array_filter([
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a profile_updated event.
+     *
+     * Fires when a user updates their profile information.
+     * Used for engagement scoring and user activity tracking.
+     *
+     * @param  list<string>|null  $fields  List of updated field names
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function profileUpdated(?array $fields = null, array $params = []): void
+    {
+        $this->track('profile_updated', array_merge($params, array_filter([
+            'fields' => $fields,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an api_rate_limited event.
+     *
+     * Fires when a user hits an API rate limit. Used for usage analytics
+     * and product-led growth upsell signals.
+     *
+     * @param  string|null  $endpoint  Rate-limited endpoint
+     * @param  int|null  $limit  Rate limit threshold
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function apiRateLimited(?string $endpoint = null, ?int $limit = null, array $params = []): void
+    {
+        $this->track('api_rate_limited', array_merge($params, array_filter([
+            'endpoint' => $endpoint,
+            'limit' => $limit,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an invoice_generated event.
+     *
+     * Fires when an invoice is generated for a subscription.
+     * Part of SaaS revenue and billing lifecycle tracking.
+     *
+     * @param  float|null  $amount  Invoice amount
+     * @param  string|null  $invoiceId  Invoice identifier
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function invoiceGenerated(?float $amount = null, ?string $invoiceId = null, array $params = []): void
+    {
+        $this->track('invoice_generated', array_merge($params, array_filter([
+            'amount' => $amount,
+            'invoice_id' => $invoiceId,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an account_deleted event.
+     *
+     * Fires when a user permanently deletes their account.
+     * Critical for churn analysis and GDPR compliance tracking.
+     *
+     * @param  string|null  $reason  Deletion reason (self_service, gdpr_request, admin)
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function accountDeleted(?string $reason = null, array $params = []): void
+    {
+        $this->track('account_deleted', array_merge($params, array_filter([
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a data_erasure_completed event.
+     *
+     * Fires when GDPR data erasure is completed for a user.
+     * Part of privacy compliance event tracking.
+     *
+     * @param  string|null  $requestId  GDPR erasure request identifier
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function dataErasureCompleted(?string $requestId = null, array $params = []): void
+    {
+        $this->track('data_erasure_completed', array_merge($params, array_filter([
+            'request_id' => $requestId,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an export event.
+     *
+     * Fires when a user exports data (GDPR DSAR or product export).
+     * Used for compliance tracking and feature usage analytics.
+     *
+     * @param  string|null  $format  Export format (csv, json, pdf)
+     * @param  string|null  $resource  Exported resource type
+     * @param  int|null  $recordCount  Number of records exported
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function exportEvent(?string $format = null, ?string $resource = null, ?int $recordCount = null, array $params = []): void
+    {
+        $this->track('export', array_merge($params, array_filter([
+            'format' => $format,
+            'resource' => $resource,
+            'record_count' => $recordCount,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an import event.
+     *
+     * Fires when a user imports data into the application.
+     * Used for feature adoption and data migration tracking.
+     *
+     * @param  string|null  $format  Import format (csv, json)
+     * @param  string|null  $resource  Imported resource type
+     * @param  int|null  $recordCount  Number of records imported
+     * @param  bool|null  $success  Whether the import succeeded
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function importEvent(?string $format = null, ?string $resource = null, ?int $recordCount = null, ?bool $success = null, array $params = []): void
+    {
+        $this->track('import', array_merge($params, array_filter([
+            'format' => $format,
+            'resource' => $resource,
+            'record_count' => $recordCount,
+            'success' => $success,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a first_value event.
+     *
+     * Fires when a user reaches their "aha moment" — the first time
+     * they experience core product value. Critical for product-market
+     * fit analysis and activation rate optimization.
+     *
+     * @param  string  $eventName  Name of the value-creating action
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function firstValue(string $eventName, array $params = []): void
+    {
+        $this->track('first_value', array_merge($params, [
+            'value_event' => $eventName,
+        ]));
+    }
+
+    /**
+     * Track a growth_milestone event.
+     *
+     * Fires when the application reaches a growth milestone
+     * (user count, revenue, feature adoption thresholds).
+     * Used for investor reporting and team celebration.
+     *
+     * @param  string  $milestone  Milestone identifier (e.g., '1000_users', '10k_mrr')
+     * @param  array<string, mixed>  $params  Additional event parameters
+     */
+    public function growthMilestone(string $milestone, array $params = []): void
+    {
+        $this->track('growth_milestone', array_merge($params, [
+            'milestone' => $milestone,
+        ]));
+    }
 }

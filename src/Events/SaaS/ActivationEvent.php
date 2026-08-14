@@ -34,7 +34,7 @@ final class ActivationEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ) {
+    ): void {
         parent::__construct(
             name: 'activation',
             params: array_merge($params, [

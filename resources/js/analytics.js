@@ -407,7 +407,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-        return '100.0.0';
+        return '101.0.0';
 }
 
 /**
@@ -4229,7 +4229,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-        return '100.0.0';
+        return '101.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -7447,4 +7447,96 @@ export async function trackCancellation(options = {}) {
  */
 export async function trackFeatureUsed(feature, extra = {}) {
     return trackEvent('feature_used', { feature, ...extra }, { immediate: true });
+}
+
+// ─── SaaS Account Lifecycle Shorthands (v101.0.0) ─────────────────
+
+/**
+ * Track an account activation event.
+ *
+ * @param {object} [options] - Activation options
+ * @param {string} [options.method] - Activation method (email, sso, admin)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackAccountActivated({ method: 'email' });
+ */
+export async function trackAccountActivated(options = {}) {
+    const params = { ...options.extra };
+    if (options.method) params.method = options.method;
+    return trackEvent('account_activated', params, { immediate: true });
+}
+
+/**
+ * Track an account deactivation event.
+ *
+ * @param {object} [options] - Deactivation options
+ * @param {string} [options.reason] - Reason (self_service, admin, inactivity)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackAccountDeactivated({ reason: 'self_service' });
+ */
+export async function trackAccountDeactivated(options = {}) {
+    const params = { ...options.extra };
+    if (options.reason) params.reason = options.reason;
+    return trackEvent('account_deactivated', params, { immediate: true });
+}
+
+/**
+ * Track an email verification event.
+ *
+ * @param {object} [options] - Verification options
+ * @param {string} [options.method] - Method (link, code, oauth)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackEmailVerified({ method: 'link' });
+ */
+export async function trackEmailVerified(options = {}) {
+    const params = { ...options.extra };
+    if (options.method) params.method = options.method;
+    return trackEvent('email_verified', params, { immediate: true });
+}
+
+/**
+ * Track an account deletion event.
+ *
+ * @param {object} [options] - Deletion options
+ * @param {string} [options.reason] - Reason (self_service, gdpr_request, admin)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ */
+export async function trackAccountDeleted(options = {}) {
+    const params = { ...options.extra };
+    if (options.reason) params.reason = options.reason;
+    return trackEvent('account_deleted', params, { immediate: true });
+}
+
+/**
+ * Track a first value / aha moment event.
+ *
+ * @param {string} valueEvent - Name of the value-creating action
+ * @param {object} [extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackFirstValue('first_api_call');
+ */
+export async function trackFirstValue(valueEvent, extra = {}) {
+    return trackEvent('first_value', { value_event: valueEvent, ...extra }, { immediate: true });
+}
+
+/**
+ * Track a growth milestone event.
+ *
+ * @param {string} milestone - Milestone identifier (e.g. '1000_users', '10k_mrr')
+ * @param {object} [extra] - Additional parameters
+ * @returns {Promise<void>}
+ */
+export async function trackGrowthMilestone(milestone, extra = {}) {
+    return trackEvent('growth_milestone', { milestone, ...extra }, { immediate: true });
 }

@@ -30,7 +30,7 @@ final class SaaSEventHelpers
      */
     public function __construct(
         private readonly AnalyticsManager $manager,
-    ) {}
+    ): void {}
 
     /**
      * Track a user sign-up event with method and contextual params.
