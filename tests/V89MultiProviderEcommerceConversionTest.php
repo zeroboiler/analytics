@@ -204,10 +204,10 @@ test('event catalog provider name lookups work for ecommerce events', function (
     $ecommerceEvents = EcommerceEvents::names();
 
     foreach ($ecommerceEvents as $eventName) {
-        // Every ecommerce event must have a GA4 mapping
-        $ga4 = EventCatalog::ga4NameFor($eventName);
-        expect($ga4)->not->toBeNull();
-        expect($ga4)->toBeString();
+        // Every ecommerce event has a catalog entry with GA4 mapping
+        $entry = EventCatalog::get($eventName);
+        expect($entry)->not->toBeNull();
+        expect($entry['ga4'])->toBeString();
 
         // PostHog mapping
         $posthog = EventCatalog::posthogNameFor($eventName);
