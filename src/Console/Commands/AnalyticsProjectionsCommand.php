@@ -198,13 +198,15 @@ final class AnalyticsProjectionsCommand extends Command
             $this->line(json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
         } else {
             $definition = $this->registry->get($name);
+            $label = $definition !== null ? $definition->label : $name;
+            $windowDisplay = $result->window !== null ? $result->window : 'default';
 
             $this->line('');
-            $this->info("📊 {$definition?->label ?? $name}");
+            $this->info("📊 {$label}");
             $this->line("   Type:     {$result->type}");
             $this->line("   Value:    {$result->value}");
             $this->line("   Events:   {$result->eventCount}");
-            $this->line("   Window:   {$result->window ?? 'default'}");
+            $this->line("   Window:   {$windowDisplay}");
             $this->line("   Cached:   " . ($result->cached ? '✅ yes' : '❌ no'));
             $this->line("   Stale:    " . ($result->isStale() ? '⚠️ yes' : '✅ no'));
             $this->line("   Computed: {$result->computedAt?->format('Y-m-d H:i:s')}");
@@ -315,8 +317,9 @@ final class AnalyticsProjectionsCommand extends Command
                     if (($metric['category'] ?? '') === $cat) {
                         $stale = ($metric['stale'] ?? false) ? ' ⚠️' : '';
                         $cached = ($metric['cached'] ?? false) ? ' 📦' : '';
+                        $metricWindow = $metric['window'] ?? '-';
                         $this->line(
-                            "  {$metric['label']}: {$metric['value']} ({$metric['type']}, {$metric['window'] ?? '-'}){$stale}{$cached}",
+                            "  {$metric['label']}: {$metric['value']} ({$metric['type']}, {$metricWindow}){$stale}{$cached}",
                         );
                     }
                 }

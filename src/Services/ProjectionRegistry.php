@@ -46,7 +46,7 @@ final class ProjectionRegistry
 
     private readonly CacheRepository $cache;
 
-    public function __construct(CacheRepository $cache): void
+    public function __construct(CacheRepository $cache)
     {
         $this->cache = $cache;
         $this->registerBuiltinProjections();

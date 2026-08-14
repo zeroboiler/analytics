@@ -67,7 +67,7 @@ final class MetricProjectionEngine
         CacheRepository $cache,
         AnalyticsManager $manager,
         ProjectionRegistry $registry,
-    ): void {
+    ) {
         $this->config = $config;
         $this->cache = $cache;
         $this->manager = $manager;
