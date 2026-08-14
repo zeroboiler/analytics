@@ -135,6 +135,20 @@ describe('SaaS Core Shorthands Unchanged', function (): void {
 // ── Shorthand → Event Catalog Parity ─────────────────────────────────
 
 describe('Shorthand Catalog Parity', function (): void {
+    $v101Events = [
+        'account_activated', 'account_deactivated', 'account_deleted',
+        'feature_used', 'email_verified', 'password_changed', 'profile_updated',
+        'api_rate_limited', 'invoice_generated', 'data_erasure_completed',
+        'export', 'import', 'first_value', 'growth_milestone',
+    ];
+
+    test('all v101.0.0 shorthand events exist in EventCatalog', function () use ($v101Events): void {
+        foreach ($v101Events as $eventName) {
+            expect(\ZeroBoiler\Analytics\Events\EventCatalog::has($eventName))
+                ->toBeTrue("v101 shorthand event '{$eventName}' must exist in EventCatalog");
+        }
+    });
+
     test('core SaaS shorthands match catalog event names', function (): void {
         $coreShorthands = [
             'sign_up', 'login', 'start_trial', 'subscribe',
@@ -146,6 +160,11 @@ describe('Shorthand Catalog Parity', function (): void {
             expect(\ZeroBoiler\Analytics\Events\EventCatalog::has($eventName))
                 ->toBeTrue("Core shorthand event '{$eventName}' must exist in EventCatalog");
         }
+    });
+
+    test('total event catalog size is healthy', function (): void {
+        $count = \ZeroBoiler\Analytics\Events\EventCatalog::count();
+        expect($count)->toBeGreaterThan(100, 'EventCatalog should have 100+ events');
     });
 });
 

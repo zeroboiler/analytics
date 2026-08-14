@@ -1771,6 +1771,69 @@ final class AnalyticsFake
                 ...($args[1] ?? []),
                 'attempt' => $args[0] ?? null,
             ], fn (mixed $v): bool => $v !== null),
+            // SaaS Account Lifecycle (v101.0.0)
+            'accountActivated' => array_filter([
+                ...($args[1] ?? []),
+                'method' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'accountDeactivated' => array_filter([
+                ...($args[1] ?? []),
+                'reason' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'accountDeleted' => array_filter([
+                ...($args[1] ?? []),
+                'reason' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'featureUsed' => array_filter([
+                ...($args[2] ?? []),
+                'feature_name' => $args[0] ?? '',
+                'category' => $args[1] ?? null,
+            ]),
+            'emailVerified' => array_filter([
+                ...($args[1] ?? []),
+                'method' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'passwordChanged' => array_filter([
+                ...($args[1] ?? []),
+                'method' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'profileUpdated' => array_filter([
+                ...($args[1] ?? []),
+                'fields' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'apiRateLimited' => array_filter([
+                ...($args[2] ?? []),
+                'endpoint' => $args[0] ?? null,
+                'limit' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'invoiceGenerated' => array_filter([
+                ...($args[2] ?? []),
+                'amount' => $args[0] ?? null,
+                'invoice_id' => $args[1] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'dataErasureCompleted' => array_filter([
+                ...($args[1] ?? []),
+                'request_id' => $args[0] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'exportEvent' => array_filter([
+                ...($args[3] ?? []),
+                'format' => $args[0] ?? null,
+                'resource' => $args[1] ?? null,
+                'record_count' => $args[2] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'importEvent' => array_filter([
+                ...($args[4] ?? []),
+                'format' => $args[0] ?? null,
+                'resource' => $args[1] ?? null,
+                'record_count' => $args[2] ?? null,
+                'success' => $args[3] ?? null,
+            ], fn (mixed $v): bool => $v !== null),
+            'firstValue' => array_merge($args[1] ?? [], [
+                'value_event' => $args[0] ?? '',
+            ]),
+            'growthMilestone' => array_merge($args[1] ?? [], [
+                'milestone' => $args[0] ?? '',
+            ]),
             default => $args[0] ?? [],
         };
     }
