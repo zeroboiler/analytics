@@ -108,7 +108,7 @@ final class AnalyticsTrendForecastCommand extends Command
      */
     private function showCategoryForecast(string $category, int $days, int $horizon, bool $asJson): int
     {
-        $validCategories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure'];
+        $validCategories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure', 'marketing'];
 
         if (! in_array($category, $validCategories, true)) {
             $this->error("Invalid category '{$category}'. Valid: " . implode(', ', $validCategories));

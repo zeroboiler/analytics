@@ -189,7 +189,7 @@ final class AnalyticsDiagnosticCommand extends Command
         }
 
         // Check category coverage
-        $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime'];
+        $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure', 'marketing'];
         foreach ($categories as $category) {
             $events = EventCatalog::category($category);
             $count = count($events);

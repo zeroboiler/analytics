@@ -212,7 +212,7 @@ final class AnalyticsPrivacyInventoryCommand extends Command
     private function assessRetentionPolicies(array $retentionConfig): array
     {
         $categoryPolicies = [];
-        $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure'];
+        $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure', 'marketing'];
 
         foreach ($categories as $category) {
             $categoryPolicies[$category] = ($retentionConfig[$category]['retention_days'] ?? null);

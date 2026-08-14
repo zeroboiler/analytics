@@ -53,6 +53,7 @@ final class EventBroadcastService
     /** @var list<string> Default categories to broadcast */
     private const DEFAULT_CATEGORIES = [
         'ecommerce', 'saas', 'engagement', 'security',
+        'uptime', 'infrastructure', 'marketing',
     ];
 
     /**
