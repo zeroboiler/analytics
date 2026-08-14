@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-85.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-86.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,78 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v86.0.0
+
+**Event Sequence Prediction Engine** — Markov chain-based next-event prediction. Builds first-order and second-order transition matrices from observed user event sequences and predicts the most likely next event(s). Features:
+
+- **First-order model**: P(X_{n+1} | X_n) single-event transitions
+- **Second-order model**: P(X_{n+1} | X_n, X_{n-1}) bigram transitions for higher accuracy
+- **Anomaly detection**: Flag unexpected sequence transitions against the learned model
+- **Top sequences**: Identify most common event flow patterns
+- **Configurable confidence thresholds** and minimum observation requirements
+- **Excluded events** filtering (page_view, scroll_depth excluded by default)
+
+API endpoints:
+- `POST /api/analytics/prediction/record-sequence` — train the model with observed sequences
+- `POST /api/analytics/prediction/next` — predict next events given recent context
+- `GET /api/analytics/prediction/stats` — model statistics and configuration
+- `GET /api/analytics/prediction/matrix/{event}` — transition matrix for a specific event
+- `GET /api/analytics/prediction/top-sequences` — most common event sequences
+- `GET /api/analytics/prediction/anomalies` — detect anomalous transitions
+- `DELETE /api/analytics/prediction/model` — clear model data
+
+Config section `zeroboiler.analytics.sequence_prediction`: `enabled`, `cache_ttl`, `min_observations`, `top_n`, `confidence_threshold`, `use_second_order`, `excluded_events`.
+
+**Event Cost Ledger** — Per-event dispatch cost tracking across all 10 providers. Tracks computational and financial costs with:
+
+- **Per-event cost breakdown** by provider (API calls, bandwidth)
+- **Budget alerts** when daily spending exceeds configured threshold
+- **Cost optimization recommendations** (high-cost events, high-failure-rate providers)
+- **Historical cost data** for trend analysis (up to 90 days)
+- **Provider cost comparison** with configurable per-1K-event rates
+
+API endpoints:
+- `GET /api/analytics/cost-ledger/daily` — today's cost summary with top events
+- `GET /api/analytics/cost-ledger/budget` — budget status and alerts
+- `GET /api/analytics/cost-ledger/optimizations` — cost-saving recommendations
+- `GET /api/analytics/cost-ledger/history?days=7` — historical cost data
+
+Config section `zeroboiler.analytics.cost_ledger`: `enabled`, `daily_budget`, `monthly_budget`, `provider_cost_rates`, `exempt_events`.
+
+**Compliance Report Generator** — Multi-framework compliance reports for regulatory audits (GDPR, CCPA, SOC2, ePrivacy). Generates:
+
+- **GDPR report**: 8 checkpoints (consent mode, data minimization, right to erasure, consent logging, granular consent, cookie consent, IP anonymization, data retention)
+- **CCPA report**: 6 checkpoints (data sale disclosure, opt-out, data access, PII detection, data portability, retention limits)
+- **SOC2 report**: 6 checkpoints (access logging, encryption, SDK auth, rate limiting, incident response, change management)
+- **ePrivacy report**: 4 checkpoints (cookie banner, tracking transparency, consent-before-tracking, regional detection)
+- **Health summary**: Quick compliance scores with critical gap identification
+- **Recommendations**: Actionable remediation for each failing check
+
+API endpoints:
+- `GET /api/analytics/compliance-report/full` — full multi-framework report
+- `GET /api/analytics/compliance-report/gdpr` — GDPR-specific report
+- `GET /api/analytics/compliance-report/ccpa` — CCPA-specific report
+- `GET /api/analytics/compliance-report/soc2` — SOC2-specific report
+- `GET /api/analytics/compliance-report/health` — quick health summary
+
+**Analytics Command Center CLI** (`zb:analytics:command-center`) — Unified governance + operations + compliance dashboard. Combines:
+
+- Configuration audit (missing keys, deprecated values)
+- Data quality score (firewall, PII detection, dedup, sampling)
+- Compliance health (GDPR, CCPA, SOC2 quick-check)
+- Provider readiness (enabled/configured/ready status per provider)
+- Cost/budget status
+- Event catalog coverage
+- Version consistency check
+- JSON output mode for CI integration
+
+```
+php artisan zb:analytics:command-center --json
+php artisan zb:analytics:command-center --section=compliance
+```
+
+**22 new API endpoints**, **3 new services**, **1 new CLI command**, **3 config sections**, ServiceProvider singleton registrations, V86 test suite with 25+ assertions, full version sweep to 86.0.0 — industry-standard SaaS analytics upgrade.
 
 ### What's New in v68.0.0
 
