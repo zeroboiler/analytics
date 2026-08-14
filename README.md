@@ -513,7 +513,7 @@ Replaced all 22 generic `RuntimeException` / `InvalidArgumentException` throws a
 **Code Quality:**
 - ✅ Zero generic `RuntimeException` / `InvalidArgumentException` throws remaining
 - ✅ All constructors declare `: void` return type
-- ✅ 672 source files, 314 test files, 21,000+ assertions
+- ✅ 672 source files, 316 test files, 20,318+ expect assertions
 
 ### What's New in v61.0.0
 
