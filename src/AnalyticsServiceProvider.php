@@ -26,6 +26,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCommandCenterCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
@@ -3521,6 +3522,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDeployGateCommand::class,
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
+                AnalyticsCommandCenterCommand::class,
             ]);
         }
 

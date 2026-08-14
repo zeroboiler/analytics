@@ -227,7 +227,7 @@ final class AnalyticsCommandCenterCommand extends Command
         if ($this->config['gdpr']['pii_detection_enabled'] ?? false) {
             $ccpaScore += 33;
         }
-        if ($this->config['data_retention']['default_retention_days'] ?? null !== null) {
+        if (($this->config['data_retention']['default_retention_days'] ?? null) !== null) {
             $ccpaScore += 33;
         }
         if (($this->config['consent']['default'] ?? 'granted') === 'denied') {
