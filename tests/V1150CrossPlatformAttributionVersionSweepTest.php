@@ -164,20 +164,20 @@ describe('Phase 43 — Attribution Models via Cache', function () {
 });
 
 describe('Phase 43 — Version Integrity Sweep', function () {
-    test('all PHP/JS/TS/README versions are 117.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('117.0.0');
+    test('all PHP/JS/TS/README versions are 118.0.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('118.0.0');
 
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('117.0.0');
+        expect($composer['version'])->toBe('118.0.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain('@version 117.0.0');
+        expect($js)->toContain('@version 118.0.0');
 
         $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-        expect($dts)->toContain('@version 117.0.0');
+        expect($dts)->toContain('@version 118.0.0');
     });
 
-    test('all 5 Svelte composables at 117.0.0', function (): void {
+    test('all 5 Svelte composables at 118.0.0', function (): void {
         $svelteFiles = [
             'useAnalytics.svelte.js',
             'useAnalyticsConfig.svelte.js',
@@ -188,14 +188,14 @@ describe('Phase 43 — Version Integrity Sweep', function () {
 
         foreach ($svelteFiles as $file) {
             $content = file_get_contents(__DIR__ . '/../resources/js/' . $file);
-            expect($content)->toContain('@version 117.0.0', "Svelte composable {$file} must be at version 117.0.0");
+            expect($content)->toContain('@version 118.0.0', "Svelte composable {$file} must be at version 118.0.0");
         }
     });
 
-    test('V99 maturity test expects 117.0.0', function (): void {
+    test('V99 maturity test expects 118.0.0', function (): void {
         $v99 = file_get_contents(__DIR__ . '/../tests/V99IndustryStandardSaaSAnalyticsTest.php');
-        expect($v99)->toContain("'117.0.0'");
-        expect($v99)->toContain('version-117.0.0');
+        expect($v99)->toContain("'118.0.0'");
+        expect($v99)->toContain('version-118.0.0');
         expect($v99)->not->toContain("'76.0.0'");
     });
 

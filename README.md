@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-117.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-118.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,50 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v118.0.0
+
+**Phase 47 — Event Macro System & Replay Audit**:
+
+- **`AnalyticsMacro`** — Reusable, parameterized event templates with default parameters, required key validation, and organizational tags. Reduce boilerplate in event tracking by defining named macros that merge caller params with pre-configured defaults.
+- **`AnalyticsMacroBuilder`** — Fluent builder API for defining macros: `AnalyticsMacroRegistry::define('feature_used', 'feature_used')->defaults(['source' => 'app'])->required(['feature_name'])->tag('engagement')->register()`.
+- **`AnalyticsMacroRegistry`** — Central registry with `define()`, `execute()`, `validate()`, `byTag()`, `summary()`, and config-driven loading from `zeroboiler.analytics.macros.definitions`.
+- **`AnalyticsReplayAuditor`** — Audits event replay operations for data integrity. Tracks replay attempts, success/failure rates, max attempt enforcement, TTL validation, and per-provider statistics. Provides `record()`, `validateReplay()`, `summary()`, and `incrementStats()`.
+- **`zb:analytics:macros`** — CLI command for managing macros: `--list`, `--validate`, `--tags`, `--name=`, `--execute=`, `--json`.
+- **`zb:analytics:replay-audit`** — CLI command for replay audit: summary stats, configuration validation, audit data management.
+- **Config expansion** — `macros` section with enabled flag and definitions; `replay_audit` section with TTL, max attempts, and replay TTL settings.
+
+```php
+use ZeroBoiler\Analytics\Macros\AnalyticsMacroRegistry;
+
+// Define a macro
+AnalyticsMacroRegistry::define('feature_used', 'feature_used')
+    ->defaults(['source' => 'app', 'environment' => app()->environment()])
+    ->required(['feature_name'])
+    ->tag('engagement', 'product', 'adoption')
+    ->description('Track feature usage with automatic context')
+    ->register();
+
+// Execute a macro
+AnalyticsMacroRegistry::execute($manager, 'feature_used', [
+    'feature_name' => 'export_dashboard',
+    'user_id' => 'usr_123',
+]);
+```
+
+```bash
+# List all macros
+php artisan zb:analytics:macros --list
+
+# Validate macro integrity
+php artisan zb:analytics:macros --validate
+
+# Show macros grouped by tag
+php artisan zb:analytics:macros --tags
+
+# Replay audit summary
+php artisan zb:analytics:replay-audit
+```
 
 ### What's New in v117.0.0
 

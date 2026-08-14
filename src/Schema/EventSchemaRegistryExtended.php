@@ -37,7 +37,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *   $schema = $registry->get('my_event');
  *   $rules = $registry->validationRules('my_event');
  *
- * @since 117.0.0
+ * @since 118.0.0
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaBuilder
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaDefinition

@@ -15,7 +15,7 @@ namespace ZeroBoiler\Analytics\Schema;
  * including type, required/optional status, default value, constraints,
  * and description. Returned by builder methods for chainable configuration.
  *
- * @since 117.0.0
+ * @since 118.0.0
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaBuilder
  */

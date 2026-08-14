@@ -20,7 +20,7 @@ namespace ZeroBoiler\Analytics\Schema;
  *
  * @phpstan-import-type PropertyDefinitionArray from PropertyDefinition
  *
- * @since 117.0.0
+ * @since 118.0.0
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaBuilder
  */

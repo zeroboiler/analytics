@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
  * - Exporting schemas as JSON
  * - Getting summary statistics
  *
- * @since 117.0.0
+ * @since 118.0.0
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended
  */

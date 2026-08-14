@@ -41,7 +41,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * The build() method returns an EventSchemaDefinition DTO that can be
  * registered with EventSchemaRegistryExtended or used standalone.
  *
- * @since 117.0.0
+ * @since 118.0.0
  *
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended
  * @see \ZeroBoiler\Analytics\Schema\EventSchemaDefinition

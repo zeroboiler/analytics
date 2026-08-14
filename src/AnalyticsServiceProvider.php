@@ -392,7 +392,7 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 117.0.0
+ * @version 118.0.0
  *
  * @since 1.0.0
  */
@@ -567,7 +567,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         $this->app->singleton(EventSchemaRegistry::class);
 
-        // Extended Schema Registry with EventSchemaBuilder integration (v117.0.0)
+        // Extended Schema Registry with EventSchemaBuilder integration (v118.0.0)
         $this->app->singleton(EventSchemaRegistryExtended::class, function (Application $app): EventSchemaRegistryExtended {
             /** @var CacheRepository $cache */
             $cache = $app->make(CacheRepository::class);

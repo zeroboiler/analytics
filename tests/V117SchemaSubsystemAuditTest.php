@@ -15,7 +15,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
 use ZeroBoiler\Analytics\Schema\PropertyDefinition;
 
 /**
- * Production audit tests for the Schema subsystem (v117.0.0).
+ * Production audit tests for the Schema subsystem (v118.0.0).
  *
  * Validates: strict_types, return types, constructor signatures, docblocks,
  * immutability, fluent API correctness, and registry integration.
@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Schema\PropertyDefinition;
  * @covers \ZeroBoiler\Analytics\Schema\PropertyDefinition
  * @covers \ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaCommand
  *
- * @since 117.0.0
+ * @since 118.0.0
  */
 final class V117SchemaSubsystemAuditTest extends TestCase
 {

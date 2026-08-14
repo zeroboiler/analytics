@@ -13,10 +13,10 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
 use ZeroBoiler\Analytics\Schema\PropertyDefinition;
 
 /**
- * Phase 34 Production Audit — Schema DSL Subsystem (v117.0.0)
+ * Phase 34 Production Audit — Schema DSL Subsystem (v118.0.0)
  *
  * Comprehensive audit of the new Schema DSL subsystem:
- * 1. Version consistency across all package files (117.0.0)
+ * 1. Version consistency across all package files (118.0.0)
  * 2. EventSchemaBuilder strict_types, final, private constructor, all methods return self
  * 3. EventSchemaDefinition readonly, final, all methods have return types
  * 4. PropertyDefinition strict_types, final, readonly name/type, fluent API
@@ -29,35 +29,35 @@ use ZeroBoiler\Analytics\Schema\PropertyDefinition;
  * 11. Config completeness (schema_registry section)
  * 12. Zero unused imports
  *
- * @since 117.0.0
+ * @since 118.0.0
  */
 describe('Phase 34 — Schema DSL Production Audit', function () {
     // ─── Version Consistency ────────────────────────────────────
 
     describe('Version Consistency', function () {
-        it('all 7 PHP/JS/TS/README versions are 117.0.0', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('117.0.0');
+        it('all 7 PHP/JS/TS/README versions are 118.0.0', function () {
+            expect(AnalyticsEvent::VERSION)->toBe('118.0.0');
 
             $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-            expect($composer['version'])->toBe('117.0.0');
+            expect($composer['version'])->toBe('118.0.0');
 
             $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-            expect($js)->toContain('@version 117.0.0');
+            expect($js)->toContain('@version 118.0.0');
 
             $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-            expect($dts)->toContain('@version 117.0.0');
+            expect($dts)->toContain('@version 118.0.0');
 
             $constants = file_get_contents(__DIR__ . '/../resources/js/analytics.constants.js');
-            expect($constants)->toContain('@version 117.0.0');
+            expect($constants)->toContain('@version 118.0.0');
 
             $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
-            expect($pkg['version'])->toBe('117.0.0');
+            expect($pkg['version'])->toBe('118.0.0');
 
             $readme = file_get_contents(__DIR__ . '/../README.md');
-            expect($readme)->toContain('version-117.0.0');
+            expect($readme)->toContain('version-118.0.0');
         });
 
-        it('all 5 Svelte composables at 117.0.0', function () {
+        it('all 5 Svelte composables at 118.0.0', function () {
             $svelteFiles = [
                 'useAnalytics.svelte.js',
                 'useAnalyticsConfig.svelte.js',
@@ -68,13 +68,13 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
 
             foreach ($svelteFiles as $file) {
                 $content = file_get_contents(__DIR__ . '/../resources/js/' . $file);
-                expect($content)->toContain('@version 117.0.0', "Svelte composable {$file} must be at version 117.0.0");
+                expect($content)->toContain('@version 118.0.0', "Svelte composable {$file} must be at version 118.0.0");
             }
         });
 
-        it('ServiceProvider docblock says 117.0.0', function () {
+        it('ServiceProvider docblock says 118.0.0', function () {
             $sp = file_get_contents((new \ReflectionClass(\ZeroBoiler\Analytics\AnalyticsServiceProvider::class))->getFileName());
-            expect($sp)->toContain('@version 117.0.0');
+            expect($sp)->toContain('@version 118.0.0');
         });
     });
 
@@ -101,9 +101,9 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
             expect($ref->getDocComment())->not->toBeEmpty();
         });
 
-        it('has @since 117.0.0 in docblock', function () {
+        it('has @since 118.0.0 in docblock', function () {
             $ref = new \ReflectionClass(EventSchemaBuilder::class);
-            expect($ref->getDocComment())->toContain('@since 117.0.0');
+            expect($ref->getDocComment())->toContain('@since 118.0.0');
         });
 
         it('all property definition methods return self', function () {
@@ -174,7 +174,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
         it('has class-level docblock with @since', function () {
             $ref = new \ReflectionClass(EventSchemaDefinition::class);
             expect($ref->getDocComment())->not->toBeEmpty();
-            expect($ref->getDocComment())->toContain('@since 117.0.0');
+            expect($ref->getDocComment())->toContain('@since 118.0.0');
         });
 
         it('all public methods have return types', function () {
@@ -246,7 +246,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
         it('has class-level docblock with @since', function () {
             $ref = new \ReflectionClass(PropertyDefinition::class);
             expect($ref->getDocComment())->not->toBeEmpty();
-            expect($ref->getDocComment())->toContain('@since 117.0.0');
+            expect($ref->getDocComment())->toContain('@since 118.0.0');
         });
 
         it('constructor has no explicit return type (implicit void)', function () {
@@ -313,7 +313,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
         it('has class-level docblock with @since', function () {
             $ref = new \ReflectionClass(EventSchemaRegistryExtended::class);
             expect($ref->getDocComment())->not->toBeEmpty();
-            expect($ref->getDocComment())->toContain('@since 117.0.0');
+            expect($ref->getDocComment())->toContain('@since 118.0.0');
         });
 
         it('constructor has void return type', function () {
@@ -439,7 +439,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
         it('has class-level docblock with @since', function () {
             $ref = new \ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaCommand::class);
             expect($ref->getDocComment())->not->toBeEmpty();
-            expect($ref->getDocComment())->toContain('@since 117.0.0');
+            expect($ref->getDocComment())->toContain('@since 118.0.0');
         });
 
         it('handle() returns int', function () {

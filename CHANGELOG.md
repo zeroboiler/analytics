@@ -1,5 +1,26 @@
 # Changelog
 
+## [118.0.0] - 2026-08-14
+
+### Added
+- **Phase 47 — Event Macro System & Replay Audit**:
+  - `AnalyticsMacro` — Reusable, parameterized event template DTO with default parameters, required key validation, organizational tags, description, and `build()` method that merges caller params with defaults and validates required keys.
+  - `AnalyticsMacroBuilder` — Fluent builder API for constructing macros: `AnalyticsMacroRegistry::define('name', 'event')->defaults([...])->required([...])->tag(...)->description('...')->register()`. Also supports `build()`, `dispatch()`, `default()`, and `requireKey()`.
+  - `AnalyticsMacroRegistry` — Central registry for macro management. Supports `define()`, `register()`, `execute()`, `get()`, `has()`, `names()`, `all()`, `byTag()`, `count()`, `forget()`, `flush()`, `validate()`, `summary()`, and `loadFromConfig()` for config-driven macro definitions.
+  - `AnalyticsReplayAuditor` — Event replay audit service for data integrity tracking. Provides `record()`, `getForEvent()`, `summary()`, `validateReplay()`, `incrementStats()`, and `clear()`. Tracks replay attempts with success/failure rates, per-provider statistics, max attempt enforcement, and TTL validation.
+  - `zb:analytics:macros` — CLI command for macro management: `--list` (table output), `--validate` (integrity check), `--tags` (grouped by tag), `--name=` (show details), `--execute=` (execute with `--params={}`), `--json`.
+  - `zb:analytics:replay-audit` — CLI command for replay audit: summary stats, `--validate` (check replay config), `--clear` (wipe audit data), `--json`.
+  - Config section `macros` — `enabled` toggle and `definitions` array for config-driven macro registration.
+  - Config section `replay_audit` — `enabled`, `ttl` (7d), `max_attempts` (3), `replay_ttl` (24h) settings.
+- **V1180AnalyticsMacroSystemTest** — 25+ test cases covering AnalyticsMacro (build, merge, required validation, to array), AnalyticsMacroBuilder (fluent API, register, single default, require key, tag dedup), and AnalyticsMacroRegistry (define, get, names, count, forget, flush, byTag, validate, summary, loadFromConfig, config precedence, all).
+- **V1180AnalyticsReplayAuditorTest** — 14+ test cases covering record (success/failure), summary (empty/cached), validateReplay (allowed/blocked max attempts/blocked disabled), incrementStats (success/failure), clear, getForEvent.
+
+### Changed
+- **Version sweep** — All package files synced to 118.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, Svelte composables, ServiceProvider, test version assertions).
+- **ServiceProvider** — Registered `AnalyticsReplayAuditor` singleton and `AnalyticsMacroRegistry` config loading via `afterResolving`. Registered `AnalyticsMacrosCommand` in command list.
+- **README** — "What's New in v118.0.0" section added documenting Phase 47 Event Macro System & Replay Audit.
+- **CHANGELOG** — v118.0.0 entry added.
+
 ## [117.0.0] - 2026-08-14
 
 ### Added

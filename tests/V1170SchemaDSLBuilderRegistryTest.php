@@ -731,7 +731,7 @@ describe('V1170 — Phase 46 Schema DSL Integration', function () {
         expect(isset($grouped['engagement']))->toBeTrue();
     });
 
-    it('AnalyticsEvent VERSION is 117.0.0', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('117.0.0');
+    it('AnalyticsEvent VERSION is 118.0.0', function () {
+        expect(AnalyticsEvent::VERSION)->toBe('118.0.0');
     });
 });
