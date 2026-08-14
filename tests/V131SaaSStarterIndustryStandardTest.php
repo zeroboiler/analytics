@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 /**
  * Verifies the analytics package meets industry-standard SaaS starter criteria.
  *
- * Tests the full event catalog (180+ events), lifecycle mapping,
+ * Tests the full event catalog (200+ events), lifecycle mapping,
  * identity tracking, ecommerce conversion, and version consistency.
  *
  * @since 131.0.0
@@ -36,9 +36,9 @@ final class V131SaaSStarterIndustryStandardTest extends TestCase
 {
     // ── Version Consistency ──────────────────────────────────────────
 
-    public function test_version_is_131(): void
+    public function test_version_is_132(): void
     {
-        $this->assertSame('131.0.0', AnalyticsEvent::VERSION);
+        $this->assertSame('132.0.0', AnalyticsEvent::VERSION);
     }
 
     // ── Event Catalog Counts ────────────────────────────────────────
@@ -58,7 +58,12 @@ final class V131SaaSStarterIndustryStandardTest extends TestCase
         $this->assertGreaterThanOrEqual(35, EngagementEvents::count());
     }
 
-    public function test_total_catalog_exceeds_180_events(): void
+    public function test_marketing_events_count_meets_minimum(): void
+    {
+        $this->assertGreaterThanOrEqual(28, MarketingEvents::count());
+    }
+
+    public function test_total_catalog_exceeds_200_events(): void
     {
         $total = SaaSEvents::count()
             + EcommerceEvents::count()
@@ -68,7 +73,7 @@ final class V131SaaSStarterIndustryStandardTest extends TestCase
             + InfrastructureEvents::count()
             + MarketingEvents::count();
 
-        $this->assertGreaterThanOrEqual(180, $total, "Total catalog has {$total} events, expected 180+");
+        $this->assertGreaterThanOrEqual(200, $total, "Total catalog has {$total} events, expected 200+");
     }
 
     public function test_all_catalogs_have_consistent_entry_structure(): void

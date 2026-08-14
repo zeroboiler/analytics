@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-131.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-132.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **180+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **72 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~2900 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **72 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v132.0.0
+
+**Marketing Events JS/TS Client Parity — Full 8-Category Client Coverage**:
+
+- **Marketing events added to JS client** — 28 marketing event constants (email, lead gen, content, social, paid ads, webinar, SMS/push, affiliate/referral, attribution) now exported as `MarketingEvents` in `analytics.constants.js`, bringing all **8 event categories** to the client side for the first time.
+- **TypeScript definitions updated** — `MarketingEvents` readonly type and `MarketingEventName` union type added to `analytics.d.ts`. `AllEventNames` intersection type and `getEventNamesByCategory()` signature updated to include `'marketing'`.
+- **`getCategoryNames()` expanded** — Now returns 7 categories including `'marketing'` (previously only 6 in JS/TS; PHP had all 8 via EventCatalog).
+- **`useAnalyticsConfig.svelte.js` bug fix** — Fixed corrupted `amplitudeApiKey` property (was `***` — a syntax error preventing the Svelte composable from parsing).
+- **Total catalog now exceeds 208 events** — 8 categories fully represented across PHP, JS, and TypeScript with consistent event names and type-safe exports.
+- **`V132MarketingEventsClientParityTest`** — New comprehensive test with 25+ assertions verifying JS/TS/PHP parity for all 34 marketing events, cross-provider mapping coverage, catalog structure, and version consistency.
+- **Version sweep** — All files synced to 132.0.0.
 
 ### What's New in v131.0.0
 

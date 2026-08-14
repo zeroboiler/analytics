@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 131.0.0
+ * @version 132.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2667,12 +2667,64 @@ export const InfrastructureEvents: Readonly<{
 }>;
 
 /**
+ * Marketing analytics event name constants for type-safe event tracking.
+ * Covers email campaigns, lead generation, content marketing, social media,
+ * paid advertising, webinars, SMS/push, affiliate/referral, and attribution.
+ */
+export const MarketingEvents: Readonly<{
+  // Email Marketing
+  EMAIL_SENT: 'email_sent';
+  EMAIL_DELIVERED: 'email_delivered';
+  EMAIL_OPENED: 'email_opened';
+  EMAIL_CLICKED: 'email_clicked';
+  EMAIL_BOUNCED: 'email_bounced';
+  EMAIL_UNSUBSCRIBED: 'email_unsubscribed';
+  EMAIL_MARKED_SPAM: 'email_marked_spam';
+  // Lead Generation
+  LEAD_CAPTURED: 'lead_captured';
+  LEAD_QUALIFIED: 'lead_qualified';
+  LEAD_SCORE_CHANGED: 'lead_score_changed';
+  // Content Marketing
+  BLOG_VIEW: 'blog_view';
+  CONTENT_DOWNLOADED: 'content_downloaded';
+  NEWSLETTER_SUBSCRIBED: 'newsletter_subscribed';
+  // Social Media
+  SOCIAL_SHARE: 'social_share';
+  SOCIAL_FOLLOW: 'social_follow';
+  SOCIAL_COMMENT: 'social_comment';
+  SOCIAL_MENTION: 'social_mention';
+  // Paid Advertising
+  AD_IMPRESSION: 'ad_impression';
+  AD_CLICK: 'ad_click';
+  AD_CONVERSION: 'ad_conversion';
+  // Webinars & Events
+  WEBINAR_REGISTERED: 'webinar_registered';
+  WEBINAR_ATTENDED: 'webinar_attended';
+  WEBINAR_ENGAGEMENT: 'webinar_engagement';
+  // SMS & Push
+  SMS_SENT: 'sms_sent';
+  SMS_DELIVERED: 'sms_delivered';
+  SMS_CLICKED: 'sms_clicked';
+  PUSH_NOTIFICATION_SENT: 'push_notification_sent';
+  PUSH_NOTIFICATION_OPENED: 'push_notification_opened';
+  // Affiliate & Referral
+  REFERRAL_LINK_SHARED: 'referral_link_shared';
+  REFERRAL_CONVERSION: 'referral_conversion';
+  AFFILIATE_SIGNUP: 'affiliate_signup';
+  AFFILIATE_COMMISSION: 'affiliate_commission';
+  // Marketing Attribution
+  ATTRIBUTION_TOUCHPOINT: 'attribution_touchpoint';
+  CAMPAIGN_RESPONSE: 'campaign_response';
+}>;
+
+/**
  * All event names from all categories.
  */
 export const AllEventNames: Readonly<
   typeof EcommerceEvents &
   typeof SaaSEvents &
   typeof EngagementEvents &
+  typeof MarketingEvents &
   typeof SecurityEvents &
   typeof UptimeEvents &
   typeof InfrastructureEvents
@@ -2689,6 +2741,9 @@ export type SaaSEventName = (typeof SaaSEvents)[keyof typeof SaaSEvents];
 
 /** Union type of engagement event names. */
 export type EngagementEventName = (typeof EngagementEvents)[keyof typeof EngagementEvents];
+
+/** Union type of marketing event names. */
+export type MarketingEventName = (typeof MarketingEvents)[keyof typeof MarketingEvents];
 
 /** Union type of security event names. */
 export type SecurityEventName = (typeof SecurityEvents)[keyof typeof SecurityEvents];
@@ -2707,7 +2762,7 @@ export function isValidEventName(name: string): name is EventName;
 /**
  * Get event names by category.
  */
-export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement' | 'security' | 'uptime' | 'infrastructure'): readonly string[];
+export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement' | 'marketing' | 'security' | 'uptime' | 'infrastructure'): readonly string[];
 
 /**
  * Get total count of all events across all categories.
