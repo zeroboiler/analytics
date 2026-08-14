@@ -7403,4 +7403,50 @@ return [
         'critical_threshold' => (int) env('ANALYTICS_DAILY_HEALTH_CRITICAL', 30), // Below this = critical
         'warning_threshold' => (int) env('ANALYTICS_DAILY_HEALTH_WARNING', 60), // Below this = degraded
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Macros (v118.0.0)
+    |------------------------------------------------------------------
+    |
+    | Reusable, parameterized event templates for DRY analytics tracking.
+    | Macros define named event patterns with default parameters, required
+    | keys, and organizational tags.
+    |
+    | Each macro maps a name to an analytics event with pre-configured
+    | defaults. When executed, caller params are merged with defaults.
+    |
+    | Example:
+    |   'feature_used' => [
+    |       'event' => 'feature_used',
+    |       'defaults' => ['source' => 'app', 'environment' => 'production'],
+    |       'required' => ['feature_name'],
+    |       'tags' => ['engagement', 'product', 'adoption'],
+    |       'description' => 'Track feature usage with automatic context',
+    |   ],
+    |
+    */
+    'macros' => [
+        'enabled' => env('ANALYTICS_MACROS_ENABLED', true),
+        'definitions' => [
+            // Register macros here or programmatically via AnalyticsMacroRegistry::define()
+        ],
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Replay Audit (v118.0.0)
+    |------------------------------------------------------------------
+    |
+    | Configuration for the analytics event replay audit system.
+    | Tracks replay attempts, success/failure rates, and validates
+    | replay operations for data integrity.
+    |
+    */
+    'replay_audit' => [
+        'enabled' => env('ANALYTICS_REPLAY_AUDIT_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_REPLAY_AUDIT_TTL', 604800), // 7 days
+        'max_attempts' => (int) env('ANALYTICS_REPLAY_AUDIT_MAX_ATTEMPTS', 3),
+        'replay_ttl' => (int) env('ANALYTICS_REPLAY_AUDIT_REPLAY_TTL', 86400), // 24 hours
+    ],
 ];

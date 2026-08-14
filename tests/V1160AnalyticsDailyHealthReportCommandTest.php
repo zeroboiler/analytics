@@ -35,7 +35,7 @@ test('AnalyticsDailyHealthReportCommand has @since docblock tag', function (): v
 
     expect($doc)->not->toBeFalse();
     expect($doc)->toContain('@since');
-    expect($doc)->toContain('116.0.0');
+    expect($doc)->toContain('117.0.0');
 });
 
 test('handle method has Override attribute', function (): void {

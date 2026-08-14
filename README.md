@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-116.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-117.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,68 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v117.0.0
+
+**Phase 46 — Event Schema DSL Builder & Registry**:
+
+- **`EventSchemaBuilder`** — Fluent schema definition DSL for analytics events, inspired by Laravel's database Schema Builder. Define event structure with chainable methods: `EventSchemaBuilder::define('purchase')->category('ecommerce')->string('transaction_id')->required()->float('value')->required()->string('currency')->default('USD')->ga4('purchase')->meta('Purchase')->tag('revenue', 'conversion')->build()`.
+- **`PropertyDefinition`** — Immutable property metadata with chainable constraints: type, required/optional, defaults, min/max, maxLength, regex patterns, enum values, descriptions, examples.
+- **`EventSchemaDefinition`** — Immutable schema DTO with `requiredProperties()`, `optionalProperties()`, `providerMappings()`, `providerCoverageCount()`, `toArray()`, `toJson()`.
+- **`EventSchemaRegistryExtended`** — Centralized schema registry with 6 built-in schemas (sign_up, login, start_trial, purchase, page_view, cancellation). Supports `register()`, `get()`, `validate()`, `validationRules()`, `catalogCoverage()`, `summary()`, `export()`, `byCategory()`.
+- **`zb:analytics:schema`** — CLI command for inspecting schemas: `list`, `show --name=`, `validate`, `export --json`, `summary --json`.
+- **Laravel FormRequest rule generation** — Generate validation rules from schema definitions automatically.
+- **Runtime event validation** — Validate event params against schemas (type checking, required fields, enums, string length, numeric range, regex patterns).
+
+```php
+use ZeroBoiler\Analytics\Schema\EventSchemaBuilder;
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
+
+// Define a custom event schema
+$schema = EventSchemaBuilder::define('subscription_upgraded')
+    ->category('saas')
+    ->description('User upgrades their subscription plan')
+    ->tag('billing', 'revenue')
+    ->string('user_id')->required()
+    ->string('plan_from')->required()
+    ->string('plan_to')->required()
+    ->float('price_change')
+    ->string('currency')->default('USD')
+    ->enum('billing_cycle', ['monthly', 'yearly', 'lifetime'])
+    ->ga4('subscription_upgraded')
+    ->meta('UpgradePlan')
+    ->posthog('plan_upgraded')
+    ->build();
+
+// Register and use
+$registry->register($schema);
+
+// Validate event params at runtime
+$result = $registry->validate('subscription_upgraded', [
+    'user_id' => 'usr_123',
+    'plan_from' => 'starter',
+    'plan_to' => 'pro',
+    'currency' => 'EUR', // overrides default
+]);
+
+// Generate Laravel validation rules
+$rules = $registry->validationRules('subscription_upgraded');
+// ['user_id' => 'required|string|max:500', 'plan_from' => 'required|string|max:500', ...]
+```
+
+```bash
+# CLI — list all schemas
+php artisan zb:analytics:schema list
+
+# Show specific schema
+php artisan zb:analytics:schema show --name=sign_up
+
+# Validate catalog coverage
+php artisan zb:analytics:schema validate
+
+# Export as JSON
+php artisan zb:analytics:schema export --json
+```
 
 ### What's New in v116.0.0
 

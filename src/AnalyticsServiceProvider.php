@@ -43,6 +43,7 @@ use ZeroBoiler\Analytics\Middleware\AnalyticsMiddlewareStack;
 use ZeroBoiler\Analytics\Middleware\PiiSanitizationMiddleware;
 use ZeroBoiler\Analytics\Pipeline\SamplingFilter;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
+use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
 use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
 use ZeroBoiler\Analytics\Services\EventValidationService;
 use ZeroBoiler\Analytics\Services\FunnelProgressTracker;
@@ -115,6 +116,9 @@ use ZeroBoiler\Analytics\Services\EventForwardingService;
 use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\CrossPlatformAttributionService;
 use ZeroBoiler\Analytics\Services\AnalyticsDailyHealthReportService;
+use ZeroBoiler\Analytics\Services\AnalyticsReplayAuditor;
+use ZeroBoiler\Analytics\Macros\AnalyticsMacroRegistry;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsMacrosCommand;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
@@ -156,6 +160,7 @@ use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
 use ZeroBoiler\Analytics\Services\SessionReplayService;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsArchetypeDriftCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReplayCommand;
@@ -387,7 +392,7 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 116.0.0
+ * @version 117.0.0
  *
  * @since 1.0.0
  */
@@ -561,6 +566,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->bind(EventPipeline::class);
 
         $this->app->singleton(EventSchemaRegistry::class);
+
+        // Extended Schema Registry with EventSchemaBuilder integration (v117.0.0)
+        $this->app->singleton(EventSchemaRegistryExtended::class, function (Application $app): EventSchemaRegistryExtended {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+
+            return new EventSchemaRegistryExtended($cache);
+        });
         $this->app->bind(AnalyticsMiddlewareStack::class);
         $this->app->bind(EventContextBuilder::class);
 
@@ -1953,6 +1966,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsDailyHealthReportService($cache, $config);
+        });
+
+        // Replay auditor — event replay audit for data integrity (v118.0.0)
+        $this->app->singleton(AnalyticsReplayAuditor::class, function (Application $app): AnalyticsReplayAuditor {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsReplayAuditor($cache, $config);
+        });
+
+        // Macro registry — load config-based macro definitions (v118.0.0)
+        $this->app->afterResolving(function (ConfigRepository $config): void {
+            $macrosConfig = $config->get('zeroboiler.analytics.macros', []);
+            $enabled = (bool) ($macrosConfig['enabled'] ?? true);
+
+            if ($enabled) {
+                AnalyticsMacroRegistry::loadFromConfig($macrosConfig);
+            }
         });
 
         // Event router for provider-specific event routing
@@ -3571,6 +3604,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsScheduledReportCommand::class,
                 AnalyticsReadinessCommand::class,
                 AnalyticsSchemaExportCommand::class,
+                AnalyticsSchemaCommand::class,
                 AnalyticsBehavioralCommand::class,
                 AnalyticsArchetypeDriftCommand::class,
                 AnalyticsReplayCommand::class,
@@ -3594,6 +3628,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsIngestionCommand::class,
                 AnalyticsOTLPCommand::class,
                 AnalyticsReplayAuditCommand::class,
+                AnalyticsMacrosCommand::class,
                 AnalyticsDependencyGraphCommand::class,
                 AnalyticsSnippetCommand::class,
                 AnalyticsSimulationCommand::class,
@@ -4159,6 +4194,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             'zeroboiler.analytics',
             AnalyticsManager::class,
             AnalyticsConfig::class,
+            EventSchemaRegistryExtended::class,
         ];
     }
 }

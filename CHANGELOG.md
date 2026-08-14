@@ -1,5 +1,25 @@
 # Changelog
 
+## [117.0.0] - 2026-08-14
+
+### Added
+- **Phase 46 — Event Schema DSL Builder & Registry**:
+  - `EventSchemaBuilder` — Fluent schema definition DSL (Laravel Schema Builder for analytics events). Chainable API for defining event structure with type constraints, required fields, defaults, enums, patterns, and provider mappings. Example: `EventSchemaBuilder::define('purchase')->string('tx_id')->required()->float('value')->required()->ga4('purchase')->meta('Purchase')->build()`.
+  - `PropertyDefinition` — Immutable property metadata DTO with chainable configuration: `required()`, `default()`, `description()`, `maxLength()`, `min()`, `max()`, `pattern()`, `example()`.
+  - `EventSchemaDefinition` — Immutable schema DTO produced by `build()`. Provides `requiredProperties()`, `optionalProperties()`, `providerMappings()`, `providerCoverageCount()`, `toArray()`, `toJson()`.
+  - `EventSchemaRegistryExtended` — Centralized schema registry with built-in schemas (sign_up, login, start_trial, purchase, page_view, cancellation). Supports `register()`, `get()`, `validate()`, `validationRules()`, `catalogCoverage()`, `summary()`, `export()`, `byCategory()`.
+  - `zb:analytics:schema` — CLI command for schema management: `list`, `show --name=`, `validate`, `export --json`, `summary --json`. Supports `--category` filtering and `--json` output.
+  - Laravel FormRequest validation rule generation from schemas via `buildValidationRules()`.
+  - Runtime event param validation against registered schemas (type checking, required fields, enum constraints, string length, numeric range, regex patterns).
+  - Catalog coverage analysis: identifies registered schemas not yet in EventCatalog.
+- **V1170SchemaDSLBuilderRegistryTest** — 90+ test cases covering builder DSL (static factory, category, tags, providers, all 10 property types, constraints, defaults), schema DTO (required/optional, provider coverage, serialization), registry (registration, retrieval, built-in schemas, validation rules, param validation, catalog coverage, summary, export, grouping), and version integrity.
+
+### Changed
+- **Version sweep** — All 7 package files synced to 117.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, 2 Svelte composables).
+- **Test version assertions** — V99IndustryStandardSaaSAnalyticsTest updated from 116.0.0 to 117.0.0.
+- **Version documentation** — README "What's New in v117.0.0" section added documenting Phase 46 Schema DSL Builder & Registry.
+- **CHANGELOG** — v117.0.0 entry added for Phase 46.
+
 ## [116.0.0] - 2026-08-14
 
 ### Added
