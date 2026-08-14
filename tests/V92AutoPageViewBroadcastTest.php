@@ -47,9 +47,12 @@ beforeEach(function (): void {
     ]);
 
     $this->manager = Mockery::mock(AnalyticsManager::class);
-    $this->manager->shouldReceive('trackEvent')->andReturnUsing(function (string $name, array $params): void {
-        $this->trackedEvents[] = ['name' => $name, 'params' => $params];
-    });
+    $this->manager->shouldAllowMissingMethod();
+    $this->manager->shouldReceive('trackEvent')
+        ->zeroOrMoreTimes()
+        ->andReturnUsing(function (string $name, array $params): void {
+            $this->trackedEvents[] = ['name' => $name, 'params' => $params];
+        });
 });
 
 afterEach(function (): void {
