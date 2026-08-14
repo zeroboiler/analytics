@@ -356,6 +356,29 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Retention Cohort Analysis (v93.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Configuration for retention cohort tracking and analysis.
+        | The AnalyticsRetentionService uses this to compute D1/D7/D30/W1/M1
+        | retention rates and cohort-based retention curves.
+        |
+        | Cohort intervals define when retention snapshots are taken relative
+        | to the cohort's start date (usually signup or first_value event).
+        |
+        */
+        'retention_cohort' => [
+            'enabled' => env('ANALYTICS_RETENTION_COHORT_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_RETENTION_COHORT_CACHE_TTL', 3600), // 1 hour
+            'intervals' => ['D1', 'D3', 'D7', 'D14', 'D30', 'W1', 'W2', 'W4', 'M1', 'M3'],
+            'default_cohort_event' => 'sign_up', // The event that defines cohort start
+            'retention_statuses' => ['retained', 'returning', 'dormant', 'churned'],
+            'dormant_threshold_days' => (int) env('ANALYTICS_RETENTION_DORMANT_DAYS', 14),
+            'churn_threshold_days' => (int) env('ANALYTICS_RETENTION_CHURN_DAYS', 30),
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | SaaS Event Templates (v6.9.0)
         |--------------------------------------------------------------------------

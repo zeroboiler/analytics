@@ -464,6 +464,19 @@ final class EngagementEvents
                 'tiktok' => null,
                 'linkedin' => null,
             ],
+            // Client-side error with structured context (v93.0.0)
+            'client_error' => [
+                'name' => 'client_error',
+                'class' => ClientErrorEvent::class,
+                'ga4' => 'client_error',
+                'meta' => null,
+                'posthog' => '$exception',
+                'plausible' => null,
+                'mixpanel' => 'Client Error',
+                'amplitude' => 'Client Error',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
         ];
 
         return self::$catalog;

@@ -890,6 +890,31 @@ final class SaaSEvents
                 'tiktok' => null,
                 'linkedin' => null,
             ],
+            // Retention & activation signals (v93.0.0)
+            'retention_cohort' => [
+                'name' => 'retention_cohort',
+                'class' => RetentionCohortEvent::class,
+                'ga4' => 'retention_cohort',
+                'meta' => 'CustomEvent',
+                'posthog' => 'retention_cohort',
+                'plausible' => null,
+                'mixpanel' => 'Retention Cohort',
+                'amplitude' => 'Retention Cohort',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
+            'activation' => [
+                'name' => 'activation',
+                'class' => ActivationEvent::class,
+                'ga4' => 'activation',
+                'meta' => 'CompleteRegistration',
+                'posthog' => 'activation',
+                'plausible' => 'activation',
+                'mixpanel' => 'Activation',
+                'amplitude' => 'Activation',
+                'tiktok' => 'CompleteRegistration',
+                'linkedin' => null,
+            ],
         ];
 
         return self::$catalog;
