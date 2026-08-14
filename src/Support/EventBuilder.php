@@ -478,6 +478,138 @@ final class EventBuilder
     }
 
     /**
+     * Create a plan_downgrade event builder.
+     *
+     * @param  string|null  $fromPlan  Previous plan name
+     * @param  string|null  $toPlan  New plan name
+     */
+    public static function planDowngrade(?string $fromPlan = null, ?string $toPlan = null): self
+    {
+        return (new self('plan_downgrade'))
+            ->param('from_plan', $fromPlan)
+            ->param('to_plan', $toPlan);
+    }
+
+    /**
+     * Create a logout event builder.
+     *
+     * @param  string|null  $method  Logout method (manual, session_expired, forced)
+     */
+    public static function logout(?string $method = null): self
+    {
+        return (new self('logout'))
+            ->param('method', $method);
+    }
+
+    /**
+     * Create a subscription_paused event builder.
+     *
+     * @param  string|null  $plan  Paused plan name
+     * @param  string|null  $reason  Pause reason
+     */
+    public static function subscriptionPaused(?string $plan = null, ?string $reason = null): self
+    {
+        return (new self('subscription_paused'))
+            ->param('plan', $plan)
+            ->param('reason', $reason);
+    }
+
+    /**
+     * Create a subscription_resumed event builder.
+     *
+     * @param  string|null  $plan  Resumed plan name
+     */
+    public static function subscriptionResumed(?string $plan = null): self
+    {
+        return (new self('subscription_resumed'))
+            ->param('plan', $plan);
+    }
+
+    /**
+     * Create an invoice_generated event builder.
+     *
+     * @param  string|null  $invoiceId  Invoice identifier
+     * @param  float|null  $amount  Invoice amount
+     * @param  string  $currency  Currency code
+     */
+    public static function invoiceGenerated(?string $invoiceId = null, ?float $amount = null, string $currency = 'USD'): self
+    {
+        return (new self('invoice_generated'))
+            ->param('invoice_id', $invoiceId)
+            ->param('amount', $amount)
+            ->param('currency', $currency);
+    }
+
+    /**
+     * Create a team_created event builder.
+     *
+     * @param  string|null  $teamName  Team display name
+     * @param  int|null  $memberCount  Initial member count
+     */
+    public static function teamCreated(?string $teamName = null, ?int $memberCount = null): self
+    {
+        return (new self('team_created'))
+            ->param('team_name', $teamName)
+            ->param('member_count', $memberCount);
+    }
+
+    /**
+     * Create an invite_sent event builder.
+     *
+     * @param  string|null  $role  Invited role
+     * @param  string|null  $channel  Invitation channel (email, link)
+     */
+    public static function inviteSent(?string $role = null, ?string $channel = null): self
+    {
+        return (new self('invite_sent'))
+            ->param('role', $role)
+            ->param('channel', $channel);
+    }
+
+    /**
+     * Create a payment_failed event builder.
+     *
+     * @param  string|null  $reason  Failure reason
+     * @param  float|null  $amount  Attempted amount
+     * @param  string  $currency  Currency code
+     */
+    public static function paymentFailed(?string $reason = null, ?float $amount = null, string $currency = 'USD'): self
+    {
+        return (new self('payment_failed'))
+            ->param('reason', $reason)
+            ->param('amount', $amount)
+            ->param('currency', $currency);
+    }
+
+    /**
+     * Create a subscription_renewal event builder.
+     *
+     * @param  string|null  $plan  Renewed plan name
+     * @param  float|null  $value  Renewal value
+     * @param  int|null  $cycleCount  Renewal cycle number
+     */
+    public static function subscriptionRenewal(?string $plan = null, ?float $value = null, ?int $cycleCount = null): self
+    {
+        return (new self('subscription_renewal'))
+            ->param('plan', $plan)
+            ->param('value', $value)
+            ->param('cycle_count', $cycleCount);
+    }
+
+    /**
+     * Create a trial_expired event builder.
+     *
+     * @param  string|null  $plan  Expired trial plan name
+     * @param  int|null  $trialDays  Number of trial days
+     */
+    public static function trialExpired(?string $plan = null, ?int $trialDays = null): self
+    {
+        return (new self('trial_expired'))
+            ->param('plan', $plan)
+            ->param('trial_days', $trialDays);
+    }
+
+    /**
      * Create an event from a registered blueprint.
      *
      * Looks up the blueprint by name, merges defaults with overrides,

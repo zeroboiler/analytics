@@ -1,5 +1,14 @@
 # Changelog
 
+## [109.0.0] - 2026-08-14
+
+### Added
+- **EventCatalog::resolve()** — Semantic alias resolution that accepts event names in any format (snake_case, camelCase, PascalCase, kebab-case, spaced) and normalizes to canonical catalog name
+- **EventCatalog::resolveAndGet()** — Convenience wrapper for resolve() → get() returning full catalog entry
+- **SaaSEventHelpers expansion** — 15 new convenience methods: logout, trialConverted, trialExpired, subscriptionPaused, subscriptionResumed, invoiceGenerated, profileUpdated, passwordChanged, roleChanged, integrationConnected, integrationFailed, dataErasureCompleted, emailVerified, teamMemberJoined, teamMemberRemoved, subscriptionRenewal (total: 26 event helpers)
+- **EventBuilder SaaS shortcuts** — 10 new static factory methods: planDowngrade, logout, subscriptionPaused, subscriptionResumed, invoiceGenerated, teamCreated, inviteSent, paymentFailed, subscriptionRenewal, trialExpired
+- **V109SemanticAliasAndSaaSHelpersTest** — 30+ assertions covering resolve() normalization, SaaS helper method existence, return types, and EventBuilder factory builders
+
 ## [108.0.0] - 2026-08-14
 
 ### Fixed

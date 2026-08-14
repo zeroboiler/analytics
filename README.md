@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-108.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-109.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,45 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v109.0.0
+
+**Phase 37 — Event Catalog Semantic Alias Resolution & SaaS Helpers Expansion**:
+
+- **`EventCatalog::resolve($name)`** — Accepts event names in any format (snake_case, camelCase, PascalCase, kebab-case, or spaced) and returns the canonical catalog event name. Handles `ViewItem` → `view_item`, `AddToCart` → `add_to_cart`, `view-item` → `view_item`, `add to cart` → `add_to_cart`. Falls back through 4 normalization strategies before returning null.
+- **`EventCatalog::resolveAndGet($name)`** — Convenience wrapper that resolves the name and returns the full catalog entry in one call.
+- **SaaSEventHelpers — 15 new methods**: `logout()`, `trialConverted()`, `trialExpired()`, `subscriptionPaused()`, `subscriptionResumed()`, `invoiceGenerated()`, `profileUpdated()`, `passwordChanged()`, `roleChanged()`, `integrationConnected()`, `integrationFailed()`, `dataErasureCompleted()`, `emailVerified()`, `teamMemberJoined()`, `teamMemberRemoved()`, `subscriptionRenewal()` — now 26 total SaaS lifecycle event helpers covering the complete user journey.
+- **EventBuilder — 10 new static factories**: `planDowngrade()`, `logout()`, `subscriptionPaused()`, `subscriptionResumed()`, `invoiceGenerated()`, `teamCreated()`, `inviteSent()`, `paymentFailed()`, `subscriptionRenewal()`, `trialExpired()` — now 35+ named event builders for fluent API usage.
+- **V109SemanticAliasAndSaaSHelpersTest** — 30+ new assertions verifying resolve() normalization for all formats, helper method counts, return type declarations, strict_types compliance, and cross-file version consistency.
+- **Version bump** to 109.0.0 across all 7 package files (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider).
+
+```php
+use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Support\EventBuilder;
+use ZeroBoiler\Analytics\Support\SaaSEventHelpers;
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// Semantic alias resolution — any format works
+$name = EventCatalog::resolve('ViewItem');        // 'view_item'
+$name = EventCatalog::resolve('AddToCart');        // 'add_to_cart'
+$name = EventCatalog::resolve('ScrollDepth');     // 'scroll_depth'
+$entry = EventCatalog::resolveAndGet('SignUp');   // full entry array
+
+// New SaaS helpers
+$helpers = new SaaSEventHelpers(Analytics::getFacadeRoot());
+$helpers->logout('manual');
+$helpers->trialConverted('pro', 49.99, 'USD', 14);
+$helpers->subscriptionPaused('business', 'financial');
+$helpers->invoiceGenerated('INV-001', 99.00, 'EUR', 'monthly');
+$helpers->roleChanged('member', 'admin', 'self');
+$helpers->integrationConnected('slack', 'oauth');
+$helpers->dataErasureCompleted('GDPR-REQ-001', 'full');
+
+// New EventBuilder factories
+$event = EventBuilder::planDowngrade('pro', 'free')->user($userId)->build();
+$event = EventBuilder::invoiceGenerated('INV-001', 99.00, 'EUR')->build();
+$event = EventBuilder::trialExpired('pro', 14)->build();
+```
 
 ### What's New in v107.0.0
 

@@ -254,6 +254,292 @@ final class SaaSEventHelpers
     }
 
     /**
+     * Track a user logout event.
+     *
+     * @param  string|null  $method  Logout method (manual, session_expired, forced)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function logout(?string $method = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'method' => $method,
+        ]));
+
+        $this->manager->track('logout', $params);
+    }
+
+    /**
+     * Track a trial conversion event (trial → paid).
+     *
+     * @param  string|null  $plan  Converted plan name
+     * @param  float|null  $value  Subscription value
+     * @param  string|null  $currency  Currency code
+     * @param  int|null  $trialDays  Number of trial days before conversion
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function trialConverted(
+        ?string $plan = null,
+        ?float $value = null,
+        ?string $currency = null,
+        ?int $trialDays = null,
+        array $extra = [],
+    ): void {
+        $params = array_merge($extra, array_filter([
+            'plan' => $plan,
+            'value' => $value,
+            'currency' => $currency,
+            'trial_days' => $trialDays,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('trial_converted', $params);
+    }
+
+    /**
+     * Track a trial expired event (trial ended without conversion).
+     *
+     * @param  string|null  $plan  Expired trial plan name
+     * @param  int|null  $trialDays  Number of trial days
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function trialExpired(?string $plan = null, ?int $trialDays = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'plan' => $plan,
+            'trial_days' => $trialDays,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('trial_expired', $params);
+    }
+
+    /**
+     * Track a subscription paused event.
+     *
+     * @param  string|null  $plan  Paused plan name
+     * @param  string|null  $reason  Pause reason (financial, seasonal, etc.)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function subscriptionPaused(?string $plan = null, ?string $reason = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'plan' => $plan,
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('subscription_paused', $params);
+    }
+
+    /**
+     * Track a subscription resumed event.
+     *
+     * @param  string|null  $plan  Resumed plan name
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function subscriptionResumed(?string $plan = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'plan' => $plan,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('subscription_resumed', $params);
+    }
+
+    /**
+     * Track an invoice generated event.
+     *
+     * @param  string|null  $invoiceId  Invoice identifier
+     * @param  float|null  $amount  Invoice amount
+     * @param  string|null  $currency  Currency code
+     * @param  string|null  $billingCycle  Billing cycle (monthly, yearly)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function invoiceGenerated(
+        ?string $invoiceId = null,
+        ?float $amount = null,
+        ?string $currency = null,
+        ?string $billingCycle = null,
+        array $extra = [],
+    ): void {
+        $params = array_merge($extra, array_filter([
+            'invoice_id' => $invoiceId,
+            'amount' => $amount,
+            'currency' => $currency,
+            'billing_cycle' => $billingCycle,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('invoice_generated', $params);
+    }
+
+    /**
+     * Track a profile updated event.
+     *
+     * @param  list<string>|null  $fields  List of updated fields (e.g. ['name', 'email'])
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function profileUpdated(?array $fields = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'updated_fields' => $fields,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('profile_updated', $params);
+    }
+
+    /**
+     * Track a password changed event.
+     *
+     * @param  string|null  $method  Change method (manual, reset, admin)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function passwordChanged(?string $method = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('password_changed', $params);
+    }
+
+    /**
+     * Track a role changed event.
+     *
+     * @param  string|null  $fromRole  Previous role
+     * @param  string|null  $toRole  New role
+     * @param  string|null  $changedBy  Who changed the role (self, admin)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function roleChanged(?string $fromRole = null, ?string $toRole = null, ?string $changedBy = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'from_role' => $fromRole,
+            'to_role' => $toRole,
+            'changed_by' => $changedBy,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('role_changed', $params);
+    }
+
+    /**
+     * Track an integration connected event (e.g. Slack, Stripe, GitHub).
+     *
+     * @param  string|null  $provider  Integration provider name
+     * @param  string|null  $type  Integration type (oauth, api_key, webhook)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function integrationConnected(?string $provider = null, ?string $type = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'provider' => $provider,
+            'type' => $type,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('integration_connected', $params);
+    }
+
+    /**
+     * Track an integration failed event.
+     *
+     * @param  string|null  $provider  Integration provider name
+     * @param  string|null  $reason  Failure reason (auth_failed, timeout, invalid_config)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function integrationFailed(?string $provider = null, ?string $reason = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'provider' => $provider,
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('integration_failed', $params);
+    }
+
+    /**
+     * Track a data erasure completed event (GDPR right to erasure).
+     *
+     * @param  string|null  $requestId  GDPR request identifier
+     * @param  string|null  $scope  Erasure scope (full, partial, specific_data)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function dataErasureCompleted(?string $requestId = null, ?string $scope = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'request_id' => $requestId,
+            'scope' => $scope,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('data_erasure_completed', $params);
+    }
+
+    /**
+     * Track an email verified event.
+     *
+     * @param  string|null  $method  Verification method (link, otp, admin)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function emailVerified(?string $method = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'method' => $method,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('email_verified', $params);
+    }
+
+    /**
+     * Track a team member joined event.
+     *
+     * @param  string|null  $teamId  Team identifier
+     * @param  string|null  $role  Member role
+     * @param  string|null  $invitedBy  Who invited the member
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function teamMemberJoined(?string $teamId = null, ?string $role = null, ?string $invitedBy = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'team_id' => $teamId,
+            'role' => $role,
+            'invited_by' => $invitedBy,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('team_member_joined', $params);
+    }
+
+    /**
+     * Track a team member removed event.
+     *
+     * @param  string|null  $teamId  Team identifier
+     * @param  string|null  $reason  Removal reason (left, removed, deactivated)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function teamMemberRemoved(?string $teamId = null, ?string $reason = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'team_id' => $teamId,
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('team_member_removed', $params);
+    }
+
+    /**
+     * Track a subscription renewal event.
+     *
+     * @param  string|null  $plan  Renewed plan name
+     * @param  float|null  $value  Renewal value
+     * @param  int|null  $cycleCount  Renewal cycle number (1 = first renewal)
+     * @param  array<string, mixed>  $extra  Additional parameters
+     */
+    public function subscriptionRenewal(?string $plan = null, ?float $value = null, ?int $cycleCount = null, array $extra = []): void
+    {
+        $params = array_merge($extra, array_filter([
+            'plan' => $plan,
+            'value' => $value,
+            'cycle_count' => $cycleCount,
+        ], fn (mixed $v): bool => $v !== null));
+
+        $this->manager->track('subscription_renewal', $params);
+    }
+
+    /**
      * Get the underlying AnalyticsManager instance.
      */
     public function manager(): AnalyticsManager

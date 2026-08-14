@@ -326,6 +326,73 @@ final class EventCatalog
     }
 
     /**
+     * Resolve an event name from any common format to its canonical catalog name.
+     *
+     * Accepts snake_case, camelCase, PascalCase, kebab-case, or spaced formats
+     * and normalizes to the catalog's snake_case convention. Performs exact match
+     * first, then falls back to normalized lookup.
+     *
+     * @param  string  $name  Event name in any format (e.g. 'ViewItem', 'view-item', 'Add To Cart')
+     * @return string|null  Canonical snake_case catalog name, or null if not found
+     *
+     * @since 109.0.0
+     */
+    public static function resolve(string $name): ?string
+    {
+        // 1. Exact match (fast path)
+        if (self::has($name)) {
+            return $name;
+        }
+
+        // 2. Normalize: lowercase, replace common separators with underscores, collapse
+        $normalized = strtolower(
+            preg_replace('/[\s\-]+/', '_', trim($name)) ?? $name
+        );
+
+        if (self::has($normalized)) {
+            return $normalized;
+        }
+
+        // 3. CamelCase/PascalCase → snake_case (e.g. ViewItem → view_item, AddToCart → add_to_cart)
+        $snake = strtolower(
+            preg_replace('/(?<!^)([A-Z])/', '_$1', $name) ?? $name
+        );
+
+        if (self::has($snake)) {
+            return $snake;
+        }
+
+        // 4. Double-underscore collapse (e.g. some__event → some_event)
+        $collapsed = preg_replace('/_+/', '_', $snake) ?? $snake;
+
+        if (self::has($collapsed)) {
+            return $collapsed;
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve an event name and return its full catalog entry.
+     *
+     * Convenience wrapper for resolve() → get().
+     *
+     * @return EventEntry|null
+     *
+     * @since 109.0.0
+     */
+    public static function resolveAndGet(string $name): ?array
+    {
+        $resolved = self::resolve($name);
+
+        if ($resolved === null) {
+            return null;
+        }
+
+        return self::get($resolved);
+    }
+
+    /**
      * Search events by name pattern (partial match).
      *
      * @return list<EventEntry>
