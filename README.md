@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-141.0.0-blue)](https://github.com/zeroboiler/analytics)|
+||[![Latest Version](https://img.shields.io/badge/version-143.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v143.0.0
+
+**SaaS Starter Industry-Standard Analytics Upgrade — Ecommerce & SaaS Metrics Svelte Composables + Overview Command Enhancement**:
+
+- **`useEcommerce` Svelte composable** — Reactive e-commerce tracking composable for Svelte/Inertia dashboards. Provides reactive `cartItems` store with automatic quantity merging, derived `cartTotals` (itemCount, totalValue, uniqueItems), `lastPurchase` and `lastRefund` stores for UI feedback. Includes full cart management (`addToCart()`, `removeFromCart()`, `clearCart()`, `getCartSnapshot()`) and event tracking methods (`viewItem()`, `viewCart()`, `beginCheckout()`, `purchase()`, `refund()`, `selectItem()`, `trackWithProviders()`). Automatically injects currency/brand from Inertia props (`zbAnalytics.ecommerce`). Flushes event queue on purchase to ensure immediate dispatch.
+- **`useSaaSMetrics` Svelte composable** — Reactive SaaS metrics composable for admin dashboards and analytics widgets. Provides reactive stores for maturity score (`score`, `grade`), onboarding checklist (`completion`, `gaps`), funnel readiness (`signup`, `purchase`, `subscription`, `overall`), and recommended events (`name`, `category`, `priority`). Includes 10+ derived stores for UI: `isEnabled`, `isDebugMode`, `gapCount`, `funnelReadinessLabel`, `maturityBadgeColor` (Tailwind class), `sortedRecommendedEvents` (priority-sorted), `onboardingPercentageLabel`, `providerStatus`, `configuredProviderCount`, `enabledFeatures`. Reads from `zbAnalytics` Inertia props with `refresh()` for post-navigation updates.
+- **`AnalyticsOverviewCommand` enhancement** — Added 3 new sections to the overview output: SaaS KPI Configuration (MRR goal, churn warning threshold, LTV/CAC target, Quick Ratio target, Rule of 40 target, subscription tier count), Identity Configuration (cookie name/TTL, link-on-auth flag, auto-link flag, cache prefix, link TTL), and Event Cost Budget (threshold, currency). All sections included in `--json` output. Enhances the single-command `zb:analytics:overview` for complete pipeline visibility.
+- **Version sweep** — All 11 client files synced to v143.0.0 (composer.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables including the 2 new ones, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
+- **`V143EcommerceSaaSMetricsOverviewUpgradeTest`** — Comprehensive test suite with 50+ assertions covering: ecommerce catalog completeness (ViewItem, AddToCart, Purchase, Refund, RemoveFromCart, ViewCart, BeginCheckout, SelectItem), SaaS catalog completeness (SignUp, Login, TrialStart, Subscription, PlanUpgrade, Cancellation), engagement catalog completeness (PageView, ScrollDepth, Click, FormStart, FormSubmit, Search, Share, Error), EcommerceFormatConverter bidirectional conversion (GA4→Meta, Meta→GA4, purchase/refund/builders), unified EventCatalog (210+ events, 8 providers, name resolution, category mapping), LifecycleEventMapper (67+ mappings), AnalyticsEvent DTO (category, sessionId, withCategory, withSessionId), AnalyticsOverviewCommand data (saas_kpi, identity, event_costs sections), version consistency (143.0.0 across all entry points), strict_types compliance, MIT license headers, no TODO/FIXME.
 
 ### What's New in v141.0.0
 

@@ -79,6 +79,9 @@ final class AnalyticsOverviewCommand extends Command
             'queue' => $this->getQueueStats($config),
             'api' => $this->getApiStats($config),
             'auto_track' => $this->getAutoTrackStats($config),
+            'saas_kpi' => $this->getSaasKpiStats($config),
+            'identity' => $this->getIdentityStats($config),
+            'event_costs' => $this->getEventCostStats($config),
         ];
     }
 
@@ -263,6 +266,67 @@ final class AnalyticsOverviewCommand extends Command
     }
 
     /**
+     * Get SaaS KPI configuration statistics.
+     *
+     * @return array{enabled: bool, cache_ttl: int, mrr_goal: float, churn_warning: float, ltv_cac_target: float, quick_ratio_target: float, rule_of_40_target: float, tiers_count: int}
+     */
+    private function getSaasKpiStats(ConfigRepository $config): array
+    {
+        $kpiConfig = $config->get('zeroboiler.analytics.saas_kpi_calc', []);
+        /** @var array{enabled?: bool, cache_ttl?: int, mrr_goal?: float, churn_warning?: float, ltv_cac_target?: float, quick_ratio_target?: float, rule_of_40_target?: float} $kpiConfig */
+        $revenueConfig = $config->get('zeroboiler.analytics.revenue', []);
+        /** @var array{subscription_tiers?: array<string, mixed>} $revenueConfig */
+        $tiers = $revenueConfig['subscription_tiers'] ?? [];
+
+        return [
+            'enabled' => (bool) ($kpiConfig['enabled'] ?? true),
+            'cache_ttl' => (int) ($kpiConfig['cache_ttl'] ?? 300),
+            'mrr_goal' => (float) ($kpiConfig['mrr_goal'] ?? 10000),
+            'churn_warning' => (float) ($kpiConfig['churn_warning'] ?? 0.05),
+            'ltv_cac_target' => (float) ($kpiConfig['ltv_cac_target'] ?? 3.0),
+            'quick_ratio_target' => (float) ($kpiConfig['quick_ratio_target'] ?? 4.0),
+            'rule_of_40_target' => (float) ($kpiConfig['rule_of_40_target'] ?? 40.0),
+            'tiers_count' => count($tiers),
+        ];
+    }
+
+    /**
+     * Get identity tracking configuration statistics.
+     *
+     * @return array{cookie_name: string, cookie_ttl: int, link_on_auth: bool, auto_link: bool, cache_prefix: string, link_ttl: int}
+     */
+    private function getIdentityStats(ConfigRepository $config): array
+    {
+        $identityConfig = $config->get('zeroboiler.analytics.identity', []);
+        /** @var array{cookie_name?: string, cookie_ttl?: int, link_on_auth?: bool, auto_link?: bool, cache_prefix?: string, link_ttl?: int} $identityConfig */
+
+        return [
+            'cookie_name' => (string) ($identityConfig['cookie_name'] ?? 'zb_analytics_id'),
+            'cookie_ttl' => (int) ($identityConfig['cookie_ttl'] ?? 525600),
+            'link_on_auth' => (bool) ($identityConfig['link_on_auth'] ?? true),
+            'auto_link' => (bool) ($identityConfig['auto_link'] ?? true),
+            'cache_prefix' => (string) ($identityConfig['cache_prefix'] ?? 'zb_identity_'),
+            'link_ttl' => (int) ($identityConfig['link_ttl'] ?? 7776000),
+        ];
+    }
+
+    /**
+     * Get event cost estimation configuration.
+     *
+     * @return array{budget_threshold?: float, currency: string}
+     */
+    private function getEventCostStats(ConfigRepository $config): array
+    {
+        $costConfig = $config->get('zeroboiler.analytics.event_costs', []);
+        /** @var array{budget_threshold?: float, currency?: string} $costConfig */
+
+        return [
+            'budget_threshold' => (float) ($costConfig['budget_threshold'] ?? 0.0),
+            'currency' => (string) ($costConfig['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
      * Render the overview to the console.
      *
      * @param  array<string, mixed>  $overview
@@ -329,6 +393,35 @@ final class AnalyticsOverviewCommand extends Command
         $this->line('   SDK token: <info>'.($api['sdk_token_configured'] ? 'CONFIGURED' : 'NOT SET').'</info>');
         $autoTrack = $overview['auto_track'];
         $this->line('   Auto-track: <info>'.implode(', ', array_filter(array_keys($autoTrack), fn (string $k): bool => $autoTrack[$k])).'</info>');
+
+        // SaaS KPI configuration
+        $this->newLine();
+        $this->info('📈 SaaS KPI Configuration');
+        $saasKpi = $overview['saas_kpi'];
+        $this->line('   SaaS KPI calc: <info>'.($saasKpi['enabled'] ? 'ON' : 'OFF').'</info> (cache TTL: '.$saasKpi['cache_ttl'].'s)');
+        $this->line('   MRR goal: <info>$'.number_format($saasKpi['mrr_goal'], 0).'</info>');
+        $this->line('   Churn warning: <info>'.($saasKpi['churn_warning'] * 100).'%</info>');
+        $this->line('   LTV/CAC target: <info>'.$saasKpi['ltv_cac_target'].'x</info>');
+        $this->line('   Quick Ratio target: <info>'.$saasKpi['quick_ratio_target'].'</info>');
+        $this->line('   Rule of 40 target: <info>'.$saasKpi['rule_of_40_target'].'%</info>');
+        $this->line('   Subscription tiers: <info>'.$saasKpi['tiers_count'].'</info>');
+
+        // Identity configuration
+        $this->newLine();
+        $this->info('🔗 Identity Configuration');
+        $identity = $overview['identity'];
+        $this->line('   Cookie: <info>'.$identity['cookie_name'].'</info> (TTL: '.$identity['cookie_ttl'].' min)');
+        $this->line('   Link on auth: <info>'.($identity['link_on_auth'] ? 'YES' : 'NO').'</info>');
+        $this->line('   Auto-link: <info>'.($identity['auto_link'] ? 'YES' : 'NO').'</info>');
+        $this->line('   Cache prefix: <info>'.$identity['cache_prefix'].'</info> (link TTL: '.$identity['link_ttl'].'s)');
+
+        // Event cost configuration
+        $costs = $overview['event_costs'];
+        if ($costs['budget_threshold'] > 0) {
+            $this->newLine();
+            $this->info('💰 Event Cost Budget');
+            $this->line('   Budget threshold: <info>'.$costs['currency'].' '.number_format($costs['budget_threshold'], 2).'</info>');
+        }
 
         $this->newLine();
         $this->comment('Use --providers, --catalog, or --health for detailed output.');
