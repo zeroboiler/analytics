@@ -16075,4 +16075,285 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Data-Driven Attribution (v87.0.0) ──────────────────────────
+
+    /**
+     * Compute Shapley-value data-driven attribution from conversion paths.
+     *
+     * POST /api/analytics/attribution/data-driven
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function attributionDataDriven(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataDrivenAttributionService $dda */
+            $dda = app(\ZeroBoiler\Analytics\Services\DataDrivenAttributionService::class);
+
+            $paths = $request->input('paths', []);
+            /** @var list<array{path: list<string>, value: float}> $paths */
+
+            if (!is_array($paths)) {
+                return response()->json(['status' => 'error', 'error' => 'paths must be an array'], 422);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $dda->computeAttribution($paths),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compare data-driven attribution between two periods.
+     *
+     * POST /api/analytics/attribution/compare-periods
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function attributionComparePeriods(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataDrivenAttributionService $dda */
+            $dda = app(\ZeroBoiler\Analytics\Services\DataDrivenAttributionService::class);
+
+            $current = $request->input('current_paths', []);
+            $previous = $request->input('previous_paths', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $dda->comparePeriods($current, $previous),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Analyze channel removal impact.
+     *
+     * POST /api/analytics/attribution/channel-impact
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function attributionChannelImpact(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataDrivenAttributionService $dda */
+            $dda = app(\ZeroBoiler\Analytics\Services\DataDrivenAttributionService::class);
+
+            $paths = $request->input('paths', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $dda->channelRemovalImpact($paths),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get budget allocation recommendations.
+     *
+     * POST /api/analytics/attribution/budget
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function attributionBudget(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\DataDrivenAttributionService $dda */
+            $dda = app(\ZeroBoiler\Analytics\Services\DataDrivenAttributionService::class);
+
+            $paths = $request->input('paths', []);
+            $totalBudget = (float) ($request->input('total_budget', 0));
+            $minAllocation = (float) ($request->input('min_allocation_pct', 5.0));
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $dda->budgetAllocation($paths, $totalBudget, $minAllocation),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Unit Economics (v87.0.0) ────────────────────────────────────
+
+    /**
+     * Calculate unit economics dashboard.
+     *
+     * POST /api/analytics/unit-economics/dashboard
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function unitEconomicsDashboard(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\UnitEconomicsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\UnitEconomicsService::class);
+
+            $metrics = $request->input('metrics', []);
+            /** @var array<string, mixed> $metrics */
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->dashboard($metrics),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate LTV:CAC ratio.
+     *
+     * POST /api/analytics/unit-economics/ltv-cac
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function unitEconomicsLtvCac(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\UnitEconomicsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\UnitEconomicsService::class);
+
+            $ltv = (float) ($request->input('ltv', 0));
+            $cac = (float) ($request->input('cac', 0));
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->ltvCacRatio($ltv, $cac),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate per-channel CAC efficiency.
+     *
+     * POST /api/analytics/unit-economics/channel-cac
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function unitEconomicsChannelCac(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\UnitEconomicsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\UnitEconomicsService::class);
+
+            $channels = $request->input('channels', []);
+            /** @var array<string, array{spend: float, customers: int}> $channels */
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->channelCac($channels),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate Magic Number (sales efficiency).
+     *
+     * POST /api/analytics/unit-economics/magic-number
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function unitEconomicsMagicNumber(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\UnitEconomicsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\UnitEconomicsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->magicNumber(
+                    (float) ($request->input('current_q_arr', 0)),
+                    (float) ($request->input('previous_q_arr', 0)),
+                    (float) ($request->input('previous_q_sm_spend', 0)),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Product Analytics Maturity (v87.0.0) ──────────────────────
+
+    /**
+     * Assess product analytics maturity level.
+     *
+     * GET /api/analytics/maturity
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function maturityAssessment(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService::class);
+
+            $capabilities = $request->input('capabilities', []);
+            /** @var array<string, bool> $capabilities */
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->assess($capabilities),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Quick maturity score (score + level only).
+     *
+     * GET /api/analytics/maturity/quick
+     *
+     * @param  Request  $request
+     * @return JsonResponse
+     */
+    public function maturityQuick(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService::class);
+
+            $capabilities = $request->input('capabilities', []);
+            /** @var array<string, bool> $capabilities */
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->quickAssess($capabilities),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
