@@ -394,6 +394,9 @@ use ZeroBoiler\Analytics\Services\ProjectionRegistry;
 use ZeroBoiler\Analytics\Services\MetricProjectionEngine;
 use ZeroBoiler\Analytics\Services\EventMaterializer;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsTranslationMatrixCommand;
+use ZeroBoiler\Analytics\Services\CrossProviderTranslationMatrix;
+use ZeroBoiler\Analytics\Services\RevenueHealthScoreService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -401,7 +404,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 130.0.0
+ * @version 133.0.0
  *
  * @since 1.0.0
  */
@@ -3746,6 +3749,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsReadinessGateCommand::class,
                 AnalyticsPrivacyInventoryCommand::class,
                 AnalyticsProjectionsCommand::class,
+                AnalyticsTranslationMatrixCommand::class,
             ]);
         }
 

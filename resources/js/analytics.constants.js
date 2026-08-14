@@ -6,7 +6,7 @@
  * of truth for all tracked event names.
  *
  * @package ZeroBoiler Analytics
- * @version 132.0.0
+ * @version 133.0.0
  */
 
 // ─── E-Commerce Events ───────────────────────────────────────────────
@@ -223,7 +223,7 @@ Object.freeze(InfrastructureEvents);
  * social media, paid advertising, webinars, SMS, push notifications,
  * affiliate/referral tracking, and marketing attribution.
  * @readonly
- * @since 132.0.0
+ * @since 133.0.0
  */
 export const MarketingEvents = {
     // Email Marketing

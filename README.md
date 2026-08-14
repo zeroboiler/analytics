@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-132.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-133.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **72 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **73 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v133.0.0
+
+**Cross-Provider Translation Matrix & Revenue Health Score — Industry-Standard Analytics Diagnostics**:
+
+- **`CrossProviderTranslationMatrix` service** — Unified translation engine that converts event names between all 8+ providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn). Supports `translateName()`, `reverseTranslate()`, `translateBetween()`, `fullTranslationMap()`, `coverageFor()`, `mappingGaps()`, and `providerCollisions()`.
+- **`RevenueHealthScoreService`** — Computes a composite revenue analytics health score (0-100, grades A-F) across 5 weighted dimensions: revenue event coverage, subscription lifecycle, e-commerce funnel, billing signals, and provider mapping coverage. Cache-backed with actionable gap analysis and recommendations.
+- **`EventFieldRegistry`** — Industry-standard parameter schema registry defining expected fields, types, required/optional status, allowed values, and descriptions for 30+ core events (e-commerce, SaaS, engagement). Supports runtime validation via `validate()` and `requiredFields()`.
+- **`FieldDefinition` value object** — Immutable field definition with type, required, description, allowed values, and default value. Serializable for OpenAPI and documentation generation.
+- **`analytics:translation-matrix` command** — New artisan command with options: `--event=` (single event translation), `--provider=` (per-provider gap analysis), `--gaps` (show all mapping gaps), `--json` (JSON output). Displays revenue health score, catalog summary, provider coverage, and event field schema stats.
+- **`V133CrossProviderAndRevenueHealthTest`** — 30+ assertions covering translation matrix bidirectional translation, field registry validation (type checking, required fields, allowed values), revenue health score computation, caching, and dimension structure.
+- **Version sweep** — All files synced to 133.0.0.
 
 ### What's New in v132.0.0
 
