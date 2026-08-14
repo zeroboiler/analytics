@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
-use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 
 /**
  * Inertia middleware that injects analytics configuration into page props.
@@ -152,20 +151,6 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $debugConfig = $this->config->get('zeroboiler.analytics.debug', []);
         /** @var array{enabled?: bool} $debugConfig */
         $analyticsProps['debug'] = (bool) ($debugConfig['enabled'] ?? false);
-
-        // Client-side auto-tracking settings (config-driven)
-        $clientAutoTrack = $this->config->get('zeroboiler.analytics.client_auto_track', []);
-        /** @var array{page_views?: bool, scroll_depth?: bool, form_tracking?: bool, error_tracking?: bool, link_tracking?: bool, session_tracking?: bool, idle_timeout?: int, error_ignore_patterns?: list<string>} $clientAutoTrack */
-        $analyticsProps['autoTrack'] = [
-            'pageViews' => (bool) ($clientAutoTrack['page_views'] ?? true),
-            'scrollDepth' => (bool) ($clientAutoTrack['scroll_depth'] ?? true),
-            'formTracking' => (bool) ($clientAutoTrack['form_tracking'] ?? true),
-            'errorTracking' => (bool) ($clientAutoTrack['error_tracking'] ?? true),
-            'linkTracking' => (bool) ($clientAutoTrack['link_tracking'] ?? false),
-            'sessionTracking' => (bool) ($clientAutoTrack['session_tracking'] ?? true),
-            'idleTimeout' => (int) ($clientAutoTrack['idle_timeout'] ?? 1800),
-            'errorIgnorePatterns' => (array) ($clientAutoTrack['error_ignore_patterns'] ?? []),
-        ];
 
         // Performance tracking settings (Core Web Vitals)
         $performanceConfig = $this->config->get('zeroboiler.analytics.performance', []);
