@@ -252,6 +252,7 @@ return [
             'cookie_samesite' => env('ANALYTICS_IDENTITY_COOKIE_SAMESITE', 'Lax'),
             'cookie_domain' => env('ANALYTICS_IDENTITY_COOKIE_DOMAIN'), // null = current domain; '.example.com' for cross-subdomain
             'link_on_auth' => env('ANALYTICS_IDENTITY_LINK_ON_AUTH', true),
+            'auto_link' => env('ANALYTICS_IDENTITY_AUTO_LINK', true), // Auto-persist client_id ↔ user_id in cache on identify()
 
             // Identity Resolution Service (v3.2.0)
             // Cache-backed client_id ↔ user_id persistent mapping

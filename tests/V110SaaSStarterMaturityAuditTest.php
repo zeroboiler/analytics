@@ -34,18 +34,18 @@ use ZeroBoiler\Analytics\Trackers\LinkedInTracker;
  * Phase 38 — SaaS Starter Maturity Audit.
  *
  * Comprehensive verification that all 12 SaaS starter upgrade criteria
- * remain fully valid at v110.0.0. Validates class structure, method
+ * remain fully valid at v111.0.0. Validates class structure, method
  * signatures, provider coverage, version integrity, and production
  * readiness without requiring a Laravel application bootstrap.
  *
- * @since 110.0.0
+ * @since 111.0.0
  */
 describe('V110SaaSStarterMaturityAudit', function () {
     // ── Version Integrity ───────────────────────────────────────────────
 
     describe('Version Integrity', function () {
-        it('version is 110.0.0 across all package files', function () {
-            $version = '110.0.0';
+        it('version is 111.0.0 across all package files', function () {
+            $version = '111.0.0';
 
             // AnalyticsEvent::VERSION
             expect(AnalyticsEvent::VERSION)->toBe($version);
@@ -102,7 +102,7 @@ describe('V110SaaSStarterMaturityAudit', function () {
         it('AnalyticsEvent has VERSION constant', function () {
             $ref = new \ReflectionClass(AnalyticsEvent::class);
             expect($ref->hasConstant('VERSION'))->toBeTrue();
-            expect($ref->getConstant('VERSION'))->toBe('110.0.0');
+            expect($ref->getConstant('VERSION'))->toBe('111.0.0');
         });
     });
 
@@ -547,26 +547,26 @@ describe('V110SaaSStarterMaturityAudit', function () {
             }
         });
 
-        it('CHANGELOG.md documents v110.0.0', function () {
+        it('CHANGELOG.md documents v111.0.0', function () {
             $changelogPath = dirname(__DIR__, 2) . '/CHANGELOG.md';
             expect(file_exists($changelogPath))->toBeTrue();
             $content = file_get_contents($changelogPath);
-            expect(str_contains($content, '[110.0.0]'))->toBeTrue();
+            expect(str_contains($content, '[111.0.0]'))->toBeTrue();
             expect(str_contains($content, 'Phase 38'))->toBeTrue();
         });
 
-        it('Phase 35 audit test version is 110.0.0', function () {
+        it('Phase 35 audit test version is 111.0.0', function () {
             $testPath = dirname(__DIR__) . '/Phase35SaaSStarterAuditTest.php';
             expect(file_exists($testPath))->toBeTrue();
             $content = file_get_contents($testPath);
-            expect(str_contains($content, "'110.0.0'"))->toBeTrue();
+            expect(str_contains($content, "'111.0.0'"))->toBeTrue();
         });
 
-        it('Phase 36 audit test version is 110.0.0', function () {
+        it('Phase 36 audit test version is 111.0.0', function () {
             $testPath = dirname(__DIR__) . '/Phase36PrivacyInventoryAuditTest.php';
             expect(file_exists($testPath))->toBeTrue();
             $content = file_get_contents($testPath);
-            expect(str_contains($content, "'110.0.0'"))->toBeTrue();
+            expect(str_contains($content, "'111.0.0'"))->toBeTrue();
         });
     });
 
@@ -591,11 +591,11 @@ describe('V110SaaSStarterMaturityAudit', function () {
             expect(class_exists(\ZeroBoiler\Analytics\Facades\Analytics::class))->toBeTrue();
         });
 
-        it('AnalyticsServiceProvider exists with version 110.0.0', function () {
+        it('AnalyticsServiceProvider exists with version 111.0.0', function () {
             $ref = new \ReflectionClass(\ZeroBoiler\Analytics\AnalyticsServiceProvider::class);
             $content = file_get_contents($ref->getFileName());
             expect(str_contains($content, 'declare(strict_types=1)'))->toBeTrue();
-            expect(str_contains($content, '@version 110.0.0'))->toBeTrue();
+            expect(str_contains($content, '@version 111.0.0'))->toBeTrue();
         });
 
         it('routes file exists with analytics routes', function () {

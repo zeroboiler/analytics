@@ -1,5 +1,23 @@
 # Changelog
 
+## [111.0.0] - 2026-08-14
+
+### Added
+- **Phase 39 Identity Resolution Enhancement** — UserIdentityTracker upgraded with cache-backed persistent identity linking:
+  - `linkClientIdToUser(clientId, userId)` — Bidirectional client_id ↔ user_id mapping with cache persistence, max links enforcement
+  - `resolveIdentity(clientId)` — Resolve all user IDs linked to a given client ID from the identity graph
+  - `resolvePrimaryUserId(clientId)` — Get the most recently linked user ID for a client
+  - `resolveClientIds(userId)` — Get all client IDs linked to a given user ID
+  - `isAutoLinkEnabled()` — Check if automatic identity linking is active
+  - Constructor expanded with cache, cachePrefix, linkTtl, maxLinksPerUser, maxLinksPerClient, autoLink parameters
+  - `identify()` now auto-persists the client_id ↔ user_id link when auto_link is enabled
+- **Identity config `auto_link` setting** — New `ANALYTICS_IDENTITY_AUTO_LINK` env variable (default: true) in config/zeroboiler.php
+- **V111IdentityResolutionAuditTest** — 60+ assertions validating identity resolution methods, config integrity, provider coverage, and version consistency at v111.0.0
+
+### Changed
+- **Version bump** — All package files (composer.json, package.json, README.md, JS/TS client, AnalyticsEvent::VERSION, AnalyticsServiceProvider) synced to 111.0.0
+- **Phase 35/36/38 audit tests** — Version assertions updated from 110.0.0 to 111.0.0
+
 ## [110.0.0] - 2026-08-14
 
 ### Fixed
