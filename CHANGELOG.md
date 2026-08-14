@@ -1,5 +1,13 @@
 # Changelog
 
+## [108.0.0] - 2026-08-14
+
+### Fixed
+- AnalyticsException base constructor `$previous` parameter type changed from `?Exception` to `?\Throwable`
+
+### Added
+- Phase 31 production audit test: strict_types (681 files), license headers, zero TODO/FIXME, exception hierarchy, composer metadata
+
 ## [105.0.0] - 2026-08-14
 
 ### Fixed
