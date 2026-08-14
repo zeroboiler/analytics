@@ -2575,6 +2575,291 @@ final class EventCatalog
     }
 
     /**
+     * Analyze cross-funnel event correlation.
+     *
+     * Identifies events that appear in multiple funnels and returns
+     * a correlation matrix showing which events bridge different
+     * funnel types. Essential for understanding event overlap and
+     * designing non-redundant instrumentation.
+     *
+     * @return array{overlap_events: list<array{event: string, funnels: list<string>, funnel_count: int, categories: list<string>, tags: list<string>}>, funnel_sizes: array<string, int>, intersection_matrix: array<string, array<string, int>>}
+     *
+     * @since 113.0.0
+     */
+    public static function crossFunnelCorrelation(): array
+    {
+        $saas = self::saasFunnelEvents();
+        $ecommerce = self::ecommerceFunnelEvents();
+        $engagement = self::engagementFunnelEvents();
+        $activation = self::activationFunnel();
+        $checkout = self::checkoutFunnel();
+
+        $funnelGroups = [
+            'saas' => array_column($saas, 'event'),
+            'ecommerce' => array_map(fn (array $e): string => $e['name'], $ecommerce),
+            'engagement' => array_column($engagement, 'event'),
+            'activation' => array_map(fn (array $e): string => $e['name'], $activation),
+            'checkout' => array_map(fn (array $e): string => $e['name'], $checkout),
+        ];
+
+        $funnelSizes = [];
+        foreach ($funnelGroups as $name => $events) {
+            $funnelSizes[$name] = count($events);
+        }
+
+        // Intersection matrix: funnel x funnel event count overlap
+        $funnelNames = array_keys($funnelGroups);
+        $intersectionMatrix = [];
+
+        foreach ($funnelNames as $a) {
+            $intersectionMatrix[$a] = [];
+
+            foreach ($funnelNames as $b) {
+                $intersectionMatrix[$a][$b] = count(array_intersect($funnelGroups[$a], $funnelGroups[$b]));
+            }
+        }
+
+        // Find events present in multiple funnels
+        $eventFunnelMap = [];
+        foreach ($funnelGroups as $funnelName => $events) {
+            foreach ($events as $eventName) {
+                if (! isset($eventFunnelMap[$eventName])) {
+                    $eventFunnelMap[$eventName] = [];
+                }
+
+                if (! in_array($funnelName, $eventFunnelMap[$eventName], true)) {
+                    $eventFunnelMap[$eventName][] = $funnelName;
+                }
+            }
+        }
+
+        $overlapEvents = [];
+
+        foreach ($eventFunnelMap as $eventName => $funnels) {
+            if (count($funnels) > 1) {
+                $entry = self::get($eventName);
+                $overlapEvents[] = [
+                    'event' => $eventName,
+                    'funnels' => $funnels,
+                    'funnel_count' => count($funnels),
+                    'categories' => $entry !== null ? [$entry['category']] : [],
+                    'tags' => EventTags::for($eventName),
+                ];
+            }
+        }
+
+        usort($overlapEvents, fn (array $a, array $b): int => $b['funnel_count'] <=> $a['funnel_count']);
+
+        return [
+            'overlap_events' => $overlapEvents,
+            'funnel_sizes' => $funnelSizes,
+            'intersection_matrix' => $intersectionMatrix,
+        ];
+    }
+
+    /**
+     * Get the AARRR stage attribution for each funnel step.
+     *
+     * Maps each funnel type's steps to their AARRR classification
+     * using EventTags, providing a complete funnel → AARRR view.
+     * Useful for funnel dashboards that need stage-level color coding.
+     *
+     * @return array{saas: list<array{step: int, event: string, aarrr_stage: string, tags: list<string>}>, ecommerce: list<array{step: int, event: string, aarrr_stage: string, tags: list<string>}>, engagement: list<array{step: int, event: string, aarrr_stage: string, tags: list<string>}>}
+     *
+     * @since 113.0.0
+     */
+    public static function funnelStepAttribution(): array
+    {
+        $result = [];
+
+        foreach (['saas', 'ecommerce', 'engagement'] as $funnelType) {
+            $funnelEvents = match ($funnelType) {
+                'saas' => self::saasFunnelEvents(),
+                'ecommerce' => self::ecommerceFunnelEvents(),
+                'engagement' => self::engagementFunnelEvents(),
+            };
+
+            $steps = [];
+
+            foreach ($funnelEvents as $item) {
+                $tags = EventTags::for($item['event']);
+
+                // Determine primary AARRR stage from tags
+                $aarrrStages = ['acquisition', 'activation', 'retention', 'revenue', 'referral'];
+                $stage = 'operational';
+
+                foreach ($aarrrStages as $s) {
+                    if (in_array($s, $tags, true)) {
+                        $stage = $s;
+                        break;
+                    }
+                }
+
+                $steps[] = [
+                    'step' => $item['step'],
+                    'event' => $item['event'],
+                    'aarrr_stage' => $stage,
+                    'tags' => $tags,
+                ];
+            }
+
+            $result[$funnelType] = $steps;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Build an event → funnel impact matrix.
+     *
+     * Returns a matrix showing which events participate in which funnels,
+     * with their AARRR stage, priority score, and provider coverage.
+     * Essential for understanding the full impact of each tracked event.
+     *
+     * @param  'saas'|'ecommerce'|'engagement'|null  $funnelType  Filter by funnel type, or null for all
+     * @return list<array{event: string, funnels: list<string>, aarrr_stage: string, priority_score: int, provider_count: int, tags: list<string>}>
+     *
+     * @since 113.0.0
+     */
+    public static function eventImpactMatrix(?string $funnelType = null): array
+    {
+        $allFunnelEvents = [];
+
+        $funnelMap = [
+            'saas' => self::saasFunnelEvents(),
+            'ecommerce' => self::ecommerceFunnelEvents(),
+            'engagement' => self::engagementFunnelEvents(),
+        ];
+
+        $funnels = $funnelType !== null && isset($funnelMap[$funnelType])
+            ? [$funnelType => $funnelMap[$funnelType]]
+            : $funnelMap;
+
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+
+        foreach ($funnels as $fname => $fEvents) {
+            foreach ($fEvents as $item) {
+                $allFunnelEvents[$item['event']] ??= [
+                    'event' => $item['event'],
+                    'funnels' => [],
+                ];
+
+                if (! in_array($fname, $allFunnelEvents[$item['event']]['funnels'], true)) {
+                    $allFunnelEvents[$item['event']]['funnels'][] = $fname;
+                }
+            }
+        }
+
+        $matrix = [];
+        $aarrrStages = ['acquisition', 'activation', 'retention', 'revenue', 'referral'];
+
+        foreach ($allFunnelEvents as $eventName => $data) {
+            $entry = self::get($eventName);
+            $tags = EventTags::for($eventName);
+
+            $aarrrStage = 'operational';
+            foreach ($aarrrStages as $s) {
+                if (in_array($s, $tags, true)) {
+                    $aarrrStage = $s;
+                    break;
+                }
+            }
+
+            $providerCount = 0;
+            if ($entry !== null) {
+                foreach ($providers as $p) {
+                    $v = $entry[$p] ?? null;
+                    if ($v !== null && $v !== '') {
+                        $providerCount++;
+                    }
+                }
+            }
+
+            $matrix[] = [
+                'event' => $eventName,
+                'funnels' => $data['funnels'],
+                'aarrr_stage' => $aarrrStage,
+                'priority_score' => self::eventPriorityScore($eventName),
+                'provider_count' => $providerCount,
+                'tags' => $tags,
+            ];
+        }
+
+        usort($matrix, fn (array $a, array $b): int => $b['priority_score'] <=> $a['priority_score']);
+
+        return $matrix;
+    }
+
+    /**
+     * Compute step-to-step drop-off analysis for a funnel.
+     *
+     * Given event counts for a funnel type, calculates the drop-off rate
+     * between consecutive steps. Returns drop-off percentages and
+     * classifies each transition as 'healthy' (< 30%), 'warning' (30-60%),
+     * or 'critical' (> 60%).
+     *
+     * @param  array<string, int>  $eventCounts  Event name → count
+     * @param  'saas'|'ecommerce'|'engagement'  $funnelType
+     * @return array{transitions: list<array{from: string, to: string, from_count: int, to_count: int, drop_off_rate: float|null, severity: 'healthy'|'warning'|'critical'|null}>, worst_dropoff: array{from: string, to: string, rate: float|null}|null}
+     *
+     * @since 113.0.0
+     */
+    public static function funnelDropoffAnalysis(array $eventCounts, string $funnelType): array
+    {
+        $funnelEvents = match ($funnelType) {
+            'saas' => self::saasFunnelEvents(),
+            'ecommerce' => self::ecommerceFunnelEvents(),
+            'engagement' => self::engagementFunnelEvents(),
+            default => [],
+        };
+
+        $transitions = [];
+        $worstDropoff = null;
+
+        for ($i = 0; $i < count($funnelEvents) - 1; $i++) {
+            $fromEvent = $funnelEvents[$i]['event'];
+            $toEvent = $funnelEvents[$i + 1]['event'];
+            $fromCount = $eventCounts[$fromEvent] ?? 0;
+            $toCount = $eventCounts[$toEvent] ?? 0;
+
+            $dropoffRate = null;
+            $severity = null;
+
+            if ($fromCount > 0) {
+                $dropoffRate = round((1 - ($toCount / $fromCount)) * 100, 2);
+
+                $severity = match (true) {
+                    $dropoffRate < 30 => 'healthy',
+                    $dropoffRate < 60 => 'warning',
+                    default => 'critical',
+                };
+
+                if ($worstDropoff === null || $dropoffRate > ($worstDropoff['rate'] ?? 0)) {
+                    $worstDropoff = [
+                        'from' => $fromEvent,
+                        'to' => $toEvent,
+                        'rate' => $dropoffRate,
+                    ];
+                }
+            }
+
+            $transitions[] = [
+                'from' => $fromEvent,
+                'to' => $toEvent,
+                'from_count' => $fromCount,
+                'to_count' => $toCount,
+                'drop_off_rate' => $dropoffRate,
+                'severity' => $severity,
+            ];
+        }
+
+        return [
+            'transitions' => $transitions,
+            'worst_dropoff' => $worstDropoff,
+        ];
+    }
+
+    /**
      * Get the numeric priority score for an event name (0-100).
      *
      * Computes a score based on:

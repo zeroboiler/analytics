@@ -1,5 +1,18 @@
 # Changelog
 
+## [113.0.0] - 2026-08-14
+
+### Added
+- **Phase 41 — Cross-Funnel Correlation & Event Impact Matrix**:
+  - `EventCatalog::crossFunnelCorrelation()` — Analyze events appearing in multiple funnels with overlap detection, funnel sizes, and intersection matrix across saas/ecommerce/engagement/activation/checkout funnels
+  - `EventCatalog::funnelStepAttribution()` — AARRR stage attribution for each funnel step across all three funnel types (saas, ecommerce, engagement), using EventTags for consistent classification
+  - `EventCatalog::eventImpactMatrix()` — Full event → funnel impact matrix with AARRR stage, priority score, provider count, and tags; filterable by funnel type
+  - `EventCatalog::funnelDropoffAnalysis()` — Step-to-step drop-off analysis with severity classification (healthy < 30%, warning 30-60%, critical > 60%) and worst dropoff identification
+- **V1130CrossFunnelCorrelationTest** — 70+ assertions validating cross-funnel correlation, step attribution, event impact matrix, drop-off analysis, severity classification, version consistency, and SaaS starter maturity at v113.0.0
+
+### Changed
+- **Version bump** — All 7 package files synced to 113.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, AnalyticsEvent::VERSION, AnalyticsServiceProvider)
+
 ## [112.0.0] - 2026-08-14
 
 ### Added

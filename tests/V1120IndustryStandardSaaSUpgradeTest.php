@@ -29,59 +29,59 @@ use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
 use ZeroBoiler\Analytics\Tracking\UserIdentityTracker;
 
 /**
- * Phase 40 — Industry-Standard SaaS Funnel Analytics & Version Sync Audit.
+ * Phase 41 — Cross-Funnel Correlation & Event Impact Matrix.
  *
  * Comprehensive validation of:
- * - Funnel helper methods (saasFunnelEvents, ecommerceFunnelEvents, engagementFunnelEvents)
- * - Funnel conversion rate computation
- * - Provider filtering (filterByProviders)
- * - AARRR framework breakdown
+ * - Cross-funnel event correlation (overlap detection, intersection matrix)
+ * - Funnel step AARRR attribution across saas/ecommerce/engagement
+ * - Event impact matrix with priority scores and provider counts
+ * - Funnel drop-off analysis with severity classification
  * - Version consistency across all package files
- * - SaaS starter maturity criteria at v112.0.0
+ * - SaaS starter maturity criteria at v113.0.0
  *
- * @since 112.0.0
+ * @since 113.0.0
  */
 it('has correct VERSION constant in AnalyticsEvent', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('112.0.0');
+    expect(AnalyticsEvent::VERSION)->toBe('113.0.0');
 });
 
 it('has correct version in composer.json', function (): void {
     $content = file_get_contents(__DIR__ . '/../composer.json');
     expect($content)->toBeJson();
     $composer = json_decode($content, true);
-    expect($composer['version'])->toBe('112.0.0');
+    expect($composer['version'])->toBe('113.0.0');
 });
 
 it('has correct version in package.json', function (): void {
     $content = file_get_contents(__DIR__ . '/../package.json');
     expect($content)->toBeJson();
     $pkg = json_decode($content, true);
-    expect($pkg['version'])->toBe('112.0.0');
+    expect($pkg['version'])->toBe('113.0.0');
 });
 
 it('has correct version in analytics.js', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($content)->toContain('@version 112.0.0');
+    expect($content)->toContain('@version 113.0.0');
 });
 
 it('has correct version in analytics.d.ts', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($content)->toContain('@version 112.0.0');
+    expect($content)->toContain('@version 113.0.0');
 });
 
 it('has correct version in analytics.constants.js', function (): void {
     $content = file_get_contents(__DIR__ . '/../resources/js/analytics.constants.js');
-    expect($content)->toContain('@version 112.0.0');
+    expect($content)->toContain('@version 113.0.0');
 });
 
 it('has correct version in AnalyticsServiceProvider', function (): void {
     $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
-    expect($content)->toContain('@version 112.0.0');
+    expect($content)->toContain('@version 113.0.0');
 });
 
 it('has correct version badge in README', function (): void {
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-112.0.0');
+    expect($readme)->toContain('version-113.0.0');
 });
 
 // ── Funnel Methods ──────────────────────────────────────────────────────
