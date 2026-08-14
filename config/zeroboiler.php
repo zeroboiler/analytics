@@ -7725,4 +7725,55 @@ return [
         'required_global_fields' => ['event_name', 'timestamp'],
         'cache_results' => env('ANALYTICS_EVENT_CONSISTENCY_CACHE', true),
     ],
+
+    // ────────────────────────────────────────────────────────────────────
+    // Feature Gating (v135.0.0)
+    // ────────────────────────────────────────────────────────────────────
+    //
+    // Per-plan event tracking eligibility. Controls which analytics events
+    // are available based on subscription tier. Higher tiers unlock premium
+    // analytics (cohort, churn prediction, revenue forecasting).
+    //
+    // When enabled, events not in the plan's allowed list are silently dropped.
+    // Core tracking events (page_view, click, sign_up, etc.) are always allowed.
+    //
+    // Usage:
+    //   $gating->isEventAllowed('cohort_retention', 'pro');  // check eligibility
+    //   $gating->filterAllowedEvents($events, 'free');        // batch filter
+    //
+    'feature_gating' => [
+        'enabled' => env('ANALYTICS_FEATURE_GATING_ENABLED', false),
+        'plan_hierarchy' => ['free', 'starter', 'pro', 'enterprise'],
+        'premium_categories' => ['cohort', 'retention', 'revenue_intelligence'],
+        'plans' => [
+            // 'free' => ['page_view', 'click', 'sign_up', 'login'], // explicit allow list
+            // 'pro' => ['*'], // wildcard = all events
+        ],
+    ],
+
+    // ────────────────────────────────────────────────────────────────────
+    // Customer Success (v135.0.0)
+    // ────────────────────────────────────────────────────────────────────
+    //
+    // Customer success analytics configuration. Controls NPS survey settings,
+    // health score thresholds, renewal reminder timing, and churn interview
+    // automation.
+    //
+    'customer_success' => [
+        'enabled' => env('ANALYTICS_CS_ENABLED', true),
+        'nps' => [
+            'auto_track' => env('ANALYTICS_CS_NPS_AUTO_TRACK', true),
+            'score_range_min' => 0,
+            'score_range_max' => 10,
+        ],
+        'health_score' => [
+            'min' => 0,
+            'max' => 100,
+            'warning_threshold' => (float) env('ANALYTICS_CS_HEALTH_WARNING', 40.0),
+            'critical_threshold' => (float) env('ANALYTICS_CS_HEALTH_CRITICAL', 25.0),
+        ],
+        'renewal' => [
+            'reminder_days_before' => [30, 14, 7, 3, 1],
+        ],
+    ],
 ];

@@ -101,6 +101,11 @@ final class SaaSEventSubCategories
         'export' => [
             'export', 'import',
         ],
+        'customer_success' => [
+            'support_ticket_created', 'nps_submitted', 'health_score_changed',
+            'renewal_reminder_sent', 'churn_interview', 'customer_review',
+            'onboarding_call_completed',
+        ],
     ];
 
     /**

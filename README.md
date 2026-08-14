@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-134.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-135.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **200+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,20 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v135.0.0
+
+**Customer Success Events & Feature Gating Analytics — Industry-Standard B2B SaaS Starter Upgrade**:
+
+- **7 Customer Success Events** — New `customer_success` sub-category in the SaaS catalog: `support_ticket_created`, `nps_submitted`, `health_score_changed`, `renewal_reminder_sent`, `churn_interview`, `customer_review`, `onboarding_call_completed`. Each event includes typed class, full 8-provider mappings (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn), and semantic parameter schemas.
+- **`CustomerSuccessEvents` catalog** — Static catalog class with `all()`, `names()`, `get()`, `has()`, `count()`, `category()` methods. Provides `customer_success` as a first-class sub-category alongside auth, subscription, trial, billing, team, and growth.
+- **`CustomerSuccessAnalyticsService`** — Aggregates customer success signals into actionable metrics. Provides NPS classification (`classifyNps()`), NPS calculation (`calculateNps()`), health signal computation (`computeHealthSignal()`), churn risk assessment (`assessChurnRisk()`), and KPI summary dashboard (`kpiSummary()`). All methods are static for easy reuse.
+- **`FeatureGatingAnalyticsService`** — Per-plan event tracking eligibility controller. Restricts premium analytics events (cohort, churn prediction, revenue forecasting) to higher subscription tiers. Features: 16 ungated core events (always tracked), plan hierarchy comparison (`isPlanAtOrAbove()`), batch event filtering (`filterAllowedEvents()`), blocked event detection (`blockedEventsForPlan()`), cache-backed resolution, and configurable via `zeroboiler.analytics.feature_gating`.
+- **Config expansion** — New `feature_gating` section (plan hierarchy, premium categories, per-plan event rules) and `customer_success` section (NPS settings, health score thresholds, renewal reminder schedule) in `zeroboiler.php`.
+- **SaaS catalog expansion** — 7 new events in `SaaSEvents`, new `customer_success` sub-category in `SaaSEventSubCategories`. Total SaaS events now 75+, total catalog 210+.
+- **API routes** — New `cs/catalog`, `cs/kpi`, `cs/churn-risk` endpoints for customer success analytics, and `feature-gating/eligibility`, `feature-gating/plans`, `feature-gating/check` for feature gating queries.
+- **`V135CustomerSuccessFeatureGatingLifecycleTest`** — Comprehensive test suite with 80+ assertions covering: catalog structure, event class instantiation, parameter handling, sub-category membership, SaaS catalog integration, unified EventCatalog integration, NPS calculation, health signal computation, churn risk assessment, feature gating eligibility, plan hierarchy, ungated event coverage, and end-to-end SaaS lifecycle event chain validation.
+- **Version sweep** — All new files synced to v135.0.0.
 
 ### What's New in v134.0.0
 

@@ -968,4 +968,14 @@ Route::prefix('analytics')->group(function () {
     Route::get('openapi-spec', [AnalyticsEventController::class, 'openApiSpec']);
     Route::get('openapi.yaml', [AnalyticsEventController::class, 'openApiYaml']);
     Route::get('openapi/endpoints', [AnalyticsEventController::class, 'openApiEndpointSummary']);
+
+    // Customer Success Analytics (v135.0.0)
+    Route::get('cs/catalog', [AnalyticsEventController::class, 'customerSuccessCatalog']);
+    Route::get('cs/kpi', [AnalyticsEventController::class, 'customerSuccessKpi']);
+    Route::get('cs/churn-risk', [AnalyticsEventController::class, 'customerSuccessChurnRisk']);
+
+    // Feature Gating (v135.0.0)
+    Route::get('feature-gating/eligibility', [AnalyticsEventController::class, 'featureGatingEligibility']);
+    Route::get('feature-gating/plans', [AnalyticsEventController::class, 'featureGatingPlans']);
+    Route::post('feature-gating/check', [AnalyticsEventController::class, 'featureGatingCheck']);
 });
