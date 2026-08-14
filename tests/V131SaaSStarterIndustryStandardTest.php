@@ -60,7 +60,7 @@ final class V131SaaSStarterIndustryStandardTest extends TestCase
 
     public function test_marketing_events_count_meets_minimum(): void
     {
-        $this->assertGreaterThanOrEqual(28, MarketingEvents::count());
+        $this->assertGreaterThanOrEqual(34, MarketingEvents::count());
     }
 
     public function test_total_catalog_exceeds_200_events(): void
