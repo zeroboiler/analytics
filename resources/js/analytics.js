@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 94.0.0
+ * @version 96.0.0
  */
 
 let trackingId = null;
@@ -407,7 +407,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-        return '92.0.0';
+        return '96.0.0';
 }
 
 /**
@@ -7330,4 +7330,121 @@ export function startIntelligenceMonitor(options = {}) {
     return () => {
         running = false;
     };
+}
+
+// ─── SaaS Event Shortcut Helpers (v96.0.0) ───────────────────────────
+
+/**
+ * Track a user sign-up event with method attribution.
+ *
+ * @param {object} [options] - Sign-up options
+ * @param {string} [options.method] - Signup method (email, google, github, etc.)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSignUp({ method: 'google' });
+ */
+export async function trackSignUp(options = {}) {
+    const params = { ...options.extra };
+    if (options.method) params.method = options.method;
+    return trackEvent('sign_up', params, { immediate: true });
+}
+
+/**
+ * Track a trial start event with plan and duration.
+ *
+ * @param {object} [options] - Trial options
+ * @param {string} [options.plan] - Trial plan name (e.g. 'pro')
+ * @param {number} [options.durationDays] - Trial duration in days (e.g. 14)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackTrialStart({ plan: 'pro', durationDays: 14 });
+ */
+export async function trackTrialStart(options = {}) {
+    const params = { ...options.extra };
+    if (options.plan) params.plan = options.plan;
+    if (options.durationDays) params.duration_days = options.durationDays;
+    return trackEvent('start_trial', params, { immediate: true });
+}
+
+/**
+ * Track a subscription creation event with billing context.
+ *
+ * @param {object} [options] - Subscription options
+ * @param {string} [options.plan] - Plan name
+ * @param {number} [options.value] - Subscription value
+ * @param {string} [options.currency] - Currency code (default: 'USD')
+ * @param {string} [options.billingCycle] - Billing cycle (monthly, yearly)
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackSubscription({ plan: 'pro', value: 49, currency: 'USD', billingCycle: 'monthly' });
+ */
+export async function trackSubscription(options = {}) {
+    const params = { ...options.extra };
+    if (options.plan) params.plan = options.plan;
+    if (options.value != null) params.value = options.value;
+    params.currency = options.currency || config?.ecommerce?.currency || 'USD';
+    if (options.billingCycle) params.billing_cycle = options.billingCycle;
+    return trackEvent('subscribe', params, { immediate: true });
+}
+
+/**
+ * Track a plan upgrade event with transition details.
+ *
+ * @param {object} [options] - Upgrade options
+ * @param {string} [options.fromPlan] - Previous plan name
+ * @param {string} [options.toPlan] - New plan name
+ * @param {number} [options.valueDifference] - Price difference
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackPlanUpgrade({ fromPlan: 'starter', toPlan: 'pro', valueDifference: 30 });
+ */
+export async function trackPlanUpgrade(options = {}) {
+    const params = { ...options.extra };
+    if (options.fromPlan) params.from_plan = options.fromPlan;
+    if (options.toPlan) params.to_plan = options.toPlan;
+    if (options.valueDifference != null) params.value_difference = options.valueDifference;
+    return trackEvent('plan_upgrade', params, { immediate: true });
+}
+
+/**
+ * Track a subscription cancellation event with reason.
+ *
+ * @param {object} [options] - Cancellation options
+ * @param {string} [options.reason] - Cancellation reason
+ * @param {string} [options.plan] - Cancelled plan name
+ * @param {number} [options.lostRevenue] - Monthly revenue lost
+ * @param {object} [options.extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackCancellation({ reason: 'too_expensive', plan: 'pro', lostRevenue: 49 });
+ */
+export async function trackCancellation(options = {}) {
+    const params = { ...options.extra };
+    if (options.reason) params.reason = options.reason;
+    if (options.plan) params.plan = options.plan;
+    if (options.lostRevenue != null) params.lost_revenue = options.lostRevenue;
+    return trackEvent('cancellation', params, { immediate: true });
+}
+
+/**
+ * Track a feature usage event.
+ *
+ * @param {string} feature - Feature name (e.g. 'export', 'api_access')
+ * @param {object} [extra] - Additional parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackFeatureUsed('export', { format: 'csv', record_count: 1500 });
+ */
+export async function trackFeatureUsed(feature, extra = {}) {
+    return trackEvent('feature_used', { feature, ...extra }, { immediate: true });
 }

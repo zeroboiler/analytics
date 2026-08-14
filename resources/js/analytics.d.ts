@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 94.0.0
+ * @version 96.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2234,3 +2234,83 @@ export interface LifecycleApiResponse {
   total_expansion_value?: number;
   updated_at?: number;
 }
+
+// ─── SaaS Event Shortcut Helpers (v96.0.0) ───────────────────────────
+
+/**
+ * Options for trackSignUp shortcut.
+ */
+export interface TrackSignUpOptions {
+  method?: string;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Options for trackTrialStart shortcut.
+ */
+export interface TrackTrialStartOptions {
+  plan?: string;
+  durationDays?: number;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Options for trackSubscription shortcut.
+ */
+export interface TrackSubscriptionOptions {
+  plan?: string;
+  value?: number;
+  currency?: string;
+  billingCycle?: string;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Options for trackPlanUpgrade shortcut.
+ */
+export interface TrackPlanUpgradeOptions {
+  fromPlan?: string;
+  toPlan?: string;
+  valueDifference?: number;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Options for trackCancellation shortcut.
+ */
+export interface TrackCancellationOptions {
+  reason?: string;
+  plan?: string;
+  lostRevenue?: number;
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Track a user sign-up event with method attribution.
+ */
+export function trackSignUp(options?: TrackSignUpOptions): Promise<void>;
+
+/**
+ * Track a trial start event with plan and duration.
+ */
+export function trackTrialStart(options?: TrackTrialStartOptions): Promise<void>;
+
+/**
+ * Track a subscription creation event with billing context.
+ */
+export function trackSubscription(options?: TrackSubscriptionOptions): Promise<void>;
+
+/**
+ * Track a plan upgrade event with transition details.
+ */
+export function trackPlanUpgrade(options?: TrackPlanUpgradeOptions): Promise<void>;
+
+/**
+ * Track a subscription cancellation event with reason.
+ */
+export function trackCancellation(options?: TrackCancellationOptions): Promise<void>;
+
+/**
+ * Track a feature usage event.
+ */
+export function trackFeatureUsed(feature: string, extra?: Record<string, unknown>): Promise<void>;

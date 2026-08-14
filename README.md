@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-95.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-96.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -7676,6 +7676,14 @@ composer ci  # Pint + PHPStan + Rector + Tests
 - **Alert + funnel routes** registered in ServiceProvider
 - **Facade directDispatch** return type fix (void → bool)
 - **7 new API routes**, **V27 test suite** (35+ cases)
+
+### v96.0.0 — SaaS Event Helpers, JS Shortcut API, Version Sweep
+
+- **SaaSEventHelpers** — New server-side convenience service (`ZeroBoiler\Analytics\Support\SaaSEventHelpers`) providing one-line methods for the most common SaaS lifecycle events: `signUp()`, `login()` (with auto-identify), `trialStart()`, `subscription()`, `planUpgrade()`, `planDowngrade()`, `cancellation()`, `featureUsed()`, `teamCreated()`, `inviteSent()`, `paymentFailed()`. All methods respect consent state, debug mode, DataBus routing, and interceptors. Filters null parameters automatically for clean payloads.
+- **JS SaaS Event Shortcuts** — New client-side convenience functions: `trackSignUp()`, `trackTrialStart()`, `trackSubscription()`, `trackPlanUpgrade()`, `trackCancellation()`, `trackFeatureUsed()`. One-line alternatives to `trackEvent()` with structured parameter building and immediate dispatch for revenue-critical events.
+- **TypeScript Definitions** — Full type definitions for all new JS SaaS shortcuts (`TrackSignUpOptions`, `TrackTrialStartOptions`, `TrackSubscriptionOptions`, `TrackPlanUpgradeOptions`, `TrackCancellationOptions` interfaces).
+- **Version sweep** — All source, JS, and composable versions unified to v96.0.0. Fixed stale `getVersion()` return value (was '92.0.0'). Svelte composable headers aligned.
+- **Test coverage** — 18 new test cases for SaaSEventHelpers covering all methods, null filtering, extra param merging, manager access, and PHP 8.5 strict types compliance.
 
 ### v95.0.0 — Provider Fallback Expansion, AARRR Classification v2, Priority Gate Extensions
 
