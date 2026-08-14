@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-120.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-121.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -8138,6 +8138,16 @@ composer ci  # Pint + PHPStan + Rector + Tests
 ```
 
 ## Changelog
+
+### v121.0.0 — Marketing Event Catalog (36 events)
+
+- **36 new MarketingEvents** — Complete marketing analytics event catalog covering email campaigns (8 events), lead generation (3), content marketing (3), social media (4), paid advertising (3), webinars (3), SMS & push (5), affiliate/referral (4), and attribution (2).
+- **MarketingEventConstants** — IDE autocompletion constants for all 36 marketing event names with `all()`, `names()`, `isValid()`, `count()` helpers.
+- **EventCatalog Marketing integration** — `has()`, `getCategory()`, `count()`, `classFor()`, `allGa4Names()`, `allMetaNames()`, `allPosthogNames()`, `allPlausibleNames()`, `allMixpanelNames()`, `allAmplitudeNames()`, `allTikTokNames()`, `allLinkedInNames()`, `category()`, `byCategory()`, and `allWithPlugins()` now include Marketing events.
+- **Bug fix** — `EventCatalog::get()` method restored (was accidentally removed during merge).
+- **Bug fix** — Duplicate `allMetaNames()` method removed from EventCatalog.
+- **Bug fix** — `MarketingEventConstants.php` moved from `Events/` to `Events/Marketing/` for PSR-4 compliance.
+- **No breaking changes** — All new events are additive.
 
 ### v120.0.0 — Heartbeat Monitor, Event Bundling, Feature Flag Observer
 

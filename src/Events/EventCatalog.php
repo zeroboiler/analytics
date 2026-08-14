@@ -12,6 +12,7 @@ use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventTags;
 use ZeroBoiler\Analytics\Events\Infrastructure\InfrastructureEvents;
+use ZeroBoiler\Analytics\Events\Marketing\MarketingEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
 use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
@@ -43,6 +44,7 @@ final class EventCatalog
             self::withCategory(SecurityEvents::all(), 'security'),
             self::withCategory(UptimeEvents::all(), 'uptime'),
             self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
+            self::withCategory(MarketingEvents::all(), 'marketing'),
         );
     }
 
@@ -89,7 +91,7 @@ final class EventCatalog
     /**
      * Get events grouped by category.
      *
-     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>}
+     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>, security: array<string, EventEntry>, uptime: array<string, EventEntry>, infrastructure: array<string, EventEntry>, marketing: array<string, EventEntry>}
      */
     public static function byCategory(): array
     {
@@ -100,6 +102,7 @@ final class EventCatalog
             'security' => self::withCategory(SecurityEvents::all(), 'security'),
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
             'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
+            'marketing' => self::withCategory(MarketingEvents::all(), 'marketing'),
         ];
     }
 
@@ -123,13 +126,14 @@ final class EventCatalog
             || EngagementEvents::has($name)
             || SecurityEvents::has($name)
             || UptimeEvents::has($name)
-            || InfrastructureEvents::has($name);
+            || InfrastructureEvents::has($name)
+            || MarketingEvents::has($name);
     }
 
     /**
      * Get the category name for a given event name.
      *
-     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|null
+     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|null
      */
     public static function getCategory(string $name): ?string
     {
@@ -157,6 +161,10 @@ final class EventCatalog
             return 'infrastructure';
         }
 
+        if (MarketingEvents::has($name)) {
+            return 'marketing';
+        }
+
         return null;
     }
 
@@ -170,7 +178,8 @@ final class EventCatalog
             + EngagementEvents::count()
             + SecurityEvents::count()
             + UptimeEvents::count()
-            + InfrastructureEvents::count();
+            + InfrastructureEvents::count()
+            + MarketingEvents::count();
     }
 
     /**
@@ -187,6 +196,7 @@ final class EventCatalog
             SecurityEvents::ga4Names(),
             UptimeEvents::ga4Names(),
             InfrastructureEvents::ga4Names(),
+            MarketingEvents::ga4Names(),
         )));
     }
 
@@ -204,6 +214,7 @@ final class EventCatalog
             SecurityEvents::metaNames(),
             UptimeEvents::metaNames(),
             InfrastructureEvents::metaNames(),
+            MarketingEvents::metaNames(),
         ))));
     }
 
@@ -224,6 +235,7 @@ final class EventCatalog
             SecurityEvents::posthogNames(),
             UptimeEvents::posthogNames(),
             InfrastructureEvents::posthogNames(),
+            MarketingEvents::posthogNames(),
         ))));
     }
 
@@ -244,6 +256,7 @@ final class EventCatalog
             SecurityEvents::plausibleNames(),
             UptimeEvents::plausibleNames(),
             InfrastructureEvents::plausibleNames(),
+            MarketingEvents::plausibleNames(),
         ))));
     }
 
@@ -263,6 +276,7 @@ final class EventCatalog
             SecurityEvents::mixpanelNames(),
             UptimeEvents::mixpanelNames(),
             InfrastructureEvents::mixpanelNames(),
+            MarketingEvents::mixpanelNames(),
         ))));
     }
 
@@ -282,6 +296,7 @@ final class EventCatalog
             SecurityEvents::amplitudeNames(),
             UptimeEvents::amplitudeNames(),
             InfrastructureEvents::amplitudeNames(),
+            MarketingEvents::amplitudeNames(),
         ))));
     }
 
@@ -302,6 +317,7 @@ final class EventCatalog
             SecurityEvents::tiktokNames(),
             UptimeEvents::tiktokNames(),
             InfrastructureEvents::tiktokNames(),
+            MarketingEvents::tiktokNames(),
         ))));
     }
 
@@ -322,6 +338,7 @@ final class EventCatalog
             SecurityEvents::linkedinNames(),
             UptimeEvents::linkedinNames(),
             InfrastructureEvents::linkedinNames(),
+            MarketingEvents::linkedinNames(),
         ))));
     }
 
@@ -447,13 +464,14 @@ final class EventCatalog
             ?? EngagementEvents::classFor($name)
             ?? SecurityEvents::classFor($name)
             ?? UptimeEvents::classFor($name)
-            ?? InfrastructureEvents::classFor($name);
+            ?? InfrastructureEvents::classFor($name)
+            ?? MarketingEvents::classFor($name);
     }
 
     /**
      * Get all events in a specific category.
      *
-     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'  $category
+     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'  $category
      * @return array<string, EventEntry>
      */
     public static function category(string $category): array
@@ -465,6 +483,7 @@ final class EventCatalog
             'security' => self::withCategory(SecurityEvents::all(), 'security'),
             'uptime' => self::withCategory(UptimeEvents::all(), 'uptime'),
             'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
+            'marketing' => self::withCategory(MarketingEvents::all(), 'marketing'),
             default => [],
         };
     }
