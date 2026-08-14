@@ -7628,6 +7628,24 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Schema Snapshot & Diff Detection (v142.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Captures point-in-time snapshots of the event catalog structure and
+    | computes diffs between versions to detect breaking changes before
+    | they reach production. Useful for CI/CD integration and release gates.
+    |
+    | When auto_snapshot is true, a snapshot is automatically captured on
+    | each request that triggers catalog access (lazy, first-hit only).
+    |
+    */
+    'schema_snapshot' => [
+        'enabled' => env('ANALYTICS_SCHEMA_SNAPSHOT_ENABLED', true),
+        'auto_snapshot' => env('ANALYTICS_SCHEMA_SNAPSHOT_AUTO', true),
+    ],
+
     // ────────────────────────────────────────────────────────────────────
     // Metric Projections (v128.0.0)
     // ────────────────────────────────────────────────────────────────────
