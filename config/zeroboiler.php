@@ -1666,7 +1666,28 @@ return [
         ],
 
         /*
-        |-------------------------------------------------------------------------- 
+        |--------------------------------------------------------------------------
+        | Cross-Platform Attribution (v115.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Unified attribution across GA4, Meta, Plausible, PostHog, and webhook
+        | providers. Supports first-touch, last-touch, linear, time-decay, and
+        | position-based (U-shaped) attribution models.
+        |
+        | Normalizes provider-specific attribution data into a common format
+        | for cross-platform reporting and conversion deduplication.
+        |
+        */
+        'cross_platform_attribution' => [
+            'enabled' => env('ANALYTICS_CROSS_PLATFORM_ATTRIBUTION_ENABLED', true),
+            'model' => env('ANALYTICS_CROSS_PLATFORM_ATTRIBUTION_MODEL', 'last_touch'),
+            // Supported: first_touch, last_touch, linear, time_decay, position_based
+            'lookback_window_days' => (int) env('ANALYTICS_CROSS_PLATFORM_ATTRIBUTION_LOOKBACK', 90),
+            'cache_ttl' => (int) env('ANALYTICS_CROSS_PLATFORM_ATTRIBUTION_CACHE_TTL', 86400),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Profile Aggregation
         |-------------------------------------------------------------------------- 
         |

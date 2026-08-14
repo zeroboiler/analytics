@@ -113,6 +113,7 @@ use ZeroBoiler\Analytics\Services\UtmAggregationService;
 use ZeroBoiler\Analytics\Services\ConsentLogService;
 use ZeroBoiler\Analytics\Services\EventForwardingService;
 use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
+use ZeroBoiler\Analytics\Services\CrossPlatformAttributionService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
@@ -1930,6 +1931,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new UTMAttributionService($cache, $config);
+        });
+
+        // Cross-platform attribution service with 5 attribution models
+        $this->app->singleton(CrossPlatformAttributionService::class, function (Application $app): CrossPlatformAttributionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new CrossPlatformAttributionService($cache, $config);
         });
 
         // Event router for provider-specific event routing
