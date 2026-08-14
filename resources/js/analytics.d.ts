@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 99.0.0
+ * @version 100.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2370,3 +2370,168 @@ export declare function useSessionReplay(options?: SessionReplayOptions): Sessio
  * Convenience shorthand for useSessionReplay.
  */
 export declare function sessionReplay(options?: SessionReplayOptions): SessionReplayAPI;
+
+// ─── Event Name Constants (v100.0.0) ──────────────────────────────────
+
+/**
+ * E-commerce event name constants for type-safe event tracking.
+ */
+export const EcommerceEvents: Readonly<{
+  VIEW_ITEM: 'view_item';
+  ADD_TO_CART: 'add_to_cart';
+  REMOVE_FROM_CART: 'remove_from_cart';
+  VIEW_CART: 'view_cart';
+  BEGIN_CHECKOUT: 'begin_checkout';
+  ADD_PAYMENT_INFO: 'add_payment_info';
+  PURCHASE: 'purchase';
+  REFUND: 'refund';
+  ADD_TO_WISHLIST: 'add_to_wishlist';
+  SELECT_ITEM: 'select_item';
+  SELECT_PROMOTION: 'select_promotion';
+  VIEW_PROMOTION: 'view_promotion';
+  CHECKOUT_STEP: 'checkout_step';
+  ABANDONED_CART: 'abandoned_cart';
+  CHECKOUT_ABANDON: 'checkout_abandon';
+}>;
+
+/**
+ * SaaS lifecycle event name constants for type-safe event tracking.
+ */
+export const SaaSEvents: Readonly<{
+  // Authentication
+  SIGN_UP: 'sign_up';
+  LOGIN: 'login';
+  LOGOUT: 'logout';
+  EMAIL_VERIFIED: 'email_verified';
+  // Subscription
+  SUBSCRIPTION_CREATED: 'subscription_created';
+  SUBSCRIPTION_RENEWAL: 'subscription_renewal';
+  CANCELLATION: 'cancellation';
+  SUBSCRIPTION_CANCELLED: 'subscription_cancelled';
+  SUBSCRIPTION_PAUSED: 'subscription_paused';
+  SUBSCRIPTION_RESUMED: 'subscription_resumed';
+  SUBSCRIPTION_VALUE_CHANGED: 'subscription_value_changed';
+  // Plans
+  PLAN_UPGRADE: 'plan_upgrade';
+  PLAN_DOWNGRADE: 'plan_downgrade';
+  PLAN_CHANGED: 'plan_changed';
+  // Trial
+  TRIAL_START: 'start_trial';
+  TRIAL_END: 'trial_ended';
+  TRIAL_CONVERTED: 'trial_converted';
+  TRIAL_EXPIRED: 'trial_expired';
+  // Billing
+  PAYMENT_SUCCEEDED: 'payment_succeeded';
+  PAYMENT_FAILED: 'payment_failed';
+  PAYMENT_METHOD_ADDED: 'payment_method_added';
+  PAYMENT_METHOD_UPDATED: 'payment_method_updated';
+  INVOICE_GENERATED: 'invoice_generated';
+  BILLING_RETRY: 'billing_retry';
+  CREDIT_APPLIED: 'credit_applied';
+  // Account
+  ACCOUNT_ACTIVATED: 'account_activated';
+  ACCOUNT_DEACTIVATED: 'account_deactivated';
+  ACCOUNT_DELETED: 'account_deleted';
+  PASSWORD_CHANGED: 'password_changed';
+  PASSWORD_RESET: 'password_reset';
+  PROFILE_UPDATED: 'profile_updated';
+  // Feature
+  FEATURE_USED: 'feature_used';
+  FEATURE_LIMIT_REACHED: 'feature_limit_reached';
+  FEATURE_ADOPTED: 'feature_adopted';
+  // Team / B2B
+  TEAM_CREATED: 'team_created';
+  TEAM_MEMBER_JOINED: 'team_member_joined';
+  TEAM_MEMBER_REMOVED: 'team_member_removed';
+  ROLE_CHANGED: 'role_changed';
+  INVITE_SENT: 'invite_sent';
+  WORKSPACE_CREATED: 'workspace_created';
+  // Growth
+  MILESTONE_REACHED: 'milestone_reached';
+  EXPANSION_REVENUE: 'expansion_revenue';
+  FIRST_VALUE: 'first_value';
+  USAGE_QUOTA_REACHED: 'usage_quota_reached';
+  // Integrations
+  INTEGRATION_CONNECTED: 'integration_connected';
+  INTEGRATION_FAILED: 'integration_failed';
+  INTEGRATION_USED: 'integration_used';
+  // GDPR
+  DATA_SUBJECT_ACCESS_REQUEST: 'data_subject_access_request';
+  DATA_ERASURE_COMPLETED: 'data_erasure_completed';
+}>;
+
+/**
+ * Engagement event name constants for type-safe event tracking.
+ */
+export const EngagementEvents: Readonly<{
+  PAGE_VIEW: 'page_view';
+  SCROLL_DEPTH: 'scroll_depth';
+  CLICK: 'click';
+  FORM_START: 'form_start';
+  FORM_SUBMIT: 'form_submit';
+  SEARCH: 'search';
+  SHARE: 'share';
+  ERROR: 'error';
+  FILE_DOWNLOAD: 'file_download';
+  VIDEO_PLAY: 'video_play';
+  OUTBOUND_CLICK: 'outbound_click';
+  NOTIFICATION: 'notification';
+  CONTENT_ENGAGEMENT: 'content_engagement';
+  ONBOARDING_STEP: 'onboarding_step';
+  ONBOARDING_COMPLETED: 'onboarding_completed';
+  SESSION_START: 'session_start';
+  SESSION_END: 'session_end';
+  SCREEN_VIEW: 'screen_view';
+  TIME_ON_PAGE: 'time_on_page';
+  TIMING: 'timing';
+  AB_TEST_EXPOSURE: 'ab_test_exposure';
+  CAMPAIGN_ATTRIBUTION: 'campaign_attribution';
+  AD_CLICK: 'ad_click';
+  CONSENT_GRANTED: 'consent_granted';
+  CONSENT_WITHDRAWN: 'consent_withdrawn';
+  GOAL_CONVERSION: 'goal_conversion';
+  COPY_TEXT: 'copy_text';
+  ELEMENT_VISIBILITY: 'element_visibility';
+  HOVER: 'hover';
+  FEATURE_REQUEST: 'feature_request';
+  FEEDBACK: 'feedback';
+  PERFORMANCE_SCORE: 'performance_score';
+  WEB_VITALS: 'web_vitals';
+  CLIENT_ERROR: 'client_error';
+}>;
+
+/**
+ * All event names from all categories.
+ */
+export const AllEventNames: Readonly<
+  typeof EcommerceEvents &
+  typeof SaaSEvents &
+  typeof EngagementEvents
+>;
+
+/** Union type of all valid event names. */
+export type EventName = (typeof AllEventNames)[keyof typeof AllEventNames];
+
+/** Union type of e-commerce event names. */
+export type EcommerceEventName = (typeof EcommerceEvents)[keyof typeof EcommerceEvents];
+
+/** Union type of SaaS event names. */
+export type SaaSEventName = (typeof SaaSEvents)[keyof typeof SaaSEvents];
+
+/** Union type of engagement event names. */
+export type EngagementEventName = (typeof EngagementEvents)[keyof typeof EngagementEvents];
+
+/**
+ * Type guard: check if a string is a valid event name.
+ */
+export function isValidEventName(name: string): name is EventName;
+
+/**
+ * Get event names by category.
+ */
+export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engagement'): readonly string[];
+
+/**
+ * Get total count of all events across all categories.
+ */
+export function getTotalEventCount(): number;

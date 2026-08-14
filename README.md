@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-99.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-100.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,35 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v100.0.0
+
+**Event Name Constants** — Type-safe event name constants for PHP and JavaScript, providing IDE autocompletion, refactoring support, and compile-time validation:
+
+- **`SaaSEventConstants`** — 45+ SaaS lifecycle event name constants (`SIGN_UP`, `LOGIN`, `PLAN_UPGRADE`, `TRIAL_START`, `CANCELLATION`, etc.)
+- **`EcommerceEventConstants`** — 15 e-commerce event name constants (`VIEW_ITEM`, `ADD_TO_CART`, `PURCHASE`, `REFUND`, etc.)
+- **`EngagementEventConstants`** — 35+ engagement event name constants (`PAGE_VIEW`, `SCROLL_DEPTH`, `FORM_SUBMIT`, `SEARCH`, etc.)
+- **`analytics.constants.js`** — JavaScript exports of all event names (`EcommerceEvents`, `SaaSEvents`, `EngagementEvents`, `AllEventNames`)
+- **`isValidEventName()`** — JS type guard to validate event names at runtime
+- **`getEventNamesByCategory()`** — Get event names filtered by category
+- **TypeScript type definitions** — `EventName`, `EcommerceEventName`, `SaaSEventName`, `EngagementEventName` union types in `analytics.d.ts`
+
+```php
+use ZeroBoiler\Analytics\Events\SaaSEventConstants;
+use ZeroBoiler\Analytics\Facades\Analytics;
+
+// IDE autocomplete — no typos, refactoring support
+Analytics::track(SaaSEventConstants::SIGN_UP, ['method' => 'email']);
+Analytics::track(SaaSEventConstants::PLAN_UPGRADE, ['from' => 'starter', 'to' => 'pro']);
+```
+
+```javascript
+import { trackEvent, SaaSEvents, EcommerceEvents } from '../resources/js/analytics.constants';
+
+// TypeScript autocompletion — no typos
+await trackEvent(SaaSEvents.PLAN_UPGRADE, { from_plan: 'starter', to_plan: 'pro' });
+await trackEvent(EcommerceEvents.PURCHASE, { transaction_id: 'TXN-123', value: 99.99 });
+```
 
 ### What's New in v99.0.0
 
