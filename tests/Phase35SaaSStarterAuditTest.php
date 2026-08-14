@@ -545,7 +545,7 @@ describe('Phase35SaaSStarterAudit', function () {
         });
 
         it('Version is consistent across package files', function () {
-            $version = '106.0.0';
+            $version = '107.0.0';
 
             // AnalyticsEvent::VERSION
             expect(AnalyticsEvent::VERSION)->toBe($version);

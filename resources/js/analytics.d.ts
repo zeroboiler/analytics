@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 106.0.0
+ * @version 107.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2655,3 +2655,71 @@ export function clearDebugEventLog(): void;
  * @returns Counts by action type
  */
 export function getDebugEventLogStats(): DebugEventLogStats;
+
+// ─── Privacy Action Tracking (v107.0.0) ─────────────────────────
+
+/**
+ * Supported privacy action types for trackPrivacyAction().
+ */
+export type PrivacyActionType =
+    | 'consent_granted'
+    | 'consent_withdrawn'
+    | 'consent_changed'
+    | 'data_access_request'
+    | 'data_erasure_request'
+    | 'data_portability_request'
+    | 'opt_out'
+    | 'opt_in'
+    | 'cookie_preferences_saved'
+    | 'do_not_sell';
+
+/**
+ * Options for trackPrivacyAction().
+ */
+export interface PrivacyActionOptions {
+    purpose?: string;
+    method?: string;
+    grantedPurposes?: string[];
+    deniedPurposes?: string[];
+    extra?: Record<string, unknown>;
+}
+
+/**
+ * Options for trackConsentUpdate().
+ */
+export interface ConsentUpdateOptions {
+    newlyGranted?: string[];
+    newlyDenied?: string[];
+    allGranted?: string[];
+    allDenied?: string[];
+    source?: string;
+}
+
+/**
+ * Track a user-initiated privacy action event.
+ *
+ * @param action - Privacy action type
+ * @param options - Action context
+ *
+ * @example
+ * await trackPrivacyAction('consent_granted', {
+ *     method: 'banner',
+ *     grantedPurposes: ['analytics', 'functional'],
+ *     deniedPurposes: ['marketing'],
+ * });
+ */
+export function trackPrivacyAction(action: PrivacyActionType, options?: PrivacyActionOptions): Promise<void>;
+
+/**
+ * Track a batch consent update with before/after state.
+ *
+ * @param options - Consent change context
+ *
+ * @example
+ * await trackConsentUpdate({
+ *     newlyGranted: ['marketing'],
+ *     allGranted: ['necessary', 'analytics', 'functional', 'marketing'],
+ *     source: 'settings_page',
+ * });
+ */
+export function trackConsentUpdate(options?: ConsentUpdateOptions): Promise<void>;

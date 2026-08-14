@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-106.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-107.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,65 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v107.0.0
+
+**Phase 36 — Privacy Inventory Command & Enhanced Privacy Client API**:
+
+- **`zb:analytics:privacy-inventory`** — New artisan command that generates a comprehensive GDPR Article 30 data processing inventory covering:
+  - Event catalog privacy classification (PII, behavioral, financial, technical) per category
+  - Provider data sharing assessment for all 10 providers (GA4, GTM, Meta, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook) with jurisdiction and risk levels
+  - Consent state verification (Consent Mode v2, default state, granular purposes, logging, IP anonymization) with score
+  - Data retention policy assessment per category with recommended defaults
+  - Right-to-erasure capability verification (GDPR export endpoint, erasure service, data retention purge, identity tracker)
+  - Legal basis mapping per category (Article 6(1) GDPR)
+  - Cross-border data transfer assessment with safeguards identification
+  - High-risk event identification (events containing PII/sensitive patterns)
+  - Actionable privacy recommendations based on configuration gaps
+  - `--json` output mode for CI/CD integration
+  - `--detailed` mode includes per-event Article 30 RoPA processing records
+- **`trackPrivacyAction()`** — New JS client helper for tracking user-initiated privacy events:
+  - Supports 10 privacy action types: `consent_granted`, `consent_withdrawn`, `consent_changed`, `data_access_request`, `data_erasure_request`, `data_portability_request`, `opt_out`, `opt_in`, `cookie_preferences_saved`, `do_not_sell`
+  - Structured context: purpose, method, granted/denied purposes, extra metadata
+  - GDPR/CCPA audit trail integration
+- **`trackConsentUpdate()`** — New JS client helper for batch consent updates:
+  - Captures full before/after consent state (newly granted/denied, all granted/denied)
+  - Designed for consent preference centers
+- **TypeScript definitions** — Full type definitions for `PrivacyActionType`, `PrivacyActionOptions`, `ConsentUpdateOptions`
+- **Phase36PrivacyInventoryAuditTest** — 50+ new assertions verifying the privacy inventory command, JS privacy helpers, TypeScript definitions, and version consistency
+- **Version bump** to 107.0.0 across all 5 package files
+
+```bash
+# Generate privacy inventory
+php artisan zb:analytics:privacy-inventory
+
+# JSON output for CI/CD
+php artisan zb:analytics:privacy-inventory --json
+
+# Detailed per-event processing records
+php artisan zb:analytics:privacy-inventory --detailed
+```
+
+```javascript
+// Track consent grant from banner
+await trackPrivacyAction('consent_granted', {
+    method: 'banner',
+    grantedPurposes: ['analytics', 'functional'],
+    deniedPurposes: ['marketing'],
+});
+
+// Track GDPR data access request
+await trackPrivacyAction('data_access_request', {
+    method: 'settings_page',
+});
+
+// Track batch consent update
+await trackConsentUpdate({
+    newlyGranted: ['marketing'],
+    allGranted: ['necessary', 'analytics', 'functional', 'marketing'],
+    source: 'settings_page',
+});
+```
 
 ### What's New in v106.0.0
 

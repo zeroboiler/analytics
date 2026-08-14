@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 106.0.0
+ * @version 107.0.0
  */
 
 let trackingId = null;
@@ -7719,4 +7719,88 @@ export async function trackFirstValue(valueEvent, extra = {}) {
  */
 export async function trackGrowthMilestone(milestone, extra = {}) {
     return trackEvent('growth_milestone', { milestone, ...extra }, { immediate: true });
+}
+
+// ─── Privacy Action Tracking (v107.0.0) ──────────────────────────────
+
+/**
+ * Track a user-initiated privacy action event.
+ *
+ * Provides a unified API for tracking consent changes, data access requests,
+ * erasure requests, and other privacy-related user actions. These events
+ * are tagged with the 'privacy' category and carry structured context
+ * for GDPR/CCPA compliance audit trails.
+ *
+ * @param {'consent_granted'|'consent_withdrawn'|'consent_changed'|'data_access_request'|'data_erasure_request'|'data_portability_request'|'opt_out'|'opt_in'|'cookie_preferences_saved'|'do_not_sell'} action - Privacy action type
+ * @param {object} [options] - Action context
+ * @param {string} [options.purpose] - Affected consent purpose (analytics, marketing, functional)
+ * @param {string} [options.method] - How the action was initiated (banner, settings_page, api)
+ * @param {string[]} [options.grantedPurposes] - Purposes that are now granted
+ * @param {string[]} [options.deniedPurposes] - Purposes that are now denied
+ * @param {object} [options.extra] - Additional context parameters
+ * @returns {Promise<void>}
+ *
+ * @example
+ * // Track user granting consent
+ * await trackPrivacyAction('consent_granted', {
+ *     method: 'banner',
+ *     grantedPurposes: ['analytics', 'functional'],
+ *     deniedPurposes: ['marketing'],
+ * });
+ *
+ * @example
+ * // Track GDPR data access request
+ * await trackPrivacyAction('data_access_request', {
+ *     method: 'settings_page',
+ * });
+ *
+ * @example
+ * // Track CCPA Do Not Sell
+ * await trackPrivacyAction('do_not_sell', {
+ *     method: 'footer_link',
+ * });
+ */
+export async function trackPrivacyAction(action, options = {}) {
+    const params = { ...options.extra };
+    if (options.purpose) params.purpose = options.purpose;
+    if (options.method) params.method = options.method;
+    if (options.grantedPurposes) params.granted_purposes = options.grantedPurposes;
+    if (options.deniedPurposes) params.denied_purposes = options.deniedPurposes;
+    params.privacy_action = action;
+
+    return trackEvent(action, params, { immediate: true });
+}
+
+/**
+ * Track a batch consent update (multiple purposes changed at once).
+ *
+ * Sends a single consent_changed event with the full before/after state.
+ * Useful for consent preference centers where users toggle multiple purposes.
+ *
+ * @param {object} [options] - Consent change context
+ * @param {string[]} [options.newlyGranted] - Purposes newly granted
+ * @param {string[]} [options.newlyDenied] - Purposes newly denied
+ * @param {string[]} [options.allGranted] - All currently granted purposes
+ * @param {string[]} [options.allDenied] - All currently denied purposes
+ * @param {string} [options.source] - Where the change originated (banner, settings, api)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackConsentUpdate({
+ *     newlyGranted: ['marketing'],
+ *     newlyDenied: [],
+ *     allGranted: ['necessary', 'analytics', 'functional', 'marketing'],
+ *     allDenied: [],
+ *     source: 'settings_page',
+ * });
+ */
+export async function trackConsentUpdate(options = {}) {
+    const params = {};
+    if (options.newlyGranted) params.newly_granted = options.newlyGranted;
+    if (options.newlyDenied) params.newly_denied = options.newlyDenied;
+    if (options.allGranted) params.all_granted = options.allGranted;
+    if (options.allDenied) params.all_denied = options.allDenied;
+    if (options.source) params.source = options.source;
+
+    return trackEvent('consent_changed', params, { immediate: true });
 }

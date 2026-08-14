@@ -28,6 +28,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCommandCenterCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsExportCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsPrivacyInventoryCommand;
 use ZeroBoiler\Analytics\Console\Commands\RevenueReportCommand;
 use ZeroBoiler\Analytics\Http\Middleware\InjectAnalyticsScripts;
 use ZeroBoiler\Analytics\Http\Middleware\AutoPageViewMiddleware;
@@ -383,7 +384,7 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 106.0.0
+ * @version 107.0.0
  *
  * @since 1.0.0
  */
@@ -3600,6 +3601,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsGovernanceCommand::class,
                 AnalyticsCommandCenterCommand::class,
                 AnalyticsReadinessGateCommand::class,
+                AnalyticsPrivacyInventoryCommand::class,
             ]);
         }
 
