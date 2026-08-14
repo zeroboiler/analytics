@@ -3495,4 +3495,131 @@ final class EventCatalog
             'density' => $possibleEdges > 0 ? round($directEdges / $possibleEdges, 4) : 0.0,
         ];
     }
+
+    /**
+     * Provider coverage summary across the entire event catalog.
+     *
+     * Returns a comprehensive analysis of which providers have mappings for
+     * how many events, event coverage percentages, and gap lists for each
+     * provider. Useful for audit readiness and provider onboarding decisions.
+     *
+     * @return array{total_events: int, providers: array<string, array{mapped: int, coverage: float, gaps: list<string>, top_categories: array<string, int>}>, best_covered: list<string>, least_covered: list<string>}
+     *
+     * @since 115.0.0
+     */
+    public static function providerCoverageSummary(): array
+    {
+        $catalog = self::all();
+        $totalEvents = count($catalog);
+
+        /** @var array<string, list<string>> $providerMap */
+        $providerMap = [
+            'ga4' => [],
+            'gtm' => [],
+            'meta' => [],
+            'posthog' => [],
+            'plausible' => [],
+            'mixpanel' => [],
+            'amplitude' => [],
+            'tiktok' => [],
+            'linkedin' => [],
+            'webhook' => [],
+        ];
+
+        foreach ($catalog as $name => $entry) {
+            foreach ($providerMap as $provider => &$mapped) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value !== null && $value !== '') {
+                    $mapped[] = $name;
+                }
+            }
+        }
+
+        // Build per-provider summaries
+        $summaries = [];
+        $coverages = [];
+
+        foreach ($providerMap as $provider => $mapped) {
+            $mappedCount = count($mapped);
+            $coverage = $totalEvents > 0 ? round(($mappedCount / $totalEvents) * 100, 1) : 0.0;
+
+            // Count by category
+            $categoryCounts = [];
+            foreach ($mapped as $eventName) {
+                $cat = $catalog[$eventName]['category'] ?? 'unknown';
+                $categoryCounts[$cat] = ($categoryCounts[$cat] ?? 0) + 1;
+            }
+
+            // Sort categories by count descending, take top 3
+            arsort($categoryCounts);
+            $topCategories = array_slice($categoryCounts, 0, 3);
+
+            $summaries[$provider] = [
+                'mapped' => $mappedCount,
+                'coverage' => $coverage,
+                'gaps' => array_values(array_diff(array_keys($catalog), $mapped)),
+                'top_categories' => $topCategories,
+            ];
+
+            $coverages[$provider] = $coverage;
+        }
+
+        // Sort providers by coverage descending
+        arsort($coverages);
+        $bestCovered = array_keys(array_filter($coverages, fn (float $c): bool => $c >= 80.0));
+        $leastCovered = array_keys(array_filter($coverages, fn (float $c): bool => $c < 30.0));
+
+        return [
+            'total_events' => $totalEvents,
+            'providers' => $summaries,
+            'best_covered' => $bestCovered,
+            'least_covered' => $leastCovered,
+        ];
+    }
+
+    /**
+     * Get events that are mapped to ALL specified providers.
+     *
+     * Unlike filterByProviders() which returns just names, this returns
+     * full event details with provider-specific mapping values.
+     *
+     * @param  list<string>  $providers  Provider names (e.g. ['ga4', 'meta', 'posthog'])
+     * @return list<array{name: string, category: string, entries: array<string, string>}>
+     *
+     * @since 115.0.0
+     */
+    public static function providerIntersectionEvents(array $providers): array
+    {
+        $catalog = self::all();
+        $result = [];
+
+        foreach ($catalog as $name => $entry) {
+            $allPresent = true;
+
+            foreach ($providers as $provider) {
+                $value = $entry[$provider] ?? null;
+
+                if ($value === null || $value === '') {
+                    $allPresent = false;
+                    break;
+                }
+            }
+
+            if ($allPresent) {
+                $providerEntries = [];
+                foreach ($providers as $provider) {
+                    $providerEntries[$provider] = $entry[$provider] ?? '';
+                }
+
+                $result[] = [
+                    'name' => $name,
+                    'category' => $entry['category'] ?? 'unknown',
+                    'entries' => $providerEntries,
+                ];
+            }
+        }
+
+        return $result;
+    }
 }
