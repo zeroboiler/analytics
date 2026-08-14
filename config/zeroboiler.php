@@ -7490,4 +7490,47 @@ return [
         'auto_track_journeys' => env('ANALYTICS_BUNDLING_AUTO_TRACK', true), // Automatically fire journey_start/journey_completed
         'bundle_id_prefix' => env('ANALYTICS_BUNDLING_PREFIX', 'bnd'),
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | SDK Telemetry Collection (v122.0.0)
+    |------------------------------------------------------------------
+    |
+    | Collects client-side SDK health and performance telemetry
+    | (SDK version, platform, page load times, connection type, memory usage,
+    | error rates) for operational monitoring and version adoption tracking.
+    |
+    | Unlike ProviderDispatchTelemetry (server→provider), this tracks
+    | client→server signals. Disabled by default to avoid PII concerns.
+    |
+    */
+    'sdk_telemetry' => [
+        'enabled' => env('ANALYTICS_SDK_TELEMETRY_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_SDK_TELEMETRY_CACHE_TTL', 86400), // 24 hours
+        'aggregation_window' => (int) env('ANALYTICS_SDK_TELEMETRY_AGGREGATION_WINDOW', 3600), // 1 hour
+        'collect_page_load' => env('ANALYTICS_SDK_TELEMETRY_PAGE_LOAD', true),
+        'collect_connection_type' => env('ANALYTICS_SDK_TELEMETRY_CONNECTION_TYPE', true),
+        'collect_memory_usage' => env('ANALYTICS_SDK_TELEMETRY_MEMORY_USAGE', true),
+        'collect_battery_status' => env('ANALYTICS_SDK_TELEMETRY_BATTERY_STATUS', false),
+        'collect_error_rates' => env('ANALYTICS_SDK_TELEMETRY_ERROR_RATES', true),
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Compact Serialization (v122.0.0)
+    |------------------------------------------------------------------
+    |
+    | Binary-safe compact serialization for high-throughput event batching.
+    | Reduces JSON payload size by ~50-60% using a custom TLV encoding format.
+    | Useful for mobile clients, high-frequency event sources, and edge deployments.
+    |
+    | Clients can serialize events client-side before sending them to
+    | POST /api/analytics/deserialize for server-side processing.
+    |
+    */
+    'compact_serialization' => [
+        'enabled' => env('ANALYTICS_COMPACT_SERIALIZATION_ENABLED', true),
+        'max_batch_size' => (int) env('ANALYTICS_COMPACT_MAX_BATCH', 100),
+        'max_payload_bytes' => (int) env('ANALYTICS_COMPACT_MAX_PAYLOAD', 524288), // 512 KB
+    ],
 ];

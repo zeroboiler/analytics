@@ -388,6 +388,8 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
 use ZeroBoiler\Analytics\Services\AnalyticsHeartbeatMonitor;
 use ZeroBoiler\Analytics\Services\SaaSFeatureFlagObserver;
 use ZeroBoiler\Analytics\Services\SaaSBundleEventService;
+use ZeroBoiler\Analytics\Services\EventCompactSerializer;
+use ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -395,7 +397,7 @@ use ZeroBoiler\Analytics\Services\SaaSBundleEventService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 120.0.0
+ * @version 122.0.0
  *
  * @since 1.0.0
  */
@@ -3610,6 +3612,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new SaaSBundleEventService($manager);
+        });
+
+        // Event Compact Serializer (v122.0.0)
+        $this->app->singleton(EventCompactSerializer::class, function (Application $app): EventCompactSerializer {
+            return new EventCompactSerializer;
+        });
+
+        // SDK Telemetry Collector (v122.0.0)
+        $this->app->singleton(AnalyticsSdkTelemetryCollector::class, function (Application $app): AnalyticsSdkTelemetryCollector {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsSdkTelemetryCollector($cache, $config);
         });
     }
 

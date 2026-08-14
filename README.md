@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-121.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-122.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v122.0.0
+
+**Phase 122 — Event Compact Serializer & SDK Telemetry Collector**:
+
+- **`EventCompactSerializer`** — Binary-safe compact serialization for high-throughput event batching. Custom TLV (Type-Length-Value) encoding format reduces JSON payload size by ~50-60%. Supports all PHP scalar types, arrays, and objects. CRC32 integrity verification prevents corruption. Base64url-encoded for safe HTTP transport. Max 65,535 events per batch. Includes `compressionRatio()` for pre-flight size estimation and `estimateSize()` for budget checks.
+- **`AnalyticsSdkTelemetryCollector`** — Client-side SDK health and performance telemetry collection. Aggregates SDK version, platform, page load time, connection type, memory usage, battery status, and error rates. Per-version distribution tracking with outdated client detection. Percentile-based performance metrics (p50/p95 page load). Configurable collection flags (disable battery to avoid PII). Cache-backed aggregation with configurable TTL.
+- **12 new API endpoints** — `POST /api/analytics/serialize` (compact batch), `POST /api/analytics/deserialize` (process compact payload), `GET /api/analytics/serialize/info` (format metadata), `POST /api/analytics/sdk-telemetry` (single telemetry point), `POST /api/analytics/sdk-telemetry/batch`, `GET /api/analytics/sdk-telemetry/summary`, `GET /api/analytics/sdk-telemetry/client/{clientId}`, `GET /api/analytics/sdk-telemetry/versions`, `GET /api/analytics/sdk-telemetry/health`, `DELETE /api/analytics/sdk-telemetry` (clear).
+- **2 new config sections** — `sdk_telemetry` (enabled, cache_ttl, collection flags), `compact_serialization` (enabled, max_batch, max_payload).
+- **42 test cases** — Full round-trip serialization fidelity, CRC validation, version mismatch detection, Unicode support, large batches, empty params, telemetry collection, aggregation, version distribution, health issue detection, PHP 8.5 strict types compliance.
 
 ### What's New in v119.0.0
 

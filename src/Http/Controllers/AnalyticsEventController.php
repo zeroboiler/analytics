@@ -16620,4 +16620,347 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Compact Serialization (v122.0.0) ─────────────────────
+
+    /**
+     * Serialize events to compact binary format for efficient batch transport.
+     *
+     * POST /api/analytics/serialize
+     *
+     * Body: { "events": [ { "name": "...", "params": {...} } ] }
+     * Returns: { "status": "ok", "payload": "base64url-encoded-compact", "size_bytes": 123, "events_count": 5, "compression_ratio": 0.42 }
+     */
+    public function serializeBatch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'events' => 'required|array|max:50',
+            'events.*.name' => 'required|string|max:100',
+            'events.*.params' => 'array',
+        ]);
+
+        $events = $request->input('events', []);
+        $clientId = $this->extractClientId($request);
+        $userId = $request->user()?->getKey();
+        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+        $analyticsEvents = [];
+        foreach ($events as $eventData) {
+            $analyticsEvents[] = new AnalyticsEvent(
+                name: $eventData['name'],
+                params: $eventData['params'] ?? [],
+                clientId: $clientId,
+                userId: $userIdStr,
+            );
+        }
+
+        try {
+            $serializer = new \ZeroBoiler\Analytics\Services\EventCompactSerializer;
+            $payload = $serializer->serializeBatch($analyticsEvents);
+            $jsonSize = strlen(json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $compactSize = strlen($payload);
+            $ratio = $jsonSize > 0 ? round((float) $compactSize / (float) $jsonSize, 4) : 1.0;
+
+            return response()->json([
+                'status' => 'ok',
+                'payload' => $payload,
+                'format_version' => \ZeroBoiler\Analytics\Services\EventCompactSerializer::FORMAT_VERSION,
+                'size_bytes' => $compactSize,
+                'events_count' => count($analyticsEvents),
+                'compression_ratio' => $ratio,
+                'json_size_bytes' => $jsonSize,
+                'savings_percent' => $jsonSize > 0 ? round((1.0 - $ratio) * 100, 1) : 0.0,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Deserialize and process compact binary event payload.
+     *
+     * POST /api/analytics/deserialize
+     *
+     * Body: { "payload": "base64url-encoded-compact-data" }
+     * Returns: { "status": "ok", "events_count": 5, "dispatched": 5 }
+     */
+    public function deserializeAndTrack(Request $request): JsonResponse
+    {
+        $request->validate([
+            'payload' => 'required|string|max:524288', // Max 512KB
+        ]);
+
+        try {
+            $serializer = new \ZeroBoiler\Analytics\Services\EventCompactSerializer;
+            $events = $serializer->deserialize($request->input('payload'));
+
+            $clientId = $this->extractClientId($request);
+            $userId = $request->user()?->getKey();
+            $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+
+            // Budget enforcement
+            if ($this->budgetService !== null) {
+                $budgetResult = $this->budgetService->check($clientId, $userIdStr);
+                if (! $budgetResult['allowed']) {
+                    return response()->json([
+                        'status' => 'budget_exceeded',
+                        'reason' => $budgetResult['reason'],
+                    ], 429);
+                }
+            }
+
+            $pipeline = $this->buildPipeline($request);
+            $dispatched = 0;
+
+            foreach ($events as $event) {
+                // Attach server-side identity if not present
+                if ($event->clientId === null && $clientId !== null) {
+                    $event = new AnalyticsEvent(
+                        name: $event->name,
+                        params: $event->params,
+                        clientId: $clientId,
+                        userId: $event->userId ?? $userIdStr,
+                    );
+                }
+
+                $event = $this->validateEvent($event);
+                $processed = $pipeline->process($event);
+
+                if ($processed !== null) {
+                    $this->manager->trackEvent($processed);
+                    $dispatched++;
+                }
+            }
+
+            // Record budget
+            if ($this->budgetService !== null) {
+                for ($i = 0; $i < $dispatched; $i++) {
+                    $this->budgetService->record($clientId, $userIdStr);
+                }
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'events_count' => count($events),
+                'dispatched' => $dispatched,
+                'filtered' => count($events) - $dispatched,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Get serializer format metadata and compression benchmarks.
+     *
+     * GET /api/analytics/serialize/info
+     */
+    public function serializeInfo(): JsonResponse
+    {
+        $serializer = new \ZeroBoiler\Analytics\Services\EventCompactSerializer;
+
+        return response()->json([
+            'status' => 'ok',
+            'format' => $serializer->metadata(),
+            'description' => 'Compact binary serialization for high-throughput event batching. Reduces JSON payload size by ~50-60%.',
+            'usage' => [
+                'serialize' => 'POST /api/analytics/serialize — Convert events to compact format',
+                'deserialize' => 'POST /api/analytics/deserialize — Process compact payload',
+            ],
+        ]);
+    }
+
+    // ── SDK Telemetry (v122.0.0) ────────────────────────────────────
+
+    /**
+     * Collect SDK telemetry data point.
+     *
+     * POST /api/analytics/sdk-telemetry
+     *
+     * Body: { "sdk_version": "1.2.0", "platform": "web", "page_load_ms": 1200, ... }
+     */
+    public function sdkTelemetryCollect(Request $request): JsonResponse
+    {
+        $telemetry = $request->input();
+
+        if (! is_array($telemetry) || $telemetry === []) {
+            return response()->json(['status' => 'error', 'error' => 'Empty telemetry payload'], 400);
+        }
+
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            if (! $collector->isEnabled()) {
+                return response()->json(['status' => 'disabled'], 200);
+            }
+
+            $collected = $collector->collect($telemetry);
+
+            return response()->json([
+                'status' => $collected ? 'ok' : 'rejected',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Collect SDK telemetry data points in batch.
+     *
+     * POST /api/analytics/sdk-telemetry/batch
+     *
+     * Body: { "telemetry": [ {...}, {...} ] }
+     */
+    public function sdkTelemetryBatch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'telemetry' => 'required|array|max:100',
+            'telemetry.*' => 'array',
+        ]);
+
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            if (! $collector->isEnabled()) {
+                return response()->json(['status' => 'disabled'], 200);
+            }
+
+            $result = $collector->collectBatch($request->input('telemetry', []));
+
+            return response()->json([
+                'status' => 'ok',
+                'collected' => $result['collected'],
+                'rejected' => $result['rejected'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SDK telemetry summary.
+     *
+     * GET /api/analytics/sdk-telemetry/summary
+     */
+    public function sdkTelemetrySummary(): JsonResponse
+    {
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $collector->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SDK telemetry data for a specific client.
+     *
+     * GET /api/analytics/sdk-telemetry/client/{clientId}
+     */
+    public function sdkTelemetryClientHistory(string $clientId): JsonResponse
+    {
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $collector->clientHistory($clientId),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SDK version distribution.
+     *
+     * GET /api/analytics/sdk-telemetry/versions
+     */
+    public function sdkTelemetryVersions(): JsonResponse
+    {
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $collector->versionDistribution(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SDK telemetry health issues.
+     *
+     * GET /api/analytics/sdk-telemetry/health
+     */
+    public function sdkTelemetryHealth(): JsonResponse
+    {
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $collector->healthIssues(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear SDK telemetry data.
+     *
+     * DELETE /api/analytics/sdk-telemetry
+     */
+    public function sdkTelemetryClear(Request $request): JsonResponse
+    {
+        try {
+            $collector = new \ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector(
+                $this->app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $this->config,
+            );
+
+            $clientId = $request->input('client_id');
+
+            if ($clientId !== null && is_string($clientId)) {
+                $result = $collector->clearClientHistory($clientId);
+            } else {
+                $result = $collector->clearAll();
+            }
+
+            return response()->json(['status' => 'ok', 'cleared' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

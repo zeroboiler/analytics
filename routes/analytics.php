@@ -949,4 +949,18 @@ Route::prefix('analytics')->group(function () {
     Route::get('readiness/assessment', [AnalyticsEventController::class, 'saasReadinessAssessment']);
     Route::get('readiness/summary', [AnalyticsEventController::class, 'saasReadinessSummary']);
     Route::get('readiness/recommendations', [AnalyticsEventController::class, 'saasReadinessRecommendations']);
+
+    // Event Compact Serialization (v122.0.0)
+    Route::post('serialize', [AnalyticsEventController::class, 'serializeBatch']);
+    Route::post('deserialize', [AnalyticsEventController::class, 'deserializeAndTrack']);
+    Route::get('serialize/info', [AnalyticsEventController::class, 'serializeInfo']);
+
+    // SDK Telemetry (v122.0.0)
+    Route::post('sdk-telemetry', [AnalyticsEventController::class, 'sdkTelemetryCollect']);
+    Route::post('sdk-telemetry/batch', [AnalyticsEventController::class, 'sdkTelemetryBatch']);
+    Route::get('sdk-telemetry/summary', [AnalyticsEventController::class, 'sdkTelemetrySummary']);
+    Route::get('sdk-telemetry/client/{clientId}', [AnalyticsEventController::class, 'sdkTelemetryClientHistory']);
+    Route::get('sdk-telemetry/versions', [AnalyticsEventController::class, 'sdkTelemetryVersions']);
+    Route::get('sdk-telemetry/health', [AnalyticsEventController::class, 'sdkTelemetryHealth']);
+    Route::delete('sdk-telemetry', [AnalyticsEventController::class, 'sdkTelemetryClear']);
 });
