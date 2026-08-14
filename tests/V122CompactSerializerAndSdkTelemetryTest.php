@@ -391,7 +391,7 @@ final class V122CompactSerializerAndSdkTelemetryTest extends TestCase
                 return $this->increment($key, -$amount);
             }
 
-            public function tags(array|mixed $names): \Illuminate\Cache\TaggedCache
+            public function tags(mixed $names): \Illuminate\Cache\TaggedCache
             {
                 throw new \LogicException('Not implemented in mock');
             }
@@ -427,7 +427,7 @@ final class V122CompactSerializerAndSdkTelemetryTest extends TestCase
              * @param  array<string, mixed>  $defaults
              * @param  array<string, mixed>  $overrides
              */
-            public function __construct(array $defaults, array $overrides): void
+            public function __construct(array $defaults, array $overrides)
             {
                 $this->config = array_replace_recursive($defaults, $overrides);
             }
