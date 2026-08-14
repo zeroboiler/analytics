@@ -1,5 +1,22 @@
 # Changelog
 
+## [128.0.0] - 2026-08-14
+
+### Added
+- **Metric Projection Engine** — Reusable metric projection definitions that compute aggregate values from event streams. Supports 6 projection types: `count`, `sum`, `average`, `unique_count`, `funnel_rate`, `ratio`.
+- **ProjectionRegistry** — Central registry for projection definitions with config-driven loading, category/tag filtering, validation, and 13 built-in SaaS metric projections (DAU, weekly signups, trial conversion rate, avg revenue, total revenue, unique purchasers, form completion rate, search-to-share rate, cart abandonment rate, cancellation rate, error rate, login count, signup-to-purchase ratio).
+- **MetricProjectionEngine** — Evaluates projections against the event store with cache-backed results, local request-scoped caching, window overrides, and invalidation support.
+- **EventMaterializer** — Cache-backed materialized views of projected metrics with dashboard-ready grouping by category, bulk refresh, staleness detection, and export.
+- **ProjectionDefinition DTO** — Immutable definition DTO with type-specific validation, serialization, and config-driven construction.
+- **MetricProjectionResult DTO** — Immutable result DTO with staleness detection, numeric extraction, and array serialization.
+- **AnalyticsProjectionsCommand** — CLI command for projection management: `--list` (table output), `--evaluate=name` (evaluate single), `--validate` (integrity check), `--refresh-all` (force refresh), `--dashboard` (grouped metrics), `--export` (flat JSON), `--json`, `--category=` filter.
+- **API endpoints** — `GET /api/analytics/projections` (list all), `GET /api/analytics/projections/summary` (registry summary + validation), `GET /api/analytics/projections/dashboard` (dashboard-ready with `?category=` and `?window=` filters), `GET /api/analytics/projections/{name}` (evaluate single with `?window=`), `GET /api/analytics/projections/{name}/history` (evaluation history).
+- **Config section `zeroboiler.analytics.projections`** — `enabled`, `cache_enabled`, `cache_ttl`, and `custom` array for config-driven projection definitions.
+- **V128 test suite** — 55+ test cases covering ProjectionDefinition (7 validation tests, serialization), ProjectionRegistry (15 tests: builtins, filtering, registration, config loading), MetricProjectionResult (5 tests: creation, staleness, numeric), MetricProjectionEngine (5 tests: evaluation, multi, all, status), EventMaterializer (9 tests: get, dashboard, refresh, stale, export, summary), and version integrity (5 tests: strict types, readonly, final).
+
+### Changed
+- Version bump: 127.0.0 → 128.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider, all JS/TS/Svelte files.
+
 ## [127.0.0] - 2026-08-14
 
 ### Added

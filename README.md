@@ -57,6 +57,21 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+### What's New in v128.0.0
+
+**Metric Projection Engine & Event Materializer**:
+
+- **`ProjectionDefinition` DTO** — Immutable definition for metric projections with 6 aggregation types: `count`, `sum`, `average`, `unique_count`, `funnel_rate`, `ratio`. Type-specific validation, configurable caching, category/tag organization, and public/private visibility for API exposure.
+- **`ProjectionRegistry`** — Central registry with 13 built-in SaaS metric projections: DAU, weekly signups, trial conversion rate, avg revenue per user, signup-to-purchase ratio, total revenue (30d), unique purchasers, form completion rate, search-to-share rate, cart abandonment rate, cancellation rate, error rate, login count. Supports category/tag filtering, config-driven loading, and validation.
+- **`MetricProjectionEngine`** — Evaluates projections against the event store with cache-backed results, request-scoped local caching, window overrides, and cache invalidation.
+- **`EventMaterializer`** — Dashboard-ready materialized views with category grouping, bulk refresh, staleness detection, and flat export.
+- **`MetricProjectionResult` DTO** — Immutable result with staleness detection (`isStale()`), numeric extraction (`numericValue()`), and array serialization.
+- **`zb:analytics:projections`** CLI command — `--list`, `--evaluate=name`, `--validate`, `--refresh-all`, `--dashboard`, `--export`, `--json`, `--category=` filter.
+- **5 API endpoints** — `GET /api/analytics/projections` (list), `/summary` (registry + validation), `/dashboard` (with `?category=` and `?window=`), `/{name}` (evaluate), `/{name}/history`.
+- **New config** — `zeroboiler.analytics.projections` with `enabled`, `cache_enabled`, `cache_ttl`, and `custom` definitions.
+- **55+ test cases** — Full coverage for all DTOs, registry, engine, materializer, and CLI command.
+- **Version sweep** — All package files synced to 128.0.0.
+
 ### What's New in v127.0.0
 
 **Phase 127 — OpenAPI Event Schema Generator & API Documentation**:

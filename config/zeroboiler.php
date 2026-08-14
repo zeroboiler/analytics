@@ -7607,4 +7607,47 @@ return [
             'url' => 'https://opensource.org/licenses/MIT',
         ],
     ],
+
+    // ────────────────────────────────────────────────────────────────────
+    // Metric Projections (v128.0.0)
+    // ────────────────────────────────────────────────────────────────────
+    //
+    // Define reusable metric projections that compute aggregate values
+    // from event streams. Projections are evaluated by the MetricProjectionEngine
+    // and materialized into cache-backed views by the EventMaterializer.
+    //
+    // Built-in projections:
+    //   dau, weekly_signups, trial_conversion_rate, avg_revenue_per_user,
+    //   signup_to_purchase_ratio, total_revenue_30d, unique_purchasers_30d,
+    //   form_completion_rate, search_to_share_rate, cart_abandonment_rate,
+    //   cancellation_rate_30d, error_rate_24h, login_count_7d
+    //
+    // CLI:
+    //   php artisan zb:analytics:projections --list
+    //   php artisan zb:analytics:projections --evaluate=dau
+    //   php artisan zb:analytics:projections --dashboard
+    //
+    // API:
+    //   GET /api/analytics/projections
+    //   GET /api/analytics/projections/{name}
+    //   GET /api/analytics/projections/dashboard
+    //
+    'projections' => [
+        'enabled' => env('ANALYTICS_PROJECTIONS_ENABLED', true),
+        'cache_enabled' => env('ANALYTICS_PROJECTIONS_CACHE_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_PROJECTIONS_CACHE_TTL', 0), // 0 = use per-projection TTL
+        // Custom projections (loaded from config)
+        'custom' => [
+            // 'monthly_signups' => [
+            //     'type' => 'count',
+            //     'event' => 'sign_up',
+            //     'window' => '30d',
+            //     'category' => 'growth',
+            //     'label' => 'Monthly Sign-ups',
+            //     'cache_ttl' => 3600,
+            //     'tags' => ['growth'],
+            //     'public' => true,
+            // ],
+        ],
+    ],
 ];

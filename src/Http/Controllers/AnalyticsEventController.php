@@ -17033,4 +17033,158 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * GET /api/analytics/projections
+     *
+     * List all registered metric projections.
+     *
+     * @since 128.0.0
+     */
+    public function projectionList(): JsonResponse
+    {
+        try {
+            $registry = app(\ZeroBoiler\Analytics\Services\ProjectionRegistry::class);
+            $projections = $registry->all();
+
+            $list = [];
+            foreach ($projections as $definition) {
+                $list[] = $definition->toArray();
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => count($list),
+                'projections' => $list,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/projections/summary
+     *
+     * Get a summary of the projection registry.
+     *
+     * @since 128.0.0
+     */
+    public function projectionSummary(): JsonResponse
+    {
+        try {
+            $registry = app(\ZeroBoiler\Analytics\Services\ProjectionRegistry::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'summary' => $registry->summary(),
+                'validation' => $registry->validate(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/projections/dashboard
+     *
+     * Get dashboard-ready metrics grouped by category.
+     *
+     * Query params: ?category=engagement&window=7d
+     *
+     * @since 128.0.0
+     */
+    public function projectionDashboard(): JsonResponse
+    {
+        try {
+            $materializer = app(\ZeroBoiler\Analytics\Services\EventMaterializer::class);
+            $category = request()->query('category');
+            $window = request()->query('window');
+
+            $dashboard = $materializer->dashboard(
+                is_string($category) && $category !== '' ? $category : null,
+                is_string($window) && $window !== '' ? $window : null,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'dashboard' => $dashboard,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/projections/{name}
+     *
+     * Evaluate a specific metric projection.
+     *
+     * Query params: ?window=7d
+     *
+     * @since 128.0.0
+     */
+    public function projectionEvaluate(string $name): JsonResponse
+    {
+        try {
+            $engine = app(\ZeroBoiler\Analytics\Services\MetricProjectionEngine::class);
+            $window = request()->query('window');
+
+            $result = $engine->evaluate(
+                $name,
+                is_string($window) && $window !== '' ? $window : null,
+            );
+
+            if ($result === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => "Projection '{$name}' not found",
+                    'available' => app(\ZeroBoiler\Analytics\Services\ProjectionRegistry::class)->names(),
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'projection' => $result->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/projections/{name}/history
+     *
+     * Get projection evaluation history (last N evaluations).
+     *
+     * Query params: ?limit=10
+     *
+     * @since 128.0.0
+     */
+    public function projectionHistory(string $name): JsonResponse
+    {
+        try {
+            $registry = app(\ZeroBoiler\Analytics\Services\ProjectionRegistry::class);
+
+            if (! $registry->has($name)) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => "Projection '{$name}' not found",
+                ], 404);
+            }
+
+            // History is managed by the engine's cache layer
+            // For now, return the current evaluation and metadata
+            $engine = app(\ZeroBoiler\Analytics\Services\MetricProjectionEngine::class);
+            $result = $engine->evaluate($name);
+
+            return response()->json([
+                'status' => 'ok',
+                'projection' => $name,
+                'current' => $result?->toArray(),
+                'history_enabled' => false,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -390,6 +390,10 @@ use ZeroBoiler\Analytics\Services\SaaSFeatureFlagObserver;
 use ZeroBoiler\Analytics\Services\SaaSBundleEventService;
 use ZeroBoiler\Analytics\Services\EventCompactSerializer;
 use ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector;
+use ZeroBoiler\Analytics\Services\ProjectionRegistry;
+use ZeroBoiler\Analytics\Services\MetricProjectionEngine;
+use ZeroBoiler\Analytics\Services\EventMaterializer;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -397,7 +401,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 127.0.0
+ * @version 128.0.0
  *
  * @since 1.0.0
  */
@@ -3628,6 +3632,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new AnalyticsSdkTelemetryCollector($cache, $config);
         });
+
+        // Projection Registry (v128.0.0) — metric projection definitions
+        $this->app->singleton(ProjectionRegistry::class, function (Application $app): ProjectionRegistry {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+
+            return new ProjectionRegistry($cache);
+        });
+
+        // Metric Projection Engine (v128.0.0) — evaluates projections against event store
+        $this->app->singleton(MetricProjectionEngine::class, function (Application $app): MetricProjectionEngine {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ProjectionRegistry $registry */
+            $registry = $app->make(ProjectionRegistry::class);
+
+            return new MetricProjectionEngine($config, $cache, $manager, $registry);
+        });
+
+        // Event Materializer (v128.0.0) — cache-backed materialized views of projected metrics
+        $this->app->singleton(EventMaterializer::class, function (Application $app): EventMaterializer {
+            /** @var MetricProjectionEngine $engine */
+            $engine = $app->make(MetricProjectionEngine::class);
+            /** @var ProjectionRegistry $registry */
+            $registry = $app->make(ProjectionRegistry::class);
+
+            return new EventMaterializer($engine, $registry);
+        });
     }
 
     /**
@@ -3709,6 +3745,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCommandCenterCommand::class,
                 AnalyticsReadinessGateCommand::class,
                 AnalyticsPrivacyInventoryCommand::class,
+                AnalyticsProjectionsCommand::class,
             ]);
         }
 
@@ -4109,6 +4146,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/contracts/catalog', [$controller, 'contractCatalog']);
                 Route::get('analytics/contracts/coverage/{provider}', [$controller, 'contractProviderCoverage']);
                 Route::post('analytics/contracts/validate', [$controller, 'contractValidateEvent']);
+
+                // Metric Projections (v128.0.0)
+                Route::get('analytics/projections', [$controller, 'projectionList']);
+                Route::get('analytics/projections/summary', [$controller, 'projectionSummary']);
+                Route::get('analytics/projections/dashboard', [$controller, 'projectionDashboard']);
+                Route::get('analytics/projections/{name}', [$controller, 'projectionEvaluate']);
+                Route::get('analytics/projections/{name}/history', [$controller, 'projectionHistory']);
             });
 
         // Authenticated endpoints
