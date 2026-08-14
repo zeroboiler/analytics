@@ -10,6 +10,7 @@ namespace ZeroBoiler\Analytics\Events;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
+use ZeroBoiler\Analytics\Events\EventTags;
 use ZeroBoiler\Analytics\Events\Infrastructure\InfrastructureEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
@@ -1891,5 +1892,146 @@ final class EventCatalog
         }
 
         return array_column($template['steps'], 'event');
+    }
+
+    // ── Tag-Based Queries (v98.0.0) ──────────────────────────────
+
+    /**
+     * Get tags for a given event name.
+     *
+     * Delegates to EventTags::for().
+     *
+     * @return list<string>
+     */
+    public static function tagsFor(string $eventName): array
+    {
+        return EventTags::for($eventName);
+    }
+
+    /**
+     * Get all event names that have a specific tag.
+     *
+     * Delegates to EventTags::tagged().
+     *
+     * @return list<EventEntry>
+     */
+    public static function tagged(string $tag): array
+    {
+        $names = EventTags::tagged($tag);
+
+        return array_values(array_filter(
+            array_map(fn (string $name): ?array => self::get($name), $names),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events that match ALL given tags (AND logic).
+     *
+     * @param  list<string>  $tags
+     * @return list<EventEntry>
+     */
+    public static function taggedAll(array $tags): array
+    {
+        $names = EventTags::whereAll($tags);
+
+        return array_values(array_filter(
+            array_map(fn (string $name): ?array => self::get($name), $names),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Get events that match ANY given tag (OR logic).
+     *
+     * @param  list<string>  $tags
+     * @return list<EventEntry>
+     */
+    public static function taggedAny(array $tags): array
+    {
+        $names = EventTags::whereAny($tags);
+
+        return array_values(array_filter(
+            array_map(fn (string $name): ?array => self::get($name), $names),
+            fn (?array $entry): bool => $entry !== null,
+        ));
+    }
+
+    /**
+     * Check if an event has a specific tag.
+     */
+    public static function hasTag(string $eventName, string $tag): bool
+    {
+        return EventTags::has($eventName, $tag);
+    }
+
+    /**
+     * Get all available tag names.
+     *
+     * @return list<string>
+     */
+    public static function allTags(): array
+    {
+        return EventTags::allTags();
+    }
+
+    /**
+     * Get events grouped by tag.
+     *
+     * @return array<string, list<EventEntry>>
+     */
+    public static function groupedByTag(): array
+    {
+        $tagged = EventTags::groupedByTag();
+        $result = [];
+
+        foreach ($tagged as $tag => $names) {
+            $result[$tag] = array_values(array_filter(
+                array_map(fn (string $name): ?array => self::get($name), $names),
+                fn (?array $entry): bool => $entry !== null,
+            ));
+        }
+
+        return $result;
+    }
+
+    // ── SaaS Sub-Category Queries (v98.0.0) ──────────────────────
+
+    /**
+     * Get SaaS sub-category names.
+     *
+     * @return list<string>
+     */
+    public static function saasSubCategories(): array
+    {
+        return \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::names();
+    }
+
+    /**
+     * Get SaaS events in a specific sub-category.
+     *
+     * @return list<EventEntry>
+     */
+    public static function saasSubCategory(string $subcategory): array
+    {
+        return \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::catalogEntries($subcategory);
+    }
+
+    /**
+     * Get SaaS events grouped by sub-category.
+     *
+     * @return array<string, list<EventEntry>>
+     */
+    public static function saasGrouped(): array
+    {
+        return \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::grouped();
+    }
+
+    /**
+     * Get the sub-category for a SaaS event.
+     */
+    public static function saasSubCategoryFor(string $eventName): ?string
+    {
+        return \ZeroBoiler\Analytics\Events\SaaS\SaaSEventSubCategories::subcategoryFor($eventName);
     }
 }

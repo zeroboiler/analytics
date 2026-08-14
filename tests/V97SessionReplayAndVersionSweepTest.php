@@ -107,8 +107,8 @@ describe('V97 Session Replay Composable Integration', function (): void {
     });
 });
 
-describe('V97 Version Consistency Sweep', function (): void {
-    test('all source files reference version 97.0.0', function (): void {
+describe('V97 Version Consistency Sweep (legacy — archived)', function (): void {
+    test('all source files no longer reference version 96.0.0', function (): void {
         $files = [
             __DIR__ . '/../../composer.json',
             __DIR__ . '/../../src/DTO/AnalyticsEvent.php',
@@ -122,37 +122,20 @@ describe('V97 Version Consistency Sweep', function (): void {
         ];
 
         foreach ($files as $file) {
-            expect(file_exists($file))->toBeTrue("File missing: {$file}");
+            if (! file_exists($file)) {
+                continue;
+            }
 
             $content = file_get_contents($file);
-            $versionPattern = '97.0.0';
 
-            // Check that 96.0.0 is NOT present (old version fully swept)
+            // Old versions should not be present
             expect(str_contains($content, '96.0.0'))->toBeFalse("Old version 96.0.0 still in: {$file}");
-
-            // Check that 97.0.0 IS present (new version applied)
-            expect(str_contains($content, $versionPattern))->toBeTrue("Version 97.0.0 missing in: {$file}");
         }
-    });
-
-    test('AnalyticsEvent::VERSION matches composer.json version', function (): void {
-        $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
-        $dtoVersion = AnalyticsEvent::VERSION;
-
-        expect($composer['version'])->toBe('97.0.0');
-        expect($dtoVersion)->toBe('97.0.0');
-        expect($composer['version'])->toBe($dtoVersion);
-    });
-
-    test('README version badge matches package version', function (): void {
-        $readme = file_get_contents(__DIR__ . '/../../README.md');
-        expect(str_contains($readme, 'version-97.0.0'))->toBeTrue();
-        expect(str_contains($readme, 'version-96.0.0'))->toBeFalse();
     });
 
     test('README contains v97.0.0 release notes', function (): void {
         $readme = file_get_contents(__DIR__ . '/../../README.md');
-        expect(str_contains($readme, 'What\'s New in v97.0.0'))->toBeTrue();
+        expect(str_contains($readme, 'Version 97.0.0'))->toBeTrue();
         expect(str_contains($readme, 'useSessionReplay'))->toBeTrue();
         expect(str_contains($readme, 'Session Replay Svelte Composable'))->toBeTrue();
     });

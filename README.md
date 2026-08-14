@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-97.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-98.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,7 +57,29 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v97.0.0
+### What's New in v98.0.0
+
+**Event Tags System** — Semantic tag-based event classification system across the entire catalog. Every event now carries tags like `revenue`, `pii`, `critical`, `conversion`, `retention`, `gdpr`, `privacy_safe`, `samplable`, `b2b`, `plg`, and more. Query events by tag with AND/OR logic:
+
+- **`EventTags::for('purchase')`** → `['ecommerce', 'revenue', 'conversion', 'critical', 'pii']`
+- **`EventTags::tagged('critical')`** → All business-critical events (never sampled/dropped)
+- **`EventTags::whereAll(['revenue', 'conversion'])`** → Events matching ALL tags (AND)
+- **`EventTags::whereAny(['gdpr', 'b2b'])`** → Events matching ANY tag (OR)
+- **`EventTags::groupedByTag()`** → Full tag → events mapping
+- **`EventTags::stats()`** → Tag → event count summary
+
+**SaaS Sub-Category Catalog** — The SaaS catalog (65+ events) now has structured sub-categories for fine-grained filtering:
+
+- **`SaaSEventSubCategories::names()`** → `['auth', 'subscription', 'trial', 'billing', 'team', 'account', 'growth', 'integration', 'compliance', 'workspace', 'cohort', ...]`
+- **`SaaSEventSubCategories::events('billing')`** → All billing-related SaaS events
+- **`SaaSEventSubCategories::subcategoryFor('payment_succeeded')`** → `'billing'`
+- **`SaaSEventSubCategories::grouped()`** → Full sub-category → entries mapping
+- **`SaaSEventSubCategories::counts()`** → Event count per sub-category
+
+**EventCatalog Integration** — Both systems are accessible through the unified EventCatalog facade:
+
+- `EventCatalog::tagsFor('purchase')`, `EventCatalog::tagged('revenue')`, `EventCatalog::taggedAll(['critical', 'conversion'])`
+- `EventCatalog::saasSubCategories()`, `EventCatalog::saasSubCategory('auth')`, `EventCatalog::saasSubCategoryFor('login')`
 
 **Session Replay Svelte Composable** — Reactive Svelte composable for session recording and replay analytics integration. Bridges client-side session recording events with the ZeroBoiler analytics pipeline:
 
@@ -72,7 +94,7 @@ Done. That's it.
 - **Error recovery**: Recording errors surfaced via reactive `recordingError` store — never breaks the app
 - **Session replay events**: Dispatched through standard analytics pipeline as `session_replay_start`, `session_replay_stop`, `session_replay_snapshot`, `session_replay_event`, `session_replay_pause`, `session_replay_resume`
 
-**Version 97.0.0 — Full SaaS Analytics Suite Summary** — The package now provides a complete industry-standard SaaS analytics solution:
+**Version 97.0.0 — Full SaaS Analytics Suite Summary** — The package provides a complete industry-standard SaaS analytics solution:
 
 - **Event Catalog**: 100+ typed events across Ecommerce (15), SaaS (65+), Engagement (35+), Security (8), Infrastructure (10) categories
 - **10 Provider Trackers**: GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook

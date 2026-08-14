@@ -9,7 +9,7 @@
  * or fetches from the analytics API endpoint.
  *
  * @package ZeroBoiler Analytics
- * @version 97.0.0
+ * @version 98.0.0
  */
 
 import { writable, derived } from 'svelte/store';

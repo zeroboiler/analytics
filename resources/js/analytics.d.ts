@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 97.0.0
+ * @version 98.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2235,7 +2235,7 @@ export interface LifecycleApiResponse {
   updated_at?: number;
 }
 
-// ─── SaaS Event Shortcut Helpers (v97.0.0) ───────────────────────────
+// ─── SaaS Event Shortcut Helpers (v98.0.0) ───────────────────────────
 
 /**
  * Options for trackSignUp shortcut.
@@ -2315,7 +2315,7 @@ export function trackCancellation(options?: TrackCancellationOptions): Promise<v
  */
 export function trackFeatureUsed(feature: string, extra?: Record<string, unknown>): Promise<void>;
 
-// ─── Session Replay Composable Types (v97.0.0) ────────────────────────
+// ─── Session Replay Composable Types (v98.0.0) ────────────────────────
 
 /** Options for useSessionReplay composable. */
 export interface SessionReplayOptions {
