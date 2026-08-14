@@ -15345,4 +15345,370 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── SaaS Feature Usage Tracker (v85.0.0) ──────────────────────────────
+
+    /**
+     * Get SaaS feature usage dashboard.
+     *
+     * GET /api/analytics/feature-usage/dashboard
+     */
+    public function featureUsageDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->dashboard(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get SaaS engagement summary (DAU/WAU/MAU).
+     *
+     * GET /api/analytics/feature-usage/engagement
+     */
+    public function featureUsageEngagement(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->engagementSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top used features.
+     *
+     * GET /api/analytics/feature-usage/top?limit=10
+     */
+    public function featureUsageTop(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService::class);
+            $limit = (int) $request->query('limit', 10);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->topFeatures(min(50, max(1, $limit))),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get feature usage streaks and power users.
+     *
+     * GET /api/analytics/feature-usage/streaks?feature=dashboard&threshold=7
+     */
+    public function featureUsageStreaks(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService::class);
+            $feature = (string) $request->query('feature', 'dashboard');
+            $threshold = (int) $request->query('threshold', 7);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->powerUsers($feature, $threshold),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Record a feature usage event.
+     *
+     * POST /api/analytics/feature-usage/record
+     */
+    public function featureUsageRecord(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService::class);
+
+            $userId = (string) $request->input('user_id', '');
+            $featureName = (string) $request->input('feature_name', '');
+            $context = (array) $request->input('context', []);
+
+            if ($userId === '' || $featureName === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'user_id and feature_name are required',
+                ], 422);
+            }
+
+            $service->recordUsage($userId, $featureName, $context);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['recorded' => true],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Budget Optimizer (v85.0.0) ─────────────────────────────────
+
+    /**
+     * Get budget optimizer dashboard.
+     *
+     * GET /api/analytics/budget-optimizer/dashboard
+     */
+    public function budgetOptimizerDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventBudgetOptimizerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventBudgetOptimizerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->dashboard(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get budget alerts for all providers.
+     *
+     * GET /api/analytics/budget-optimizer/alerts
+     */
+    public function budgetOptimizerAlerts(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventBudgetOptimizerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventBudgetOptimizerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->budgetAlerts(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost comparison across providers.
+     *
+     * GET /api/analytics/budget-optimizer/comparison
+     */
+    public function budgetOptimizerComparison(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventBudgetOptimizerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventBudgetOptimizerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->costComparison(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get optimization suggestions.
+     *
+     * GET /api/analytics/budget-optimizer/suggestions
+     */
+    public function budgetOptimizerSuggestions(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventBudgetOptimizerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventBudgetOptimizerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->optimizationSuggestions(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get routing recommendation for an event.
+     *
+     * GET /api/analytics/budget-optimizer/route?provider=ga4&event=page_view&priority=3
+     */
+    public function budgetOptimizerRoute(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventBudgetOptimizerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventBudgetOptimizerService::class);
+
+            $provider = (string) $request->query('provider', 'ga4');
+            $eventName = (string) $request->query('event', 'page_view');
+            $priority = (int) $request->query('priority', 3);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'provider' => $provider,
+                    'event' => $eventName,
+                    'priority' => $priority,
+                    'recommendation' => $service->routingRecommendation($provider, $eventName, $priority),
+                    'budget_utilization' => $service->budgetUtilization($provider),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Tenant Analytics Dashboard (v85.0.0) ─────────────────────────────
+
+    /**
+     * Get tenant analytics dashboard.
+     *
+     * GET /api/analytics/tenant/{tenantId}/dashboard
+     */
+    public function tenantDashboard(Request $request, string $tenantId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->fullDashboard($tenantId),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get tenant health score.
+     *
+     * GET /api/analytics/tenant/{tenantId}/health
+     */
+    public function tenantHealth(Request $request, string $tenantId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'tenant_id' => $tenantId,
+                    'health_score' => $service->tenantHealthScore($tenantId),
+                    'percentile' => $service->tenantPercentile($tenantId, 'health'),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get tenant ranking.
+     *
+     * GET /api/analytics/tenant/ranking?metric=health&limit=20
+     */
+    public function tenantRanking(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService::class);
+            $metric = (string) $request->query('metric', 'health');
+            $limit = (int) $request->query('limit', 20);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->tenantRanking($metric, min(100, max(1, $limit))),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get aggregate metrics across all tenants.
+     *
+     * GET /api/analytics/tenant/aggregate
+     */
+    public function tenantAggregate(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->aggregateMetrics(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Record a tenant event.
+     *
+     * POST /api/analytics/tenant/event
+     */
+    public function tenantEventRecord(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService::class);
+
+            $tenantId = (string) $request->input('tenant_id', '');
+            $eventName = (string) $request->input('event_name', '');
+            $metadata = (array) $request->input('metadata', []);
+
+            if ($tenantId === '' || $eventName === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'tenant_id and event_name are required',
+                ], 422);
+            }
+
+            $service->recordEvent($tenantId, $eventName, $metadata);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['recorded' => true],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

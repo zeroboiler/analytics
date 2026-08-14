@@ -253,6 +253,9 @@ use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 use ZeroBoiler\Analytics\Services\ProviderSLAMonitor;
 use ZeroBoiler\Analytics\Services\AnalyticsCostForecastService;
 use ZeroBoiler\Analytics\Services\EventPolicyEngine;
+use ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService;
+use ZeroBoiler\Analytics\Services\EventBudgetOptimizerService;
+use ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService;
 use ZeroBoiler\Analytics\DTO\ProviderSLARecord;
 use ZeroBoiler\Analytics\DTO\CostForecastProjection;
 use ZeroBoiler\Analytics\DTO\PolicyViolation;
@@ -375,7 +378,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 84.0.0
+ * @version 85.0.0
  *
  * @since 1.0.0
  */
@@ -2906,6 +2909,45 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new GroupAnalyticsService($cache, $config);
+        });
+
+        // SaaS Feature Usage Tracker (v85.0.0) — DAU/WAU/MAU, feature streaks, adoption
+        $this->app->singleton(SaaSFeatureUsageTrackerService::class, function (Application $app): SaaSFeatureUsageTrackerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $ttl = (int) $config->get('zeroboiler.feature_usage.cache_ttl', 86400);
+
+            return new SaaSFeatureUsageTrackerService($cache, $ttl);
+        });
+
+        // Event Budget Optimizer (v85.0.0) — cost-aware intelligent event routing
+        $this->app->singleton(EventBudgetOptimizerService::class, function (Application $app): EventBudgetOptimizerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $budgetConfig = $config->get('zeroboiler.budget_optimizer', []);
+            /** @var array{cache_ttl?: int, cost_per_event?: array<string, float>, monthly_budgets?: array<string, float>} $budgetConfig */
+
+            return new EventBudgetOptimizerService(
+                cache: $cache,
+                ttl: (int) ($budgetConfig['cache_ttl'] ?? 86400),
+                costPerEvent: (array) ($budgetConfig['cost_per_event'] ?? []),
+                budgets: (array) ($budgetConfig['monthly_budgets'] ?? []),
+            );
+        });
+
+        // Tenant Analytics Dashboard (v85.0.0) — multi-tenant analytics aggregation
+        $this->app->singleton(TenantAnalyticsDashboardService::class, function (Application $app): TenantAnalyticsDashboardService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $ttl = (int) $config->get('zeroboiler.tenant_dashboard.cache_ttl', 86400);
+
+            return new TenantAnalyticsDashboardService($cache, $ttl);
         });
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring

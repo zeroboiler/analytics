@@ -6957,4 +6957,81 @@ return [
             // ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SaaS Feature Usage Tracker (v85.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Tracks daily/weekly/monthly active users per feature, computes usage streaks,
+    | identifies power users, and provides feature adoption lifecycle analytics.
+    |
+    */
+    'feature_usage' => [
+        'enabled' => env('ANALYTICS_FEATURE_USAGE_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_FEATURE_USAGE_CACHE_TTL', 86400), // 24 hours
+        'power_user_threshold' => (int) env('ANALYTICS_FEATURE_USAGE_POWER_THRESHOLD', 7), // 7-day streak
+        'known_features' => [
+            'dashboard', 'api_export', 'team_invites', 'reporting', 'integrations',
+            'search', 'file_download', 'onboarding', 'settings', 'billing',
+            'feature_flags', 'webhooks', 'audit_log', 'notifications',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Budget Optimizer (v85.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Cost-aware intelligent event routing. Analyzes event costs per provider,
+    | respects budget limits, and optimizes routing decisions.
+    |
+    */
+    'budget_optimizer' => [
+        'enabled' => env('ANALYTICS_BUDGET_OPTIMIZER_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_BUDGET_OPTIMIZER_CACHE_TTL', 86400),
+        'cost_per_event' => [
+            'ga4' => 0.0001,
+            'gtm' => 0.0,
+            'meta' => 0.0002,
+            'plausible' => 0.00015,
+            'posthog' => 0.0001,
+            'mixpanel' => 0.0002,
+            'amplitude' => 0.00015,
+            'tiktok' => 0.0002,
+            'linkedin' => 0.0003,
+            'webhook' => 0.0,
+        ],
+        'monthly_budgets' => [
+            'ga4' => 50.0,
+            'gtm' => 0.0,
+            'meta' => 100.0,
+            'plausible' => 30.0,
+            'posthog' => 75.0,
+            'mixpanel' => 100.0,
+            'amplitude' => 75.0,
+            'tiktok' => 50.0,
+            'linkedin' => 25.0,
+            'webhook' => 0.0,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tenant Analytics Dashboard (v85.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Multi-tenant SaaS analytics aggregation. Provides per-tenant dashboards
+    | with aggregated metrics, KPI summaries, and cross-tenant benchmarking.
+    |
+    */
+    'tenant_dashboard' => [
+        'enabled' => env('ANALYTICS_TENANT_DASHBOARD_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_TENANT_DASHBOARD_CACHE_TTL', 86400),
+        'health_score_weights' => [
+            'volume' => 30,    // max 30 points
+            'engagement' => 35, // max 35 points
+            'diversity' => 35,  // max 35 points
+        ],
+    ],
 ];

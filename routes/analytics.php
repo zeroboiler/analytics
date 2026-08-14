@@ -869,4 +869,25 @@ Route::prefix('analytics')->group(function () {
     Route::get('governance/policies', [AnalyticsEventController::class, 'governancePolicies']);
     Route::get('governance/violations', [AnalyticsEventController::class, 'governanceViolations']);
     Route::get('governance/violations/stats', [AnalyticsEventController::class, 'governanceViolationStats']);
+
+    // SaaS Feature Usage Tracker (v85.0.0)
+    Route::get('feature-usage/dashboard', [AnalyticsEventController::class, 'featureUsageDashboard']);
+    Route::get('feature-usage/engagement', [AnalyticsEventController::class, 'featureUsageEngagement']);
+    Route::get('feature-usage/top', [AnalyticsEventController::class, 'featureUsageTop']);
+    Route::get('feature-usage/streaks', [AnalyticsEventController::class, 'featureUsageStreaks']);
+    Route::post('feature-usage/record', [AnalyticsEventController::class, 'featureUsageRecord']);
+
+    // Event Budget Optimizer (v85.0.0)
+    Route::get('budget-optimizer/dashboard', [AnalyticsEventController::class, 'budgetOptimizerDashboard']);
+    Route::get('budget-optimizer/alerts', [AnalyticsEventController::class, 'budgetOptimizerAlerts']);
+    Route::get('budget-optimizer/comparison', [AnalyticsEventController::class, 'budgetOptimizerComparison']);
+    Route::get('budget-optimizer/suggestions', [AnalyticsEventController::class, 'budgetOptimizerSuggestions']);
+    Route::get('budget-optimizer/route', [AnalyticsEventController::class, 'budgetOptimizerRoute']);
+
+    // Tenant Analytics Dashboard (v85.0.0)
+    Route::get('tenant/aggregate', [AnalyticsEventController::class, 'tenantAggregate']);
+    Route::get('tenant/ranking', [AnalyticsEventController::class, 'tenantRanking']);
+    Route::get('tenant/{tenantId}/dashboard', [AnalyticsEventController::class, 'tenantDashboard']);
+    Route::get('tenant/{tenantId}/health', [AnalyticsEventController::class, 'tenantHealth']);
+    Route::post('tenant/event', [AnalyticsEventController::class, 'tenantEventRecord']);
 });
