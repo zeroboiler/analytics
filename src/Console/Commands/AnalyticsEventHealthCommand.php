@@ -50,7 +50,7 @@ final class AnalyticsEventHealthCommand extends Command
     /**
      * @param  EventHealthScoringEngine  $engine
      */
-    public function __construct(EventHealthScoringEngine $engine)
+    public function __construct(EventHealthScoringEngine $engine): void
     {
         parent::__construct();
         $this->engine = $engine;

@@ -48,7 +48,7 @@ final class ProviderSLARecord
         public readonly int $breachCount,
         public readonly bool $slaMet,
         public readonly array $metadata = [],
-    ) {}
+    ): void {}
 
     /**
      * Get the failure rate as a percentage.

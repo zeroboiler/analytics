@@ -36,7 +36,7 @@ final readonly class TouchpointJourney
         public int $totalTouchpoints = 0,
         public ?float $timeToConversion = null,
         public array $metadata = [],
-    ) {
+    ): void {
         $this->totalTouchpoints = count($this->touchpoints);
     }
 

@@ -56,7 +56,7 @@ final readonly class AnomalyRecord
         public ?string $description = null,
         public array $recommendedActions = [],
         public array $context = [],
-    ) {}
+    ): void {}
 
     /**
      * Get the percentage deviation from expected value.

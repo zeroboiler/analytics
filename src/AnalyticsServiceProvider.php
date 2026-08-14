@@ -68,6 +68,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDashboardCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsScheduledReportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReadinessGateCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthService;
 use ZeroBoiler\Analytics\Support\AnalyticsConfig;
 use ZeroBoiler\Analytics\Services\TrackingPreferenceService;
@@ -379,7 +380,7 @@ use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 89.0.0
+ * @version 91.0.0
  *
  * @since 1.0.0
  */
@@ -3548,6 +3549,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
                 AnalyticsCommandCenterCommand::class,
+                AnalyticsReadinessGateCommand::class,
             ]);
         }
 

@@ -59,7 +59,7 @@ final readonly class ConversionPrediction
         public array $contributingEvents = [],
         public array $missingSignals = [],
         public array $context = [],
-    ) {}
+    ): void {}
 
     /**
      * Check if the user is likely to convert (>60% probability).

@@ -65,7 +65,7 @@ final class LifecycleEventSubscriber
         ServerSideTracker $tracker,
         QueuedAnalyticsDispatcher $queue,
         ConfigRepository $config,
-    ) {
+    ): void {
         $this->mapper = $mapper;
         $this->tracker = $tracker;
         $this->queue = $queue;

@@ -54,7 +54,7 @@ final class AnalyticsDeployGateCommand extends Command
      * @param  AnalyticsDeployGate  $gate
      * @param  EventHealthScoringEngine  $healthEngine
      */
-    public function __construct(AnalyticsDeployGate $gate, EventHealthScoringEngine $healthEngine)
+    public function __construct(AnalyticsDeployGate $gate, EventHealthScoringEngine $healthEngine): void
     {
         parent::__construct();
         $this->gate = $gate;
