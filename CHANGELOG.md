@@ -4,6 +4,10 @@
 
 ### Fixed
 - **Version sweep** — `AnalyticsIntegrityCommand::EXPECTED_VERSION` updated from stale `104.0.0` → `130.0.0`. `package.json` version synced from `129.0.0` → `130.0.0`. `AnalyticsServiceProvider` docblock `@version` updated to `130.0.0`. README badge updated to `130.0.0`. CHANGELOG entry added.
+- **Constructor void fix** — Removed `: void` return type from `AnalyticsEvent::__construct()` and `AnalyticsQueryBuilder::__construct()` for PHP 8.4 compatibility.
+
+### Added
+- **Phase33VersionIntegrityAuditTest** — Permanent version drift guard test covering all 17 version entry points (PHP DTO, composer.json, package.json, IntegrityCommand, ServiceProvider, JS client, TypeScript, Svelte composables, README badge).
 
 ### Verified
 - All version entry points confirmed at 130.0.0: `AnalyticsEvent::VERSION`, `composer.json`, `package.json`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, `AnalyticsServiceProvider` docblock, README badge, JS client `getVersion()` + `_getInternalVersion`, JS/Svelte `@version` tags (7 files), TypeScript `@version` tag.

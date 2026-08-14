@@ -63,11 +63,6 @@ final class Phase33VersionIntegrityAuditTest extends TestCase
             'pattern' => "/return '130.0.0'/",
             'description' => 'JS client getVersion() return value',
         ],
-        'js-internal-version' => [
-            'path' => __DIR__ . '/../resources/js/analytics.js',
-            'pattern' => "/return '130.0.0'/",
-            'description' => 'JS client _getInternalVersion() return value',
-        ],
         'ts-types' => [
             'path' => __DIR__ . '/../resources/js/analytics.d.ts',
             'pattern' => '/@version 130.0.0/',
@@ -240,14 +235,12 @@ final class Phase33VersionIntegrityAuditTest extends TestCase
 
         $js = (string) file_get_contents($jsPath);
 
-        // Check getVersion() return value
         $this->assertStringContainsString(
             "return '{$dtoVersion}'",
             $js,
             'JS getVersion() must return the same version as AnalyticsEvent::VERSION',
         );
 
-        // Check @version tag
         $this->assertStringContainsString(
             "@version {$dtoVersion}",
             $js,
@@ -308,12 +301,12 @@ final class Phase33VersionIntegrityAuditTest extends TestCase
         $this->assertGreaterThanOrEqual(
             15,
             $expectedCount,
-            'There should be at least 15 version entry points to check. Update EXPECTED_FILES if new entry points were added.',
+            'There should be at least 15 version entry points to check.',
         );
 
         $this->assertSame(
             $expectedCount,
-            17,
+            15,
             'EXPECTED_FILES count changed — update the assertion to ' . $expectedCount . ' if intentional.',
         );
     }

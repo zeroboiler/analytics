@@ -36,7 +36,7 @@ final readonly class AnalyticsEvent
         public ?\DateTimeImmutable $timestamp = null,
         public ?string $priority = null,
         public ?string $source = null,
-    ): void {}
+    ) {}
 
     /**
      * Create an AnalyticsEvent from an array.
