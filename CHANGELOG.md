@@ -1,5 +1,17 @@
 # Changelog
 
+## [115.0.0] - 2026-08-14
+
+### Added
+- **Phase 44 — Provider Coverage Analysis & Version Integrity Sweep**:
+  - `EventCatalog::providerCoverageSummary()` — Comprehensive provider coverage audit across the entire event catalog. Returns per-provider mapping counts, coverage percentages, gap lists (events without mapping), and top category breakdowns. Identifies best-covered (≥80%) and least-covered (<30%) providers.
+  - `EventCatalog::providerIntersectionEvents(array $providers)` — Find events mapped to ALL specified providers simultaneously. Returns full event details with provider-specific mapping values. Unlike `filterByProviders()` (names only), this includes category and provider entry details.
+  - **V1150ProviderCoverageSummaryTest** — 12 test cases validating provider coverage summary structure, all-10-provider presence, GA4 dominance, gap count correctness (mapped + gaps = total), least-covered filtering, intersection events for single/multi/impossible provider combos, and version integrity documentation.
+
+### Changed
+- **Version documentation** — README "What's New in v115.0.0" section added documenting Phase 43 Cross-Platform Attribution Service (carried forward from commit 82c8db4).
+- **CHANGELOG** — v115.0.0 entry added for Phase 44.
+
 ## [114.0.0] - 2026-08-14
 
 ### Added

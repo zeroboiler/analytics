@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-114.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-115.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,27 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v115.0.0
+
+**Phase 43 — Cross-Platform Attribution Service & Phase 44 — Provider Coverage Analysis**:
+
+- **`CrossPlatformAttributionService`** — Unified attribution across GA4, Meta, Plausible, PostHog, and webhook providers. Supports first-touch, last-touch, linear, time-decay, and position-based (U-shaped) attribution models with configurable lookback windows and cache-backed computation.
+- **`EventCatalog::providerCoverageSummary()`** — Comprehensive provider coverage audit across the entire event catalog. Per-provider mapping counts, coverage percentages, gap lists, and top category breakdowns. Identifies best-covered (≥80%) and least-covered (<30%) providers for audit readiness.
+- **`EventCatalog::providerIntersectionEvents(array $providers)`** — Find events mapped to ALL specified providers simultaneously. Returns full event details with provider-specific mapping values for cross-provider event planning.
+- **Config expansion** — `cross_platform_attribution` section with model, lookback window, and cache TTL settings.
+
+```php
+use ZeroBoiler\Analytics\Events\EventCatalog;
+
+// Audit provider coverage across all events
+$summary = EventCatalog::providerCoverageSummary();
+// {total_events: 150, providers: {ga4: {mapped: 150, coverage: 100.0, gaps: [], ...}, ...}, ...}
+
+// Find events available on all three major providers
+$intersection = EventCatalog::providerIntersectionEvents(['ga4', 'meta', 'posthog']);
+// [{name: 'purchase', category: 'ecommerce', entries: {ga4: 'purchase', meta: 'Purchase', posthog: 'purchase'}}, ...]
+```
 
 ### What's New in v114.0.0
 
