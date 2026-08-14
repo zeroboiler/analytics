@@ -915,4 +915,20 @@ Route::prefix('analytics')->group(function () {
 
     // Command Center (v86.0.0)
     Route::get('command-center', [AnalyticsEventController::class, 'commandCenter']);
+
+    // Data-Driven Attribution (v87.0.0)
+    Route::post('attribution/data-driven', [AnalyticsEventController::class, 'attributionDataDriven']);
+    Route::post('attribution/compare-periods', [AnalyticsEventController::class, 'attributionComparePeriods']);
+    Route::post('attribution/channel-impact', [AnalyticsEventController::class, 'attributionChannelImpact']);
+    Route::post('attribution/budget', [AnalyticsEventController::class, 'attributionBudget']);
+
+    // Unit Economics (v87.0.0)
+    Route::post('unit-economics/dashboard', [AnalyticsEventController::class, 'unitEconomicsDashboard']);
+    Route::post('unit-economics/ltv-cac', [AnalyticsEventController::class, 'unitEconomicsLtvCac']);
+    Route::post('unit-economics/channel-cac', [AnalyticsEventController::class, 'unitEconomicsChannelCac']);
+    Route::post('unit-economics/magic-number', [AnalyticsEventController::class, 'unitEconomicsMagicNumber']);
+
+    // Product Analytics Maturity (v87.0.0)
+    Route::get('maturity', [AnalyticsEventController::class, 'maturityAssessment']);
+    Route::get('maturity/quick', [AnalyticsEventController::class, 'maturityQuick']);
 });
