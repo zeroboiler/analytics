@@ -7382,4 +7382,25 @@ return [
         'sensitive_params' => ['password', 'token', 'secret', 'api_key', 'credit_card', 'ssn', 'email', 'phone', 'ip'],
         'categories' => ['ecommerce', 'saas', 'engagement', 'security'],
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | Daily Health Report (v116.0.0)
+    |------------------------------------------------------------------
+    |
+    | Unified daily health aggregation for SaaS operators. Evaluates 7
+    | health domains (provider health, pipeline health, catalog integrity,
+    | data quality, budget utilization, consent compliance, readiness) and
+    | produces a single scored report with grades, issues, and actionable
+    | recommendations.
+    |
+    | Designed for daily cron execution via `zb:analytics:health-report`.
+    | Reports are cached for the TTL duration and keyed by date.
+    |
+    */
+    'daily_health_report' => [
+        'cache_ttl' => (int) env('ANALYTICS_DAILY_HEALTH_CACHE_TTL', 3600), // 1 hour
+        'critical_threshold' => (int) env('ANALYTICS_DAILY_HEALTH_CRITICAL', 30), // Below this = critical
+        'warning_threshold' => (int) env('ANALYTICS_DAILY_HEALTH_WARNING', 60), // Below this = degraded
+    ],
 ];

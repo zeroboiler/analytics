@@ -737,6 +737,48 @@ final class AnalyticsEventController extends Controller
     }
 
     /**
+     * Generate the daily health report.
+     *
+     * GET /api/analytics/health-report?force=1&domain=provider_health&domain=consent_compliance
+     *
+     * Returns a comprehensive health report aggregating all analytics
+     * subsystem health signals. Supports force refresh and domain filtering.
+     *
+     * @since 116.0.0
+     */
+    public function dailyHealthReport(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsDailyHealthReportService::class);
+            $forceRefresh = (bool) $request->query('force', false);
+            $domainFilter = $request->query('domains');
+
+            $report = $service->generate($forceRefresh);
+
+            // Apply domain filter if requested
+            if ($domainFilter !== null) {
+                $requestedDomains = explode(',', (string) $domainFilter);
+                $filteredDomains = [];
+                foreach ($requestedDomains as $domain) {
+                    $domain = trim($domain);
+                    if (isset($report['domains'][$domain])) {
+                        $filteredDomains[$domain] = $report['domains'][$domain];
+                    }
+                }
+                $report['domains'] = $filteredDomains;
+            }
+
+            return response()->json($report);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to generate health report: ' . $e->getMessage(),
+                'timestamp' => now()->toIso8601String(),
+            ], 500);
+        }
+    }
+
+    /**
      * Get real-time events from the event stream.
      *
      * GET /api/analytics/stream?after=0&filter=*&category=saas&limit=100

@@ -114,6 +114,7 @@ use ZeroBoiler\Analytics\Services\ConsentLogService;
 use ZeroBoiler\Analytics\Services\EventForwardingService;
 use ZeroBoiler\Analytics\Services\PerformanceBudgetService;
 use ZeroBoiler\Analytics\Services\CrossPlatformAttributionService;
+use ZeroBoiler\Analytics\Services\AnalyticsDailyHealthReportService;
 use ZeroBoiler\Analytics\Services\UTMAttributionService;
 use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
@@ -346,6 +347,7 @@ use ZeroBoiler\Analytics\Services\ProductMarketFitScoringService;
 use ZeroBoiler\Analytics\Services\UnifiedHealthEndpointService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsFraudCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthSummaryCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDailyHealthReportCommand;
 use ZeroBoiler\Analytics\Services\EventCorrelationEngineService;
 use ZeroBoiler\Analytics\Services\AnomalyRootCauseAnalyzer;
 use ZeroBoiler\Analytics\Services\AnalyticsSelfHealingService;
@@ -1941,6 +1943,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new CrossPlatformAttributionService($cache, $config);
+        });
+
+        // Daily health report — unified health aggregation for SaaS operators (v116.0.0)
+        $this->app->singleton(AnalyticsDailyHealthReportService::class, function (Application $app): AnalyticsDailyHealthReportService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsDailyHealthReportService($cache, $config);
         });
 
         // Event router for provider-specific event routing
@@ -3602,6 +3614,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsTrendForecastCommand::class,
                 AnalyticsPipelineValidateCommand::class,
                 AnalyticsTransformCommand::class,
+                AnalyticsDailyHealthReportCommand::class,
                 AnalyticsConsoleCommand::class,
                 AnalyticsExperimentCommand::class,
                 AnalyticsContractCommand::class,

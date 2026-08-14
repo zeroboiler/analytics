@@ -24,6 +24,9 @@ Route::prefix('analytics')->group(function () {
     // Public health check (no auth required)
     Route::get('health', [AnalyticsEventController::class, 'health']);
 
+    // Daily health report (public, for admin dashboards)
+    Route::get('health-report', [AnalyticsEventController::class, 'dailyHealthReport']);
+
     // Public catalog endpoint
     Route::get('catalog', [AnalyticsEventController::class, 'catalog']);
 
