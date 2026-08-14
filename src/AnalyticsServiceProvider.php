@@ -2950,6 +2950,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new TenantAnalyticsDashboardService($cache, $ttl);
         });
 
+        // Event Sequence Prediction Service (v86.0.0) — Markov chain next-event prediction
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventSequencePredictionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make('config');
+
+            return new \ZeroBoiler\Analytics\Services\EventSequencePredictionService($cache, $config);
+        });
+
+        // Event Cost Ledger Service (v86.0.0) — per-event dispatch cost tracking
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventCostLedgerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make('config');
+
+            return new \ZeroBoiler\Analytics\Services\EventCostLedgerService($cache, $config);
+        });
+
+        // Analytics Compliance Report Service (v86.0.0) — GDPR/CCPA/SOC2 compliance reports
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService {
+            /** @var ConfigRepository $config */
+            $config = $app->make('config');
+
+            return new \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService($config);
+        });
+
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */

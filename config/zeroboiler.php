@@ -7034,4 +7034,77 @@ return [
             'diversity' => 35,  // max 35 points
         ],
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Sequence Prediction (v86.0.0)
+    |------------------------------------------------------------------
+    |
+    | Markov chain-based next-event prediction engine. Builds transition
+    | matrices from observed user event sequences and predicts the most
+    | likely next event(s) in a session.
+    |
+    | Use cases: proactive instrumentation, funnel optimization,
+    | anomaly detection, onboarding guidance.
+    |
+    */
+    'sequence_prediction' => [
+        'enabled' => env('ANALYTICS_SEQUENCE_PREDICTION_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_SEQUENCE_PREDICTION_CACHE_TTL', 3600),
+        'min_observations' => (int) env('ANALYTICS_SEQUENCE_PREDICTION_MIN_OBS', 10),
+        'top_n' => (int) env('ANALYTICS_SEQUENCE_PREDICTION_TOP_N', 5),
+        'confidence_threshold' => (float) env('ANALYTICS_SEQUENCE_PREDICTION_CONFIDENCE', 0.05),
+        'use_second_order' => (bool) env('ANALYTICS_SEQUENCE_PREDICTION_SECOND_ORDER', true),
+        'excluded_events' => ['page_view', 'scroll_depth', 'session_start', 'session_end'],
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Cost Ledger (v86.0.0)
+    |------------------------------------------------------------------
+    |
+    | Per-event dispatch cost tracking across providers. Tracks
+    | computational and financial cost for budgeting and optimization.
+    |
+    | Provider cost rates are per 1000 events in USD.
+    | Set to 0 for free providers or adjust based on your pricing plan.
+    |
+    */
+    'cost_ledger' => [
+        'enabled' => env('ANALYTICS_COST_LEDGER_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_COST_LEDGER_CACHE_TTL', 86400),
+        'daily_budget' => (float) env('ANALYTICS_COST_LEDGER_DAILY_BUDGET', 100.0),
+        'monthly_budget' => (float) env('ANALYTICS_COST_LEDGER_MONTHLY_BUDGET', 3000.0),
+        'provider_cost_rates' => [
+            'ga4' => 0.001,
+            'gtm' => 0.001,
+            'meta' => 0.001,
+            'plausible' => 0.0005,
+            'posthog' => 0.0005,
+            'mixpanel' => 0.001,
+            'amplitude' => 0.001,
+            'tiktok' => 0.001,
+            'linkedin' => 0.001,
+            'webhook' => 0.0001,
+        ],
+        'exempt_events' => ['page_view', 'scroll_depth'],
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Compliance Report (v86.0.0)
+    |------------------------------------------------------------------
+    |
+    | Multi-framework compliance report generator for GDPR, CCPA, SOC2,
+    | and ePrivacy Directive audits. Generates structured reports with
+    | evidence checkpoints, compliance scores, and gap analysis.
+    |
+    | Reports are generated on-demand (no cron required).
+    |
+    */
+    'compliance_report' => [
+        'cache_ttl' => (int) env('ANALYTICS_COMPLIANCE_REPORT_CACHE_TTL', 3600),
+        'include_recommendations' => true,
+        'frameworks' => ['gdpr', 'ccpa', 'soc2', 'eprivacy'],
+    ],
 ];

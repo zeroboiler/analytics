@@ -890,4 +890,29 @@ Route::prefix('analytics')->group(function () {
     Route::get('tenant/{tenantId}/dashboard', [AnalyticsEventController::class, 'tenantDashboard']);
     Route::get('tenant/{tenantId}/health', [AnalyticsEventController::class, 'tenantHealth']);
     Route::post('tenant/event', [AnalyticsEventController::class, 'tenantEventRecord']);
+
+    // Event Sequence Prediction (v86.0.0)
+    Route::post('prediction/record-sequence', [AnalyticsEventController::class, 'predictionRecordSequence']);
+    Route::post('prediction/next', [AnalyticsEventController::class, 'predictionNextEvent']);
+    Route::get('prediction/stats', [AnalyticsEventController::class, 'predictionStats']);
+    Route::get('prediction/matrix/{event}', [AnalyticsEventController::class, 'predictionTransitionMatrix']);
+    Route::get('prediction/top-sequences', [AnalyticsEventController::class, 'predictionTopSequences']);
+    Route::get('prediction/anomalies', [AnalyticsEventController::class, 'predictionAnomalies']);
+    Route::delete('prediction/model', [AnalyticsEventController::class, 'predictionClearModel']);
+
+    // Event Cost Ledger (v86.0.0)
+    Route::get('cost-ledger/daily', [AnalyticsEventController::class, 'costLedgerDaily']);
+    Route::get('cost-ledger/budget', [AnalyticsEventController::class, 'costLedgerBudget']);
+    Route::get('cost-ledger/optimizations', [AnalyticsEventController::class, 'costLedgerOptimizations']);
+    Route::get('cost-ledger/history', [AnalyticsEventController::class, 'costLedgerHistory']);
+
+    // Compliance Report (v86.0.0)
+    Route::get('compliance-report/full', [AnalyticsEventController::class, 'complianceReportFull']);
+    Route::get('compliance-report/gdpr', [AnalyticsEventController::class, 'complianceReportGDPR']);
+    Route::get('compliance-report/ccpa', [AnalyticsEventController::class, 'complianceReportCCPA']);
+    Route::get('compliance-report/soc2', [AnalyticsEventController::class, 'complianceReportSOC2']);
+    Route::get('compliance-report/health', [AnalyticsEventController::class, 'complianceReportHealth']);
+
+    // Command Center (v86.0.0)
+    Route::get('command-center', [AnalyticsEventController::class, 'commandCenter']);
 });

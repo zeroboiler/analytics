@@ -15711,4 +15711,368 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Sequence Prediction (v86.0.0) ──────────────────────────
+
+    /**
+     * Record an observed event sequence for prediction model training.
+     */
+    public function predictionRecordSequence(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            $clientId = (string) $request->input('client_id', '');
+            $sequence = (array) $request->input('sequence', []);
+
+            if ($clientId === '' || empty($sequence)) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'client_id and sequence (list of event names) are required',
+                ], 422);
+            }
+
+            $result = $service->recordSequence($clientId, $sequence);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Predict the most likely next event(s) given recent events.
+     */
+    public function predictionNextEvent(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            $recentEvents = (array) $request->input('recent_events', []);
+
+            $predictions = $service->predictNext($recentEvents);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['predictions' => $predictions],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get prediction model statistics.
+     */
+    public function predictionStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->getStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the transition matrix for a specific event.
+     */
+    public function predictionTransitionMatrix(string $event): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->getTransitionMatrix($event),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the most common event sequences.
+     */
+    public function predictionTopSequences(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            $limit = (int) $request->input('limit', 10);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['sequences' => $service->getTopSequences($limit)],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Detect anomalous event transitions in a session.
+     */
+    public function predictionAnomalies(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            $sequence = (array) $request->input('sequence', []);
+            $threshold = (float) $request->input('threshold', 0.01);
+
+            $anomalies = $service->detectAnomalies($sequence, $threshold);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['anomalies' => $anomalies, 'total_analyzed' => count($sequence)],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear the prediction model data.
+     */
+    public function predictionClearModel(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequencePredictionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class);
+
+            $result = $service->clearModel();
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Cost Ledger (v86.0.0) ─────────────────────────────────
+
+    /**
+     * Get today's cost ledger summary.
+     */
+    public function costLedgerDaily(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCostLedgerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->getDailySummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Check budget status.
+     */
+    public function costLedgerBudget(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCostLedgerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->checkBudgetStatus(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost optimization recommendations.
+     */
+    public function costLedgerOptimizations(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCostLedgerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['recommendations' => $service->getOptimizationRecommendations()],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get historical cost data.
+     */
+    public function costLedgerHistory(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCostLedgerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class);
+
+            $days = (int) $request->input('days', 7);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => ['history' => $service->getHistoricalData(min($days, 90))],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Compliance Report (v86.0.0) ────────────────────────────────
+
+    /**
+     * Generate a full multi-framework compliance report.
+     */
+    public function complianceReportFull(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->generateFullReport(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate a GDPR-specific compliance report.
+     */
+    public function complianceReportGDPR(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->generateGDPRReport(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate a CCPA-specific compliance report.
+     */
+    public function complianceReportCCPA(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->generateCCPAReport(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate a SOC2-specific compliance report.
+     */
+    public function complianceReportSOC2(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->generateSOC2Report(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get compliance health summary.
+     */
+    public function complianceReportHealth(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => $service->getHealthSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Command Center (v86.0.0) ───────────────────────────────────
+
+    /**
+     * Get the command center dashboard data (API equivalent of zb:analytics:command-center).
+     */
+    public function commandCenter(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService $compliance */
+            $compliance = app(\ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService::class);
+
+            $catalog = \ZeroBoiler\Analytics\Events\EventCatalog::count();
+
+            return response()->json([
+                'status' => 'ok',
+                'version' => AnalyticsEvent::VERSION,
+                'data' => [
+                    'compliance' => $compliance->getHealthSummary(),
+                    'catalog_size' => $catalog,
+                    'generated_at' => date('c'),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
