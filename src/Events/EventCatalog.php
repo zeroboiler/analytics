@@ -428,6 +428,33 @@ final class EventCatalog
     }
 
     /**
+     * Search events by name pattern within a specific category.
+     *
+     * Returns matching event entries only from the specified category.
+     * Useful for finding events like "cart" within ecommerce or
+     * "trial" within SaaS lifecycle.
+     *
+     * @param  string  $pattern  Search pattern (partial match, case-insensitive)
+     * @param  'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'  $category
+     * @return list<EventEntry>
+     *
+     * @since 130.0.0
+     */
+    public static function searchByCategory(string $pattern, string $category): array
+    {
+        $events = self::category($category);
+        $results = [];
+
+        foreach ($events as $name => $entry) {
+            if (str_contains($name, strtolower($pattern))) {
+                $results[] = $entry;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Get events grouped by provider name.
      *
      * Returns arrays keyed by provider name with deduplicated event names.

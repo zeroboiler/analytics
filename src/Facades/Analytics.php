@@ -68,6 +68,8 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static int totalEventCount()
  * @method static void trackError(string $message, string|null $source = null, int|null $line = null, array<string, mixed> $params = [])
  * @method static void mrr(float $amount, int $subscribers = 0, array<string, mixed> $params = [])
+ * @method static void trackRevenue(float $amount, string $currency = 'USD', string $revenueType = 'one_time', array<string, mixed> $params = [])
+ * @method static array{checksum: string, event_name: string, amount: float} trackRevenueEvent(string $eventName, float $amount, string $currency = 'USD', string|null $transactionId = null, array<string, mixed> $params = [])
  * @method static bool isTrackingAllowed(string|null $userId = null, string|null $clientId = null)
  * @method static void optOut(string $userId)
  * @method static void optIn(string $userId)

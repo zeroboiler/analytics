@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 129.0.0
+ * @version 130.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -198,6 +198,30 @@ export function getVersion(): string;
  * Get the current tracking ID (server-generated, cookie-stored).
  */
 export function getTrackingId(): string | null;
+
+/**
+ * Get the client ID (alias for getTrackingId — standard analytics SDK name).
+ */
+export function getClientId(): string | null;
+
+/**
+ * Set the client ID (override the server-generated tracking ID).
+ *
+ * Use this when you have an external client ID management system
+ * or need to restore a previously persisted client ID.
+ */
+export function setClientId(clientId: string): void;
+
+/**
+ * Reset the analytics client to its initial state.
+ *
+ * Clears all internal state: tracking ID, config, queues, timers,
+ * consent state, and initialization flag. Useful for test isolation,
+ * multi-tenant session switching, or full logout / data erasure flows.
+ *
+ * After calling reset(), you must call init() or initFullStack() again.
+ */
+export function reset(): void;
 
 /**
  * Get the configured API base URL.

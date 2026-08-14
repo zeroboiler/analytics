@@ -1500,6 +1500,77 @@ final class AnalyticsManager
     }
 
     /**
+     * Track a revenue event with structured parameters.
+     *
+     * Convenience method for tracking any revenue-related event (MRR, ARR,
+     * one-time, expansion, contraction, reactivation) with proper currency
+     * and categorization. Integrates with RevenueAnalyticsService.
+     *
+     * @param  float  $amount  Revenue amount
+     * @param  string  $currency  ISO 4217 currency code (default: USD)
+     * @param  string  $revenueType  Revenue type: 'mrr', 'arr', 'one_time', 'expansion', 'contraction', 'reactivation'
+     * @param  array<string, mixed>  $params  Additional event parameters (plan_name, customer_id, etc.)
+     */
+    public function trackRevenue(
+        float $amount,
+        string $currency = 'USD',
+        string $revenueType = 'one_time',
+        array $params = [],
+    ): void {
+        $this->track('revenue_tracked', array_merge([
+            'value' => $amount,
+            'currency' => $currency,
+            'revenue_type' => $revenueType,
+        ], $params));
+    }
+
+    /**
+     * Track a revenue event with HMAC-SHA256 checksum verification.
+     *
+     * For revenue-critical events (purchases, subscriptions, refunds),
+     * generates a cryptographic checksum to prevent replay attacks and
+     * ensure data integrity. Uses the revenue_checksum config secret.
+     *
+     * @param  string  $eventName  Event name (e.g., 'purchase', 'subscription_created', 'refund')
+     * @param  float  $amount  Revenue amount
+     * @param  string  $currency  ISO 4217 currency code
+     * @param  string|null  $transactionId  Transaction/order ID for checksum uniqueness
+     * @param  array<string, mixed>  $params  Additional event parameters
+     * @return array{checksum: string, event_name: string, amount: float}  Dispatch metadata
+     */
+    public function trackRevenueEvent(
+        string $eventName,
+        float $amount,
+        string $currency = 'USD',
+        ?string $transactionId = null,
+        array $params = [],
+    ): array {
+        $secret = config('zeroboiler.analytics.revenue_checksum.secret', '') ?: config('app.key', '');
+        $payload = json_encode([
+            'event' => $eventName,
+            'amount' => $amount,
+            'currency' => $currency,
+            'transaction' => $transactionId,
+            'ts' => now()->getTimestamp(),
+        ], JSON_THROW_ON_ERROR);
+
+        $checksum = hash_hmac('sha256', $payload, $secret);
+
+        $this->track($eventName, array_merge([
+            'value' => $amount,
+            'currency' => $currency,
+            'transaction_id' => $transactionId,
+            'revenue_checksum' => $checksum,
+        ], $params));
+
+        return [
+            'checksum' => $checksum,
+            'event_name' => $eventName,
+            'amount' => $amount,
+        ];
+    }
+
+    /**
      * Check if tracking is allowed for a given identity.
      *
      * Combines tracking preference checks (per-user opt-out) with consent state.

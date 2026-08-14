@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 129.0.0
+ * @version 130.0.0
  */
 
 let trackingId = null;
@@ -545,7 +545,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-        return '129.0.0';
+        return '130.0.0';
 }
 
 /**
@@ -553,6 +553,56 @@ export function getVersion() {
  */
 export function getTrackingId() {
     return trackingId;
+}
+
+/**
+ * Get the client ID (alias for getTrackingId — standard analytics SDK name).
+ *
+ * @returns {string|null}
+ */
+export function getClientId() {
+    return trackingId;
+}
+
+/**
+ * Set the client ID (override the server-generated tracking ID).
+ *
+ * Use this when you have an external client ID management system
+ * or need to restore a previously persisted client ID.
+ *
+ * @param {string} clientId - The client ID to set
+ */
+export function setClientId(clientId) {
+    if (typeof clientId === 'string' && clientId.length > 0) {
+        trackingId = clientId;
+    }
+}
+
+/**
+ * Reset the analytics client to its initial state.
+ *
+ * Clears all internal state: tracking ID, config, queues, timers,
+ * consent state, and initialization flag. Useful for:
+ * - Test isolation (between test cases)
+ * - Multi-tenant session switching
+ * - Full logout / data erasure flows
+ *
+ * After calling reset(), you must call init() or initFullStack() again.
+ */
+export function reset() {
+    trackingId = null;
+    config = null;
+    initialized = false;
+    apiBaseUrl = '/api/analytics';
+    consentResolved = null;
+    eventQueue.length = 0;
+    debugEventLog.length = 0;
+    consentPreQueue.length = 0;
+    if (flushTimer) {
+        clearTimeout(flushTimer);
+        flushTimer = null;
+    }
+    clearDebounceAndThrottleTimers();
 }
 
 /**
@@ -4409,7 +4459,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-        return '129.0.0';
+        return '130.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
