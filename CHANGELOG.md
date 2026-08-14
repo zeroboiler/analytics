@@ -1,5 +1,18 @@
 # Changelog
 
+## [120.0.0] - 2026-08-14
+
+### Added
+- **AnalyticsHeartbeatMonitor** — Production health pulse monitoring with cache-backed circuit state tracking, queue depth monitoring, dispatch liveness detection, ring-buffer history (24h), and aggregate stats (uptime %, peak queue, event throughput). Supports staleness detection and provider circuit open/close/half_open state transitions.
+- **SaaSFeatureFlagObserver** — Auto-tracks feature flag evaluation and conversion events as analytics events. Supports deduplication of consecutive identical evaluations, per-flag ignore lists, exposure/conversion toggle, and summary statistics.
+- **SaaSBundleEventService** — Groups related SaaS lifecycle events into named journey bundles (signup_funnel, activation_funnel, billing_funnel, expansion_funnel, retention_funnel, churn_funnel). Fires journey_start/journey_completed/journey_abandoned events with step tracking, completion percentages, and duration metrics.
+- Config sections: `heartbeat` (TTL, stale threshold, failure threshold) and `bundling` (enabled, auto-track, prefix).
+- Config expansion: `feature_flags.track_exposures`, `feature_flags.track_conversions`, `feature_flags.ignored_flags`.
+- Service provider registrations for AnalyticsHeartbeatMonitor, SaaSFeatureFlagObserver, and SaaSBundleEventService.
+
+### Changed
+- Version bump: 119.0.0 → 120.0.0 across composer.json, ServiceProvider, AnalyticsEvent::VERSION, and JS client.
+
 ## [119.0.0] - 2026-08-14
 
 ### Added

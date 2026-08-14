@@ -410,6 +410,9 @@ return [
         'feature_flags' => [
             'enabled' => env('ANALYTICS_FEATURE_FLAGS_ENABLED', true),
             'cache_ttl' => (int) env('ANALYTICS_FEATURE_FLAGS_CACHE_TTL', 300), // 5 minutes
+            'track_exposures' => env('ANALYTICS_FEATURE_FLAGS_TRACK_EXPOSURES', true), // Auto-track flag evaluations
+            'track_conversions' => env('ANALYTICS_FEATURE_FLAGS_TRACK_CONVERSIONS', true), // Auto-track flag conversions
+            'ignored_flags' => [], // Flag names that should NOT be tracked as analytics events
         ],
 
         /*
@@ -7448,5 +7451,43 @@ return [
         'ttl' => (int) env('ANALYTICS_REPLAY_AUDIT_TTL', 604800), // 7 days
         'max_attempts' => (int) env('ANALYTICS_REPLAY_AUDIT_MAX_ATTEMPTS', 3),
         'replay_ttl' => (int) env('ANALYTICS_REPLAY_AUDIT_REPLAY_TTL', 86400), // 24 hours
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Heartbeat Monitor (v120.0.0)
+    |------------------------------------------------------------------
+    |
+    | Production health pulse monitoring for analytics subsystems.
+    | Tracks provider circuit states, queue depth, dispatch liveness,
+    | and maintains a ring-buffer history for dashboard monitoring.
+    |
+    | The pulse() method should be called by queue workers after each
+    | event dispatch cycle. The current() method returns the latest
+    | recorded pulse (or 'stale' if no pulse within threshold).
+    |
+    */
+    'heartbeat' => [
+        'enabled' => env('ANALYTICS_HEARTBEAT_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_HEARTBEAT_TTL', 300), // 5 minutes — how long a pulse stays fresh
+        'stale_threshold' => (int) env('ANALYTICS_HEARTBEAT_STALE_THRESHOLD', 600), // 10 minutes — after which pulse is considered stale
+        'failure_threshold' => (int) env('ANALYTICS_HEARTBEAT_FAILURE_THRESHOLD', 5), // failures before provider circuit opens
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Event Bundling (v120.0.0)
+    |------------------------------------------------------------------
+    |
+    | Groups related SaaS lifecycle events into named journey bundles
+    | (e.g., signup_funnel, activation_funnel, billing_funnel).
+    | Enables funnel analysis, cohort attribution, and journey
+    | reconstruction across analytics providers.
+    |
+    */
+    'bundling' => [
+        'enabled' => env('ANALYTICS_BUNDLING_ENABLED', true),
+        'auto_track_journeys' => env('ANALYTICS_BUNDLING_AUTO_TRACK', true), // Automatically fire journey_start/journey_completed
+        'bundle_id_prefix' => env('ANALYTICS_BUNDLING_PREFIX', 'bnd'),
     ],
 ];

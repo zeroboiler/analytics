@@ -385,6 +385,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsContractCommand;
 use ZeroBoiler\Analytics\Services\EventContractTestService;
 use ZeroBoiler\Analytics\Services\ExperimentAnalysisEngine;
 use ZeroBoiler\Analytics\Services\EventBroadcastService;
+use ZeroBoiler\Analytics\Services\AnalyticsHeartbeatMonitor;
+use ZeroBoiler\Analytics\Services\SaaSFeatureFlagObserver;
+use ZeroBoiler\Analytics\Services\SaaSBundleEventService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -392,7 +395,7 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 119.0.0
+ * @version 120.0.0
  *
  * @since 1.0.0
  */
@@ -3579,6 +3582,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 : null;
 
             return new EventBroadcastService($config, $broadcaster);
+        });
+
+        // Heartbeat Monitor (v120.0.0)
+        $this->app->singleton(AnalyticsHeartbeatMonitor::class, function (Application $app): AnalyticsHeartbeatMonitor {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsHeartbeatMonitor($cache, $config);
+        });
+
+        // Feature Flag Observer (v120.0.0)
+        $this->app->singleton(SaaSFeatureFlagObserver::class, function (Application $app): SaaSFeatureFlagObserver {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSFeatureFlagObserver($manager, $config);
+        });
+
+        // Bundle Event Service (v120.0.0)
+        $this->app->singleton(SaaSBundleEventService::class, function (Application $app): SaaSBundleEventService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SaaSBundleEventService($manager);
         });
     }
 
