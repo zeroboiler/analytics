@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-105.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-106.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,27 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v106.0.0
+
+**Phase 35 — SaaS Starter Industry Standard Audit & Bug Fixes**:
+
+- **Phase35SaaSStarterAuditTest** — 60+ new assertions across 12 describe blocks verifying complete SaaS starter maturity:
+  - Criterion 1 (Event Catalog): EcommerceEvents, SaaSEvents, EngagementEvents class existence, strict_types, final, core event constants, 6+ categories, 50+ total events
+  - Criterion 2 (Lifecycle Tracker): LifecycleEventMapper with 60+ default mappings covering auth/subscription/trial/feature/ecommerce/engagement
+  - Criterion 3 (Inertia Middleware): HandleInertiaAnalytics middleware contract, client ID cookie management
+  - Criterion 4 (API Controller): AnalyticsEventController with track/batch/identify/consent endpoints + route file verification
+  - Criterion 5 (JS Client): 5000+ line analytics.js with core exports (init, trackEvent, trackPageView, initInertiaPageViewTracker, identify, scrollDepth, getClientId, setClientId), SaaS shorthand functions, TypeScript definitions
+  - Criterion 6 (Event Queue): QueuedAnalyticsDispatcher with dispatch/batch methods
+  - Criterion 7 (Identity Linking): UserIdentityTracker with client↔user mapping, AnalyticsManager identify signature
+  - Criterion 8 (E-commerce Helpers): EcommerceFormatConverter GA4↔Meta/PostHog conversion, convenience builders, multi-provider buildPurchaseEvent
+  - Criterion 9 (Admin Commands): AnalyticsOverviewCommand + AnalyticsTestCommand covering all 10 providers, lifecycle test mode, catalog stats with TikTok/LinkedIn
+  - Criterion 10 (Config): 14+ config sections (ga4, gtm, meta, consent, queue, lifecycle, api, identity, ecommerce, auto_track, plausible, posthog, mixpanel, amplitude)
+  - Criterion 11 (Optional Providers): PlausibleTracker + PosthogTracker with strict_types and null-safety
+  - Criterion 12 (Tests + README): SaasStarterTest (600+ lines), README (5000+ lines), AnalyticsEvent readonly DTO, cross-file version consistency
+- **PlausibleTracker null-safety fix** — `headScripts()` now checks `$this->customScriptUrl !== null && !== ''` instead of just `!== ''`
+- **AnalyticsOverviewCommand provider coverage fix** — Added TikTok and LinkedIn to getCatalogStats() provider counts (was only showing 6 providers, now all 8)
+- **Version bump** to 106.0.0 across all 6 package files
 
 ### What's New in v105.0.0
 

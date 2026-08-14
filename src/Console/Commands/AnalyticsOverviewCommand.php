@@ -164,6 +164,8 @@ final class AnalyticsOverviewCommand extends Command
                 'plausible' => count(EventCatalog::allPlausibleNames()),
                 'mixpanel' => count(EventCatalog::allMixpanelNames()),
                 'amplitude' => count(EventCatalog::allAmplitudeNames()),
+                'tiktok' => count(EventCatalog::allTikTokNames()),
+                'linkedin' => count(EventCatalog::allLinkedInNames()),
             ],
         ];
     }

@@ -224,7 +224,7 @@ final class PlausibleTracker implements TrackerInterface
             return '';
         }
 
-        if ($this->customScriptUrl !== '') {
+        if ($this->customScriptUrl !== null && $this->customScriptUrl !== '') {
             return <<<HTML
 <!-- Plausible Analytics (Self-Hosted) -->
 <script defer data-domain="{$this->domain}" src="{$this->customScriptUrl}"></script>
