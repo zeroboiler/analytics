@@ -29,7 +29,7 @@ use ZeroBoiler\Analytics\DTO\ProjectionDefinition;
  * - **funnel_rate**: Ratio of two event counts (numerator/denominator)
  * - **ratio**: Ratio of two different event counts
  *
- * @since 128.0.0
+ * @since 129.0.0
  * @see ProjectionRegistry
  * @see EventMaterializer
  */

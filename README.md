@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-127.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-129.0.0-blue)](https://github.com/zeroboiler/analytics)|
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with 176+ typed events, 7 categories, 318 services, 71 artisan commands, a fully-featured JS client (~8000 LOC), 5 Svelte composables, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **180+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **320+ services**, **71 artisan commands**, a fully-featured **JS client (~8100 LOC)**, **5 Svelte composables**, comprehensive **TypeScript type definitions (~2900 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v129.0.0
+
+**Full SaaS Analytics Starter — Version Sweep & Quality Audit**:
+
+- **TypeScript fix** — Fixed malformed `amplitudeApiKey` type in `analytics.d.ts` (was `***` → `string`).
+- **JS version sync** — `getVersion()` and `_getInternalVersion()` aligned from stale `123.0.0` to `129.0.0`.
+- **Full version sweep** — All 7 JS/TS/Svelte source files, 9 PHP core files, `composer.json`, README badge, and type definitions synced to 129.0.0.
+- **README refresh** — Updated headline metrics: 180+ events, 8 categories, 320+ services, ~8100 LOC JS client, ~2900 LOC TypeScript defs.
+- **Package metrics** — 745 PHP source files, 360 tests, 71 artisan commands, 971-line route file, 7653-line config.
 
 ### What's New in v128.0.0
 

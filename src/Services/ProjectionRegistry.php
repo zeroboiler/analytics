@@ -25,7 +25,7 @@ use ZeroBoiler\Analytics\DTO\ProjectionDefinition;
  * - avg_session_value: Average Revenue per User (average of value on purchase, 30d window)
  * - signup_to_purchase_ratio: Sign-up to Purchase ratio (ratio, sign_up / purchase, 7d window)
  *
- * @since 128.0.0
+ * @since 129.0.0
  */
 final class ProjectionRegistry
 {

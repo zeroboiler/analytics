@@ -401,7 +401,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 128.0.0
+ * @version 129.0.0
  *
  * @since 1.0.0
  */
@@ -3633,7 +3633,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsSdkTelemetryCollector($cache, $config);
         });
 
-        // Projection Registry (v128.0.0) — metric projection definitions
+        // Projection Registry (v129.0.0) — metric projection definitions
         $this->app->singleton(ProjectionRegistry::class, function (Application $app): ProjectionRegistry {
             /** @var CacheRepository $cache */
             $cache = $app->make(CacheRepository::class);
@@ -3641,7 +3641,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProjectionRegistry($cache);
         });
 
-        // Metric Projection Engine (v128.0.0) — evaluates projections against event store
+        // Metric Projection Engine (v129.0.0) — evaluates projections against event store
         $this->app->singleton(MetricProjectionEngine::class, function (Application $app): MetricProjectionEngine {
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
@@ -3655,7 +3655,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new MetricProjectionEngine($config, $cache, $manager, $registry);
         });
 
-        // Event Materializer (v128.0.0) — cache-backed materialized views of projected metrics
+        // Event Materializer (v129.0.0) — cache-backed materialized views of projected metrics
         $this->app->singleton(EventMaterializer::class, function (Application $app): EventMaterializer {
             /** @var MetricProjectionEngine $engine */
             $engine = $app->make(MetricProjectionEngine::class);
@@ -4147,7 +4147,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/contracts/coverage/{provider}', [$controller, 'contractProviderCoverage']);
                 Route::post('analytics/contracts/validate', [$controller, 'contractValidateEvent']);
 
-                // Metric Projections (v128.0.0)
+                // Metric Projections (v129.0.0)
                 Route::get('analytics/projections', [$controller, 'projectionList']);
                 Route::get('analytics/projections/summary', [$controller, 'projectionSummary']);
                 Route::get('analytics/projections/dashboard', [$controller, 'projectionDashboard']);

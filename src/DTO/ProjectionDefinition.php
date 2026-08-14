@@ -21,7 +21,7 @@ namespace ZeroBoiler\Analytics\DTO;
  * - **funnel_rate**: Conversion rate between two events (e.g. trial → subscription)
  * - **ratio**: Ratio of two event counts (e.g. signups / page_views)
  *
- * @since 128.0.0
+ * @since 129.0.0
  */
 final readonly class ProjectionDefinition
 {

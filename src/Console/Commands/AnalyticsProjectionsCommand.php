@@ -32,7 +32,7 @@ use ZeroBoiler\Analytics\Services\ProjectionRegistry;
  *   php artisan zb:analytics:projections --dashboard
  *   php artisan zb:analytics:projections --export --json
  *
- * @since 128.0.0
+ * @since 129.0.0
  */
 final class AnalyticsProjectionsCommand extends Command
 {

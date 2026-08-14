@@ -17039,7 +17039,7 @@ final class AnalyticsEventController extends Controller
      *
      * List all registered metric projections.
      *
-     * @since 128.0.0
+     * @since 129.0.0
      */
     public function projectionList(): JsonResponse
     {
@@ -17067,7 +17067,7 @@ final class AnalyticsEventController extends Controller
      *
      * Get a summary of the projection registry.
      *
-     * @since 128.0.0
+     * @since 129.0.0
      */
     public function projectionSummary(): JsonResponse
     {
@@ -17091,7 +17091,7 @@ final class AnalyticsEventController extends Controller
      *
      * Query params: ?category=engagement&window=7d
      *
-     * @since 128.0.0
+     * @since 129.0.0
      */
     public function projectionDashboard(): JsonResponse
     {
@@ -17121,7 +17121,7 @@ final class AnalyticsEventController extends Controller
      *
      * Query params: ?window=7d
      *
-     * @since 128.0.0
+     * @since 129.0.0
      */
     public function projectionEvaluate(string $name): JsonResponse
     {
@@ -17158,7 +17158,7 @@ final class AnalyticsEventController extends Controller
      *
      * Query params: ?limit=10
      *
-     * @since 128.0.0
+     * @since 129.0.0
      */
     public function projectionHistory(string $name): JsonResponse
     {

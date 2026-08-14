@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\DTO\ProjectionDefinition;
  * - Bulk materialization for dashboard rendering
  * - Projected metric snapshots for time-series analysis
  *
- * @since 128.0.0
+ * @since 129.0.0
  * @see MetricProjectionEngine
  * @see ProjectionRegistry
  */

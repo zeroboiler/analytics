@@ -13,7 +13,7 @@ namespace ZeroBoiler\Analytics\DTO;
  * Contains the projected metric value, metadata about the computation,
  * and staleness information for cache-aware consumers.
  *
- * @since 128.0.0
+ * @since 129.0.0
  */
 final readonly class MetricProjectionResult
 {

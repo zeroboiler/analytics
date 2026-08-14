@@ -1,5 +1,15 @@
 # Changelog
 
+## [129.0.0] - 2026-08-14
+
+### Fixed
+- **TypeScript type definition** — Fixed malformed `amplitudeApiKey` type in `resources/js/analytics.d.ts` (was `***` → `string`), restoring full IntelliSense for the amplitude provider config.
+
+### Changed
+- **Version sweep** — All 7 JS/TS/Svelte files, 9 PHP core files (AnalyticsEvent, AnalyticsServiceProvider, AnalyticsEventController, ProjectionDefinition, ProjectionRegistry, MetricProjectionEngine, EventMaterializer, MetricProjectionResult, AnalyticsProjectionsCommand), `composer.json`, README badge, and CHANGELOG synced to 129.0.0.
+- **JS client version alignment** — `getVersion()` and `_getInternalVersion()` corrected from stale `123.0.0` to `129.0.0`.
+- **README headline** — Updated package metrics: 180+ typed events, 8 categories, 320+ services, 71 artisan commands, ~8100 LOC JS client, ~2900 LOC TypeScript definitions.
+
 ## [128.0.0] - 2026-08-14
 
 ### Added
