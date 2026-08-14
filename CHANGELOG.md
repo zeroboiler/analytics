@@ -1,5 +1,30 @@
 # Changelog
 
+## [105.0.0] - 2026-08-14
+
+### Fixed
+- **Version sync** — TypeScript definitions (analytics.d.ts) updated from 103.0.0 → 105.0.0
+- **Version sync** — AnalyticsServiceProvider docblock updated from 104.0.0 → 105.0.0
+- **package.json** — Repository directory path corrected from `packages/analytics-js` to `.` (root)
+
+### Added
+- **Phase 34 Version Integrity & SaaS Maturity Audit** — 25 new assertions (V34VersionIntegritySaaSMaturityAuditTest) verifying:
+  - Version consistency across all 5 package files (PHP DTO, composer.json, package.json, analytics.js, analytics.d.ts)
+  - TypeScript type definition version annotation matches runtime version
+  - AnalyticsServiceProvider docblock version matches package version
+  - EventCatalog::summary() returns all 6 built-in categories
+  - EventCatalog::providerCoverage() includes all 8 providers (ga4, meta, posthog, plausible, mixpanel, amplitude, tiktok, linkedin)
+  - EventCatalog::byProvider() returns entries for all 8 providers
+  - Config has all SaaS-required sections (queue, api, identity, ecommerce, lifecycle, consent, sampling, revenue_waterfall, feature_flags)
+  - Config queue section has required keys (enabled, queue, connection, max_batch_size)
+  - Config identity section has cookie and resolution keys
+  - Config lifecycle section has enabled and custom_mappings keys
+  - All 3 event catalogs (Ecommerce, SaaS, Engagement) have core events with provider mappings
+  - SaaS catalog includes lifecycle events (sign_up, login, trial_start, plan_upgrade, cancellation)
+  - Ecommerce catalog includes purchase funnel (view_item, add_to_cart, purchase, refund)
+  - Engagement catalog includes core tracking (page_view, click, form_submit, search, share, error)
+  - package.json peerDependencies are valid and optional
+
 ## [104.0.0] - 2026-08-14
 
 ### Added

@@ -383,7 +383,7 @@ use ZeroBoiler\Analytics\Services\EventBroadcastService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 104.0.0
+ * @version 105.0.0
  *
  * @since 1.0.0
  */
