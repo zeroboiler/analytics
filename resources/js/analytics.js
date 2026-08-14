@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 100.0.0
+ * @version 102.0.0
  */
 
 let trackingId = null;
@@ -21,6 +21,144 @@ const eventQueue = [];
 let flushTimer = null;
 const FLUSH_INTERVAL = 5000; // 5 seconds
 const MAX_QUEUE_SIZE = 25;
+
+// ─── Client-Side Sampling Engine (v102.0.0) ──────────────────────────
+
+/**
+ * Deterministic sampling using MurmurHash3-inspired hash of event name + tracking ID.
+ * When enabled, events whose hash modulo 100 falls below (rate × 100) are tracked.
+ * When disabled, all events pass through.
+ *
+ * @param {string} name - Event name
+ * @param {boolean} deterministic - Use hash-based sampling (consistent per user/event)
+ * @returns {boolean} Whether the event should be tracked
+ */
+function shouldSampleEvent(name) {
+    const sampling = config?.sampling;
+    if (!sampling?.enabled || sampling.rate >= 1.0) return true;
+    if (sampling.rate <= 0.0) return false;
+
+    if (sampling.deterministic && trackingId) {
+        // Deterministic: hash(eventName + trackingId) % 10000 < rate * 10000
+        const seed = `${name}:${trackingId}`;
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const ch = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash + ch) | 0;
+        }
+        const bucket = Math.abs(hash) % 10000;
+        return bucket < (sampling.rate * 10000);
+    }
+
+    // Random sampling
+    return Math.random() < sampling.rate;
+}
+
+/**
+ * Get sampling decision for an event (public API for testing/debugging).
+ *
+ * @param {string} name - Event name to check
+ * @returns {{ sampled: boolean, rate: number, deterministic: boolean, enabled: boolean }}
+ */
+export function getSamplingDecision(name) {
+    const sampling = config?.sampling || { enabled: false, rate: 1.0, deterministic: true };
+    return {
+        sampled: shouldSampleEvent(name),
+        rate: sampling.rate,
+        deterministic: sampling.deterministic,
+        enabled: sampling.enabled,
+    };
+}
+
+// ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
+
+const debugEventLog = [];
+const MAX_DEBUG_LOG_SIZE = 200;
+
+/**
+ * Log an event for debugging when debug mode is enabled.
+ * Stores events in a ring buffer accessible via getDebugEventLog().
+ *
+ * @param {string} name - Event name
+ * @param {object} params - Event params
+ * @param {'queued'|'immediate'|'sampled_out'|'consent_blocked'} action - What happened to the event
+ * @param {object} [meta] - Additional metadata (provider, timing, etc.)
+ */
+function debugLog(name, params, action, meta = {}) {
+    if (!config?.debug && debugEventLog.length === 0) return;
+
+    const entry = {
+        timestamp: Date.now(),
+        event: name,
+        params,
+        action,
+        meta,
+        trackingId,
+    };
+
+    debugEventLog.push(entry);
+
+    // Ring buffer: trim oldest entries
+    while (debugEventLog.length > MAX_DEBUG_LOG_SIZE) {
+        debugEventLog.shift();
+    }
+
+    // Console output when debug mode is active
+    if (config?.debug) {
+        const style = {
+            queued: 'color: #10b981; font-weight: bold',
+            immediate: 'color: #3b82f6; font-weight: bold',
+            sampled_out: 'color: #f59e0b; font-style: italic',
+            consent_blocked: 'color: #ef4444; font-style: italic',
+        };
+        const consoleStyle = style[action] || 'color: #6b7280';
+        console.log(`%c[zb:analytics] ${action.toUpperCase()} ${name}`, consoleStyle, {
+            params,
+            ...meta,
+            trackingId: trackingId ? `${trackingId.substring(0, 8)}…` : null,
+        });
+    }
+}
+
+/**
+ * Get the debug event log buffer.
+ *
+ * Returns the last N events that were processed (or blocked) by the
+ * analytics client. Useful for debugging and testing event tracking.
+ *
+ * @param {number} [limit=50] - Maximum entries to return (most recent first)
+ * @returns {Array<{timestamp: number, event: string, params: object, action: string, meta: object, trackingId: string|null}>}
+ *
+ * @example
+ * const log = getDebugEventLog(10);
+ * log.forEach(e => console.log(e.event, e.action, e.params));
+ */
+export function getDebugEventLog(limit = 50) {
+    if (!config?.debug && debugEventLog.length === 0) return [];
+    return debugEventLog.slice(-limit).reverse();
+}
+
+/**
+ * Clear the debug event log buffer.
+ */
+export function clearDebugEventLog() {
+    debugEventLog.length = 0;
+}
+
+/**
+ * Get debug event log stats.
+ *
+ * @returns {{ total: number, queued: number, immediate: number, sampled_out: number, consent_blocked: number }}
+ */
+export function getDebugEventLogStats() {
+    const stats = { total: debugEventLog.length, queued: 0, immediate: 0, sampled_out: 0, consent_blocked: 0 };
+    for (const entry of debugEventLog) {
+        if (entry.action in stats) {
+            stats[entry.action]++;
+        }
+    }
+    return stats;
+}
 
 /**
  * Initialize the analytics library.
@@ -658,6 +796,12 @@ function initMixpanel() {
 export async function trackEvent(name, params = {}, options = {}) {
     if (!initialized) return;
 
+    // ── Sampling gate (v102.0.0) ─────────────────────────────────
+    if (!shouldSampleEvent(name)) {
+        debugLog(name, params, 'sampled_out', { sampling: config?.sampling });
+        return;
+    }
+
     // Auto-attach UTM parameters if captured
     const enrichedParams = { ...params };
     if (Object.keys(utmParams).length > 0) {
@@ -672,10 +816,12 @@ export async function trackEvent(name, params = {}, options = {}) {
     const event = { name, params: enrichedParams };
 
     if (options.immediate) {
+        debugLog(name, enrichedParams, 'immediate', { providers: options._target_providers || 'all' });
         return sendEvent(event);
     }
 
     eventQueue.push(event);
+    debugLog(name, enrichedParams, 'queued', { queueSize: eventQueue.length });
 
     if (eventQueue.length >= MAX_QUEUE_SIZE) {
         await flushQueue();
@@ -719,19 +865,40 @@ export async function flushQueue() {
 
     const events = [...eventQueue];
     eventQueue.length = 0;
+    const startTime = config?.debug ? performance.now() : 0;
 
     try {
-        await fetch(`${apiBaseUrl}/batch`, {
+        const res = await fetch(`${apiBaseUrl}/batch`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ events }),
         });
-    } catch {
+        if (config?.debug) {
+            for (const ev of events) {
+                debugLog(ev.name, ev.params, 'queued', {
+                    batched: true,
+                    status: res?.status,
+                    durationMs: Math.round(performance.now() - startTime),
+                    endpoint: 'POST /api/analytics/batch',
+                    batchSize: events.length,
+                });
+            }
+        }
+    } catch (err) {
+        if (config?.debug) {
+            for (const ev of events) {
+                debugLog(ev.name, ev.params, 'queued', {
+                    batched: true,
+                    error: err?.message || 'network_error',
+                    retried: true,
+                });
+            }
+        }
         // Re-queue failed events (up to max size)
         for (const event of events) {
             if (eventQueue.length < MAX_QUEUE_SIZE) {
@@ -791,19 +958,32 @@ function autoIdentify(userId, clientId) {
  * @returns {Promise<void>}
  */
 async function sendEvent(event) {
+    const startTime = config?.debug ? performance.now() : 0;
     try {
-        await fetch(`${apiBaseUrl}/events`, {
+        const res = await fetch(`${apiBaseUrl}/events`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ name: event.name, params: event.params }),
         });
-    } catch {
-        // Silent fail — don't break the UI for analytics
+        if (config?.debug && res) {
+            debugLog(event.name, event.params, 'immediate', {
+                status: res.status,
+                durationMs: Math.round(performance.now() - startTime),
+                endpoint: 'POST /api/analytics/events',
+            });
+        }
+    } catch (err) {
+        if (config?.debug) {
+            debugLog(event.name, event.params, 'immediate', {
+                error: err?.message || 'network_error',
+                durationMs: Math.round(performance.now() - startTime),
+            });
+        }
     }
 }
 

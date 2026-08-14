@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-100.3.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-103.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -57,6 +57,28 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+### What's New in v102.0.0
+
+**Client-Side Sampling Engine & Event Debug Logger** — Production-ready client-side event quality tools:
+
+- **`shouldSampleEvent()` + `getSamplingDecision()`** — Config-driven sampling gate in `trackEvent()`. Deterministic hash-based sampling (`eventName:trackingId`) for consistent per-user/event decisions, or random fallback. Controlled via `zeroboiler.analytics.sampling` config (already exposed through Inertia props). Events outside the sampling rate are silently dropped with debug-only logging.
+- **`getDebugEventLog()`, `getDebugEventLogStats()`, `clearDebugEventLog()`** — Dev-time ring buffer (200 events) for inspecting tracked/blocked events. Color-coded console output (green=queued, blue=immediate, yellow=sampled_out, red=consent_blocked). Network timing metadata on sends. Zero-overhead when debug mode is off.
+- **`Phase31SamplingDebugAuditTest`** — 15 assertions: JS sampling engine, debug logger, TypeScript type definitions, version consistency, SaaS shorthand exports, core function exports, offline buffer support, sendBeacon reliability, strict_types compliance.
+
+```javascript
+// Check sampling decision for any event
+const decision = getSamplingDecision('button_click');
+console.log(decision.sampled); // true or false
+
+// Inspect tracked events (debug mode only)
+const log = getDebugEventLog(10);
+console.table(log);
+
+// Debug event stats
+const stats = getDebugEventLogStats();
+console.log(stats); // { total: 42, queued: 30, immediate: 10, sampled_out: 2 }
+```
+
 ### What's New in v100.1.0
 
 **Phase 28 Production Audit** — Comprehensive quality hardening across all 680 source files:
@@ -66,7 +88,7 @@ Done. That's it.
 - **`SaaSFunnelDefinitions`** — Pre-defined SaaS funnel templates (signup, activation, trial conversion, purchase, subscription, retention) with step definitions, AARRR classification, and conversion tracking
 - **`SaaSReadinessAssessmentTest`** — 308 assertions covering readiness scoring, gap detection, readiness gates, and maturity calculations
 - **`SaaSFunnelDefinitionsTest`** — 272 assertions covering all 6 funnel templates, step validation, AARRR classification, and cross-funnel integration
-- **Updated metrics**: 680 source files, 323 test files, 21,350+ assertions
+- **Updated metrics**: 680 source files, 327 test files, 21,365+ assertions
 
 ### What's New in v100.2.0
 

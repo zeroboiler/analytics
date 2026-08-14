@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 101.0.0
+ * @version 102.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -2591,3 +2591,67 @@ export function getEventNamesByCategory(category: 'ecommerce' | 'saas' | 'engage
  * Get total count of all events across all categories.
  */
 export function getTotalEventCount(): number;
+
+// ─── Client-Side Sampling Engine (v102.0.0) ─────────────────────────
+
+/**
+ * Get sampling decision for a specific event name.
+ *
+ * @param name - Event name to check
+ * @returns Sampling decision details
+ *
+ * @example
+ * const decision = getSamplingDecision('button_click');
+ * console.log(decision.sampled); // true or false
+ */
+export function getSamplingDecision(name: string): {
+    sampled: boolean;
+    rate: number;
+    deterministic: boolean;
+    enabled: boolean;
+};
+
+// ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
+
+/**
+ * Debug log entry for tracked events.
+ */
+export interface DebugEventLogEntry {
+    timestamp: number;
+    event: string;
+    params: Record<string, unknown>;
+    action: 'queued' | 'immediate' | 'sampled_out' | 'consent_blocked';
+    meta: Record<string, unknown>;
+    trackingId: string | null;
+}
+
+/**
+ * Debug event log stats.
+ */
+export interface DebugEventLogStats {
+    total: number;
+    queued: number;
+    immediate: number;
+    sampled_out: number;
+    consent_blocked: number;
+}
+
+/**
+ * Get the debug event log buffer (most recent first).
+ *
+ * @param limit - Maximum entries to return (default 50)
+ * @returns Array of debug log entries
+ */
+export function getDebugEventLog(limit?: number): DebugEventLogEntry[];
+
+/**
+ * Clear the debug event log buffer.
+ */
+export function clearDebugEventLog(): void;
+
+/**
+ * Get debug event log statistics.
+ *
+ * @returns Counts by action type
+ */
+export function getDebugEventLogStats(): DebugEventLogStats;

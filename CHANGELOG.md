@@ -1,5 +1,40 @@
 # Changelog
 
+## [102.0.0] - 2026-08-14
+
+### Added
+- **Client-Side Sampling Engine** — `trackEvent()` now applies config-driven sampling gate before dispatch:
+  - Deterministic sampling using hash of `eventName:trackingId` for consistent per-user/event decisions
+  - Random sampling fallback for non-deterministic use cases
+  - Config-driven via `zeroboiler.analytics.sampling` (enabled, rate, deterministic) — already exposed through Inertia props
+  - `getSamplingDecision(eventName)` — public JS API to check sampling status for any event
+- **Event Debug Logger** — Dev-time console logging with ring buffer for event tracking inspection:
+  - Color-coded console output: green (queued), blue (immediate), yellow (sampled_out), red (consent_blocked)
+  - Ring buffer of last 200 events with timestamps, params, action type, and metadata
+  - `getDebugEventLog(limit)` — retrieve recent tracked/blocked events (most recent first)
+  - `getDebugEventLogStats()` — counts by action type (queued, immediate, sampled_out, consent_blocked)
+  - `clearDebugEventLog()` — clear the debug buffer
+  - Network timing metadata on immediate sends (durationMs, status, endpoint)
+  - Batch flush metadata (batchSize, status, durationMs, retried on failure)
+  - Zero-overhead when debug mode is disabled (no allocation, no string interpolation)
+- **Phase 31 Production Audit Test** — 15 assertions covering:
+  - JS client sampling engine implementation and export coverage
+  - JS client debug logger implementation and ring buffer behavior
+  - Debug log action type completeness (queued, immediate, sampled_out, consent_blocked)
+  - TypeScript type definitions for DebugEventLogEntry and DebugEventLogStats interfaces
+  - TypeScript type definition for getSamplingDecision return type
+  - Version consistency across 5 package files (PHP DTO, composer.json, package.json, JS, TS)
+  - SaaS shorthand JS function exports (12 functions)
+  - Core analytics JS function exports (17 functions)
+  - Offline buffer support (7 functions)
+  - beforeunload + sendBeacon reliability checks
+  - strict_types and constructor :void compliance across all source files
+
+### Changed
+- `trackEvent()` now calls `shouldSampleEvent()` as first gate — events outside sampling rate are silently dropped (logged in debug mode only)
+- `sendEvent()` and `flushQueue()` now log debug metadata on success/failure when debug mode is active
+- Version bump to 102.0.0 across all package files
+
 ## [100.3.0] - 2026-08-14
 
 ### Fixed
