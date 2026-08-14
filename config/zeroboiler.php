@@ -7107,4 +7107,48 @@ return [
         'include_recommendations' => true,
         'frameworks' => ['gdpr', 'ccpa', 'soc2', 'eprivacy'],
     ],
+
+    /*
+    |------------------------------------------------------------------
+    | Data-Driven Attribution (v87.0.0)
+    |------------------------------------------------------------------
+    |
+    | Shapley-value based multi-touch attribution that uses observed
+    | conversion data to compute the marginal contribution of each channel.
+    | The gold-standard attribution model (used by GA4 enterprise).
+    |
+    | Requires sufficient conversion data for reliable results.
+    |
+    */
+    'data_driven_attribution' => [
+        'enabled' => env('ANALYTICS_DDA_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_DDA_CACHE_TTL', 3600),
+        'min_conversions' => (int) env('ANALYTICS_DDA_MIN_CONVERSIONS', 30),
+        'lookback_days' => (int) env('ANALYTICS_DDA_LOOKBACK_DAYS', 90),
+        'max_path_length' => (int) env('ANALYTICS_DDA_MAX_PATH_LENGTH', 20),
+    ],
+
+    /*
+    |------------------------------------------------------------------
+    | Unit Economics (v87.0.0)
+    |------------------------------------------------------------------
+    |
+    | Subscriber-level unit economics calculator for SaaS financial metrics.
+    | Configurable LTV model parameters and industry benchmarks.
+    |
+    */
+    'unit_economics' => [
+        'enabled' => env('ANALYTICS_UNIT_ECON_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_UNIT_ECON_CACHE_TTL', 300),
+        'ltv' => [
+            'lifetime_months' => (int) env('ANALYTICS_LTV_LIFETIME_MONTHS', 120),
+            'discount_rate' => (float) env('ANALYTICS_LTV_DISCOUNT_RATE', 0.01),
+            'gross_margin' => (float) env('ANALYTICS_LTV_GROSS_MARGIN', 0.75),
+        ],
+        'benchmarks' => [
+            'ltv_cac_target' => (float) env('ANALYTICS_LTV_CAC_TARGET', 3.0),
+            'payback_target_months' => (int) env('ANALYTICS_PAYBACK_TARGET', 18),
+            'magic_number_target' => (float) env('ANALYTICS_MAGIC_NUMBER_TARGET', 0.75),
+        ],
+    ],
 ];

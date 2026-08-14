@@ -2979,6 +2979,31 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\AnalyticsComplianceReportService($config);
         });
 
+        // Data-Driven Attribution Service (v87.0.0) — Shapley-value multi-touch attribution
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\DataDrivenAttributionService::class, function (Application $app): \ZeroBoiler\Analytics\Services\DataDrivenAttributionService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            return new \ZeroBoiler\Analytics\Services\DataDrivenAttributionService($cache, $config);
+        });
+
+        // Unit Economics Service (v87.0.0) — LTV, CAC, LTV:CAC, Magic Number
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\UnitEconomicsService::class, function (Application $app): \ZeroBoiler\Analytics\Services\UnitEconomicsService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            return new \ZeroBoiler\Analytics\Services\UnitEconomicsService($cache, $config);
+        });
+
+        // Product Analytics Maturity Service (v87.0.0) — maturity model assessment
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService::class, function (): \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService {
+            return new \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService;
+        });
+
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */

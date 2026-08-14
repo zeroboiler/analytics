@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-86.0.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-87.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,60 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v87.0.0
+
+**Data-Driven Attribution (Shapley Value)** — Industry-standard multi-touch attribution model that uses observed conversion data to compute the marginal contribution of each marketing channel. Implements the gold-standard algorithm from cooperative game theory:
+
+- **Exact Shapley computation** for ≤ 15 channels: evaluates all possible coalitions (2^n subsets)
+- **Monte Carlo approximation** for > 15 channels: O(m × n) sampling for scalability
+- **Channel removal impact analysis**: simulate revenue loss if a channel is removed
+- **Period comparison**: track how attribution shifts between time periods
+- **Budget allocation**: proportional budget recommendations based on attribution credit
+- **Model confidence scoring**: indicates reliability based on data sufficiency (minimum 30 conversions)
+
+API endpoints:
+- `POST /api/analytics/attribution/data-driven` — compute Shapley attribution from conversion paths
+- `POST /api/analytics/attribution/compare-periods` — compare attribution between periods
+- `POST /api/analytics/attribution/channel-impact` — analyze channel removal impact
+- `POST /api/analytics/attribution/budget` — budget allocation recommendations
+
+Config section `zeroboiler.analytics.data_driven_attribution`: `enabled`, `cache_ttl`, `min_conversions`, `lookback_days`, `max_path_length`.
+
+**Unit Economics Service** — Comprehensive subscriber-level financial metrics for venture-backed SaaS companies (OpenView Partners, Bessemer benchmarks):
+
+- **LTV models**: Simple (ARPU × GM × Lifetime) and Predictive (DCF with discount rate)
+- **Cohort LTV**: Computed from actual revenue data observations
+- **Blended & per-channel CAC** with efficiency classification
+- **LTV:CAC ratio** with health assessment (target: 3:1)
+- **CAC payback period** (target: ≤ 18 months)
+- **Magic Number** sales efficiency (target: > 0.75)
+- **Gross margin, burn rate, runway, revenue per employee**
+- **Comprehensive dashboard**: single-call financial health overview
+
+API endpoints:
+- `POST /api/analytics/unit-economics/dashboard` — full unit economics dashboard
+- `POST /api/analytics/unit-economics/ltv-cac` — LTV:CAC ratio calculation
+- `POST /api/analytics/unit-economics/channel-cac` — per-channel CAC efficiency
+- `POST /api/analytics/unit-economics/magic-number` — Magic Number sales efficiency
+
+Config section `zeroboiler.analytics.unit_economics`: `enabled`, `cache_ttl`, `ltv` (lifetime_months, discount_rate, gross_margin), `benchmarks` (ltv_cac_target, payback_target_months, magic_number_target).
+
+**Product Analytics Maturity Assessment** — Evaluates analytics instrumentation against a 5-level maturity model (Amplitude/Gartner inspired):
+
+- **Level 1 — Ad Hoc**: Basic page views, no funnel tracking
+- **Level 2 — Basic**: Core lifecycle events, single provider
+- **Level 3 — Standard**: Full AARRR coverage, multi-provider, identity resolution
+- **Level 4 — Advanced**: Predictive analytics, cohort analysis, attribution
+- **Level 5 — Leading**: Data-driven culture, full automation, real-time
+
+8 assessment dimensions: Event Coverage, Provider Coverage, Funnel Instrumentation, Identity Resolution, Real-time Capabilities, Privacy & Compliance, Operational Excellence, Data Quality. Weighted scoring with findings, recommendations, and prioritized roadmap.
+
+API endpoints:
+- `GET /api/analytics/maturity` — full maturity assessment with 8 dimensions
+- `GET /api/analytics/maturity/quick` — quick score (level + grade only)
+
+**3 new services**, **10 new API endpoints**, **2 new config sections**, ServiceProvider singleton registrations, V87 test suite with 30+ assertions, full version sweep to 87.0.0 — industry-standard SaaS analytics upgrade.
 
 ### What's New in v86.0.0
 
