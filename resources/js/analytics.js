@@ -873,7 +873,7 @@ export async function flushQueue() {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ events }),
@@ -965,7 +965,7 @@ async function sendEvent(event) {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Analytics-Client-Id': trackingId,
-                ...(getAuthToken() ? { Authorization: *** ${getAuthToken()}` } : {}),
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
                 Accept: 'application/json',
             },
             body: JSON.stringify({ name: event.name, params: event.params }),
