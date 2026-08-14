@@ -65,7 +65,7 @@ final class PropertyDefinition
      * @param  string  $type  Property type
      * @param  list<string>  $enumValues  Allowed enum values (empty if not enum)
      */
-    public function __construct(string $name, string $type, array $enumValues = [])
+    public function __construct(string $name, string $type, array $enumValues = []): void
     {
         $this->name = $name;
         $this->type = $type;

@@ -63,7 +63,7 @@ final class EventSchemaRegistryExtended
      * @param  CacheRepository  $cache  Cache repository
      * @param  int  $cacheTtl  Cache TTL in seconds
      */
-    public function __construct(CacheRepository $cache, int $cacheTtl = self::DEFAULT_TTL)
+    public function __construct(CacheRepository $cache, int $cacheTtl = self::DEFAULT_TTL): void
     {
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;

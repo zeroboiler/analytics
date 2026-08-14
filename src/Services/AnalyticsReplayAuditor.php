@@ -39,7 +39,7 @@ final class AnalyticsReplayAuditor
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {}
+    ): void {}
 
     /**
      * Record a replay attempt for an event.

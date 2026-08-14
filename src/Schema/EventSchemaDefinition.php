@@ -55,7 +55,7 @@ final readonly class EventSchemaDefinition
         public ?string $amplitude,
         public ?string $tiktok,
         public ?string $linkedin,
-    ) {}
+    ): void {}
 
     /**
      * Get the list of required property names.

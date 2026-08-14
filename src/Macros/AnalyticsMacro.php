@@ -42,7 +42,7 @@ final class AnalyticsMacro
         private readonly array $requiredKeys = [],
         private readonly array $tags = [],
         private readonly ?string $description = null,
-    ) {}
+    ): void {}
 
     /**
      * Get the macro name.

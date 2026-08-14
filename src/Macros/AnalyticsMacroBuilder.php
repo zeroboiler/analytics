@@ -47,7 +47,7 @@ final class AnalyticsMacroBuilder
     public function __construct(
         private readonly string $name,
         private readonly string $eventName,
-    ) {}
+    ): void {}
 
     /**
      * Set default parameter values merged into every macro execution.
