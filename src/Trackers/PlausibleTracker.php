@@ -127,6 +127,64 @@ final class PlausibleTracker implements TrackerInterface
     }
 
     /**
+     * Track a custom event with custom properties.
+     *
+     * Plausible's custom events support additional properties
+     * that can be used for segmentation and filtering in the dashboard.
+     *
+     * @param  string  $name  Custom event name (e.g., 'Signup', 'Purchase')
+     * @param  string  $url  Page URL where the event occurred
+     * @param  array<string, mixed>  $props  Additional event properties
+     * @param  string|null  $referrer  Optional referrer URL
+     *
+     * @since 90.0.0
+     */
+    public function trackCustomEvent(string $name, string $url, array $props = [], ?string $referrer = null): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        if ($this->isAnalyticsDenied()) {
+            return;
+        }
+
+        $payload = [
+            'domain' => $this->domain,
+            'name' => $name,
+            'url' => $url,
+            'props' => $props,
+        ];
+
+        if ($referrer !== null) {
+            $payload['referrer'] = $referrer;
+        }
+
+        $payload = array_filter($payload, fn (mixed $v): bool => $v !== null && $v !== '');
+
+        try {
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->apiKey}",
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl, $payload);
+
+            if (! $response->successful()) {
+                Log::warning('PlausibleTracker: custom event dispatch failed', [
+                    'event' => $name,
+                    'status' => $response->status(),
+                    'body' => (string) $response->body(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('PlausibleTracker: custom event dispatch error', [
+                'event' => $name,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * Track a page view with a specific URL.
      *
      * Sends a standard pageview event to Plausible.

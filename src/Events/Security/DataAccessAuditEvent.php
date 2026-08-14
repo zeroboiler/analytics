@@ -10,32 +10,35 @@ namespace ZeroBoiler\Analytics\Events\Security;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 
 /**
- * Fired when a data access audit event occurs.
+ * Analytics event for data access audit logging.
  *
- * Tracks access to sensitive data for GDPR Art.30 compliance records
- * and internal audit trails. Includes resource type, action, and outcome.
+ * Tracks who accessed what data, when, and from where.
+ * Critical for GDPR Article 30 record of processing activities
+ * and SOC2 compliance audit trails.
  *
- * @since 9.9.0
+ * @since 90.0.0
  */
 final class DataAccessAuditEvent extends AnalyticsEvent
 {
     /**
-     * @param  string  $resource  Resource type accessed (user_data, financial_records, pii, health_data, etc.)
-     * @param  string  $action  Action performed (read, export, modify, delete, bulk_export)
-     * @param  string|null  $actorId  ID of the user who performed the action
-     * @param  string|null  $targetId  ID of the user whose data was accessed
+     * @param  string|null  $dataType  Type of data accessed (e.g., 'user_profile', 'analytics_events', 'payment_info')
+     * @param  string|null  $accessor  Who accessed the data (user ID or system identifier)
+     * @param  string|null  $accessLevel  Level of access (e.g., 'read', 'export', 'delete')
+     * @param  array<string, mixed>  $params  Additional event parameters
      */
     public function __construct(
-        string $resource = 'user_data',
-        string $action = 'read',
-        ?string $actorId = null,
-        ?string $targetId = null,
-    ): void {
-        parent::__construct('data_access_audit', array_filter([
-            'resource' => $resource,
-            'action' => $action,
-            'actor_id' => $actorId,
-            'target_id' => $targetId,
-        ]));
+        ?string $dataType = null,
+        ?string $accessor = null,
+        ?string $accessLevel = null,
+        array $params = [],
+    ) {
+        parent::__construct(
+            name: 'data_access_audit',
+            params: array_filter(array_merge($params, [
+                'data_type' => $dataType,
+                'accessor' => $accessor,
+                'access_level' => $accessLevel,
+            ])),
+        );
     }
 }

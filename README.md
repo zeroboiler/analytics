@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|[![Latest Version](https://img.shields.io/badge/version-89.1.0-blue)](https://github.com/zeroboiler/analytics)|
+|[![Latest Version](https://img.shields.io/badge/version-90.0.0-blue)](https://github.com/zeroboiler/analytics)|
 [![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with a fully-featured JS client, auto-tracking, queue dispatch, identity resolution, cohort analytics, event replay, and GDPR consent.
@@ -56,6 +56,28 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v90.0.0
+
+**AI Agent Access Events** — Security audit trail for non-human access. Track AI assistants (Claude, ChatGPT, Copilot, Hermes) interacting with sensitive resources:
+
+- **New event class**: `AiAgentAccessEvent` with `agent`, `action`, `resource` parameters
+- **Catalog entry**: Registered in `SecurityEvents` with GA4, Meta, PostHog, Mixpanel, Amplitude mappings
+- **JS client helper**: `trackAiAgentAccess({ agent, action, resource, outcome })` for client-side tracking
+- **TypeScript types**: Full type definitions in `analytics.d.ts`
+- **GDPR data access audit event class**: `DataAccessAuditEvent` DTO with `dataType`, `accessor`, `accessLevel` parameters (was catalog-only, now has concrete implementation)
+
+**Plausible Custom Events** — Enhanced Plausible integration with custom event properties support:
+
+- **`trackCustomEvent()`**: Send custom events with `props` for Plausible dashboard segmentation
+- **Referrer support**: Optional referrer URL for attribution accuracy
+- **Error handling**: Logging on dispatch failure for observability
+
+**PostHog GDPR Person Deletion** — Full GDPR Article 17 compliance for PostHog:
+
+- **`deletePerson($distinctId)`**: Permanently remove a person and all their events from PostHog
+- **Bearer auth**: Uses API key for authenticated deletion requests
+- **Error handling**: Returns boolean + logs errors for failed deletions
 
 ### What's New in v88.0.0
 

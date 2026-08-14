@@ -407,7 +407,7 @@ export function isInitialized() {
  * @returns {string} Semantic version (e.g. '4.2.0')
  */
 export function getVersion() {
-        return '83.0.0';
+        return '90.0.0';
 }
 
 /**
@@ -4229,7 +4229,7 @@ export function getForwarderNames() {
  * @returns {string} Semantic version (e.g. '2.62.0')
  */
 export function _getInternalVersion() {
-        return '83.0.0';
+        return '90.0.0';
 }
 
 // ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
@@ -4435,6 +4435,35 @@ export async function trackAdClick({ platform, campaignId, adGroupId, creativeId
         ...(placement != null ? { placement } : {}),
         ...(keyword != null ? { keyword } : {}),
         ...(cost != null ? { cost } : {}),
+    });
+}
+
+// ─── AI Agent Access Tracking (v90.0.0) ─────────────────────────────
+
+/**
+ * Track AI agent / automation tool access events.
+ *
+ * Use this to create an audit trail for non-human access to sensitive resources.
+ * Helps security teams monitor AI assistant (Claude, ChatGPT, Copilot) interactions.
+ *
+ * @param {object} params - AI agent access parameters
+ * @param {string} params.agent - Agent name (e.g., 'claude', 'gpt', 'copilot', 'hermes')
+ * @param {string} params.action - Action performed (e.g., 'read', 'write', 'deploy', 'delete')
+ * @param {string} [params.resource] - Resource accessed (e.g., 'database', 'api', 'config', 'files')
+ * @param {string} [params.outcome] - Outcome (e.g., 'success', 'denied', 'error')
+ * @param {string} [params.sessionId] - Session identifier for correlation
+ * @returns {Promise<boolean>}
+ *
+ * @example
+ * await trackAiAgentAccess({ agent: 'claude', action: 'write', resource: 'config', outcome: 'success' });
+ */
+export async function trackAiAgentAccess({ agent, action, resource, outcome, sessionId }) {
+    return trackEvent('ai_agent_access', {
+        agent,
+        action,
+        ...(resource != null ? { resource } : {}),
+        ...(outcome != null ? { outcome } : {}),
+        ...(sessionId != null ? { session_id: sessionId } : {}),
     });
 }
 

@@ -374,6 +374,43 @@ HTML;
     }
 
     /**
+     * Delete a person and all their events (GDPR Article 17).
+     *
+     * Permanently removes a person and all their associated events
+     * from PostHog. This is irreversible and should only be called
+     * in response to a verified GDPR erasure request.
+     *
+     * @param  string  $distinctId  The distinct ID of the person to delete
+     * @return bool Whether the deletion was successful
+     *
+     * @since 90.0.0
+     */
+    public function deletePerson(string $distinctId): bool
+    {
+        if (! $this->isEnabled()) {
+            return false;
+        }
+
+        try {
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = Http::withHeaders([
+                'Authorization' => "Bearer {$this->apiKey}",
+            ])->delete(
+                "{$this->host}/api/persons/{$distinctId}",
+            );
+
+            return $response->successful();
+        } catch (\Throwable $e) {
+            Log::error('PosthogTracker: delete person error', [
+                'distinct_id' => $distinctId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
      * Generate a random distinct ID for anonymous events.
      */
     private function generateDistinctId(): string

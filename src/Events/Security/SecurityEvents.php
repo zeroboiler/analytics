@@ -96,6 +96,19 @@ final class SecurityEvents
                 'tiktok' => null,
                 'linkedin' => null,
             ],
+            // AI agent / automation tool audit trail (v90.0.0)
+            'ai_agent_access' => [
+                'name' => 'ai_agent_access',
+                'class' => AiAgentAccessEvent::class,
+                'ga4' => 'ai_agent_access',
+                'meta' => 'CustomEvent',
+                'posthog' => 'ai_agent_access',
+                'plausible' => null,
+                'mixpanel' => 'AI Agent Access',
+                'amplitude' => 'AI Agent Access',
+                'tiktok' => null,
+                'linkedin' => null,
+            ],
         ];
 
         return self::$catalog;

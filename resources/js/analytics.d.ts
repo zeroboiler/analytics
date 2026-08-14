@@ -838,6 +838,17 @@ export function trackAdClick(options: {
 }): Promise<void>;
 
 /**
+ * Track AI agent / automation tool access events (v90.0.0).
+ */
+export function trackAiAgentAccess(options: {
+  agent: string;
+  action: string;
+  resource?: string;
+  outcome?: string;
+  sessionId?: string;
+}): Promise<void>;
+
+/**
  * Track content engagement event.
  */
 export function trackContentEngagement(options: {
