@@ -205,7 +205,7 @@ final class Phase31SamplingDebugAuditTest extends TestCase
      */
     public function version_consistency_across_all_package_files(): void
     {
-        $version = '102.0.0';
+        $version = '103.0.0';
 
         // PHP DTO
         $dto = file_get_contents(__DIR__ . '/../src/DTO/AnalyticsEvent.php');

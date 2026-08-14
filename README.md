@@ -57,7 +57,7 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v102.0.0
+### What's New in v103.0.0
 
 **Client-Side Sampling Engine & Event Debug Logger** — Production-ready client-side event quality tools:
 

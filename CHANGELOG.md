@@ -1,6 +1,6 @@
 # Changelog
 
-## [102.0.0] - 2026-08-14
+## [103.0.0] - 2026-08-14
 
 ### Added
 - **Client-Side Sampling Engine** — `trackEvent()` now applies config-driven sampling gate before dispatch:
@@ -33,7 +33,7 @@
 ### Changed
 - `trackEvent()` now calls `shouldSampleEvent()` as first gate — events outside sampling rate are silently dropped (logged in debug mode only)
 - `sendEvent()` and `flushQueue()` now log debug metadata on success/failure when debug mode is active
-- Version bump to 102.0.0 across all package files
+- Version bump to 103.0.0 across all package files
 
 ## [100.3.0] - 2026-08-14
 
