@@ -70,14 +70,21 @@
     "scripts": {
         "test": "vendor/bin/pest --min=80",
         "test:ci": "vendor/bin/pest --coverage --min=44",
-        "pint": "vendor/bin/pint --test",
-        "pint:fix": "vendor/bin/pint",
-        "phpstan": "vendor/bin/phpstan analyse --no-progress",
+        "test:coverage": "vendor/bin/pest --coverage",
+        "lint": "vendor/bin/pint --test",
+        "lint:fix": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse --no-progress",
         "rector": "vendor/bin/rector --dry-run --no-progress-bar",
         "rector:fix": "vendor/bin/rector --no-progress-bar",
+        "quality": [
+            "@lint",
+            "@analyse",
+            "@rector",
+            "@test"
+        ],
         "ci": [
-            "@pint",
-            "@phpstan",
+            "@lint",
+            "@analyse",
             "@rector",
             "@test"
         ]
