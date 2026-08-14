@@ -104,7 +104,7 @@ final class EventSchemaBuilder
     /**
      * @param  string  $name  Event name
      */
-    private function __construct(string $name)
+    private function __construct(string $name): void
     {
         $this->name = $name;
     }

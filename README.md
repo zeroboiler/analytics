@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-143.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-144.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **74 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v144.0.0
+
+**Industry-Standard SaaS Analytics Upgrade — identifyAndTrack() + 17 New Convenience Methods**:
+
+- **`Analytics::identifyAndTrack()`** — Atomic identify + track convenience method for the most common SaaS pattern: link user identity and fire an event in one call. Ensures the identify call fires before the event so all providers receive the user ID. Essential for post-authentication events (signup, trial_start, subscription) where the anonymous-to-known identity transition must happen atomically.
+- **17 new AnalyticsManager convenience methods** covering previously uncovered events from the engagement and SaaS catalogs: `webVitals()` (with automatic good/needs-improvement/poor rating inference for LCP, FID, CLS, INP, TTFB, FCP), `jsError()`, `timing()`, `sessionStart()`, `sessionEnd()`, `elementVisibility()`, `copyText()` (privacy-safe: sends text length, not content), `hover()`, `clientError()`, `consentGrant()`, `consentWithdraw()`, `paymentMethodAdded()`, `creditApplied()`, `featureLimitReached()`, `integrationFailed()`.
+- **Facade `@method` annotations** — All 17 new methods plus `identifyAndTrack()` added to the `Analytics` facade with full PHPDoc type hints for IDE autocompletion.
+- **Version sweep** — All 11 client files synced to v144.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
+- **Zero breaking changes** — All new methods are additive. Existing code continues to work without modification.
 
 ### What's New in v143.0.0
 

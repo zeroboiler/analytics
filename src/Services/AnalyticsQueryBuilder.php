@@ -61,7 +61,7 @@ final class AnalyticsQueryBuilder
     /** @var string */
     private string $queryType = 'time_series';
 
-    private function __construct() {}
+    private function __construct(): void {}
 
     /**
      * Create a new query builder instance.

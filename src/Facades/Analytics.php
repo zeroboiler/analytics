@@ -191,6 +191,28 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static bool trackEngagement(string $eventName, array<string, mixed> $params = [])
  * @method static bool trackByCategory(string $eventName, array<string, mixed> $params = [])
  *
+ * Identity + Event (v144.0.0)
+ * @method static void identifyAndTrack(string $userId, string $eventName, string|null $clientId = null, array<string, mixed> $params = [], array<string, mixed> $traits = [])
+ *
+ * Additional Engagement Convenience Methods (v144.0.0)
+ * @method static void webVitals(string $metricName, float|int $value, array<string, mixed> $params = [])
+ * @method static void jsError(string $message, string|null $source = null, int|null $line = null, int|null $col = null, array<string, mixed> $params = [])
+ * @method static void timing(string $category, string $variable, int|float $valueMs, array<string, mixed> $params = [])
+ * @method static void sessionStart(string|null $sessionId = null, array<string, mixed> $params = [])
+ * @method static void sessionEnd(string|null $sessionId = null, int|null $durationSeconds = null, array<string, mixed> $params = [])
+ * @method static void elementVisibility(string $elementId, string|null $elementType = null, bool|null $isVisible = null, array<string, mixed> $params = [])
+ * @method static void copyText(string $text, string|null $source = null, array<string, mixed> $params = [])
+ * @method static void hover(string $elementId, int|null $durationMs = null, array<string, mixed> $params = [])
+ * @method static void clientError(string $message, string|null $type = null, string|null $source = null, array<string, mixed> $params = [])
+ *
+ * Additional SaaS Lifecycle Convenience Methods (v144.0.0)
+ * @method static void consentGrant(array<string, bool>|null $purposes = null, array<string, mixed> $params = [])
+ * @method static void consentWithdraw(array<string, bool>|null $purposes = null, array<string, mixed> $params = [])
+ * @method static void paymentMethodAdded(string|null $method = null, string|null $provider = null, array<string, mixed> $params = [])
+ * @method static void creditApplied(float|null $amount = null, string|null $reason = null, array<string, mixed> $params = [])
+ * @method static void featureLimitReached(string $feature, string|null $limitType = null, int|float|null $currentValue = null, int|float|null $limitValue = null, array<string, mixed> $params = [])
+ * @method static void integrationFailed(string $integration, string|null $errorType = null, array<string, mixed> $params = [])
+ *
  * Context & Wire Protocol Methods (v41.0.0)
  * @method static mixed contextMeasure(string $label, \Closure $callback)
  * @method static \ZeroBoiler\Analytics\Support\AnalyticsContext createContext(string $label, ?string $source = null)

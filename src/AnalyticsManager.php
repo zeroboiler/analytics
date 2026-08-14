@@ -3826,6 +3826,291 @@ final class AnalyticsManager
         ]));
     }
 
+    // ── Identity + Event (v144.0.0) ──────────────────────────────────────
+
+    /**
+     * Identify a user and track an event in one atomic call.
+     *
+     * Common SaaS pattern for post-authentication events (signup, trial_start,
+     * subscription) where the user identity must be linked before the event
+     * is tracked. Ensures the identify call fires before the event, so all
+     * providers receive the user ID on the subsequent event.
+     *
+     * Usage:
+     *   Analytics::identifyAndTrack($userId, 'sign_up', $clientId, ['method' => 'email']);
+     *   Analytics::identifyAndTrack($userId, 'trial_start', $clientId, ['plan' => 'Pro']);
+     *   Analytics::identifyAndTrack($userId, 'purchase', $clientId, ['value' => 99.99]);
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  string  $eventName  Event to track after identification
+     * @param  string|null  $clientId  Client tracking ID (optional)
+     * @param  array<string, mixed>  $params  Event parameters
+     * @param  array<string, mixed>  $traits  Additional user traits for identify
+     */
+    public function identifyAndTrack(string $userId, string $eventName, ?string $clientId = null, array $params = [], array $traits = []): void
+    {
+        $this->identify($userId, $clientId, $traits);
+        $this->track($eventName, array_merge($params, [
+            'user_id' => $userId,
+            'client_id' => $clientId,
+        ]));
+    }
+
+    // ── Additional SaaS Convenience Methods (v144.0.0) ─────────────────
+
+    /**
+     * Track a web_vitals event (Core Web Vitals from client).
+     *
+     * @param  string  $metricName  Vital name (LCP, FID, CLS, INP, TTFB, FCP)
+     * @param  float|int  $value  Metric value (ms for timing, score for CLS)
+     * @param  array<string, mixed>  $params  Additional parameters (rating, url, element)
+     */
+    public function webVitals(string $metricName, float|int $value, array $params = []): void
+    {
+        $this->track('web_vitals', array_merge($params, [
+            'metric_name' => $metricName,
+            'value' => $value,
+            'rating' => $params['rating'] ?? $this->inferWebVitalsRating($metricName, $value),
+        ]));
+    }
+
+    /**
+     * Track a js_error event (client-side JavaScript error).
+     *
+     * @param  string  $message  Error message
+     * @param  string|null  $source  File/source where error occurred
+     * @param  int|null  $line  Line number
+     * @param  int|null  $col  Column number
+     * @param  array<string, mixed>  $params  Additional parameters (stack, url)
+     */
+    public function jsError(string $message, ?string $source = null, ?int $line = null, ?int $col = null, array $params = []): void
+    {
+        $this->track('js_error', array_merge($params, array_filter([
+            'message' => $message,
+            'source' => $source,
+            'line' => $line,
+            'col' => $col,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a timing event (custom performance measurement).
+     *
+     * @param  string  $category  Timing category (e.g., 'api_call', 'render')
+     * @param  string  $variable  Timing variable name
+     * @param  int|float  $valueMs  Duration in milliseconds
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function timing(string $category, string $variable, int|float $valueMs, array $params = []): void
+    {
+        $this->track('timing', array_merge($params, [
+            'timing_category' => $category,
+            'timing_variable' => $variable,
+            'timing_value' => $valueMs,
+        ]));
+    }
+
+    /**
+     * Track a session_start event.
+     *
+     * @param  string|null  $sessionId  Session identifier
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function sessionStart(?string $sessionId = null, array $params = []): void
+    {
+        $this->track('session_start', array_merge($params, array_filter([
+            'session_id' => $sessionId,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a session_end event.
+     *
+     * @param  string|null  $sessionId  Session identifier
+     * @param  int|null  $durationSeconds  Session duration in seconds
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function sessionEnd(?string $sessionId = null, ?int $durationSeconds = null, array $params = []): void
+    {
+        $this->track('session_end', array_merge($params, array_filter([
+            'session_id' => $sessionId,
+            'duration_seconds' => $durationSeconds,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an element_visibility event (IntersectionObserver).
+     *
+     * @param  string  $elementId  Target element identifier
+     * @param  string|null  $elementType  Element type (button, banner, section)
+     * @param  bool|null  $isVisible  Whether the element is visible
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function elementVisibility(string $elementId, ?string $elementType = null, ?bool $isVisible = null, array $params = []): void
+    {
+        $this->track('element_visibility', array_merge($params, array_filter([
+            'element_id' => $elementId,
+            'element_type' => $elementType,
+            'is_visible' => $isVisible,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a copy_text event (text copy/cut tracking).
+     *
+     * @param  string  $text  Copied text (truncated for privacy)
+     * @param  string|null  $source  Source element or context
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function copyText(string $text, ?string $source = null, array $params = []): void
+    {
+        $this->track('copy_text', array_merge($params, [
+            'text_length' => mb_strlen($text),
+            'source' => $source,
+        ]));
+    }
+
+    /**
+     * Track a hover event (element hover/focus tracking).
+     *
+     * @param  string  $elementId  Target element identifier
+     * @param  int|null  $durationMs  Hover duration in milliseconds
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function hover(string $elementId, ?int $durationMs = null, array $params = []): void
+    {
+        $this->track('hover', array_merge($params, array_filter([
+            'element_id' => $elementId,
+            'duration_ms' => $durationMs,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a client_error event (structured client-side error with context).
+     *
+     * @param  string  $message  Error message
+     * @param  string|null  $type  Error type (TypeError, ReferenceError, etc.)
+     * @param  string|null  $source  File or component where error occurred
+     * @param  array<string, mixed>  $params  Additional parameters (stack, url, line, col)
+     */
+    public function clientError(string $message, ?string $type = null, ?string $source = null, array $params = []): void
+    {
+        $this->track('client_error', array_merge($params, [
+            'message' => $message,
+            'type' => $type,
+            'source' => $source,
+        ]));
+    }
+
+    /**
+     * Track a consent_granted event.
+     *
+     * @param  array<string, bool>|null  $purposes  Granted consent purposes
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function consentGrant(?array $purposes = null, array $params = []): void
+    {
+        $this->track('consent_granted', array_merge($params, array_filter([
+            'purposes' => $purposes,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a consent_withdrawn event.
+     *
+     * @param  array<string, bool>|null  $purposes  Withdrawn consent purposes
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function consentWithdraw(?array $purposes = null, array $params = []): void
+    {
+        $this->track('consent_withdrawn', array_merge($params, array_filter([
+            'purposes' => $purposes,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a payment_method_added event.
+     *
+     * @param  string|null  $method  Payment method type (card, paypal, bank_transfer)
+     * @param  string|null  $provider  Payment provider (stripe, paddle, etc.)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function paymentMethodAdded(?string $method = null, ?string $provider = null, array $params = []): void
+    {
+        $this->track('payment_method_added', array_merge($params, array_filter([
+            'method' => $method,
+            'provider' => $provider,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a credit_applied event.
+     *
+     * @param  float|null  $amount  Credit amount
+     * @param  string|null  $reason  Credit reason (referral, support, adjustment)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function creditApplied(?float $amount = null, ?string $reason = null, array $params = []): void
+    {
+        $this->track('credit_applied', array_merge($params, array_filter([
+            'amount' => $amount,
+            'reason' => $reason,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track a feature_limit_reached event.
+     *
+     * @param  string  $feature  Feature name that hit the limit
+     * @param  string|null  $limitType  Limit type (count, storage, api_calls)
+     * @param  int|float|null  $currentValue  Current usage value
+     * @param  int|float|null  $limitValue  Limit threshold
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function featureLimitReached(string $feature, ?string $limitType = null, int|float|null $currentValue = null, int|float|null $limitValue = null, array $params = []): void
+    {
+        $this->track('feature_limit_reached', array_merge($params, array_filter([
+            'feature' => $feature,
+            'limit_type' => $limitType,
+            'current_value' => $currentValue,
+            'limit_value' => $limitValue,
+        ], fn (mixed $v): bool => $v !== null)));
+    }
+
+    /**
+     * Track an integration_failed event.
+     *
+     * @param  string  $integration  Integration name (slack, github, stripe)
+     * @param  string|null  $errorType  Error type (auth, timeout, rate_limit)
+     * @param  array<string, mixed>  $params  Additional parameters
+     */
+    public function integrationFailed(string $integration, ?string $errorType = null, array $params = []): void
+    {
+        $this->track('integration_failed', array_merge($params, [
+            'integration' => $integration,
+            'error_type' => $errorType,
+        ]));
+    }
+
+    /**
+     * Infer a Web Vitals rating from the metric value.
+     *
+     * @param  string  $metricName  Vital name
+     * @param  float|int  $value  Metric value
+     * @return string  Rating: 'good', 'needs-improvement', or 'poor'
+     */
+    private function inferWebVitalsRating(string $metricName, float|int $value): string
+    {
+        return match ($metricName) {
+            'LCP' => $value <= 2500 ? 'good' : ($value <= 4000 ? 'needs-improvement' : 'poor'),
+            'FID', 'INP' => $value <= 200 ? 'good' : ($value <= 500 ? 'needs-improvement' : 'poor'),
+            'CLS' => $value <= 0.1 ? 'good' : ($value <= 0.25 ? 'needs-improvement' : 'poor'),
+            'TTFB' => $value <= 800 ? 'good' : ($value <= 1800 ? 'needs-improvement' : 'poor'),
+            'FCP' => $value <= 1800 ? 'good' : ($value <= 3000 ? 'needs-improvement' : 'poor'),
+            default => 'unknown',
+        };
+    }
+
     // ── Unified Category Dispatchers (v126.0.0) ──────────────────────────
 
     /**
