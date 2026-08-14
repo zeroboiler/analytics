@@ -7,7 +7,6 @@
 declare(strict_types=1);
 
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\EventTags;
 
 // ─── Provider Coverage Parity (v100.2.0) ──────────────────────────────────
 
