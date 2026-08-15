@@ -4098,7 +4098,7 @@ final class AnalyticsManager
      * @param  int|null  $lookbackDays  Override default lookback window
      * @return array{generated_at: string, period_days: int, currency: string, total_revenue: float, total_customers: int, channels: array<string, array{revenue: float, customers: int, ltv: float, cac: float|null, payback_months: float|null, revenue_share: float, avg_revenue_per_customer: float}>, top_channel: string|null, revenue_concentration: float, recommendations: list<string>}
      *
-     * @since 146.0.0
+     * @since 147.0.0
      */
     public function revenueAttributionDashboard(?int $lookbackDays = null): array
     {

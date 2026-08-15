@@ -2302,7 +2302,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderFailoverService($app->make('cache'), $config);
         });
 
-        // Revenue Attribution Dashboard Service (v146.0.0)
+        // Revenue Attribution Dashboard Service (v147.0.0)
         $this->app->singleton(RevenueAttributionDashboardService::class, function (Application $app): RevenueAttributionDashboardService {
             return new RevenueAttributionDashboardService(
                 $app->make('zeroboiler.analytics'),

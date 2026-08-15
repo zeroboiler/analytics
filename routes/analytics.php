@@ -328,7 +328,7 @@ Route::prefix('analytics')->group(function () {
     Route::get('revenue/quick-summary', [AnalyticsEventController::class, 'revenueQuickSummary']);
     Route::get('revenue/signals', [AnalyticsEventController::class, 'revenueSignals']);
 
-    // Revenue Attribution Dashboard (v146.0.0)
+    // Revenue Attribution Dashboard (v147.0.0)
     Route::get('revenue/attribution', [AnalyticsEventController::class, 'revenueAttributionDashboard']);
 
     // Event Enrichment (v3.7.0)

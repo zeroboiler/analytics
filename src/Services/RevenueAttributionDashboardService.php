@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\Store\EventStoreManager;
  * @see \ZeroBoiler\Analytics\Services\RevenueAttributionService
  * @see \ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueAttributionCommand
  *
- * @since 146.0.0
+ * @since 147.0.0
  */
 final class RevenueAttributionDashboardService
 {

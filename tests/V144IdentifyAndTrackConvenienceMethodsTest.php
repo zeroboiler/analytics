@@ -15,15 +15,15 @@ use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 
-// ── Version Consistency (v146.0.0) ────────────────────────────────────
+// ── Version Consistency (v147.0.0) ────────────────────────────────────
 
 describe('V144 Version Consistency', function () {
-    it('has VERSION 146.0.0 in AnalyticsEvent', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('146.0.0');
+    it('has VERSION 147.0.0 in AnalyticsEvent', function () {
+        expect(AnalyticsEvent::VERSION)->toBe('147.0.0');
     });
 
     it('has consistent version across composer.json equivalent', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('146.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('147.0.0');
     });
 
     it('has strict_types declaration in all checked files', function () {
@@ -54,7 +54,7 @@ describe('V144 Version Consistency', function () {
     });
 });
 
-// ── identifyAndTrack Method (v146.0.0) ───────────────────────────────
+// ── identifyAndTrack Method (v147.0.0) ───────────────────────────────
 
 describe('V144 identifyAndTrack', function () {
     it('exists on AnalyticsManager', function () {
@@ -131,7 +131,7 @@ describe('V144 identifyAndTrack', function () {
     });
 });
 
-// ── Web Vitals Convenience Method (v146.0.0) ─────────────────────────
+// ── Web Vitals Convenience Method (v147.0.0) ─────────────────────────
 
 describe('V144 Web Vitals Convenience', function () {
     it('tracks web_vitals event with correct params', function () {
@@ -226,7 +226,7 @@ describe('V144 Web Vitals Convenience', function () {
     });
 });
 
-// ── New Engagement Convenience Methods (v146.0.0) ───────────────────
+// ── New Engagement Convenience Methods (v147.0.0) ───────────────────
 
 describe('V144 Engagement Convenience Methods', function () {
     $methods = [
@@ -302,7 +302,7 @@ describe('V144 Engagement Convenience Methods', function () {
     });
 });
 
-// ── New SaaS Lifecycle Convenience Methods (v146.0.0) ────────────────
+// ── New SaaS Lifecycle Convenience Methods (v147.0.0) ────────────────
 
 describe('V144 SaaS Lifecycle Convenience Methods', function () {
     it('has all new SaaS methods on AnalyticsManager', function () {
@@ -367,7 +367,7 @@ describe('V144 SaaS Lifecycle Convenience Methods', function () {
     });
 });
 
-// ── Facade Annotations (v146.0.0) ────────────────────────────────────
+// ── Facade Annotations (v147.0.0) ────────────────────────────────────
 
 describe('V144 Facade Annotations', function () {
     it('has identifyAndTrack in facade docblock', function () {
@@ -396,7 +396,7 @@ describe('V144 Facade Annotations', function () {
     });
 });
 
-// ── Event Catalog Completeness (v146.0.0) ───────────────────────────
+// ── Event Catalog Completeness (v147.0.0) ───────────────────────────
 
 describe('V144 Event Catalog Completeness', function () {
     it('has all v144 convenience methods matching catalog entries', function () {
@@ -440,22 +440,22 @@ describe('V144 Event Catalog Completeness', function () {
     });
 });
 
-// ── Version Sweep Integrity (v146.0.0) ──────────────────────────────
+// ── Version Sweep Integrity (v147.0.0) ──────────────────────────────
 
 describe('V144 Version Sweep Integrity', function () {
-    it('composer.json has version 146.0.0', function () {
+    it('composer.json has version 147.0.0', function () {
         $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
-        expect($composer['version'])->toBe('146.0.0');
+        expect($composer['version'])->toBe('147.0.0');
     });
 
-    it('package.json has version 146.0.0', function () {
+    it('package.json has version 147.0.0', function () {
         $pkg = json_decode(file_get_contents(__DIR__ . '/../../package.json'), true);
-        expect($pkg['version'])->toBe('146.0.0');
+        expect($pkg['version'])->toBe('147.0.0');
     });
 
-    it('JS client getVersion returns 146.0.0', function () {
+    it('JS client getVersion returns 147.0.0', function () {
         $content = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-        expect($content)->toContain("return '146.0.0'");
+        expect($content)->toContain("return '147.0.0'");
     });
 
     it('no stale 143.0.0 references in JS files', function () {
@@ -487,7 +487,7 @@ describe('V144 Version Sweep Integrity', function () {
     });
 });
 
-// ── No TODO/FIXME (v146.0.0) ────────────────────────────────────────
+// ── No TODO/FIXME (v147.0.0) ────────────────────────────────────────
 
 describe('V144 Code Quality', function () {
     it('has no TODO in AnalyticsManager identifyAndTrack section', function () {
