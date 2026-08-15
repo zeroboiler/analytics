@@ -9,14 +9,14 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\SdkBridgeService;
 
 beforeEach(function (): void {
-    $this->version = '166.0.0';
+    $this->version = '167.0.0';
     $this->srcDir = __DIR__ . '/../../src';
     $this->testDir = __DIR__ . '/../../tests';
 });
 
 // ─── Version Sweep ────────────────────────────────────────────────────────
 
-describe('Phase 39 — Version Sweep (v166.0.0)', function (): void {
+describe('Phase 39 — Version Sweep (v167.0.0)', function (): void {
     test('AnalyticsEvent::VERSION matches', function (): void {
         expect(AnalyticsEvent::VERSION)->toBe($this->version);
     });
@@ -33,52 +33,52 @@ describe('Phase 39 — Version Sweep (v166.0.0)', function (): void {
 
     test('JS analytics.js getVersion returns correct version', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-        expect($js)->toContain("return '166.0.0';");
+        expect($js)->toContain("return '167.0.0';");
     });
 
     test('JS analytics.d.ts version comment matches', function (): void {
         $dts = file_get_contents(__DIR__ . '/../../resources/js/analytics.d.ts');
-        expect($dts)->toContain('@version 166.0.0');
+        expect($dts)->toContain('@version 167.0.0');
     });
 
     test('JS analytics.constants.js version comment matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/analytics.constants.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useAnalytics.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useAnalytics.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useAnalyticsConfig.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useAnalyticsConfig.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useEcommerce.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useEcommerce.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useLifecycle.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useLifecycle.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS usePerformanceTracker.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/usePerformanceTracker.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useSaaSMetrics.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useSaaSMetrics.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('JS useSessionReplay.svelte.js version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../../resources/js/useSessionReplay.svelte.js');
-        expect($js)->toContain('@version 166.0.0');
+        expect($js)->toContain('@version 167.0.0');
     });
 
     test('no stale version references (165.0.0) in JS files', function (): void {
@@ -86,7 +86,7 @@ describe('Phase 39 — Version Sweep (v166.0.0)', function (): void {
         foreach ($jsFiles as $file) {
             $content = file_get_contents($file);
             // Allow in comments if it's a changelog/history reference
-            // But getVersion() must be 166.0.0
+            // But getVersion() must be 167.0.0
             if (basename($file) === 'analytics.js') {
                 expect($content)->not->toContain("return '165.0.0'");
             }

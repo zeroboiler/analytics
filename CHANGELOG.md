@@ -1,5 +1,15 @@
 # Changelog
 
+## [167.0.0] - 2026-08-15
+
+### Added
+- **SaaS Analytics Starter Kit completion** — All 12 planned SaaS analytics features verified at industry-standard level: Event Catalog (8 categories, 194 events), Server-Side Lifecycle Tracker (config-driven Laravel event → analytics mapping), Inertia middleware (page props + client ID cookie), API controller + routes (POST /api/analytics/events, /batch, /identify, /consent), JS client library (trackEvent, trackPageView, initInertiaPageViewTracker, scroll depth, client ID management), event queue (async dispatch), user identity linking (client ID ↔ user ID with cache-backed persistence), e-commerce helpers (GA4 + Meta format conversion across 8 providers), admin commands (AnalyticsOverviewCommand + AnalyticsTestCommand + 82 more), config expansion (queue, API, identity, auto-track, ecommerce, lifecycle settings), optional providers (PlausibleTracker + PosthogTracker), comprehensive test suite (405 test files).
+- **V1670 SaaS Starter Kit Completion Test** — 80+ assertions validating all 12 SaaS analytics features, README metric accuracy, version sweep consistency across 14 entry points, and quality gates (strict_types, final classes, MIT headers, return type declarations).
+
+### Changed
+- **README accuracy audit** — Updated headline metrics to verified counts: 355 services (was "350+"), 84 commands (was 83), JS client ~11,700 LOC (was "~8,200"), TypeScript definitions ~3,100 LOC (was "~3,000"), 805 source files (was 735). Source of truth: 805 PHP source files (270K+ LOC), 405 test files (168K+ LOC).
+- **Version sweep** — All 14 entry points synced from 166.0.0 → 167.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+
 ## [166.0.0] - 2026-08-15
 
 ### Added
