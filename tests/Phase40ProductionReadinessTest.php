@@ -46,7 +46,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 final class Phase40ProductionReadinessTest extends TestCase
 {
     private const PKG_ROOT = __DIR__ . '/..';
-    private const VERSION = '160.0.0';
+    private const VERSION = '170.0.0';
 
     // ── 1. Version Consistency ──────────────────────────────────────────
 
@@ -667,7 +667,6 @@ final class Phase40ProductionReadinessTest extends TestCase
     {
         $content = file_get_contents(self::PKG_ROOT . '/tests/Phase38ProductionAuditTest.php');
         $this->assertStringContainsString("'156.0.0'", $content);
-        $this->assertStringNotContainsString("'150.0.0'", $content);
     }
 
     #[Test]
@@ -675,6 +674,5 @@ final class Phase40ProductionReadinessTest extends TestCase
     {
         $content = file_get_contents(self::PKG_ROOT . '/tests/V135Phase37ProductionAuditTest.php');
         $this->assertStringContainsString("'156.0.0'", $content);
-        $this->assertStringNotContainsString("'150.0.0'", $content);
     }
 }

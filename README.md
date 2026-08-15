@@ -1774,7 +1774,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 805 source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 814 source files.
 
 ## Troubleshooting
 
