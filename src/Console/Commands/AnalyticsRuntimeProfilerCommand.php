@@ -73,7 +73,7 @@ final class AnalyticsRuntimeProfilerCommand extends Command
     /**
      * Execute the pipeline profiling.
      */
-    #[\Override]
+    #[Override]
     public function handle(): int
     {
         $iterations = max(1, (int) $this->option('iterations'));

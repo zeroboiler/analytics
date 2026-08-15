@@ -65,7 +65,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
     /**
      * Execute the topology analysis.
      */
-    #[\Override]
+    #[Override]
     public function handle(): int
     {
         $this->depth = (int) $this->option('depth');

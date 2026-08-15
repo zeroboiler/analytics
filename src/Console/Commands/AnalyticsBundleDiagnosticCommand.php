@@ -93,7 +93,7 @@ final class AnalyticsBundleDiagnosticCommand extends Command
     /**
      * Execute the bundle diagnostic.
      */
-    #[\Override]
+    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

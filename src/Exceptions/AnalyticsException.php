@@ -17,6 +17,9 @@ use Exception;
  * enabling callers to catch all analytics-specific errors with a single
  * catch block while allowing fine-grained handling of specific subtypes.
  *
+ * @see \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException
+ * @see \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException
+ *
  * @since 62.0.0
  */
 abstract class AnalyticsException extends Exception

@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\Pipeline\Validation\ValidationStageInterface;
 use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 
 beforeEach(function (): void {
-    $this->version = '150.0.0';
+    $this->version = '156.0.0';
     $this->srcDir = __DIR__ . '/../../src';
     $this->testDir = __DIR__ . '/../../tests';
 });
