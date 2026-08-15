@@ -6,7 +6,7 @@
  * identity linking, and lifecycle-aware analytics in Svelte components.
  *
  * @package ZeroBoiler Analytics
- * @version 169.0.0
+ * @version 170.0.0
  */
 
 import { writable, derived } from 'svelte/store';

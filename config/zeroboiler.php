@@ -8235,4 +8235,72 @@ return [
         'exclude_methods' => ['OPTIONS', 'HEAD'],
         'max_param_length' => (int) env('ANALYTICS_REQUEST_MAX_PARAM_LENGTH', 100),
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Budget Enforcement (v170.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Enforces per-provider and per-event dispatch budgets to prevent
+    | unexpected cost overruns on analytics providers with volume-based pricing.
+    |
+    | When a budget is exceeded, the service can:
+    | - 'alert': Fire a notification (default, non-blocking)
+    | - 'throttle': Sample events at the configured rate (10% default)
+    | - 'block': Silently drop events until budget resets
+    |
+    | Budget thresholds:
+    | - 75% = warning (alert mode fires, throttle/block pre-arms)
+    | - 90% = critical (throttle mode activates)
+    | - 100% = exceeded (block mode activates)
+    |
+    | Provider limits default to conservative estimates. Override via
+    | provider_limits for your actual plan limits.
+    |
+    */
+    'budget_enforcement' => [
+        'enabled' => env('ANALYTICS_BUDGET_ENFORCEMENT_ENABLED', false),
+        'default_action' => env('ANALYTICS_BUDGET_DEFAULT_ACTION', 'alert'), // alert, throttle, block
+        'throttle_rate' => (float) env('ANALYTICS_BUDGET_THROTTLE_RATE', 0.1), // 10% sample rate
+        'cooldown' => (int) env('ANALYTICS_BUDGET_COOLDOWN', 3600), // 1 hour cooldown between alerts
+        'provider_limits' => [
+            // Override default monthly limits per provider
+            // 'ga4' => 2_000_000,
+            // 'posthog' => 5_000_000,
+        ],
+        'event_limits' => [
+            // Per-event hourly limits for high-frequency events
+            // 'page_view' => 10_000,
+            // 'scroll_depth' => 5_000,
+            // 'click' => 20_000,
+        ],
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Cross-Device Identity Merge (v170.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Resolves and merges multi-identity graphs for cross-device analytics.
+    | Links client_id, user_id, and anonymous_id into a unified identity
+    | graph with confidence scoring.
+    |
+    | When a user accesses the app from multiple devices, this service
+    | merges their event history into a single user journey timeline.
+    |
+    | Confidence scoring determines when to auto-merge identities:
+    | - 0.0-0.3: Low confidence (single association, no shared signals)
+    | - 0.3-0.6: Medium confidence (repeated associations)
+    | - 0.6-1.0: High confidence (shared anonymous_id + repeated + recent)
+    |
+    | Only auto-merges when confidence >= merge_confidence_threshold.
+    |
+    */
+    'cross_device_merge' => [
+        'enabled' => env('ANALYTICS_CROSS_DEVICE_MERGE_ENABLED', true),
+        'link_ttl' => (int) env('ANALYTICS_CROSS_DEVICE_MERGE_TTL', 7776000), // 90 days
+        'max_clients_per_user' => (int) env('ANALYTICS_CROSS_DEVICE_MAX_CLIENTS', 50),
+        'max_graph_size' => (int) env('ANALYTICS_CROSS_DEVICE_MAX_GRAPH', 1000),
+        'merge_confidence_threshold' => (float) env('ANALYTICS_CROSS_DEVICE_MERGE_THRESHOLD', 0.6),
+    ],
 ];

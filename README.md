@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-169.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-170.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **360 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **362 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v170.0.0
+
+**Event Budget Enforcement + Cross-Device Identity Merge — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventBudgetEnforcementService** — Per-provider and per-event dispatch budget enforcement. Monitors real-time event volume against configurable monthly (per-provider) and hourly (per-event) budgets with three enforcement actions: `alert` (fire notification, non-blocking), `throttle` (sample events at configurable rate, default 10%), `block` (silently drop until budget resets). Budget thresholds: 75% = warning, 90% = critical (throttle activates), 100% = exceeded (block activates). Cache-backed counters with automatic monthly/hourly window resets. Full budget summary API with status classification (ok/warning/critical/exceeded). Counter reset for manual intervention. Default provider limits conservatively estimated for each provider's free tier (GA4: 1M, PostHog: 1M, Plausible: 500K, etc.). Configurable via `zeroboiler.analytics.budget_enforcement`.
+- **CrossDeviceIdentityMergeService** — Multi-identity graph resolution and merge for cross-device user journey reconstruction. Links client_id (server tracking cookie), user_id (authenticated), and anonymous_id (browser fingerprint) into a unified identity graph. Features: bidirectional lookup (client→user, user→clients, anonymous→users), confidence scoring (0-1 based on association frequency, recency, anonymous_id sharing, and context consistency), auto-merge at configurable threshold (default 0.6), max clients per user enforcement with oldest-client eviction, identity graph export with average confidence, full GDPR erasure support via `forgetIdentity()` and `forgetClient()`. Cache-backed with configurable 90-day TTL. Inspired by Segment Identity Resolution, RudderStack Device Mode Merge, and PostHog Person/Device ID stitching.
+- **Config expansion** — New `budget_enforcement` and `cross_device_merge` config sections with env-driven settings.
+- **Comprehensive test suite** — 30+ test cases covering EventBudgetEnforcementService (final class, disabled passthrough, allow/block/throttle states, per-event limits, budget summary, status classification, counter reset, config accessors) and CrossDeviceIdentityMergeService (final class, disabled guards, empty ID guards, bidirectional mapping, identity graph export, confidence scoring, GDPR erasure, max clients enforcement, auto-merge threshold).
+- **Version sweep** — All 14 entry points synced from 169.0.0 → 170.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge. Service count updated: 360 → 362.
 
 ### What's New in v169.0.0
 
