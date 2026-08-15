@@ -443,7 +443,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 174.0.0
+ * @version 175.0.0
  *
  * @since 1.0.0
  */
@@ -3386,6 +3386,28 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService($cache, $config);
+        });
+
+        // Event Value Attribution Service (v175.0.0) — monetary value attribution for non-revenue events
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventValueAttributionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $app->make(AnalyticsMetrics::class);
+
+            return new \ZeroBoiler\Analytics\Services\EventValueAttributionService($cache, $config, $metrics);
+        });
+
+        // SaaS Momentum Service (v175.0.0) — growth rate of change analytics
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSMomentumService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new \ZeroBoiler\Analytics\Services\SaaSMomentumService($cache, $config);
         });
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring

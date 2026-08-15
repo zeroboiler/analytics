@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-174.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-175.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **364 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **366 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v175.0.0
+
+**Event Value Attribution Engine + SaaS Momentum Analytics — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventValueAttributionService** — assigns monetary value to non-revenue events based on conversion funnel position. 6 default funnel paths (signup, trial, purchase, subscription, plan_upgrade, engagement_retention), 18 base event values, position-decay attribution model. Methods: valueOf(), valueOfMany(), report(), valueJourney(). Configurable via `zeroboiler.analytics.event_value_attribution`.
+- **SaaSMomentumService** — measures growth rate of change (GRoC) for 6 key SaaS metrics: MRR velocity, retention acceleration, engagement momentum, net new MRR acceleration, conversion velocity, churn velocity. Composite momentum score (-100 to +100) with letter grades (A+ through F-). Methods: calculateMetricMomentum(), compositeScore(), quickSummary(), availableMetrics(). Configurable via `zeroboiler.analytics.momentum`.
+- **8 new REST API endpoints**: 4 event value endpoints (GET /api/analytics/event-value, POST /api/analytics/event-value/batch, GET /api/analytics/event-value/report, POST /api/analytics/event-value/journey) + 4 momentum endpoints (POST /api/analytics/momentum/score, GET /api/analytics/momentum/metric, POST /api/analytics/momentum/quick, GET /api/analytics/momentum/metrics).
+- **Version sweep** — All 14 entry points synced from 174.0.0 → 175.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
 
 ### What's New in v173.0.0
 

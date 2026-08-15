@@ -1043,4 +1043,16 @@ Route::prefix('analytics')->group(function () {
 
     // Config Drift Import (v172.0.0)
     Route::post('config-drift/import', [AnalyticsEventController::class, 'configDriftImport']);
+
+    // Event Value Attribution (v175.0.0)
+    Route::get('event-value', [AnalyticsEventController::class, 'eventValue']);
+    Route::post('event-value/batch', [AnalyticsEventController::class, 'eventValueBatch']);
+    Route::get('event-value/report', [AnalyticsEventController::class, 'eventValueReport']);
+    Route::post('event-value/journey', [AnalyticsEventController::class, 'eventValueJourney']);
+
+    // SaaS Momentum (v175.0.0)
+    Route::post('momentum/score', [AnalyticsEventController::class, 'momentumScore']);
+    Route::get('momentum/metric', [AnalyticsEventController::class, 'momentumMetric']);
+    Route::post('momentum/quick', [AnalyticsEventController::class, 'momentumQuick']);
+    Route::get('momentum/metrics', [AnalyticsEventController::class, 'momentumMetrics']);
 });

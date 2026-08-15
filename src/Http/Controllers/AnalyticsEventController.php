@@ -18615,4 +18615,209 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Value Attribution REST API (v175.0.0) ──────────────────────
+
+    /**
+     * Get the attributed monetary value for a single event.
+     *
+     * Returns the dollar value assigned to the event based on its position
+     * in the conversion funnel paths. Events closer to conversion receive
+     * higher attribution.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventValueAttributionService::valueOf()
+     */
+    public function eventValue(Request $request): JsonResponse
+    {
+        try {
+            $eventName = (string) $request->query('event', '');
+            if ($eventName === '') {
+                return response()->json(['status' => 'error', 'error' => 'Event name is required (query param: event).'], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\EventValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class);
+            $result = $service->valueOf($eventName);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get attributed monetary values for multiple events.
+     *
+     * Accepts a JSON body with a list of event names and returns
+     * individual values plus aggregate statistics.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventValueAttributionService::valueOfMany()
+     */
+    public function eventValueBatch(Request $request): JsonResponse
+    {
+        try {
+            $events = $request->input('events', []);
+            if (! is_array($events) || $events === []) {
+                return response()->json(['status' => 'error', 'error' => 'Non-empty "events" array is required.'], 422);
+            }
+
+            $eventNames = array_map(fn (mixed $e): string => (string) $e, $events);
+
+            /** @var \ZeroBoiler\Analytics\Services\EventValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class);
+            $result = $service->valueOfMany($eventNames);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the full event economics report.
+     *
+     * Values all events in the catalog and provides analytics for
+     * top revenue-driving events, category breakdown, and recommendations.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventValueAttributionService::report()
+     */
+    public function eventValueReport(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class);
+
+            return response()->json(['status' => 'ok', ...$service->report()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Simulate the monetary value of a user journey.
+     *
+     * Accepts an ordered list of events representing a user's journey
+     * and calculates cumulative attributed value, peak value event, etc.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventValueAttributionService::valueJourney()
+     */
+    public function eventValueJourney(Request $request): JsonResponse
+    {
+        try {
+            $journeyEvents = $request->input('events', []);
+            if (! is_array($journeyEvents) || $journeyEvents === []) {
+                return response()->json(['status' => 'error', 'error' => 'Non-empty "events" array is required.'], 422);
+            }
+
+            $eventNames = array_map(fn (mixed $e): string => (string) $e, $journeyEvents);
+
+            /** @var \ZeroBoiler\Analytics\Services\EventValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class);
+            $result = $service->valueJourney($eventNames);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── SaaS Momentum REST API (v175.0.0) ────────────────────────────────
+
+    /**
+     * Calculate the composite SaaS momentum score.
+     *
+     * Accepts time series data for key metrics and returns a composite
+     * momentum score (-100 to +100), per-metric breakdown, and insight.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSMomentumService::compositeScore()
+     */
+    public function momentumScore(Request $request): JsonResponse
+    {
+        try {
+            $metricValues = $request->input('metrics', []);
+            if (! is_array($metricValues)) {
+                return response()->json(['status' => 'error', 'error' => '"metrics" must be an object mapping metric keys to value arrays.'], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\SaaSMomentumService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class);
+            $result = $service->compositeScore($metricValues);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Calculate momentum for a single metric.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSMomentumService::calculateMetricMomentum()
+     */
+    public function momentumMetric(Request $request): JsonResponse
+    {
+        try {
+            $metric = (string) $request->query('metric', '');
+            $values = $request->input('values', []);
+
+            if ($metric === '') {
+                return response()->json(['status' => 'error', 'error' => 'Metric name is required (query param: metric).'], 422);
+            }
+            if (! is_array($values)) {
+                return response()->json(['status' => 'error', 'error' => '"values" must be an array of numeric values.'], 422);
+            }
+
+            $numericValues = array_map(fn (mixed $v): float => (float) $v, $values);
+
+            /** @var \ZeroBoiler\Analytics\Services\SaaSMomentumService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class);
+            $result = $service->calculateMetricMomentum($metric, $numericValues);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the quick momentum summary.
+     *
+     * Lightweight version for header badges or sidebar widgets.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSMomentumService::quickSummary()
+     */
+    public function momentumQuick(Request $request): JsonResponse
+    {
+        try {
+            $metricValues = $request->input('metrics', []);
+            if (! is_array($metricValues)) {
+                return response()->json(['status' => 'error', 'error' => '"metrics" must be an object mapping metric keys to value arrays.'], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\SaaSMomentumService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class);
+            $result = $service->quickSummary($metricValues);
+
+            return response()->json(['status' => 'ok', ...$result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * List available momentum metrics with definitions.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSMomentumService::availableMetrics()
+     */
+    public function momentumMetrics(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSMomentumService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class);
+
+            return response()->json(['status' => 'ok', 'metrics' => $service->availableMetrics()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
