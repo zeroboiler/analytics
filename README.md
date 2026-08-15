@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-145.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-146.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **322+ services**, **75 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v146.0.0
+
+**Revenue Attribution Dashboard — SaaS Revenue-by-Channel ROI Analysis**:
+
+- **`RevenueAttributionDashboardService`** — Comprehensive revenue attribution dashboard providing MRR/ARR breakdown by UTM source, campaign, and medium. Computes revenue attribution rates, cost efficiency ratios, and channel-level ROI metrics. Aggregates revenue events across subscription, purchase, and upgrade categories for unified SaaS revenue visibility.
+- **`zb:analytics:revenue-attribution` command** — Artisan command for generating revenue attribution reports. Supports `--period`, `--channel`, `--json` output modes for integration with admin dashboards and automated reporting pipelines.
+- **Config expansion** — New `revenue_waterfall` section with `enabled`, `cache_ttl`, and `currency` settings for revenue waterfall chart generation.
+- **Version sweep** — All 11 client files synced to v146.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge).
+- **Zero breaking changes** — Revenue attribution is additive. Existing dispatch pipeline unchanged.
 
 ### What's New in v145.0.0
 
