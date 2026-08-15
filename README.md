@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-159.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-161.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,38 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v161.0.0
+
+**Event Debug Capture API — RESTful endpoints for the EventDebugCaptureService**:
+
+- **7 new API endpoints** — Full REST interface for the Event Debug Capture system that was previously only accessible programmatically. Enables browser-based and third-party integration with the debug capture studio.
+  - `GET /api/analytics/debug-capture/stats` — Capture statistics (enabled, count, TTL, max, observers)
+  - `GET /api/analytics/debug-capture` — List captured events with filtering (name, client_id, user_id, source) and pagination (limit, offset)
+  - `GET /api/analytics/debug-capture/{captureId}` — Get single captured event by ID
+  - `POST /api/analytics/debug-capture/simulate` — Create synthetic events for testing (name, params, client_id, user_id)
+  - `POST /api/analytics/debug-capture/replay/{captureId}` — Replay a captured event through the pipeline
+  - `POST /api/analytics/debug-capture/batch-replay` — Batch replay multiple captured events
+  - `DELETE /api/analytics/debug-capture` — Clear all captured events
+- **Filtering** — Captured events list supports partial name matching (e.g., `?name=button`), exact client_id/user_id/source filtering, and limit/offset pagination.
+- **Simulation** — Create synthetic AnalyticsEvent objects via POST for integration testing without actual event dispatch.
+- **Batch replay** — Replay up to 100 captured events in a single API call, with individual failure tracking.
+- **`V1610EventDebugCaptureApiTest`** — 50+ assertions covering: constructor configuration (enabled/disabled/defaults), capture lifecycle (returns null when disabled, stores correct data, maintains index), getCapture (null for non-existent, returns captured data), filtering (name, client_id, user_id, source, pagination, null filter values), replay (null for non-existent, correct reconstruction, source=reset, corrupt timestamp handling, missing fields), simulate (event creation, empty params, timestamp generation), batch replay (valid, invalid, mixed, max size enforcement), clear (removes all, empty store), observer pattern (single, multiple, disabled, failure resilience), stats (structure, observer count, enabled state, config values), capture ID uniqueness and format, max events enforcement, strict types verification, return type declarations, docblock coverage, version consistency, license header, and various source integration.
+- **Version sweep** — All 14 entry points synced to v161.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — All new API endpoints are additive. Existing EventDebugCaptureService, AnalyticsDebugCommand, and dispatch pipeline unchanged.
+
+### What's New in v160.0.0
+
+**Event Governance Runtime Validator & Catalog Snapshot Service**:
+
+- **`EventGovernanceRuntimeValidator`** — Real-time governance enforcement for analytics events. Validates events against registered naming conventions, parameter schemas, category rules, and deprecation policies at dispatch time. Prevents malformed, deprecated, or policy-violating events from reaching providers. Configurable strict/soft modes (strict blocks violations, soft logs warnings).
+- **`EventCatalogSchemaSnapshotService`** — Point-in-time snapshots of the full event catalog schema. Generates versioned snapshots containing event names, categories, parameter schemas, provider mappings, and registration metadata. Enables diff-based catalog change detection, audit trails for catalog evolution, and CI integration for catalog regression testing.
+- **Governance rules** — Naming convention validation (snake_case enforcement), category membership checks, parameter completeness validation, deprecation status enforcement, registration status verification, and cross-provider format compatibility checks.
+- **Snapshot formats** — Full snapshot (all events with schemas), diff snapshot (changes since last snapshot), and export to JSON/CSV for CI integration.
+- **API parity** — Both services expose comprehensive public APIs for programmatic access, CLI integration, and test assertion support.
+- **`V160GovernanceRuntimeValidatorTest`** — 80+ assertions covering: runtime validation of valid/invalid events, naming convention enforcement, category membership checks, deprecation handling, strict/soft mode behavior, snapshot generation and diff, catalog integrity verification, registration status checks, parameter schema validation, cross-provider compatibility, and service configuration.
+- **Version sweep** — All 14 entry points synced to v160.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — Both services are additive. Existing dispatch pipeline, event catalogs, and provider implementations unchanged.
 
 ### What's New in v159.0.0
 

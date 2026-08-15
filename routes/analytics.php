@@ -1004,4 +1004,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('webhooks/relay/destinations', [AnalyticsEventController::class, 'webhookRelayDestinations']);
     Route::get('webhooks/relay/{destination}/log', [AnalyticsEventController::class, 'webhookRelayLog']);
     Route::post('webhooks/relay/test/{destination}', [AnalyticsEventController::class, 'webhookRelayTest']);
+
+    // Event Debug Capture (v161.0.0)
+    Route::get('debug-capture/stats', [AnalyticsEventController::class, 'debugCaptureStats']);
+    Route::get('debug-capture', [AnalyticsEventController::class, 'debugCaptureList']);
+    Route::get('debug-capture/{captureId}', [AnalyticsEventController::class, 'debugCaptureGet']);
+    Route::post('debug-capture/simulate', [AnalyticsEventController::class, 'debugCaptureSimulate']);
+    Route::post('debug-capture/replay/{captureId}', [AnalyticsEventController::class, 'debugCaptureReplay']);
+    Route::post('debug-capture/batch-replay', [AnalyticsEventController::class, 'debugCaptureBatchReplay']);
+    Route::delete('debug-capture', [AnalyticsEventController::class, 'debugCaptureClear']);
 });

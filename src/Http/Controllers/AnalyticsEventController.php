@@ -17832,4 +17832,207 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Debug Capture API (v161.0.0) ───────────────────────────────
+
+    /**
+     * Get Event Debug Capture statistics.
+     *
+     * Returns capture status, event count, TTL, max capacity, and observer count.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureStats(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'stats' => $service->stats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get captured debug events with optional filtering.
+     *
+     * Supports filtering by event name (partial match), client_id, user_id, source,
+     * and pagination via limit/offset.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureList(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $filters = [
+                'name' => $request->query('name'),
+                'client_id' => $request->query('client_id'),
+                'user_id' => $request->query('user_id'),
+                'source' => $request->query('source'),
+                'limit' => (int) $request->query('limit', 50),
+                'offset' => (int) $request->query('offset', 0),
+            ];
+
+            $result = $service->getCapturedEvents($filters);
+
+            return response()->json([
+                'status' => 'ok',
+                'events' => $result['events'],
+                'total' => $result['total'],
+                'filters' => $result['filters'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a single captured event by capture ID.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureGet(string $captureId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $capture = $service->getCapture($captureId);
+
+            if ($capture === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Capture not found',
+                    'capture_id' => $captureId,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'capture' => $capture,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Simulate (create) a synthetic event for testing.
+     *
+     * Accepts event name, params, optional client_id and user_id.
+     * Returns the constructed AnalyticsEvent as JSON.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureSimulate(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $event = $service->simulate(
+                name: (string) $request->input('name', 'test_event'),
+                params: (array) $request->input('params', []),
+                clientId: $request->input('client_id'),
+                userId: $request->input('user_id'),
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => [
+                    'name' => $event->name,
+                    'params' => $event->params,
+                    'client_id' => $event->clientId,
+                    'user_id' => $event->userId,
+                    'source' => $event->source,
+                    'timestamp' => $event->timestamp?->format('c'),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Replay a captured event.
+     *
+     * Reconstructs the event from capture data for re-dispatch.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureReplay(string $captureId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $event = $service->replay($captureId);
+
+            if ($event === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Capture not found',
+                    'capture_id' => $captureId,
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => [
+                    'name' => $event->name,
+                    'params' => $event->params,
+                    'client_id' => $event->clientId,
+                    'user_id' => $event->userId,
+                    'source' => $event->source,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Batch replay multiple captured events.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureBatchReplay(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $captureIds = (array) $request->input('capture_ids', []);
+            $result = $service->replayBatch($captureIds);
+
+            return response()->json([
+                'status' => 'ok',
+                'replayed' => $result['replayed'],
+                'failed' => $result['failed'],
+                'events' => array_map(static fn (AnalyticsEvent $e): array => [
+                    'name' => $e->name,
+                    'params' => $e->params,
+                    'source' => $e->source,
+                ], $result['events']),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear all captured debug events.
+     *
+     * @since 161.0.0
+     */
+    public function debugCaptureClear(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDebugCaptureService::class);
+            $count = $service->clear();
+
+            return response()->json([
+                'status' => 'ok',
+                'cleared' => $count,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
