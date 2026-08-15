@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events\SaaS;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
 /**
  * Static catalog of all SaaS lifecycle analytics events.
  *
@@ -1250,4 +1252,263 @@ final class SaaSEvents
         ));
     }
 
+    // ── Typed Shorthand Factory Methods (v151.0.0) ──────────────────
+
+    /**
+     * Build a typed sign_up event.
+     *
+     * @param  array{method?: string, user_id?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function signUp(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'sign_up', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed login event.
+     *
+     * @param  array{method?: string, user_id?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function login(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'login', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed logout event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function logout(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'logout', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed start_trial event.
+     *
+     * @param  array{plan_name?: string, trial_days?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function startTrial(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'start_trial', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed subscribe (subscription created) event.
+     *
+     * @param  array{plan_name?: string, amount?: float, currency?: string, billing_cycle?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function subscribe(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'subscribe', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed plan_upgrade event.
+     *
+     * @param  string  $fromPlan
+     * @param  string  $toPlan
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function planUpgrade(string $fromPlan, string $toPlan, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'plan_upgrade',
+            params: array_merge(['from_plan' => $fromPlan, 'to_plan' => $toPlan], $extra),
+            category: 'saas',
+        );
+    }
+
+    /**
+     * Build a typed plan_downgrade event.
+     *
+     * @param  string  $fromPlan
+     * @param  string  $toPlan
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function planDowngrade(string $fromPlan, string $toPlan, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'plan_downgrade',
+            params: array_merge(['from_plan' => $fromPlan, 'to_plan' => $toPlan], $extra),
+            category: 'saas',
+        );
+    }
+
+    /**
+     * Build a typed cancellation event.
+     *
+     * @param  array{plan_name?: string, reason?: string, feedback?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function cancellation(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'cancellation', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed feature_used event.
+     *
+     * @param  string  $featureName
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function featureUsed(string $featureName, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'feature_used', params: array_merge(['feature_name' => $featureName], $extra), category: 'saas');
+    }
+
+    /**
+     * Build a typed revenue_tracked event.
+     *
+     * @param  float  $amount
+     * @param  string  $currency
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function revenueTracked(float $amount, string $currency = 'USD', array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'revenue_tracked',
+            params: array_merge(['amount' => $amount, 'currency' => $currency], $extra),
+            category: 'saas',
+        );
+    }
+
+    /**
+     * Build a typed subscription_created event.
+     *
+     * @param  array{plan_name?: string, amount?: float, currency?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function subscriptionCreated(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'subscription_created', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed subscription_cancelled event.
+     *
+     * @param  array{plan_name?: string, reason?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function subscriptionCancelled(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'subscription_cancelled', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed trial_converted event.
+     *
+     * @param  array{plan_name?: string, amount?: float}  $params
+     * @return AnalyticsEvent
+     */
+    public static function trialConverted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'trial_converted', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed trial_expired event.
+     *
+     * @param  array{plan_name?: string, outcome?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function trialExpired(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'trial_expired', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed invite_accepted event.
+     *
+     * @param  array{inviter_id?: string, role?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function inviteAccepted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'invite_accepted', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed workspace_created event.
+     *
+     * @param  array{workspace_name?: string, members_count?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function workspaceCreated(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'workspace_created', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed first_value event (activation signal).
+     *
+     * @param  array{event_name?: string, description?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function firstValue(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'first_value', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed activation event.
+     *
+     * @param  array{trigger?: string, description?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function activation(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'activation', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed payment_failed event.
+     *
+     * @param  array{amount?: float, currency?: string, reason?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function paymentFailed(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'payment_failed', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed payment_succeeded event.
+     *
+     * @param  array{amount?: float, currency?: string, plan_name?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function paymentSucceeded(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'payment_succeeded', params: $params, category: 'saas');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  string  $name  Event name (must exist in this catalog)
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     * @throws \InvalidArgumentException if event name is not in this catalog
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (! self::has($name)) {
+            throw new \InvalidArgumentException("Unknown SaaS event: {$name}");
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'saas');
+    }
 }

@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-150.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-151.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **345+ services**, **77 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
@@ -56,6 +56,20 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v151.0.0
+
+**Event Catalog Typed Factory Methods — One-Line Typed Event Builders**:
+
+- **54 typed shorthand factory methods** across all 3 primary event catalogs (Ecommerce, SaaS, Engagement). Each catalog now provides one-line typed event builders that return ready-to-dispatch `AnalyticsEvent` DTOs with the correct category pre-set.
+- **EcommerceEvents** — 15 specific shorthand methods: `viewItem()`, `addToCart()`, `removeFromCart()`, `viewCart()`, `beginCheckout()`, `addPaymentInfo()`, `purchase()`, `refund()`, `addToWishlist()`, `selectItem()`, `selectPromotion()`, `viewPromotion()`, `checkoutStep()`, `abandonedCart()`, `checkoutAbandon()` + generic `build()`.
+- **SaaSEvents** — 21 specific shorthand methods: `signUp()`, `login()`, `logout()`, `startTrial()`, `subscribe()`, `planUpgrade()`, `planDowngrade()`, `cancellation()`, `featureUsed()`, `revenueTracked()`, `subscriptionCreated()`, `subscriptionCancelled()`, `trialConverted()`, `trialExpired()`, `inviteAccepted()`, `workspaceCreated()`, `firstValue()`, `activation()`, `paymentFailed()`, `paymentSucceeded()` + generic `build()`.
+- **EngagementEvents** — 15 specific shorthand methods: `pageView()`, `scrollDepth()`, `click()`, `formStart()`, `formSubmit()`, `search()`, `share()`, `error()`, `jsError()`, `sessionStart()`, `sessionEnd()`, `feedback()`, `consentGranted()`, `consentWithdrawn()`, `onboardingCompleted()` + generic `build()`.
+- **Generic `build()` factory** on each catalog — validates event name against the catalog and returns a typed event with correct category, throwing `InvalidArgumentException` for unknown events.
+- **Type-safe params** — Key shorthand methods use typed parameters (e.g., `planUpgrade(string $fromPlan, string $toPlan)`, `scrollDepth(int $percent)`, `revenueTracked(float $amount, string $currency)`) with proper PHPDoc type hints.
+- **V151EventCatalogTypedFactoryTest** — 75+ assertion test covering all 3 catalogs: typed return values, category correctness, parameter merging, exception handling for invalid names, cross-catalog consistency, and serialization readiness for queue dispatch.
+- **Version sweep** — All 14 entry points synced to v151.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge, 2 service @since tags).
+- **Zero breaking changes** — All new factory methods are additive. Existing dispatch pipeline, catalog structure, and provider implementations unchanged.
 
 ### What's New in v150.0.0
 

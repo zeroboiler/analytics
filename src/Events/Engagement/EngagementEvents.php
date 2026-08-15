@@ -675,4 +675,231 @@ final class EngagementEvents
         ));
     }
 
+    // ── Typed Shorthand Factory Methods (v151.0.0) ──────────────────
+
+    /**
+     * Build a typed page_view event.
+     *
+     * @param  array{title?: string, location?: string, referrer?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function pageView(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'page_view', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed scroll_depth event.
+     *
+     * @param  int  $percent
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function scrollDepth(int $percent, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'scroll_depth',
+            params: array_merge(['percent' => $percent], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed click event.
+     *
+     * @param  string  $element
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function click(string $element, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'click',
+            params: array_merge(['element' => $element], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed form_start event.
+     *
+     * @param  string  $formName
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function formStart(string $formName, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'form_start',
+            params: array_merge(['form_name' => $formName], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed form_submit event.
+     *
+     * @param  string  $formName
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function formSubmit(string $formName, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'form_submit',
+            params: array_merge(['form_name' => $formName], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed search event.
+     *
+     * @param  string  $query
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function search(string $query, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'search',
+            params: array_merge(['search_term' => $query], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed share event.
+     *
+     * @param  string  $method
+     * @param  string|null  $contentType
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function share(string $method, ?string $contentType = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'share',
+            params: array_merge(array_filter(['method' => $method, 'content_type' => $contentType]), $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed error event.
+     *
+     * @param  string  $message
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function error(string $message, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'error',
+            params: array_merge(['error_message' => $message], $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed js_error event.
+     *
+     * @param  string  $errorMessage
+     * @param  string|null  $source
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function jsError(string $errorMessage, ?string $source = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'js_error',
+            params: array_merge(array_filter(['error_message' => $errorMessage, 'source' => $source]), $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed session_start event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function sessionStart(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'session_start', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed session_end event.
+     *
+     * @param  array{duration_seconds?: int, page_count?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function sessionEnd(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'session_end', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed feedback event.
+     *
+     * @param  array{score?: int, comment?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function feedback(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'feedback', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed consent_granted event.
+     *
+     * @param  array{purposes?: list<string>}  $params
+     * @return AnalyticsEvent
+     */
+    public static function consentGranted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'consent_granted', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed consent_withdrawn event.
+     *
+     * @param  array{purposes?: list<string>}  $params
+     * @return AnalyticsEvent
+     */
+    public static function consentWithdrawn(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'consent_withdrawn', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed onboarding_completed event.
+     *
+     * @param  array{duration_seconds?: int, steps_completed?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function onboardingCompleted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'onboarding_completed', params: $params, category: 'engagement');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  string  $name  Event name (must exist in this catalog)
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     * @throws \InvalidArgumentException if event name is not in this catalog
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (! self::has($name)) {
+            throw new \InvalidArgumentException("Unknown engagement event: {$name}");
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'engagement');
+    }
 }

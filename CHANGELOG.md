@@ -1,5 +1,17 @@
 # Changelog
 
+## [151.0.0] - 2026-08-15
+
+### Added
+- **54 typed shorthand factory methods** across 3 event catalogs (EcommerceEvents, SaaSEvents, EngagementEvents). One-line typed event builders returning ready-to-dispatch `AnalyticsEvent` DTOs with correct category pre-set.
+- **EcommerceEvents shorthand methods** — `viewItem()`, `addToCart()`, `removeFromCart()`, `viewCart()`, `beginCheckout()`, `addPaymentInfo()`, `purchase()`, `refund()`, `addToWishlist()`, `selectItem()`, `selectPromotion()`, `viewPromotion()`, `checkoutStep()`, `abandonedCart()`, `checkoutAbandon()` + generic `build()`.
+- **SaaSEvents shorthand methods** — `signUp()`, `login()`, `logout()`, `startTrial()`, `subscribe()`, `planUpgrade()`, `planDowngrade()`, `cancellation()`, `featureUsed()`, `revenueTracked()`, `subscriptionCreated()`, `subscriptionCancelled()`, `trialConverted()`, `trialExpired()`, `inviteAccepted()`, `workspaceCreated()`, `firstValue()`, `activation()`, `paymentFailed()`, `paymentSucceeded()` + generic `build()`.
+- **EngagementEvents shorthand methods** — `pageView()`, `scrollDepth()`, `click()`, `formStart()`, `formSubmit()`, `search()`, `share()`, `error()`, `jsError()`, `sessionStart()`, `sessionEnd()`, `feedback()`, `consentGranted()`, `consentWithdrawn()`, `onboardingCompleted()` + generic `build()`.
+- **V151EventCatalogTypedFactoryTest** — 75+ assertion test covering all 3 catalogs: typed return values, category correctness, parameter merging, exception handling, cross-catalog consistency, serialization readiness.
+
+### Changed
+- **Version sweep** — All 14 entry points synced from 150.0.0 → 151.0.0: composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, README badge, 2 service @since tags.
+
 ## [150.0.0] - 2026-08-15
 
 ### Added

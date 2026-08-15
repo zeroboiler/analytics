@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events\Ecommerce;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
 /**
  * Static catalog of all e-commerce analytics events.
  *
@@ -412,5 +414,211 @@ final class EcommerceEvents
             ),
             fn (?string $name): bool => $name !== null,
         ));
+    }
+
+    // ── Typed Shorthand Factory Methods (v151.0.0) ──────────────────
+    //
+    // One-line typed event builders for each catalog entry.
+    // Returns a ready-to-dispatch AnalyticsEvent DTO with correct category.
+
+    /**
+     * Build a typed view_item event.
+     *
+     * @param  array{item_id: string, item_name?: string, item_category?: string, price?: float, quantity?: int, currency?: string}  $item
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function viewItem(array $item, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'view_item', params: array_merge($item, $extra), category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed add_to_cart event.
+     *
+     * @param  array{item_id: string, item_name?: string, price: float, quantity: int}  $item
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function addToCart(array $item, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'add_to_cart', params: array_merge($item, $extra), category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed remove_from_cart event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function removeFromCart(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'remove_from_cart', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed view_cart event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function viewCart(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'view_cart', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed begin_checkout event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function beginCheckout(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'begin_checkout', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed add_payment_info event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function addPaymentInfo(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'add_payment_info', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed purchase event.
+     *
+     * @param  array{transaction_id: string, value: float, currency?: string, items?: array<int, array<string, mixed>>}  $params
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function purchase(array $params, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'purchase', params: array_merge($params, $extra), category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed refund event.
+     *
+     * @param  array{transaction_id?: string, value?: float, currency?: string}  $params
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function refund(array $params = [], array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'refund', params: array_merge($params, $extra), category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed add_to_wishlist event.
+     *
+     * @param  array{item_id: string, item_name?: string, price?: float}  $item
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function addToWishlist(array $item, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'add_to_wishlist', params: array_merge($item, $extra), category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed select_item event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function selectItem(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'select_item', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed select_promotion event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function selectPromotion(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'select_promotion', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed view_promotion event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function viewPromotion(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'view_promotion', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed checkout_step event.
+     *
+     * @param  int  $step
+     * @param  string|null  $option
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function checkoutStep(int $step, ?string $option = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'checkout_step',
+            params: array_merge(['step' => $step, 'checkout_option' => $option], $extra),
+            category: 'ecommerce',
+        );
+    }
+
+    /**
+     * Build a typed abandoned_cart event.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     */
+    public static function abandonedCart(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'abandoned_cart', params: $params, category: 'ecommerce');
+    }
+
+    /**
+     * Build a typed checkout_abandon event.
+     *
+     * @param  int|null  $step
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function checkoutAbandon(?int $step = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'checkout_abandon',
+            params: array_merge(array_filter(['step' => $step]), $extra),
+            category: 'ecommerce',
+        );
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog
+     * and returns a typed event with the 'ecommerce' category.
+     *
+     * @param  string  $name  Event name (must exist in this catalog)
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     * @throws \InvalidArgumentException if event name is not in this catalog
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (! self::has($name)) {
+            throw new \InvalidArgumentException("Unknown e-commerce event: {$name}");
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'ecommerce');
     }
 }
