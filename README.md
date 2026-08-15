@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-153.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-154.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **349+ services**, **77 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **349+ services**, **80 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v154.0.0
+
+**Service Dependency Topology, Runtime Pipeline Profiler & Bundle Diagnostic — 3 New Admin Commands**:
+
+- **`AnalyticsDependencyTopologyCommand`** (`zb:analytics:topology`) — Static analysis of the ServiceProvider's 420+ singleton registrations. Maps constructor dependencies between analytics services using reflection. Detects circular dependency chains (A → B → C → A), orphan services (registered but never referenced), leaf services (terminal nodes), and identifies the most-dependency-heavy services (bottleneck candidates). Supports `--json`, `--circular`, `--orphans`, `--heavy`, `--service=`, and `--depth=` filters for focused analysis. Essential for understanding the complex service architecture and debugging resolution failures.
+- **`AnalyticsRuntimeProfilerCommand`** (`zb:analytics:profile`) — Sends synthetic test events through the full analytics dispatch pipeline and measures latency at each stage: DTO construction, manager dispatch, direct track(), identify+track combined, page view, and purchase event. Uses `hrtime(true)` for nanosecond precision. Supports `--iterations=N` for averaged profiling, `--warmup=N` for JVM-style warm-up exclusion, and `--json` for CI integration. Reports per-stage timing with visual bars, slowest/fastest stage identification, and config context (queue, sampling, sanitization, dedup, enabled providers).
+- **`AnalyticsBundleDiagnosticCommand`** (`zb:analytics:bundle`) — Comprehensive 12-subsystem health check in a single command. Covers: Config integrity, Event catalog (210+ events, 8 categories), Provider configuration (9 providers with credential validation), Queue configuration, Identity tracking, Consent/GDPR defaults, Auto-track mapping, E-commerce settings, JS client compatibility, Event deduplication, Event sanitization, and Sampling engine. Each subsystem receives ✅ healthy / ⚠️ warning / ❌ critical status. Exit codes: 0 = healthy, 1 = warnings (with `--fail-on-warning`), 2 = critical. Supports `--section=` for focused checks and `--json` for programmatic consumption.
+- **3 commands registered** in ServiceProvider (`registerConsoleCommands()`), bringing total artisan commands to **80**.
+- **V1540TopologyProfilerBundleDiagnosticTest** — 50+ assertions covering all 3 commands: finality, strict_types, constructor void, signature/description correctness, method existence, return types, docblock presence, provider credential validation, stage coverage, exit code logic, and cross-cutting quality checks.
+- **Version sweep** — All 14 entry points synced to v154.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — All new commands are additive. Existing dispatch pipeline, config structure, and provider implementations unchanged.
 
 ### What's New in v153.0.0
 

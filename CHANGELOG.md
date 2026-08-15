@@ -1,5 +1,18 @@
 # Changelog
 
+## [154.0.0] - 2026-08-15
+
+### Added
+- **AnalyticsDependencyTopologyCommand** (`zb:analytics:topology`) — Static analysis of ServiceProvider singleton registrations to map constructor dependencies. Detects circular dependency chains via DFS, identifies orphan services (registered but unreferenced), leaf services (terminal nodes with no dependencies), and most-dependency-heavy services (bottleneck candidates). Supports `--json`, `--circular`, `--orphans`, `--heavy`, `--service=`, and `--depth=` options for focused analysis.
+- **AnalyticsRuntimeProfilerCommand** (`zb:analytics:profile`) — Runtime pipeline profiler that sends synthetic test events through the full dispatch pipeline and measures latency at each stage (DTO construction, manager dispatch, direct track, identify+track, page view, purchase event). Uses `hrtime(true)` for nanosecond precision. Supports `--iterations=N`, `--warmup=N`, and `--json` for CI performance baselining.
+- **AnalyticsBundleDiagnosticCommand** (`zb:analytics:bundle`) — Comprehensive 12-subsystem health check in a single command. Covers: config integrity, event catalog (210+ events, 8 categories), provider configuration (9 providers with credential validation), queue configuration, identity tracking, consent/GDPR defaults, auto-track mapping, ecommerce settings, JS client compatibility, event deduplication, sanitization, and sampling engine. Each subsystem receives healthy/warning/critical status. Exit codes: 0=healthy, 1=warning (with --fail-on-warning), 2=critical.
+- **V1540TopologyProfilerBundleDiagnosticTest** — 50+ assertion test suite covering all 3 commands: class finality, strict_types, constructor void, signature/description validation, method existence, return types, @since docblocks, provider credential validation logic, stage coverage, exit code behavior, and cross-cutting quality.
+
+### Changed
+- **Version sweep** — All 14 version entry points synced from 153.0.0 → 154.0.0: composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+- **ServiceProvider** — Registered 3 new commands (AnalyticsDependencyTopologyCommand, AnalyticsRuntimeProfilerCommand, AnalyticsBundleDiagnosticCommand) in `registerConsoleCommands()`. Total artisan commands: 80.
+- **README** — Updated badge to 154.0.0, command count 77→80, added "What's New in v154.0.0" section.
+
 ## [152.0.0] - 2026-08-15
 
 ### Added
