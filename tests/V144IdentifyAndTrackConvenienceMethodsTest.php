@@ -15,15 +15,15 @@ use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 
-// ── Version Consistency (v148.0.0) ────────────────────────────────────
+// ── Version Consistency (v149.0.0) ────────────────────────────────────
 
 describe('V144 Version Consistency', function () {
-    it('has VERSION 148.0.0 in AnalyticsEvent', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('148.0.0');
+    it('has VERSION 149.0.0 in AnalyticsEvent', function () {
+        expect(AnalyticsEvent::VERSION)->toBe('149.0.0');
     });
 
     it('has consistent version across composer.json equivalent', function () {
-        expect(AnalyticsEvent::VERSION)->toBe('148.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('149.0.0');
     });
 
     it('has strict_types declaration in all checked files', function () {
@@ -440,22 +440,22 @@ describe('V144 Event Catalog Completeness', function () {
     });
 });
 
-// ── Version Sweep Integrity (v148.0.0) ──────────────────────────────
+// ── Version Sweep Integrity (v149.0.0) ──────────────────────────────
 
 describe('V144 Version Sweep Integrity', function () {
-    it('composer.json has version 148.0.0', function () {
+    it('composer.json has version 149.0.0', function () {
         $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
-        expect($composer['version'])->toBe('148.0.0');
+        expect($composer['version'])->toBe('149.0.0');
     });
 
-    it('package.json has version 148.0.0', function () {
+    it('package.json has version 149.0.0', function () {
         $pkg = json_decode(file_get_contents(__DIR__ . '/../../package.json'), true);
-        expect($pkg['version'])->toBe('148.0.0');
+        expect($pkg['version'])->toBe('149.0.0');
     });
 
-    it('JS client getVersion returns 148.0.0', function () {
+    it('JS client getVersion returns 149.0.0', function () {
         $content = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-        expect($content)->toContain("return '148.0.0'");
+        expect($content)->toContain("return '149.0.0'");
     });
 
     it('no stale 143.0.0 references in JS files', function () {
