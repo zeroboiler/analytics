@@ -8174,4 +8174,36 @@ return [
             // 'ga4', 'gtm', 'meta', 'plausible', 'posthog',
         ],
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Governance Runtime Validator (v160.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Runtime validation of analytics events against the EventCatalog.
+    | Detects unknown events, category mismatches, provider mapping gaps,
+    | and deprecated events at dispatch time. Non-blocking — logs warnings.
+    |
+    | CLI:
+    |   php artisan zb:analytics:governance-validate --health
+    |   php artisan zb:analytics:governance-validate --sample
+    |   php artisan zb:analytics:governance-validate --provider-gaps
+    |
+    */
+    'governance_runtime' => [
+        'enabled' => env('ANALYTICS_GOVERNANCE_RUNTIME_ENABLED', false),
+        'check_provider_gaps' => env('ANALYTICS_GOVERNANCE_PROVIDER_GAPS', true),
+        'auto_resolve' => env('ANALYTICS_GOVERNANCE_AUTO_RESOLVE', true),
+        'max_log_size' => (int) env('ANALYTICS_GOVERNANCE_MAX_LOG', 1000),
+        'deprecated_events' => [
+            // 'old_event_name',
+        ],
+        'required_global_params' => [
+            // 'client_id',
+        ],
+        'snapshot' => [
+            'enabled' => env('ANALYTICS_GOVERNANCE_SNAPSHOT_ENABLED', false),
+            'ttl' => (int) env('ANALYTICS_GOVERNANCE_SNAPSHOT_TTL', 86400), // 24 hours
+        ],
+    ],
 ];

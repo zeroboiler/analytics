@@ -293,21 +293,21 @@ describe('SDK Token Gateway — Routes & Config Integration', function (): void 
         expect($controllerContent)->toContain('sdkTokenPermissions');
     });
 
-    test('version sweep — all entry points are 156.0.0', function (): void {
+    test('version sweep — all entry points are 160.0.0', function (): void {
         // composer.json
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-        expect($composer['version'])->toBe('156.0.0');
+        expect($composer['version'])->toBe('160.0.0');
 
         // package.json
         $package = json_decode(file_get_contents(base_path('package.json')), true);
-        expect($package['version'])->toBe('156.0.0');
+        expect($package['version'])->toBe('160.0.0');
 
         // AnalyticsEvent::VERSION
-        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('156.0.0');
+        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('160.0.0');
 
         // Integrity command
         $integrityReflection = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class);
         $expectedVersion = $integrityReflection->getConstant('EXPECTED_VERSION');
-        expect($expectedVersion)->toBe('156.0.0');
+        expect($expectedVersion)->toBe('160.0.0');
     });
 });

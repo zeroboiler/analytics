@@ -46,7 +46,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 final class Phase40ProductionReadinessTest extends TestCase
 {
     private const PKG_ROOT = __DIR__ . '/..';
-    private const VERSION = '156.0.0';
+    private const VERSION = '160.0.0';
 
     // ── 1. Version Consistency ──────────────────────────────────────────
 

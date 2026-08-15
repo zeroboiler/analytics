@@ -60,6 +60,8 @@ use ZeroBoiler\Analytics\Services\FeatureGatingAnalyticsService;
 use ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService;
 use ZeroBoiler\Analytics\Services\AnalyticsEventReliabilityService;
 use ZeroBoiler\Analytics\Services\AnalyticsEventBuffer;
+use ZeroBoiler\Analytics\Services\CatalogSnapshotService;
+use ZeroBoiler\Analytics\Services\EventGovernanceRuntimeValidator;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
 use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
 use ZeroBoiler\Analytics\Tracking\SessionTracker;
@@ -427,6 +429,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsRuntimeProfilerCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBundleDiagnosticCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSLOCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
 
 /**
@@ -435,7 +438,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 159.0.0
+ * @version 160.0.0
  *
  * @since 1.0.0
  */
@@ -586,6 +589,33 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 maxCapacity: (int) ($bufferConfig['max_capacity'] ?? 100),
                 ttlSeconds: (int) ($bufferConfig['ttl_seconds'] ?? 3600),
                 dedupWindowSeconds: (int) ($bufferConfig['dedup_window_seconds'] ?? 10),
+            );
+        });
+
+        // Event Governance Runtime Validator (v160.0.0)
+        $this->app->singleton(EventGovernanceRuntimeValidator::class, function (Application $app): EventGovernanceRuntimeValidator {
+            $govConfig = $app->make(ConfigRepository::class)->get('zeroboiler.governance_runtime', []);
+            /** @var array{enabled?: bool, check_provider_gaps?: bool, auto_resolve?: bool, max_log_size?: int, deprecated_events?: list<string>, required_global_params?: list<string>} $govConfig */
+
+            return (new EventGovernanceRuntimeValidator(
+                checkProviderGaps: (bool) ($govConfig['check_provider_gaps'] ?? true),
+                autoResolve: (bool) ($govConfig['auto_resolve'] ?? true),
+                maxLogSize: (int) ($govConfig['max_log_size'] ?? 1000),
+            ))
+                ->setDeprecatedEvents($govConfig['deprecated_events'] ?? [])
+                ->setRequiredGlobalParams($govConfig['required_global_params'] ?? []);
+        });
+
+        // Catalog Snapshot Service (v160.0.0)
+        $this->app->singleton(CatalogSnapshotService::class, function (Application $app): CatalogSnapshotService {
+            $govConfig = $app->make(ConfigRepository::class)->get('zeroboiler.governance_runtime', []);
+            $snapshotConfig = $govConfig['snapshot'] ?? [];
+            /** @var array{enabled?: bool, ttl?: int} $snapshotConfig */
+
+            return new CatalogSnapshotService(
+                cache: $app->make('cache'),
+                enabled: (bool) ($snapshotConfig['enabled'] ?? false),
+                ttl: (int) ($snapshotConfig['ttl'] ?? 86400),
             );
         });
 
@@ -4001,6 +4031,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSdkTokenCommand::class,
                 AnalyticsSLOCommand::class,
                 AnalyticsWebhookRelayCommand::class,
+                AnalyticsGovernanceValidateCommand::class,
             ]);
         }
 
