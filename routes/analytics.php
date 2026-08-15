@@ -989,4 +989,19 @@ Route::prefix('analytics')->group(function () {
     Route::delete('sdk-tokens/audit', [AnalyticsEventController::class, 'sdkTokenAuditClear']);
     Route::get('sdk-tokens/status', [AnalyticsEventController::class, 'sdkTokenStatus']);
     Route::get('sdk-tokens/permissions', [AnalyticsEventController::class, 'sdkTokenPermissions']);
+
+    // SLO Dashboard & Error Budget (v157.0.0)
+    Route::get('slo/dashboard', [AnalyticsEventController::class, 'sloDashboard']);
+    Route::get('slo/{objective}', [AnalyticsEventController::class, 'sloObjectiveStatus']);
+    Route::get('slo/{objective}/budget', [AnalyticsEventController::class, 'sloErrorBudget']);
+    Route::get('slo/{objective}/project', [AnalyticsEventController::class, 'sloBudgetProjection']);
+    Route::get('slo/{objective}/burn-rate', [AnalyticsEventController::class, 'sloBurnRateCheck']);
+    Route::get('slo/{objective}/compliance', [AnalyticsEventController::class, 'sloCompliance']);
+    Route::get('slo/{objective}/history', [AnalyticsEventController::class, 'sloComplianceHistory']);
+
+    // Outbound Webhook Relay (v157.0.0)
+    Route::get('webhooks/relay/stats', [AnalyticsEventController::class, 'webhookRelayStats']);
+    Route::get('webhooks/relay/destinations', [AnalyticsEventController::class, 'webhookRelayDestinations']);
+    Route::get('webhooks/relay/{destination}/log', [AnalyticsEventController::class, 'webhookRelayLog']);
+    Route::post('webhooks/relay/test/{destination}', [AnalyticsEventController::class, 'webhookRelayTest']);
 });

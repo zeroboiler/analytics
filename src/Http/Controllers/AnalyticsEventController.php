@@ -17602,4 +17602,234 @@ final class AnalyticsEventController extends Controller
             'audit_operations' => \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::allOperations(),
         ]);
     }
+
+    // ────────────────────────────────────────────────────────────────────
+    // SLO Dashboard & Error Budget (v157.0.0)
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * SLO dashboard — all objectives, budgets, burn rates.
+     *
+     * @since 157.0.0
+     */
+    public function sloDashboard(): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'slo' => $slo->dashboard(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO objective status — compliance and budget for a specific objective.
+     *
+     * @since 157.0.0
+     */
+    public function sloObjectiveStatus(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'compliance' => $slo->getCompliance($objective),
+                'budget' => $slo->getErrorBudget($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO error budget — remaining budget and burn rate for an objective.
+     *
+     * @since 157.0.0
+     */
+    public function sloErrorBudget(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'budget' => $slo->getErrorBudget($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO budget projection — estimated time left based on current burn rate.
+     *
+     * @since 157.0.0
+     */
+    public function sloBudgetProjection(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'projection' => $slo->projectBudget($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO burn rate check — threshold evaluation for an objective.
+     *
+     * @since 157.0.0
+     */
+    public function sloBurnRateCheck(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'burn_rate' => $slo->calculateBurnRate($objective),
+                'thresholds' => $slo->checkBurnRateThreshold($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO compliance — current and rolling compliance for an objective.
+     *
+     * @since 157.0.0
+     */
+    public function sloCompliance(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'current_compliance' => $slo->getCompliance($objective),
+                'rolling_compliance' => $slo->rollingCompliance($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SLO compliance history — historical compliance data for an objective.
+     *
+     * @since 157.0.0
+     */
+    public function sloComplianceHistory(string $objective): JsonResponse
+    {
+        try {
+            $slo = app(\ZeroBoiler\Analytics\Services\SLOService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'objective' => $objective,
+                'history' => $slo->getComplianceHistory($objective),
+                'rolling_avg' => $slo->rollingCompliance($objective),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Outbound Webhook Relay (v157.0.0)
+    // ────────────────────────────────────────────────────────────────────
+
+    /**
+     * Webhook relay statistics — delivery stats for all destinations.
+     *
+     * @since 157.0.0
+     */
+    public function webhookRelayStats(): JsonResponse
+    {
+        try {
+            $relay = app(\ZeroBoiler\Analytics\Services\OutboundWebhookRelay::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'relay' => $relay->stats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Webhook relay destinations — list all configured destinations.
+     *
+     * @since 157.0.0
+     */
+    public function webhookRelayDestinations(): JsonResponse
+    {
+        try {
+            $relay = app(\ZeroBoiler\Analytics\Services\OutboundWebhookRelay::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'destinations' => $relay->getDestinationNames(),
+                'enabled' => $relay->isEnabled(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Webhook relay delivery log for a destination.
+     *
+     * @since 157.0.0
+     */
+    public function webhookRelayLog(string $destination): JsonResponse
+    {
+        try {
+            $relay = app(\ZeroBoiler\Analytics\Services\OutboundWebhookRelay::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'destination' => $destination,
+                'log' => $relay->deliveryLog($destination),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Test a webhook relay destination.
+     *
+     * @since 157.0.0
+     */
+    public function webhookRelayTest(string $destination): JsonResponse
+    {
+        try {
+            $relay = app(\ZeroBoiler\Analytics\Services\OutboundWebhookRelay::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'destination' => $destination,
+                'test' => $relay->testDestination($destination),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -279,6 +279,8 @@ use ZeroBoiler\Analytics\Services\EventIdempotencyService;
 use ZeroBoiler\Analytics\Services\PrivacyManifestService;
 use ZeroBoiler\Analytics\Services\EventAnnotationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeliveryCommand;
+use ZeroBoiler\Analytics\Services\SLOService;
+use ZeroBoiler\Analytics\Services\OutboundWebhookRelay;
 use ZeroBoiler\Analytics\Services\ProviderFallbackService;
 use ZeroBoiler\Analytics\Services\ProviderSLAMonitor;
 use ZeroBoiler\Analytics\Services\AnalyticsCostForecastService;
@@ -424,6 +426,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyTopologyCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRuntimeProfilerCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBundleDiagnosticCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSLOCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -431,7 +435,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 156.0.0
+ * @version 157.0.0
  *
  * @since 1.0.0
  */
@@ -3172,6 +3176,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderSLAMonitor($cache, $config);
         });
 
+        // SLO Service (v157.0.0) — error budget tracking, burn rate analysis, compliance reporting
+        $this->app->singleton(SLOService::class, function (Application $app): SLOService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SLOService($cache, $config);
+        });
+
+        // Outbound Webhook Relay (v157.0.0) — event forwarding to external webhooks
+        $this->app->singleton(OutboundWebhookRelay::class, function (Application $app): OutboundWebhookRelay {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new OutboundWebhookRelay($cache, $config);
+        });
+
         // Analytics Cost Forecast Service (v84.0.0) — provider cost projections
         $this->app->singleton(AnalyticsCostForecastService::class, function (Application $app): AnalyticsCostForecastService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
@@ -3975,6 +3999,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsRuntimeProfilerCommand::class,
                 AnalyticsBundleDiagnosticCommand::class,
                 AnalyticsSdkTokenCommand::class,
+                AnalyticsSLOCommand::class,
+                AnalyticsWebhookRelayCommand::class,
             ]);
         }
 
@@ -4382,6 +4408,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/projections/dashboard', [$controller, 'projectionDashboard']);
                 Route::get('analytics/projections/{name}', [$controller, 'projectionEvaluate']);
                 Route::get('analytics/projections/{name}/history', [$controller, 'projectionHistory']);
+
+                // SLO Dashboard (v157.0.0)
+                Route::get('analytics/slo/dashboard', [$controller, 'sloDashboard']);
+                Route::get('analytics/slo/{objective}', [$controller, 'sloObjectiveStatus']);
+                Route::get('analytics/slo/{objective}/budget', [$controller, 'sloErrorBudget']);
+                Route::get('analytics/slo/{objective}/project', [$controller, 'sloBudgetProjection']);
+                Route::get('analytics/slo/{objective}/burn-rate', [$controller, 'sloBurnRateCheck']);
+                Route::get('analytics/slo/{objective}/compliance', [$controller, 'sloCompliance']);
+                Route::get('analytics/slo/{objective}/history', [$controller, 'sloComplianceHistory']);
+
+                // Outbound Webhook Relay (v157.0.0)
+                Route::get('analytics/webhooks/relay/stats', [$controller, 'webhookRelayStats']);
+                Route::get('analytics/webhooks/relay/destinations', [$controller, 'webhookRelayDestinations']);
+                Route::get('analytics/webhooks/relay/{destination}/log', [$controller, 'webhookRelayLog']);
+                Route::post('analytics/webhooks/relay/test/{destination}', [$controller, 'webhookRelayTest']);
             });
 
         // Authenticated endpoints
