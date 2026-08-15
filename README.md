@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-155.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-156.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **81 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,21 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v156.0.0
+
+**All 8 Catalogs Now Have Full Typed Factory Method Parity**:
+
+- **MarketingEvents — 34 typed factory methods + `build()` generic factory** — All marketing events now have one-line typed builders: `emailSent()`, `emailDelivered()`, `emailOpened()`, `emailClicked()`, `emailBounced()`, `emailUnsubscribed()`, `emailMarkedSpam()`, `leadCaptured()`, `leadQualified()`, `leadScoreChanged()`, `blogView()`, `contentDownloaded()`, `newsletterSubscribed()`, `socialShare()`, `socialFollow()`, `socialComment()`, `socialMention()`, `adImpression()`, `adClick()`, `adConversion()`, `webinarRegistered()`, `webinarAttended()`, `webinarEngagement()`, `smsSent()`, `smsDelivered()`, `smsClicked()`, `pushNotificationSent()`, `pushNotificationOpened()`, `referralLinkShared()`, `referralConversion()`, `affiliateSignup()`, `affiliateCommission()`, `attributionTouchpoint()`, `campaignResponse()`. Plus `build()` generic factory with validation. Added missing `use ZeroBoiler\Analytics\DTO\AnalyticsEvent` import.
+- **CustomerSuccessEvents — 7 typed factory methods + `build()` generic factory** — `supportTicketCreated()`, `npsSubmitted()`, `healthScoreChanged()`, `renewalReminderSent()`, `churnInterview()`, `customerReview()`, `onboardingCallCompleted()`. Plus `build()` generic factory.
+- **SecurityEvents — 6 typed factory methods + `build()` generic factory** — `loginAttempt()`, `suspiciousActivity()`, `dataAccessAudit()`, `rateLimitExceeded()`, `mfaChallenge()`, `aiAgentAccess()`. Plus `build()` generic factory.
+- **UptimeEvents — 5 typed factory methods + `build()` generic factory** — `serviceUp()`, `serviceDown()`, `apiLatency()`, `errorSpike()`, `deployment()`. Plus `build()` generic factory.
+- **InfrastructureEvents — 10 typed factory methods + `build()` generic factory + `category()` method** — `featureFlagEvaluated()`, `experimentExposed()`, `errorBudgetBurned()`, `sloBreach()`, `deploymentRolledBack()`, `incidentStarted()`, `incidentResolved()`, `maintenanceStarted()`, `maintenanceEnded()`, `pipelineFailure()`. Plus `build()` generic factory. Added missing `category()` method and `use ZeroBoiler\Analytics\DTO\AnalyticsEvent` import.
+- **All 8 catalogs now share identical API surface**: `names()`, `all()`, `get()`, `has()`, `count()`, `category()`, `build()`, typed factory methods, and per-provider name accessors (`ga4Names()`, `metaNames()`, etc.).
+- **Total typed factory methods across all catalogs**: 15 (ecommerce) + 21 (saas) + 15 (engagement) + 34 (marketing) + 7 (customer_success) + 6 (security) + 5 (uptime) + 10 (infrastructure) = **113 one-line typed builders**.
+- **`V1560CatalogFactoryMethodsParityTest`** — 60+ assertions covering: all 5 newly-enhanced catalogs have correct factory methods with typed return values, correct event name and category, `build()` generic factory with validation, `build()` throws `InvalidArgumentException` for unknown events, `category()` method correctness, cross-catalog API consistency (all 8 have `build()` and `category()`), all factory methods are static and public, version consistency, EventCatalog count integrity, factory method count validation per catalog, strict_types and import compliance.
+- **Version sweep** — All entry points synced to v156.0.0.
+- **Zero breaking changes** — All new factory methods are additive. Existing dispatch pipeline and provider implementations unchanged.
 
 ### What's New in v155.0.0
 

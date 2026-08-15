@@ -127,11 +127,11 @@ describe('SdkTokenAuditLogger', function (): void {
         expect(count($operations))->toBeGreaterThanOrEqual(9);
     });
 
-    test('has @since 155.0.0 docblock', function (): void {
+    test('has @since 156.0.0 docblock', function (): void {
         $reflection = new ReflectionClass(SdkTokenAuditLogger::class);
         $doc = $reflection->getDocComment();
         expect($doc)->not->toBeFalse();
-        expect($doc)->toContain('@since 155.0.0');
+        expect($doc)->toContain('@since 156.0.0');
     });
 
     test('log entries have required fields structure', function (): void {
@@ -204,11 +204,11 @@ describe('AnalyticsSdkTokenCommand', function (): void {
         expect($method->getReturnType()?->getName())->toBe('int');
     });
 
-    test('has @since 155.0.0 docblock', function (): void {
+    test('has @since 156.0.0 docblock', function (): void {
         $reflection = new ReflectionClass(AnalyticsSdkTokenCommand::class);
         $doc = $reflection->getDocComment();
         expect($doc)->not->toBeFalse();
-        expect($doc)->toContain('@since 155.0.0');
+        expect($doc)->toContain('@since 156.0.0');
     });
 
     test('has private action methods for each action', function (): void {
@@ -254,10 +254,10 @@ describe('SDK Token Gateway — Routes & Config Integration', function (): void 
         expect($routesContent)->toContain('sdkTokenPermissions');
     });
 
-    test('routes file has v155.0.0 comment', function (): void {
+    test('routes file has v156.0.0 comment', function (): void {
         $routesContent = file_get_contents(base_path('routes/analytics.php'));
         expect($routesContent)->not->toBeFalse();
-        expect($routesContent)->toContain('v155.0.0');
+        expect($routesContent)->toContain('v156.0.0');
     });
 
     test('config has audit section under sdk_tokens', function (): void {
@@ -293,21 +293,21 @@ describe('SDK Token Gateway — Routes & Config Integration', function (): void 
         expect($controllerContent)->toContain('sdkTokenPermissions');
     });
 
-    test('version sweep — all entry points are 155.0.0', function (): void {
+    test('version sweep — all entry points are 156.0.0', function (): void {
         // composer.json
         $composer = json_decode(file_get_contents(base_path('composer.json')), true);
-        expect($composer['version'])->toBe('155.0.0');
+        expect($composer['version'])->toBe('156.0.0');
 
         // package.json
         $package = json_decode(file_get_contents(base_path('package.json')), true);
-        expect($package['version'])->toBe('155.0.0');
+        expect($package['version'])->toBe('156.0.0');
 
         // AnalyticsEvent::VERSION
-        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('155.0.0');
+        expect(\ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION)->toBe('156.0.0');
 
         // Integrity command
         $integrityReflection = new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class);
         $expectedVersion = $integrityReflection->getConstant('EXPECTED_VERSION');
-        expect($expectedVersion)->toBe('155.0.0');
+        expect($expectedVersion)->toBe('156.0.0');
     });
 });

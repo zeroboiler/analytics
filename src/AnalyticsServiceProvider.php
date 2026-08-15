@@ -431,7 +431,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 155.0.0
+ * @version 156.0.0
  *
  * @since 1.0.0
  */
@@ -1035,7 +1035,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SdkScopeTokenService($cache, $config);
         });
 
-        // SDK Token Audit Logger (v155.0.0)
+        // SDK Token Audit Logger (v156.0.0)
         $this->app->singleton(SdkTokenAuditLogger::class, function (Application $app): SdkTokenAuditLogger {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');

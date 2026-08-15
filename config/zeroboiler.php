@@ -5334,7 +5334,7 @@ return [
             'hash_algorithm' => env('ANALYTICS_SDK_TOKENS_HASH', 'sha256'),
             'signing_key' => env('ANALYTICS_SDK_TOKENS_SIGNING_KEY', ''),
 
-            // SDK Token Audit Logging (v155.0.0)
+            // SDK Token Audit Logging (v156.0.0)
             // Tracks all token operations for GDPR Article 30 compliance
             // and security incident investigation.
             'audit' => [

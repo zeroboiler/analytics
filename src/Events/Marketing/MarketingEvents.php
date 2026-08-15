@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events\Marketing;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
 /**
  * Static catalog of all marketing analytics events.
  *
@@ -557,6 +559,403 @@ final class MarketingEvents
     public static function category(): string
     {
         return 'marketing';
+    }
+
+    // ── Typed Factory Methods ───────────────────────────────────
+
+    /**
+     * Build a typed email_sent event.
+     *
+     * @param  array{campaign?: string, recipient?: string, subject?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailSent(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_sent', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_delivered event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailDelivered(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_delivered', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_opened event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailOpened(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_opened', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_clicked event.
+     *
+     * @param  array{campaign?: string, recipient?: string, link?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailClicked(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_clicked', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_bounced event.
+     *
+     * @param  array{campaign?: string, recipient?: string, reason?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailBounced(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_bounced', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_unsubscribed event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailUnsubscribed(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_unsubscribed', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed email_marked_spam event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function emailMarkedSpam(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'email_marked_spam', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed lead_captured event.
+     *
+     * @param  array{source?: string, form?: string, value?: float}  $params
+     * @return AnalyticsEvent
+     */
+    public static function leadCaptured(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'lead_captured', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed lead_qualified event.
+     *
+     * @param  array{lead_id?: string, score?: int, stage?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function leadQualified(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'lead_qualified', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed lead_score_changed event.
+     *
+     * @param  array{lead_id?: string, previous_score?: int, new_score?: int, reason?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function leadScoreChanged(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'lead_score_changed', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed blog_view event.
+     *
+     * @param  array{slug?: string, title?: string, author?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function blogView(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'blog_view', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed content_downloaded event.
+     *
+     * @param  array{resource?: string, format?: string, gated?: bool}  $params
+     * @return AnalyticsEvent
+     */
+    public static function contentDownloaded(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'content_downloaded', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed newsletter_subscribed event.
+     *
+     * @param  array{list?: string, source?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function newsletterSubscribed(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'newsletter_subscribed', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed social_share event.
+     *
+     * @param  array{platform?: string, content?: string, url?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function socialShare(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'social_share', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed social_follow event.
+     *
+     * @param  array{platform?: string, account?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function socialFollow(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'social_follow', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed social_comment event.
+     *
+     * @param  array{platform?: string, content?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function socialComment(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'social_comment', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed social_mention event.
+     *
+     * @param  array{platform?: string, author?: string, content?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function socialMention(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'social_mention', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed ad_impression event.
+     *
+     * @param  array{campaign?: string, ad_group?: string, creative?: string, platform?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function adImpression(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'ad_impression', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed ad_click event.
+     *
+     * @param  array{campaign?: string, ad_group?: string, creative?: string, platform?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function adClick(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'ad_click', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed ad_conversion event.
+     *
+     * @param  array{campaign?: string, ad_group?: string, value?: float, platform?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function adConversion(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'ad_conversion', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed webinar_registered event.
+     *
+     * @param  array{webinar?: string, source?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function webinarRegistered(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'webinar_registered', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed webinar_attended event.
+     *
+     * @param  array{webinar?: string, duration_minutes?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function webinarAttended(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'webinar_attended', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed webinar_engagement event.
+     *
+     * @param  array{webinar?: string, action?: string, content?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function webinarEngagement(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'webinar_engagement', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed sms_sent event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function smsSent(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'sms_sent', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed sms_delivered event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function smsDelivered(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'sms_delivered', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed sms_clicked event.
+     *
+     * @param  array{campaign?: string, recipient?: string, link?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function smsClicked(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'sms_clicked', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed push_notification_sent event.
+     *
+     * @param  array{campaign?: string, recipient?: string, title?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function pushNotificationSent(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'push_notification_sent', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed push_notification_opened event.
+     *
+     * @param  array{campaign?: string, recipient?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function pushNotificationOpened(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'push_notification_opened', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed referral_link_shared event.
+     *
+     * @param  array{referee?: string, channel?: string, code?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function referralLinkShared(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'referral_link_shared', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed referral_conversion event.
+     *
+     * @param  array{referrer?: string, referee?: string, value?: float}  $params
+     * @return AnalyticsEvent
+     */
+    public static function referralConversion(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'referral_conversion', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed affiliate_signup event.
+     *
+     * @param  array{affiliate_id?: string, program?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function affiliateSignup(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'affiliate_signup', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed affiliate_commission event.
+     *
+     * @param  array{affiliate_id?: string, amount?: float, currency?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function affiliateCommission(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'affiliate_commission', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed attribution_touchpoint event.
+     *
+     * @param  array{source?: string, medium?: string, campaign?: string, content?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function attributionTouchpoint(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'attribution_touchpoint', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed campaign_response event.
+     *
+     * @param  array{campaign?: string, channel?: string, action?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function campaignResponse(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'campaign_response', params: $params, category: 'marketing');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (!self::has($name)) {
+            throw new \InvalidArgumentException(
+                "Unknown marketing event: {$name}. Available: ".implode(', ', self::names()),
+            );
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'marketing');
     }
 
     /**

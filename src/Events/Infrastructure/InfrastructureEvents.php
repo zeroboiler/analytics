@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Events\Infrastructure;
 
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+
 /**
  * Static catalog of all infrastructure/DevOps analytics events.
  *
@@ -319,5 +321,144 @@ final class InfrastructureEvents
     public static function count(): int
     {
         return count(self::catalog());
+    }
+
+    /**
+     * Get the category name for this catalog.
+     */
+    public static function category(): string
+    {
+        return 'infrastructure';
+    }
+
+    /**
+     * Build a typed feature_flag_evaluated event.
+     *
+     * @param  array{flag_name?: string, variant?: string, enabled?: bool}  $params
+     * @return AnalyticsEvent
+     */
+    public static function featureFlagEvaluated(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'feature_flag_evaluated', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed experiment_exposed event.
+     *
+     * @param  array{experiment_name?: string, variant?: string, cohort?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function experimentExposed(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'experiment_exposed', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed error_budget_burned event.
+     *
+     * @param  array{service?: string, budget_consumed?: float, window?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function errorBudgetBurned(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'error_budget_burned', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed slo_breach event.
+     *
+     * @param  array{slo_name?: string, target?: float, actual?: float}  $params
+     * @return AnalyticsEvent
+     */
+    public static function sloBreach(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'slo_breach', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed deployment_rolled_back event.
+     *
+     * @param  array{version?: string, reason?: string, environment?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function deploymentRolledBack(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'deployment_rolled_back', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed incident_started event.
+     *
+     * @param  array{incident_id?: string, severity?: string, description?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function incidentStarted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'incident_started', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed incident_resolved event.
+     *
+     * @param  array{incident_id?: string, duration_seconds?: int, severity?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function incidentResolved(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'incident_resolved', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed maintenance_started event.
+     *
+     * @param  array{window?: string, reason?: string, estimated_duration?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function maintenanceStarted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'maintenance_started', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed maintenance_ended event.
+     *
+     * @param  array{window?: string, duration_seconds?: int, success?: bool}  $params
+     * @return AnalyticsEvent
+     */
+    public static function maintenanceEnded(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'maintenance_ended', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed pipeline_failure event.
+     *
+     * @param  array{pipeline?: string, stage?: string, error?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function pipelineFailure(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'pipeline_failure', params: $params, category: 'infrastructure');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (!self::has($name)) {
+            throw new \InvalidArgumentException(
+                "Unknown infrastructure event: {$name}. Available: ".implode(', ', self::names()),
+            );
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'infrastructure');
     }
 }

@@ -17406,7 +17406,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ─── SDK Token Gateway (v155.0.0) ───────────────────────────────────
+    // ─── SDK Token Gateway (v156.0.0) ───────────────────────────────────
 
     /**
      * SDK Token Audit Log — retrieve recent token audit entries.
@@ -17420,7 +17420,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenAuditLog(): JsonResponse
     {
@@ -17462,7 +17462,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenAuditSecurity(): JsonResponse
     {
@@ -17494,7 +17494,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenAuditStats(): JsonResponse
     {
@@ -17524,7 +17524,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenAuditClear(): JsonResponse
     {
@@ -17554,7 +17554,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenStatus(): JsonResponse
     {
@@ -17591,7 +17591,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 155.0.0
+     * @since 156.0.0
      */
     public function sdkTokenPermissions(): JsonResponse
     {

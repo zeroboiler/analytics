@@ -195,6 +195,82 @@ final class UptimeEvents
     }
 
     /**
+     * Build a typed service_up event.
+     *
+     * @param  array{service?: string, duration_seconds?: int, region?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function serviceUp(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'service_up', params: $params, category: 'uptime');
+    }
+
+    /**
+     * Build a typed service_down event.
+     *
+     * @param  array{service?: string, reason?: string, impact?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function serviceDown(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'service_down', params: $params, category: 'uptime');
+    }
+
+    /**
+     * Build a typed api_latency event.
+     *
+     * @param  array{endpoint?: string, duration_ms?: float, percentile?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function apiLatency(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'api_latency', params: $params, category: 'uptime');
+    }
+
+    /**
+     * Build a typed error_spike event.
+     *
+     * @param  array{error_count?: int, threshold?: int, window?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function errorSpike(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'error_spike', params: $params, category: 'uptime');
+    }
+
+    /**
+     * Build a typed deployment event.
+     *
+     * @param  array{version?: string, environment?: string, service?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function deployment(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'deployment', params: $params, category: 'uptime');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (!self::has($name)) {
+            throw new \InvalidArgumentException(
+                "Unknown uptime event: {$name}. Available: ".implode(', ', self::names()),
+            );
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'uptime');
+    }
+
+    /**
      * Get all PostHog event names in this category.
      *
      * @return list<string>

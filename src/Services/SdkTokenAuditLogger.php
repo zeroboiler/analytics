@@ -35,7 +35,7 @@ use ZeroBoiler\Analytics\Services\TrackAnalyticsEventJob;
  *
  * @see \ZeroBoiler\Analytics\Services\SdkScopeTokenService
  *
- * @since 155.0.0
+ * @since 156.0.0
  */
 final class SdkTokenAuditLogger
 {

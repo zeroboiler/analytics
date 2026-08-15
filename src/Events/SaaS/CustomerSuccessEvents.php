@@ -188,6 +188,104 @@ final class CustomerSuccessEvents
     }
 
     /**
+     * Build a typed support_ticket_created event.
+     *
+     * @param  array{ticket_id?: string, priority?: string, category?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function supportTicketCreated(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'support_ticket_created', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed nps_submitted event.
+     *
+     * @param  array{score?: int, promoter?: bool, feedback?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function npsSubmitted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'nps_submitted', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed health_score_changed event.
+     *
+     * @param  array{account_id?: string, previous_score?: int, new_score?: int, reason?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function healthScoreChanged(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'health_score_changed', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed renewal_reminder_sent event.
+     *
+     * @param  array{account_id?: string, renewal_date?: string, amount?: float}  $params
+     * @return AnalyticsEvent
+     */
+    public static function renewalReminderSent(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'renewal_reminder_sent', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed churn_interview event.
+     *
+     * @param  array{account_id?: string, reason?: string, outcome?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function churnInterview(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'churn_interview', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed customer_review event.
+     *
+     * @param  array{rating?: int, platform?: string, content?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function customerReview(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'customer_review', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed onboarding_call_completed event.
+     *
+     * @param  array{account_id?: string, duration_minutes?: int, outcome?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function onboardingCallCompleted(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'onboarding_call_completed', params: $params, category: 'customer_success');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (!self::has($name)) {
+            throw new \InvalidArgumentException(
+                "Unknown customer_success event: {$name}. Available: ".implode(', ', self::names()),
+            );
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'customer_success');
+    }
+
+    /**
      * Get all GA4 event names in this category.
      *
      * @return list<string>

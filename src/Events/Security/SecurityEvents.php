@@ -208,6 +208,93 @@ final class SecurityEvents
     }
 
     /**
+     * Build a typed login_attempt event.
+     *
+     * @param  array{user_id?: string, method?: string, success?: bool}  $params
+     * @return AnalyticsEvent
+     */
+    public static function loginAttempt(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'login_attempt', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed suspicious_activity event.
+     *
+     * @param  array{activity_type?: string, severity?: string, details?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function suspiciousActivity(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'suspicious_activity', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed data_access_audit event.
+     *
+     * @param  array{resource?: string, user_id?: string, action?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function dataAccessAudit(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'data_access_audit', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed rate_limit_exceeded event.
+     *
+     * @param  array{endpoint?: string, limit?: int, window?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function rateLimitExceeded(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'rate_limit_exceeded', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed mfa_challenge event.
+     *
+     * @param  array{method?: string, success?: bool, user_id?: string}  $params
+     * @return AnalyticsEvent
+     */
+    public static function mfaChallenge(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'mfa_challenge', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed ai_agent_access event.
+     *
+     * @param  array{agent_id?: string, action?: string, resource?: string, authorized?: bool}  $params
+     * @return AnalyticsEvent
+     */
+    public static function aiAgentAccess(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'ai_agent_access', params: $params, category: 'security');
+    }
+
+    /**
+     * Build a typed AnalyticsEvent from any catalog entry by name.
+     *
+     * Generic factory — validates the event name against the catalog.
+     *
+     * @param  array<string, mixed>  $params
+     * @return AnalyticsEvent
+     *
+     * @throws \InvalidArgumentException
+     */
+    public static function build(string $name, array $params = []): AnalyticsEvent
+    {
+        if (!self::has($name)) {
+            throw new \InvalidArgumentException(
+                "Unknown security event: {$name}. Available: ".implode(', ', self::names()),
+            );
+        }
+
+        return new AnalyticsEvent(name: $name, params: $params, category: 'security');
+    }
+
+    /**
      * Get all PostHog event names in this category.
      *
      * @return list<string>

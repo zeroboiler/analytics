@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\Services\SdkTokenAuditLogger;
  * @see \ZeroBoiler\Analytics\Services\SdkScopeTokenService
  * @see \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger
  *
- * @since 155.0.0
+ * @since 156.0.0
  */
 final class AnalyticsSdkTokenCommand extends Command
 {
