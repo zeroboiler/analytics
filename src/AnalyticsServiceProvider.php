@@ -970,34 +970,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsObservabilityService($cache, $config);
         });
 
-        // Event Cardinality Limiter (v153.0.0) — prevents high-cardinality dimension explosion
-        $this->app->singleton(EventCardinalityLimiter::class, function (Application $app): EventCardinalityLimiter {
-            /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
-            /** @var ConfigRepository $config */
-            $config = $app->make(ConfigRepository::class);
-
-            return new EventCardinalityLimiter($cache, $config);
-        });
-
-        // Structured Event Logger (v153.0.0) — unified structured logging for dispatches
-        $this->app->singleton(StructuredEventLogger::class, function (Application $app): StructuredEventLogger {
-            /** @var ConfigRepository $config */
-            $config = $app->make(ConfigRepository::class);
-
-            return new StructuredEventLogger($config);
-        });
-
-        // Event Delivery SLA Monitor (v153.0.0) — proactive per-provider SLA tracking
-        $this->app->singleton(EventDeliverySlaMonitor::class, function (Application $app): EventDeliverySlaMonitor {
-            /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
-            /** @var ConfigRepository $config */
-            $config = $app->make(ConfigRepository::class);
-
-            return new EventDeliverySlaMonitor($cache, $config);
-        });
-
         // Event deconfliction service (v17.0.0) — singleton for multi-provider analysis
         $this->app->singleton(EventDeconflictionService::class, function (Application $app): EventDeconflictionService {
             /** @var AnalyticsManager $manager */
