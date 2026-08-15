@@ -42,7 +42,8 @@ final class AnalyticsDlqCommand extends Command
         $this->dlq = $dlq;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $action = (string) $this->argument('action');

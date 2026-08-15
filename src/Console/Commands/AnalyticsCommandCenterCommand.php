@@ -45,7 +45,8 @@ final class AnalyticsCommandCenterCommand extends Command
         parent::__construct();
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

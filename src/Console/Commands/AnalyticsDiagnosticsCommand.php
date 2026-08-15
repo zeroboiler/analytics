@@ -48,7 +48,8 @@ final class AnalyticsDiagnosticsCommand extends Command
     /** @var list<array{check: string, status: string, message: string, details?: array<string, mixed>}> */
     private array $results = [];
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $this->results = [];

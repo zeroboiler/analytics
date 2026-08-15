@@ -91,6 +91,7 @@ final class AnalyticsCohortFunnelCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(CohortFunnelMatrixService $service): int
     {
         $action = $this->argument('action');

@@ -113,7 +113,8 @@ final class AnalyticsSimulationCommand extends Command
         return $this->spikeShield;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $action = $this->argument('action');

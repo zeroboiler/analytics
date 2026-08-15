@@ -38,7 +38,8 @@ final class RevenueReportCommand extends Command
         $this->manager = $manager;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $this->info('💰 ZeroBoiler Revenue Analytics Report');

@@ -56,6 +56,7 @@ final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
     /**
      * Execute the job — dispatch all events to all enabled trackers.
      */
+    #[Override]
     public function handle(AnalyticsManager $manager): void
     {
         $failedCount = 0;

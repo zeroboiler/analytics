@@ -51,6 +51,7 @@ final class AnalyticsDependencyGraphCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         EventDependencyGraphService $graphService,
         MultiCurrencyRevenueNormalizer $currencyService,

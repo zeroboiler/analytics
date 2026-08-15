@@ -61,6 +61,7 @@ final class AnalyticsEventHealthCommand extends Command
      *
      * @return int Exit code (0 = success)
      */
+    #[Override]
     public function handle(): int
     {
         $this->outputTitle();

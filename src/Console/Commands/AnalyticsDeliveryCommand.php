@@ -43,7 +43,8 @@ final class AnalyticsDeliveryCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         // Handle --clear

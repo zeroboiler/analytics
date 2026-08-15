@@ -36,7 +36,8 @@ final class AnalyticsPipelineValidateCommand extends Command
 
     private ?EventValidationPipeline $pipeline = null;
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $this->pipeline = EventValidationPipeline::withDefaults(

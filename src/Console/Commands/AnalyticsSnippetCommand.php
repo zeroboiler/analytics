@@ -62,7 +62,8 @@ final class AnalyticsSnippetCommand extends Command
         $this->correlationService = $correlationService;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $this->info('🔧 ZeroBoiler Analytics Bootstrap Snippet Generator');

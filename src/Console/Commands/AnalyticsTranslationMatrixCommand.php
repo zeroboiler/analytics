@@ -41,6 +41,7 @@ final class AnalyticsTranslationMatrixCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         CrossProviderTranslationMatrix $matrix,
         RevenueHealthScoreService $revenueHealth,

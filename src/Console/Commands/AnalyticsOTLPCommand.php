@@ -50,6 +50,7 @@ final class AnalyticsOTLPCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(OTLPExportService $otelService): int
     {
         $asJson = $this->option('json');

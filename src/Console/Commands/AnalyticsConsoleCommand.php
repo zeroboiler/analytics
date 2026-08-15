@@ -46,7 +46,8 @@ final class AnalyticsConsoleCommand extends Command
         $this->manager = $manager;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $action = (string) $this->option('action');

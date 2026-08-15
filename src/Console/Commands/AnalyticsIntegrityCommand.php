@@ -43,7 +43,8 @@ final class AnalyticsIntegrityCommand extends Command
     /**
      * Run the integrity check.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $this->info('🔍 ZeroBoiler Analytics — Integrity Check');

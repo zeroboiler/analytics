@@ -32,7 +32,8 @@ final class AnalyticsHealthCommand extends Command
 
     private const SEPARATOR = '─────────────────────────────';
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         /** @var AnalyticsManager $manager */

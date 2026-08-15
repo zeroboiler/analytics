@@ -60,6 +60,7 @@ final class AnalyticsProjectionsCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(): int
     {
         $this->resolveDependencies();

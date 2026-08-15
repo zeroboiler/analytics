@@ -54,7 +54,8 @@ final class AnalyticsDiagnosticCommand extends Command
     /**
      * Execute the diagnostic.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(ConfigRepository $config): int
     {
         $section = (string) $this->option('section');

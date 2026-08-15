@@ -42,7 +42,8 @@ final class SaaSMetricsCommand extends Command
         $this->manager = $manager;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

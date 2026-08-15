@@ -66,7 +66,8 @@ final class AnalyticsFlowCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $mode = $this->argument('mode');

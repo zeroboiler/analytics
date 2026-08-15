@@ -41,7 +41,8 @@ final class AnalyticsExportCommand extends Command
         $this->registry = $registry;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $format = (string) $this->option('format');

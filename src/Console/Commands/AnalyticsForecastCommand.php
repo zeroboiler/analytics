@@ -47,6 +47,7 @@ final class AnalyticsForecastCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         ConfigRepository $config,
         CacheRepository $cache,

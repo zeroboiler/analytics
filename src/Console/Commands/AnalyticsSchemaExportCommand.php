@@ -41,6 +41,7 @@ final class AnalyticsSchemaExportCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(): int
     {
         $format = $this->option('format');

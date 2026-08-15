@@ -80,6 +80,7 @@ final class VerifySdkToken
      * @param  \Closure(Request): (Response|JsonResponse)  $next
      * @return Response|JsonResponse
      */
+    #[Override]
     public function handle(Request $request, Closure $next): Response|JsonResponse
     {
         // If SDK auth is disabled, pass through

@@ -62,6 +62,7 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
      * @param  Closure(Request): Response  $next
      */
     #[\Override]
+    #[Override]
     public function handle(Request $request, Closure $next): Response
     {
         /** @var Response $response */

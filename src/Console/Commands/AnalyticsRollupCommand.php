@@ -48,6 +48,7 @@ final class AnalyticsRollupCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(AnalyticsRollupService $rollup): int
     {
         $mode = (string) $this->argument('mode');

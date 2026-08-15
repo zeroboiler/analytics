@@ -60,6 +60,7 @@ final class OTLPExportJob implements ShouldQueue
      * Builds an OTLPExportService instance and exports the event.
      * If OTLP export is disabled, the job is silently skipped.
      */
+    #[Override]
     public function handle(ConfigRepository $config, OTLPExportService $otelService): void
     {
         $otelConfig = $config->get($this->otelConfigKey, []);

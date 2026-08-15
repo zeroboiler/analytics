@@ -41,6 +41,7 @@ final class AnalyticsSnapshotCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         ConfigRepository $config,
         EventCatalog $catalog,

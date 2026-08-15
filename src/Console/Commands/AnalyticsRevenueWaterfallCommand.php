@@ -51,7 +51,8 @@ final class AnalyticsRevenueWaterfallCommand extends Command
         $this->flagService = $flags;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         if ((bool) $this->option('clear-cache')) {

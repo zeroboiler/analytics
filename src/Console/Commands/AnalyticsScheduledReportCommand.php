@@ -38,7 +38,8 @@ final class AnalyticsScheduledReportCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(EventReportingService $reporting, ConfigRepository $config): int
     {
         $scheduleConfig = $config->get('zeroboiler.analytics.scheduled_reports', []);

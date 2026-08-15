@@ -31,6 +31,7 @@ final class AnalyticsAnomalyCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(AnalyticsAnomalyDetectionService $detection): int
     {
         $action = $this->argument('action') ?? 'check';

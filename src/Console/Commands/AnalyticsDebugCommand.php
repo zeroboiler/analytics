@@ -52,7 +52,8 @@ final class AnalyticsDebugCommand extends Command
         $this->rum = $rum;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $action = (string) $this->argument('action');

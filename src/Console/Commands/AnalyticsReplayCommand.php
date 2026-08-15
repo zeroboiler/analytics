@@ -54,7 +54,8 @@ final class AnalyticsReplayCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $action = $this->argument('action');

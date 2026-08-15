@@ -55,7 +55,8 @@ final class AnalyticsGeoCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(GeographicAnalyticsService $service): int
     {
         $action = $this->argument('action');

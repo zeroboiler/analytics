@@ -54,7 +54,8 @@ final class AnalyticsRevenueAttributionCommand extends Command
         $this->service = new RevenueAttributionDashboardService($manager, $metrics, $store, app('config'));
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $days = (int) $this->option('days');

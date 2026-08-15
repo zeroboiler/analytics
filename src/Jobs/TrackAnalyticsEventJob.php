@@ -68,6 +68,7 @@ final readonly class TrackAnalyticsEventJob implements ShouldQueue
     /**
      * Execute the job — dispatch the event to all enabled trackers.
      */
+    #[Override]
     public function handle(AnalyticsManager $manager): void
     {
         $event = new AnalyticsEvent(

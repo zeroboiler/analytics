@@ -37,6 +37,7 @@ final class AnalyticsSamplingCommand extends Command
     /**
      * Execute the command.
      */
+    #[Override]
     public function handle(CacheRepository $cache, ConfigRepository $config): int
     {
         $action = $this->argument('action');

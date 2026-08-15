@@ -42,6 +42,7 @@ final class AnalyticsSchemaCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(EventSchemaRegistryExtended $registry): int
     {
         $action = $this->argument('action') ?? 'summary';

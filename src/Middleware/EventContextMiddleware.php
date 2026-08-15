@@ -35,6 +35,7 @@ final class EventContextMiddleware
      * @param  \Closure(Request): Response  $next
      * @return Response
      */
+    #[Override]
     public function handle(Request $request, Closure $next): Response
     {
         $context = $this->buildContext($request);

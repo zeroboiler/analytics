@@ -36,7 +36,8 @@ final class AnalyticsFailoverCommand extends Command
     /**
      * Execute the failover command.
      */
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         if (! $this->option('json')) {

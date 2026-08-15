@@ -48,6 +48,7 @@ final class FirstTouchUTMMiddleware
      * Stores the resolved first-touch data on the request attributes as
      * `_zb_first_touch` for use by other middleware and services.
      */
+    #[Override]
     public function handle(Request $request, Closure $next): Response
     {
         $cookieName = $this->cookieName();

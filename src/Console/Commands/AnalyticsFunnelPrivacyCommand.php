@@ -41,7 +41,8 @@ final class AnalyticsFunnelPrivacyCommand extends Command
         $this->privacyService = $privacyService;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

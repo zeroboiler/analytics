@@ -47,6 +47,7 @@ final class AnalyticsSelfHealCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         AnalyticsSelfHealingService $selfHealingService,
         ?EventCorrelationEngineService $correlationEngine = null,

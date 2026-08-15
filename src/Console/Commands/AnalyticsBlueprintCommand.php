@@ -40,7 +40,8 @@ final class AnalyticsBlueprintCommand extends Command
         $this->registry = $registry;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         // Validate registry

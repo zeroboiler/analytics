@@ -46,6 +46,7 @@ final class AnalyticsGovernanceCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         ProviderSLAMonitor $slaMonitor,
         AnalyticsCostForecastService $costForecast,

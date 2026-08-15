@@ -39,6 +39,7 @@ final class AnalyticsGuardRailsCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(
         TrackingGuardRailsService $guardRails,
         EventStreamService $streamService,

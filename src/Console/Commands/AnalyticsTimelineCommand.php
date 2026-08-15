@@ -35,6 +35,7 @@ final class AnalyticsTimelineCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(EventTimelineService $timeline): int
     {
         $identifier = $this->argument('clientId');

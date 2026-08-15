@@ -46,7 +46,8 @@ final class AnalyticsLineageCommand extends Command
         return $this->service;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         $mode = $this->option('purge') ? 'purge' : ((string) $this->option('mode'));

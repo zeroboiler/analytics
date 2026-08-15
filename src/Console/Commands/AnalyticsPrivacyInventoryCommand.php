@@ -47,6 +47,7 @@ final class AnalyticsPrivacyInventoryCommand extends Command
     /**
      * Execute the privacy inventory command.
      */
+    #[Override]
     public function handle(ConfigRepository $config): int
     {
         $analyticsConfig = $config->get('zeroboiler.analytics', []);

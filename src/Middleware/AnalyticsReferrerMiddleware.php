@@ -46,6 +46,7 @@ final class AnalyticsReferrerMiddleware
      * Capture referrer data and register an after-dispatch interceptor
      * to tag all events with referrer context.
      */
+    #[Override]
     public function handle(Request $request, Closure $next): Response
     {
         $referrer = $this->referrerService->extractReferrer($request);

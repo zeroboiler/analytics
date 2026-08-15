@@ -43,6 +43,7 @@ final class AnalyticsExperimentCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(ExperimentAnalysisEngine $engine): int
     {
         $action = $this->argument('action');

@@ -40,6 +40,7 @@ final class AnalyticsUtmCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(UtmParameterManager $utm): int
     {
         $action = $this->argument('action');

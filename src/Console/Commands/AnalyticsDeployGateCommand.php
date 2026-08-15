@@ -66,6 +66,7 @@ final class AnalyticsDeployGateCommand extends Command
      *
      * @return int Exit code (0 = pass, 1 = fail)
      */
+    #[Override]
     public function handle(): int
     {
         $this->outputTitle();

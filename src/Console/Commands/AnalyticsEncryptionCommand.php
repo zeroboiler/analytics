@@ -48,6 +48,7 @@ final class AnalyticsEncryptionCommand extends Command
     /**
      * Execute the console command.
      */
+    #[Override]
     public function handle(): int
     {
         $action = $this->argument('action');

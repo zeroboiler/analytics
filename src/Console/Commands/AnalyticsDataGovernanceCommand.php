@@ -56,7 +56,8 @@ final class AnalyticsDataGovernanceCommand extends Command
         $this->consistencyService = $consistencyService;
     }
 
-    #[\Override]
+    #[Override]
+    #[Override]
     public function handle(): int
     {
         // Handle cache clearing

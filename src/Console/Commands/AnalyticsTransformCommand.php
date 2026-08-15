@@ -46,6 +46,7 @@ final class AnalyticsTransformCommand extends Command
 
     private ?EventTransformationEngine $engine = null;
 
+    #[Override]
     public function handle(): int
     {
         $action = $this->argument('action');
