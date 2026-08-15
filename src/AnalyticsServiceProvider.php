@@ -440,7 +440,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 168.0.0
+ * @version 169.0.0
  *
  * @since 1.0.0
  */

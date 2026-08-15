@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-168.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-169.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **355 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **360 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v169.0.0
+
+**Event Intelligence Engine: Behavioral Fingerprinting, Intent Detection & Predictive Churn Scoring**:
+
+- **EventBehavioralFingerprintService** — Generates unique behavioral signatures for each user based on event frequency distribution, timing patterns, session characteristics, and event sequence preferences. Features: deterministic hash fingerprint, cosine similarity-based user matching, segment auto-assignment (power_user, casual_user, explorer, at_risk, new_user, bot_like), bot detection from behavioral patterns, drift detection for behavioral change monitoring, and confidence scoring based on data sufficiency. Cache-backed for cross-process consistency.
+- **EventIntentDetectionService** — Analyzes user event patterns and sequences to classify current intent. Five intent types: buying_intent (pricing visits + checkout events), churning (declining engagement + support tickets), exploring (high diversity + feature discovery), power_user (deep feature usage + API + integrations), and support_seeking (errors + docs + short sessions). Uses weighted sigmoid scoring with configurable signal patterns. Batch intent detection, high-intent user extraction, and at-risk user identification for targeted intervention.
+- **PredictiveChurnScoringService** — Computes churn probability (0-100) per user using 9 weighted behavioral features: login frequency decline, feature usage decline, session duration decline, support ticket frequency, error event rate, engagement recency, feature adoption breadth, trial-to-conversion gap, and negative signals (cancellation/downgrade). Sigmoid transform maps raw weighted score to probability. Risk levels: healthy (0-30), at_risk (31-60), high_risk (61-80), critical (81-100). Features trend analysis (improving/stable/declining), predicted churn date estimation, batch scoring, churn risk summary dashboard data, and threshold-based user extraction for retention team workflows.
+- **Comprehensive test suite** — 50+ test cases covering all 3 services: fingerprint generation, hash determinism, feature extraction, segment matching, bot detection, drift computation, baseline management, similar user discovery, intent classification, batch detection, high-intent/at-risk extraction, churn scoring, risk classification, feature analysis, trend computation, summary generation, class structure validation (final, strict types, void constructors).
+- **Version sweep** — All 14 entry points synced from 168.0.0 → 169.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge. Service count updated: 355 → 360.
 
 ### What's New in v168.0.0
 
