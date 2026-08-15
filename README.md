@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-161.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-162.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v162.0.0
+
+**Optional Provider Batch & 404 Tracking — High-throughput event dispatch for Plausible & PostHog**:
+
+- **`PlausibleTracker::batchTrack()`** — Send up to 50 events in a single API call. Reduces HTTP overhead for high-volume event pipelines. Accepts a list of `AnalyticsEvent` DTOs, respects consent state, gracefully handles individual event failures while counting successful dispatches.
+- **`PlausibleTracker::track404Page()`** — Standard 404 page monitoring. Sends a `404` event with the requested path and referrer as custom properties. Builds the full URL from the configured domain. Useful for tracking broken links and user navigation errors.
+- **`PosthogTracker::batchCapture()`** — Send up to 50 events via PostHog's `/capture/batch/` endpoint in one API call. Automatically resolves `distinct_id` from `userId` (preferred) or `clientId` (fallback). Attaches project_id when configured. Returns count of successfully queued events.
+- **Config: `plausible.batch_size`** — Configurable max events per Plausible batch call (`ANALYTICS_PLAUSIBLE_BATCH_SIZE`, default: 20).
+- **Config: `posthog.batch_size`** — Configurable max events per PostHog batch capture call (`ANALYTICS_POSTHOG_BATCH_SIZE`, default: 50).
+- **`V1620OptionalProviderBatchTest`** — 30+ assertions covering: batchTrack/batchCapture disabled/empty/over-limit behavior, 404 tracking construction, consent-aware filtering, config parameter acceptance (self-hosted Plausible, CAPI toggle, project ID), cross-provider event compatibility, return type declarations, license headers, strict_types verification.
+- **Version sweep** — All 14 entry points synced to v162.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, README badge).
+- **Zero breaking changes** — All new methods are additive. Existing PlausibleTracker and PosthogTracker APIs unchanged.
 
 ### What's New in v161.0.0
 

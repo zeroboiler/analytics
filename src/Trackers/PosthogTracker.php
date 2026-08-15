@@ -191,6 +191,83 @@ final class PosthogTracker implements TrackerInterface
     }
 
     /**
+     * Batch capture multiple events in a single API call.
+     *
+     * PostHog's /capture/ endpoint supports batch JSON payloads with
+     * multiple events in one request. This reduces HTTP overhead for
+     * high-throughput event pipelines.
+     *
+     * @param  list<AnalyticsEvent>  $events  Events to capture (max 50)
+     * @return int Number of events successfully queued for capture
+     *
+     * @since 162.0.0
+     */
+    public function batchCapture(array $events): int
+    {
+        if (! $this->isEnabled()) {
+            return 0;
+        }
+
+        if ($this->isAnalyticsDenied()) {
+            return 0;
+        }
+
+        $events = array_slice($events, 0, 50);
+
+        if ($events === []) {
+            return 0;
+        }
+
+        $batch = [];
+        foreach ($events as $event) {
+            $distinctId = $event->userId ?? $event->clientId ?? $this->generateDistinctId();
+
+            $payload = [
+                'event' => $event->name,
+                'properties' => array_merge([
+                    'distinct_id' => $distinctId,
+                    '$lib' => 'zeroboiler-analytics-server',
+                ], $event->params),
+            ];
+
+            if ($this->projectId !== '') {
+                $payload['project_id'] = $this->projectId;
+            }
+
+            $batch[] = $payload;
+        }
+
+        try {
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = Http::post(
+                "{$this->host}{$this->capturePath}batch/",
+                [
+                    'api_key' => $this->apiKey,
+                    'batch' => $batch,
+                ],
+            );
+
+            if (! $response->successful()) {
+                Log::warning('PosthogTracker: batch capture failed', [
+                    'count' => count($batch),
+                    'status' => $response->status(),
+                ]);
+
+                return 0;
+            }
+
+            return count($batch);
+        } catch (\Throwable $e) {
+            Log::error('PosthogTracker: batch capture error', [
+                'count' => count($batch),
+                'error' => $e->getMessage(),
+            ]);
+
+            return 0;
+        }
+    }
+
+    /**
      * Alias a user's identity — merge two distinct IDs.
      *
      * Used when linking an anonymous device ID to an authenticated user ID.

@@ -1095,6 +1095,7 @@ return [
             'api_key' => env('ANALYTICS_PLAUSIBLE_API_KEY', ''),
             'base_url' => env('ANALYTICS_PLAUSIBLE_BASE_URL', 'https://plausible.io/api/event'),
             'custom_script_url' => env('ANALYTICS_PLAUSIBLE_CUSTOM_SCRIPT_URL'), // e.g., 'https://stats.example.com/js/script.js'
+            'batch_size' => (int) env('ANALYTICS_PLAUSIBLE_BATCH_SIZE', 20), // Max events per batch API call
         ],
 
         /*
@@ -1124,6 +1125,7 @@ return [
             */
             'capi_enabled' => env('ANALYTICS_POSTHOG_CAPI_ENABLED', true),
             'capture_path' => env('ANALYTICS_POSTHOG_CAPTURE_PATH', '/capture/'),
+            'batch_size' => (int) env('ANALYTICS_POSTHOG_BATCH_SIZE', 50), // Max events per batch capture call
         ],
 
         /*

@@ -185,6 +185,102 @@ final class PlausibleTracker implements TrackerInterface
     }
 
     /**
+     * Track multiple events in a single batch API call.
+     *
+     * Reduces HTTP overhead by sending up to N events in one request.
+     * Plausible's event endpoint accepts repeated form-encoded payloads;
+     * this method sends them sequentially in a single HTTP client instance.
+     *
+     * @param  list<AnalyticsEvent>  $events  Events to track (max 50)
+     * @return int Number of events successfully dispatched
+     *
+     * @since 162.0.0
+     */
+    public function batchTrack(array $events): int
+    {
+        if (! $this->isEnabled()) {
+            return 0;
+        }
+
+        if ($this->isAnalyticsDenied()) {
+            return 0;
+        }
+
+        $events = array_slice($events, 0, 50);
+        $dispatched = 0;
+
+        foreach ($events as $event) {
+            try {
+                $payload = [
+                    'domain' => $this->domain,
+                    'name' => $event->name,
+                    'url' => $event->params['page_location'] ?? $event->params['url'] ?? null,
+                    'referrer' => $event->params['page_referrer'] ?? $event->params['referrer'] ?? null,
+                    'props' => $event->params,
+                ];
+
+                unset(
+                    $payload['props']['page_location'],
+                    $payload['props']['page_referrer'],
+                    $payload['props']['url'],
+                    $payload['props']['referrer'],
+                );
+
+                $payload = array_filter($payload, fn (mixed $v): bool => $v !== null && $v !== '');
+
+                /** @var \Illuminate\Http\Client\Response $response */
+                $response = Http::withHeaders([
+                    'Authorization' => "Bearer {$this->apiKey}",
+                    'Content-Type' => 'application/json',
+                ])->post($this->baseUrl, $payload);
+
+                if ($response->successful()) {
+                    $dispatched++;
+                }
+            } catch (\Throwable $e) {
+                Log::warning('PlausibleTracker: batch event failed', [
+                    'event' => $event->name,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $dispatched;
+    }
+
+    /**
+     * Track a 404 page view.
+     *
+     * Sends a 404 event with the requested path as a custom property.
+     * Useful for monitoring broken links and tracking user navigation errors.
+     *
+     * @param  string  $requestedPath  The URL path the user requested (e.g., '/old-page')
+     * @param  string|null  $referrer  Optional referrer URL
+     *
+     * @since 162.0.0
+     */
+    public function track404Page(string $requestedPath, ?string $referrer = null): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        $fullUrl = rtrim($this->domain !== '' ? "https://{$this->domain}" : '', '/') . '/' . ltrim($requestedPath, '/');
+        $params = ['url' => $fullUrl, 'path' => $requestedPath];
+
+        if ($referrer !== null) {
+            $params['referrer'] = $referrer;
+        }
+
+        $event = new AnalyticsEvent(
+            name: '404',
+            params: $params,
+        );
+
+        $this->track($event);
+    }
+
+    /**
      * Track a page view with a specific URL.
      *
      * Sends a standard pageview event to Plausible.
