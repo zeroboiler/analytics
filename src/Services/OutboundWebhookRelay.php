@@ -320,7 +320,7 @@ final class OutboundWebhookRelay
             'source' => $event->source,
             'timestamp' => $event->timestamp?->format('c') ?? (new \DateTimeImmutable())->format('c'),
             'destination' => $destination,
-            'relay_version' => '157.0.0',
+            'relay_version' => '158.0.0',
         ];
     }
 

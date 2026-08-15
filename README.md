@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-157.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-158.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,30 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v158.0.0
+
+**SaaS Format Converter — Cross-Provider Parameter Structure Conversion for SaaS Lifecycle Events**:
+
+- **`SaaSFormatConverter`** — The SaaS equivalent of `EcommerceFormatConverter`. Provides bidirectional parameter structure conversion for 6 core SaaS lifecycle events (sign_up, login, trial_start, subscription, plan_upgrade, cancellation) across GA4, Meta Pixel, and PostHog formats. While `EventTransformer` handles event name mapping, `SaaSFormatConverter` handles the detailed parameter structure differences between providers — the missing piece for true industry-standard SaaS analytics.
+- **sign_up conversion** — `signUpToMeta()` produces Meta CompleteRegistration format (status, value, currency, predicted_ltv). `signUpToPosthog()` produces PostHog $signup properties (signup_method, signup_source, $signup_code). `signUpToGa4()` produces GA4 custom event params (method, coupon, value, currency).
+- **login conversion** — `loginToMeta()` / `loginToPosthog()` format login events for Meta and PostHog with method, source, and first_login detection.
+- **trial_start conversion** — `trialStartToMeta()` produces Meta StartTrial format (value, currency, predicted_ltv, trial_days, plan). `trialStartToPosthog()` and `trialStartToGa4()` provide equivalent conversions.
+- **subscription conversion** — `subscriptionToMeta()` produces Meta Subscribe format. `subscriptionToPosthog()` produces PostHog subscription_created properties with subscription_id, billing_cycle, is_trial. `subscriptionToGa4()` produces GA4 purchase-like format with items array for e-commerce dimension compatibility.
+- **plan_upgrade conversion** — `planUpgradeToMeta/Posthog/Ga4()` with from_plan/to_plan aliases, value_delta tracking, upgrade_type classification.
+- **cancellation conversion** — `cancellationToMeta/Posthog/Ga4()` with lost_revenue tracking, churn reason, tenure_days, and pre-cancellation NPS.
+- **`convertForProvider()`** — Central dispatch method: `SaaSFormatConverter::convertForProvider('sign_up', $params, 'meta')`. Routes to the correct converter based on event name and target provider.
+- **`buildProviderEvent()`** — One-line convenience: builds a provider-optimized `AnalyticsEvent` with param conversion AND category tagging.
+- **PostHog `$set` user properties** — `posthogUserProperties()` builds user-level properties for PostHog's `$identify`/$set calls (plan, subscription_status, billing_cycle, signup_date, last_login).
+- **GA4 user properties** — `ga4UserProperties()` builds GA4 user_properties for dimension enrichment (plan, subscription_status, trial_status, user_type).
+- **`buildRevenueParams()`** — Provider-agnostic revenue event builder: GA4 (items array), Meta (Subscribe format), PostHog ($currency + revenue).
+- **`V158SaaSFormatConverterTest`** — 80+ assertions covering all 6 SaaS events × 3 providers, generic convertForProvider routing, buildProviderEvent construction, PostHog user properties, GA4 user properties, revenue helpers, parameter alias handling (from_plan/previous_plan, value/revenue), null/missing parameter defaults, and empty fallback for unknown events.
+- **Version sweep** — All 14 entry points synced to v158.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — SaaSFormatConverter is a new standalone utility class. Existing dispatch pipeline, EventTransformer, and EcommerceFormatConverter unchanged.
+
+### What's New in v157.0.0
+
+**SLO/Error Budget Service + Outbound Webhook Relay — industry-standard SRE error budget tracking with burn rate analysis, compliance history, and budget projection; event forwarding to external webhooks (Slack, Datadog, Custom HTTP) with HMAC-SHA256 signing, per-destination rate limiting, delivery tracking, and retry logic; 11 new API endpoints (7 SLO + 4 webhook relay); 2 new artisan commands (zb:analytics:slo, zb:analytics:webhook-relay); 395 tests; version sweep 156→157 across 14 entry points.**
 
 ### What's New in v156.0.0
 
