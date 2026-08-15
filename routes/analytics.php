@@ -1055,4 +1055,19 @@ Route::prefix('analytics')->group(function () {
     Route::get('momentum/metric', [AnalyticsEventController::class, 'momentumMetric']);
     Route::post('momentum/quick', [AnalyticsEventController::class, 'momentumQuick']);
     Route::get('momentum/metrics', [AnalyticsEventController::class, 'momentumMetrics']);
+
+    // SaaS Onboarding Wizard (v176.0.0)
+    Route::get('onboarding-wizard', [AnalyticsEventController::class, 'onboardingWizardState']);
+    Route::get('onboarding-wizard/summary', [AnalyticsEventController::class, 'onboardingWizardSummary']);
+    Route::get('onboarding-wizard/gaps', [AnalyticsEventController::class, 'onboardingWizardGaps']);
+    Route::get('onboarding-wizard/next', [AnalyticsEventController::class, 'onboardingWizardNextAction']);
+
+    // Event Instrumentation Advisor (v176.0.0)
+    Route::get('instrumentation', [AnalyticsEventController::class, 'instrumentationAdvisor']);
+    Route::get('instrumentation/summary', [AnalyticsEventController::class, 'instrumentationSummary']);
+    Route::get('instrumentation/gaps', [AnalyticsEventController::class, 'instrumentationGaps']);
+    Route::get('instrumentation/stage', [AnalyticsEventController::class, 'instrumentationStageCoverage']);
+
+    // Config Validation (v176.0.0)
+    Route::post('config/validate', [AnalyticsEventController::class, 'configValidate']);
 });

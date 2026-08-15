@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-175.0.0-blue)](https://github.com/zeroboiler/analytics)||
+|||[![Latest Version](https://img.shields.io/badge/version-176.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **366 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v176.0.0
+
+**SaaS Onboarding Wizard + Event Instrumentation Advisor + Config Validation — Industry-Standard SaaS Analytics Upgrade**:
+
+- **SaaSOnboardingWizardService** — 19-step guided onboarding wizard for setting up ZeroBoiler Analytics in SaaS applications. Each step has a completion status (assessed from current config), priority level (critical/high/medium/low), recommendation with fix instructions, and config path reference. Steps cover: provider configuration (GA4, GTM, Meta), consent mode, core SaaS event tracking, e-commerce events, identity linking, Inertia middleware, lifecycle tracking, queue config, API routes, JS client, Blade directives, auto-tracking, event validation, error tracking, session recording, and optional providers (Plausible, PostHog). Methods: getState(), summary(), gaps(), nextAction(), grade(), categoryBreakdown(), invalidateCache(). Cache-backed with 1-hour TTL.
+- **EventInstrumentationAdvisor** — analyzes current event tracking configuration against industry-standard SaaS benchmarks and provides actionable recommendations. Covers AARRR funnel stages (signup, activation, retention, revenue, referral) with coverage scoring per stage. Produces priority-ranked event recommendations with code snippets showing how to implement each event. Includes maturity grading (Minimal → Starter → Starter+ → Growth → Enterprise) and quick-win detection for critical untracked events. Methods: getReport(), summary(), gaps(), quickWins(), priorityMatrix(), stageCoverage(), invalidateCache(). Cache-backed with 30-minute TTL.
+- **AnalyticsConfigValidationService** — validates configuration integrity across 11 dimensions: core structure, provider configuration (GA4/GTM/Meta/Plausible/PostHog with format checks), consent settings, queue configuration, API rate limits, identity linking, security (cookie secure/samesite/httponly), performance (sampling rate, dedup window), e-commerce settings (currency ISO 4217, tax behavior), auto-track events, and lifecycle config. Returns scored results (0-100) with error/warning/info severity levels and actionable fix instructions.
+- **9 new REST API endpoints**: 4 onboarding wizard endpoints (GET /api/analytics/onboarding-wizard, /onboarding-wizard/summary, /onboarding-wizard/gaps, /onboarding-wizard/next) + 4 instrumentation advisor endpoints (GET /api/analytics/instrumentation, /instrumentation/summary, /instrumentation/gaps, /instrumentation/stage) + 1 config validation endpoint (POST /api/analytics/config/validate).
+- **Version sweep** — All 14 entry points synced from 175.0.0 → 176.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
 
 ### What's New in v175.0.0
 

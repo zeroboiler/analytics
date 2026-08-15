@@ -18820,4 +18820,174 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── SaaS Onboarding Wizard (v176.0.0) ───────────────────────────
+
+    /**
+     * Get full onboarding wizard state with all steps, completion status, and recommendations.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::getState()
+     */
+    public function onboardingWizardState(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class);
+
+            return response()->json(['status' => 'ok', ...$service->getState()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get onboarding wizard summary (completion %, grade, critical gaps).
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::summary()
+     */
+    public function onboardingWizardSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class);
+
+            return response()->json(['status' => 'ok', ...$service->summary()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get incomplete onboarding steps sorted by priority.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::gaps()
+     */
+    public function onboardingWizardGaps(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class);
+
+            return response()->json(['status' => 'ok', 'gaps' => $service->gaps()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the next recommended onboarding action.
+     *
+     * @see \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::nextAction()
+     */
+    public function onboardingWizardNextAction(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class);
+            $next = $service->nextAction();
+
+            if ($next === null) {
+                return response()->json(['status' => 'ok', 'completed' => true, 'message' => 'All onboarding steps are completed.']);
+            }
+
+            return response()->json(['status' => 'ok', 'completed' => false, 'next' => $next]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Instrumentation Advisor (v176.0.0) ────────────────────
+
+    /**
+     * Get the full instrumentation advisory report.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::getReport()
+     */
+    public function instrumentationAdvisor(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class);
+
+            return response()->json(['status' => 'ok', ...$service->getReport()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get instrumentation advisor summary (maturity level, score, grade).
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::summary()
+     */
+    public function instrumentationSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class);
+
+            return response()->json(['status' => 'ok', ...$service->summary()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get untracked events sorted by priority.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::gaps()
+     */
+    public function instrumentationGaps(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class);
+
+            return response()->json(['status' => 'ok', 'gaps' => $service->gaps()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get instrumentation coverage for a specific SaaS funnel stage.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::stageCoverage()
+     */
+    public function instrumentationStageCoverage(Request $request): JsonResponse
+    {
+        try {
+            $stage = $request->input('stage', 'signup');
+            $allowed = ['signup', 'activation', 'retention', 'revenue', 'referral'];
+            if (! in_array($stage, $allowed, true)) {
+                return response()->json(['status' => 'error', 'error' => "Invalid stage. Must be one of: " . implode(', ', $allowed)], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class);
+
+            return response()->json(['status' => 'ok', 'stage' => $stage, ...$service->stageCoverage($stage)]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Config Validation (v176.0.0) ────────────────────────────────
+
+    /**
+     * Run full configuration validation and return results.
+     *
+     * @see \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService::validate()
+     */
+    public function configValidate(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService::class);
+
+            return response()->json(['status' => 'ok', ...$service->validate()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
