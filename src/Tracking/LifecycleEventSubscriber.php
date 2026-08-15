@@ -190,7 +190,7 @@ final class LifecycleEventSubscriber
      *
      * Useful for the analytics:overview command and health checks.
      *
-     * @return array{registered_count: int, keys: list<string>, errors: list<string>, queue_enabled: bool, queue_lifecycle: bool}
+     * @return array{registered_count: int, keys: list<string>, errors: list<string>, queue_enabled: bool, queue_lifecycle: bool, attribution_enabled: bool, attribution_config: array{enabled: bool, enrichments: array<string, bool>, config_source: string}}
      */
     public function diagnosticSummary(): array
     {

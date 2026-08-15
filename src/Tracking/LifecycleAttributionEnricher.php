@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Tracking;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * SaaS Lifecycle Attribution Context Enricher.
