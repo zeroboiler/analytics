@@ -1,5 +1,17 @@
 # Changelog
 
+## [164.0.0] - 2026-08-15
+
+### Added
+- **AnalyticsEvent fluent methods** — `withSource()`, `withPriority()`, `withTimestamp()` immutable fluent methods for pipeline-safe event transformation. Completes the fluent API alongside existing `withCategory()`, `withSessionId()`, and `withMergedParams()`.
+- **EventCatalog::categorySummary()** — Returns per-category event counts plus grand total (194 events across 8 categories). Used by admin commands and dashboard widgets for catalog coverage reporting.
+- **V1640 DTO Fluent API & Catalog Summary Test** — 40+ test cases covering all new fluent methods (immutability, property preservation, chaining), EventCatalog::categorySummary (totals, per-category counts, type safety), version consistency across 14 entry points, and quality gates (strict_types, final classes, @since docblocks, MIT headers, return types).
+
+### Changed
+- **README event count accuracy** — Corrected from stale 176/210+ to verified 194 (Ecommerce 15, SaaS 82, Engagement 35, Marketing 34, Infrastructure 10, CustomerSuccess 7, Security 6, Uptime 5). Updated all references across Event System and SaaS Analytics sections.
+- **README category naming** — Clarified CustomerSuccess as a named category (was "plugin-extensible").
+- **Version sweep** — All 14 entry points synced from 163.0.0 → 164.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+
 ## [163.0.0] - 2026-08-15
 
 ### Changed

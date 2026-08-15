@@ -192,6 +192,34 @@ final class EventCatalog
     }
 
     /**
+     * Get a summary of event counts per category.
+     *
+     * Returns an associative array with category names as keys and
+     * event counts as values, plus a 'total' key for the grand total.
+     *
+     * @return array{ecommerce: int, saas: int, engagement: int, security: int, uptime: int, infrastructure: int, marketing: int, customer_success: int, total: int}
+     *
+     * @since 164.0.0
+     */
+    public static function categorySummary(): array
+    {
+        $counts = [
+            'ecommerce' => EcommerceEvents::count(),
+            'saas' => SaaSEvents::count(),
+            'engagement' => EngagementEvents::count(),
+            'security' => SecurityEvents::count(),
+            'uptime' => UptimeEvents::count(),
+            'infrastructure' => InfrastructureEvents::count(),
+            'marketing' => MarketingEvents::count(),
+            'customer_success' => CustomerSuccessEvents::count(),
+        ];
+
+        $counts['total'] = array_sum($counts);
+
+        return $counts;
+    }
+
+    /**
      * Get all unique GA4 event names across all categories.
      *
      * @return list<string>

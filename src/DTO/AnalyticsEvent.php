@@ -22,7 +22,7 @@ final readonly class AnalyticsEvent
     /**
      * Package version for schema versioning.
      */
-    public const VERSION = '163.0.0';
+    public const VERSION = '164.0.0';
 
     /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')
@@ -127,6 +127,78 @@ final readonly class AnalyticsEvent
             source: $this->source,
             category: $this->category,
             sessionId: $sessionId,
+        );
+    }
+
+    /**
+     * Create a copy of this event with an overridden source.
+     *
+     * Useful for tagging events with their origin (api, server, client, webhook, replay, batch).
+     *
+     * @return self
+     *
+     * @since 164.0.0
+     */
+    public function withSource(string $source): self
+    {
+        return new self(
+            name: $this->name,
+            params: $this->params,
+            clientId: $this->clientId,
+            userId: $this->userId,
+            timestamp: $this->timestamp,
+            priority: $this->priority,
+            source: $source,
+            category: $this->category,
+            sessionId: $this->sessionId,
+        );
+    }
+
+    /**
+     * Create a copy of this event with an overridden priority.
+     *
+     * Useful for pipeline stages that adjust event priority based on content.
+     *
+     * @return self
+     *
+     * @since 164.0.0
+     */
+    public function withPriority(string $priority): self
+    {
+        return new self(
+            name: $this->name,
+            params: $this->params,
+            clientId: $this->clientId,
+            userId: $this->userId,
+            timestamp: $this->timestamp,
+            priority: $priority,
+            source: $this->source,
+            category: $this->category,
+            sessionId: $this->sessionId,
+        );
+    }
+
+    /**
+     * Create a copy of this event with an overridden timestamp.
+     *
+     * Useful for replay events that need to preserve original timestamps.
+     *
+     * @return self
+     *
+     * @since 164.0.0
+     */
+    public function withTimestamp(\DateTimeImmutable $timestamp): self
+    {
+        return new self(
+            name: $this->name,
+            params: $this->params,
+            clientId: $this->clientId,
+            userId: $this->userId,
+            timestamp: $timestamp,
+            priority: $this->priority,
+            source: $this->source,
+            category: $this->category,
+            sessionId: $this->sessionId,
         );
     }
 

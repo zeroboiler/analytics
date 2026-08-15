@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-163.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-164.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -57,15 +57,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v163.0.0
+### What's New in v164.0.0
 
-**Documentation & Quality Overhaul — Industry-standard README, CHANGELOG truncation, comprehensive audit test**:
+**DTO Fluent API Expansion + Event Catalog Summary + Documentation Accuracy**:
 
-- **README optimized** — Reduced from 8,845 lines (~571KB) to ~2,200 lines by moving release history to CHANGELOG. Now follows industry-standard format (PostHog, Segment, Mixpanel style): Quick Start → Features → Architecture → Configuration → Usage → API Reference → Event Catalog → JS Client → Commands → Testing → Troubleshooting.
-- **CHANGELOG truncated** — Full release history preserved in CHANGELOG.md, README now contains only current release notes.
-- **V1630 Industry Standard SaaS Analytics Audit Test** — 100+ assertions across 13 describe blocks validating all 12 planned SaaS analytics features: Event Catalog (210+ events, 8 categories), Server-Side Lifecycle Tracker (60+ mappings), Inertia middleware (page props, client ID cookie), API controller (200+ routes), JS client (~8200 LOC, 7 Svelte composables), Event queue (async dispatch), User identity linking (client ID ↔ user ID), E-commerce helpers (GA4 ↔ Meta conversion), Admin commands (Overview + Test, 10 providers), Config expansion (60+ sections), Optional providers (Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn), Tests (400+ files), and quality gates (version consistency, readonly DTO, final classes, strict types, MIT headers).
-- **Version sweep** — All 14 entry points synced to v163.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
-- **Zero breaking changes** — All changes are documentation and test-only.
+- **AnalyticsEvent DTO fluent methods** — Added `withSource()`, `withPriority()`, and `withTimestamp()` immutable fluent methods for pipeline-safe event transformation. Completes the fluent API alongside existing `withCategory()`, `withSessionId()`, and `withMergedParams()`.
+- **EventCatalog::categorySummary()** — New method returning per-category event counts plus grand total. Used by admin commands and dashboard widgets for catalog coverage reporting.
+- **README event count accuracy** — Corrected event counts from stale 176/210+ to verified 194 (Ecommerce 15, SaaS 82, Engagement 35, Marketing 34, Infrastructure 10, CustomerSuccess 7, Security 6, Uptime 5). Updated all references across Event System and SaaS Analytics sections.
+- **README category naming** — Clarified CustomerSuccess as a named category (was "plugin-extensible").
+- **V1640 Production Audit Test** — 80+ assertions validating new DTO methods, EventCatalog::categorySummary(), event count accuracy, version consistency, and quality gates.
+- **Version sweep** — All 14 entry points synced to v164.0.0.
 
 > 📖 See [CHANGELOG.md](CHANGELOG.md) for complete release history.
 
@@ -85,8 +86,8 @@ Done. That's it.
 - All trackers implement `TrackerInterface` for easy extension
 
 ### Event System
-- **176 typed event classes** across 7 categories (E-commerce 15, SaaS 71, Engagement 35, Marketing 34, Infrastructure 10, Security 6, Uptime 5)
-- **EventCatalog** — Unified registry for event lookup, cross-provider name mapping (8 providers), semantic alias resolution, category filtering, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle), provider coverage analysis, dependency graph, causal path analysis, funnel bottleneck analysis, AARRR framework breakdown
+- **194 typed event classes** across 8 categories (E-commerce 15, SaaS 82, Engagement 35, Marketing 34, Infrastructure 10, CustomerSuccess 7, Security 6, Uptime 5)
+- **EventCatalog** — Unified registry for event lookup, cross-provider name mapping (8 providers), semantic alias resolution, category filtering, category summary statistics, funnel helpers (checkout, activation, retention, billing, PLG, AARRR lifecycle), provider coverage analysis, dependency graph, causal path analysis, funnel bottleneck analysis, AARRR framework breakdown
 - **EventSchemaRegistry** — 50+ event schemas with typed parameters, validation, and custom schema registration
 - **EventSchemaBuilder** — Fluent DSL for defining event schemas with chainable constraints (type, required, enum, regex, range)
 - **CustomEvent** — Arbitrary event name + params for one-off tracking
@@ -115,8 +116,8 @@ Done. That's it.
 - **21 funnel step methods** — signupLandingPage(), signupView(), signupFormStart(), signupFormSubmit(), signupComplete(), trialStart(), trialActive(), trialConverted(), trialExpired(), pricingView(), planSelect(), checkoutStart(), checkoutComplete(), featureUsed(), renewalEligible(), renewalStart(), renewalComplete(), upgradeEligible(), upgradeView(), upgradeSelect(), upgradeComplete()
 
 ### SaaS Analytics
-- **71 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, SubscriptionValueChanged, UsageQuotaReached, BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied), + FeatureAdopted, ExpansionRevenue, + Export, Import, + 34 Marketing events (email lifecycle, ad attribution, referral, social, affiliate, webinar, lead scoring, blog, push notification, SMS)
-- **177 Typed Event Classes** — All 176 catalog events have dedicated typed event classes with GA4/Meta/PostHog/Plausible/Mixpanel/Amplitude/TikTok/LinkedIn mappings
+- **82 SaaS Events** — SignUp, Login, Logout, TrialStart, TrialEnd, TrialConverted, Subscription, SubscriptionResumed, SubscriptionPaused, PlanUpgrade, PlanDowngrade, Cancellation, FeatureUsed, Revenue, InviteSent, IntegrationConnected, SubscriptionRenewal, + MilestoneReached, SubscriptionValueChanged, UsageQuotaReached, BillingRetry, + 6 Cohort events (Assigned, Retention, Churn, Conversion, Migration, Engagement), + 6 Account lifecycle (Activated, Deactivated, PasswordChanged, PasswordReset, ProfileUpdated, EmailVerified), + 4 B2B/Team (TeamCreated, TeamMemberJoined, TeamMemberRemoved, RoleChanged), + 5 Billing (PaymentFailed, PaymentSucceeded, PaymentMethodAdded, InvoiceGenerated, CreditApplied), + FeatureAdopted, ExpansionRevenue, + Export, Import, + 34 Marketing events (email lifecycle, ad attribution, referral, social, affiliate, webinar, lead scoring, blog, push notification, SMS)
+- **194 Typed Event Classes** — All catalog events have dedicated typed event classes with GA4/Meta/PostHog/Plausible/Mixpanel/Amplitude/TikTok/LinkedIn mappings
 - **SaaSAnalyticsService** — Convenience methods for all lifecycle events + custom events
 - **CohortAnalyticsService** — Time-based cohort tracking with retention, churn, conversion, migration, and engagement summary analytics
 - **RevenueAnalyticsService** — MRR, ARR, one-time, add-on, upgrade, downgrade, churn revenue tracking
