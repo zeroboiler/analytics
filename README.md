@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-164.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-165.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,17 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v165.0.0
+
+**Full 8-Provider Format Converter Parity**:
+
+- **SaaSFormatConverter 8-provider expansion** — Added Mixpanel, Amplitude, Plausible, TikTok, and LinkedIn converters for all 6 SaaS lifecycle events (sign_up, login, trial_start, subscription, plan_upgrade, cancellation). 30 new static converter methods. `convertForProvider()` now dispatches to all 8 providers. Previously only supported GA4, Meta, and PostHog.
+- **EngagementFormatConverter 8-provider expansion** — Added Mixpanel, Amplitude, Plausible, TikTok, and LinkedIn converters for all 8 core engagement events (page_view, scroll_depth, click, form_start, form_submit, search, share, error) plus 4 aliases. 40 new static converter methods. `convertForProvider()` now dispatches to all 8 providers for 12 event names (96 combinations).
+- **buildRevenueParams() 8-provider expansion** — SaaS revenue helper now formats revenue events for all 8 providers (previously only GA4, Meta, PostHog). Includes Mixpanel revenue, Amplitude user_properties enrichment, Plausible string conversion, TikTok content_name, and LinkedIn flat format.
+- **supportedProviders() parity** — Both SaaSFormatConverter and EngagementFormatConverter now return the same 8 providers, matching EcommerceFormatConverter. Added `supports()` method to SaaSFormatConverter for event name validation.
+- **V1650 Production Audit Test** — 100+ assertions validating all 8-provider conversions, dispatch parity, buildRevenueParams expansion, alias routing, and cross-converter consistency.
+- **Version sweep** — All 14 entry points synced to v165.0.0.
 
 ### What's New in v164.0.0
 

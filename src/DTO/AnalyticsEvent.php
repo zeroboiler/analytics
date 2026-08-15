@@ -22,7 +22,7 @@ final readonly class AnalyticsEvent
     /**
      * Package version for schema versioning.
      */
-    public const VERSION = '164.0.0';
+    public const VERSION = '165.0.0';
 
     /**
      * @param  string  $name  Event name (e.g. 'page_view', 'purchase')
@@ -137,7 +137,7 @@ final readonly class AnalyticsEvent
      *
      * @return self
      *
-     * @since 164.0.0
+     * @since 165.0.0
      */
     public function withSource(string $source): self
     {
@@ -161,7 +161,7 @@ final readonly class AnalyticsEvent
      *
      * @return self
      *
-     * @since 164.0.0
+     * @since 165.0.0
      */
     public function withPriority(string $priority): self
     {
@@ -185,7 +185,7 @@ final readonly class AnalyticsEvent
      *
      * @return self
      *
-     * @since 164.0.0
+     * @since 165.0.0
      */
     public function withTimestamp(\DateTimeImmutable $timestamp): self
     {

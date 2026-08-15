@@ -199,7 +199,7 @@ final class EventCatalog
      *
      * @return array{ecommerce: int, saas: int, engagement: int, security: int, uptime: int, infrastructure: int, marketing: int, customer_success: int, total: int}
      *
-     * @since 164.0.0
+     * @since 165.0.0
      */
     public static function categorySummary(): array
     {
