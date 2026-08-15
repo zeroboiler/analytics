@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-154.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-155.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **349+ services**, **80 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **81 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,25 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v155.0.0
+
+**SDK Token Gateway — Audit Logger, Admin Command & API Endpoints**:
+
+- **`SdkTokenAuditLogger`** — GDPR Article 30-compliant audit logging for all SDK token operations. Tracks generation, validation, validation failures, revocation, rate limit hits, origin blocks, environment blocks, permission denials, rotation, listing, and stats queries. Each entry records scope name, hashed IP (partial anonymity — last IPv4 octet masked), truncated user agent, timestamp, outcome, and context. Cache-backed with configurable TTL (default 7 days) and max entries (default 1000). Supports aggregated counters (per-operation, per-outcome, hourly security counters), filtered querying by operation/scope, and security event extraction (rate limits + blocks + denials).
+- **`AnalyticsSdkTokenCommand`** (`zb:analytics:sdk-tokens`) — CLI management for SDK scoped tokens. Actions: `generate` (with --scope, --permissions, --categories, --rate-limit, --environment), `list` (all tokens across scopes with table output), `revoke` (--token), `rotate` (generate new + audit log, with warning to update clients), `audit` (view log entries, --security for rate-limits/blocks only), `audit-clear`, `stats` (aggregated counters). Supports --json for CI/CD integration. Displays gateway status when run without action.
+- **6 new API endpoints** for SDK token management:
+  - `GET /api/analytics/sdk-tokens/audit` — Retrieve audit log entries (filterable by limit, operation, scope)
+  - `GET /api/analytics/sdk-tokens/audit/security` — Recent security events only (rate limits, blocks, denials)
+  - `GET /api/analytics/sdk-tokens/audit/stats` — Aggregated counter data (by_operation, by_outcome, hourly security)
+  - `DELETE /api/analytics/sdk-tokens/audit` — Clear audit log
+  - `GET /api/analytics/sdk-tokens/status` — Gateway configuration status (tokens_enabled, auth_enabled, TTL, rate limits, audit status)
+  - `GET /api/analytics/sdk-tokens/permissions` — Available permissions, categories, and audit operation types
+- **Config expansion** — New `sdk_tokens.audit` section with `enabled`, `ttl` (default 604800/7 days), and `max_entries` (default 1000) settings, each with `ANALYTICS_SDK_TOKENS_AUDIT_*` env variable.
+- **ServiceProvider registration** — `SdkTokenAuditLogger` registered as singleton with cache + config DI. `AnalyticsSdkTokenCommand` registered in artisan commands, bringing total to **81 commands**.
+- **V1550SdkTokenGatewayAuditLoggerTest** — 50+ assertions covering: SdkTokenAuditLogger finality, strict types, constructor void, enabled/disabled states, log entry recording, GDPR-safe IP hashing (IPv4/IPv6/localhost), user agent truncation, invalid operation rejection, entry retrieval with filtering, aggregated stats, security event extraction, audit log clearing, counter accuracy; AnalyticsSdkTokenCommand finality, strict types, constructor void, signature/description correctness, handle() return type, docblock @since tag, all action method existence, ServiceProvider binding.
+- **Version sweep** — All 14 entry points synced to v155.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — All new services, endpoints, and commands are additive.
 
 ### What's New in v154.0.0
 

@@ -5333,6 +5333,15 @@ return [
             'max_tokens_per_scope' => (int) env('ANALYTICS_SDK_TOKENS_MAX_PER_SCOPE', 10),
             'hash_algorithm' => env('ANALYTICS_SDK_TOKENS_HASH', 'sha256'),
             'signing_key' => env('ANALYTICS_SDK_TOKENS_SIGNING_KEY', ''),
+
+            // SDK Token Audit Logging (v155.0.0)
+            // Tracks all token operations for GDPR Article 30 compliance
+            // and security incident investigation.
+            'audit' => [
+                'enabled' => env('ANALYTICS_SDK_TOKENS_AUDIT_ENABLED', true),
+                'ttl' => (int) env('ANALYTICS_SDK_TOKENS_AUDIT_TTL', 604800), // 7 days
+                'max_entries' => (int) env('ANALYTICS_SDK_TOKENS_AUDIT_MAX', 1000),
+            ],
         ],
 
         /*

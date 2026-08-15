@@ -311,6 +311,7 @@ use ZeroBoiler\Analytics\Services\EventTransportService;
 use ZeroBoiler\Analytics\Services\EventCorrelationMatrixService;
 use ZeroBoiler\Analytics\Services\DataLakeExportService;
 use ZeroBoiler\Analytics\Services\SdkScopeTokenService;
+use ZeroBoiler\Analytics\Services\SdkTokenAuditLogger;
 use ZeroBoiler\Analytics\Services\EventSchemaRuntimeValidator;
 use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
 use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
@@ -422,6 +423,7 @@ use ZeroBoiler\Analytics\Services\RevenueHealthScoreService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyTopologyCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRuntimeProfilerCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBundleDiagnosticCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -429,7 +431,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsBundleDiagnosticCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 154.0.0
+ * @version 155.0.0
  *
  * @since 1.0.0
  */
@@ -1031,6 +1033,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SdkScopeTokenService($cache, $config);
+        });
+
+        // SDK Token Audit Logger (v155.0.0)
+        $this->app->singleton(SdkTokenAuditLogger::class, function (Application $app): SdkTokenAuditLogger {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SdkTokenAuditLogger($cache, $config);
         });
 
         // Event Schema Runtime Validator (v21.0.0)
@@ -3962,6 +3974,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDependencyTopologyCommand::class,
                 AnalyticsRuntimeProfilerCommand::class,
                 AnalyticsBundleDiagnosticCommand::class,
+                AnalyticsSdkTokenCommand::class,
             ]);
         }
 

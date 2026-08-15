@@ -17405,4 +17405,201 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── SDK Token Gateway (v155.0.0) ───────────────────────────────────
+
+    /**
+     * SDK Token Audit Log — retrieve recent token audit entries.
+     *
+     * GET /api/analytics/sdk-tokens/audit
+     *
+     * Optional query params:
+     *   - limit (int, default 50, max 500)
+     *   - operation (string, filter by operation type)
+     *   - scope (string, filter by scope name)
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenAuditLog(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger|null $auditLogger */
+            $auditLogger = app(\ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::class);
+
+            if ($auditLogger === null) {
+                return response()->json(['status' => 'unavailable', 'message' => 'Audit logger not configured'], 503);
+            }
+
+            $limit = min((int) request()->input('limit', 50), 500);
+            $operation = request()->input('operation');
+            $scope = request()->input('scope');
+
+            $entries = $auditLogger->getEntries(
+                $limit,
+                is_string($operation) && $operation !== '' ? $operation : null,
+                is_string($scope) && $scope !== '' ? $scope : null,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => count($entries),
+                'entries' => $entries,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SDK Token Security Events — recent rate limits, blocks, denials.
+     *
+     * GET /api/analytics/sdk-tokens/audit/security
+     *
+     * Optional query params:
+     *   - limit (int, default 50, max 200)
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenAuditSecurity(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger|null $auditLogger */
+            $auditLogger = app(\ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::class);
+
+            if ($auditLogger === null) {
+                return response()->json(['status' => 'unavailable', 'message' => 'Audit logger not configured'], 503);
+            }
+
+            $limit = min((int) request()->input('limit', 50), 200);
+            $entries = $auditLogger->getSecurityEvents($limit);
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => count($entries),
+                'entries' => $entries,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SDK Token Audit Stats — aggregated counter data.
+     *
+     * GET /api/analytics/sdk-tokens/audit/stats
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenAuditStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger|null $auditLogger */
+            $auditLogger = app(\ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::class);
+
+            if ($auditLogger === null) {
+                return response()->json(['status' => 'unavailable', 'message' => 'Audit logger not configured'], 503);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'stats' => $auditLogger->getStats(),
+                'stored_entries' => $auditLogger->count(),
+                'audit_enabled' => $auditLogger->isEnabled(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear SDK Token Audit Log.
+     *
+     * DELETE /api/analytics/sdk-tokens/audit
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenAuditClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger|null $auditLogger */
+            $auditLogger = app(\ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::class);
+
+            if ($auditLogger === null) {
+                return response()->json(['status' => 'unavailable', 'message' => 'Audit logger not configured'], 503);
+            }
+
+            $auditLogger->clear();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Audit log cleared',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SDK Token Gateway Status — current token system configuration.
+     *
+     * GET /api/analytics/sdk-tokens/status
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenStatus(): JsonResponse
+    {
+        try {
+            $sdkConfig = $this->config->get('zeroboiler.analytics.sdk_tokens', []);
+            $authConfig = $this->config->get('zeroboiler.analytics.sdk_auth', []);
+            /** @var array{enabled?: bool, token_ttl?: int, default_rate_limit?: int, max_tokens_per_scope?: int} $sdkConfig */
+            /** @var array{enabled?: bool, required_permission?: string, enforce_rate_limit?: bool} $authConfig */
+
+            /** @var \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger|null $auditLogger */
+            $auditLogger = app(\ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'tokens_enabled' => (bool) ($sdkConfig['enabled'] ?? false),
+                'auth_enabled' => (bool) ($authConfig['enabled'] ?? false),
+                'auth_permission' => (string) ($authConfig['required_permission'] ?? ''),
+                'auth_rate_limit' => (bool) ($authConfig['enforce_rate_limit'] ?? true),
+                'token_ttl' => (int) ($sdkConfig['token_ttl'] ?? 7776000),
+                'default_rate_limit' => (int) ($sdkConfig['default_rate_limit'] ?? 100),
+                'max_tokens_per_scope' => (int) ($sdkConfig['max_tokens_per_scope'] ?? 10),
+                'audit_enabled' => $auditLogger?->isEnabled() ?? false,
+                'audit_entries' => $auditLogger?->count() ?? 0,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SDK Token Available Permissions — list all valid permissions and categories.
+     *
+     * GET /api/analytics/sdk-tokens/permissions
+     *
+     * @return JsonResponse
+     *
+     * @since 155.0.0
+     */
+    public function sdkTokenPermissions(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'ok',
+            'permissions' => \ZeroBoiler\Analytics\Services\SdkScopeTokenService::allPermissions(),
+            'categories' => \ZeroBoiler\Analytics\Services\SdkScopeTokenService::allCategories(),
+            'audit_operations' => \ZeroBoiler\Analytics\Services\SdkTokenAuditLogger::allOperations(),
+        ]);
+    }
 }

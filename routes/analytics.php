@@ -981,4 +981,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('feature-gating/eligibility', [AnalyticsEventController::class, 'featureGatingEligibility']);
     Route::get('feature-gating/plans', [AnalyticsEventController::class, 'featureGatingPlans']);
     Route::post('feature-gating/check', [AnalyticsEventController::class, 'featureGatingCheck']);
+
+    // SDK Token Gateway (v155.0.0)
+    Route::get('sdk-tokens/audit', [AnalyticsEventController::class, 'sdkTokenAuditLog']);
+    Route::get('sdk-tokens/audit/security', [AnalyticsEventController::class, 'sdkTokenAuditSecurity']);
+    Route::get('sdk-tokens/audit/stats', [AnalyticsEventController::class, 'sdkTokenAuditStats']);
+    Route::delete('sdk-tokens/audit', [AnalyticsEventController::class, 'sdkTokenAuditClear']);
+    Route::get('sdk-tokens/status', [AnalyticsEventController::class, 'sdkTokenStatus']);
+    Route::get('sdk-tokens/permissions', [AnalyticsEventController::class, 'sdkTokenPermissions']);
 });
