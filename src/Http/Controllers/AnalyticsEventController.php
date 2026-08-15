@@ -5228,6 +5228,147 @@ final class AnalyticsEventController extends Controller
     }
 
     /**
+     * Compare actual SaaS metrics against industry benchmarks.
+     *
+     * GET /api/analytics/benchmark-calibration/compare?nrr=115&grr=88&cac_payback_months=14&arr_tier=1-5M
+     *
+     * @since 174.0.0
+     */
+    public function benchmarkCalibrationCompare(Request $request): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class);
+
+        $actuals = [];
+        $metricNames = \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::metricNames();
+
+        foreach ($metricNames as $metric) {
+            $value = $request->query($metric);
+            if ($value !== null && is_numeric($value)) {
+                $actuals[$metric] = (float) $value;
+            }
+        }
+
+        $arrTier = (string) $request->query('arr_tier', '1-5M');
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => AnalyticsEvent::VERSION,
+            'tier' => $arrTier,
+            'actuals' => $actuals,
+            'calibration' => $service->calibrate($actuals, $arrTier),
+            'overall' => $service->overallScore($actuals, $arrTier),
+        ]);
+    }
+
+    /**
+     * Get overall benchmark calibration score.
+     *
+     * GET /api/analytics/benchmark-calibration/score?nrr=115&grr=88&arr_tier=1-5M
+     *
+     * @since 174.0.0
+     */
+    public function benchmarkCalibrationScore(Request $request): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class);
+
+        $actuals = [];
+        $metricNames = \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::metricNames();
+
+        foreach ($metricNames as $metric) {
+            $value = $request->query($metric);
+            if ($value !== null && is_numeric($value)) {
+                $actuals[$metric] = (float) $value;
+            }
+        }
+
+        $arrTier = (string) $request->query('arr_tier', '1-5M');
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => AnalyticsEvent::VERSION,
+            'tier' => $arrTier,
+            'score' => $service->overallScore($actuals, $arrTier),
+        ]);
+    }
+
+    /**
+     * Get gap analysis for a single metric.
+     *
+     * GET /api/analytics/benchmark-calibration/gap/{metric}?value=115&arr_tier=1-5M
+     *
+     * @since 174.0.0
+     */
+    public function benchmarkCalibrationGap(Request $request, string $metric): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class);
+
+        $value = (float) ($request->query('value', 0));
+        $arrTier = (string) $request->query('arr_tier', '1-5M');
+
+        $analysis = $service->gapAnalysis($metric, $value, $arrTier);
+
+        if ($analysis === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Unknown metric: {$metric}",
+                'available_metrics' => \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::metricNames(),
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => AnalyticsEvent::VERSION,
+            'metric' => $metric,
+            'tier' => $arrTier,
+            'analysis' => $analysis,
+        ]);
+    }
+
+    /**
+     * Get available ARR tiers and their benchmark data.
+     *
+     * GET /api/analytics/benchmark-calibration/tiers
+     *
+     * @since 174.0.0
+     */
+    public function benchmarkCalibrationTiers(): JsonResponse
+    {
+        $tiers = \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::arrTiers();
+        $metrics = \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::metricNames();
+        $benchmarks = [];
+
+        /** @var \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class);
+
+        foreach ($tiers as $tier) {
+            $benchmarks[$tier] = [];
+            foreach ($metrics as $metric) {
+                $b = $service->benchmarks($tier)[$metric] ?? null;
+                if ($b !== null) {
+                    $benchmarks[$tier][$metric] = [
+                        'p25' => $b['p25'],
+                        'p50' => $b['p50'],
+                        'p75' => $b['p75'],
+                        'p90' => $b['p90'],
+                        'source' => $b['source'],
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'version' => AnalyticsEvent::VERSION,
+            'tiers' => $tiers,
+            'metrics' => $metrics,
+            'benchmarks' => $benchmarks,
+        ]);
+    }
+
+    /**
      * Run a comprehensive analytics health check diagnostic.
      *
      * GET /api/analytics/health-check

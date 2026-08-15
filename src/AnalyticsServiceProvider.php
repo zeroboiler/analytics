@@ -443,7 +443,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 173.0.0
+ * @version 174.0.0
  *
  * @since 1.0.0
  */
@@ -3376,6 +3376,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Product Analytics Maturity Service (v87.0.0) — maturity model assessment
         $this->app->singleton(\ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService::class, function (): \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService {
             return new \ZeroBoiler\Analytics\Services\ProductAnalyticsMaturityService;
+        });
+
+        // SaaS Benchmark Calibration Service (v174.0.0) — industry-standard metric comparison
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService($cache, $config);
         });
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring

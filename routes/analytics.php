@@ -260,6 +260,12 @@ Route::prefix('analytics')->group(function () {
     Route::get('benchmarks/report-card', [AnalyticsEventController::class, 'benchmarksReportCard']);
     Route::get('benchmarks/quick-start', [AnalyticsEventController::class, 'benchmarksQuickStart']);
 
+    // SaaS Benchmark Calibration (v174.0.0)
+    Route::get('benchmark-calibration/compare', [AnalyticsEventController::class, 'benchmarkCalibrationCompare']);
+    Route::get('benchmark-calibration/score', [AnalyticsEventController::class, 'benchmarkCalibrationScore']);
+    Route::get('benchmark-calibration/gap/{metric}', [AnalyticsEventController::class, 'benchmarkCalibrationGap']);
+    Route::get('benchmark-calibration/tiers', [AnalyticsEventController::class, 'benchmarkCalibrationTiers']);
+
     // Comprehensive Health Check (v2.98.0)
     Route::get('health-check', [AnalyticsEventController::class, 'healthCheck']);
     Route::get('ping', [AnalyticsEventController::class, 'ping']);
