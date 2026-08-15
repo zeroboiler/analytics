@@ -44,7 +44,6 @@ final class AnalyticsPLGScoreCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(PLGScoringService $service): int
     {
         $identity = $this->option('identity');

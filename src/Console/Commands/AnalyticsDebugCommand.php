@@ -53,7 +53,6 @@ final class AnalyticsDebugCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $action = (string) $this->argument('action');

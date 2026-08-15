@@ -42,7 +42,6 @@ final class AnalyticsIntelligenceCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

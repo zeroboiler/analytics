@@ -37,7 +37,6 @@ final class AnalyticsReplayAuditCommand extends Command
      * Execute the replay audit command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->auditor = app(AnalyticsReplayAuditor::class);

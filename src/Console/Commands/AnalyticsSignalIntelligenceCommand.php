@@ -36,7 +36,6 @@ final class AnalyticsSignalIntelligenceCommand extends Command
      * Execute the command.
      */
     #[Override]
-    #[Override]
     public function handle(EventSignalIntelligenceService $service): int
     {
         $report = $service->report();

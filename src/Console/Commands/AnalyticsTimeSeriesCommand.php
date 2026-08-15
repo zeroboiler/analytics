@@ -44,7 +44,6 @@ final class AnalyticsTimeSeriesCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(EventTimeSeriesService $service): int
     {
         $period = (string) $this->option('period');

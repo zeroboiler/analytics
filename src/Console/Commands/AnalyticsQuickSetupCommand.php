@@ -35,7 +35,6 @@ final class AnalyticsQuickSetupCommand extends Command
      * Run the quick setup analysis.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->info('🚀 ZeroBoiler Analytics — Quick Setup Wizard');

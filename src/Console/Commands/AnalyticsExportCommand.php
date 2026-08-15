@@ -42,7 +42,6 @@ final class AnalyticsExportCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $format = (string) $this->option('format');

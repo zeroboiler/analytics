@@ -36,7 +36,6 @@ final class AnalyticsReadinessGateCommand extends Command
      * Execute the readiness gate check.
      */
     #[Override]
-    #[Override]
     public function handle(SaaSReadinessGateService $gate): int
     {
         $threshold = (int) $this->option('threshold');

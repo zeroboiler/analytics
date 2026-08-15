@@ -45,7 +45,6 @@ final class AnalyticsFunnelLeakCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         if (! $this->service->isEnabled()) {

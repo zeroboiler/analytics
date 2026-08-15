@@ -33,7 +33,6 @@ final class AnalyticsArchetypeDriftCommand extends Command
     protected $description = 'Manage analytics config drift detection and event archetypes';
 
     #[Override]
-    #[Override]
     public function handle(
         ConfigDriftDetectionService $driftService,
         EventArchetypeService $archetypeService,

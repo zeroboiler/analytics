@@ -37,7 +37,6 @@ final class AnalyticsBehavioralCommand extends Command
     protected $description = 'Display behavioral analytics: retention, stickiness, cohorts, rules';
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->info('🧠 ZeroBoiler Behavioral Analytics');

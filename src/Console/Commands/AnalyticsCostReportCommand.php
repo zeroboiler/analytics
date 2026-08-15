@@ -58,7 +58,6 @@ final class AnalyticsCostReportCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         if (! $this->costTracker->isEnabled()) {

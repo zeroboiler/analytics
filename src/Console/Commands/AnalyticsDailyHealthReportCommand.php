@@ -35,7 +35,6 @@ final class AnalyticsDailyHealthReportCommand extends Command
      * Execute the health report command.
      */
     #[Override]
-    #[Override]
     public function handle(AnalyticsDailyHealthReportService $service): int
     {
         // Handle cache clear

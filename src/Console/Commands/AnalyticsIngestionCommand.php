@@ -52,7 +52,6 @@ final class AnalyticsIngestionCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(
         EventIngestionService $ingestion,
         EventCostTracker $costTracker,

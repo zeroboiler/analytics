@@ -41,7 +41,6 @@ final class AnalyticsBlueprintCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         // Validate registry

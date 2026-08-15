@@ -39,7 +39,6 @@ final class RevenueReportCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->info('💰 ZeroBoiler Revenue Analytics Report');

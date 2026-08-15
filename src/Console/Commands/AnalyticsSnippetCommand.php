@@ -63,7 +63,6 @@ final class AnalyticsSnippetCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->info('🔧 ZeroBoiler Analytics Bootstrap Snippet Generator');

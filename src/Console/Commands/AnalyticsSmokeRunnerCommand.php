@@ -66,7 +66,6 @@ final class AnalyticsSmokeRunnerCommand extends Command
      * Run the smoke test suite.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->results = [];

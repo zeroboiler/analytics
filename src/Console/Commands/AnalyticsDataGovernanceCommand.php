@@ -57,7 +57,6 @@ final class AnalyticsDataGovernanceCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         // Handle cache clearing

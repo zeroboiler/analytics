@@ -40,7 +40,6 @@ final class AnalyticsMacrosCommand extends Command
      * Execute the macros command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

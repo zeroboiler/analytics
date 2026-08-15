@@ -48,7 +48,6 @@ final class AnalyticsTrendForecastCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $asJson = $this->option('json');

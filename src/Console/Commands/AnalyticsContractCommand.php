@@ -45,7 +45,6 @@ final class AnalyticsContractCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $action = (string) $this->argument('action');

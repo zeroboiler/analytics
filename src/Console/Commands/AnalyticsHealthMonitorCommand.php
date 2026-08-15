@@ -42,7 +42,6 @@ final class AnalyticsHealthMonitorCommand extends Command
      * Execute the health monitor command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         // Record data point if requested

@@ -49,7 +49,6 @@ final class AnalyticsDiagnosticsCommand extends Command
     private array $results = [];
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->results = [];

@@ -59,7 +59,6 @@ final class AnalyticsTestCommand extends Command
      * Execute the test command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $this->results = [];

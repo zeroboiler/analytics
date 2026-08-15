@@ -52,7 +52,6 @@ final class AnalyticsRevenueWaterfallCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         if ((bool) $this->option('clear-cache')) {

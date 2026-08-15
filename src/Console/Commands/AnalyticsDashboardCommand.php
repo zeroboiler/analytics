@@ -43,7 +43,6 @@ final class AnalyticsDashboardCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(AnalyticsManager $manager, ConfigRepository $config): int
     {
         $analyticsConfig = new AnalyticsConfig($config);

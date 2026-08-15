@@ -37,7 +37,6 @@ final class AnalyticsFraudCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(EventFraudDetectionService $fraud): int
     {
         $mode = (string) $this->option('mode');

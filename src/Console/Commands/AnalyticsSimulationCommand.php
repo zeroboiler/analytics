@@ -114,7 +114,6 @@ final class AnalyticsSimulationCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $action = $this->argument('action');

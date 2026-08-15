@@ -37,7 +37,6 @@ final class AnalyticsReadinessCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

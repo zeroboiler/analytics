@@ -55,7 +55,6 @@ final class AnalyticsRevenueAttributionCommand extends Command
     }
 
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $days = (int) $this->option('days');

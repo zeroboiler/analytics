@@ -48,7 +48,6 @@ final class AnalyticsCoverageCommand extends Command
      * Execute the coverage audit command.
      */
     #[Override]
-    #[Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

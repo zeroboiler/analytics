@@ -35,7 +35,6 @@ final class AnalyticsHealthSummaryCommand extends Command
      * Execute the console command.
      */
     #[Override]
-    #[Override]
     public function handle(
         UnifiedHealthEndpointService $health,
         ProductMarketFitScoringService $pmf,
