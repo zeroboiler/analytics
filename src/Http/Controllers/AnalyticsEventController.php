@@ -18187,4 +18187,291 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
         }
     }
+
+    // ─── Pipeline Profiler REST API (v172.0.0) ─────────────────────────────
+
+    /**
+     * Get the full pipeline profiler dashboard.
+     *
+     * Returns aggregated provider latency profiles, category profiles,
+     * slow events, and request-cycle metrics.
+     *
+     * @see \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::dashboard()
+     */
+    public function profilerDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService $profiler */
+            $profiler = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$profiler->dashboard(),
+                'enabled' => $profiler->isEnabled(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get provider-specific latency profile from the pipeline profiler.
+     *
+     * Returns min, max, avg, p50, p95, p99 latency and bucket distribution
+     * for a specific provider, or all providers if no provider specified.
+     */
+    public function profilerProviderProfile(?string $provider = null): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService $profiler */
+            $profiler = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'provider' => $provider,
+                'profile' => $profiler->providerProfile($provider),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get category-specific latency profile from the pipeline profiler.
+     *
+     * Returns latency statistics for event categories (ecommerce, saas,
+     * engagement, etc.) individually or aggregated.
+     */
+    public function profilerCategoryProfile(?string $category = null): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService $profiler */
+            $profiler = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'category' => $category,
+                'profile' => $profiler->categoryProfile($category),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get slow events exceeding the profiler's slow threshold.
+     *
+     * Optional query parameter: ?limit=50 (default 50, max 200)
+     */
+    public function profilerSlowEvents(Request $request): JsonResponse
+    {
+        try {
+            $limit = min((int) $request->query('limit', 50), 200);
+
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService $profiler */
+            $profiler = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'slow_threshold_ms' => $profiler->getSlowThreshold(),
+                'critical_threshold_ms' => $profiler->getCriticalThreshold(),
+                'slow_events' => $profiler->slowEvents($limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Flush all pipeline profiler data from cache and memory.
+     *
+     * Used to reset profiler telemetry. Typically called during
+     * deployment or after resolving performance issues.
+     */
+    public function profilerFlush(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService $profiler */
+            $profiler = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineProfilerService::class);
+            $profiler->flush();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Pipeline profiler data flushed successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Trace REST API (v172.0.0) ───────────────────────────────────
+
+    /**
+     * Generate a new trace context for manual event correlation.
+     *
+     * Returns a trace ID and span ID that can be passed to subsequent
+     * event tracking calls for end-to-end tracing. Useful for debugging
+     * and correlating events across the full pipeline.
+     */
+    public function traceGenerate(Request $request): JsonResponse
+    {
+        $source = $request->query('source', 'api');
+        $trace = \ZeroBoiler\Analytics\DTO\TraceContext::generate((string) $source);
+
+        return response()->json([
+            'status' => 'ok',
+            'trace_id' => $trace->traceId(),
+            'span_id' => $trace->spanId(),
+            'parent_span_id' => $trace->parentSpanId(),
+            'source' => $trace->source(),
+            'params' => $trace->toParams(),
+        ]);
+    }
+
+    /**
+     * Inject trace context into an event payload.
+     *
+     * Accepts an event name and params, returns the event with
+     * trace context injected. Useful for testing trace propagation.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventTraceService::inject()
+     */
+    public function traceInject(Request $request): JsonResponse
+    {
+        try {
+            $eventName = (string) $request->input('event', '');
+            $params = (array) $request->input('params', []);
+            $clientId = $request->input('client_id');
+            $userId = $request->input('user_id');
+
+            if ($eventName === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Event name is required.',
+                ], 422);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: $params,
+                clientId: is_string($clientId) ? $clientId : null,
+                userId: is_string($userId) ? $userId : null,
+            );
+
+            /** @var \ZeroBoiler\Analytics\Services\EventTraceService $traceService */
+            $traceService = app(\ZeroBoiler\Analytics\Services\EventTraceService::class);
+            $tracedEvent = $traceService->inject($event, 'api');
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => [
+                    'name' => $tracedEvent->name,
+                    'params' => $tracedEvent->params,
+                    'client_id' => $tracedEvent->clientId,
+                    'user_id' => $tracedEvent->userId,
+                ],
+                'trace_id' => $tracedEvent->params['_trace_id'] ?? null,
+                'span_id' => $tracedEvent->params['_span_id'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Inject a shared trace context into a batch of events.
+     *
+     * All events share the same trace ID but get unique span IDs,
+     * enabling correlation of a batch's lifecycle through the pipeline.
+     *
+     * @see \ZeroBoiler\Analytics\Services\EventTraceService::injectBatch()
+     */
+    public function traceInjectBatch(Request $request): JsonResponse
+    {
+        try {
+            $events = (array) $request->input('events', []);
+
+            if ($events === []) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Events array is required.',
+                ], 422);
+            }
+
+            $analyticsEvents = [];
+            foreach ($events as $evt) {
+                $analyticsEvents[] = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                    name: (string) ($evt['name'] ?? 'unknown'),
+                    params: (array) ($evt['params'] ?? []),
+                    clientId: isset($evt['client_id']) && is_string($evt['client_id']) ? $evt['client_id'] : null,
+                    userId: isset($evt['user_id']) && is_string($evt['user_id']) ? $evt['user_id'] : null,
+                );
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\EventTraceService $traceService */
+            $traceService = app(\ZeroBoiler\Analytics\Services\EventTraceService::class);
+            $tracedEvents = $traceService->injectBatch($analyticsEvents, 'api');
+
+            $result = [];
+            foreach ($tracedEvents as $te) {
+                $result[] = [
+                    'name' => $te->name,
+                    'trace_id' => $te->params['_trace_id'] ?? null,
+                    'span_id' => $te->params['_span_id'] ?? null,
+                ];
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'count' => count($tracedEvents),
+                'shared_trace_id' => $result[0]['trace_id'] ?? null,
+                'events' => $result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Config Drift Import API (v172.0.0) ───────────────────────────────
+
+    /**
+     * Import a config snapshot as the drift detection baseline.
+     *
+     * Accepts a JSON payload representing a full analytics config snapshot
+     * and stores it as the baseline for drift detection. Useful for:
+     * - Multi-environment config sync (import production baseline to staging)
+     * - CI/CD pipeline config gate uploads
+     * - Manual baseline restoration from backups
+     *
+     * The imported snapshot must contain analytics configuration sections.
+     * The service validates structure and adds metadata (_meta.captured_at, _meta.version).
+     *
+     * @see \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService
+     */
+    public function configDriftImport(Request $request): JsonResponse
+    {
+        try {
+            $snapshot = $request->input('config', []);
+
+            if (! is_array($snapshot) || $snapshot === []) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'A non-empty "config" object is required.',
+                ], 422);
+            }
+
+            $label = (string) $request->input('label', 'imported');
+
+            /** @var \ZeroBoiler\Analytics\Services\ConfigDriftDetectionService $driftService */
+            $driftService = app(\ZeroBoiler\Analytics\Services\ConfigDriftDetectionService::class);
+            $importResult = $driftService->importBaseline($snapshot, $label);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$importResult,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

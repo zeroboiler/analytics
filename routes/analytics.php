@@ -1022,4 +1022,19 @@ Route::prefix('analytics')->group(function () {
     Route::post('sdk-bridge/translate-outbound', [AnalyticsEventController::class, 'sdkBridgeTranslateOutbound']);
     Route::post('sdk-bridge/inspect', [AnalyticsEventController::class, 'sdkBridgeInspect']);
     Route::get('sdk-bridge/mappings/{sdk}', [AnalyticsEventController::class, 'sdkBridgeMappings']);
+
+    // Pipeline Profiler (v172.0.0)
+    Route::get('profiler', [AnalyticsEventController::class, 'profilerDashboard']);
+    Route::get('profiler/provider/{provider?}', [AnalyticsEventController::class, 'profilerProviderProfile']);
+    Route::get('profiler/category/{category?}', [AnalyticsEventController::class, 'profilerCategoryProfile']);
+    Route::get('profiler/slow-events', [AnalyticsEventController::class, 'profilerSlowEvents']);
+    Route::delete('profiler', [AnalyticsEventController::class, 'profilerFlush']);
+
+    // Event Trace (v172.0.0)
+    Route::get('trace/generate', [AnalyticsEventController::class, 'traceGenerate']);
+    Route::post('trace/inject', [AnalyticsEventController::class, 'traceInject']);
+    Route::post('trace/inject-batch', [AnalyticsEventController::class, 'traceInjectBatch']);
+
+    // Config Drift Import (v172.0.0)
+    Route::post('config-drift/import', [AnalyticsEventController::class, 'configDriftImport']);
 });

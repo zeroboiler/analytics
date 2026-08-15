@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-171.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-172.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **364 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, and e-commerce format conversion across all providers.
@@ -56,6 +56,17 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v172.0.0
+
+**Pipeline Profiler REST API + Event Trace REST API + Config Drift Baseline Import — Industry-Standard SaaS Analytics Upgrade**:
+
+- **Pipeline Profiler REST API** — Exposes the `AnalyticsPipelineProfilerService` via 5 new REST endpoints for ops teams and monitoring dashboards: `GET /api/analytics/profiler` (full dashboard with provider/category latency profiles, degraded providers, request-cycle metrics), `GET /api/analytics/profiler/provider/{provider}` (per-provider min/max/avg/p50/p95/p99 latency and bucket distribution), `GET /api/analytics/profiler/category/{category}` (per-category dispatch latency profiles), `GET /api/analytics/profiler/slow-events?limit=50` (slow/critical event list), `DELETE /api/analytics/profiler` (flush all profiler telemetry). Cache-backed performance telemetry with configurable thresholds. Inspired by OpenTelemetry collector exporters and Datadog APM pipeline profiling.
+- **Event Trace REST API** — Exposes the `EventTraceService` and `TraceContext` via 3 new REST endpoints for end-to-end event correlation and debugging: `GET /api/analytics/trace/generate` (generate new trace ID + span ID for manual correlation), `POST /api/analytics/trace/inject` (inject trace context into a single event payload), `POST /api/analytics/trace/inject-batch` (inject shared trace ID across a batch of events — all share trace ID but get unique span IDs). Enables tracing events through client → API → queue → provider pipeline. ULID-based trace IDs, hex span IDs.
+- **Config Drift Baseline Import** — New `importBaseline()` and `getBaseline()` methods on `ConfigDriftDetectionService` with `POST /api/analytics/config-drift/import` endpoint. Accepts external config snapshots (e.g., exported from production) and stores them as the drift detection baseline. Use cases: multi-environment config sync (import production baseline to staging for drift detection), CI/CD pipeline config gate uploads, manual baseline restoration from backups. Validates structure, strips stale `_meta`, adds import metadata (source, label, timestamp).
+- **Config expansion** — New `tracing` config section documented and referenced by EventTraceService for configurable trace source and enable/disable.
+- **Route expansion** — 9 new API routes: 5 profiler, 3 trace, 1 config-drift import.
+- **Version sweep** — All 14 entry points synced from 171.0.0 → 172.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
 
 ### What's New in v171.0.0
 

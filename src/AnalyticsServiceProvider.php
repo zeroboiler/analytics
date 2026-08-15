@@ -443,7 +443,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 171.0.0
+ * @version 172.0.0
  *
  * @since 1.0.0
  */

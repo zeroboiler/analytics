@@ -343,4 +343,80 @@ final class ConfigDriftDetectionService
     {
         return $this->enabled;
     }
+
+    /**
+     * Import an external config snapshot as the drift detection baseline.
+     *
+     * Accepts a pre-built config array (e.g., exported from another environment)
+     * and stores it as the baseline. Validates basic structure before import.
+     * Adds metadata (_meta.captured_at, _meta.version, _meta.source, _meta.label).
+     *
+     * Use cases:
+     * - Multi-environment config sync (import production baseline to staging)
+     * - CI/CD config gate uploads
+     * - Manual baseline restoration from backups
+     *
+     * @param  array<string, mixed>  $snapshot  The config snapshot to import
+     * @param  string  $label  Optional label for the imported baseline
+     * @return array{imported: bool, label: string, captured_at: string, version: string, sections: int, keys: int, source: string}
+     *
+     * @since 172.0.0
+     */
+    public function importBaseline(array $snapshot, string $label = 'imported'): array
+    {
+        // Validate basic structure — must be an associative array
+        if ($snapshot === []) {
+            return [
+                'imported' => false,
+                'error' => 'Empty snapshot provided.',
+            ];
+        }
+
+        // Remove any existing _meta from imported snapshot
+        unset($snapshot['_meta']);
+
+        // Add import metadata
+        $snapshot['_meta'] = [
+            'captured_at' => now()->toIso8601String(),
+            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+            'source' => 'import',
+            'label' => $label,
+        ];
+
+        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
+        $this->cache->put($key, $snapshot, $this->cacheTtl);
+
+        $meta = [
+            'imported' => true,
+            'label' => $label,
+            'captured_at' => $snapshot['_meta']['captured_at'],
+            'version' => $snapshot['_meta']['version'],
+            'sections' => count($snapshot) - 1, // exclude _meta
+            'keys' => $this->countKeys($snapshot),
+            'source' => 'import',
+        ];
+
+        Log::info('ZeroBoiler Analytics: config baseline imported', $meta);
+
+        return $meta;
+    }
+
+    /**
+     * Get the stored baseline snapshot (full config, if it exists).
+     *
+     * @return array{exists: bool, baseline: array<string, mixed>|null}
+     *
+     * @since 172.0.0
+     */
+    public function getBaseline(): array
+    {
+        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
+        /** @var array<string, mixed>|null $baseline */
+        $baseline = $this->cache->get($key);
+
+        return [
+            'exists' => $baseline !== null,
+            'baseline' => $baseline,
+        ];
+    }
 }
