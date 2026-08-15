@@ -8061,4 +8061,108 @@ return [
         'max_interests_per_user' => (int) env('ANALYTICS_FPD_MAX_INTERESTS', 20),
         'auto_cohort' => env('ANALYTICS_FPD_AUTO_COHORT', true),
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Cardinality Limiter (v153.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Prevents high-cardinality dimension explosion in analytics providers.
+    | GA4 custom dimensions, PostHog properties, and Mixpanel events have
+    | hard limits on unique values per parameter. This service monitors and
+    | limits unique values per parameter key to prevent runaway cardinality
+    | from user IDs, IPs, session IDs, and other unbounded dimensions.
+    |
+    | Actions when limit is exceeded:
+    | - 'strict': Drop the entire event
+    | - 'drop_param': Remove the offending parameter (default)
+    | - 'bucket': Replace with a hashed bucket value
+    |
+    */
+    'cardinality' => [
+        'enabled' => env('ANALYTICS_CARDINALITY_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_CARDINALITY_TTL', 3600), // 1 hour
+        'default_limit' => (int) env('ANALYTICS_CARDINALITY_DEFAULT_LIMIT', 500),
+        'param_limits' => [
+            // Per-parameter overrides: 'event_name:param_key' => max_unique_values
+            // 'purchase:user_id' => 100,
+        ],
+        'high_cardinality_params' => [
+            'user_id', 'client_id', 'session_id', 'ip_address', 'email',
+        ],
+        'exceeded_action' => env('ANALYTICS_CARDINALITY_ACTION', 'drop_param'), // strict|drop_param|bucket
+        'excluded_params' => [
+            'event_name', 'category', 'source', 'timestamp', 'version',
+        ],
+        'excluded_events' => [],
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Structured Event Logging (v153.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Unified structured logging for all analytics event dispatches.
+    | Produces consistent structured log entries with standard fields for
+    | easy ingestion into observability platforms (Datadog, New Relic, Loki).
+    |
+    | Log entries use the configured channel ("analytics") and include
+    | event metadata, dispatch context, and optional parameter data.
+    |
+    */
+    'structured_logging' => [
+        'enabled' => env('ANALYTICS_STRUCTURED_LOGGING_ENABLED', true),
+        'channel' => env('ANALYTICS_STRUCTURED_LOGGING_CHANNEL', 'analytics'),
+        'dispatch_level' => env('ANALYTICS_STRUCTURED_LOGGING_DISPATCH_LEVEL', 'debug'), // debug|info|warning|error
+        'error_level' => env('ANALYTICS_STRUCTURED_LOGGING_ERROR_LEVEL', 'error'),
+        'category_levels' => [
+            // Per-category log level overrides
+            // 'ecommerce' => 'info',
+            // 'saas' => 'info',
+        ],
+        'provider_levels' => [
+            // Per-provider log level overrides
+            // 'ga4' => 'debug',
+        ],
+        'include_params' => env('ANALYTICS_STRUCTURED_LOGGING_INCLUDE_PARAMS', false),
+        'sensitive_keys' => [
+            'email', 'password', 'token', 'api_key', 'secret',
+            'ip_address', 'credit_card', 'ssn', 'phone',
+        ],
+        'max_param_length' => (int) env('ANALYTICS_STRUCTURED_LOGGING_MAX_PARAM_LENGTH', 100),
+        'excluded_events' => [],
+        'log_rate_limit' => (int) env('ANALYTICS_STRUCTURED_LOGGING_RATE_LIMIT', 1000), // per minute
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Delivery SLA Monitor (v153.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Proactive per-provider SLA tracking for event delivery. Monitors
+    | availability (success rate), latency percentiles (P50/P95/P99),
+    | error rate, and throughput against configurable targets per provider.
+    |
+    | Status levels: healthy, degraded (within 5% of target), breached, unknown.
+    |
+    | CLI: php artisan zb:analytics:overview --health (includes SLA status)
+    |
+    */
+    'sla' => [
+        'enabled' => env('ANALYTICS_SLA_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_SLA_TTL', 300), // 5 minutes
+        'window_seconds' => (int) env('ANALYTICS_SLA_WINDOW', 300), // 5 minute sliding window
+        'default_availability' => (float) env('ANALYTICS_SLA_AVAILABILITY', 0.999), // 99.9%
+        'default_latency_p95' => (float) env('ANALYTICS_SLA_LATENCY_P95', 500.0), // 500ms
+        'default_error_rate_max' => (float) env('ANALYTICS_SLA_ERROR_RATE_MAX', 0.01), // 1%
+        'provider_targets' => [
+            // Per-provider SLA targets (override defaults)
+            // 'ga4' => ['availability' => 0.999, 'latency_p95' => 300, 'error_rate' => 0.005],
+            // 'meta' => ['availability' => 0.995, 'latency_p95' => 800, 'error_rate' => 0.02],
+        ],
+        'monitored_providers' => [
+            // Empty array = monitor all providers. Or specify:
+            // 'ga4', 'gtm', 'meta', 'plausible', 'posthog',
+        ],
+    ],
 ];

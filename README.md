@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-152.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-153.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **345+ services**, **77 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **349+ services**, **77 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -56,6 +56,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v153.0.0
+
+**Event Pipeline Production Services — Cardinality, SLA, Structured Logging, Lifecycle Attribution**:
+
+- **`EventCardinalityLimiter`** — Prevents high-cardinality dimension explosion in analytics providers. GA4 custom dimensions, PostHog properties, and Mixpanel events have hard limits on unique values per parameter. This service monitors and limits unique values per parameter key to prevent runaway cardinality from user IDs, IPs, session IDs, and other unbounded dimensions. Three enforcement modes: `strict` (drop event), `drop_param` (remove offending parameter), `bucket` (replace with hashed value). Cache-backed cardinality tracking with configurable TTL and per-parameter limits.
+- **`EventDeliverySlaMonitor`** — Proactive per-provider SLA tracking for event delivery. Monitors availability (success rate), latency percentiles (P50/P95/P99), error rate, and throughput against configurable targets per provider over a sliding time window. Status levels: healthy, degraded (within 5% margin), breached, unknown. Supports per-provider SLA target overrides.
+- **`StructuredEventLogger`** — Unified, structured logging interface for all analytics event dispatches. Produces consistent log entries with standard fields (event_name, category, client_id, provider, latency_ms), dispatch status, and pipeline context. Supports per-category and per-provider log level overrides, sensitive key redaction, param truncation, and log rate limiting. Configurable log channel for observability platform ingestion.
+- **`LifecycleAttributionEnricher`** — Automatically enriches SaaS lifecycle events (sign_up, login, trial_start, subscription, plan_upgrade, etc.) with attribution context: UTM parameters, referrer URL, session ID, timestamp, and device context. Includes automatic traffic source classification (direct, organic_search, paid_social, paid_display, email, affiliate, referral, unknown).
+- **Config expansion** — New `cardinality`, `sla`, and `structured_logging` sections in `zeroboiler.php` with full env() variable coverage.
+- **ServiceProvider registration** — All 4 services registered as singletons with proper DI (cache + config).
+- **V153EventCardinalitySlaStructuredLogTest** — 45+ assertions covering all 4 services: finality, strict types, constructor void, disabled state behavior, SLA status/summary/clear, config structure, attribution classification (10 categories), diagnostic summary, ServiceProvider binding verification.
+- **Zero breaking changes** — All new services are additive. Existing dispatch pipeline and provider implementations unchanged.
 
 ### What's New in v152.0.0
 

@@ -76,6 +76,9 @@ final class AnalyticsServiceRegistry
         'deviceFingerprintService' => \ZeroBoiler\Analytics\Services\DeviceFingerprintService::class,
         'guardRailsService' => \ZeroBoiler\Analytics\Services\TrackingGuardRailsService::class,
         'deliveryConfirmationService' => \ZeroBoiler\Analytics\Services\EventDeliveryConfirmationService::class,
+        'cardinalityLimiter' => \ZeroBoiler\Analytics\Services\EventCardinalityLimiter::class,
+        'structuredEventLogger' => \ZeroBoiler\Analytics\Services\StructuredEventLogger::class,
+        'slaMonitor' => \ZeroBoiler\Analytics\Services\EventDeliverySlaMonitor::class,
     ];
 
     /**

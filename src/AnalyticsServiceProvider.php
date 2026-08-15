@@ -411,6 +411,10 @@ use ZeroBoiler\Analytics\Services\AnalyticsSdkTelemetryCollector;
 use ZeroBoiler\Analytics\Services\ProjectionRegistry;
 use ZeroBoiler\Analytics\Services\MetricProjectionEngine;
 use ZeroBoiler\Analytics\Services\EventMaterializer;
+use ZeroBoiler\Analytics\Services\EventCardinalityLimiter;
+use ZeroBoiler\Analytics\Services\EventDeliverySlaMonitor;
+use ZeroBoiler\Analytics\Services\StructuredEventLogger;
+use ZeroBoiler\Analytics\Tracking\LifecycleAttributionEnricher;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTranslationMatrixCommand;
 use ZeroBoiler\Analytics\Services\CrossProviderTranslationMatrix;
@@ -422,7 +426,7 @@ use ZeroBoiler\Analytics\Services\RevenueHealthScoreService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 133.0.0
+ * @version 153.0.0
  *
  * @since 1.0.0
  */
@@ -964,6 +968,34 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsObservabilityService($cache, $config);
+        });
+
+        // Event Cardinality Limiter (v153.0.0) — prevents high-cardinality dimension explosion
+        $this->app->singleton(EventCardinalityLimiter::class, function (Application $app): EventCardinalityLimiter {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCardinalityLimiter($cache, $config);
+        });
+
+        // Structured Event Logger (v153.0.0) — unified structured logging for dispatches
+        $this->app->singleton(StructuredEventLogger::class, function (Application $app): StructuredEventLogger {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new StructuredEventLogger($config);
+        });
+
+        // Event Delivery SLA Monitor (v153.0.0) — proactive per-provider SLA tracking
+        $this->app->singleton(EventDeliverySlaMonitor::class, function (Application $app): EventDeliverySlaMonitor {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventDeliverySlaMonitor($cache, $config);
         });
 
         // Event deconfliction service (v17.0.0) — singleton for multi-provider analysis
@@ -3829,6 +3861,42 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $registry = $app->make(ProjectionRegistry::class);
 
             return new EventMaterializer($engine, $registry);
+        });
+
+        // Event Cardinality Limiter (v153.0.0) — prevents high-cardinality dimension explosion
+        $this->app->singleton(EventCardinalityLimiter::class, function (Application $app): EventCardinalityLimiter {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCardinalityLimiter($cache, $config);
+        });
+
+        // Event Delivery SLA Monitor (v153.0.0) — proactive per-provider SLA tracking
+        $this->app->singleton(EventDeliverySlaMonitor::class, function (Application $app): EventDeliverySlaMonitor {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventDeliverySlaMonitor($cache, $config);
+        });
+
+        // Structured Event Logger (v153.0.0) — unified structured logging for analytics
+        $this->app->singleton(StructuredEventLogger::class, function (Application $app): StructuredEventLogger {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new StructuredEventLogger($config);
+        });
+
+        // Lifecycle Attribution Enricher (v153.0.0) — auto-enrich SaaS lifecycle events
+        $this->app->singleton(LifecycleAttributionEnricher::class, function (Application $app): LifecycleAttributionEnricher {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new LifecycleAttributionEnricher($config);
         });
     }
 
