@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-158.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-159.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **210+ typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and plugin-extensible), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,27 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v159.0.0
+
+**Engagement Format Converter — Cross-Provider Parameter Structure Conversion for Engagement Events**:
+
+- **`EngagementFormatConverter`** — The engagement equivalent of `SaaSFormatConverter` and `EcommerceFormatConverter`. Provides bidirectional parameter structure conversion for 8 core engagement events (page_view, scroll_depth, click, form_start, form_submit, search, share, error) across GA4, Meta Pixel, and PostHog formats. Engagement events are the most frequently tracked events in any SaaS application — getting provider-specific formats right here has the highest impact on analytics data quality.
+- **page_view conversion** — `pageViewToGa4()` produces GA4 page_view format (page_location, page_title, page_referrer, engagement_time_msec). `pageViewToMeta()` produces Meta PageView format (content_name, content_type). `pageViewToPosthog()` produces PostHog $pageview properties ($current_url, $referrer, $title, $screen_width, $screen_height).
+- **scroll_depth conversion** — `scrollDepthToGa4()` produces GA4 scroll event format (percent_scrolled, engagement_time_msec). `scrollDepthToMeta()` produces Meta custom scroll event. `scrollDepthToPosthog()` produces PostHog scroll_depth properties.
+- **click conversion** — `clickToGa4()` produces GA4 click event format (link_url, link_text, link_domain via parse_url, outbound, element_class/id/tag). `clickToMeta()` produces Meta custom click event (content_name, content_category). `clickToPosthog()` produces PostHog click properties.
+- **form_start conversion** — `formStartToGa4()` produces GA4 form_start format (form_id, form_name, form_destination). `formStartToMeta()` maps to Meta Lead event. `formStartToPosthog()` provides form action tracking.
+- **form_submit conversion** — `formSubmitToGa4()` produces GA4 generate_lead format (form_id, form_name, value, currency). `formSubmitToMeta()` produces Meta Lead format with value optimization. `formSubmitToPosthog()` includes success flag and monetary tracking.
+- **search conversion** — `searchToGa4()` produces GA4 search event (search_term, number_of_results, category). `searchToMeta()` produces Meta Search standard event (search_string). `searchToPosthog()` produces PostHog $search properties.
+- **share conversion** — `shareToGa4()` produces GA4 share event (method, content_type, item_id, item_name). `shareToMeta()` produces Meta Share standard event. `shareToPosthog()` produces PostHog $share properties.
+- **error conversion** — `errorToGa4()` produces GA4 error format (error_message, error_code, fatal). `errorToMeta()` produces Meta custom error event. `errorToPosthog()` produces PostHog $exception properties ($exception_type, $exception_message, $exception_stack, $exception_level, $lib).
+- **`convertForProvider()`** — Central dispatch method: `EngagementFormatConverter::convertForProvider('page_view', $params, 'ga4')`. Routes to the correct converter based on event name and target provider.
+- **`buildProviderEvent()`** — One-line convenience: builds a provider-optimized `AnalyticsEvent` with param conversion AND category tagging.
+- **Alias support** — `js_error` and `client_error` alias to error converters. `outbound_click` forces outbound=true for GA4/PostHog. `file_download` sets content_category='download' for Meta.
+- **`supportedEvents()` / `supports()` / `supportedProviders()`** — API parity with SaaSFormatConverter for consistent developer experience.
+- **`V159EngagementFormatConverterTest`** — 80+ assertions covering all 8 engagement events × 3 providers, convertForProvider routing for all events, buildProviderEvent construction, alias handling (js_error, client_error, outbound_click, file_download), null/missing parameter defaults, empty fallback for unknown events/providers, and API parity with SaaSFormatConverter.
+- **Version sweep** — All 14 entry points synced to v159.0.0 (composer.json, package.json, analytics.js, analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge).
+- **Zero breaking changes** — EngagementFormatConverter is a new standalone utility class. Existing dispatch pipeline, EventTransformer, SaaSFormatConverter, and EcommerceFormatConverter unchanged.
 
 ### What's New in v158.0.0
 
