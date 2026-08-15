@@ -194,7 +194,7 @@ final class PlausibleTracker implements TrackerInterface
      * @param  list<AnalyticsEvent>  $events  Events to track (max 50)
      * @return int Number of events successfully dispatched
      *
-     * @since 162.0.0
+     * @since 163.0.0
      */
     public function batchTrack(array $events): int
     {
@@ -257,7 +257,7 @@ final class PlausibleTracker implements TrackerInterface
      * @param  string  $requestedPath  The URL path the user requested (e.g., '/old-page')
      * @param  string|null  $referrer  Optional referrer URL
      *
-     * @since 162.0.0
+     * @since 163.0.0
      */
     public function track404Page(string $requestedPath, ?string $referrer = null): void
     {

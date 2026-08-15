@@ -200,7 +200,7 @@ final class PosthogTracker implements TrackerInterface
      * @param  list<AnalyticsEvent>  $events  Events to capture (max 50)
      * @return int Number of events successfully queued for capture
      *
-     * @since 162.0.0
+     * @since 163.0.0
      */
     public function batchCapture(array $events): int
     {

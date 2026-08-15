@@ -6,7 +6,7 @@
  * data to Svelte components.
  *
  * @package ZeroBoiler Analytics
- * @version 162.0.0
+ * @version 163.0.0
  */
 
 import { writable, derived } from 'svelte/store';
