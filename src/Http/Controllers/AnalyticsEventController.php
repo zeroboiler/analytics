@@ -18035,4 +18035,156 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── SDK Bridge (v166.0.0) ─────────────────────────────────────────
+
+    /**
+     * Get list of supported SDK identifiers.
+     */
+    public function sdkBridgeSdks(): JsonResponse
+    {
+        /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+        $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+
+        return response()->json([
+            'status' => 'ok',
+            'sdks' => $service->supportedSdks(),
+        ]);
+    }
+
+    /**
+     * Get compatibility report for a target SDK.
+     */
+    public function sdkBridgeCompatibility(string $sdk): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+            $report = $service->compatibilityReport($sdk);
+
+            return response()->json([
+                'status' => 'ok',
+                'sdk' => $sdk,
+                ...$report,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Get mapping coverage statistics for a target SDK.
+     */
+    public function sdkBridgeCoverage(string $sdk): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+            $coverage = $service->mappingCoverage($sdk);
+
+            return response()->json([
+                'status' => 'ok',
+                'sdk' => $sdk,
+                ...$coverage,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Translate an inbound event from a third-party SDK to ZeroBoiler format.
+     */
+    public function sdkBridgeTranslateInbound(Request $request): JsonResponse
+    {
+        try {
+            $sdk = $request->input('sdk', '');
+            $eventName = $request->input('event', '');
+            $params = $request->input('params', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+            $event = $service->translateInbound($sdk, $eventName, is_array($params) ? $params : []);
+
+            return response()->json([
+                'status' => 'ok',
+                'translated_event' => $event->name,
+                'translated_params' => $event->params,
+                'source' => $event->source,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Translate a ZeroBoiler event to a target SDK format.
+     */
+    public function sdkBridgeTranslateOutbound(Request $request): JsonResponse
+    {
+        try {
+            $sdk = $request->input('sdk', '');
+            $eventName = $request->input('event', '');
+            $params = $request->input('params', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: is_array($params) ? $params : [],
+            );
+            $translated = $service->translateOutbound($sdk, $event);
+
+            return response()->json([
+                'status' => 'ok',
+                'sdk' => $sdk,
+                ...$translated,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Inspect how a specific event will be translated for a target SDK.
+     */
+    public function sdkBridgeInspect(Request $request): JsonResponse
+    {
+        try {
+            $sdk = $request->input('sdk', '');
+            $eventName = $request->input('event', '');
+            $params = $request->input('params', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+            $inspection = $service->inspectTranslation($sdk, $eventName, is_array($params) ? $params : []);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$inspection,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
+     * Get event name mapping table for a given SDK.
+     */
+    public function sdkBridgeMappings(string $sdk): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SdkBridgeService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SdkBridgeService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'sdk' => $sdk,
+                'inbound' => $service->getInboundMap($sdk),
+                'outbound' => $service->getOutboundMap($sdk),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 400);
+        }
+    }
 }

@@ -1,5 +1,18 @@
 # Changelog
 
+## [166.0.0] - 2026-08-15
+
+### Added
+- **SdkBridgeService** — Server-side bidirectional event format translation for third-party SDK migration. Supports PostHog, Mixpanel, Segment, and Amplitude inbound/outbound event name and parameter mapping. Automatic SDK metadata stripping for inbound events. Parameter structure adaptation for outbound events (user_id→distinct_id, user_properties→$set/traits). Custom mapping registration via registerInboundMapping(), registerOutboundMapping(), registerInboundParamTransformer(), registerOutboundParamTransformer(). Compatibility report and mapping coverage analysis per SDK. Event translation inspection API. 32 built-in inbound + 32 outbound mappings.
+- **JS SDK Bridge Mode** — Client-side bidirectional event translation: trackFromSdk(), translateToSdk(), inspectSdkTranslation(), getSupportedBridgeSdks(), fetchSdkBridgeCompatibility(). SDK_BRIDGE_INBOUND_MAP and SDK_BRIDGE_OUTBOUND_MAP with 4 SDK mappings. SDK_METADATA_FIELDS for automatic metadata stripping. Parameter transformers for PostHog (distinct_id, $set), Mixpanel (distinct_id), Segment (traits).
+- **SDK Bridge API endpoints** — 7 new routes: GET sdk-bridge/sdks, GET sdk-bridge/compatibility/{sdk}, GET sdk-bridge/coverage/{sdk}, POST sdk-bridge/translate-inbound, POST sdk-bridge/translate-outbound, POST sdk-bridge/inspect, GET sdk-bridge/mappings/{sdk}. All in AnalyticsEventController.
+- **TypeScript definitions** — SdkBridgeTrackResult, SdkBridgeTranslation, SdkBridgeInspection, SdkBridgeCompatibilityReport interfaces for full IntelliSense support.
+- **V1660 SDK Bridge Service Test** — 40+ test cases covering: all 4 SDK inbound/outbound translation, SDK metadata stripping (PostHog $set/$lib, Mixpanel mp_lib, Segment context/integrations, Amplitude device_id/library), parameter transformation (user_id→distinct_id, user_properties→$set/traits), custom mapping registration, custom param transformers, bidirectional roundtrip consistency (PostHog $pageview→page_view→$pageview, Mixpanel Signup→sign_up→Signup, Segment page→page_view→page), compatibility report structure, mapping coverage breakdown, class structure validation (final, strict_types, MIT header).
+
+### Changed
+- **Version sweep** — All 14 entry points synced from 165.0.0 → 166.0.0: composer.json, package.json (fixed drift from 164.0.0), analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+- **package.json version fix** — Corrected stale version from 164.0.0 to 166.0.0 (was missed in v165 sweep).
+
 ## [164.0.0] - 2026-08-15
 
 ### Added

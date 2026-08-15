@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 165.0.0
+ * @version 166.0.0
  */
 
 let trackingId = null;
@@ -181,7 +181,7 @@ export function getUserId() {
  * @returns {string}
  */
 export function getVersion() {
-    return '165.0.0';
+    return '166.0.0';
 }
 
 // ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
@@ -8262,4 +8262,252 @@ export async function trackConsentUpdate(options = {}) {
     if (options.source) params.source = options.source;
 
     return trackEvent('consent_changed', params, { immediate: true });
+}
+
+// ─── SDK Bridge Mode (v166.0.0) ──────────────────────────────────
+//
+// Bidirectional event format translation for third-party SDK migration.
+// Accepts events in PostHog/Mixpanel/Segment format and translates to
+// ZeroBoiler format, and vice versa.
+
+/**
+ * Known inbound event name mappings from third-party SDKs to ZeroBoiler.
+ * @type {Object<string, Object<string, string>>}
+ */
+const SDK_BRIDGE_INBOUND_MAP = {
+    posthog: {
+        '$pageview': 'page_view',
+        '$screen': 'screen_view',
+        '$identify': 'identify',
+        'user_signed_up': 'sign_up',
+        'user_login': 'login',
+        'user_logout': 'logout',
+        'subscription_created': 'subscription',
+        'payment_added': 'add_payment_info',
+    },
+    mixpanel: {
+        'Signup': 'sign_up',
+        'Login': 'login',
+        'Logout': 'logout',
+        'Plan Upgraded': 'plan_upgrade',
+        'Subscription Started': 'subscription',
+        'Trial Started': 'trial_start',
+        'Payment Info Added': 'add_payment_info',
+        'Purchase': 'purchase',
+    },
+    segment: {
+        'page': 'page_view',
+        'screen': 'screen_view',
+        'identify': 'identify',
+        'Signed Up': 'sign_up',
+        'Logged In': 'login',
+        'Subscription Started': 'subscription',
+        'Order Completed': 'purchase',
+        'Product Viewed': 'view_item',
+        'Product Added': 'add_to_cart',
+        'Checkout Started': 'begin_checkout',
+        'Payment Info Entered': 'add_payment_info',
+    },
+    amplitude: {
+        '[Amplitude] Page Viewed': 'page_view',
+        '[Amplitude] User Signed Up': 'sign_up',
+        '[Amplitude] User Logged In': 'login',
+        '[Amplitude] Subscription Started': 'subscription',
+        '[Amplitude] Trial Started': 'trial_start',
+    },
+};
+
+/**
+ * Known outbound event name mappings from ZeroBoiler to third-party SDKs.
+ * @type {Object<string, Object<string, string>>}
+ */
+const SDK_BRIDGE_OUTBOUND_MAP = {
+    posthog: {
+        'page_view': '$pageview',
+        'screen_view': '$screen',
+        'sign_up': 'user_signed_up',
+        'login': 'user_login',
+        'logout': 'user_logout',
+        'subscription': 'subscription_created',
+        'add_payment_info': 'payment_added',
+    },
+    mixpanel: {
+        'sign_up': 'Signup',
+        'login': 'Login',
+        'logout': 'Logout',
+        'plan_upgrade': 'Plan Upgraded',
+        'subscription': 'Subscription Started',
+        'trial_start': 'Trial Started',
+        'add_payment_info': 'Payment Info Added',
+        'purchase': 'Purchase',
+    },
+    segment: {
+        'page_view': 'page',
+        'screen_view': 'screen',
+        'identify': 'identify',
+        'sign_up': 'Signed Up',
+        'login': 'Logged In',
+        'subscription': 'Subscription Started',
+        'purchase': 'Order Completed',
+        'view_item': 'Product Viewed',
+        'add_to_cart': 'Product Added',
+        'begin_checkout': 'Checkout Started',
+        'add_payment_info': 'Payment Info Entered',
+    },
+    amplitude: {
+        'page_view': '[Amplitude] Page Viewed',
+        'sign_up': '[Amplitude] User Signed Up',
+        'login': '[Amplitude] User Logged In',
+        'subscription': '[Amplitude] Subscription Started',
+        'trial_start': '[Amplitude] Trial Started',
+    },
+};
+
+/**
+ * SDK-specific metadata fields to strip during inbound translation.
+ * @type {Object<string, string[]>}
+ */
+const SDK_METADATA_FIELDS = {
+    posthog: ['$set', '$set_once', '$unset', '$current_url', '$referrer', '$referring_domain', '$device', '$os', '$browser', '$screen_width', '$screen_height', '$lib', '$lib_version'],
+    mixpanel: ['mp_lib', 'mp_device_id'],
+    segment: ['context', 'integrations', 'messageId', 'anonymousId'],
+    amplitude: ['device_id', 'session_id', 'app_version', 'os_name', 'os_version', 'device_brand', 'device_model', 'library'],
+};
+
+/**
+ * Translate an inbound event from a third-party SDK to ZeroBoiler format and track it.
+ *
+ * @param {string} sdk - Source SDK identifier ('posthog', 'mixpanel', 'segment', 'amplitude')
+ * @param {string} eventName - Event name in the source SDK format
+ * @param {Object<string, any>} [params={}] - Event parameters in the source SDK format
+ * @param {Object} [options={}] - Additional track options (immediate, priority)
+ * @returns {Promise<Object>} Tracking result with translation metadata
+ */
+export async function trackFromSdk(sdk, eventName, params = {}, options = {}) {
+    const sdkLower = sdk.toLowerCase();
+    const supportedSdks = Object.keys(SDK_BRIDGE_INBOUND_MAP);
+    if (!supportedSdks.includes(sdkLower)) {
+        return { error: `Unsupported SDK: '${sdk}'. Supported: ${supportedSdks.join(', ')}` };
+    }
+
+    // Translate event name
+    const zbName = SDK_BRIDGE_INBOUND_MAP[sdkLower][eventName] || eventName;
+
+    // Strip SDK-specific metadata
+    const cleanedParams = { ...params };
+    const metaFields = SDK_METADATA_FIELDS[sdkLower] || [];
+    for (const field of metaFields) {
+        delete cleanedParams[field];
+    }
+
+    const result = await trackEvent(zbName, cleanedParams, options);
+
+    return {
+        ...result,
+        _bridge: { sdk: sdkLower, original_event: eventName, translated_event: zbName },
+    };
+}
+
+/**
+ * Translate a ZeroBoiler event to a target SDK format for dual-dispatch.
+ *
+ * Returns the translated event name and parameters without actually dispatching.
+ * Useful for parallel tracking to both ZeroBoiler and a legacy SDK.
+ *
+ * @param {string} sdk - Target SDK identifier
+ * @param {string} eventName - ZeroBoiler event name
+ * @param {Object<string, any>} [params={}] - ZeroBoiler event parameters
+ * @returns {Object} Translated event: { event: string, properties: Object, sdk: string }
+ */
+export function translateToSdk(sdk, eventName, params = {}) {
+    const sdkLower = sdk.toLowerCase();
+    const supportedSdks = Object.keys(SDK_BRIDGE_OUTBOUND_MAP);
+    if (!supportedSdks.includes(sdkLower)) {
+        return { error: `Unsupported SDK: '${sdk}'. Supported: ${supportedSdks.join(', ')}` };
+    }
+
+    const translatedName = SDK_BRIDGE_OUTBOUND_MAP[sdkLower][eventName] || eventName;
+    const translatedParams = { ...params };
+
+    // Apply SDK-specific parameter transformations
+    if (sdkLower === 'posthog') {
+        if (translatedParams.user_id) {
+            translatedParams.distinct_id = translatedParams.user_id;
+            delete translatedParams.user_id;
+        }
+        if (translatedParams.user_properties) {
+            translatedParams.$set = translatedParams.user_properties;
+            delete translatedParams.user_properties;
+        }
+    } else if (sdkLower === 'mixpanel') {
+        if (translatedParams.user_id) {
+            translatedParams.distinct_id = translatedParams.user_id;
+            delete translatedParams.user_id;
+        }
+    } else if (sdkLower === 'segment') {
+        if (translatedParams.user_properties) {
+            translatedParams.traits = translatedParams.user_properties;
+            delete translatedParams.user_properties;
+        }
+    }
+
+    return { event: translatedName, properties: translatedParams, sdk: sdkLower };
+}
+
+/**
+ * Fetch SDK bridge compatibility report from server.
+ *
+ * Returns mapping coverage statistics for a target SDK showing which events
+ * have explicit translations and which rely on passthrough.
+ *
+ * @param {string} sdk - Target SDK identifier
+ * @returns {Promise<Object>} Compatibility report with coverage statistics
+ */
+export async function fetchSdkBridgeCompatibility(sdk) {
+    const baseUrl = getApiBaseUrl();
+    try {
+        const response = await fetch(`${baseUrl}/sdk-bridge/compatibility/${encodeURIComponent(sdk)}`, {
+            method: 'GET',
+            headers: getApiHeaders(),
+        });
+        if (!response.ok) return { error: `HTTP ${response.status}` };
+        return await response.json();
+    } catch {
+        return { error: 'Network error' };
+    }
+}
+
+/**
+ * Get the list of SDKs supported by the bridge.
+ *
+ * @returns {string[]} Supported SDK identifiers
+ */
+export function getSupportedBridgeSdks() {
+    return [...new Set([
+        ...Object.keys(SDK_BRIDGE_INBOUND_MAP),
+        ...Object.keys(SDK_BRIDGE_OUTBOUND_MAP),
+    ])];
+}
+
+/**
+ * Inspect how a specific event would be translated for a target SDK.
+ *
+ * @param {string} sdk - Target SDK identifier
+ * @param {string} eventName - ZeroBoiler event name
+ * @param {Object<string, any>} [params={}] - Event parameters
+ * @returns {Object} Translation inspection result
+ */
+export function inspectSdkTranslation(sdk, eventName, params = {}) {
+    const sdkLower = sdk.toLowerCase();
+    const hasMapping = SDK_BRIDGE_OUTBOUND_MAP[sdkLower]?.[eventName] !== undefined;
+    const translated = translateToSdk(sdk, eventName, params);
+
+    return {
+        original: eventName,
+        translated_name: translated.event,
+        translated_params: translated.properties,
+        has_mapping,
+        source: hasMapping ? 'explicit_mapping' : 'passthrough',
+        sdk: sdkLower,
+    };
 }

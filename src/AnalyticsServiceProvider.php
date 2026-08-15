@@ -165,6 +165,7 @@ use ZeroBoiler\Analytics\Services\SaaSKpiCalculatorService;
 use ZeroBoiler\Analytics\Services\ProviderEventValidator;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
 use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
+use ZeroBoiler\Analytics\Services\SegmentExportService;
 use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
 use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
 use ZeroBoiler\Analytics\Services\SessionReplayService;
@@ -316,6 +317,7 @@ use ZeroBoiler\Analytics\Services\EventCorrelationMatrixService;
 use ZeroBoiler\Analytics\Services\DataLakeExportService;
 use ZeroBoiler\Analytics\Services\SdkScopeTokenService;
 use ZeroBoiler\Analytics\Services\SdkTokenAuditLogger;
+use ZeroBoiler\Analytics\Services\SdkBridgeService;
 use ZeroBoiler\Analytics\Services\EventSchemaRuntimeValidator;
 use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
 use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
@@ -438,7 +440,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 165.0.0
+ * @version 166.0.0
  *
  * @since 1.0.0
  */
@@ -2545,6 +2547,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Schema Diff Reporter (v2.94.0)
         $this->app->singleton(SchemaDiffReporter::class);
+
+        // SDK Bridge Service (v166.0.0) — bidirectional event format translation for third-party SDK migration
+        $this->app->singleton(SdkBridgeService::class);
 
         // SSE Controller (v2.95.0)
         $this->app->singleton(\ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController::class, function (Application $app): \ZeroBoiler\Analytics\Http\Controllers\AnalyticsSSEController {

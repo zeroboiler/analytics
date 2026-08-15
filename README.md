@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-165.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-166.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **350+ services**, **83 artisan commands**, a fully-featured **JS client (~8200 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3000 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,20 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v166.0.0
+
+**SDK Bridge Mode — Bidirectional Event Format Translation for Third-Party SDK Migration**:
+
+- **SdkBridgeService** — Server-side bidirectional event format translation supporting 4 third-party SDKs (PostHog, Mixpanel, Segment, Amplitude). Translates inbound events from third-party SDK format to ZeroBoiler format (with automatic SDK metadata stripping), and outbound events from ZeroBoiler to target SDK format (with parameter structure adaptation including user_id→distinct_id for PostHog/Mixpanel, user_properties→$set for PostHog, user_properties→traits for Segment).
+- **JS SDK Bridge functions** — `trackFromSdk()`, `translateToSdk()`, `inspectSdkTranslation()`, `getSupportedBridgeSdks()`, `fetchSdkBridgeCompatibility()` — client-side bidirectional translation for parallel tracking during migration.
+- **Compatibility API** — 7 new endpoints: `GET /api/analytics/sdk-bridge/sdks`, `GET /api/analytics/sdk-bridge/compatibility/{sdk}`, `GET /api/analytics/sdk-bridge/coverage/{sdk}`, `POST /api/analytics/sdk-bridge/translate-inbound`, `POST /api/analytics/sdk-bridge/translate-outbound`, `POST /api/analytics/sdk-bridge/inspect`, `GET /api/analytics/sdk-bridge/mappings/{sdk}`.
+- **Custom mapping registration** — `registerInboundMapping()`, `registerOutboundMapping()`, `registerInboundParamTransformer()`, `registerOutboundParamTransformer()` for extending bridge with custom event mappings and parameter transformers.
+- **Built-in event name mappings** — 32 inbound + 32 outbound translations across PostHog (7+7), Mixpanel (8+8), Segment (11+11), Amplitude (5+5).
+- **Bidirectional roundtrip consistency** — Events maintain name integrity through inbound→outbound roundtrips (e.g., PostHog `$pageview` → ZeroBoiler `page_view` → PostHog `$pageview`).
+- **TypeScript type definitions** — `SdkBridgeTrackResult`, `SdkBridgeTranslation`, `SdkBridgeInspection`, `SdkBridgeCompatibilityReport` interfaces.
+- **V1660 comprehensive test suite** — 40+ test cases covering all 4 SDKs, bidirectional translation, metadata stripping, parameter transformation, custom mappings, roundtrip consistency, compatibility reports, coverage analysis, class structure validation.
+- **Version sweep** — All 14 entry points synced to v166.0.0. Fixed package.json version drift (was 164.0.0, now 166.0.0).
 
 ### What's New in v165.0.0
 
@@ -142,6 +156,15 @@ Done. That's it.
 - **Heartbeat Monitor** — Production health pulse with per-provider circuit breaker, queue depth tracking, ring-buffer history (24h), aggregate statistics, and staleness detection
 - **Event Bundling** — Groups related SaaS events into named journey bundles (signup_funnel, activation_funnel, etc.) with step tracking, completion/abandonment, and funnel analysis
 - **Feature Flag Observer** — Auto-tracks A/B test exposures and goal conversions as analytics events with deduplication, configurable tracking, and ignore lists
+
+### SDK Bridge Mode (Third-Party SDK Migration)
+- **4 Supported SDKs** — PostHog, Mixpanel, Segment, Amplitude bidirectional event format translation
+- **Inbound Translation** — Accept events in third-party SDK format, auto-translate to ZeroBoiler format with SDK metadata stripping
+- **Outbound Translation** — Dual-dispatch ZeroBoiler events to third-party format for parallel tracking during migration
+- **Compatibility Reports** — Per-SDK mapping coverage analysis showing which events have explicit translations
+- **Custom Mappings** — Extensible via registerInboundMapping(), registerOutboundMapping(), and param transformers
+- **JS Client Bridge** — `trackFromSdk()`, `translateToSdk()`, `inspectSdkTranslation()` for client-side migration support
+- **7 API Endpoints** — SDK bridge sdks, compatibility, coverage, translate-inbound/outbound, inspect, mappings
 
 ### E-commerce
 - **15 E-commerce Events** — ViewItem, AddToCart, RemoveFromCart, ViewCart, BeginCheckout, AddPaymentInfo, Purchase, Refund, Wishlist, SelectItem, SelectPromotion, ViewPromotion, CheckoutStep, AbandonedCart, CheckoutAbandon

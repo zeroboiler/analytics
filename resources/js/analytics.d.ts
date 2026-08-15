@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 165.0.0
+ * @version 166.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -3005,3 +3005,107 @@ export function trackInvoiceGenerated(options?: TrackInvoiceGeneratedOptions): P
 
 /** Get all supported category names. */
 export function getCategoryNames(): readonly string[];
+
+// ─── SDK Bridge Mode (v166.0.0) ─────────────────────────────────
+
+/** Result of trackFromSdk with translation metadata. */
+export interface SdkBridgeTrackResult {
+  /** Whether the event was tracked successfully. */
+  tracked?: boolean;
+  /** Error message if the operation failed. */
+  error?: string;
+  /** Bridge translation metadata. */
+  _bridge: {
+    sdk: string;
+    original_event: string;
+    translated_event: string;
+  };
+}
+
+/** Result of translateToSdk — translated event for a target SDK. */
+export interface SdkBridgeTranslation {
+  /** Translated event name in the target SDK format. */
+  event: string;
+  /** Translated event properties in the target SDK format. */
+  properties: Record<string, unknown>;
+  /** Target SDK identifier. */
+  sdk: string;
+  /** Error message if translation failed. */
+  error?: string;
+}
+
+/** Result of inspectSdkTranslation — translation preview. */
+export interface SdkBridgeInspection {
+  original: string;
+  translated_name: string;
+  translated_params: Record<string, unknown>;
+  has_mapping: boolean;
+  source: 'explicit_mapping' | 'passthrough';
+  sdk: string;
+}
+
+/** Result of fetchSdkBridgeCompatibility — server-side compatibility report. */
+export interface SdkBridgeCompatibilityReport {
+  total?: number;
+  mapped?: number;
+  unmapped?: number;
+  unmapped_events?: string[];
+  mapped_events?: string[];
+  warnings?: string[];
+  coverage_percent?: number;
+  by_category?: Record<string, { total: number; mapped: number; percent: number }>;
+  error?: string;
+}
+
+/**
+ * Translate an inbound event from a third-party SDK to ZeroBoiler format and track it.
+ *
+ * @param sdk - Source SDK identifier ('posthog', 'mixpanel', 'segment', 'amplitude')
+ * @param eventName - Event name in the source SDK format
+ * @param params - Event parameters in the source SDK format
+ * @param options - Additional track options (immediate, priority)
+ */
+export function trackFromSdk(
+  sdk: string,
+  eventName: string,
+  params?: Record<string, unknown>,
+  options?: Record<string, unknown>,
+): Promise<SdkBridgeTrackResult>;
+
+/**
+ * Translate a ZeroBoiler event to a target SDK format for dual-dispatch.
+ *
+ * @param sdk - Target SDK identifier
+ * @param eventName - ZeroBoiler event name
+ * @param params - ZeroBoiler event parameters
+ */
+export function translateToSdk(
+  sdk: string,
+  eventName: string,
+  params?: Record<string, unknown>,
+): SdkBridgeTranslation;
+
+/**
+ * Fetch SDK bridge compatibility report from server.
+ *
+ * @param sdk - Target SDK identifier
+ */
+export function fetchSdkBridgeCompatibility(sdk: string): Promise<SdkBridgeCompatibilityReport>;
+
+/**
+ * Get the list of SDKs supported by the bridge.
+ */
+export function getSupportedBridgeSdks(): string[];
+
+/**
+ * Inspect how a specific event would be translated for a target SDK.
+ *
+ * @param sdk - Target SDK identifier
+ * @param eventName - ZeroBoiler event name
+ * @param params - Event parameters
+ */
+export function inspectSdkTranslation(
+  sdk: string,
+  eventName: string,
+  params?: Record<string, unknown>,
+): SdkBridgeInspection;

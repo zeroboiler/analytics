@@ -1013,4 +1013,13 @@ Route::prefix('analytics')->group(function () {
     Route::post('debug-capture/replay/{captureId}', [AnalyticsEventController::class, 'debugCaptureReplay']);
     Route::post('debug-capture/batch-replay', [AnalyticsEventController::class, 'debugCaptureBatchReplay']);
     Route::delete('debug-capture', [AnalyticsEventController::class, 'debugCaptureClear']);
+
+    // SDK Bridge (v166.0.0)
+    Route::get('sdk-bridge/sdks', [AnalyticsEventController::class, 'sdkBridgeSdks']);
+    Route::get('sdk-bridge/compatibility/{sdk}', [AnalyticsEventController::class, 'sdkBridgeCompatibility']);
+    Route::get('sdk-bridge/coverage/{sdk}', [AnalyticsEventController::class, 'sdkBridgeCoverage']);
+    Route::post('sdk-bridge/translate-inbound', [AnalyticsEventController::class, 'sdkBridgeTranslateInbound']);
+    Route::post('sdk-bridge/translate-outbound', [AnalyticsEventController::class, 'sdkBridgeTranslateOutbound']);
+    Route::post('sdk-bridge/inspect', [AnalyticsEventController::class, 'sdkBridgeInspect']);
+    Route::get('sdk-bridge/mappings/{sdk}', [AnalyticsEventController::class, 'sdkBridgeMappings']);
 });
