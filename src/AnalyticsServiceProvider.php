@@ -220,6 +220,10 @@ use ZeroBoiler\Analytics\Services\EventCostEstimator;
 use ZeroBoiler\Analytics\Services\SaaSOnboardingFunnelTracker;
 use ZeroBoiler\Analytics\Services\SaaSReadinessAssessment;
 use ZeroBoiler\Analytics\Services\AnalyticsDataService;
+use ZeroBoiler\Analytics\Services\AnonymousEventAggregationService;
+use ZeroBoiler\Analytics\Services\FunnelLeakDetectionService;
+use ZeroBoiler\Analytics\Services\FirstPartyDataService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsFunnelLeakCommand;
 use ZeroBoiler\Analytics\Services\EventTaxonomyService;
 use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
 use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
@@ -2302,7 +2306,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ProviderFailoverService($app->make('cache'), $config);
         });
 
-        // Revenue Attribution Dashboard Service (v147.0.0)
+        // Revenue Attribution Dashboard Service (v148.0.0)
         $this->app->singleton(RevenueAttributionDashboardService::class, function (Application $app): RevenueAttributionDashboardService {
             return new RevenueAttributionDashboardService(
                 $app->make('zeroboiler.analytics'),
@@ -2803,6 +2807,36 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $cache = $app->make('cache');
 
             return new SaaSOnboardingFunnelTracker($config, $manager, $cache);
+        });
+
+        // Anonymous Event Aggregation (v148.0.0)
+        $this->app->singleton(AnonymousEventAggregationService::class, function (Application $app): AnonymousEventAggregationService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnonymousEventAggregationService($cache, $config);
+        });
+
+        // Funnel Leak Detection (v148.0.0)
+        $this->app->singleton(FunnelLeakDetectionService::class, function (Application $app): FunnelLeakDetectionService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelLeakDetectionService($cache, $config);
+        });
+
+        // First-Party Data Service (v148.0.0)
+        $this->app->singleton(FirstPartyDataService::class, function (Application $app): FirstPartyDataService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FirstPartyDataService($cache, $config);
         });
 
         // SaaS Funnel Definitions (v101.0.0) — stateless, no DI needed
@@ -3876,6 +3910,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDeployGateCommand::class,
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
+                AnalyticsFunnelLeakCommand::class,
                 AnalyticsCommandCenterCommand::class,
                 AnalyticsReadinessGateCommand::class,
                 AnalyticsPrivacyInventoryCommand::class,

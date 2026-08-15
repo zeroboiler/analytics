@@ -29,7 +29,7 @@ use PHPUnit\Framework\TestCase;
  * 11. Optional providers: Plausible, PostHog trackers
  * 12. Tests + README: non-empty test directory and README
  *
- * @since 147.0.0
+ * @since 148.0.0
  */
 final class Phase39SaaSIndustryStandardAuditTest extends TestCase
 {

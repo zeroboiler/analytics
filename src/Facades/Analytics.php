@@ -213,7 +213,7 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * @method static void featureLimitReached(string $feature, string|null $limitType = null, int|float|null $currentValue = null, int|float|null $limitValue = null, array<string, mixed> $params = [])
  * @method static void integrationFailed(string $integration, string|null $errorType = null, array<string, mixed> $params = [])
  *
- * Revenue Attribution Dashboard (v147.0.0)
+ * Revenue Attribution Dashboard (v148.0.0)
  * @method static array{generated_at: string, period_days: int, currency: string, total_revenue: float, total_customers: int, channels: array<string, array{revenue: float, customers: int, ltv: float, cac: float|null, payback_months: float|null, revenue_share: float, avg_revenue_per_customer: float}>, top_channel: string|null, revenue_concentration: float, recommendations: list<string>} revenueAttributionDashboard(?int $lookbackDays = null)
  * @method static array<string, float> ltvByChannel(int $days = 30)
  * @method static array<string, array{spend: float, revenue: float, customers: int, cac: float, cac_recovery_pct: float, payback_months: float|null}> cacRecoveryByChannel(int $days = 30)

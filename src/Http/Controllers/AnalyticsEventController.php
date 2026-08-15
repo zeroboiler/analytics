@@ -17383,7 +17383,7 @@ final class AnalyticsEventController extends Controller
      *
      * @return JsonResponse
      *
-     * @since 147.0.0
+     * @since 148.0.0
      */
     public function revenueAttributionDashboard(): JsonResponse
     {

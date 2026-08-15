@@ -7951,4 +7951,76 @@ return [
             'webhook' => ['ga4', 'posthog', 'meta_pixel'],
         ],
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Anonymous Event Aggregation (v148.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Privacy-safe aggregate event statistics without PII storage.
+    | Counts events by name in configurable time windows (hourly, daily, weekly, monthly).
+    | All user identifiers are stripped. Designed for GDPR/CCPA-compliant
+    | traffic dashboards, public analytics, and stakeholder reporting.
+    |
+    | The service accumulates events in memory and flushes to cache on
+    | request end (or manual flush()). Aggregates are queryable via
+    | the AnonymousEventAggregationService.
+    |
+    */
+    'anonymous_aggregation' => [
+        'enabled' => env('ANALYTICS_ANON_AGGREGATION_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_ANON_AGGREGATION_CACHE_TTL', 3600), // 1 hour
+        'default_window' => env('ANALYTICS_ANON_AGGREGATION_WINDOW', 'hourly'), // hourly, daily, weekly, monthly
+        'max_unique_events' => (int) env('ANALYTICS_ANON_AGGREGATION_MAX_EVENTS', 1000),
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Funnel Leak Detection (v148.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Automated conversion funnel analysis that detects significant
+    | drop-off points (leaks) between funnel steps. Provides actionable
+    | recommendations for improvement based on industry best practices.
+    |
+    | Built-in funnels: signup_funnel, purchase_funnel, trial_funnel,
+    | activation_funnel, retention_funnel. Add custom funnels via config.
+    |
+    | CLI: php artisan zb:analytics:funnel-leaks
+    |
+    */
+    'funnel_leak_detection' => [
+        'enabled' => env('ANALYTICS_FUNNEL_LEAK_DETECTION_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_FUNNEL_LEAK_CACHE_TTL', 86400), // 24 hours
+        'leak_threshold' => (float) env('ANALYTICS_FUNNEL_LEAK_THRESHOLD', 0.40), // 40% drop-off = leak
+        'critical_threshold' => (float) env('ANALYTICS_FUNNEL_LEAK_CRITICAL', 0.70), // 70% drop-off = critical
+        'custom_funnels' => [
+            // 'custom_funnel' => [
+            //     'steps' => ['step_1', 'step_2', 'step_3'],
+            //     'leak_threshold' => 0.30,
+            // ],
+        ],
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | First-Party Data (v148.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Privacy-first user data capture for the cookieless tracking era.
+    | Collects first-party signals (preferences, interests) directly
+    | from user interactions. Supports behavioral cohort assignment,
+    | GDPR-compliant data export, and readiness scoring.
+    |
+    | All data stored in cache. For production, implement a persistent
+    | FirstPartyDataStoreInterface backed by database/storage.
+    |
+    */
+    'first_party_data' => [
+        'enabled' => env('ANALYTICS_FIRST_PARTY_DATA_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_FIRST_PARTY_DATA_CACHE_TTL', 7776000), // 90 days
+        'max_preferences_per_user' => (int) env('ANALYTICS_FPD_MAX_PREFS', 50),
+        'max_interests_per_user' => (int) env('ANALYTICS_FPD_MAX_INTERESTS', 20),
+        'auto_cohort' => env('ANALYTICS_FPD_AUTO_COHORT', true),
+    ],
 ];

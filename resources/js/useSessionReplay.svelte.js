@@ -9,7 +9,7 @@
  * and custom session recording provider integration via analytics API.
  *
  * @package ZeroBoiler Analytics
- * @version 147.0.0
+ * @version 148.0.0
  */
 
 import { writable, derived } from 'svelte/store';

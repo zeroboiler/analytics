@@ -1,5 +1,17 @@
 # Changelog
 
+## [148.0.0] - 2026-08-15
+
+### Added
+- **AnonymousEventAggregationService** — Privacy-safe aggregate event statistics without PII storage. Counts events by name in configurable time windows (hourly, daily, weekly, monthly). All user identifiers stripped before aggregation. Designed for GDPR/CCPA-compliant traffic dashboards, public analytics, and stakeholder reporting. Provides `record()`, `flush()`, `getAggregates()`, `topEvents()`, `byCategory()`, `summary()`, and `clear()` methods. Registered as singleton in ServiceProvider.
+- **FunnelLeakDetectionService** — Automated conversion funnel analysis that detects significant drop-off points (leaks) between funnel steps. 5 built-in funnel definitions: signup_funnel, purchase_funnel, trial_funnel, activation_funnel, retention_funnel. Configurable leak (40%) and critical (70%) thresholds. Generates prioritized, actionable recommendations with industry best practice suggestions. Supports custom funnel registration at runtime. Methods: `recordProgress()`, `analyze()`, `analyzeAll()`, `getFunnels()`, `registerFunnel()`, `clear()`.
+- **FirstPartyDataService** — Privacy-first user data capture for the cookieless tracking era. Captures user preferences (newsletter, theme, language, notifications, privacy_level, timezone, currency) and interest signals (feature, content, integration, pricing_tier, use_case, industry). Supports behavioral cohort assignment (power_user, explorer, pragmatist, newcomer, enterprise_signal, unknown), GDPR-compliant data export (`exportUserData()`), right-to-erasure (`deleteUser()`), and first-party data readiness scoring.
+- **AnalyticsFunnelLeakCommand** — Artisan command `zb:analytics:funnel-leaks` for analyzing funnel leaks and conversion drop-offs. Supports `--funnel=<name>`, `--all`, `--json`, `--recommendations`, `--list` options. Color-coded severity indicators (🔴 critical, ⚠️ warning, ✅ ok).
+- **Config expansion** — New `anonymous_aggregation`, `funnel_leak_detection`, and `first_party_data` configuration sections in `zeroboiler.php`. All settings configurable via environment variables. All three services are opt-in (disabled by default).
+
+### Changed
+- **Version sweep** — All 26 version entry points synced from 147.0.0 → 148.0.0 across PHP, JS, Svelte, TypeScript, JSON, and Markdown files.
+
 ## [147.0.0] - 2026-08-15
 
 ### Added
