@@ -2,10 +2,10 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-170.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-171.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **362 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **364 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -57,15 +57,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v170.0.0
+### What's New in v171.0.0
 
-**Event Budget Enforcement + Cross-Device Identity Merge — Industry-Standard SaaS Analytics Upgrade**:
+**Server-Side Tag Manager + Automated Compliance Scoring — Industry-Standard SaaS Analytics Upgrade**:
 
-- **EventBudgetEnforcementService** — Per-provider and per-event dispatch budget enforcement. Monitors real-time event volume against configurable monthly (per-provider) and hourly (per-event) budgets with three enforcement actions: `alert` (fire notification, non-blocking), `throttle` (sample events at configurable rate, default 10%), `block` (silently drop until budget resets). Budget thresholds: 75% = warning, 90% = critical (throttle activates), 100% = exceeded (block activates). Cache-backed counters with automatic monthly/hourly window resets. Full budget summary API with status classification (ok/warning/critical/exceeded). Counter reset for manual intervention. Default provider limits conservatively estimated for each provider's free tier (GA4: 1M, PostHog: 1M, Plausible: 500K, etc.). Configurable via `zeroboiler.analytics.budget_enforcement`.
-- **CrossDeviceIdentityMergeService** — Multi-identity graph resolution and merge for cross-device user journey reconstruction. Links client_id (server tracking cookie), user_id (authenticated), and anonymous_id (browser fingerprint) into a unified identity graph. Features: bidirectional lookup (client→user, user→clients, anonymous→users), confidence scoring (0-1 based on association frequency, recency, anonymous_id sharing, and context consistency), auto-merge at configurable threshold (default 0.6), max clients per user enforcement with oldest-client eviction, identity graph export with average confidence, full GDPR erasure support via `forgetIdentity()` and `forgetClient()`. Cache-backed with configurable 90-day TTL. Inspired by Segment Identity Resolution, RudderStack Device Mode Merge, and PostHog Person/Device ID stitching.
-- **Config expansion** — New `budget_enforcement` and `cross_device_merge` config sections with env-driven settings.
-- **Comprehensive test suite** — 30+ test cases covering EventBudgetEnforcementService (final class, disabled passthrough, allow/block/throttle states, per-event limits, budget summary, status classification, counter reset, config accessors) and CrossDeviceIdentityMergeService (final class, disabled guards, empty ID guards, bidirectional mapping, identity graph export, confidence scoring, GDPR erasure, max clients enforcement, auto-merge threshold).
-- **Version sweep** — All 14 entry points synced from 169.0.0 → 170.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge. Service count updated: 360 → 362.
+- **AnalyticsProviderTagManager** — Server-side tag management for runtime provider configuration without config changes or redeployment. Features: enable/disable individual providers at runtime with audit reasons, reorder provider dispatch priority (0-100), override provider-specific settings (API keys, endpoints) for A/B testing or key rotation, scheduled provider activation/deactivation with optional auto-re-enable timestamps, health monitoring with automatic failover (configurable consecutive failure threshold triggers auto-disable with cooldown), provider health dashboard (healthy/degraded/down status), bulk operations (disable all for maintenance, restore all to defaults), full audit trail of all overrides. Cache-backed persistence. Inspired by Google Tag Manager server-side container and Segment Tag Manager.
+- **EventComplianceScoringService** — Automated GDPR, CCPA, and SOC2 compliance scoring for all analytics events. Scores each event across 7 dimensions: data minimization (20%), purpose limitation (15%), consent readiness (20%), PII risk (15%), retention compliance (10%), data subject rights (10%), and audit trail readiness (10%). Produces per-event compliance scores with letter grades (A+ through F), violation identification (CRITICAL/HIGH/MEDIUM/LOW), and actionable improvement recommendations. System-wide compliance report aggregates across all catalog events into GDPR, CCPA, and SOC2 framework-specific scores. Configurable PII field definitions and per-event overrides (pii_fields, retention_days, legal_basis, sensitive flag). Cache-backed system reports for dashboard display.
+- **AnalyticsWarmupCommand** — Post-deploy validation and cache warmup command (`php artisan analytics:warmup`). Validates config structure and provider credentials, pre-populates event catalog caches, checks provider readiness, runs compliance scoring cache warmup, performs provider health checks via TagManager, reports system readiness with error/warning summary. Supports `--skip-health`, `--skip-compliance`, and `--verbose` flags. Designed for deployment pipelines.
+- **Config expansion** — New `tag_manager` and `compliance_scoring` config sections with env-driven settings.
+- **Version sweep** — All 14 entry points synced from 170.0.0 → 171.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge. Service count updated: 362 → 364. Command count updated: 84 → 85.
 
 ### What's New in v169.0.0
 
@@ -93,7 +93,7 @@ Done. That's it.
 
 **SaaS Analytics Starter Kit — Industry-Standard Badge Level + README Accuracy Audit**:
 
-- **README accuracy audit** — Verified and updated all headline metrics: 355 services (was "350+"), 84 commands (was 83), JS client ~11,700 LOC (was "~8,200"), TypeScript definitions ~3,100 LOC (was "~3,000"). Source: 805 PHP files (270K+ LOC), 405 test files (168K+ LOC).
+- **README accuracy audit** — Verified and updated all headline metrics: 355 services (was "350+"), 84 commands (was 83), JS client ~11,700 LOC (was "~8,200"), TypeScript definitions ~3,100 LOC (was "~3,000"). Source: 817 PHP files (270K+ LOC), 405 test files (168K+ LOC).
 - **SaaS Analytics Starter Kit completion badge** — All 12 planned SaaS analytics features now verified as industry-standard: Event Catalog (8 categories, 194 events), Server-Side Lifecycle Tracker, Inertia middleware (page props + client ID cookie), API controller + routes (events/batch/identify/consent), JS client library (trackEvent, trackPageView, initInertiaPageViewTracker, scroll depth, client ID management), event queue (async dispatch), user identity linking (client ID ↔ user ID), e-commerce helpers (GA4 + Meta format conversion across all 8 providers), admin commands (overview + test + 82 more), config expansion (queue, API, identity, auto-track, ecommerce, lifecycle), optional providers (Plausible + PostHog trackers), comprehensive test suite (405 tests).
 - **V1670 SaaS Starter Kit Completion Test** — 80+ assertions validating all 12 SaaS analytics features at industry-standard level, README metric accuracy, version sweep consistency, and quality gates.
 - **Version sweep** — All 14 entry points synced to v167.0.0.
@@ -1774,7 +1774,7 @@ Run the structural verification suite:
 composer test -- --filter=ProductionReadinessTest
 ```
 
-This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 814 source files.
+This validates strict types, `final` modifiers, interface implementations, readonly DTOs, composer metadata, and absence of TODO/FIXME markers across all 817 source files.
 
 ## Troubleshooting
 

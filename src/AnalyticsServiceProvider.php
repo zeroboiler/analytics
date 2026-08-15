@@ -433,6 +433,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSdkTokenCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSLOCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsWarmupCommand;
+use ZeroBoiler\Analytics\Services\AnalyticsProviderTagManager;
+use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -440,7 +443,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 170.0.0
+ * @version 171.0.0
  *
  * @since 1.0.0
  */
@@ -486,6 +489,28 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new MetaPixelService($manager->meta());
+        });
+
+        // Server-Side Tag Manager (v171.0.0) — runtime provider management
+        $this->app->singleton(AnalyticsProviderTagManager::class, function (Application $app): AnalyticsProviderTagManager {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsProviderTagManager($cache, $config, $manager);
+        });
+
+        // Event Compliance Scoring (v171.0.0) — GDPR/CCPA/SOC2 scoring
+        $this->app->singleton(EventComplianceScoringService::class, function (Application $app): EventComplianceScoringService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventComplianceScoringService($cache, $config);
         });
 
         $this->app->singleton(ServerSideTracker::class, function (Application $app): ServerSideTracker {
@@ -4037,6 +4062,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSLOCommand::class,
                 AnalyticsWebhookRelayCommand::class,
                 AnalyticsGovernanceValidateCommand::class,
+                AnalyticsWarmupCommand::class,
             ]);
         }
 

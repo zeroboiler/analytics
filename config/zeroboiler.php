@@ -8303,4 +8303,65 @@ return [
         'max_graph_size' => (int) env('ANALYTICS_CROSS_DEVICE_MAX_GRAPH', 1000),
         'merge_confidence_threshold' => (float) env('ANALYTICS_CROSS_DEVICE_MERGE_THRESHOLD', 0.6),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Server-Side Tag Manager (v171.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Runtime management of analytics provider configurations without
+    | modifying config files or redeploying. Supports:
+    | - Enable/disable providers at runtime (cache-backed overrides)
+    | - Reorder provider dispatch priority
+    | - Override provider settings (API keys, endpoints) per environment
+    | - Scheduled provider activation/deactivation (maintenance windows)
+    | - Health monitoring with automatic failover
+    |
+    | Config values serve as defaults; runtime overrides take precedence.
+    |
+    */
+    'tag_manager' => [
+        'enabled' => env('ANALYTICS_TAG_MANAGER_ENABLED', false),
+        'cache_ttl' => (int) env('ANALYTICS_TAG_MANAGER_CACHE_TTL', 3600),
+        'max_consecutive_failures' => (int) env('ANALYTICS_TAG_MANAGER_MAX_FAILURES', 5),
+        'failover_cooldown' => (int) env('ANALYTICS_TAG_MANAGER_FAILOVER_COOLDOWN', 3600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Compliance Scoring (v171.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Automated GDPR, CCPA, and SOC2 compliance scoring for analytics events.
+    | Scores each event across 7 dimensions: data minimization, purpose
+    | limitation, consent readiness, PII risk, retention compliance,
+    | data subject rights, and audit trail readiness.
+    |
+    | Use event_overrides to declare PII fields and retention policies
+    | for specific events. Higher specificity improves compliance scores.
+    |
+    */
+    'compliance_scoring' => [
+        'enabled' => env('ANALYTICS_COMPLIANCE_SCORING_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_COMPLIANCE_SCORING_CACHE_TTL', 7200),
+        'pii_fields' => [
+            'email', 'name', 'first_name', 'last_name', 'phone',
+            'address', 'ip_address', 'user_agent', 'ssn',
+            'credit_card', 'date_of_birth', 'gender',
+        ],
+        'event_overrides' => [
+            // Example: Declare PII fields and retention for specific events
+            // 'sign_up' => [
+            //     'pii_fields' => ['email', 'name'],
+            //     'retention_days' => 365,
+            //     'legal_basis' => 'consent',
+            //     'sensitive' => true,
+            // ],
+            // 'purchase' => [
+            //     'pii_fields' => ['email', 'address'],
+            //     'retention_days' => 1095,
+            //     'legal_basis' => 'contractual',
+            // ],
+        ],
+    ],
 ];
