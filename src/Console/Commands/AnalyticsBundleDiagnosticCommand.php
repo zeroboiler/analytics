@@ -315,7 +315,7 @@ final class AnalyticsBundleDiagnosticCommand extends Command
             $details[] = 'No providers enabled';
         }
 
-        $details[] = "{$enabledCount}/{$providers[count]} enabled, {$configuredCount} fully configured";
+        $details[] = "{$enabledCount}/" . count($providers) . " enabled, {$configuredCount} fully configured";
 
         return [$passed, $warnings, $critical, $details];
     }
