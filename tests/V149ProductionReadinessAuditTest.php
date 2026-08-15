@@ -25,12 +25,12 @@ use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Support\EventBuilder;
 
 /**
- * Phase 40 Production Readiness Audit — SaaS Industry-Standard Analytics v149.0.0
+ * Phase 40 Production Readiness Audit — SaaS Industry-Standard Analytics v150.0.0
  *
  * Comprehensive audit covering all 12 planned SaaS analytics features plus
  * v149 additions (SaaSLifecycleFlowTracker, EventParameterSchemaValidator).
  *
- * @since 149.0.0
+ * @since 150.0.0
  */
 final class V149ProductionReadinessAuditTest extends TestCase
 {
@@ -200,7 +200,7 @@ final class V149ProductionReadinessAuditTest extends TestCase
 
     public function test_analytics_event_version(): void
     {
-        $this->assertSame('149.0.0', AnalyticsEvent::VERSION);
+        $this->assertSame('150.0.0', AnalyticsEvent::VERSION);
     }
 
     public function test_analytics_event_with_category(): void

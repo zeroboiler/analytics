@@ -8,7 +8,7 @@
  * Integrates with the core analytics.js client library for event dispatch.
  *
  * @package ZeroBoiler Analytics
- * @version 149.0.0
+ * @version 150.0.0
  */
 
 import { writable, derived, get } from 'svelte/store';

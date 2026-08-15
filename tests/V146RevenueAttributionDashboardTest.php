@@ -195,8 +195,8 @@ describe('RevenueAttributionDashboardService', function (): void {
 });
 
 describe('V146RevenueAttributionVersionIntegrity', function (): void {
-    it('version is declared as 149.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('149.0.0');
+    it('version is declared as 150.0.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('150.0.0');
     });
 
     it('checks version consistency across core files', function (): void {

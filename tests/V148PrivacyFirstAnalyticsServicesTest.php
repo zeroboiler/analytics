@@ -458,7 +458,7 @@ final class V148PrivacyFirstAnalyticsServicesTest extends TestCase
     #[Test]
     public function version_is_consistent_across_entry_points(): void
     {
-        $expected = '149.0.0';
+        $expected = '150.0.0';
 
         $files = [
             'composer.json',
@@ -498,7 +498,7 @@ final class V148PrivacyFirstAnalyticsServicesTest extends TestCase
     public function readme_badge_updated(): void
     {
         $content = file_get_contents(self::PKG_ROOT . '/README.md');
-        $this->assertStringContainsString('version-149.0.0', $content);
+        $this->assertStringContainsString('version-150.0.0', $content);
     }
 
     // ── 8. Code Quality ────────────────────────────────────────────────
@@ -587,7 +587,7 @@ final class V148PrivacyFirstAnalyticsServicesTest extends TestCase
             if (file_exists($path)) {
                 $content = file_get_contents($path);
                 $this->assertStringContainsString(
-                    '149.0.0',
+                    '150.0.0',
                     $content,
                     "Version not swept in {$file}",
                 );

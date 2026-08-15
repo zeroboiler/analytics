@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  * - Enum values: Values must match allowed enum sets when defined
  * - Provider compatibility: Parameters are checked against provider-specific requirements
  *
- * @since 149.0.0
+ * @since 150.0.0
  */
 final class EventParameterSchemaValidator
 {
