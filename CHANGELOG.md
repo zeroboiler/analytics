@@ -1,5 +1,18 @@
 # Changelog
 
+## [168.0.0] - 2026-08-15
+
+### Added
+- **AnalyticsEventObserver** — Auto-track Eloquent model CRUD operations as analytics events. Register via `AnalyticsEventObserver::observe()` in model boot methods or via config `auto_track.models`. Supports custom event names, categories, param key extraction, conditional tracking, and namespace-based category guessing (Billing→saas, Product→ecommerce, etc.). Clear mappings for test isolation via `AnalyticsEventObserver::clearMappings()`.
+- **SaaSRetentionCohortService** — Time-based cohort retention analytics. Computes retention tables (daily/weekly/monthly), dashboard summary with letter grades (A–F), trend classification (healthy/moderate/concerning), cohort comparison, and per-user retention tracking. Cache-backed for performance.
+- **EventWarehouseExportService** — Data warehouse export supporting JSONL (BigQuery/Snowflake), CSV, BigQuery schema JSON, Snowflake CREATE TABLE DDL, ClickHouse CREATE TABLE DDL. 20-column analytics events schema with auto-normalized UTM/device/page context.
+- **AnalyticsRequestTrackerMiddleware** — HTTP request lifecycle middleware tracking API calls as analytics events (api_request, api_error, api_slow_request). Configurable via `request_tracking` config section.
+- **Request tracking config** — New `request_tracking` section in config/zeroboiler.php with env-driven settings.
+- **V1680 Industry Standard SaaS Upgrade Test** — 40+ test cases covering observer, retention, warehouse export, and version sweep.
+
+### Changed
+- **Version sweep** — All 14 entry points synced from 167.0.0 → 168.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+
 ## [167.0.0] - 2026-08-15
 
 ### Added

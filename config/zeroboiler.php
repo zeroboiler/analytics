@@ -8208,4 +8208,31 @@ return [
             'ttl' => (int) env('ANALYTICS_GOVERNANCE_SNAPSHOT_TTL', 86400), // 24 hours
         ],
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Request Tracking Middleware (v168.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Automatic HTTP request lifecycle tracking as analytics events.
+    | Tracks API endpoint calls, response times, and error rates.
+    | Events: api_request, api_error, api_slow_request.
+    |
+    | Enable by registering the AnalyticsRequestTrackerMiddleware on your routes.
+    | Disabled by default to prevent noise — enable selectively.
+    |
+    */
+    'request_tracking' => [
+        'enabled' => env('ANALYTICS_REQUEST_TRACKING_ENABLED', false),
+        'track_success' => env('ANALYTICS_REQUEST_TRACK_SUCCESS', true),     // Track 2xx responses
+        'track_client_errors' => env('ANALYTICS_REQUEST_TRACK_CLIENT_ERRORS', true),  // Track 4xx
+        'track_server_errors' => env('ANALYTICS_REQUEST_TRACK_SERVER_ERRORS', true),  // Track 5xx
+        'slow_threshold_ms' => (int) env('ANALYTICS_REQUEST_SLOW_THRESHOLD_MS', 1000),
+        'exclude_paths' => [
+            // 'api/analytics/health',
+            // '_ignition/health-check',
+        ],
+        'exclude_methods' => ['OPTIONS', 'HEAD'],
+        'max_param_length' => (int) env('ANALYTICS_REQUEST_MAX_PARAM_LENGTH', 100),
+    ],
 ];

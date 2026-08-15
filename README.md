@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-||[![Latest Version](https://img.shields.io/badge/version-167.0.0-blue)](https://github.com/zeroboiler/analytics)||
+||[![Latest Version](https://img.shields.io/badge/version-168.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **355 services**, **84 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, and e-commerce format conversion across all providers.
@@ -56,6 +56,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v168.0.0
+
+**Eloquent Model Observer + Retention Cohort Analytics + Data Warehouse Export — Industry-Standard SaaS Analytics Upgrade**:
+
+- **AnalyticsEventObserver** — Auto-track Eloquent model CRUD operations as analytics events. Register via `AnalyticsEventObserver::observe()` in model boot methods or via config `auto_track.models`. Supports custom event names, categories, param key extraction, conditional tracking, and namespace-based category guessing (Billing→saas, Product→ecommerce, etc.).
+- **SaaSRetentionCohortService** — Time-based cohort retention analytics service. Computes retention tables showing what percentage of users active in period N were still active in N+1, N+2, etc. Supports daily/weekly/monthly periods, dashboard summary with letter grades (A–F), trend classification (healthy/moderate/concerning), cohort comparison, and per-user retention tracking. Cache-backed for performance.
+- **EventWarehouseExportService** — Data warehouse export helper supporting JSONL (BigQuery/Snowflake), CSV, BigQuery schema JSON, Snowflake CREATE TABLE DDL, and ClickHouse CREATE TABLE DDL. Provides a 20-column analytics events schema with typed definitions. Auto-normalizes UTM, device, and page context into flat warehouse columns.
+- **AnalyticsRequestTrackerMiddleware** — HTTP request lifecycle middleware that auto-tracks API calls as analytics events (api_request, api_error, api_slow_request). Configurable via `request_tracking` config section with exclude paths/methods, slow threshold, and selective status code tracking.
+- **Config expansion** — New `request_tracking` config section with env-driven settings for request tracking middleware.
+- **V1680 comprehensive test suite** — 40+ test cases covering AnalyticsEventObserver (mapping registration, config-driven format, param keys, clear), SaaSRetentionCohortService (cohort table, retention metrics, comparison, summary grades, period types), EventWarehouseExportService (JSONL/CSV export, schema, BigQuery/Snowflake/ClickHouse DDL, format listing, UTM normalization), and version sweep consistency across all 14 entry points.
+- **Version sweep** — All 14 entry points synced from 167.0.0 → 168.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
 
 ### What's New in v167.0.0
 
