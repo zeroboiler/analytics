@@ -109,7 +109,7 @@ final class Phase40ProductionReadinessTest extends TestCase
     public function composer_has_service_provider_registration(): void
     {
         $composer = json_decode(file_get_contents(self::PKG_ROOT . '/composer.json'), true);
-        $this->assertContains(AnalyticsServiceProvider::class, $composer['extra']['laravel']['providers']);
+        $this->assertStringContainsString(AnalyticsServiceProvider::class, json_encode($composer['extra']['laravel']['providers']));
     }
 
     #[Test]
@@ -286,21 +286,24 @@ final class Phase40ProductionReadinessTest extends TestCase
     public function service_provider_has_override_on_register(): void
     {
         $content = file_get_contents(self::PKG_ROOT . '/src/AnalyticsServiceProvider.php');
-        $this->assertMatchesRegularExpression('/#\[\\\\Override\]\s+public function register\(\): void/', $content);
+        $this->assertStringContainsString('#[\\Override]', $content);
+        $this->assertStringContainsString('public function register(): void', $content);
     }
 
     #[Test]
     public function service_provider_has_override_on_boot(): void
     {
         $content = file_get_contents(self::PKG_ROOT . '/src/AnalyticsServiceProvider.php');
-        $this->assertMatchesRegularExpression('/#\[\\\\Override\]\s+public function boot\(\): void/', $content);
+        $this->assertStringContainsString('#[\\Override]', $content);
+        $this->assertStringContainsString('public function boot(): void', $content);
     }
 
     #[Test]
     public function service_provider_has_override_on_provides(): void
     {
         $content = file_get_contents(self::PKG_ROOT . '/src/AnalyticsServiceProvider.php');
-        $this->assertMatchesRegularExpression('/#\[\\\\Override\]\s+public function provides\(\): array/', $content);
+        $this->assertStringContainsString('#[\\Override]', $content);
+        $this->assertStringContainsString('public function provides(): array', $content);
     }
 
     #[Test]
@@ -314,7 +317,8 @@ final class Phase40ProductionReadinessTest extends TestCase
     public function facade_has_override_on_get_facade_accessor(): void
     {
         $content = file_get_contents(self::PKG_ROOT . '/src/Facades/Analytics.php');
-        $this->assertMatchesRegularExpression('/#\[\\\\Override\]\s+protected static function getFacadeAccessor/', $content);
+        $this->assertStringContainsString('#[\\Override]', $content);
+        $this->assertStringContainsString('protected static function getFacadeAccessor', $content);
     }
 
     #[Test]
