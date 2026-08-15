@@ -32,7 +32,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * Custom flows can be registered via config or programmatically.
  *
- * @since 151.0.0
+ * @since 152.0.0
  */
 final class SaaSLifecycleFlowTracker
 {

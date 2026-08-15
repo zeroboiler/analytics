@@ -1252,7 +1252,7 @@ final class SaaSEvents
         ));
     }
 
-    // ── Typed Shorthand Factory Methods (v151.0.0) ──────────────────
+    // ── Typed Shorthand Factory Methods (v152.0.0) ──────────────────
 
     /**
      * Build a typed sign_up event.

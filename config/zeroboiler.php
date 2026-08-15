@@ -133,11 +133,49 @@ return [
         'lifecycle' => [
             'enabled' => env('ANALYTICS_LIFECYCLE_ENABLED', true),
             'queue_events' => env('ANALYTICS_LIFECYCLE_QUEUE_EVENTS', false),
+            'enrich_attribution' => env('ANALYTICS_LIFECYCLE_ENRICH_ATTRIBUTION', true),
             'custom_mappings' => [
                 // Example: Map your custom application events to analytics events
                 // 'team.invited' => \App\Analytics\Events\TeamInvitedEvent::class,
                 // 'workspace.created' => \App\Analytics\Events\WorkspaceCreatedEvent::class,
                 // 'billing.upgraded' => \ZeroBoiler\Analytics\Events\SaaS\PlanUpgradeEvent::class,
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
+        | Lifecycle Attribution Enrichment (v152.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Automatic attribution context enrichment for SaaS lifecycle events.
+        | When enabled, all lifecycle events (sign_up, login, trial_start,
+        | subscription, plan_upgrade, cancellation, etc.) automatically receive:
+        |
+        | - UTM parameters (utm_source, utm_medium, utm_campaign, etc.)
+        | - Referrer URL and host
+        | - Session ID and IP address
+        | - Device context (platform, browser, locale)
+        | - Server timestamp
+        | - Page URL and path
+        | - Traffic source classification (direct, organic_search, paid_social, etc.)
+        |
+        | Each enrichment type can be individually toggled. The enrichment
+        | is non-destructive: existing params take precedence over enriched values.
+        |
+        | Inspired by Segment's automatic Context, RudderStack's auto-traits,
+        | and PostHog's automatic properties.
+        |
+        */
+        'lifecycle_attribution' => [
+            'enabled' => env('ANALYTICS_LIFECYCLE_ATTRIBUTION_ENABLED', true),
+            'enrichments' => [
+                'utm' => env('ANALYTICS_ATTRIBUTION_UTM', true),
+                'referrer' => env('ANALYTICS_ATTRIBUTION_REFERRER', true),
+                'session' => env('ANALYTICS_ATTRIBUTION_SESSION', true),
+                'device' => env('ANALYTICS_ATTRIBUTION_DEVICE', true),
+                'timestamp' => env('ANALYTICS_ATTRIBUTION_TIMESTAMP', true),
+                'page' => env('ANALYTICS_ATTRIBUTION_PAGE', false),
+                'attribution_summary' => env('ANALYTICS_ATTRIBUTION_SUMMARY', true),
             ],
         ],
 

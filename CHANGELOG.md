@@ -1,5 +1,18 @@
 # Changelog
 
+## [152.0.0] - 2026-08-15
+
+### Added
+- **LifecycleAttributionEnricher** — Automatic attribution context enrichment for SaaS lifecycle events. Enriches all lifecycle events (sign_up, login, trial_start, subscription, plan_upgrade, cancellation, etc.) with UTM parameters (utm_source, utm_medium, utm_campaign, utm_term, utm_content), referrer URL and host, session ID and IP address, device context (platform, browser, locale), server timestamp, page URL and path, and computed traffic source classification (direct, organic_search, organic_social, paid_search, paid_social, paid_display, email, affiliate, referral, unknown). Inspired by Segment's automatic Context, RudderStack's auto-traits, and PostHog's automatic properties. Fully configurable per enrichment type via `zeroboiler.analytics.lifecycle_attribution.enrichments`.
+- **LifecycleEventSubscriber attribution integration** — `LifecycleEventSubscriber::track()` now automatically enriches event params with full attribution context before dispatching. Controlled by `zeroboiler.analytics.lifecycle.enrich_attribution` config (enabled by default). Non-destructive enrichment: existing params take precedence.
+- **Lifecycle attribution config section** — New `lifecycle_attribution` configuration block in `zeroboiler.php` with individual toggle controls for each enrichment type (utm, referrer, session, device, timestamp, page, attribution_summary). All settings configurable via environment variables (`ANALYTICS_LIFECYCLE_ATTRIBUTION_ENABLED`, `ANALYTICS_ATTRIBUTION_UTM`, etc.).
+- **Traffic source classification engine** — Rule-based attribution classifier supporting 10 categories: direct, organic_search, organic_social, paid_search, paid_social, paid_display, email, affiliate, referral, unknown. Classifies based on UTM parameters and referrer with priority-based rules. Recognizes 15+ search engines, 16+ social platforms, and 9+ email clients.
+- **V152LifecycleAttributionEnricherTest** — 20 test cases covering all enrichment types, classification categories, disabled state, diagnostic summary, class structure validation, and priority edge cases.
+
+### Changed
+- **LifecycleEventSubscriber** — Added `attributionEnricher` property, `attributionEnabled` flag, and attribution diagnostics to `diagnosticSummary()`. Constructor now reads `enrich_attribution` from lifecycle config.
+- **LifecycleEventSubscriber docblock** — Added `@since 152.0.0` tag for attribution enricher integration.
+
 ## [151.0.0] - 2026-08-15
 
 ### Added

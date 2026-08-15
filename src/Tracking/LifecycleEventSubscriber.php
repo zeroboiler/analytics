@@ -35,6 +35,7 @@ use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
  *
  * @since 79.0.0
+ * @since 152.0.0 Added LifecycleAttributionEnricher integration
  */
 final class LifecycleEventSubscriber
 {
@@ -44,7 +45,12 @@ final class LifecycleEventSubscriber
 
     private QueuedAnalyticsDispatcher $queue;
 
+    private LifecycleAttributionEnricher $attributionEnricher;
+
     private bool $queueLifecycleEvents;
+
+    /** @var bool Whether to enrich lifecycle events with attribution context */
+    private bool $attributionEnabled;
 
     /** @var array<string, bool> Track which mappings were actually registered */
     private array $registeredMappings = [];
@@ -71,8 +77,11 @@ final class LifecycleEventSubscriber
         $this->queue = $queue;
 
         $lifecycleConfig = $config->get('zeroboiler.analytics.lifecycle', []);
-        /** @var array{queue_events?: bool} $lifecycleConfig */
+        /** @var array{queue_events?: bool, enrich_attribution?: bool} $lifecycleConfig */
         $this->queueLifecycleEvents = (bool) ($lifecycleConfig['queue_events'] ?? false);
+        $this->attributionEnabled = (bool) ($lifecycleConfig['enrich_attribution'] ?? true);
+
+        $this->attributionEnricher = new LifecycleAttributionEnricher($config);
     }
 
     /**
@@ -123,6 +132,11 @@ final class LifecycleEventSubscriber
         $extractor = $mapping['params_extractor'] ?? null;
 
         try {
+            // Enrich params with attribution context (UTM, referrer, session, device)
+            if ($this->attributionEnabled) {
+                $params = $this->attributionEnricher->enrichWithSummary($params);
+            }
+
             $event = $this->mapper->buildEventFromMapping($target, $params, $extractor);
 
             if ($this->queueLifecycleEvents && $this->queue->isEnabled()) {
@@ -186,6 +200,8 @@ final class LifecycleEventSubscriber
             'errors' => $this->registrationErrors,
             'queue_enabled' => $this->queue->isEnabled(),
             'queue_lifecycle' => $this->queueLifecycleEvents,
+            'attribution_enabled' => $this->attributionEnabled,
+            'attribution_config' => $this->attributionEnricher->diagnosticSummary(),
         ];
     }
 
