@@ -12,6 +12,19 @@
 ### Changed
 - **Version sweep** — composer.json version synced from 208.0.0 → 209.0.0. Tests: 456 → 457.
 
+## [209.0.0] - 2026-08-16
+
+### Added
+- **EventReprocessorService** — Re-process archived analytics events with schema evolution and validation. Reads events from the EventArchiveService, applies config-driven schema migrations (field rename, defaults, removal), validates against the EventCatalog, and re-dispatches through the pipeline. Supports dry-run mode, filtering by event name/category/client ID/user ID, and per-event outcome tracking (dispatched, failed, skipped, validation_error, migration_error). Cache-backed audit trail with configurable TTL.
+- **AnalyticsReprocessorCommand** — `php artisan analytics:reprocessor` CLI with 5 actions: reprocess (with --event, --category, --client, --user, --dry-run, --no-migrate, --no-validate), audit (schema validation without dispatch), status (config summary + last result), metrics (run history), clear (purge audit history). Supports --json output for CI/CD integration.
+- **5 new API endpoints** — POST /api/analytics/reprocessor/run, POST /api/analytics/reprocessor/audit, GET /api/analytics/reprocessor/status, GET /api/analytics/reprocessor/metrics, DELETE /api/analytics/reprocessor/history.
+- **Config expansion** — `zeroboiler.analytics.reprocessor` section with 8 env-backed settings (enabled, dry_run, batch_size, max_events, apply_migrations, validate_before_dispatch, audit_results, audit_ttl).
+- **ServiceProvider registration** — EventReprocessorService registered as singleton. AnalyticsReprocessorCommand registered in artisan commands.
+- **Comprehensive Pest test suite** — V209EventReprocessorServiceTest (20 assertions across 18 it blocks) covering: enabled state, dry run state, config summary keys, reprocess with dry run, skip empty name events, schema migration application, filter by event name, filter by category, filter by client ID, zero results for empty archive, disabled result, audit with valid events, missing schema detection, zero-run metrics, clear metrics, audit recording, null last result, dispatch rate calculation, filter by user ID.
+
+### Changed
+- **Version sweep** — composer.json, AnalyticsEvent::VERSION synced from 208.0.0 → 209.0.0. Source files: 897 → 899. Tests: 456 → 458. Commands: 94 → 95.
+
 ## [208.0.0] - 2026-08-16
 
 ### Added

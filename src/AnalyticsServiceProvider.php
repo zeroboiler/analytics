@@ -26,6 +26,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOrchestratorCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGatewayCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsReprocessorCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
@@ -166,6 +167,7 @@ use ZeroBoiler\Analytics\Services\EventDispatchOrchestrator;
 use ZeroBoiler\Analytics\Services\EventReplayAuditLedger;
 use ZeroBoiler\Analytics\Services\AnalyticsEventGateway;
 use ZeroBoiler\Analytics\Services\EventContractTestingService;
+use ZeroBoiler\Analytics\Services\EventReprocessorService;
 use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
@@ -2658,6 +2660,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Reprocessor Service (v209.0.0)
+        $this->app->singleton(EventReprocessorService::class, function (Application $app): EventReprocessorService {
+            return new EventReprocessorService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Web Vitals Aggregator Service — RUM (v68.0.0)
         $this->app->singleton(WebVitalsAggregatorService::class, function (Application $app): WebVitalsAggregatorService {
             $config = $app->make(AnalyticsConfig::class);
@@ -4469,6 +4479,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsDeployGateCommand::class,
                 AnalyticsOrchestratorCommand::class,
                 AnalyticsGatewayCommand::class,
+                AnalyticsReprocessorCommand::class,
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
                 AnalyticsFunnelLeakCommand::class,
@@ -5109,6 +5120,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/lifecycle-stages/cohort-breakdown', [$controller, 'lifecycleStageCohortBreakdown']);
                 Route::get('analytics/lifecycle-stages/recommendations/{stage}', [$controller, 'lifecycleStageRecommendations']);
                 Route::get('analytics/lifecycle-stages/summary', [$controller, 'lifecycleStageSummary']);
+
+                // Event Reprocessor (v209.0.0)
+                Route::post('analytics/reprocessor/run', [$controller, 'reprocessorRun']);
+                Route::post('analytics/reprocessor/audit', [$controller, 'reprocessorAudit']);
+                Route::get('analytics/reprocessor/status', [$controller, 'reprocessorStatus']);
+                Route::get('analytics/reprocessor/metrics', [$controller, 'reprocessorMetrics']);
+                Route::delete('analytics/reprocessor/history', [$controller, 'reprocessorClear']);
             });
     }
 
