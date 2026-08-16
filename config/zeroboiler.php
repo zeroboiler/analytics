@@ -8558,4 +8558,44 @@ return [
         'revenue_impact_factor' => (float) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_REVENUE_FACTOR', 0.15),
         'conversion_drop_threshold' => (float) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_DROP_THRESHOLD', 5.0),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data Lake Export (v188.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Time-partitioned event export for warehouse ingestion. Supports NDJSON,
+    | CSV, and aggregated summary formats with column projection and category
+    | filtering. Designed for scheduled export to BigQuery, Snowflake, or
+    | ClickHouse.
+    |
+    */
+    'data_lake' => [
+        'enabled' => env('ANALYTICS_DATA_LAKE_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_DATA_LAKE_CACHE_TTL', 3600), // 1 hour
+        'max_batch_size' => (int) env('ANALYTICS_DATA_LAKE_MAX_BATCH', 10000),
+        'default_columns' => [
+            'id', 'name', 'category', 'client_id', 'user_id',
+            'params', 'session_id', 'page_url', 'referrer',
+            'ip', 'user_agent', 'created_at',
+        ],
+        'categories' => [], // empty = all categories
+        'default_format' => 'ndjson', // ndjson, csv, summary
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Trace Context (v188.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | W3C Trace Context propagation for distributed tracing correlation.
+    | Extracts traceparent headers from incoming requests and enriches
+    | analytics events with trace_id and span_id for APM integration.
+    |
+    */
+    'trace_context' => [
+        'enabled' => env('ANALYTICS_TRACE_CONTEXT_ENABLED', true),
+        'strict_mode' => env('ANALYTICS_TRACE_CONTEXT_STRICT', true),
+        'auto_enrich' => env('ANALYTICS_TRACE_CONTEXT_AUTO_ENRICH', true),
+    ],
 ];

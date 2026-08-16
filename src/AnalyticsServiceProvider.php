@@ -203,6 +203,8 @@ use ZeroBoiler\Analytics\Services\EventEnrichmentService;
 use ZeroBoiler\Analytics\Services\SubscriptionLifecycleService;
 use ZeroBoiler\Analytics\Services\RevenueIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventTraceService;
+use ZeroBoiler\Analytics\Services\EventTraceContextService;
+use ZeroBoiler\Analytics\Services\AnalyticsDataLakeService;
 use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
@@ -453,7 +455,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 187.0.0
+ * @version 188.0.0
  *
  * @since 1.0.0
  */
@@ -2276,6 +2278,31 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SentryErrorAnalyticsService($cache, $config);
         });
 
+        // v188.0.0 — Data lake export service
+        $this->app->singleton(AnalyticsDataLakeService::class, function (Application $app): AnalyticsDataLakeService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsDataLakeService($cache, $config);
+        });
+
+        // v188.0.0 — Event trace context propagation
+        $this->app->singleton(EventTraceContextService::class, function (Application $app): EventTraceContextService {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            $tcConfig = $config->get('zeroboiler.analytics.trace_context', []);
+            /** @var array{enabled?: bool, strict_mode?: bool, auto_enrich?: bool} $tcConfig */
+
+            return new EventTraceContextService(
+                enabled: (bool) ($tcConfig['enabled'] ?? true),
+                strictMode: (bool) ($tcConfig['strict_mode'] ?? true),
+                autoEnrich: (bool) ($tcConfig['auto_enrich'] ?? true),
+            );
+        });
+
         // Analytics health check service — comprehensive diagnostic
         $this->app->singleton(AnalyticsHealthCheckService::class, function (Application $app): AnalyticsHealthCheckService {
             /** @var ConfigRepository $config */
@@ -4006,6 +4033,25 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventLineageTrackerService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Data Lake Export Service (v188.0.0) — warehouse ingestion
+        $this->app->singleton(AnalyticsDataLakeService::class, function (Application $app): AnalyticsDataLakeService {
+            return new AnalyticsDataLakeService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Trace Context Service (v188.0.0) — W3C Trace Context propagation
+        $this->app->singleton(EventTraceContextService::class, function (Application $app): EventTraceContextService {
+            $tcConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.trace_context', []);
+
+            return new EventTraceContextService(
+                enabled: (bool) ($tcConfig['enabled'] ?? true),
+                strictMode: (bool) ($tcConfig['strict_mode'] ?? true),
+                autoEnrich: (bool) ($tcConfig['auto_enrich'] ?? true),
             );
         });
 
