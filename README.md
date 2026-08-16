@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-200.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-201.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **197 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **401 services**, **90 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **12 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **SaaS revenue funnel analytics**, **feature adoption tracking with stickiness curves**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, **Monte Carlo funnel simulation**, **user lifecycle stage detection**, **DAG-based pipeline orchestration**, **Sentry error analytics integration**, **cross-provider schema validation**, **config drift detection**, **behavioral user segmentation**, **feature flag rollout guardrails**, **SaaS event helpers**, **campaign context hydration**, **CDP (Customer Data Platform) with user profiles, computed traits, and dynamic segments**, **synthetic event data factory**, **event schema evolution tracking**, **privacy data clean room**, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v201.0.0
+
+**FormRequest Controller Refactoring — Industry-Standard SaaS Analytics Quality Upgrade**:
+
+- **FormRequest Dependency Injection** — refactored 7 controller action methods to use dedicated FormRequest classes instead of inline `$request->validate()`: `track(TrackEventRequest)`, `batch(BatchEventRequest)`, `identify(IdentifyRequest)`, `pageview(PageViewRequest)`, `updateConsent(UpdateConsentRequest)`, `optOut(OptOutRequest)`, `optIn(OptInRequest)`. This follows Laravel best practices for separating validation logic from controller logic.
+- **New FormRequests** — added `OptOutRequest` and `OptInRequest` for previously untyped opt-out/opt-in endpoints. Each includes `authorize()` (requires auth), typed `userId()` accessor, and proper docblocks.
+- **Cleaner controller methods** — removed redundant `is_string()` type guards and manual `$request->input()` calls, replaced with typed FormRequest accessor methods (`eventName()`, `eventParams()`, `clientId()`, `traits()`, `signals()`, `userId()`, `pageTitle()`, `pageLocation()`, `referrer()`, `path()`).
+- **Version sweep** — composer.json → 201.0.0, package.json → 201.0.0, AnalyticsEvent::VERSION → 201.0.0, README badge → 201.0.0.
+- **Quality audit** — 881 source files (879 + 2 new FormRequests), 448 tests. All concrete classes final. All methods have return type declarations. 100% strict_types=1.
 
 ### What's New in v200.0.0
 

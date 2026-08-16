@@ -98,6 +98,14 @@ use ZeroBoiler\Analytics\Services\EventCostTracker;
 
 use ZeroBoiler\Analytics\Services\AnalyticsCommandScheduler;
 
+use ZeroBoiler\Analytics\Http\Requests\TrackEventRequest;
+use ZeroBoiler\Analytics\Http\Requests\BatchEventRequest;
+use ZeroBoiler\Analytics\Http\Requests\IdentifyRequest;
+use ZeroBoiler\Analytics\Http\Requests\PageViewRequest;
+use ZeroBoiler\Analytics\Http\Requests\UpdateConsentRequest;
+use ZeroBoiler\Analytics\Http\Requests\OptOutRequest;
+use ZeroBoiler\Analytics\Http\Requests\OptInRequest;
+
 /**
  * API controller for frontend event tracking.
  *
@@ -376,14 +384,8 @@ final class AnalyticsEventController extends Controller
      *
      * Body: { "name": "button_click", "params": { "element": "buy_now" } }
      */
-    public function track(Request $request): JsonResponse
+    public function track(TrackEventRequest $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'params' => 'array',
-            'params.*' => 'mixed',
-        ]);
-
         $clientId = $this->extractClientId($request);
         $userId = $request->user()?->getKey();
 
@@ -403,8 +405,8 @@ final class AnalyticsEventController extends Controller
         }
 
         $event = new AnalyticsEvent(
-            name: $request->input('name'),
-            params: $request->input('params', []),
+            name: $request->eventName(),
+            params: $request->eventParams(),
             clientId: $clientId,
             userId: is_int($userId) || is_string($userId) ? (string) $userId : null,
         );
@@ -440,14 +442,8 @@ final class AnalyticsEventController extends Controller
      *
      * Body: { "events": [ { "name": "...", "params": {...} },...] }
      */
-    public function batch(Request $request): JsonResponse
+    public function batch(BatchEventRequest $request): JsonResponse
     {
-        $request->validate([
-            'events' => 'required|array|max:'.self::MAX_BATCH_SIZE,
-            'events.*.name' => 'required|string|max:100',
-            'events.*.params' => 'array',
-        ]);
-
         $clientId = $this->extractClientId($request);
         $userId = $request->user()?->getKey();
         $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
@@ -464,7 +460,7 @@ final class AnalyticsEventController extends Controller
             }
         }
 
-        $events = $request->input('events', []);
+        $events = $request->events();
 
         // Build pipeline once for all events in the batch
         $pipeline = $this->buildPipeline($request);
@@ -512,25 +508,15 @@ final class AnalyticsEventController extends Controller
      *
      * Body: { "client_id": "uuid-...", "traits": { "name": "John", "plan": "pro" } }
      */
-    public function identify(Request $request): JsonResponse
+    public function identify(IdentifyRequest $request): JsonResponse
     {
-        $request->validate([
-            'client_id' => 'required|string',
-            'traits' => 'array',
-            'traits.*' => 'mixed',
-        ]);
+        $clientId = $request->clientId();
+        $traits = $request->traits();
+        $userIdStr = $request->userId();
 
-        $clientId = is_string($request->input('client_id')) ? $request->input('client_id') : null;
-        $traits = $request->input('traits', []);
-        $traits = is_array($traits) ? $traits : [];
-        $user = $request->user();
-
-        if ($user === null) {
+        if ($userIdStr === null) {
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
-
-        $userId = $user->getKey();
-        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
 
         // Send identify event to all providers
         $event = new AnalyticsEvent(
@@ -560,14 +546,8 @@ final class AnalyticsEventController extends Controller
      *
      * Body: { "title": "Pricing", "location": "/pricing", "referrer": "https://google.com" }
      */
-    public function pageview(Request $request): JsonResponse
+    public function pageview(PageViewRequest $request): JsonResponse
     {
-        $request->validate([
-            'title' => 'string',
-            'location' => 'string',
-            'referrer' => 'string',
-        ]);
-
         $clientId = $this->extractClientId($request);
         $userId = $request->user()?->getKey();
         $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
@@ -575,9 +555,10 @@ final class AnalyticsEventController extends Controller
         $event = new AnalyticsEvent(
             name: 'page_view',
             params: array_filter([
-                'page_title' => $request->input('title'),
-                'page_location' => $request->input('location'),
-                'page_referrer' => $request->input('referrer'),
+                'page_title' => $request->pageTitle(),
+                'page_location' => $request->pageLocation(),
+                'page_referrer' => $request->referrer(),
+                'page_path' => $request->path(),
             ]),
             clientId: $clientId,
             userId: $userIdStr,
@@ -604,15 +585,9 @@ final class AnalyticsEventController extends Controller
      *
      * Body: { "signals": { "analytics_storage": "granted", "ad_storage": "denied" } }
      */
-    public function updateConsent(Request $request): JsonResponse
+    public function updateConsent(UpdateConsentRequest $request): JsonResponse
     {
-        $request->validate([
-            'signals' => 'required|array',
-            'signals.*' => 'string|in:granted,denied',
-        ]);
-
-        $signals = $request->input('signals', []);
-        $signals = is_array($signals) ? $signals : [];
+        $signals = $request->signals();
 
         $state = $this->manager->getConsent()->with($signals);
 
@@ -1006,16 +981,9 @@ final class AnalyticsEventController extends Controller
      * no events will be dispatched for this user after opting out.
      * Use POST /api/analytics/opt-in to reverse.
      */
-    public function optOut(Request $request): JsonResponse
+    public function optOut(OptOutRequest $request): JsonResponse
     {
-        $user = $request->user();
-
-        if ($user === null) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
-        }
-
-        $userId = $user->getKey();
-        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+        $userIdStr = $request->userId();
 
         if ($userIdStr === null || $userIdStr === '') {
             return response()->json(['error' => 'Invalid user ID'], 400);
@@ -1043,16 +1011,9 @@ final class AnalyticsEventController extends Controller
      *
      * Overrides any previous opt-out preference.
      */
-    public function optIn(Request $request): JsonResponse
+    public function optIn(OptInRequest $request): JsonResponse
     {
-        $user = $request->user();
-
-        if ($user === null) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
-        }
-
-        $userId = $user->getKey();
-        $userIdStr = is_int($userId) || is_string($userId) ? (string) $userId : null;
+        $userIdStr = $request->userId();
 
         if ($userIdStr === null || $userIdStr === '') {
             return response()->json(['error' => 'Invalid user ID'], 400);

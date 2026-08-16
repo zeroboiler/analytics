@@ -1,5 +1,20 @@
 # Changelog
 
+## [201.0.0] - 2026-08-16
+
+### Added
+- **FormRequest Dependency Injection** — Refactored 7 controller action methods to use dedicated FormRequest classes: `track(TrackEventRequest)`, `batch(BatchEventRequest)`, `identify(IdentifyRequest)`, `pageview(PageViewRequest)`, `updateConsent(UpdateConsentRequest)`, `optOut(OptOutRequest)`, `optIn(OptInRequest)`.
+- **OptOutRequest** — New FormRequest for POST /api/analytics/opt-out with `authorize()` (requires auth) and typed `userId()` accessor.
+- **OptInRequest** — New FormRequest for POST /api/analytics/opt-in with `authorize()` (requires auth) and typed `userId()` accessor.
+- **PageViewRequest::path()** — Added `page_path` field extraction to pageview FormRequest for richer page view tracking.
+
+### Changed
+- **Controller validation separation** — Replaced inline `$request->validate()` calls with FormRequest DI across 7 methods. Removed redundant `is_string()` type guards and manual `$request->input()` calls, replaced with typed FormRequest accessor methods.
+- **Version sweep** — All entry points synced from 200.0.0 → 201.0.0. Source files: 879 → 881. FormRequests: 5 → 7.
+
+### Fixed
+- **Type safety** — `identify()` now uses `IdentifyRequest::userId()` instead of manual `getKey()` + `is_int()` guard, eliminating potential type coercion bugs.
+
 ## [199.0.0] - 2026-08-16
 
 ### Added
