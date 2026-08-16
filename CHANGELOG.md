@@ -1,5 +1,18 @@
 # Changelog
 
+## [208.0.0] - 2026-08-16
+
+### Added
+- **AnalyticsEventGateway** — Unified event ingress point with full pipeline: pre-validation → catalog enforcement → global/per-event rate limiting → deduplication → trace ID injection → capacity-aware dispatch. Cache-backed metrics tracking (inbound, dispatched, rejected, deduplicated, rate-limited, capacity-rejected) with dispatch/rejection rates. Configurable via `zeroboiler.analytics.gateway` with 12 env-backed settings.
+- **EventContractTestingService** — Provider-specific event contract validation engine. Built-in contracts for GA4 (purchase, view_item, add_to_cart, begin_checkout, refund, sign_up, login, trial_start, plan_upgrade, page_view, search), Meta Pixel (purchase, view_item, add_to_cart). Supports custom contract registration via config. Coverage analysis across all providers. Type-aware field validation (string, integer, number, boolean, array, nullable variants).
+- **AnalyticsGatewayCommand** — `php artisan analytics:gateway` CLI with 5 actions: gateway:status, gateway:reset, contracts:coverage, contracts:validate, contracts:list. Supports `--json` and `--event=` options.
+- **Config expansion** — `zeroboiler.analytics.gateway` (12 settings) and `zeroboiler.analytics.contracts` (5 settings + custom_contracts map).
+- **Comprehensive Pest test suite** — AnalyticsEventGatewayTest (25 assertions across 20 it blocks) covering: valid event processing, empty name rejection, invalid name format, deduplication detection, metrics with rates, metrics reset, batch processing with stats, catalog enforcement, skip_gateway bypass, config summary, enabled state, GA4 purchase validation, missing required fields, page_view validation, no-contract warnings, all-providers validation, coverage analysis, custom contract registration, undefined contracts, supported providers, contract count, type rule validation, Meta purchase missing fields.
+- **ServiceProvider registration** — AnalyticsEventGateway and EventContractTestingService registered as singletons.
+
+### Changed
+- **Version sweep** — composer.json, package.json, AnalyticsEvent::VERSION synced from 207.0.0 → 208.0.0. Source files: 894 → 897. Tests: 455 → 456. Commands: 93 → 94.
+
 ## [207.0.0] - 2026-08-16
 
 ### Added

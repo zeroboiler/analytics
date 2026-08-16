@@ -25,6 +25,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOrchestratorCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGatewayCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
@@ -163,6 +164,8 @@ use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
 use ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker;
 use ZeroBoiler\Analytics\Services\EventDispatchOrchestrator;
 use ZeroBoiler\Analytics\Services\EventReplayAuditLedger;
+use ZeroBoiler\Analytics\Services\AnalyticsEventGateway;
+use ZeroBoiler\Analytics\Services\EventContractTestingService;
 use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
@@ -2635,6 +2638,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Analytics Event Gateway (v208.0.0)
+        $this->app->singleton(AnalyticsEventGateway::class, function (Application $app): AnalyticsEventGateway {
+            return new AnalyticsEventGateway(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+                $app->make(AnalyticsEventDispatcher::class),
+                $app->make(EventDeduplicationService::class),
+                $app->make(ProviderCircuitBreaker::class),
+                $app->make(ProviderRateLimitService::class),
+            );
+        });
+
+        // Event Contract Testing Service (v208.0.0)
+        $this->app->singleton(EventContractTestingService::class, function (Application $app): EventContractTestingService {
+            return new EventContractTestingService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Web Vitals Aggregator Service — RUM (v68.0.0)
         $this->app->singleton(WebVitalsAggregatorService::class, function (Application $app): WebVitalsAggregatorService {
             $config = $app->make(AnalyticsConfig::class);
@@ -4445,6 +4468,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEventHealthCommand::class,
                 AnalyticsDeployGateCommand::class,
                 AnalyticsOrchestratorCommand::class,
+                AnalyticsGatewayCommand::class,
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
                 AnalyticsFunnelLeakCommand::class,

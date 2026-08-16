@@ -19663,4 +19663,111 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get analytics event gateway status.
+     */
+    public function gatewayStatus(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsEventGateway $gateway */
+            $gateway = app(\ZeroBoiler\Analytics\Services\AnalyticsEventGateway::class);
+
+            return response()->json([
+                'enabled' => $gateway->isEnabled(),
+                'config' => $gateway->configSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get analytics event gateway metrics.
+     */
+    public function gatewayMetrics(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsEventGateway $gateway */
+            $gateway = app(\ZeroBoiler\Analytics\Services\AnalyticsEventGateway::class);
+
+            return response()->json($gateway->metrics());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reset analytics event gateway metrics.
+     */
+    public function gatewayResetMetrics(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsEventGateway $gateway */
+            $gateway = app(\ZeroBoiler\Analytics\Services\AnalyticsEventGateway::class);
+            $gateway->resetMetrics();
+
+            return response()->json([
+                'status' => 'ok',
+                'reset' => true,
+                'metrics' => $gateway->metrics(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get event contract coverage analysis.
+     */
+    public function contractsCoverage(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventContractTestingService $contracts */
+            $contracts = app(\ZeroBoiler\Analytics\Services\EventContractTestingService::class);
+
+            return response()->json($contracts->coverageAnalysis());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate an event against all provider contracts.
+     */
+    public function contractsValidate(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventContractTestingService $contracts */
+            $contracts = app(\ZeroBoiler\Analytics\Services\EventContractTestingService::class);
+            $event = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::fromArray(['name' => $eventName]);
+            $results = $contracts->validateAllProviders($event);
+
+            return response()->json([
+                'event' => $eventName,
+                'results' => $results,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * List registered event contracts.
+     */
+    public function contractsList(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventContractTestingService $contracts */
+            $contracts = app(\ZeroBoiler\Analytics\Services\EventContractTestingService::class);
+
+            return response()->json([
+                'enabled' => $contracts->isEnabled(),
+                'total_contracts' => $contracts->contractCount(),
+                'supported_providers' => $contracts->getSupportedProviders(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

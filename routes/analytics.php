@@ -1115,4 +1115,14 @@ Route::prefix('analytics')->group(function () {
     Route::get('orchestrator/outcomes', [AnalyticsEventController::class, 'orchestratorOutcomes']);
     Route::post('orchestrator/evaluate', [AnalyticsEventController::class, 'orchestratorEvaluate']);
     Route::post('orchestrator/clear', [AnalyticsEventController::class, 'orchestratorClear']);
+
+    // Analytics Event Gateway (v208.0.0)
+    Route::get('gateway/status', [AnalyticsEventController::class, 'gatewayStatus']);
+    Route::get('gateway/metrics', [AnalyticsEventController::class, 'gatewayMetrics']);
+    Route::post('gateway/reset-metrics', [AnalyticsEventController::class, 'gatewayResetMetrics']);
+
+    // Event Contract Testing (v208.0.0)
+    Route::get('contracts/coverage', [AnalyticsEventController::class, 'contractsCoverage']);
+    Route::get('contracts/validate/{eventName}', [AnalyticsEventController::class, 'contractsValidate']);
+    Route::get('contracts/list', [AnalyticsEventController::class, 'contractsList']);
 });
