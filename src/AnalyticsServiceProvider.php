@@ -4370,6 +4370,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsGovernanceValidateCommand::class,
                 AnalyticsWarmupCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCdpCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsSyntheticCommand::class,
             ]);
         }
 
