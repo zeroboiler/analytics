@@ -7,6 +7,12 @@ parameters:
         - stubs/*
     bootstrapFiles:
         - stubs/laravel-helpers.php
+    checkMissingIterableValueType: false
+    checkUnusedParameters: true
+    checkUninitializedProperties: true
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    checkGenericClassInNonGenericObjectType: true
     ignoreErrors:
         # config() returns mixed; overview command safely accesses known keys
         - message: '~Cannot access offset .+ on mixed~'

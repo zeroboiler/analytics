@@ -45,7 +45,7 @@ final readonly class CleanRoomQueryResult
         public ?string $privacyMechanism = null,
         public string $computedAt = '',
         public int $participantCount = 0,
-    ) {}
+    ): void {}
 
     /**
      * Check if any privacy protection was applied to this result.

@@ -307,7 +307,7 @@ final readonly class CatalogSnapshot
         public string $version,
         public array $eventsByCategory,
         public array $eventDetails,
-    ) {}
+    ): void {}
 
     /**
      * Get all event names across all categories.
@@ -395,7 +395,7 @@ final readonly class EventReference
     public function __construct(
         public string $name,
         public string $category,
-    ) {}
+    ): void {}
 }
 
 /**
@@ -414,7 +414,7 @@ final readonly class EventChange
         public string $category,
         public string $fromVersion,
         public string $toVersion,
-    ) {}
+    ): void {}
 
     /**
      * Check if this change type is additive (safe for consumers).
@@ -444,7 +444,7 @@ final readonly class BreakingChangePolicy
         public string $changeType,
         public bool $breaking,
         public string $description,
-    ) {}
+    ): void {}
 }
 
 /**
@@ -468,7 +468,7 @@ final readonly class EvolutionReport
         public array $breaking,
         public array $nonBreaking,
         public bool $isBreaking,
-    ) {}
+    ): void {}
 
     /**
      * Get a human-readable summary of the evolution report.

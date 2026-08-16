@@ -56,7 +56,7 @@ final class CdpTraitComputer
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $cdpConfig = $config->get('zeroboiler.analytics.cdp', []);
         /** @var array{trait_ttl?: int, accumulator_ttl?: int} $cdpConfig */
 

@@ -69,7 +69,7 @@ final class CdpProfileService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ) {
+    ): void {
         $cdpConfig = $config->get('zeroboiler.analytics.cdp', []);
         /** @var array{enabled?: bool, profile_ttl?: int, index_ttl?: int, max_traits_per_profile?: int, max_segments_per_profile?: int} $cdpConfig */
 

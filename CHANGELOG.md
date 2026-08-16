@@ -1,5 +1,16 @@
 # Changelog
 
+## [205.0.0] - 2026-08-16
+
+### Fixed
+- **PHPStan config parity** — Added `checkMissingIterableValueType: false`, `checkUnusedParameters: true`, `checkUninitializedProperties: true`, `treatPhpDocTypesAsCertain: false`, `reportUnmatchedIgnoredErrors: false`, `checkGenericClassInNonGenericObjectType: true` to `phpstan.neon.dist` to match `phpstan.neon` extended checks.
+- **README version badge sync** — Updated badge from 203.0.0 → 205.0.0 to match composer.json.
+
+### Added
+- **Project structure files** — Added `.editorconfig` (PHP 4-space indent, LF, final newline) and `.gitattributes` (export-ignore for dev files).
+- **Phase 47 production readiness test** — 60+ new assertions covering: phpstan neon parity (8 checks), project structure files (7 checks), version consistency (2 checks), exception hierarchy bidirectional @see (10 checks), composer metadata integrity (5 checks), rector PHP 8.5 target (2 checks), ServiceProvider integrity (5 checks), Facade integrity (3 checks), all @since annotation coverage, no TODO/FIXME markers, all non-abstract classes are final (token-based scan), TrackerInterface compliance, config file structure (4 checks).
+- **Constructor :void return type fixes** — Added `: void` return type to 12 constructors across CDP, DTO, and Services that were missing it.
+
 ## [201.0.0] - 2026-08-16
 
 ### Added

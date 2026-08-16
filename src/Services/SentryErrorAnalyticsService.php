@@ -64,7 +64,7 @@ final class SentryErrorAnalyticsService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config)
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
     {
         $this->cache = $cache;
         $cfg = $config->get('zeroboiler.analytics.sentry_error_analytics', []);
