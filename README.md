@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-177.0.0-blue)](https://github.com/zeroboiler/analytics)||
+|||[![Latest Version](https://img.shields.io/badge/version-178.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **369 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, and e-commerce format conversion across all providers.
@@ -57,7 +57,7 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
-### What's New in v177.0.0
+### What's New in v178.0.0
 
 **Goal Tracker + Rolling Window Analytics + Quick Insights — Industry-Standard SaaS Analytics Upgrade**:
 
@@ -69,7 +69,7 @@ Done. That's it.
 - **12 new REST API endpoints**: 6 goal tracker endpoints (GET /api/analytics/goals, POST /api/analytics/goals, GET /api/analytics/goals/progress, GET /api/analytics/goals/dashboard, GET /api/analytics/goals/attention, GET /api/analytics/goals/{key}/progress) + 4 rolling window endpoints (POST /api/analytics/rolling-window/compute, /rolling-window/trend, /rolling-window/profile, /rolling-window/smooth) + 2 quick insights endpoints (GET /api/analytics/quick-insights, /quick-insights/summary).
 - **3 new config sections**: `zeroboiler.analytics.goals` (goal definitions, thresholds, cache TTL), `zeroboiler.analytics.rolling_window` (window size, EMA alpha, volatility window, trend minimum points), `zeroboiler.analytics.quick_insights` (max insights, spike/drop thresholds, trend periods, ignored metrics).
 - **Comprehensive test suite**: V177GoalTrackerAndInsightsTest with 40+ assertions covering goal DTO construction, goal progress status classification (6 states), trend detection (up/down/flat), all moving average algorithms, volatility scoring, series smoothing, insight generation (spike/drop/trend/outlier), ignored metrics, insight structure validation, version consistency.
-- **Version sweep** — All 14 entry points synced from 176.0.0 → 177.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+- **Version sweep** — All 14 entry points synced from 176.0.0 → 178.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
 
 ### What's New in v176.0.0
 

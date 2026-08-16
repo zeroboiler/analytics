@@ -8445,4 +8445,39 @@ return [
         'cache_ttl' => (int) env('ANALYTICS_QUICK_INSIGHTS_CACHE_TTL', 600),
         'ignored_metrics' => [],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SaaS Momentum Analytics (v178.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Growth rate of change (GRoC) tracking for key SaaS metrics.
+    | Each metric gets a momentum score from -100 to +100 indicating
+    | whether growth is accelerating or decelerating.
+    |
+    */
+    'momentum' => [
+        'enabled' => env('ANALYTICS_MOMENTUM_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_MOMENTUM_CACHE_TTL', 1800),
+        'smoothing_window' => (int) env('ANALYTICS_MOMENTUM_SMOOTHING', 3),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Value Attribution (v178.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Assigns monetary value to non-revenue events using position-based
+    | funnel attribution. Define funnel paths, value budgets, and
+    | base event values for event economics dashboards.
+    |
+    */
+    'event_value_attribution' => [
+        'enabled' => env('ANALYTICS_EVT_VALUE_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_EVT_VALUE_CACHE_TTL', 3600),
+        'model' => env('ANALYTICS_EVT_VALUE_MODEL', 'position_decay'),
+        'decay_factor' => (float) env('ANALYTICS_EVT_VALUE_DECAY', 0.7),
+        'funnel_paths' => [],
+        'base_values' => [],
+    ],
 ];

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
@@ -41,12 +42,12 @@ describe('Phase 39 — Production Readiness Hardening', function (): void {
 
     // ─── Version Consistency ────────────────────────────────────────────
 
-    it('composer.json version is 173.0.0', function (): void {
+    it('composer.json version is 178.0.0', function (): void {
         $composer = json_decode(
             file_get_contents(dirname(__DIR__, 2) . '/composer.json'),
             true,
         );
-        expect($composer['version'])->toBe('173.0.0');
+        expect($composer['version'])->toBe('178.0.0');
     });
 
     it('README version badge matches composer.json', function (): void {
@@ -60,10 +61,10 @@ describe('Phase 39 — Production Readiness Hardening', function (): void {
 
     // ─── File Counts ─────────────────────────────────────────────────────
 
-    it('source file count is at least 817', function (): void {
+    it('source file count is at least 833', function (): void {
         $srcDir = dirname(__DIR__, 2) . '/src';
         $files = glob($srcDir . '/**/*.php');
-        expect(count($files))->toBeGreaterThanOrEqual(817);
+        expect(count($files))->toBeGreaterThanOrEqual(833);
     });
 
     // ─── Config Integrity ────────────────────────────────────────────────
