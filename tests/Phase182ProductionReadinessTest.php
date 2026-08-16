@@ -265,7 +265,7 @@ test('phase 182: PHP files have strict types and MIT headers', function (): void
     }
 });
 
-test('phase 182: no stale 181.0.0 in new files', function (): void {
+test('phase 182: no stale version references in new files', function (): void {
     $newFiles = [
         'src/Events/Webhook/WebhookEvents.php',
         'src/Events/Webhook/WebhookDeliveredEvent.php',
