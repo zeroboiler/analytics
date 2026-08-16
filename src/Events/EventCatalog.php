@@ -95,7 +95,7 @@ final class EventCatalog
     /**
      * Get events grouped by category.
      *
-     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>, security: array<string, EventEntry>, uptime: array<string, EventEntry>, infrastructure: array<string, EventEntry>, marketing: array<string, EventEntry>, customer_success: array<string, EventEntry>}
+     * @return array{ecommerce: array<string, EventEntry>, saas: array<string, EventEntry>, engagement: array<string, EventEntry>, security: array<string, EventEntry>, uptime: array<string, EventEntry>, infrastructure: array<string, EventEntry>, marketing: array<string, EventEntry>, customer_success: array<string, EventEntry>, webhook: array<string, EventEntry>}
      */
     public static function byCategory(): array
     {
@@ -141,7 +141,7 @@ final class EventCatalog
     /**
      * Get the category name for a given event name.
      *
-     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|'customer_success'|null
+     * @return 'ecommerce'|'saas'|'engagement'|'security'|'uptime'|'infrastructure'|'marketing'|'customer_success'|'webhook'|null
      */
     public static function getCategory(string $name): ?string
     {
@@ -206,7 +206,7 @@ final class EventCatalog
      * Returns an associative array with category names as keys and
      * event counts as values, plus a 'total' key for the grand total.
      *
-     * @return array{ecommerce: int, saas: int, engagement: int, security: int, uptime: int, infrastructure: int, marketing: int, customer_success: int, total: int}
+     * @return array{ecommerce: int, saas: int, engagement: int, security: int, uptime: int, infrastructure: int, marketing: int, customer_success: int, webhook: int, total: int}
      *
      * @since 165.0.0
      */
