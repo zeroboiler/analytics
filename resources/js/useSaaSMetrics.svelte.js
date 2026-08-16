@@ -10,7 +10,7 @@
  * product analytics widgets.
  *
  * @package ZeroBoiler Analytics
- * @version 181.0.0
+ * @version 182.0.0
  */
 
 import { writable, derived } from 'svelte/store';

@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Events\Marketing\MarketingEvents;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
 use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
+use ZeroBoiler\Analytics\Events\Webhook\WebhookEvents;
 
 /**
  * Unified event catalog aggregating all event categories.
@@ -47,6 +48,7 @@ final class EventCatalog
             self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             self::withCategory(MarketingEvents::all(), 'marketing'),
             self::withCategory(CustomerSuccessEvents::all(), 'customer_success'),
+            self::withCategory(WebhookEvents::all(), 'webhook'),
         );
     }
 
@@ -106,6 +108,7 @@ final class EventCatalog
             'infrastructure' => self::withCategory(InfrastructureEvents::all(), 'infrastructure'),
             'marketing' => self::withCategory(MarketingEvents::all(), 'marketing'),
             'customer_success' => self::withCategory(CustomerSuccessEvents::all(), 'customer_success'),
+            'webhook' => self::withCategory(WebhookEvents::all(), 'webhook'),
         ];
     }
 
@@ -131,7 +134,8 @@ final class EventCatalog
             || UptimeEvents::has($name)
             || InfrastructureEvents::has($name)
             || MarketingEvents::has($name)
-            || CustomerSuccessEvents::has($name);
+            || CustomerSuccessEvents::has($name)
+            || WebhookEvents::has($name);
     }
 
     /**
@@ -171,6 +175,10 @@ final class EventCatalog
 
         if (CustomerSuccessEvents::has($name)) {
             return 'customer_success';
+        }
+
+        if (WebhookEvents::has($name)) {
+            return 'webhook';
         }
 
         return null;

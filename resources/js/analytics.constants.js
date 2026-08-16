@@ -6,7 +6,7 @@
  * of truth for all tracked event names.
  *
  * @package ZeroBoiler Analytics
- * @version 181.0.0
+ * @version 182.0.0
  */
 
 // ─── E-Commerce Events ───────────────────────────────────────────────
@@ -292,6 +292,21 @@ export const CustomerSuccessEvents = {
 };
 Object.freeze(CustomerSuccessEvents);
 
+// ─── Webhook Events (v182.0.0) ───────────────────────────────────────
+
+/**
+ * Webhook lifecycle event names.
+ * Tracks outbound webhook delivery, failure, and inbound webhook receipt.
+ * @readonly
+ * @since 182.0.0
+ */
+export const WebhookEventsConstants = {
+    WEBHOOK_DELIVERED: 'webhook_delivered',
+    WEBHOOK_FAILED: 'webhook_failed',
+    WEBHOOK_RECEIVED: 'webhook_received',
+};
+Object.freeze(WebhookEventsConstants);
+
 // ─── Unified Event Names ────────────────────────────────────────────
 
 /**
@@ -307,6 +322,7 @@ export const AllEventNames = Object.freeze({
     ...UptimeEvents,
     ...InfrastructureEvents,
     ...CustomerSuccessEvents,
+    ...WebhookEventsConstants,
 });
 
 /**
@@ -335,6 +351,7 @@ export function getEventNamesByCategory(category) {
         case 'uptime': return Object.values(UptimeEvents);
         case 'infrastructure': return Object.values(InfrastructureEvents);
         case 'customer_success': return Object.values(CustomerSuccessEvents);
+        case 'webhook': return Object.values(WebhookEventsConstants);
         default: return [];
     }
 }
@@ -354,5 +371,5 @@ export function getTotalEventCount() {
  * @returns {readonly string[]}
  */
 export function getCategoryNames() {
-    return ['ecommerce', 'saas', 'engagement', 'marketing', 'security', 'uptime', 'infrastructure', 'customer_success'];
+    return ['ecommerce', 'saas', 'engagement', 'marketing', 'security', 'uptime', 'infrastructure', 'customer_success', 'webhook'];
 }

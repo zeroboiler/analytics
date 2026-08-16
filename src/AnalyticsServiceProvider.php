@@ -445,7 +445,7 @@ use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 181.0.0
+ * @version 182.0.0
  *
  * @since 1.0.0
  */
