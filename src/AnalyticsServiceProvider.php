@@ -134,9 +134,11 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
 use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
+use ZeroBoiler\Analytics\Services\FunnelSimulationService;
 use ZeroBoiler\Analytics\Services\SaaSFeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\SaaSRevenueFunnelService;
+use ZeroBoiler\Analytics\Services\SaaSLifecycleStageService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
@@ -449,7 +451,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 183.0.0
+ * @version 185.0.0
  *
  * @since 1.0.0
  */
@@ -2226,6 +2228,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSFeatureAdoptionTracker($manager, $cache, $config);
+        });
+
+        // Funnel Simulation Service (v185.0.0) — Monte Carlo funnel conversion simulation
+        $this->app->singleton(FunnelSimulationService::class, function (Application $app): FunnelSimulationService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new FunnelSimulationService($manager, $cache, $config);
+        });
+
+        // SaaS Lifecycle Stage Service (v185.0.0) — user lifecycle stage detection and analytics
+        $this->app->singleton(SaaSLifecycleStageService::class, function (Application $app): SaaSLifecycleStageService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSLifecycleStageService($manager, $cache, $config);
         });
 
         // Analytics health check service — comprehensive diagnostic
@@ -4824,6 +4850,20 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 // SaaS Platform Maturity Audit REST API (v180.0.0)
                 Route::get('analytics/platform-audit', [$controller, 'platformAudit']);
                 Route::get('analytics/platform-audit/quick', [$controller, 'platformAuditQuick']);
+
+                // Funnel Simulation REST API (v185.0.0)
+                Route::get('analytics/funnel-simulation', [$controller, 'funnelSimulationRun']);
+                Route::post('analytics/funnel-simulation', [$controller, 'funnelSimulationRun']);
+                Route::post('analytics/funnel-simulation/what-if', [$controller, 'funnelSimulationWhatIf']);
+                Route::get('analytics/funnel-simulation/summary', [$controller, 'funnelSimulationSummary']);
+
+                // SaaS Lifecycle Stage REST API (v185.0.0)
+                Route::get('analytics/lifecycle-stages/distribution', [$controller, 'lifecycleStageDistribution']);
+                Route::post('analytics/lifecycle-stages/determine', [$controller, 'lifecycleStageDetermine']);
+                Route::get('analytics/lifecycle-stages/transitions', [$controller, 'lifecycleStageTransitions']);
+                Route::get('analytics/lifecycle-stages/cohort-breakdown', [$controller, 'lifecycleStageCohortBreakdown']);
+                Route::get('analytics/lifecycle-stages/recommendations/{stage}', [$controller, 'lifecycleStageRecommendations']);
+                Route::get('analytics/lifecycle-stages/summary', [$controller, 'lifecycleStageSummary']);
             });
     }
 

@@ -8480,4 +8480,39 @@ return [
         'funnel_paths' => [],
         'base_values' => [],
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Funnel Simulation — Monte Carlo (v185.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Probabilistic funnel conversion simulation using Monte Carlo methods.
+    | Produces confidence intervals and risk assessments for funnel
+    | conversion rates. Higher simulation counts produce more accurate
+    | confidence intervals but increase computation time.
+    |
+    */
+    'funnel_simulation' => [
+        'enabled' => env('ANALYTICS_FUNNEL_SIMULATION_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_FUNNEL_SIMULATION_CACHE_TTL', 1800), // 30 minutes
+        'simulations' => (int) env('ANALYTICS_FUNNEL_SIMULATION_N', 10000),
+        'seed' => (int) env('ANALYTICS_FUNNEL_SIMULATION_SEED', 42),
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | SaaS Lifecycle Stages (v185.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | User lifecycle stage detection based on behavioral signals.
+    | Users are classified into: Prospect, Trial, Active, Engaged, At Risk, Churned.
+    | Stage transitions and distributions power lifecycle analytics dashboards.
+    |
+    */
+    'lifecycle_stages' => [
+        'enabled' => env('ANALYTICS_LIFECYCLE_STAGES_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_LIFECYCLE_STAGES_CACHE_TTL', 3600), // 1 hour
+        'at_risk_inactive_days' => (int) env('ANALYTICS_LIFECYCLE_STAGES_AT_RISK_DAYS', 14),
+        'churned_inactive_days' => (int) env('ANALYTICS_LIFECYCLE_STAGES_CHURNED_DAYS', 45),
+    ],
 ];
