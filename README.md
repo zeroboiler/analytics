@@ -1,9 +1,9 @@
 # ZeroBoiler Analytics
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-181.0.0-blue)](https://github.com/zeroboiler/analytics)||
-|[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
+![Latest Version](https://img.shields.io/badge/version-181.0.0-blue)
+![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **369 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, and e-commerce format conversion across all providers.
 
