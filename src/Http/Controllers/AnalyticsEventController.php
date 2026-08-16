@@ -19770,4 +19770,128 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Reprocessor Endpoints (v209.0.0) ──────────────────────────
+
+    /**
+     * Reprocess archived events with schema evolution and validation.
+     */
+    public function reprocessorRun(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReprocessorService $reprocessor */
+            $reprocessor = app(\ZeroBoiler\Analytics\Services\EventReprocessorService::class);
+
+            $filters = [];
+            if ($request->filled('event_names')) {
+                $filters['event_names'] = explode(',', $request->string('event_names')->toString());
+            }
+            if ($request->filled('categories')) {
+                $filters['categories'] = explode(',', $request->string('categories')->toString());
+            }
+            if ($request->filled('client_id')) {
+                $filters['client_id'] = $request->string('client_id')->toString();
+            }
+            if ($request->filled('user_id')) {
+                $filters['user_id'] = $request->string('user_id')->toString();
+            }
+            if ($request->boolean('dry_run')) {
+                $filters['dry_run'] = true;
+            }
+            if ($request->boolean('no_migrate', false)) {
+                $filters['apply_migrations'] = false;
+            }
+            if ($request->boolean('no_validate', false)) {
+                $filters['validate'] = false;
+            }
+
+            $result = $reprocessor->reprocess($filters);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Audit archived events against current schemas.
+     */
+    public function reprocessorAudit(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReprocessorService $reprocessor */
+            $reprocessor = app(\ZeroBoiler\Analytics\Services\EventReprocessorService::class);
+
+            $filters = [];
+            if ($request->filled('event_names')) {
+                $filters['event_names'] = explode(',', $request->string('event_names')->toString());
+            }
+            if ($request->filled('categories')) {
+                $filters['categories'] = explode(',', $request->string('categories')->toString());
+            }
+            if ($request->filled('client_id')) {
+                $filters['client_id'] = $request->string('client_id')->toString();
+            }
+            if ($request->filled('user_id')) {
+                $filters['user_id'] = $request->string('user_id')->toString();
+            }
+
+            $result = $reprocessor->audit($filters);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get reprocessor status and configuration.
+     */
+    public function reprocessorStatus(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReprocessorService $reprocessor */
+            $reprocessor = app(\ZeroBoiler\Analytics\Services\EventReprocessorService::class);
+
+            return response()->json([
+                'enabled' => $reprocessor->isEnabled(),
+                'dry_run' => $reprocessor->isDryRun(),
+                'config' => $reprocessor->configSummary(),
+                'last_result' => $reprocessor->lastResult(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get reprocessor metrics history.
+     */
+    public function reprocessorMetrics(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReprocessorService $reprocessor */
+            $reprocessor = app(\ZeroBoiler\Analytics\Services\EventReprocessorService::class);
+
+            return response()->json($reprocessor->metrics());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear reprocessor audit history.
+     */
+    public function reprocessorClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReprocessorService $reprocessor */
+            $reprocessor = app(\ZeroBoiler\Analytics\Services\EventReprocessorService::class);
+            $reprocessor->clearMetrics();
+
+            return response()->json(['status' => 'ok', 'cleared' => true]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

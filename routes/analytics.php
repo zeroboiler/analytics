@@ -1125,4 +1125,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('contracts/coverage', [AnalyticsEventController::class, 'contractsCoverage']);
     Route::get('contracts/validate/{eventName}', [AnalyticsEventController::class, 'contractsValidate']);
     Route::get('contracts/list', [AnalyticsEventController::class, 'contractsList']);
+
+    // Event Reprocessor (v209.0.0)
+    Route::post('reprocessor/run', [AnalyticsEventController::class, 'reprocessorRun']);
+    Route::post('reprocessor/audit', [AnalyticsEventController::class, 'reprocessorAudit']);
+    Route::get('reprocessor/status', [AnalyticsEventController::class, 'reprocessorStatus']);
+    Route::get('reprocessor/metrics', [AnalyticsEventController::class, 'reprocessorMetrics']);
+    Route::delete('reprocessor/history', [AnalyticsEventController::class, 'reprocessorClear']);
 });

@@ -9019,4 +9019,31 @@ return [
         'min_reliability_critical' => (float) env('ANALYTICS_DISPATCH_ORCHESTRATOR_MIN_RELIABILITY_CRITICAL', 40.0),
         'log_decisions' => env('ANALYTICS_DISPATCH_ORCHESTRATOR_LOG_DECISIONS', true),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Reprocessor (v209.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Re-process archived analytics events with schema evolution and validation.
+    | Reads events from the EventArchiveService, applies schema migrations,
+    | validates transformed events, and re-dispatches through the pipeline.
+    |
+    | Use cases:
+    | - Schema evolution: reprocess after a schema migration
+    | - Failed event recovery: replay events that originally failed
+    | - Provider re-push: send historical events to a newly enabled provider
+    | - Data quality audit: validate archived events against current schemas
+    |
+    */
+    'reprocessor' => [
+        'enabled' => env('ANALYTICS_REPROCESSOR_ENABLED', true),
+        'dry_run' => env('ANALYTICS_REPROCESSOR_DRY_RUN', false),
+        'batch_size' => (int) env('ANALYTICS_REPROCESSOR_BATCH_SIZE', 50),
+        'max_events' => (int) env('ANALYTICS_REPROCESSOR_MAX_EVENTS', 10000),
+        'apply_migrations' => env('ANALYTICS_REPROCESSOR_APPLY_MIGRATIONS', true),
+        'validate_before_dispatch' => env('ANALYTICS_REPROCESSOR_VALIDATE', true),
+        'audit_results' => env('ANALYTICS_REPROCESSOR_AUDIT', true),
+        'audit_ttl' => (int) env('ANALYTICS_REPROCESSOR_AUDIT_TTL', 86400), // 24 hours
+    ],
 ];

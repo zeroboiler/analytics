@@ -1,5 +1,17 @@
 # Changelog
 
+## [209.0.0] - 2026-08-16
+
+### Fixed
+- **PSR-12 compliance** — Removed blank line after `<?php` opening tag in 497 source files and 336 test files (833 total). All PHP files now have `<?php` immediately followed by docblock, per PSR-12 §2.1.
+- **phpstan.neon parity** — Synced `phpstan.neon` with `phpstan.neon.dist`: added `treatPhpDocTypesAsCertain(false)`, `reportUnmatchedIgnoredErrors(false)`, `checkGenericClassInNonGenericObjectType(true)`, `excludePaths`, and `bootstrapFiles`. Both files now share identical configuration settings.
+
+### Added
+- **Phase48ProductionReadinessTest** — 30+ assertions covering: PSR-12 blank-line audit, phpstan.neon/neon.dist parity, exception hierarchy integrity, ServiceProvider/Facade finality + #[Override], EventPriority backed enum correctness, composer metadata integrity, rector PHP 8.5 target, strict_types coverage, @since coverage, no TODO/FIXME, final class enforcement, no static Eloquent outside models, config file structure, project structure files, version consistency, source/test file counts.
+
+### Changed
+- **Version sweep** — composer.json version synced from 208.0.0 → 209.0.0. Tests: 456 → 457.
+
 ## [208.0.0] - 2026-08-16
 
 ### Added
