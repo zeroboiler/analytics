@@ -1,5 +1,21 @@
 # Changelog
 
+## [196.0.0] - 2026-08-16
+
+### Added
+- **CDP (Customer Data Platform)** — Full user profile management with static traits, computed traits, and dynamic segment evaluation. Five new classes in `src/CDP/`:
+  - `CdpProfileService` — Central hub for user profile CRUD, trait management, segment evaluation, provider sync, and GDPR erasure.
+  - `CdpTraitComputer` — Event-driven computed trait engine with 7 aggregation methods (sum, count, avg, max, min, latest, unique_count) and 13 built-in SaaS trait definitions (total_revenue, purchase_count, session_count, page_view_count, search_count, form_submit_count, error_count, unique_features_used, login_count, avg_order_value, max_purchase, etc.).
+  - `CdpSegmentService` — Dynamic segment membership evaluation with 12 operators (eq, neq, gt, gte, lt, lte, in, not_in, exists, not_exists, between, contains) and 8 built-in SaaS segments (power_user, high_value, at_risk, new_user, frequent_searcher, error_prone, free_tier, feature_explorer).
+  - `CdpProfileSnapshot` — Immutable DTO for user profile snapshots with computed properties (engagement_score, days_since_creation, days_since_last_activity) and provider trait export.
+  - `CdpTraitDefinition` — Readonly DTO for trait definitions with factory methods (static(), computed()) and array serialization.
+- **CdpEventToProfileListener** — Bridges analytics events to CDP profile updates. Auto-extracts identity signals (email, name, company, plan) from event properties and feeds events to the trait computer.
+- **AnalyticsCdpCommand** — Artisan command `analytics:cdp` for CDP inspection: overview, profile details, segment listing, trait listing, GDPR profile erasure.
+- **ServiceProvider registrations** — CdpProfileService and CdpEventToProfileListener registered as singletons.
+
+### Changed
+- **Version sweep** — All entry points synced from 195.0.0 → 196.0.0. Artisan commands: 86 → 87. Source files: 863 → 869.
+
 ## [195.0.0] - 2026-08-16
 
 ### Added

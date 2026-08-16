@@ -460,7 +460,7 @@ use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 195.0.0
+ * @version 196.0.0
  *
  * @since 1.0.0
  */
@@ -3668,6 +3668,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // CDP Profile Service (v196.0.0) — Customer Data Platform profile management
+        $this->app->singleton(\ZeroBoiler\Analytics\CDP\CdpProfileService::class, function (Application $app): \ZeroBoiler\Analytics\CDP\CdpProfileService {
+            return new \ZeroBoiler\Analytics\CDP\CdpProfileService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // CDP Event-to-Profile Listener (v196.0.0) — bridges analytics events to CDP profiles
+        $this->app->singleton(\ZeroBoiler\Analytics\CDP\CdpEventToProfileListener::class, function (Application $app): \ZeroBoiler\Analytics\CDP\CdpEventToProfileListener {
+            return new \ZeroBoiler\Analytics\CDP\CdpEventToProfileListener(
+                $app->make(\ZeroBoiler\Analytics\CDP\CdpProfileService::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
@@ -4353,6 +4369,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsWebhookRelayCommand::class,
                 AnalyticsGovernanceValidateCommand::class,
                 AnalyticsWarmupCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsCdpCommand::class,
             ]);
         }
 

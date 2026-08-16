@@ -8335,6 +8335,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CDP — Customer Data Platform (v196.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Unified user profile management with:
+    | - Static traits: Identity properties set via identify() calls
+    | - Computed traits: Auto-calculated from event aggregations
+    | - Dynamic segments: Trait-based group membership evaluation
+    |
+    | Profiles are cache-backed with configurable TTL. Enable GDPR
+    | compliance via forgetProfile() which erases all user data.
+    |
+    */
+    'cdp' => [
+        'enabled' => env('ANALYTICS_CDP_ENABLED', true),
+        'profile_ttl' => (int) env('ANALYTICS_CDP_PROFILE_TTL', 7776000), // 90 days
+        'index_ttl' => (int) env('ANALYTICS_CDP_INDEX_TTL', 7776000), // 90 days
+        'max_traits_per_profile' => (int) env('ANALYTICS_CDP_MAX_TRAITS', 200),
+        'max_segments_per_profile' => (int) env('ANALYTICS_CDP_MAX_SEGMENTS', 50),
+        'trait_ttl' => (int) env('ANALYTICS_CDP_TRAIT_TTL', 7776000), // 90 days
+        'accumulator_ttl' => (int) env('ANALYTICS_CDP_ACCUMULATOR_TTL', 86400), // 24 hours
+        'segment_cache_ttl' => (int) env('ANALYTICS_CDP_SEGMENT_CACHE_TTL', 3600), // 1 hour
+        'auto_process_events' => env('ANALYTICS_CDP_AUTO_PROCESS', true),
+        'process_events' => [], // Empty = all events processed; set specific event names to filter
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Server-Side Tag Manager (v171.0.0)
     |--------------------------------------------------------------------------
     |
