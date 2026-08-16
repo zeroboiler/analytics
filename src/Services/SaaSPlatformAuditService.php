@@ -36,7 +36,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * weighted points. The overall maturity grade follows the industry-standard
  * scale: A+ (95+), A (90+), B+ (85+), B (80+), C+ (75+), C (70+), D (<70).
  *
- * @since 179.0.0
+ * @since 180.0.0
  */
 final class SaaSPlatformAuditService
 {

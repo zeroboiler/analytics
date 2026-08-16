@@ -443,7 +443,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 179.0.0
+ * @version 180.0.0
  *
  * @since 1.0.0
  */
@@ -3410,7 +3410,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\SaaSMomentumService($cache, $config);
         });
 
-        // SaaS Onboarding Wizard Service (v179.0.0) — step-by-step setup guidance
+        // SaaS Onboarding Wizard Service (v180.0.0) — step-by-step setup guidance
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3420,7 +3420,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService($cache, $config);
         });
 
-        // Event Instrumentation Advisor (v179.0.0) — SaaS event tracking recommendations
+        // Event Instrumentation Advisor (v180.0.0) — SaaS event tracking recommendations
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3430,7 +3430,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor($cache, $config);
         });
 
-        // Analytics Config Validation Service (v179.0.0) — config integrity checker
+        // Analytics Config Validation Service (v180.0.0) — config integrity checker
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService {
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
@@ -3438,7 +3438,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService($config);
         });
 
-        // Analytics Goal Tracker (v179.0.0) — quantitative target tracking for SaaS KPIs
+        // Analytics Goal Tracker (v180.0.0) — quantitative target tracking for SaaS KPIs
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3448,7 +3448,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker($cache, $config);
         });
 
-        // Rolling Window Analytics Engine (v179.0.0) — time-series smoothing & trend analysis
+        // Rolling Window Analytics Engine (v180.0.0) — time-series smoothing & trend analysis
         $this->app->singleton(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3458,7 +3458,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine($cache, $config);
         });
 
-        // SaaS Quick Insights Service (v179.0.0) — automated pattern detection & actionable insights
+        // SaaS Quick Insights Service (v180.0.0) — automated pattern detection & actionable insights
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSQuickInsightsService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3468,7 +3468,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService($cache, $config);
         });
 
-        // SaaS Platform Maturity Audit Service (v179.0.0) — 14-category comprehensive audit
+        // SaaS Platform Maturity Audit Service (v180.0.0) — 14-category comprehensive audit
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSPlatformAuditService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService {
             return new \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService;
         });
@@ -4698,6 +4698,73 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/conversion-paths/step', [$controller, 'conversionPathRecordStep']);
                 Route::post('analytics/conversion-paths/convert', [$controller, 'conversionPathConvert']);
                 Route::post('analytics/conversion-paths/abandon', [$controller, 'conversionPathAbandon']);
+
+                // Pipeline Validation REST API (v172.0.0)
+                Route::get('analytics/pipeline/validate/status', [$controller, 'pipelineValidateStatus']);
+                Route::get('analytics/pipeline/validate/stages', [$controller, 'pipelineValidateStages']);
+                Route::post('analytics/pipeline/validate/event', [$controller, 'pipelineValidateEvent']);
+                Route::post('analytics/pipeline/validate/batch', [$controller, 'pipelineValidateBatch']);
+
+                // Event Trace REST API (v172.0.0)
+                Route::post('analytics/trace/generate', [$controller, 'traceGenerate']);
+                Route::post('analytics/trace/inject', [$controller, 'traceInject']);
+                Route::post('analytics/trace/inject-batch', [$controller, 'traceInjectBatch']);
+
+                // Config Drift REST API (v172.0.0)
+                Route::get('analytics/config/drift/detect', [$controller, 'configDriftDetect']);
+                Route::get('analytics/config/drift/baseline', [$controller, 'configDriftBaselineInfo']);
+                Route::post('analytics/config/drift/capture', [$controller, 'configDriftCapture']);
+                Route::delete('analytics/config/drift', [$controller, 'configDriftClear']);
+                Route::post('analytics/config/drift/import', [$controller, 'configDriftImport']);
+
+                // Event Value Attribution REST API (v175.0.0)
+                Route::get('analytics/event-value', [$controller, 'eventValue']);
+                Route::post('analytics/event-value/batch', [$controller, 'eventValueBatch']);
+                Route::get('analytics/event-value/report', [$controller, 'eventValueReport']);
+                Route::post('analytics/event-value/journey', [$controller, 'eventValueJourney']);
+
+                // SaaS Momentum REST API (v175.0.0)
+                Route::post('analytics/momentum/score', [$controller, 'momentumScore']);
+                Route::post('analytics/momentum/metric', [$controller, 'momentumMetric']);
+                Route::post('analytics/momentum/quick', [$controller, 'momentumQuick']);
+                Route::get('analytics/momentum/metrics', [$controller, 'momentumMetrics']);
+
+                // SaaS Onboarding Wizard REST API (v177.0.0)
+                Route::get('analytics/onboarding-wizard', [$controller, 'onboardingWizardState']);
+                Route::get('analytics/onboarding-wizard/summary', [$controller, 'onboardingWizardSummary']);
+                Route::get('analytics/onboarding-wizard/gaps', [$controller, 'onboardingWizardGaps']);
+                Route::get('analytics/onboarding-wizard/next', [$controller, 'onboardingWizardNextAction']);
+
+                // Event Instrumentation Advisor REST API (v177.0.0)
+                Route::get('analytics/instrumentation', [$controller, 'instrumentationAdvisor']);
+                Route::get('analytics/instrumentation/summary', [$controller, 'instrumentationSummary']);
+                Route::get('analytics/instrumentation/gaps', [$controller, 'instrumentationGaps']);
+                Route::get('analytics/instrumentation/stage/{stage}', [$controller, 'instrumentationStageCoverage']);
+
+                // Config Validation REST API (v177.0.0)
+                Route::get('analytics/config/validate-full', [$controller, 'configValidate']);
+
+                // Goal Tracker REST API (v177.0.0)
+                Route::get('analytics/goals', [$controller, 'goalsList']);
+                Route::post('analytics/goals/register', [$controller, 'goalsRegister']);
+                Route::get('analytics/goals/{key}/progress', [$controller, 'goalsProgress']);
+                Route::get('analytics/goals/progress', [$controller, 'goalsAllProgress']);
+                Route::get('analytics/goals/dashboard', [$controller, 'goalsDashboard']);
+                Route::get('analytics/goals/attention', [$controller, 'goalsAttentionNeeded']);
+
+                // Rolling Window Analytics REST API (v177.0.0)
+                Route::post('analytics/rolling-window/compute', [$controller, 'rollingWindowCompute']);
+                Route::post('analytics/rolling-window/trend', [$controller, 'rollingWindowTrend']);
+                Route::post('analytics/rolling-window/profile', [$controller, 'rollingWindowProfile']);
+                Route::post('analytics/rolling-window/smooth', [$controller, 'rollingWindowSmooth']);
+
+                // SaaS Quick Insights REST API (v177.0.0)
+                Route::get('analytics/quick-insights', [$controller, 'quickInsights']);
+                Route::get('analytics/quick-insights/summary', [$controller, 'quickInsightsSummary']);
+
+                // SaaS Platform Maturity Audit REST API (v180.0.0)
+                Route::get('analytics/platform-audit', [$controller, 'platformAudit']);
+                Route::get('analytics/platform-audit/quick', [$controller, 'platformAuditQuick']);
             });
     }
 

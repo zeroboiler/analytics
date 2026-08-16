@@ -19242,7 +19242,7 @@ final class AnalyticsEventController extends Controller
      * GET /api/analytics/platform-audit
      * GET /api/analytics/platform-audit/quick — category scores only
      *
-     * @since 179.0.0
+     * @since 180.0.0
      */
     public function platformAudit(): JsonResponse
     {
@@ -19262,7 +19262,7 @@ final class AnalyticsEventController extends Controller
     /**
      * Quick audit — category percentage scores only.
      *
-     * @since 179.0.0
+     * @since 180.0.0
      */
     public function platformAuditQuick(): JsonResponse
     {
