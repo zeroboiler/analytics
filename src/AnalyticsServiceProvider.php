@@ -451,7 +451,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 185.0.0
+ * @version 186.0.0
  *
  * @since 1.0.0
  */
