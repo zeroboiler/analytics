@@ -460,7 +460,7 @@ use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 199.0.0
+ * @version 200.0.0
  *
  * @since 1.0.0
  */
