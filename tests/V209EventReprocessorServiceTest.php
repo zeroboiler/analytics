@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\EventReprocessorService;
 
 beforeEach(function (): void {
