@@ -8690,4 +8690,67 @@ return [
         'max_results' => (int) env('ANALYTICS_CATALOG_EXPLORER_MAX_RESULTS', 50),
         'fuzzy_sensitivity' => (int) env('ANALYTICS_CATALOG_EXPLORER_FUZZY_SENSITIVITY', 3), // Max Levenshtein distance
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Behavioral User Segmentation (v192.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Dynamic behavioral user segmentation with configurable segment definitions.
+    | Users are grouped into cohorts based on event patterns, frequency,
+    | sequences, time windows, and property conditions.
+    |
+    | 10 built-in segments: power_users, new_users, trial_users,
+    | converted_users, at_risk_users, churned_users, feature_adapters,
+    | searchers, ecommerce_browsers, buyers.
+    |
+    | Define custom segments in the 'definitions' array.
+    | Each definition: { type: 'event'|'frequency'|'sequence'|'time'|'property'|'composite', conditions: [...], description: '...' }
+    |
+    */
+    'behavioral_segments' => [
+        'enabled' => env('ANALYTICS_BEHAVIORAL_SEGMENTS_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_BEHAVIORAL_SEGMENTS_CACHE_TTL', 3600), // 1 hour
+        'max_segment_size' => (int) env('ANALYTICS_BEHAVIORAL_SEGMENTS_MAX_SIZE', 100000),
+        'max_snapshots' => (int) env('ANALYTICS_BEHAVIORAL_SEGMENTS_MAX_SNAPSHOTS', 50),
+        'definitions' => [
+            // 'high_value' => [
+            //     'type' => 'composite',
+            //     'conditions' => ['operator' => 'AND', 'segments' => [
+            //         ['type' => 'frequency', 'conditions' => ['min_count' => ['purchase' => 3]]],
+            //         ['type' => 'event', 'conditions' => ['must_not_have' => ['cancellation']]],
+            //     ]],
+            //     'description' => 'Repeat buyers who never cancelled',
+            // ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Feature Flag Rollout Guardrails (v192.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Guardrail monitoring for progressive feature flag rollouts.
+    | Evaluates metric health during rollout phases (canary → early → broad → full)
+    | with phase-appropriate sensitivity thresholds.
+    |
+    | 10 guardrail metrics: conversion_rate, error_rate, page_load_time,
+    | api_latency_p95, revenue_per_user, session_duration, dau_mau_ratio,
+    | d1_retention, feature_usage, bounce_rate.
+    |
+    | When auto_rollback_recommendation is enabled, the service generates
+    | rollback recommendations for critical guardrail breaches.
+    |
+    */
+    'rollout_guardrails' => [
+        'enabled' => env('ANALYTICS_ROLLOUT_GUARDRAILS_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_ROLLOUT_GUARDRAILS_CACHE_TTL', 1800), // 30 minutes
+        'min_sample_size' => (int) env('ANALYTICS_ROLLOUT_GUARDRAILS_MIN_SAMPLE', 100),
+        'significance_alpha' => (float) env('ANALYTICS_ROLLOUT_GUARDRAILS_ALPHA', 0.05),
+        'auto_rollback_recommendation' => env('ANALYTICS_ROLLOUT_AUTO_ROLLBACK', true),
+        'thresholds' => [
+            // Override default thresholds per metric:
+            // 'conversion_rate' => ['warning' => -3.0, 'critical' => -8.0],
+        ],
+    ],
 ];

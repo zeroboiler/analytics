@@ -451,6 +451,8 @@ use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
 use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
 use ZeroBoiler\Analytics\Services\SaaSTelemetryAggregatorService;
 use ZeroBoiler\Analytics\Services\EventReplayValidationService;
+use ZeroBoiler\Analytics\Services\BehavioralUserSegmentService;
+use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -458,7 +460,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 190.0.0
+ * @version 192.0.0
  *
  * @since 1.0.0
  */
@@ -3647,6 +3649,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $app->make(EventCatalogValidator::class),
+            );
+        });
+
+        // Behavioral User Segment Service (v192.0.0) — dynamic behavioral user segmentation
+        $this->app->singleton(BehavioralUserSegmentService::class, function (Application $app): BehavioralUserSegmentService {
+            return new BehavioralUserSegmentService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Feature Flag Rollout Guardrail Service (v192.0.0) — guardrail monitoring during feature rollouts
+        $this->app->singleton(FeatureFlagRolloutGuardrailService::class, function (Application $app): FeatureFlagRolloutGuardrailService {
+            return new FeatureFlagRolloutGuardrailService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
             );
         });
 

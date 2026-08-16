@@ -1,5 +1,16 @@
 # Changelog
 
+## [192.0.0] - 2026-08-16
+
+### Added
+- **BehavioralUserSegmentService** — Dynamic behavioral user segmentation with 6 segment types (event, frequency, sequence, time, property, composite) and 10 built-in SaaS segments. Config-driven custom segment definitions, set operations (intersect/union/except/xor), trending analysis, snapshot persistence, and segment comparison.
+- **FeatureFlagRolloutGuardrailService** — Feature flag rollout guardrail monitoring with 10 guardrail metrics across 5 categories, 4 rollout phases with adaptive sensitivity, z-test statistical significance, automatic rollback recommendations, rollout velocity monitoring, and audit log.
+- **2 new config sections**: `zeroboiler.analytics.behavioral_segments` and `zeroboiler.analytics.rollout_guardrails`.
+- **V192BehavioralSegmentsRolloutGuardrailsTest** — 40 tests covering both services.
+
+### Changed
+- **Version sweep** — All entry points synced from 191.0.0 → 192.0.0. Service count: 394 → 396.
+
 ## [191.0.0] - 2026-08-16
 
 ### Added
