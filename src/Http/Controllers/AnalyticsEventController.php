@@ -19239,4 +19239,281 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Dispatch Latency Tracking (v206.0.0) ────────────────────
+
+    /**
+     * Get comprehensive latency diagnostic summary.
+     *
+     * GET /api/analytics/latency
+     *
+     * @since 206.0.0
+     */
+    public function latencySummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$tracker->diagnosticSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get latency stats for a specific provider.
+     *
+     * GET /api/analytics/latency/provider/{provider}
+     *
+     * @since 206.0.0
+     */
+    public function latencyProviderStats(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'provider' => $provider,
+                ...$tracker->providerStats($provider),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get latency stats for a specific event.
+     *
+     * GET /api/analytics/latency/event/{event}
+     *
+     * @since 206.0.0
+     */
+    public function latencyEventStats(string $event): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $event,
+                ...$tracker->eventStats($event),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get latency histogram for a provider.
+     *
+     * GET /api/analytics/latency/histogram/{provider}
+     *
+     * @since 206.0.0
+     */
+    public function latencyHistogram(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'provider' => $provider,
+                ...$tracker->histogram($provider),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the slowest events across all providers.
+     *
+     * GET /api/analytics/latency/slowest
+     *
+     * @since 206.0.0
+     */
+    public function latencySlowestEvents(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'slowest' => $tracker->slowestEvents(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear all latency tracking data.
+     *
+     * DELETE /api/analytics/latency
+     *
+     * @since 206.0.0
+     */
+    public function latencyClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker::class);
+            $tracker->clear();
+
+            return response()->json(['status' => 'ok', 'cleared' => true]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Replay Audit Ledger (v206.0.0) ──────────────────────────
+
+    /**
+     * List replay operations with pagination.
+     *
+     * GET /api/analytics/replay-ledger?offset=0&limit=25
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerList(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+
+            $offset = (int) $request->query('offset', 0);
+            $limit = min((int) $request->query('limit', 25), 100);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$ledger->listOperations($offset, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get aggregated replay statistics.
+     *
+     * GET /api/analytics/replay-ledger/summary
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$ledger->aggregatedStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get failure reason breakdown.
+     *
+     * GET /api/analytics/replay-ledger/failures
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerFailures(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'failure_reasons' => $ledger->failureReasons(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a specific replay operation detail.
+     *
+     * GET /api/analytics/replay-ledger/{operationId}
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerDetail(string $operationId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+
+            $operation = $ledger->getOperation($operationId);
+
+            if ($operation === null) {
+                return response()->json(['status' => 'not_found', 'error' => 'Replay operation not found'], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                ...$operation,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear all replay ledger data.
+     *
+     * DELETE /api/analytics/replay-ledger
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+            $ledger->clear();
+
+            return response()->json(['status' => 'ok', 'cleared' => true]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Prune old replay operations.
+     *
+     * POST /api/analytics/replay-ledger/prune
+     *
+     * @since 206.0.0
+     */
+    public function replayLedgerPrune(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventReplayAuditLedger $ledger */
+            $ledger = app(\ZeroBoiler\Analytics\Services\EventReplayAuditLedger::class);
+            $pruned = $ledger->prune();
+
+            return response()->json([
+                'status' => 'ok',
+                'pruned_count' => $pruned,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

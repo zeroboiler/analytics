@@ -8960,4 +8960,40 @@ return [
         'correlation_threshold' => (float) env('ANALYTICS_EVENT_CORRELATION_THRESHOLD', 0.3),
         'max_results' => (int) env('ANALYTICS_EVENT_CORRELATION_MAX_RESULTS', 200),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Dispatch Latency Tracking (v206.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Measures round-trip latency from event dispatch to provider
+    | acknowledgment. Tracks per-provider, per-event, and aggregate
+    | latency with configurable sampling and slow-dispatch thresholds.
+    |
+    | Set 'enabled' to false to disable all latency tracking (zero overhead).
+    | Set 'sampling_rate' < 1.0 to track only a fraction of dispatches.
+    |
+    */
+    'latency_tracking' => [
+        'enabled' => env('ANALYTICS_LATENCY_TRACKING_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_LATENCY_TRACKING_TTL', 3600), // 1 hour
+        'slow_threshold_ms' => (float) env('ANALYTICS_LATENCY_SLOW_THRESHOLD_MS', 1000.0),
+        'sampling_rate' => (float) env('ANALYTICS_LATENCY_SAMPLING_RATE', 1.0),
+        'buckets' => [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Replay Audit Ledger (v206.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Immutable audit trail of all event replay operations.
+    | Records who triggered each replay, event outcomes, and timing.
+    | Used for compliance reporting and operational debugging.
+    |
+    */
+    'replay_ledger' => [
+        'max_operations' => (int) env('ANALYTICS_REPLAY_LEDGER_MAX_OPERATIONS', 500),
+        'ttl' => (int) env('ANALYTICS_REPLAY_LEDGER_TTL', 86400), // 24 hours
+    ],
 ];

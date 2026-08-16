@@ -1092,4 +1092,20 @@ Route::prefix('analytics')->group(function () {
     // SaaS Platform Maturity Audit (v180.0.0) — 14-category comprehensive audit
     Route::get('platform-audit', [AnalyticsEventController::class, 'platformAudit']);
     Route::get('platform-audit/quick', [AnalyticsEventController::class, 'platformAuditQuick']);
+
+    // Event Dispatch Latency Tracking (v206.0.0)
+    Route::get('latency', [AnalyticsEventController::class, 'latencySummary']);
+    Route::get('latency/provider/{provider}', [AnalyticsEventController::class, 'latencyProviderStats']);
+    Route::get('latency/event/{event}', [AnalyticsEventController::class, 'latencyEventStats']);
+    Route::get('latency/histogram/{provider}', [AnalyticsEventController::class, 'latencyHistogram']);
+    Route::get('latency/slowest', [AnalyticsEventController::class, 'latencySlowestEvents']);
+    Route::delete('latency', [AnalyticsEventController::class, 'latencyClear']);
+
+    // Event Replay Audit Ledger (v206.0.0)
+    Route::get('replay-ledger', [AnalyticsEventController::class, 'replayLedgerList']);
+    Route::get('replay-ledger/summary', [AnalyticsEventController::class, 'replayLedgerSummary']);
+    Route::get('replay-ledger/failures', [AnalyticsEventController::class, 'replayLedgerFailures']);
+    Route::get('replay-ledger/{operationId}', [AnalyticsEventController::class, 'replayLedgerDetail']);
+    Route::delete('replay-ledger', [AnalyticsEventController::class, 'replayLedgerClear']);
+    Route::post('replay-ledger/prune', [AnalyticsEventController::class, 'replayLedgerPrune']);
 });

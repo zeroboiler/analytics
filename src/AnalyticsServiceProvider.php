@@ -159,6 +159,8 @@ use ZeroBoiler\Analytics\Services\EventComplianceService;
 use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
 use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
 use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
+use ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker;
+use ZeroBoiler\Analytics\Services\EventReplayAuditLedger;
 use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
 use ZeroBoiler\Analytics\Services\AnalyticsInsightsService;
@@ -2602,6 +2604,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Coverage Report Service (v67.0.0)
         $this->app->singleton(SaaSCoverageReportService::class, function (Application $app): SaaSCoverageReportService {
             return new SaaSCoverageReportService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Dispatch Latency Tracker (v206.0.0)
+        $this->app->singleton(EventDispatchLatencyTracker::class, function (Application $app): EventDispatchLatencyTracker {
+            return new EventDispatchLatencyTracker(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Replay Audit Ledger (v206.0.0)
+        $this->app->singleton(EventReplayAuditLedger::class, function (Application $app): EventReplayAuditLedger {
+            return new EventReplayAuditLedger(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
