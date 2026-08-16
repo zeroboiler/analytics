@@ -163,7 +163,7 @@ Done. That's it.
 
 **SaaS Analytics Starter Kit — Industry-Standard Badge Level + README Accuracy Audit**:
 
-- **README accuracy audit** — Verified and updated all headline metrics: 355 services (was "350+"), 84 commands (was 83), JS client ~11,700 LOC (was "~8,200"), TypeScript definitions ~3,100 LOC (was "~3,000"). Source: 817 PHP files (270K+ LOC), 405 test files (168K+ LOC).
+- **README accuracy audit** — Verified and updated all headline metrics: 355 services (was "350+"), 84 commands (was 83), JS client ~11,700 LOC (was "~8,200"), TypeScript definitions ~3,100 LOC (was "~3,000"). Source: 836 PHP files (270K+ LOC), 421 test files (168K+ LOC).
 - **SaaS Analytics Starter Kit completion badge** — All 12 planned SaaS analytics features now verified as industry-standard: Event Catalog (8 categories, 194 events), Server-Side Lifecycle Tracker, Inertia middleware (page props + client ID cookie), API controller + routes (events/batch/identify/consent), JS client library (trackEvent, trackPageView, initInertiaPageViewTracker, scroll depth, client ID management), event queue (async dispatch), user identity linking (client ID ↔ user ID), e-commerce helpers (GA4 + Meta format conversion across all 8 providers), admin commands (overview + test + 82 more), config expansion (queue, API, identity, auto-track, ecommerce, lifecycle), optional providers (Plausible + PostHog trackers), comprehensive test suite (405 tests).
 - **V1670 SaaS Starter Kit Completion Test** — 80+ assertions validating all 12 SaaS analytics features at industry-standard level, README metric accuracy, version sweep consistency, and quality gates.
 - **Version sweep** — All 14 entry points synced to v167.0.0.
@@ -431,7 +431,7 @@ Done. That's it.
 - **AnalyticsRateLimiter** — Per-client rate limiting (client ID / IP based)
 - **WebhookSignatureValidator** — HMAC-SHA256 webhook signature validation
 - **PHPStan 2** — Level max, full type coverage
-- **Pest PHP 3** — 3000+ tests across 355 test files
+- **Pest PHP 3** — 3000+ tests across 421 test files
 - **Pint** — Laravel coding style
 - **Rector** — Automated code quality
 
