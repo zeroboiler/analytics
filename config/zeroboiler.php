@@ -8809,4 +8809,36 @@ return [
             // 'conversion_rate' => ['warning' => -3.0, 'critical' => -8.0],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Privacy Data Clean Room (v198.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Privacy-safe cross-party analytics using data clean room pattern.
+    | Enables aggregate query sharing between participants without exposing
+    | raw event data or PII. Inspired by Snowflake Clean Rooms, Google
+    | Ads Data Hub, and Habu.
+    |
+    | Features:
+    | - Bilateral/multilateral agreement management
+    | - k-anonymity enforcement on all query results
+    | - Optional differential privacy (Laplace noise)
+    | - Per-agreement query rate limiting
+    | - Full audit trail of all operations
+    | - Aggregate sketch submission and validation
+    |
+    */
+    'clean_room' => [
+        'enabled' => env('ANALYTICS_CLEAN_ROOM_ENABLED', false),
+        'k_anonymity' => (int) env('ANALYTICS_CLEAN_ROOM_K_ANONYMITY', 5),
+        'agreement_ttl' => (int) env('ANALYTICS_CLEAN_ROOM_AGREEMENT_TTL', 604800), // 7 days
+        'result_ttl' => (int) env('ANALYTICS_CLEAN_ROOM_RESULT_TTL', 3600), // 1 hour
+        'max_agreements' => (int) env('ANALYTICS_CLEAN_ROOM_MAX_AGREEMENTS', 50),
+        'query_rate_limit' => (int) env('ANALYTICS_CLEAN_ROOM_QUERY_RATE_LIMIT', 100), // per hour
+        'max_dimensions' => (int) env('ANALYTICS_CLEAN_ROOM_MAX_DIMENSIONS', 10),
+        'differential_privacy' => env('ANALYTICS_CLEAN_ROOM_DIFFERENTIAL_PRIVACY', true),
+        'privacy_budget' => (float) env('ANALYTICS_CLEAN_ROOM_PRIVACY_BUDGET', 1.0), // epsilon
+        'audit_retention' => (int) env('ANALYTICS_CLEAN_ROOM_AUDIT_RETENTION', 7776000), // 90 days
+    ],
 ];

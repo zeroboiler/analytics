@@ -10,7 +10,7 @@
  * resets on Inertia page navigation.
  *
  * @package ZeroBoiler Analytics
- * @version 195.0.0
+ * @version 198.0.0
  */
 
 import { writable, derived } from 'svelte/store';

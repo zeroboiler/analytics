@@ -460,7 +460,7 @@ use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 196.0.0
+ * @version 198.0.0
  *
  * @since 1.0.0
  */
@@ -3943,6 +3943,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Differential Privacy Service (v42.0.0)
         $this->app->singleton(DifferentialPrivacyService::class, function (Application $app): DifferentialPrivacyService {
             return new DifferentialPrivacyService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Analytics Clean Room Service (v198.0.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService {
+            return new \ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService(
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
