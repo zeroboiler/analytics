@@ -9,258 +9,385 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\Services\AnalyticsIntelligenceGateway;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Services\DataQualityScoringEngine;
+use ZeroBoiler\Analytics\Services\EventCorrelationMatrixService;
+use ZeroBoiler\Analytics\Services\EventReplayAuditTrailService;
+use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsBridge;
 
 /**
- * Analytics Intelligence Dashboard command.
+ * Analytics Intelligence Command.
  *
- * Displays a comprehensive real-time health overview of the entire
- * analytics pipeline, including provider health, catalog coverage,
- * anomaly status, funnel health, churn signals, and privacy compliance.
+ * Comprehensive diagnostic and intelligence command that reports on:
+ * - Event correlation matrix (top correlated pairs)
+ * - Data quality scores across categories
+ * - Feature flag bridge status
+ * - Replay audit trail statistics
+ * - Event catalog coverage summary
  *
- * Designed for ops teams and SaaS monitoring dashboards.
+ * Provides a unified view of analytics intelligence for admins.
  *
- * @since 71.0.0
+ * @since 203.0.0
  */
 final class AnalyticsIntelligenceCommand extends Command
 {
-    protected $signature = 'zb:analytics:intelligence
-        {--json : Output full dashboard as JSON}
-        {--sections=* : Include only specified sections}
-        {--exclude=* : Exclude specified sections}
-        {--heartbeat : Output lightweight heartbeat only}
-        {--watch : Continuous monitoring (updates every 30s)}';
+    /** @var string */
+    protected $signature = 'analytics:intelligence
+                            {--action=overview : Action to perform (overview|quality|correlation|replay-audit|feature-flags)}
+                            {--event= : Specific event name for focused analysis}
+                            {--limit=10 : Max results to display}
+                            {--format=text : Output format (text|json)}';
 
-    protected $description = 'Real-time SaaS analytics intelligence dashboard';
+    /** @var string */
+    protected $description = 'Analytics intelligence: correlation, quality scoring, replay audit, and feature flag analysis';
 
-    private AnalyticsIntelligenceGateway $gateway;
+    /**
+     * Execute the console command.
+     */
+    public function handle(
+        DataQualityScoringEngine $qualityEngine,
+        EventCorrelationMatrixService $correlationService,
+        EventReplayAuditTrailService $auditTrail,
+        FeatureFlagAnalyticsBridge $flagBridge,
+    ): int {
+        $action = $this->option('action');
+        $format = $this->option('format');
 
-    public function __construct(AnalyticsIntelligenceGateway $gateway): void
-    {
-        parent::__construct();
-        $this->gateway = $gateway;
+        return match ($action) {
+            'quality' => $this->reportQuality($qualityEngine, $format),
+            'correlation' => $this->reportCorrelation($correlationService, $format),
+            'replay-audit' => $this->reportReplayAudit($auditTrail, $format),
+            'feature-flags' => $this->reportFeatureFlags($flagBridge, $format),
+            default => $this->reportOverview($qualityEngine, $correlationService, $auditTrail, $flagBridge, $format),
+        };
     }
 
-    #[Override]
-    public function handle(): int
-    {
-        $outputJson = (bool) $this->option('json');
-        $heartbeat = (bool) $this->option('heartbeat');
-        $watch = (bool) $this->option('watch');
-        $sections = $this->option('sections');
-        $exclude = $this->option('exclude');
+    /**
+     * Report full intelligence overview.
+     */
+    private function reportOverview(
+        DataQualityScoringEngine $qualityEngine,
+        EventCorrelationMatrixService $correlationService,
+        EventReplayAuditTrailService $auditTrail,
+        FeatureFlagAnalyticsBridge $flagBridge,
+        string $format,
+    ): int {
+        $this->printHeader('ZeroBoiler Analytics Intelligence v' . AnalyticsEvent::VERSION);
 
-        if ($heartbeat) {
-            return $this->renderHeartbeat($outputJson);
+        // Data Quality Summary
+        $qualitySummary = $qualityEngine->diagnosticSummary();
+        $this->section('Data Quality Engine');
+        $this->info("  Weights: " . json_encode($qualitySummary['weights']));
+        $this->info("  Freshness: {$qualitySummary['freshness_threshold']}s");
+        $this->info("  Categories: " . implode(', ', $qualitySummary['categories']));
+
+        // Sample quality score
+        $sampleEvent = new AnalyticsEvent(
+            name: 'purchase',
+            params: ['transaction_id' => 'TXN-001', 'value' => 99.99, 'currency' => 'USD', 'item_id' => 'SKU-123'],
+            clientId: 'test-client',
+            userId: '1',
+            category: 'ecommerce',
+        );
+        $score = $qualityEngine->scoreEvent($sampleEvent);
+        $this->info("  Sample 'purchase' score: {$score['score']}/100 (Grade {$score['grade']})");
+
+        // Correlation Matrix Summary
+        $correlationSummary = $correlationService->diagnosticSummary();
+        $this->section('Event Correlation Matrix');
+        $this->info("  Window: {$correlationSummary['default_window']}s");
+        $this->info("  Min Sample: {$correlationSummary['min_sample_size']}");
+        $this->info("  Cache TTL: {$correlationSummary['cache_ttl']}s");
+
+        // Replay Audit Summary
+        $auditStats = $auditTrail->statistics();
+        $this->section('Replay Audit Trail');
+        $this->info("  Total Entries: {$auditStats['total_entries']}");
+        $this->info("  Success Rate: {$auditStats['success_rate']}%");
+        $this->info("  Events Replayed: {$auditStats['total_events_replayed']}");
+        if ($auditStats['avg_duration_ms'] !== null) {
+            $this->info("  Avg Duration: {$auditStats['avg_duration_ms']}ms");
         }
 
-        $options = [];
-        if (is_array($sections) && $sections !== []) {
-            $options['include'] = $sections;
-        }
-        if (is_array($exclude) && $exclude !== []) {
-            $options['exclude'] = $exclude;
-        }
+        // Feature Flag Bridge Summary
+        $flagSummary = $flagBridge->diagnosticSummary();
+        $this->section('Feature Flag Analytics Bridge');
+        $this->info("  Registered Mappings: {$flagSummary['registered_mappings']}");
+        $this->info("  Dedup TTL: {$flagSummary['dedup_ttl']}s");
 
-        if ($watch) {
-            return $this->watchDashboard($options, $outputJson);
-        }
-
-        $dashboard = $this->gateway->dashboard($options);
-
-        if ($outputJson) {
-            $this->line(json_encode($dashboard, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
-
-            return self::SUCCESS;
+        // Event Catalog Summary
+        $this->section('Event Catalog Coverage');
+        $catalog = EventCatalog::summary();
+        $this->info("  Total Events: {$catalog['total_events']}");
+        $this->info("  Categories: " . count($catalog['categories']));
+        foreach ($catalog['categories'] as $cat => $events) {
+            $count = count($events);
+            $this->line("    {$cat}: {$count} events");
         }
 
-        $this->renderDashboard($dashboard);
+        $this->printFooter();
 
         return self::SUCCESS;
     }
 
     /**
-     * Render the full intelligence dashboard to the console.
-     *
-     * @param  array<string, mixed>  $dashboard
+     * Report data quality scores.
      */
-    private function renderDashboard(array $dashboard): void
+    private function reportQuality(DataQualityScoringEngine $qualityEngine, string $format): int
     {
-        $this->info('🧠 ZeroBoiler Analytics Intelligence Dashboard');
-        $this->line('   Version: <info>' . $dashboard['version'] . '</info>');
-        $this->line('   Time: <info>' . $dashboard['timestamp'] . '</info>');
-        $this->line('   Overall: <info>' . $dashboard['overall_score'] . '/100</info> — <comment>' . $dashboard['overall_grade'] . '</comment>');
-        $this->newLine();
+        $this->printHeader('Data Quality Analysis');
 
-        // ── Provider Health ─────────────────────────────────────
-        $providers = $dashboard['provider_health'] ?? [];
-        $this->info('📡 Provider Health');
-        $this->table(
-            ['Provider', 'Status', 'Configured', 'Healthy'],
-            $this->formatProviderTable($providers),
+        $eventName = $this->option('event');
+        $eventNames = $eventName !== null ? [$eventName] : ['purchase', 'sign_up', 'page_view', 'scroll_depth', 'error'];
+
+        foreach ($eventNames as $name) {
+            $category = match (true) {
+                in_array($name, ['purchase', 'add_to_cart', 'view_item', 'refund'], true) => 'ecommerce',
+                in_array($name, ['sign_up', 'login', 'trial_start', 'cancellation'], true) => 'saas',
+                default => 'engagement',
+            };
+
+            $params = match ($name) {
+                'purchase' => ['transaction_id' => 'TXN-001', 'value' => 99.99, 'currency' => 'USD', 'item_id' => 'SKU-123'],
+                'sign_up' => ['plan' => 'pro', 'period' => 'monthly'],
+                default => [],
+            };
+
+            $event = new AnalyticsEvent(
+                name: $name,
+                params: $params,
+                clientId: 'quality-test-client',
+                userId: '1',
+                category: $category,
+            );
+
+            $score = $qualityEngine->scoreEvent($event);
+
+            $this->info("  {$name}");
+            $this->line("    Score: {$score['score']}/100 ({$score['grade']})");
+
+            foreach ($score['dimensions'] as $dim => $data) {
+                $bar = $this->scoreBar($data['score']);
+                $this->line("    {$dim}: {$bar} {$data['score']} - {$data['details']}");
+            }
+
+            foreach ($score['issues'] as $issue) {
+                $this->warn("    [{$issue['severity']}] {$issue['dimension']}: {$issue['message']}");
+            }
+
+            $this->newLine();
+        }
+
+        $this->printFooter();
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Report event correlation analysis.
+     */
+    private function reportCorrelation(EventCorrelationMatrixService $correlationService, string $format): int
+    {
+        $this->printHeader('Event Correlation Analysis');
+
+        $event = $this->option('event');
+        $limit = (int) $this->option('limit');
+
+        $topPairs = $correlationService->topCorrelations(
+            limit: $limit,
+            event: $event !== null ? $event : null,
         );
-        $this->newLine();
 
-        // ── Catalog Coverage ──────────────────────────────────────
-        $coverage = $dashboard['catalog_coverage'] ?? [];
-        $this->info('📦 Catalog Coverage');
-        $this->line('   Total events: <info>' . ($coverage['total'] ?? 0) . '</info>');
-        $this->line('   Industry standard: <info>' . ($coverage['industry_standard_coverage'] ?? 0) . '%</info>');
-        $this->line('   Starter coverage: <info>' . ($coverage['starter_coverage'] ?? 0) . '%</info>');
-        $this->line('   Essential coverage: <info>' . ($coverage['essential_coverage'] ?? 0) . '%</info>');
-        if (($coverage['gap_count'] ?? 0) > 0) {
-            $this->line('   Gaps: <comment>' . ($coverage['gap_count'] ?? 0) . '</comment> event(s)');
+        if ($topPairs === []) {
+            $this->warn('  No correlated pairs found. Ensure events have been tracked.');
+        } else {
+            $this->info("  Top {$limit} Correlated Event Pairs:");
+            $this->newLine();
+
+            foreach ($topPairs as $pair) {
+                $correlation = $pair['correlation'];
+                $significance = $pair['significance'];
+                $label = $correlation > 0 ? 'positive' : 'negative';
+                $indicator = $correlation > 0.5 ? '🔗' : ($correlation > 0.2 ? '↗️' : '→');
+
+                $this->line("  {$indicator} {$pair['event_a']} ↔ {$pair['event_b']}");
+                $this->line("    r={$correlation} ({$significance}, {$label})");
+            }
         }
-        $this->newLine();
 
-        // ── Anomaly Summary ───────────────────────────────────────
-        $anomaly = $dashboard['anomaly_summary'] ?? [];
-        $anomalyIcon = ($anomaly['status'] ?? '') === 'nominal' ? '✅' : (($anomaly['status'] ?? '') === 'alerting' ? '🚨' : '⚪');
-        $this->info('🔍 Anomaly Detection');
-        $this->line("   {$anomalyIcon} Status: <info>" . ($anomaly['status'] ?? 'not_configured') . '</info>');
-        $this->line('   Recent anomalies: <info>' . ($anomaly['recent_anomalies'] ?? 0) . '</info>');
-        $severity = $anomaly['severity_breakdown'] ?? [];
-        if ($severity !== []) {
-            $this->line('   Severity: critical=' . ($severity['critical'] ?? 0) . ', warning=' . ($severity['warning'] ?? 0) . ', info=' . ($severity['info'] ?? 0));
+        // Conversion correlation example
+        $this->newLine();
+        $this->section('Conversion Correlation Sample');
+        $conversion = $correlationService->conversionCorrelation('page_view', 'purchase');
+        $this->line("  page_view → purchase");
+        $this->line("    Lift: {$conversion['lift']}x");
+        $this->line("    Confidence: " . ($conversion['confidence'] * 100) . '%');
+        $this->line("    Interpretation: {$conversion['interpretation']}");
+
+        $this->printFooter();
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Report replay audit trail.
+     */
+    private function reportReplayAudit(EventReplayAuditTrailService $auditTrail, string $format): int
+    {
+        $this->printHeader('Replay Audit Trail');
+
+        $stats = $auditTrail->statistics();
+
+        $this->info("  Total Replays: {$stats['total_entries']}");
+        $this->info("  Success Rate: {$stats['success_rate']}%");
+
+        if ($stats['avg_duration_ms'] !== null) {
+            $this->info("  Avg Duration: {$stats['avg_duration_ms']}ms");
         }
-        $this->newLine();
 
-        // ── Funnel Health ─────────────────────────────────────────
-        $funnel = $dashboard['funnel_health'] ?? [];
-        $this->info('📈 Funnel Health');
-        $this->line('   Signup → Trial: <info>' . $this->formatPercent($funnel['signup_to_trial'] ?? null) . '</info>');
-        $this->line('   Trial → Paid: <info>' . $this->formatPercent($funnel['trial_to_paid'] ?? null) . '</info>');
-        $this->line('   Signup → Paid: <info>' . $this->formatPercent($funnel['signup_to_paid'] ?? null) . '</info>');
         $this->newLine();
+        $this->section('By Type');
+        foreach ($stats['by_type'] as $type => $count) {
+            $this->line("  {$type}: {$count}");
+        }
 
-        // ── Pipeline Health ────────────────────────────────────────
-        $pipeline = $dashboard['pipeline_health'] ?? [];
-        $pipelineIcon = ($pipeline['status'] ?? '') === 'healthy' ? '✅' : '⚠️';
-        $this->info('⚙️ Pipeline Health');
-        $this->line("   {$pipelineIcon} Status: <info>" . ($pipeline['status'] ?? 'unknown') . '</info>');
-        $this->line('   Queue: <info>' . (($pipeline['queue_enabled'] ?? false) ? 'enabled' : 'disabled') . '</info>');
-        $this->line('   Auto UTM: <info>' . (($pipeline['auto_utm'] ?? false) ? 'yes' : 'no') . '</info>');
-        $this->line('   PII: <info>' . (($pipeline['pii_enabled'] ?? false) ? 'enabled' : 'disabled') . '</info>');
-        $this->line('   Sampling: <info>' . (($pipeline['sampling_enabled'] ?? false) ? (($pipeline['sampling_rate'] ?? 1.0) * 100) . '%' : 'disabled') . '</info>');
+        $this->section('By Status');
+        foreach ($stats['by_status'] as $status => $count) {
+            $label = $status === 'success' ? '<info>' . $status . '</info>' : $status;
+            $this->line("  {$label}: {$count}");
+        }
+
+        $this->section('By Source');
+        foreach ($stats['by_source'] as $source => $count) {
+            $this->line("  {$source}: {$count}");
+        }
+
+        // Recent entries
         $this->newLine();
+        $this->section('Recent Entries');
+        $recent = $auditTrail->listEntries(['limit' => 5]);
 
-        // ── Privacy Compliance ────────────────────────────────────
-        $privacy = $dashboard['privacy_compliance'] ?? [];
-        $privacyIcon = ($privacy['status'] ?? '') === 'compliant' ? '✅' : '⚠️';
-        $this->info('🔒 Privacy Compliance');
-        $this->line("   {$privacyIcon} Status: <info>" . ($privacy['status'] ?? 'unknown') . '</info>');
-        $this->line('   Consent default: <info>' . ($privacy['consent_default'] ?? 'unknown') . '</info>');
-        $this->line('   Consent log: <info>' . (($privacy['consent_log_enabled'] ?? false) ? 'enabled' : 'disabled') . '</info>');
-        $this->line('   GDPR: <info>' . (($privacy['gdpr_compliant'] ?? false) ? 'compliant' : 'non-compliant') . '</info>');
-        $this->newLine();
+        foreach ($recent['entries'] as $entry) {
+            $id = $entry['id'] ?? 'unknown';
+            $timestamp = $entry['timestamp'] ?? 'unknown';
+            $status = $entry['status'] ?? 'unknown';
+            $type = $entry['type'] ?? 'unknown';
+            $eventCount = $entry['event_count'] ?? 0;
 
-        // ── Alerts ────────────────────────────────────────────────
-        $alerts = $dashboard['alerts'] ?? [];
-        if ($alerts !== []) {
-            $this->warn('⚠️  Active Alerts');
-            foreach ($alerts as $alert) {
-                $icon = ($alert['severity'] ?? '') === 'critical' ? '🚨' : '⚠️';
-                $this->line("   {$icon} [" . strtoupper($alert['severity'] ?? 'unknown') . '] ' . ($alert['source'] ?? '') . ': ' . ($alert['message'] ?? ''));
+            $this->line("  [{$timestamp}] {$id}");
+            $this->line("    Type: {$type}, Events: {$eventCount}, Status: {$status}");
+        }
+
+        $this->printFooter();
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Report feature flag bridge status.
+     */
+    private function reportFeatureFlags(FeatureFlagAnalyticsBridge $flagBridge, string $format): int
+    {
+        $this->printHeader('Feature Flag Analytics Bridge');
+
+        $summary = $flagBridge->diagnosticSummary();
+        $mappings = $flagBridge->getMappings();
+
+        $this->info("  Registered Mappings: {$summary['registered_mappings']}");
+        $this->info("  Max Mappings: {$summary['max_mappings']}");
+        $this->info("  Dedup TTL: {$summary['dedup_ttl']}s");
+
+        if ($mappings !== []) {
+            $this->newLine();
+            $this->section('Active Mappings');
+
+            foreach ($mappings as $flagKey => $mapping) {
+                $eventName = $mapping['event_name'];
+                $paramCount = count($mapping['params']);
+                $this->line("  {$flagKey} → {$eventName}");
+                if ($paramCount > 0) {
+                    $this->line("    Default params: {$paramCount}");
+                }
             }
         } else {
-            $this->info('✅ No active alerts');
-        }
-    }
-
-    /**
-     * Render the lightweight heartbeat.
-     */
-    private function renderHeartbeat(bool $outputJson): int
-    {
-        $heartbeat = $this->gateway->heartbeat();
-
-        if ($outputJson) {
-            $this->line(json_encode($heartbeat, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
-
-            return self::SUCCESS;
+            $this->warn('  No flag mappings registered.');
+            $this->line('  Use $bridge->registerMapping("flag_key", "event_name") to add mappings.');
         }
 
-        $statusColor = ($heartbeat['status'] ?? '') === 'healthy' ? 'info'
-            : (($heartbeat['status'] ?? '') === 'degraded' ? 'comment' : 'error');
-
-        $this->line('💓 ' . $heartbeat['status']);
-        $this->line('   Score: <info>' . $heartbeat['score'] . '</info>/100 (' . $heartbeat['grade'] . ')');
-        $this->line('   Providers: <info>' . $heartbeat['enabled_providers'] . '</info>/' . $heartbeat['total_providers']);
-        $this->line('   Events: <info>' . $heartbeat['catalog_events'] . '</info>');
-
-        return ($heartbeat['status'] ?? '') === 'healthy' ? self::SUCCESS : self::FAILURE;
-    }
-
-    /**
-     * Watch mode — continuously render dashboard at 30s intervals.
-     *
-     * @param  array<string, mixed>  $options
-     */
-    private function watchDashboard(array $options, bool $outputJson): int
-    {
-        $this->info('🔄 Watch mode — refreshing every 30s (Ctrl+C to stop)');
+        // Test evaluation tracking
         $this->newLine();
+        $this->section('Sample Evaluation');
+        $evaluated = $flagBridge->trackEvaluation(
+            flagKey: 'new_dashboard',
+            variant: true,
+            userId: 'test_user_1',
+            clientId: 'test_client',
+        );
 
-        while (true) {
-            $dashboard = $this->gateway->dashboard($options);
-
-            if ($outputJson) {
-                $this->line(json_encode($dashboard, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
-            } else {
-                // Clear screen
-                $this->output->write("\033\143");
-                $this->renderDashboard($dashboard);
-            }
-
-            sleep(30);
+        if ($evaluated !== null) {
+            $this->info("  Tracked: {$evaluated->name}");
+            $this->line("  Flag: {$evaluated->params['flag_key']}");
+            $this->line("  Variant: " . var_export($evaluated->params['variant'], true));
+        } else {
+            $this->warn('  Evaluation deduplicated (already tracked).');
         }
+
+        $this->printFooter();
+
+        return self::SUCCESS;
     }
 
     /**
-     * Format the provider health data as a table array.
-     *
-     * @param  array<string, mixed>  $providerHealth
-     * @return list<array{0: string, 1: string, 2: string, 3: string}>
+     * Print command header.
      */
-    private function formatProviderTable(array $providerHealth): array
+    private function printHeader(string $title): void
     {
-        $rows = [];
-        $providers = $providerHealth['providers'] ?? [];
-
-        $labels = [
-            'ga4' => 'GA4',
-            'gtm' => 'GTM',
-            'meta_pixel' => 'Meta Pixel',
-            'plausible' => 'Plausible',
-            'posthog' => 'PostHog',
-            'mixpanel' => 'Mixpanel',
-            'amplitude' => 'Amplitude',
-            'tiktok' => 'TikTok',
-            'linkedin' => 'LinkedIn',
-        ];
-
-        foreach ($labels as $key => $label) {
-            $p = $providers[$key] ?? [];
-            $rows[] = [
-                $label,
-                ($p['enabled'] ?? false) ? '<fg=green>ON</>' : '<fg=yellow>OFF</>',
-                ($p['configured'] ?? false) ? '✅' : '❌',
-                ($p['healthy'] ?? false) ? '✅' : '⚠️',
-            ];
-        }
-
-        return $rows;
+        $this->newLine();
+        $this->info("╔══════════════════════════════════════════════════════════╗");
+        $this->info("║  {$this->padCenter($title, 56)}║");
+        $this->info("╚══════════════════════════════════════════════════════════╝");
+        $this->newLine();
     }
 
     /**
-     * Format a percentage value for display.
+     * Print section header.
      */
-    private function formatPercent(?float $value): string
+    private function section(string $title): void
     {
-        if ($value === null) {
-            return 'N/A';
-        }
+        $this->newLine();
+        $this->comment("  ── {$title} ──");
+    }
 
-        return number_format($value * 100, 1) . '%';
+    /**
+     * Print command footer.
+     */
+    private function printFooter(): void
+    {
+        $this->newLine();
+        $this->comment('  ZeroBoiler Analytics Intelligence — Industry-Standard SaaS');
+    }
+
+    /**
+     * Center text within a fixed width.
+     */
+    private function padCenter(string $text, int $width): string
+    {
+        $len = mb_strlen($text);
+        $padL = (int) floor(($width - $len) / 2);
+        $padR = $width - $len - $padL;
+
+        return str_repeat(' ', max(0, $padL)) . $text . str_repeat(' ', max(0, $padR));
+    }
+
+    /**
+     * Generate a visual score bar.
+     */
+    private function scoreBar(float $score): string
+    {
+        $filled = (int) round($score / 5);
+        $empty = 20 - $filled;
+
+        return '[' . str_repeat('█', $filled) . str_repeat('░', $empty) . ']';
     }
 }
