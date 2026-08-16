@@ -276,9 +276,13 @@ use ZeroBoiler\Analytics\Services\EventFingerprintService;
 use ZeroBoiler\Analytics\Services\AlertNotificationService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsInsightsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSignalIntelligenceCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthIntelligenceCommand;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
+use ZeroBoiler\Analytics\Services\AnalyticsCompositeHealthIndex;
+use ZeroBoiler\Analytics\Services\MultiTouchAttributionService;
+use ZeroBoiler\Analytics\Services\RealTimeEventCorrelationEngine;
 use ZeroBoiler\Analytics\Services\CohortBehaviorProfilerService;
 use ZeroBoiler\Analytics\Services\EventPredictiveScoringService;
 use ZeroBoiler\Analytics\Services\EventSchemaValidationService;
@@ -3243,6 +3247,38 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventSignalIntelligenceService($cache, $config, $metrics);
         });
 
+        // Composite Health Index (v204.0.0)
+        $this->app->singleton(AnalyticsCompositeHealthIndex::class, function (Application $app): AnalyticsCompositeHealthIndex {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var AnalyticsMetrics $metrics */
+            $metrics = $app->make(AnalyticsMetrics::class);
+
+            return new AnalyticsCompositeHealthIndex($cache, $config, $metrics);
+        });
+
+        // Multi-Touch Attribution (v204.0.0)
+        $this->app->singleton(MultiTouchAttributionService::class, function (Application $app): MultiTouchAttributionService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new MultiTouchAttributionService($cache, $config);
+        });
+
+        // Real-Time Event Correlation Engine (v204.0.0)
+        $this->app->singleton(RealTimeEventCorrelationEngine::class, function (Application $app): RealTimeEventCorrelationEngine {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new RealTimeEventCorrelationEngine($cache, $config);
+        });
+
         // Cohort Intelligence (v8.1.0)
         $this->app->singleton(CohortBehaviorProfilerService::class, function (Application $app): CohortBehaviorProfilerService {
             /** @var CacheRepository $cache */
@@ -4337,6 +4373,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsFailoverCommand::class,
                 AnalyticsInsightsCommand::class,
                 AnalyticsSignalIntelligenceCommand::class,
+                AnalyticsHealthIntelligenceCommand::class,
                 AnalyticsIntegrityCommand::class,
                 AnalyticsReportCommand::class,
                 AnalyticsCohortIntelligenceCommand::class,

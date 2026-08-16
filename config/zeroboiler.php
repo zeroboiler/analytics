@@ -8887,4 +8887,77 @@ return [
         'enabled' => env('ANALYTICS_FLOW_ANALYZER_ENABLED', true),
         'cache_ttl' => (int) env('ANALYTICS_FLOW_ANALYZER_CACHE_TTL', 1800), // 30 minutes
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Composite Health Index (v204.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Unified health score combining provider coverage, catalog completeness,
+    | data quality, dispatch reliability, event volume health, and consent
+    | compliance into a single 0-100 score with dimension breakdowns.
+    |
+    | Each dimension has a configurable weight (must sum to 1.0).
+    | Scores are cached for the configured TTL and trended over time.
+    |
+    | Use `php artisan analytics:health-intelligence health` to view.
+    |
+    */
+    'composite_health' => [
+        'enabled' => env('ANALYTICS_COMPOSITE_HEALTH_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_COMPOSITE_HEALTH_CACHE_TTL', 300), // 5 minutes
+        'weights' => [
+            // Dimension weights — must sum to 1.0. Override to prioritize dimensions for your product.
+            'provider_coverage' => 0.20,
+            'catalog_completeness' => 0.15,
+            'data_quality' => 0.20,
+            'dispatch_reliability' => 0.20,
+            'event_volume_health' => 0.10,
+            'consent_compliance' => 0.15,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Multi-Touch Attribution (v204.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Cross-channel conversion attribution supporting 6 industry-standard
+    | models: first_touch, last_touch, linear, position_based, time_decay,
+    | and w_shaped. Touchpoints are extracted from UTM parameters and
+    | referrer data stored in event params.
+    |
+    | Use `php artisan analytics:health-intelligence attribution` to view models.
+    |
+    */
+    'multi_touch_attribution' => [
+        'cache_ttl' => (int) env('ANALYTICS_MULTI_TOUCH_ATTRIBUTION_CACHE_TTL', 1800), // 30 minutes
+        'default_model' => env('ANALYTICS_MULTI_TOUCH_DEFAULT_MODEL', 'position_based'),
+        'max_touchpoints' => (int) env('ANALYTICS_MULTI_TOUCH_MAX_TOUCHPOINTS', 50),
+        'lookback_days' => (int) env('ANALYTICS_MULTI_TOUCH_LOOKBACK_DAYS', 90),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Correlation Engine (v204.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Real-time event correlation analysis that detects co-occurring event
+    | patterns, sequential transitions (Markov chain), funnel accelerators,
+    | and drop-off signals. Uses phi coefficient for binary event correlation
+    | and lift ratios for co-occurrence significance.
+    |
+    | Higher correlation_threshold = fewer but more significant pairs.
+    | Lower min_event_count = more pairs but noisier results.
+    |
+    | Use `php artisan analytics:health-intelligence correlation` to view candidates.
+    |
+    */
+    'event_correlation_engine' => [
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_CORRELATION_CACHE_TTL', 600), // 10 minutes
+        'window_hours' => (int) env('ANALYTICS_EVENT_CORRELATION_WINDOW', 168), // 7 days
+        'min_event_count' => (int) env('ANALYTICS_EVENT_CORRELATION_MIN_COUNT', 10),
+        'correlation_threshold' => (float) env('ANALYTICS_EVENT_CORRELATION_THRESHOLD', 0.3),
+        'max_results' => (int) env('ANALYTICS_EVENT_CORRELATION_MAX_RESULTS', 200),
+    ],
 ];
