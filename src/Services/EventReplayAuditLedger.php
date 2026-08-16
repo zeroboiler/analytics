@@ -143,8 +143,8 @@ final class EventReplayAuditLedger
 
         $operation['events'][] = [
             'event_name' => $event->name,
-            'event_id' => $event->id,
             'client_id' => $event->clientId,
+            'user_id' => $event->userId,
             'result' => $result,
             'provider' => $provider,
             'error' => $error,
