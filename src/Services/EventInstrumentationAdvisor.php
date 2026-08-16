@@ -28,7 +28,7 @@ use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
  * - Missing event detection with quick-start code snippets
  * - Maturity grade (Starter → Growth → Enterprise)
  *
- * @since 176.0.0
+ * @since 177.0.0
  */
 final class EventInstrumentationAdvisor
 {

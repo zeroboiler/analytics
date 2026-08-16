@@ -23,7 +23,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * Used by AnalyticsConfigValidator and the readiness command for
  * pre-deploy configuration validation.
  *
- * @since 176.0.0
+ * @since 177.0.0
  */
 final class AnalyticsConfigValidationService
 {

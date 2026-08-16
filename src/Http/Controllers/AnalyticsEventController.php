@@ -18821,7 +18821,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ─── SaaS Onboarding Wizard (v176.0.0) ───────────────────────────
+    // ─── SaaS Onboarding Wizard (v177.0.0) ───────────────────────────
 
     /**
      * Get full onboarding wizard state with all steps, completion status, and recommendations.
@@ -18896,7 +18896,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ─── Event Instrumentation Advisor (v176.0.0) ────────────────────
+    // ─── Event Instrumentation Advisor (v177.0.0) ────────────────────
 
     /**
      * Get the full instrumentation advisory report.
@@ -18972,7 +18972,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ─── Config Validation (v176.0.0) ────────────────────────────────
+    // ─── Config Validation (v177.0.0) ────────────────────────────────
 
     /**
      * Run full configuration validation and return results.
@@ -18986,6 +18986,251 @@ final class AnalyticsEventController extends Controller
             $service = app(\ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService::class);
 
             return response()->json(['status' => 'ok', ...$service->validate()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Goal Tracker (v177.0.0) ──────────────────────────────────────
+
+    /**
+     * Get all registered goals.
+     *
+     * @see \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::allGoals()
+     */
+    public function goalsList(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'goals' => array_map(
+                    static fn(\ZeroBoiler\Analytics\DTO\AnalyticsGoal $g): array => $g->toArray(),
+                    $tracker->allGoals(),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Register a new goal.
+     */
+    public function goalsRegister(Request $request): JsonResponse
+    {
+        try {
+            $goal = \ZeroBoiler\Analytics\DTO\AnalyticsGoal::fromArray($request->all());
+
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+            $tracker->registerGoal($goal);
+
+            return response()->json(['status' => 'ok', 'goal' => $goal->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get progress for a specific goal.
+     */
+    public function goalsProgress(string $key): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+
+            $progress = $tracker->progress($key);
+
+            return response()->json(['status' => 'ok', ...$progress->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get progress for all goals.
+     */
+    public function goalsAllProgress(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+
+            $results = $tracker->allProgress();
+
+            return response()->json([
+                'status' => 'ok',
+                'goals' => array_map(
+                    static fn(\ZeroBoiler\Analytics\DTO\GoalProgress $p): array => $p->toArray(),
+                    $results,
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get goal dashboard summary.
+     */
+    public function goalsDashboard(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+
+            return response()->json(['status' => 'ok', ...$tracker->dashboard()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get goals needing attention.
+     */
+    public function goalsAttentionNeeded(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker $tracker */
+            $tracker = app(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'goals' => array_map(
+                    static fn(\ZeroBoiler\Analytics\DTO\GoalProgress $p): array => $p->toArray(),
+                    $tracker->attentionNeeded(),
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Rolling Window Analytics (v177.0.0) ────────────────────────────
+
+    /**
+     * Compute moving averages for a metric series.
+     */
+    public function rollingWindowCompute(Request $request): JsonResponse
+    {
+        try {
+            $values = $request->input('values', []);
+            $window = (int) $request->input('window', 7);
+            $alpha = (float) $request->input('alpha', 0.3);
+
+            /** @var \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$engine->allMovingAverages((array) $values, $window, $alpha),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Detect trend direction for a metric series.
+     */
+    public function rollingWindowTrend(Request $request): JsonResponse
+    {
+        try {
+            $values = $request->input('values', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'trend' => $engine->detectTrend((array) $values),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get full analytics profile for a metric series.
+     */
+    public function rollingWindowProfile(Request $request): JsonResponse
+    {
+        try {
+            $values = $request->input('values', []);
+            $window = (int) $request->input('window', 7);
+
+            /** @var \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$engine->profile((array) $values, $window),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Smooth a time series using the specified algorithm.
+     */
+    public function rollingWindowSmooth(Request $request): JsonResponse
+    {
+        try {
+            $values = $request->input('values', []);
+            $algorithm = $request->input('algorithm', 'ema');
+            $window = (int) $request->input('window', 7);
+            $alpha = (float) $request->input('alpha', 0.3);
+
+            /** @var \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine $engine */
+            $engine = app(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'smoothed' => $engine->smoothSeries((array) $values, $algorithm, $window, $alpha),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── SaaS Quick Insights (v177.0.0) ──────────────────────────────────
+
+    /**
+     * Generate quick insights from registered metric series.
+     */
+    public function quickInsights(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSQuickInsightsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'insights' => $service->generateInsights(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get insights summary.
+     */
+    public function quickInsightsSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSQuickInsightsService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$service->summary(),
+            ]);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }

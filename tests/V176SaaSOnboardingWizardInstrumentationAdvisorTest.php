@@ -26,29 +26,29 @@ use ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService;
  * - SaaSOnboardingWizardService: 19 steps, completion assessment, grades, gaps
  * - EventInstrumentationAdvisor: report, coverage, maturity, quick wins
  * - AnalyticsConfigValidationService: core structure, provider, consent, security
- * - Version consistency across all entry points (176.0.0)
+ * - Version consistency across all entry points (177.0.0)
  * - New controller endpoints exist
  * - New routes registered
  * - Service registration in ServiceProvider
  * - PHP 8.5 strict types, return types, docblocks
  */
-test('v176 version consistency: version is 176.0.0 everywhere', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('176.0.0');
+test('v176 version consistency: version is 177.0.0 everywhere', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('177.0.0');
 
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('176.0.0');
+    expect($composer['version'])->toBe('177.0.0');
 
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 176.0.0');
+    expect($js)->toContain('@version 177.0.0');
 
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 176.0.0');
+    expect($svelte)->toContain('@version 177.0.0');
 
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($dts)->toContain('@version 176.0.0');
+    expect($dts)->toContain('@version 177.0.0');
 
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-176.0.0');
+    expect($readme)->toContain('version-177.0.0');
 });
 
 test('v176 saas onboarding wizard: service exists and is final', function (): void {
@@ -317,7 +317,7 @@ test('v176 routes: new routes registered', function (): void {
     expect($contents)->toContain("Route::post('config/validate', [AnalyticsEventController::class, 'configValidate'])");
 
     // Version comments
-    expect($contents)->toContain('v176.0.0');
+    expect($contents)->toContain('v177.0.0');
 });
 
 test('v176 service provider: new services registered', function (): void {
@@ -389,7 +389,7 @@ test('v176 php syntax: all new files have strict types and license header', func
         $contents = file_get_contents($file);
         expect($contents)->toContain('declare(strict_types=1)');
         expect($contents)->toContain('This file is part of ZeroBoiler, licensed under the MIT license.');
-        expect($contents)->toContain('@since 176.0.0');
+        expect($contents)->toContain('@since 177.0.0');
     }
 });
 

@@ -1056,18 +1056,36 @@ Route::prefix('analytics')->group(function () {
     Route::post('momentum/quick', [AnalyticsEventController::class, 'momentumQuick']);
     Route::get('momentum/metrics', [AnalyticsEventController::class, 'momentumMetrics']);
 
-    // SaaS Onboarding Wizard (v176.0.0)
+    // SaaS Onboarding Wizard (v177.0.0)
     Route::get('onboarding-wizard', [AnalyticsEventController::class, 'onboardingWizardState']);
     Route::get('onboarding-wizard/summary', [AnalyticsEventController::class, 'onboardingWizardSummary']);
     Route::get('onboarding-wizard/gaps', [AnalyticsEventController::class, 'onboardingWizardGaps']);
     Route::get('onboarding-wizard/next', [AnalyticsEventController::class, 'onboardingWizardNextAction']);
 
-    // Event Instrumentation Advisor (v176.0.0)
+    // Event Instrumentation Advisor (v177.0.0)
     Route::get('instrumentation', [AnalyticsEventController::class, 'instrumentationAdvisor']);
     Route::get('instrumentation/summary', [AnalyticsEventController::class, 'instrumentationSummary']);
     Route::get('instrumentation/gaps', [AnalyticsEventController::class, 'instrumentationGaps']);
     Route::get('instrumentation/stage', [AnalyticsEventController::class, 'instrumentationStageCoverage']);
 
-    // Config Validation (v176.0.0)
+    // Config Validation (v177.0.0)
     Route::post('config/validate', [AnalyticsEventController::class, 'configValidate']);
+
+    // Goal Tracker (v177.0.0) — quantitative target tracking for SaaS KPIs
+    Route::get('goals', [AnalyticsEventController::class, 'goalsList']);
+    Route::post('goals', [AnalyticsEventController::class, 'goalsRegister']);
+    Route::get('goals/progress', [AnalyticsEventController::class, 'goalsAllProgress']);
+    Route::get('goals/dashboard', [AnalyticsEventController::class, 'goalsDashboard']);
+    Route::get('goals/attention', [AnalyticsEventController::class, 'goalsAttentionNeeded']);
+    Route::get('goals/{key}/progress', [AnalyticsEventController::class, 'goalsProgress']);
+
+    // Rolling Window Analytics (v177.0.0) — time-series smoothing & trend analysis
+    Route::post('rolling-window/compute', [AnalyticsEventController::class, 'rollingWindowCompute']);
+    Route::post('rolling-window/trend', [AnalyticsEventController::class, 'rollingWindowTrend']);
+    Route::post('rolling-window/profile', [AnalyticsEventController::class, 'rollingWindowProfile']);
+    Route::post('rolling-window/smooth', [AnalyticsEventController::class, 'rollingWindowSmooth']);
+
+    // SaaS Quick Insights (v177.0.0) — automated pattern detection
+    Route::get('quick-insights', [AnalyticsEventController::class, 'quickInsights']);
+    Route::get('quick-insights/summary', [AnalyticsEventController::class, 'quickInsightsSummary']);
 });

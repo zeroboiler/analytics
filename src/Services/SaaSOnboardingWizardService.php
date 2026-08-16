@@ -36,7 +36,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  * Inspired by PostHog's onboarding wizard, Mixpanel's quick start guide,
  * and Amplitude's instrumentation advisor.
  *
- * @since 176.0.0
+ * @since 177.0.0
  */
 final class SaaSOnboardingWizardService
 {

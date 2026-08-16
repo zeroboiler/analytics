@@ -8364,4 +8364,85 @@ return [
             // ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Goal Tracker (v177.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Quantitative target tracking for SaaS KPIs. Define measurable goals
+    | with targets, time windows, and alert thresholds. Progress is
+    | computed from event data and cached for dashboard rendering.
+    |
+    */
+    'goals' => [
+        'cache_ttl' => (int) env('ANALYTICS_GOALS_CACHE_TTL', 300),
+        'default_warning_threshold' => (float) env('ANALYTICS_GOALS_WARNING', 50.0),
+        'default_critical_threshold' => (float) env('ANALYTICS_GOALS_CRITICAL', 25.0),
+        'definitions' => [
+            // Define your SaaS goals here. Example:
+            // 'daily_signups' => [
+            //     'key' => 'daily_signups',
+            //     'name' => 'Daily Signups',
+            //     'description' => 'Number of new user registrations per day',
+            //     'target' => 100.0,
+            //     'metric' => 'sign_up',
+            //     'aggregation' => 'count',
+            //     'window' => 'daily',
+            //     'warning_threshold' => 50.0,
+            //     'critical_threshold' => 25.0,
+            //     'category' => 'growth',
+            //     'owner' => 'growth-team',
+            //     'active' => true,
+            // ],
+            // 'monthly_mrr' => [
+            //     'key' => 'monthly_mrr',
+            //     'name' => 'Monthly MRR Target',
+            //     'target' => 50000.0,
+            //     'metric' => 'subscription_created',
+            //     'aggregation' => 'sum',
+            //     'window' => 'monthly',
+            //     'category' => 'revenue',
+            // ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rolling Window Analytics (v177.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Time-series smoothing and trend analysis engine. Controls default
+    | parameters for moving averages, trend detection, and volatility
+    | calculations used by dashboard widgets.
+    |
+    */
+    'rolling_window' => [
+        'default_window' => (int) env('ANALYTICS_ROLLING_WINDOW', 7),
+        'ema_alpha' => (float) env('ANALYTICS_ROLLING_EMA_ALPHA', 0.3),
+        'volatility_window' => (int) env('ANALYTICS_ROLLING_VOLATILITY_WINDOW', 7),
+        'trend_min_points' => (int) env('ANALYTICS_ROLLING_TREND_MIN', 3),
+        'cache_ttl' => (int) env('ANALYTICS_ROLLING_CACHE_TTL', 600),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Quick Insights (v177.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Automated pattern detection for SaaS dashboards. Scans registered
+    | metric series for spikes, drops, trends, volatility, and outliers.
+    | Generates human-readable insights with recommended actions.
+    |
+    */
+    'quick_insights' => [
+        'enabled' => env('ANALYTICS_QUICK_INSIGHTS_ENABLED', true),
+        'max_insights' => (int) env('ANALYTICS_QUICK_INSIGHTS_MAX', 20),
+        'spike_threshold' => (float) env('ANALYTICS_QUICK_INSIGHTS_SPIKE', 2.0),
+        'drop_threshold' => (float) env('ANALYTICS_QUICK_INSIGHTS_DROP', 0.5),
+        'trend_periods' => (int) env('ANALYTICS_QUICK_INSIGHTS_TREND', 5),
+        'volatility_threshold' => (float) env('ANALYTICS_QUICK_INSIGHTS_VOLATILITY', 0.5),
+        'cache_ttl' => (int) env('ANALYTICS_QUICK_INSIGHTS_CACHE_TTL', 600),
+        'ignored_metrics' => [],
+    ],
 ];
