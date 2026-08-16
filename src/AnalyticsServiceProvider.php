@@ -438,6 +438,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsProviderTagManager;
 use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
 use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
 use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
+use ZeroBoiler\Analytics\Services\SaaSTelemetryAggregatorService;
+use ZeroBoiler\Analytics\Services\EventReplayValidationService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -445,7 +447,7 @@ use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 182.0.0
+ * @version 183.0.0
  *
  * @since 1.0.0
  */
@@ -3485,6 +3487,24 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Cross-Provider Coverage Analyzer (v181.0.0) — event mapping parity across 8 providers
         $this->app->singleton(CrossProviderCoverageAnalyzer::class);
+
+        // SaaS Telemetry Aggregator Service (v183.0.0) — unified provider telemetry dashboard
+        $this->app->singleton(SaaSTelemetryAggregatorService::class, function (Application $app): SaaSTelemetryAggregatorService {
+            return new SaaSTelemetryAggregatorService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+                $app->make('zeroboiler.analytics'),
+            );
+        });
+
+        // Event Replay Validation Service (v183.0.0) — validates events before replay dispatch
+        $this->app->singleton(EventReplayValidationService::class, function (Application $app): EventReplayValidationService {
+            return new EventReplayValidationService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+                $app->make(EventCatalogValidator::class),
+            );
+        });
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {

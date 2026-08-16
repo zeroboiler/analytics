@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-182.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-183.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **197 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **369 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **11 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, and e-commerce format conversion across all providers.
@@ -56,6 +56,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v183.0.0
+
+**SaaS Telemetry Aggregator + Event Replay Validation — Industry-Standard SaaS Analytics Upgrade**:
+
+- **SaaSTelemetryAggregatorService** — unified provider telemetry dashboard for SaaS observability. Aggregates real-time dispatch telemetry across all configured analytics providers into a single cache-backed data source. Computes per-provider dispatch counts and success/failure rates, per-category event distribution, per-event-name frequency rankings, rolling window throughput metrics (1m, 5m, 15m, 1h), cross-provider latency percentiles (p50, p95, p99), provider health status (healthy/degraded/down), and anomaly detection on throughput spikes/drops. Provides `summary()`, `providerDetails()`, `categoryBreakdown()`, `quickOverview()`, and `detectAnomalies()` methods for dashboard rendering. Registered as singleton in ServiceProvider.
+- **EventReplayValidationService** — validates events before replay dispatch from dead-letter queue or event archive. Prevents replaying unknown/deprecated events, events that violate consent state, PII-bearing events that should be anonymized, invalid payloads, and duplicates (idempotency check). Provides `validate()`, `validateBatch()`, `markReplayed()`, `blockEvent()`/`unblockEvent()` methods. Returns validation results with issue codes (REPLAY_DUPLICATE, EVENT_BLOCKED, SENSITIVE_CONTENT, CATALOG_UNKNOWN, STALE_EVENT, FUTURE_EVENT, PAYLOAD_TOO_LARGE) and optionally a sanitized event suitable for re-dispatch with `source: 'replay'`. Registered as singleton in ServiceProvider.
+- **Version sweep** — All entry points synced to 183.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.constants.js, analytics.d.ts, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+- **Tests** — V183SaaSTelemetryAggregatorTest (18 assertions), V183EventReplayValidationTest (15 assertions), Phase183ProductionReadinessTest (16+ assertions). Total: 843+ src files, 425+ tests.
 
 ### What's New in v182.0.0
 

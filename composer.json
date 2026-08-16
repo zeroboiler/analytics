@@ -22,7 +22,7 @@
         "consent",
         "ecommerce"
     ],
-    "version": "182.0.0",
+    "version": "183.0.0",
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
