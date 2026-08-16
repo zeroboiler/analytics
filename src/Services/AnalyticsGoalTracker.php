@@ -12,7 +12,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\DTO\AnalyticsGoal;
 use ZeroBoiler\Analytics\DTO\GoalProgress;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * Analytics Goal Tracker — quantitative target tracking for SaaS KPIs.
@@ -168,7 +167,7 @@ final class AnalyticsGoalTracker
         if ($useCache && $cacheKey !== '') {
             $cached = $this->cache->get($cacheKey);
             if (is_array($cached)) {
-                return GoalProgress(
+                return new GoalProgress(
                     goalKey: (string) ($cached['goal_key'] ?? $goalKey),
                     goalName: (string) ($cached['goal_name'] ?? ''),
                     actual: (float) ($cached['actual'] ?? 0.0),

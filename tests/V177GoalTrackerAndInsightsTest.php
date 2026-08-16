@@ -11,6 +11,7 @@ namespace Tests;
 use PHPUnit\Framework\TestCase;
 use ZeroBoiler\Analytics\DTO\AnalyticsGoal;
 use ZeroBoiler\Analytics\DTO\GoalProgress;
+use ZeroBoiler\Analytics\Services\AnalyticsGoalTracker;
 use ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine;
 use ZeroBoiler\Analytics\Services\SaaSQuickInsightsService;
 

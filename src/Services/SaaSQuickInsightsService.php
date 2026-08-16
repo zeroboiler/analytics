@@ -24,10 +24,6 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  * - **trending_up**: Sustained upward trajectory
  * - **trending_down**: Sustained downward trajectory
  * - **high_volatility**: Unstable metric behavior
- * - **seasonal_pattern**: Repeating periodic behavior
- * - **milestone_approaching**: Goal near completion
- * - **milestone_achieved**: Goal target reached
- * - **correlation**: Two metrics moving together
  * - **outlier**: Data point far from the norm
  *
  * Each insight includes severity, confidence, affected metric, and
