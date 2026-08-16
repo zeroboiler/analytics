@@ -134,7 +134,9 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventRouter;
 use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
+use ZeroBoiler\Analytics\Services\SaaSFeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
+use ZeroBoiler\Analytics\Services\SaaSRevenueFunnelService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
@@ -2200,6 +2202,30 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $kpiTracker = $app->make(SaasKpiTracker::class);
 
             return new SaaSHealthScoreService($cache, $config, $kpiTracker);
+        });
+
+        // SaaS Revenue Funnel service — full lifecycle funnel analytics
+        $this->app->singleton(SaaSRevenueFunnelService::class, function (Application $app): SaaSRevenueFunnelService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSRevenueFunnelService($manager, $cache, $config);
+        });
+
+        // SaaS Feature Adoption Tracker — feature adoption curves and stickiness
+        $this->app->singleton(SaaSFeatureAdoptionTracker::class, function (Application $app): SaaSFeatureAdoptionTracker {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make(AnalyticsManager::class);
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SaaSFeatureAdoptionTracker($manager, $cache, $config);
         });
 
         // Analytics health check service — comprehensive diagnostic
