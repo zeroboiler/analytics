@@ -4036,25 +4036,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Analytics Data Lake Export Service (v188.0.0) — warehouse ingestion
-        $this->app->singleton(AnalyticsDataLakeService::class, function (Application $app): AnalyticsDataLakeService {
-            return new AnalyticsDataLakeService(
-                $app->make('cache'),
-                $app->make(ConfigRepository::class),
-            );
-        });
-
-        // Event Trace Context Service (v188.0.0) — W3C Trace Context propagation
-        $this->app->singleton(EventTraceContextService::class, function (Application $app): EventTraceContextService {
-            $tcConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.trace_context', []);
-
-            return new EventTraceContextService(
-                enabled: (bool) ($tcConfig['enabled'] ?? true),
-                strictMode: (bool) ($tcConfig['strict_mode'] ?? true),
-                autoEnrich: (bool) ($tcConfig['auto_enrich'] ?? true),
-            );
-        });
-
         // Event Payload Transformation Engine (v70.0.0) — provider-specific field mapping
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventTransformationEngine {
             return new \ZeroBoiler\Analytics\Services\EventTransformationEngine(

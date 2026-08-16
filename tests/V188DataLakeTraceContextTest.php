@@ -384,7 +384,7 @@ final class V188DataLakeTraceContextTest extends TestCase
         $tcContent = file_get_contents(self::PKG_ROOT . '/src/Services/EventTraceContextService.php');
 
         // Data lake uses CacheRepository
-        $this->assertStringContainsString('use Illuminate\\Contracts\\Cache\\Repository as CacheRepository', $dlContent);
+        $this->assertStringContainsString('use Illuminate\Contracts\Cache\Repository as CacheRepository', $dlContent);
 
         // Trace context does NOT use cache (stateless, request-scoped)
         $this->assertStringNotContainsString('CacheRepository', $tcContent);
