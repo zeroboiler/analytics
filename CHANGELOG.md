@@ -1,5 +1,19 @@
 # Changelog
 
+## [193.0.0] - 2026-08-16
+
+### Added
+- **SaaSConversionPredictorService** — Heuristic-based conversion probability estimation using configurable positive/negative signal scoring. 10 positive signals across 4 categories, 4 negative signals. Single user prediction, batch prediction, top prospects ranking, signal map builder, cache-backed results, actionable recommendations.
+- **AnalyticsConversionPredictorCommand** — `analytics:predict` artisan command with `--demo`, `--user`, `--signals`, `--top` options.
+- **Config section** `zeroboiler.analytics.conversion_predictor` (enabled, cache_ttl, custom_weights).
+- **V193ConversionPredictorQuickStartFixTest** — 40 tests covering predictor service and QuickStart bug fix.
+
+### Fixed
+- **SaaSQuickStartService** — All 9 `trackEvent('name', [...])` calls corrected to `track('name', [...])`. The `trackEvent()` method expects an `AnalyticsEvent` DTO, not a string and array.
+
+### Changed
+- **Version sweep** — All entry points synced from 192.0.0 → 193.0.0. Service count: 396 → 398.
+
 ## [192.0.0] - 2026-08-16
 
 ### Added

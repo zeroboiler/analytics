@@ -496,9 +496,38 @@ return [
         ],
 
         /*
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
+        | Conversion Prediction (v193.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Heuristic-based conversion probability estimation using behavioral
+        | signal scoring. Predicts which users are most likely to convert
+        | (trial → paid, free → paid) based on engagement, activation,
+        | social, temporal, and negative signals.
+        |
+        | No external ML dependencies — pure PHP scoring model.
+        | Configured via ANALYTICS_CONVERSION_PREDICTOR_* env vars.
+        |
+        */
+        'conversion_predictor' => [
+            'enabled' => env('ANALYTICS_CONVERSION_PREDICTOR_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CONVERSION_PREDICTOR_CACHE_TTL', 3600), // 1 hour
+            'custom_weights' => [
+                // Override default signal weights for your product.
+                // 'positive' => [
+                //     'onboarding_completed' => 30.0,
+                //     'first_value_moment' => 35.0,
+                // ],
+                // 'negative' => [
+                //     'errors_count' => 20.0,
+                // ],
+            ],
+        ],
+
+        /*
+        |-------------------------------------------------------------------------- 
         | SaaS Event Templates (v6.9.0)
-        |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- 
         |
         | Pre-configured event templates for common SaaS patterns.
         | When SaaSEventTemplateService is used, these settings control

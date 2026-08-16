@@ -38,7 +38,7 @@ final class SaaSQuickStartService
      */
     public function trackSignUp(string $userId, array $params = []): void
     {
-        $this->manager->trackEvent('sign_up', array_merge([
+        $this->manager->track('sign_up', array_merge([
             'user_id' => $userId,
         ], $params));
     }
@@ -56,7 +56,7 @@ final class SaaSQuickStartService
             $params['method'] = $method;
         }
 
-        $this->manager->trackEvent('login', $params);
+        $this->manager->track('login', $params);
     }
 
     /**
@@ -76,7 +76,7 @@ final class SaaSQuickStartService
             $params['trial_days'] = $trialDays;
         }
 
-        $this->manager->trackEvent('start_trial', $params);
+        $this->manager->track('start_trial', $params);
     }
 
     /**
@@ -96,7 +96,7 @@ final class SaaSQuickStartService
             $params['revenue'] = $revenue;
         }
 
-        $this->manager->trackEvent('trial_converted', $params);
+        $this->manager->track('trial_converted', $params);
     }
 
     /**
@@ -120,7 +120,7 @@ final class SaaSQuickStartService
             $params['billing_cycle'] = $billingCycle;
         }
 
-        $this->manager->trackEvent('subscribe', $params);
+        $this->manager->track('subscribe', $params);
     }
 
     /**
@@ -142,7 +142,7 @@ final class SaaSQuickStartService
             $params['revenue_change'] = $revenueChange;
         }
 
-        $this->manager->trackEvent('plan_upgrade', $params);
+        $this->manager->track('plan_upgrade', $params);
     }
 
     /**
@@ -162,7 +162,7 @@ final class SaaSQuickStartService
             $params['plan'] = $plan;
         }
 
-        $this->manager->trackEvent('cancellation', $params);
+        $this->manager->track('cancellation', $params);
     }
 
     /**
@@ -186,7 +186,7 @@ final class SaaSQuickStartService
      */
     public function trackFeatureUsed(string $userId, string $featureName, array $metadata = []): void
     {
-        $this->manager->trackEvent('feature_used', array_merge([
+        $this->manager->track('feature_used', array_merge([
             'user_id' => $userId,
             'feature_name' => $featureName,
         ], $metadata));
@@ -206,7 +206,7 @@ final class SaaSQuickStartService
             $params['severity'] = $severity;
         }
 
-        $this->manager->trackEvent('error', array_merge($params, $context));
+        $this->manager->track('error', array_merge($params, $context));
     }
 
     /**

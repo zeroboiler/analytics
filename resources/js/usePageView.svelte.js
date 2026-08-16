@@ -7,7 +7,7 @@
  * for SPAs with hash-based routing and provides engagement metrics.
  *
  * @package ZeroBoiler Analytics
- * @version 192.0.0
+ * @version 193.0.0
  */
 
 import { writable, derived } from 'svelte/store';
