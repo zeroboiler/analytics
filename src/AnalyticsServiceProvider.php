@@ -460,7 +460,7 @@ use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 198.0.0
+ * @version 199.0.0
  *
  * @since 1.0.0
  */
@@ -3956,6 +3956,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Intelligence Copilot Service (v199.0.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService {
+            return new \ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Event TTL Service (v43.0.0)
         $this->app->singleton(EventTtlService::class, function (Application $app): EventTtlService {
             $config = $app->make(ConfigRepository::class);
@@ -4379,6 +4387,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsWarmupCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCdpCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSyntheticCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsCopilotCommand::class,
             ]);
         }
 

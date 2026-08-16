@@ -8841,4 +8841,27 @@ return [
         'privacy_budget' => (float) env('ANALYTICS_CLEAN_ROOM_PRIVACY_BUDGET', 1.0), // epsilon
         'audit_retention' => (int) env('ANALYTICS_CLEAN_ROOM_AUDIT_RETENTION', 7776000), // 90 days
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Intelligence Copilot (v199.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Automatic analytics intelligence and executive summary generator.
+    | Aggregates signals across catalog, quality, volume, provider, and
+    | lifecycle dimensions to produce actionable recommendations.
+    |
+    | Inspired by Segment Personas Intelligence, Amplitude Govern,
+    | and Mixpanel Intelligence.
+    |
+    */
+    'intelligence_copilot' => [
+        'enabled' => env('ANALYTICS_INTELLIGENCE_COPILOT_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_INTELLIGENCE_COPILOT_CACHE_TTL', 300), // 5 minutes
+        'cache_prefix' => env('ANALYTICS_INTELLIGENCE_COPILOT_CACHE_PREFIX', 'zb_copilot_'),
+        'max_recommendations' => (int) env('ANALYTICS_INTELLIGENCE_COPILOT_MAX_RECS', 20),
+        'min_event_volume' => (int) env('ANALYTICS_INTELLIGENCE_COPILOT_MIN_VOLUME', 100),
+        'spike_threshold' => (float) env('ANALYTICS_INTELLIGENCE_COPILOT_SPIKE_THRESHOLD', 2.0),
+        'anomaly_sensitivity' => (float) env('ANALYTICS_INTELLIGENCE_COPILOT_ANOMALY_SENSITIVITY', 0.7),
+    ],
 ];

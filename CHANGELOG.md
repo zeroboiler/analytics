@@ -1,6 +1,23 @@
 # Changelog
 
-## [196.0.0] - 2026-08-16
+## [199.0.0] - 2026-08-16
+
+### Added
+- **EventIntelligenceCopilotService** — Automatic analytics intelligence and executive summary generator. Aggregates signals across 5 dimensions: catalog coverage, data quality, event volume distribution, provider health, and SaaS lifecycle funnel. Generates prioritized action recommendations. Cache-backed with configurable TTL.
+- **Category Intelligence** — Per-category analytics with event count, provider coverage, top events, gap detection.
+- **Volume Spike Detection** — Automatic detection of abnormal event volume across categories with severity levels.
+- **Provider Health Comparison** — Cross-provider health analysis with coverage scores and letter grades.
+- **SaaS Lifecycle Funnel Intelligence** — 6-stage lifecycle analysis (awareness → acquisition → activation → revenue → retention → referral) with bottleneck detection.
+- **Recommendation Engine** — Prioritized action items based on intelligence signals.
+- **AnalyticsCopilotCommand** — `php artisan analytics:copilot` CLI with 7 actions: summary, category, spikes, providers, lifecycle, config, clear. Supports `--json` output.
+- **Config expansion** — `zeroboiler.analytics.intelligence_copilot` section with 7 env-backed settings.
+- **ServiceProvider registration** — EventIntelligenceCopilotService registered as singleton.
+- **Tests** — V199IntelligenceCopilotTest (50+ assertions).
+
+### Changed
+- **Version sweep** — All entry points synced from 198.0.0 → 199.0.0. Command count: 89 → 90. Source files: 879 → 881+. Tests: 446 → 447+.
+
+## [198.0.0] - 2026-08-16
 
 ### Added
 - **CDP (Customer Data Platform)** — Full user profile management with static traits, computed traits, and dynamic segment evaluation. Five new classes in `src/CDP/`:
