@@ -178,7 +178,7 @@ test('SessionReplayHeatmapService dwell time tracking', function (): void {
         }
     }
 
-    expect($contentZone)->not->BeNull();
+    expect($contentZone)->not->toBeNull();
     expect($contentZone['time_ms'])->toBe(8000);
 });
 
