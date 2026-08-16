@@ -42,12 +42,12 @@ describe('Phase 39 — Production Readiness Hardening', function (): void {
 
     // ─── Version Consistency ────────────────────────────────────────────
 
-    it('composer.json version is 178.0.0', function (): void {
+    it('composer.json version is 179.0.0', function (): void {
         $composer = json_decode(
             file_get_contents(dirname(__DIR__, 2) . '/composer.json'),
             true,
         );
-        expect($composer['version'])->toBe('178.0.0');
+        expect($composer['version'])->toBe('179.0.0');
     });
 
     it('README version badge matches composer.json', function (): void {

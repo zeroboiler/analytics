@@ -1088,4 +1088,8 @@ Route::prefix('analytics')->group(function () {
     // SaaS Quick Insights (v177.0.0) — automated pattern detection
     Route::get('quick-insights', [AnalyticsEventController::class, 'quickInsights']);
     Route::get('quick-insights/summary', [AnalyticsEventController::class, 'quickInsightsSummary']);
+
+    // SaaS Platform Maturity Audit (v179.0.0) — 14-category comprehensive audit
+    Route::get('platform-audit', [AnalyticsEventController::class, 'platformAudit']);
+    Route::get('platform-audit/quick', [AnalyticsEventController::class, 'platformAuditQuick']);
 });

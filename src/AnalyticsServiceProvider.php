@@ -443,7 +443,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 178.0.0
+ * @version 179.0.0
  *
  * @since 1.0.0
  */
@@ -3410,7 +3410,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\SaaSMomentumService($cache, $config);
         });
 
-        // SaaS Onboarding Wizard Service (v178.0.0) — step-by-step setup guidance
+        // SaaS Onboarding Wizard Service (v179.0.0) — step-by-step setup guidance
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3420,7 +3420,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService($cache, $config);
         });
 
-        // Event Instrumentation Advisor (v178.0.0) — SaaS event tracking recommendations
+        // Event Instrumentation Advisor (v179.0.0) — SaaS event tracking recommendations
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3430,7 +3430,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor($cache, $config);
         });
 
-        // Analytics Config Validation Service (v178.0.0) — config integrity checker
+        // Analytics Config Validation Service (v179.0.0) — config integrity checker
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService {
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
@@ -3438,7 +3438,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\AnalyticsConfigValidationService($config);
         });
 
-        // Analytics Goal Tracker (v178.0.0) — quantitative target tracking for SaaS KPIs
+        // Analytics Goal Tracker (v179.0.0) — quantitative target tracking for SaaS KPIs
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3448,7 +3448,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker($cache, $config);
         });
 
-        // Rolling Window Analytics Engine (v178.0.0) — time-series smoothing & trend analysis
+        // Rolling Window Analytics Engine (v179.0.0) — time-series smoothing & trend analysis
         $this->app->singleton(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3458,7 +3458,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine($cache, $config);
         });
 
-        // SaaS Quick Insights Service (v178.0.0) — automated pattern detection & actionable insights
+        // SaaS Quick Insights Service (v179.0.0) — automated pattern detection & actionable insights
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSQuickInsightsService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -3466,6 +3466,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService($cache, $config);
+        });
+
+        // SaaS Platform Maturity Audit Service (v179.0.0) — 14-category comprehensive audit
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSPlatformAuditService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService {
+            return new \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService;
         });
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring

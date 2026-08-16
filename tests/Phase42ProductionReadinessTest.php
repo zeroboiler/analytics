@@ -26,47 +26,47 @@ describe('Phase 42 — Post-v174-v177 Production Readiness', function (): void {
 
     // ─── Version Consistency (14 entry points) ──────────────────────────
 
-    it('composer.json version is 178.0.0', function (): void {
+    it('composer.json version is 179.0.0', function (): void {
         $composer = json_decode(
             file_get_contents(dirname(__DIR__, 2) . '/composer.json'),
             true,
         );
-        expect($composer['version'])->toBe('178.0.0');
+        expect($composer['version'])->toBe('179.0.0');
     });
 
-    it('package.json version is 178.0.0', function (): void {
+    it('package.json version is 179.0.0', function (): void {
         $pkg = json_decode(
             file_get_contents(dirname(__DIR__, 2) . '/package.json'),
             true,
         );
-        expect($pkg['version'])->toBe('178.0.0');
+        expect($pkg['version'])->toBe('179.0.0');
     });
 
-    it('AnalyticsEvent::VERSION is 178.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('178.0.0');
+    it('AnalyticsEvent::VERSION is 179.0.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('179.0.0');
     });
 
-    it('AnalyticsIntegrityCommand::EXPECTED_VERSION is 178.0.0', function (): void {
+    it('AnalyticsIntegrityCommand::EXPECTED_VERSION is 179.0.0', function (): void {
         $const = (new ReflectionClass(\ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class))
             ->getConstant('EXPECTED_VERSION');
-        expect($const)->toBe('178.0.0');
+        expect($const)->toBe('179.0.0');
     });
 
-    it('ServiceProvider @version is 178.0.0', function (): void {
+    it('ServiceProvider @version is 179.0.0', function (): void {
         $doc = (new ReflectionClass(AnalyticsServiceProvider::class))->getDocComment();
         expect($doc)->not->toBeFalse();
-        expect($doc)->toContain('@version 178.0.0');
+        expect($doc)->toContain('@version 179.0.0');
     });
 
     it('README version badge matches', function (): void {
         $readme = file_get_contents(dirname(__DIR__, 2) . '/README.md');
-        expect($readme)->toContain('version-178.0.0');
+        expect($readme)->toContain('version-179.0.0');
     });
 
-    it('analytics.js header + getVersion returns 178.0.0', function (): void {
+    it('analytics.js header + getVersion returns 179.0.0', function (): void {
         $js = file_get_contents(dirname(__DIR__, 2) . '/resources/js/analytics.js');
-        expect($js)->toContain('@version 178.0.0');
-        expect($js)->toContain("'178.0.0'");
+        expect($js)->toContain('@version 179.0.0');
+        expect($js)->toContain("'179.0.0'");
     });
 
     // ─── Core Service Class Finality ────────────────────────────────────

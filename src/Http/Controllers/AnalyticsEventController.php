@@ -19235,4 +19235,47 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * SaaS Platform Maturity Audit — comprehensive 14-category audit.
+     *
+     * GET /api/analytics/platform-audit
+     * GET /api/analytics/platform-audit/quick — category scores only
+     *
+     * @since 179.0.0
+     */
+    public function platformAudit(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSPlatformAuditService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$service->audit(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Quick audit — category percentage scores only.
+     *
+     * @since 179.0.0
+     */
+    public function platformAuditQuick(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\SaaSPlatformAuditService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$service->quickAudit(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
