@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)](https://laravel.com)
-|||[![Latest Version](https://img.shields.io/badge/version-180.0.0-blue)](https://github.com/zeroboiler/analytics)||
+|||[![Latest Version](https://img.shields.io/badge/version-181.0.0-blue)](https://github.com/zeroboiler/analytics)||
 |[![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)](https://www.php.net)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **194 typed events**, **8 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, and CustomerSuccess), **369 services**, **85 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **7 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, and e-commerce format conversion across all providers.
@@ -56,6 +56,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v181.0.0
+
+**SaaS Analytics Compliance Matrix + Cross-Provider Coverage Analyzer — Industry-Standard SaaS Analytics Upgrade**:
+
+- **SaaSComplianceMatrixService** — validates analytics instrumentation against 12 industry-standard frameworks: AARRR Pirate Metrics (5 sub-frameworks: Acquisition, Activation, Retention, Referral, Revenue), North Star Metric Framework, CAC/LTV Tracking, Activation Funnel, Retention Cohort, Revenue Attribution, Product-Led Growth (PLG) Signals, and GTM Alignment. Each framework defines required and optional events with weighted scoring (70/30 split). Returns per-framework compliance score, gap lists, and actionable recommendations sorted by priority.
+- **CrossProviderCoverageAnalyzer** — analyzes cross-provider event mapping coverage across all 8 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn) and 3 event categories (Ecommerce, SaaS, Engagement). Produces per-category coverage summary (% events with full 8-provider mappings), per-provider event counts, gap lists (events missing mappings), and an overall coverage parity score (0-100%). Includes quickSummary() and missingForProvider() methods for targeted analysis.
+- **Phase181ProductionReadinessTest** — 52 comprehensive assertions covering: version consistency across 10 entry points (181.0.0), class finality & structure, event catalog coverage (8 categories, 150+ events), core SaaS/ecommerce/engagement event presence, tracker implementations (10 providers), compliance matrix structure (12 frameworks), cross-provider analyzer structure (8 providers), format converter parity, middleware compliance, lifecycle subscriber diagnostics, GDPR services, identity services, consent mode v2 config, auto_track config, source file counts (800+ src, 300+ tests), subdirectory cross-reference, JS client/composable/DTS existence, strict types & MIT headers, Blade directives, config integrity, Svelte composable files, pipeline classes, bus classes, event plugin registry, AnalyticsFake, WithAnalyticsFake trait, routes file validation, database migrations.
+- **Version sweep** — All 14 entry points synced to 181.0.0: composer.json, package.json, analytics.js (header + getVersion), analytics.d.ts, analytics.constants.js, 7 Svelte composables, AnalyticsEvent::VERSION, AnalyticsIntegrityCommand::EXPECTED_VERSION, ServiceProvider @version, README badge.
+- **ServiceProvider registration** — SaaSComplianceMatrixService (singleton, injected AnalyticsManager) and CrossProviderCoverageAnalyzer (singleton) registered in the container.
 
 ### What's New in v180.0.0
 

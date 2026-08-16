@@ -436,6 +436,8 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWarmupCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsProviderTagManager;
 use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
+use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
+use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -443,7 +445,7 @@ use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 180.0.0
+ * @version 181.0.0
  *
  * @since 1.0.0
  */
@@ -3472,6 +3474,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSPlatformAuditService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService {
             return new \ZeroBoiler\Analytics\Services\SaaSPlatformAuditService;
         });
+
+        // SaaS Compliance Matrix Service (v181.0.0) — AARRR, CAC/LTV, PLG, GTM alignment
+        $this->app->singleton(SaaSComplianceMatrixService::class, function (Application $app): SaaSComplianceMatrixService {
+            /** @var AnalyticsManager $manager */
+            $manager = $app->make('zeroboiler.analytics');
+
+            return new SaaSComplianceMatrixService($manager);
+        });
+
+        // Cross-Provider Coverage Analyzer (v181.0.0) — event mapping parity across 8 providers
+        $this->app->singleton(CrossProviderCoverageAnalyzer::class);
 
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
