@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsObservabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueAttributionCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
@@ -3964,6 +3965,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Flow Analyzer Service (v202.0.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\EventFlowAnalyzerService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventFlowAnalyzerService {
+            return new \ZeroBoiler\Analytics\Services\EventFlowAnalyzerService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Event TTL Service (v43.0.0)
         $this->app->singleton(EventTtlService::class, function (Application $app): EventTtlService {
             $config = $app->make(ConfigRepository::class);
@@ -4308,6 +4317,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                AnalyticsObservabilityCommand::class,
                 AnalyticsRevenueAttributionCommand::class,
                 AnalyticsExportCommand::class,
                 RevenueReportCommand::class,

@@ -8864,4 +8864,27 @@ return [
         'spike_threshold' => (float) env('ANALYTICS_INTELLIGENCE_COPILOT_SPIKE_THRESHOLD', 2.0),
         'anomaly_sensitivity' => (float) env('ANALYTICS_INTELLIGENCE_COPILOT_ANOMALY_SENSITIVITY', 0.7),
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Flow Analyzer (v202.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Analyzes the event dependency graph to detect causal flow patterns,
+    | bottleneck events (high convergence, low divergence), bridge events
+    | (single points of flow dependency), and flow clusters (tightly-coupled
+    | event groups). Computes a flow health score (0-100, A-F grade) for
+    | observability dashboards.
+    |
+    | Used by AnalyticsObservabilityCommand (--flow option) and the
+    | EventFlowAnalyzerService::analyze() method.
+    |
+    | Results are cache-backed. Set cache_ttl to 0 for real-time analysis
+    | (not recommended for production dashboards with large catalogs).
+    |
+    */
+    'flow_analyzer' => [
+        'enabled' => env('ANALYTICS_FLOW_ANALYZER_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_FLOW_ANALYZER_CACHE_TTL', 1800), // 30 minutes
+    ],
 ];
