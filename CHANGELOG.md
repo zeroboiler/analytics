@@ -1,5 +1,17 @@
 # Changelog
 
+## [195.0.0] - 2026-08-16
+
+### Added
+- **SaaSEventHelpers** — Static one-liner helpers for common SaaS events: `signUp()`, `login()`, `trialStart()`, `subscription()`, `planUpgrade()`, `planDowngrade()`, `cancellation()`, `featureUsed()`, `teamEvent()`, `onboardingStep()`, `firstValue()`, `revenue()`, `custom()`.
+- **CampaignContextHydratorService** — Centralized UTM/referrer/traffic source extraction and classification. First-touch cache persistence, client-safe Inertia prop context, attribution summaries.
+- **useAttribution Svelte composable** — Reactive UTM/campaign attribution composable with stores for UTM params, referrer, traffic source, first-touch persistence (localStorage), and derived stores (utmString, attributionLabel, isPaidTraffic, isOrganicTraffic, attributionSnapshot).
+- **Inertia middleware campaign context** — `zbAnalytics.campaignContext` prop with client-safe UTM, referrer, traffic source.
+- **V195SaaSEventHelpersCampaignAttributionTest** — 40+ assertions covering SaaSEventHelpers, CampaignContextHydratorService, and useAttribution composable.
+
+### Changed
+- **Version sweep** — All entry points synced from 194.0.0 → 195.0.0. Svelte composables: 11 → 12. Source files: 862 → 863+. Tests: 441 → 442+.
+
 ## [194.0.0] - 2026-08-16
 
 ### Added

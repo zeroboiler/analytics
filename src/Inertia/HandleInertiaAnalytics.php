@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
+use ZeroBoiler\Analytics\Services\CampaignContextHydratorService;
 
 /**
  * Inertia middleware that injects analytics configuration into page props.
@@ -26,6 +27,7 @@ use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
  * - Server-generated tracking ID (cookie-stored for client/server matching)
  * - Authenticated user ID (when available)
  * - Auth state change flag (when user just logged in/out) for client ID stitching
+ * - Campaign context (UTM, referrer, traffic source) for client-side attribution (v195.0.0)
  *
  * @since 1.0.0
  */
@@ -337,6 +339,20 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             'enabled' => (bool) ($obsConfig['enabled'] ?? true),
             'slowDispatchMs' => (float) ($obsConfig['slow_dispatch_ms'] ?? 1000.0),
         ];
+
+        // Campaign context for client-side attribution (v195.0.0)
+        try {
+            $hydrator = new CampaignContextHydratorService($this->config);
+            $campaignContext = $hydrator->extractFromRequest($request);
+            $analyticsProps['campaignContext'] = $hydrator->toClientSafeContext($campaignContext);
+        } catch (\Throwable) {
+            $analyticsProps['campaignContext'] = [
+                'utm' => [],
+                'referrer' => null,
+                'traffic_source' => 'direct',
+                'has_utm' => false,
+            ];
+        }
 
         return $response->with('zbAnalytics', $analyticsProps);
     }
