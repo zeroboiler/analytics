@@ -8598,4 +8598,39 @@ return [
         'strict_mode' => env('ANALYTICS_TRACE_CONTEXT_STRICT', true),
         'auto_enrich' => env('ANALYTICS_TRACE_CONTEXT_AUTO_ENRICH', true),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cross-Provider Schema Validator (v189.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Validates analytics events against each provider's schema requirements
+    | before dispatch. Catches parameter naming violations, value length
+    | issues, missing ecommerce fields, and provider-specific constraints.
+    |
+    */
+    'schema_validator' => [
+        'enabled' => env('ANALYTICS_SCHEMA_VALIDATOR_ENABLED', true),
+        'strict_mode' => env('ANALYTICS_SCHEMA_VALIDATOR_STRICT', false), // false = warnings only, true = reject events
+        'ttl' => (int) env('ANALYTICS_SCHEMA_VALIDATOR_CACHE_TTL', 1800), // 30 minutes
+        'providers' => ['ga4', 'meta', 'posthog'], // providers to validate against
+        'max_event_name_length' => (int) env('ANALYTICS_SCHEMA_MAX_EVENT_NAME', 100),
+        'max_params_count' => (int) env('ANALYTICS_SCHEMA_MAX_PARAMS', 100),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------    | Config Drift Detection (v189.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Monitors analytics configuration for unexpected changes by comparing
+    | live values against a captured baseline. Detects provider enable/disable
+    | changes, credential updates, and feature flag drift.
+    |
+    */
+    'config_drift' => [
+        'enabled' => env('ANALYTICS_CONFIG_DRIFT_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_CONFIG_DRIFT_CACHE_TTL', 86400), // 24 hours
+        'baseline_label' => env('ANALYTICS_CONFIG_DRIFT_LABEL', 'default'),
+        'ignore_keys' => [],
+    ],
 ];

@@ -10,301 +10,544 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Config Drift Detection Service.
  *
- * Captures a snapshot of the analytics configuration and compares it against
- * a stored baseline to detect drift between deployments. Useful for:
+ * Monitors analytics configuration for unexpected changes by comparing
+ * live configuration values against a captured baseline snapshot. When
+ * drift is detected, it generates alerts with severity levels and
+ * actionable recommendations.
  *
- * - CI/CD config validation gates
- * - Post-deployment verification
- * - Ops monitoring for accidental config changes
- * - Multi-environment config consistency checks
+ * Use cases:
+ * - **Pre-deploy checks**: Ensure no critical config changed accidentally
+ * - **Post-deploy verification**: Confirm expected config changes landed
+ * - **Continuous monitoring**: Scheduled drift checks in production
+ * - **Multi-environment audit**: Track config differences between staging/production
+ *
+ * Features:
+ * - Configurable sensitivity levels (ignore_drift) for known-acceptable changes
+ * - Per-section baseline comparison (ga4, meta, consent, queue, identity, etc.)
+ * - Severity classification: critical, warning, info
+ * - Auto-capture baseline from current config
+ * - Cache-persisted baselines and drift history
+ * - Diff report generation with before/after values
+ *
+ * Inspired by Terraform drift detection, AWS Config Rules,
+ * and Datadog's config audit capabilities.
  *
  * Configuration: `zeroboiler.analytics.config_drift`
  *
- * The baseline is stored in the cache with a configurable TTL.
- * Call `captureBaseline()` after a verified deployment, then `detectDrift()`
- * to compare the current config against that baseline.
+ * @see \ZeroBoiler\Analytics\Console\Commands\AnalyticsConfigAuditCommand
+ * @see \ZeroBoiler\Analytics\Http\Controllers\AnalyticsEventController
  *
- * @see \ZeroBoiler\Analytics\Services\AnalyticsConfigValidator
- *
- * @since 1.0.0
+ * @since 189.0.0
  */
 final class ConfigDriftDetectionService
 {
+    /** @var string Cache key prefix for baselines and history */
     private const CACHE_PREFIX = 'zb_config_drift_';
 
-    private const BASELINE_KEY = 'baseline';
+    /** @var int Default TTL for cached baselines (24 hours) */
+    private const DEFAULT_TTL = 86400;
 
-    private bool $enabled;
+    /** @var int Max drift history entries to keep */
+    private const MAX_HISTORY = 100;
+
+    /** @var string Critical severity */
+    public const SEVERITY_CRITICAL = 'critical';
+
+    /** @var string Warning severity */
+    public const SEVERITY_WARNING = 'warning';
+
+    /** @var string Info severity */
+    public const SEVERITY_INFO = 'info';
+
+    /** @var list<string> Sections whose drift is always critical */
+    private const CRITICAL_SECTIONS = [
+        'ga4.enabled', 'meta_pixel.enabled', 'gtm.enabled',
+        'consent.default', 'queue.enabled', 'api.require_auth',
+    ];
+
+    /** @var list<string> Sections whose drift is typically a warning */
+    private const WARNING_SECTIONS = [
+        'ga4.measurement_id', 'ga4.api_secret', 'meta_pixel.id',
+        'queue.queue', 'queue.connection', 'identity.cookie_name',
+    ];
+
+    /** @var list<string> Top-level config sections to monitor */
+    private const MONITORED_SECTIONS = [
+        'ga4', 'gtm', 'meta_pixel', 'consent', 'queue',
+        'lifecycle', 'api', 'client_auto_track', 'identity',
+        'auto_track', 'revenue_checksum', 'dedup_cache',
+        'sampling', 'data_lake', 'trace_context',
+    ];
 
     private CacheRepository $cache;
 
     private ConfigRepository $config;
 
-    /** @var list<string> Keys to exclude from drift comparison */
-    private array $excludeKeys;
+    private bool $enabled;
 
-    /** @var int Cache TTL for the baseline in seconds */
-    private int $cacheTtl;
+    private int $ttl;
 
-    /** @var list<string> Sections of the analytics config to monitor */
-    private array $monitoredSections;
+    /** @var list<string> Config keys to ignore when detecting drift */
+    private array $ignoreKeys;
 
-    public function __construct(
-        CacheRepository $cache,
-        ConfigRepository $config,
-    ): void {
+    /** @var string Baseline label (environment identifier) */
+    private string $baselineLabel;
+
+    /**
+     * @param  CacheRepository  $cache
+     * @param  ConfigRepository  $config
+     */
+    public function __construct(CacheRepository $cache, ConfigRepository $config): void
+    {
         $this->cache = $cache;
         $this->config = $config;
 
-        $driftConfig = $config->get('zeroboiler.analytics.config_drift', []);
-        /** @var array{enabled?: bool, cache_ttl?: int, exclude_keys?: list<string>, monitored_sections?: list<string>} $driftConfig */
-        $this->enabled = (bool) ($driftConfig['enabled'] ?? false);
-        $this->cacheTtl = (int) ($driftConfig['cache_ttl'] ?? 2592000); // 30 days
-        $this->excludeKeys = (array) ($driftConfig['exclude_keys'] ?? []);
-        $this->monitoredSections = (array) ($driftConfig['monitored_sections'] ?? []);
+        $cdConfig = $config->get('zeroboiler.analytics.config_drift', []);
+        /** @var array{enabled?: bool, ttl?: int, ignore_keys?: list<string>, baseline_label?: string} $cdConfig */
+        $this->enabled = (bool) ($cdConfig['enabled'] ?? true);
+        $this->ttl = (int) ($cdConfig['ttl'] ?? self::DEFAULT_TTL);
+        $this->ignoreKeys = (array) ($cdConfig['ignore_keys'] ?? []);
+        $this->baselineLabel = (string) ($cdConfig['baseline_label'] ?? 'default');
     }
 
     /**
-     * Capture the current analytics config as the baseline.
+     * Capture current config as a baseline snapshot.
      *
-     * Call this after a verified deployment to establish the known-good config.
+     * Stores the current analytics configuration in cache for future drift comparison.
      *
-     * @return array{captured_at: string, version: string, sections: int, keys: int}
+     * @param  string|null  $label  Baseline label (defaults to configured label)
+     * @param  array<string>|null  $sections  Sections to capture (null = all monitored)
+     * @return array{label: string, captured_at: string, sections: int, keys: int}
      */
-    public function captureBaseline(): array
+    public function captureBaseline(?string $label = null, ?array $sections = null): array
     {
-        $snapshot = $this->buildSnapshot();
-        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
+        $label = $label ?? $this->baselineLabel;
+        $sections = $sections ?? self::MONITORED_SECTIONS;
+        $snapshot = $this->extractConfig($sections);
+        $cacheKey = self::CACHE_PREFIX . 'baseline_' . $label;
 
-        $this->cache->put($key, $snapshot, $this->cacheTtl);
-
-        $meta = [
+        $this->cache->put($cacheKey, [
+            'label' => $label,
             'captured_at' => now()->toIso8601String(),
-            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
-            'sections' => count($snapshot),
+            'snapshot' => $snapshot,
+        ], $this->ttl);
+
+        return [
+            'label' => $label,
+            'captured_at' => now()->toIso8601String(),
+            'sections' => count($sections),
             'keys' => $this->countKeys($snapshot),
         ];
-
-        Log::info('ZeroBoiler Analytics: config baseline captured', $meta);
-
-        return $meta;
     }
 
     /**
-     * Detect drift between the current config and the stored baseline.
+     * Detect configuration drift against a captured baseline.
      *
-     * @return array{drift_detected: bool, added: list<string>, removed: list<string>, changed: list<string>, unchanged: list<string>, baseline_version: string|null, current_version: string}
+     * Compares current live config with the stored baseline and returns
+     * a detailed drift report with severity levels and recommendations.
+     *
+     * @param  string|null  $label  Baseline label to compare against
+     * @return array{drift_detected: bool, drift_count: int, critical: int, warnings: int, info: int, changes: list<array{key: string, baseline: mixed, current: mixed, severity: string, recommendation: string}>, baseline_info: array{label: string, captured_at: string}|null}
      */
-    public function detectDrift(): array
+    public function detect(?string $label = null): array
     {
-        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
-        /** @var array<string, mixed>|null $baseline */
-        $baseline = $this->cache->get($key);
+        if (! $this->enabled) {
+            return $this->emptyReport();
+        }
 
-        $current = $this->buildSnapshot();
+        $label = $label ?? $this->baselineLabel;
+        $cacheKey = self::CACHE_PREFIX . 'baseline_' . $label;
+        $baseline = $this->cache->get($cacheKey);
 
-        if ($baseline === null) {
+        if (! is_array($baseline) || ! isset($baseline['snapshot'])) {
+            return $this->emptyReport();
+        }
+
+        $current = $this->extractConfig(self::MONITORED_SECTIONS);
+        $changes = $this->computeDiff($baseline['snapshot'], $current);
+
+        if ($changes === []) {
+            $this->recordHistory($label, 0);
+
             return [
                 'drift_detected' => false,
-                'added' => [],
-                'removed' => [],
-                'changed' => [],
-                'unchanged' => [],
-                'baseline_version' => null,
-                'current_version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
-                'note' => 'No baseline captured. Call captureBaseline() first.',
+                'drift_count' => 0,
+                'critical' => 0,
+                'warnings' => 0,
+                'info' => 0,
+                'changes' => [],
+                'baseline_info' => [
+                    'label' => $baseline['label'],
+                    'captured_at' => $baseline['captured_at'],
+                ],
             ];
         }
 
-        $baselineFlat = $this->flattenConfig($baseline);
-        $currentFlat = $this->flattenConfig($current);
+        $categorized = $this->categorizeDrift($changes);
 
-        $baselineKeys = array_flip($baselineFlat);
-        $currentKeys = array_flip($currentFlat);
-
-        $added = [];
-        $removed = [];
-        $changed = [];
-        $unchanged = [];
-
-        // Detect added and changed keys
-        foreach ($currentFlat as $path => $value) {
-            if (! isset($baselineKeys[$path])) {
-                $added[] = $path;
-            } elseif ($baselineFlat[$path] !== $value) {
-                $changed[] = [
-                    'key' => $path,
-                    'baseline' => $baselineFlat[$path],
-                    'current' => $value,
-                ];
-            } else {
-                $unchanged[] = $path;
-            }
-        }
-
-        // Detect removed keys
-        foreach ($baselineFlat as $path => $value) {
-            if (! isset($currentKeys[$path])) {
-                $removed[] = $path;
-            }
-        }
-
-        $driftDetected = count($added) > 0 || count($removed) > 0 || count($changed) > 0;
+        $this->recordHistory($label, count($changes));
 
         return [
-            'drift_detected' => $driftDetected,
-            'added' => $added,
-            'removed' => $removed,
-            'changed' => $changed,
-            'unchanged' => $unchanged,
-            'baseline_version' => $baseline['_meta']['version'] ?? null,
-            'current_version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
-            'total_keys_baseline' => count($baselineFlat),
-            'total_keys_current' => count($currentFlat),
+            'drift_detected' => true,
+            'drift_count' => count($changes),
+            'critical' => count(array_filter($categorized, fn (array $c): bool => $c['severity'] === self::SEVERITY_CRITICAL)),
+            'warnings' => count(array_filter($categorized, fn (array $c): bool => $c['severity'] === self::SEVERITY_WARNING)),
+            'info' => count(array_filter($categorized, fn (array $c): bool => $c['severity'] === self::SEVERITY_INFO)),
+            'changes' => $categorized,
+            'baseline_info' => [
+                'label' => $baseline['label'],
+                'captured_at' => $baseline['captured_at'],
+            ],
         ];
     }
 
     /**
-     * Clear the stored baseline.
+     * Detect drift for a specific config section only.
      *
-     * @return bool
+     * Useful for targeted checks (e.g., only check ga4 section after GA4 config update).
+     *
+     * @param  string  $section  Section name (e.g., 'ga4', 'consent')
+     * @param  string|null  $label  Baseline label
+     * @return array{drift_detected: bool, changes: list<array{key: string, baseline: mixed, current: mixed, severity: string, recommendation: string}>}
      */
-    public function clearBaseline(): bool
+    public function detectSection(string $section, ?string $label = null): array
     {
-        return $this->cache->forget(self::CACHE_PREFIX . self::BASELINE_KEY);
+        if (! $this->enabled) {
+            return ['drift_detected' => false, 'changes' => []];
+        }
+
+        $label = $label ?? $this->baselineLabel;
+        $cacheKey = self::CACHE_PREFIX . 'baseline_' . $label;
+        $baseline = $this->cache->get($cacheKey);
+
+        if (! is_array($baseline) || ! isset($baseline['snapshot'][$section])) {
+            return ['drift_detected' => false, 'changes' => []];
+        }
+
+        $currentSection = $this->config->get('zeroboiler.analytics.' . $section, []);
+        $changes = $this->computeDiff(
+            [$section => $baseline['snapshot'][$section]],
+            [$section => $currentSection],
+        );
+
+        $categorized = $this->categorizeDrift($changes);
+
+        return [
+            'drift_detected' => count($categorized) > 0,
+            'changes' => $categorized,
+        ];
     }
 
     /**
-     * Check if a baseline exists.
+     * Get the stored baseline information (without diff).
+     *
+     * @param  string|null  $label
+     * @return array{exists: bool, label: string|null, captured_at: string|null, sections: int, keys: int}|null
      */
-    public function hasBaseline(): bool
+    public function getBaseline(?string $label = null): ?array
     {
-        return $this->cache->has(self::CACHE_PREFIX . self::BASELINE_KEY);
+        $label = $label ?? $this->baselineLabel;
+        $cacheKey = self::CACHE_PREFIX . 'baseline_' . $label;
+        $baseline = $this->cache->get($cacheKey);
+
+        if (! is_array($baseline) || ! isset($baseline['snapshot'])) {
+            return null;
+        }
+
+        return [
+            'exists' => true,
+            'label' => $baseline['label'],
+            'captured_at' => $baseline['captured_at'],
+            'sections' => count($baseline['snapshot']),
+            'keys' => $this->countKeys($baseline['snapshot']),
+        ];
     }
 
     /**
-     * Get the stored baseline metadata.
+     * Clear a stored baseline.
      *
-     * @return array{captured_at: string|null, version: string|null, exists: bool}
+     * @param  string|null  $label
      */
-    public function baselineInfo(): array
+    public function clearBaseline(?string $label = null): void
     {
-        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
-        /** @var array{captured_at?: string, version?: string}|null $baseline */
-        $baseline = $this->cache->get($key);
+        $label = $label ?? $this->baselineLabel;
+        $this->cache->forget(self::CACHE_PREFIX . 'baseline_' . $label);
+    }
+
+    /**
+     * Get drift detection history.
+     *
+     * @param  string|null  $label
+     * @return list<array{detected_at: string, drift_count: int}>
+     */
+    public function getHistory(?string $label = null): array
+    {
+        $label = $label ?? $this->baselineLabel;
+        $history = $this->cache->get(self::CACHE_PREFIX . 'history_' . $label);
+
+        return is_array($history) ? $history : [];
+    }
+
+    /**
+     * Clear drift detection history.
+     *
+     * @param  string|null  $label
+     */
+    public function clearHistory(?string $label = null): void
+    {
+        $label = $label ?? $this->baselineLabel;
+        $this->cache->forget(self::CACHE_PREFIX . 'history_' . $label);
+    }
+
+    /**
+     * Get a quick summary of current drift status.
+     *
+     * @return array{enabled: bool, baseline_exists: bool, drift_detected: bool|null, last_checked: string|null, drift_count: int}
+     */
+    public function quickSummary(): array
+    {
+        $baseline = $this->getBaseline();
 
         if ($baseline === null) {
-            return ['captured_at' => null, 'version' => null, 'exists' => false];
+            return [
+                'enabled' => $this->enabled,
+                'baseline_exists' => false,
+                'drift_detected' => null,
+                'last_checked' => null,
+                'drift_count' => 0,
+            ];
         }
+
+        $report = $this->detect();
 
         return [
-            'captured_at' => $baseline['_meta']['captured_at'] ?? null,
-            'version' => $baseline['_meta']['version'] ?? null,
-            'exists' => true,
+            'enabled' => $this->enabled,
+            'baseline_exists' => true,
+            'drift_detected' => $report['drift_detected'],
+            'last_checked' => now()->toIso8601String(),
+            'drift_count' => $report['drift_count'],
         ];
     }
 
     /**
-     * Build a snapshot of the current analytics config.
-     *
-     * @return array<string, mixed>
+     * Check if config drift detection is enabled.
      */
-    private function buildSnapshot(): array
+    public function isEnabled(): bool
     {
-        $fullConfig = $this->config->get('zeroboiler.analytics', []);
-        /** @var array<string, mixed> $fullConfig */
+        return $this->enabled;
+    }
 
-        // Filter to monitored sections only (if configured)
-        if ($this->monitoredSections !== []) {
-            $filtered = [];
-            foreach ($this->monitoredSections as $section) {
-                if (array_key_exists($section, $fullConfig)) {
-                    $filtered[$section] = $fullConfig[$section];
-                }
-            }
-            $fullConfig = $filtered;
-        }
+    /**
+     * Get the list of monitored config sections.
+     *
+     * @return list<string>
+     */
+    public function getMonitoredSections(): array
+    {
+        return self::MONITORED_SECTIONS;
+    }
 
-        // Apply key exclusions
-        if ($this->excludeKeys !== []) {
-            $fullConfig = $this->excludeKeysRecursive($fullConfig, $this->excludeKeys);
-        }
+    /**
+     * Get the list of ignored config keys.
+     *
+     * @return list<string>
+     */
+    public function getIgnoredKeys(): array
+    {
+        return $this->ignoreKeys;
+    }
 
-        // Add metadata
-        $fullConfig['_meta'] = [
-            'captured_at' => now()->toIso8601String(),
-            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
+    /**
+     * Get service statistics.
+     *
+     * @return array{enabled: bool, baseline_label: string, ttl: int, monitored_sections: int, critical_sections: int, warning_sections: int, ignored_keys: int}
+     */
+    public function stats(): array
+    {
+        return [
+            'enabled' => $this->enabled,
+            'baseline_label' => $this->baselineLabel,
+            'ttl' => $this->ttl,
+            'monitored_sections' => count(self::MONITORED_SECTIONS),
+            'critical_sections' => count(self::CRITICAL_SECTIONS),
+            'warning_sections' => count(self::WARNING_SECTIONS),
+            'ignored_keys' => count($this->ignoreKeys),
         ];
-
-        return $fullConfig;
     }
 
     /**
-     * Recursively exclude keys from a nested config array.
+     * Extract current analytics config for the given sections.
      *
-     * @param  array<string, mixed>  $config
-     * @param  list<string>  $excludeKeys
+     * @param  list<string>  $sections
      * @return array<string, mixed>
      */
-    private function excludeKeysRecursive(array $config, array $excludeKeys): array
+    private function extractConfig(array $sections): array
     {
-        foreach ($excludeKeys as $excludeKey) {
-            unset($config[$excludeKey]);
+        $extracted = [];
+
+        foreach ($sections as $section) {
+            $extracted[$section] = $this->config->get('zeroboiler.analytics.' . $section);
         }
 
-        foreach ($config as $key => $value) {
-            if (is_array($value) && isset($value['_meta']) === false) {
-                $config[$key] = $this->excludeKeysRecursive($value, []);
+        return $extracted;
+    }
+
+    /**
+     * Compute diff between baseline and current config.
+     *
+     * Recursively compares nested arrays and returns flat list of changes.
+     *
+     * @param  array<string, mixed>  $baseline
+     * @param  array<string, mixed>  $current
+     * @return list<array{key: string, baseline: mixed, current: mixed}>
+     */
+    private function computeDiff(array $baseline, array $current): array
+    {
+        $changes = [];
+
+        foreach ($baseline as $key => $baselineValue) {
+            $currentValue = $current[$key] ?? null;
+
+            if ($this->isIgnoredKey((string) $key)) {
+                continue;
+            }
+
+            if (is_array($baselineValue) && is_array($currentValue)) {
+                // Recurse into nested arrays
+                $nestedChanges = $this->computeDiff($this->prefixKeys($baselineValue, (string) $key), $this->prefixKeys($currentValue, (string) $key));
+                array_push($changes, ...$nestedChanges);
+            } elseif (! $this->valuesEqual($baselineValue, $currentValue)) {
+                $changes[] = [
+                    'key' => (string) $key,
+                    'baseline' => $baselineValue,
+                    'current' => $currentValue,
+                ];
             }
         }
 
-        return $config;
-    }
-
-    /**
-     * Flatten a nested config array into dot-notation paths.
-     *
-     * @param  array<string, mixed>  $config
-     * @param  string  $prefix
-     * @return array<string, mixed>
-     */
-    private function flattenConfig(array $config, string $prefix = ''): array
-    {
-        $flat = [];
-
-        foreach ($config as $key => $value) {
-            $path = $prefix !== '' ? $prefix . '.' . $key : (string) $key;
-
-            if (is_array($value) && $this->isAssociative($value)) {
-                foreach ($this->flattenConfig($value, $path) as $subPath => $subValue) {
-                    $flat[$subPath] = $subValue;
-                }
-            } else {
-                $flat[$path] = $value;
+        // Check for new keys not in baseline
+        foreach ($current as $key => $currentValue) {
+            if (! array_key_exists($key, $baseline) && ! $this->isIgnoredKey((string) $key)) {
+                $changes[] = [
+                    'key' => (string) $key,
+                    'baseline' => null,
+                    'current' => $currentValue,
+                ];
             }
         }
 
-        return $flat;
+        return $changes;
     }
 
     /**
-     * Check if an array is associative (string keys, not sequential int keys).
+     * Categorize drift changes with severity and recommendations.
      *
-     * @param  array<string|int, mixed>  $array
+     * @param  list<array{key: string, baseline: mixed, current: mixed}>  $changes
+     * @return list<array{key: string, baseline: mixed, current: mixed, severity: string, recommendation: string}>
      */
-    private function isAssociative(array $array): bool
+    private function categorizeDrift(array $changes): array
     {
-        if ($array === []) {
-            return false;
+        $categorized = [];
+
+        foreach ($changes as $change) {
+            $severity = $this->classifySeverity($change['key'], $change['baseline'], $change['current']);
+            $recommendation = $this->getRecommendation($change['key'], $change['baseline'], $change['current'], $severity);
+
+            $categorized[] = array_merge($change, [
+                'severity' => $severity,
+                'recommendation' => $recommendation,
+            ]);
         }
 
-        foreach (array_keys($array) as $key) {
-            if (is_string($key)) {
+        return $categorized;
+    }
+
+    /**
+     * Classify the severity of a config drift.
+     *
+     * @param  string  $key
+     * @param  mixed  $baseline
+     * @param  mixed  $current
+     * @return string  One of: critical, warning, info
+     */
+    private function classifySeverity(string $key, mixed $baseline, mixed $current): string
+    {
+        // Check if it's a critical section key
+        foreach (self::CRITICAL_SECTIONS as $criticalKey) {
+            if ($key === $criticalKey || str_starts_with($key, $criticalKey . '.')) {
+                return self::SEVERITY_CRITICAL;
+            }
+        }
+
+        // Check if a provider was enabled/disabled
+        if (str_ends_with($key, '.enabled') && $this->isToggleChange($baseline, $current)) {
+            return self::SEVERITY_CRITICAL;
+        }
+
+        // Warning sections
+        foreach (self::WARNING_SECTIONS as $warningKey) {
+            if ($key === $warningKey || str_starts_with($key, $warningKey . '.')) {
+                return self::SEVERITY_WARNING;
+            }
+        }
+
+        // Value changed from null/empty to something (new config added)
+        if ($baseline === null && $current !== null) {
+            return self::SEVERITY_INFO;
+        }
+
+        // Value removed (set to null)
+        if ($baseline !== null && $current === null) {
+            return self::SEVERITY_WARNING;
+        }
+
+        return self::SEVERITY_INFO;
+    }
+
+    /**
+     * Generate a recommendation for a drift change.
+     *
+     * @param  string  $key
+     * @param  mixed  $baseline
+     * @param  mixed  $current
+     * @param  string  $severity
+     * @return string
+     */
+    private function getRecommendation(string $key, mixed $baseline, mixed $current, string $severity): string
+    {
+        return match (true) {
+            $severity === self::SEVERITY_CRITICAL => sprintf(
+                'Critical config change detected: "%s" changed from %s to %s. Verify this is intentional and update the baseline.',
+                $key,
+                $this->formatValue($baseline),
+                $this->formatValue($current),
+            ),
+            $severity === self::SEVERITY_WARNING => sprintf(
+                'Config drift: "%s" changed from %s to %s. Review for correctness.',
+                $key,
+                $this->formatValue($baseline),
+                $this->formatValue($current),
+            ),
+            default => sprintf(
+                'Config change: "%s" updated from %s to %s.',
+                $key,
+                $this->formatValue($baseline),
+                $this->formatValue($current),
+            ),
+        };
+    }
+
+    /**
+     * Check if a config key should be ignored.
+     */
+    private function isIgnoredKey(string $key): bool
+    {
+        foreach ($this->ignoreKeys as $pattern) {
+            if ($key === $pattern || str_starts_with($key, $pattern)) {
                 return true;
             }
         }
@@ -313,7 +556,104 @@ final class ConfigDriftDetectionService
     }
 
     /**
-     * Count total leaf keys in a nested config array.
+     * Check if a change is a boolean toggle (true ↔ false).
+     *
+     * @param  mixed  $baseline
+     * @param  mixed  $current
+     */
+    private function isToggleChange(mixed $baseline, mixed $current): bool
+    {
+        return is_bool($baseline) && is_bool($current) && $baseline !== $current;
+    }
+
+    /**
+     * Compare two values for equality (deep comparison for arrays).
+     *
+     * @param  mixed  $a
+     * @param  mixed  $b
+     */
+    private function valuesEqual(mixed $a, mixed $b): bool
+    {
+        if (is_array($a) && is_array($b)) {
+            return $a === $b;
+        }
+
+        return $a === $b;
+    }
+
+    /**
+     * Prefix all keys in a nested array with a parent key.
+     *
+     * @param  array<string, mixed>  $array
+     * @return array<string, mixed>
+     */
+    private function prefixKeys(array $array, string $prefix): array
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            $prefixedKey = $prefix . '.' . $key;
+
+            if (is_array($value) && ! $this->isAssociative($value)) {
+                // Numeric array — store as-is
+                $result[$prefixedKey] = $value;
+            } elseif (is_array($value)) {
+                $nested = $this->prefixKeys($value, $prefixedKey);
+                foreach ($nested as $nk => $nv) {
+                    $result[$nk] = $nv;
+                }
+            } else {
+                $result[$prefixedKey] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if an array is associative (has string keys).
+     *
+     * @param  array<mixed>  $array
+     */
+    private function isAssociative(array $array): bool
+    {
+        if ($array === []) {
+            return false;
+        }
+
+        return array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
+     * Format a value for display in reports.
+     *
+     * @param  mixed  $value
+     */
+    private function formatValue(mixed $value): string
+    {
+        if ($value === null) {
+            return 'null';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_string($value)) {
+            return strlen($value) > 50 ? substr($value, 0, 50) . '...' : $value;
+        }
+
+        if (is_array($value)) {
+            $json = json_encode($value);
+
+            return is_string($json) ? (strlen($json) > 100 ? substr($json, 0, 100) . '...' : $json) : 'array';
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Count total keys in a nested config array.
      *
      * @param  array<string, mixed>  $config
      */
@@ -321,15 +661,11 @@ final class ConfigDriftDetectionService
     {
         $count = 0;
 
-        foreach ($config as $key => $value) {
-            if ($key === '_meta') {
-                continue;
-            }
+        foreach ($config as $value) {
+            $count++;
 
             if (is_array($value)) {
                 $count += $this->countKeys($value);
-            } else {
-                $count++;
             }
         }
 
@@ -337,86 +673,48 @@ final class ConfigDriftDetectionService
     }
 
     /**
-     * Check if the service is enabled.
+     * Record drift detection in history.
+     *
+     * @param  string  $label
+     * @param  int  $driftCount
      */
-    public function isEnabled(): bool
+    private function recordHistory(string $label, int $driftCount): void
     {
-        return $this->enabled;
-    }
+        $cacheKey = self::CACHE_PREFIX . 'history_' . $label;
+        $history = $this->cache->get($cacheKey, []);
 
-    /**
-     * Import an external config snapshot as the drift detection baseline.
-     *
-     * Accepts a pre-built config array (e.g., exported from another environment)
-     * and stores it as the baseline. Validates basic structure before import.
-     * Adds metadata (_meta.captured_at, _meta.version, _meta.source, _meta.label).
-     *
-     * Use cases:
-     * - Multi-environment config sync (import production baseline to staging)
-     * - CI/CD config gate uploads
-     * - Manual baseline restoration from backups
-     *
-     * @param  array<string, mixed>  $snapshot  The config snapshot to import
-     * @param  string  $label  Optional label for the imported baseline
-     * @return array{imported: bool, label: string, captured_at: string, version: string, sections: int, keys: int, source: string}
-     *
-     * @since 172.0.0
-     */
-    public function importBaseline(array $snapshot, string $label = 'imported'): array
-    {
-        // Validate basic structure — must be an associative array
-        if ($snapshot === []) {
-            return [
-                'imported' => false,
-                'error' => 'Empty snapshot provided.',
-            ];
+        if (! is_array($history)) {
+            $history = [];
         }
 
-        // Remove any existing _meta from imported snapshot
-        unset($snapshot['_meta']);
-
-        // Add import metadata
-        $snapshot['_meta'] = [
-            'captured_at' => now()->toIso8601String(),
-            'version' => \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION,
-            'source' => 'import',
-            'label' => $label,
+        $history[] = [
+            'detected_at' => now()->toIso8601String(),
+            'drift_count' => $driftCount,
         ];
 
-        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
-        $this->cache->put($key, $snapshot, $this->cacheTtl);
+        // Keep only the last N entries
+        if (count($history) > self::MAX_HISTORY) {
+            $history = array_slice($history, -self::MAX_HISTORY);
+        }
 
-        $meta = [
-            'imported' => true,
-            'label' => $label,
-            'captured_at' => $snapshot['_meta']['captured_at'],
-            'version' => $snapshot['_meta']['version'],
-            'sections' => count($snapshot) - 1, // exclude _meta
-            'keys' => $this->countKeys($snapshot),
-            'source' => 'import',
-        ];
-
-        Log::info('ZeroBoiler Analytics: config baseline imported', $meta);
-
-        return $meta;
+        $this->cache->put($cacheKey, $history, $this->ttl);
     }
 
     /**
-     * Get the stored baseline snapshot (full config, if it exists).
+     * Return an empty drift report.
      *
-     * @return array{exists: bool, baseline: array<string, mixed>|null}
-     *
-     * @since 172.0.0
+     * @return array{drift_detected: bool, drift_count: int, critical: int, warnings: int, info: int, changes: list<never>, baseline_info: null}
      */
-    public function getBaseline(): array
+    private function emptyReport(): array
     {
-        $key = self::CACHE_PREFIX . self::BASELINE_KEY;
-        /** @var array<string, mixed>|null $baseline */
-        $baseline = $this->cache->get($key);
-
         return [
-            'exists' => $baseline !== null,
-            'baseline' => $baseline,
+            'drift_detected' => false,
+            'drift_count' => 0,
+            'critical' => 0,
+            'warnings' => 0,
+            'info' => 0,
+            'changes' => [],
+            'baseline_info' => null,
         ];
     }
 }

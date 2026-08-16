@@ -207,6 +207,7 @@ use ZeroBoiler\Analytics\Services\EventTraceContextService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataLakeService;
 use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
+use ZeroBoiler\Analytics\Services\EventSchemaValidatorService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
@@ -455,7 +456,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 188.0.0
+ * @version 189.0.0
  *
  * @since 1.0.0
  */
@@ -2301,6 +2302,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 strictMode: (bool) ($tcConfig['strict_mode'] ?? true),
                 autoEnrich: (bool) ($tcConfig['auto_enrich'] ?? true),
             );
+        });
+
+        // v189.0.0 — Cross-provider event schema validation
+        $this->app->singleton(EventSchemaValidatorService::class, function (Application $app): EventSchemaValidatorService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventSchemaValidatorService($cache, $config);
+        });
+
+        // v189.0.0 — Config drift detection
+        $this->app->singleton(ConfigDriftDetectionService::class, function (Application $app): ConfigDriftDetectionService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ConfigDriftDetectionService($cache, $config);
         });
 
         // Analytics health check service — comprehensive diagnostic
