@@ -196,7 +196,8 @@ final class EventCatalog
             + UptimeEvents::count()
             + InfrastructureEvents::count()
             + MarketingEvents::count()
-            + CustomerSuccessEvents::count();
+            + CustomerSuccessEvents::count()
+            + WebhookEvents::count();
     }
 
     /**
@@ -220,6 +221,7 @@ final class EventCatalog
             'infrastructure' => InfrastructureEvents::count(),
             'marketing' => MarketingEvents::count(),
             'customer_success' => CustomerSuccessEvents::count(),
+            'webhook' => WebhookEvents::count(),
         ];
 
         $counts['total'] = array_sum($counts);
@@ -243,6 +245,7 @@ final class EventCatalog
             InfrastructureEvents::ga4Names(),
             MarketingEvents::ga4Names(),
             CustomerSuccessEvents::ga4Names(),
+            WebhookEvents::ga4Names(),
         ))));
     }
 
@@ -262,6 +265,7 @@ final class EventCatalog
             InfrastructureEvents::metaNames(),
             MarketingEvents::metaNames(),
             CustomerSuccessEvents::metaNames(),
+            WebhookEvents::metaNames(),
         ))));
     }
 
@@ -284,6 +288,7 @@ final class EventCatalog
             InfrastructureEvents::posthogNames(),
             MarketingEvents::posthogNames(),
             CustomerSuccessEvents::posthogNames(),
+            WebhookEvents::posthogNames(),
         ))));
     }
 
@@ -306,6 +311,7 @@ final class EventCatalog
             InfrastructureEvents::plausibleNames(),
             MarketingEvents::plausibleNames(),
             CustomerSuccessEvents::plausibleNames(),
+            WebhookEvents::plausibleNames(),
         ))));
     }
 
@@ -327,6 +333,7 @@ final class EventCatalog
             InfrastructureEvents::mixpanelNames(),
             MarketingEvents::mixpanelNames(),
             CustomerSuccessEvents::mixpanelNames(),
+            WebhookEvents::mixpanelNames(),
         ))));
     }
 
@@ -348,6 +355,7 @@ final class EventCatalog
             InfrastructureEvents::amplitudeNames(),
             MarketingEvents::amplitudeNames(),
             CustomerSuccessEvents::amplitudeNames(),
+            WebhookEvents::amplitudeNames(),
         ))));
     }
 
@@ -370,6 +378,7 @@ final class EventCatalog
             InfrastructureEvents::tiktokNames(),
             MarketingEvents::tiktokNames(),
             CustomerSuccessEvents::tiktokNames(),
+            WebhookEvents::tiktokNames(),
         ))));
     }
 
@@ -392,6 +401,7 @@ final class EventCatalog
             InfrastructureEvents::linkedinNames(),
             MarketingEvents::linkedinNames(),
             CustomerSuccessEvents::linkedinNames(),
+            WebhookEvents::linkedinNames(),
         ))));
     }
 
