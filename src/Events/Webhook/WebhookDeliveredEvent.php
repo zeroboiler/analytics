@@ -23,7 +23,7 @@ final class WebhookDeliveredEvent extends AnalyticsEvent
         int $statusCode,
         int $responseTimeMs,
         ?string $payloadHash = null,
-    ) {
+    ): void {
         parent::__construct('webhook_delivered', array_filter([
             'webhook_id' => $webhookId,
             'url' => $url,

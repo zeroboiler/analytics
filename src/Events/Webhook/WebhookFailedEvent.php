@@ -24,7 +24,7 @@ final class WebhookFailedEvent extends AnalyticsEvent
         string $errorMessage,
         int $attempt,
         ?string $nextRetryAt = null,
-    ) {
+    ): void {
         parent::__construct('webhook_failed', array_filter([
             'webhook_id' => $webhookId,
             'url' => $url,

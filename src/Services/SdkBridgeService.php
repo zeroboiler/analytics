@@ -58,7 +58,7 @@ final class SdkBridgeService
     /**
      * Initialize built-in event name mappings for all supported SDKs.
      */
-    public function __construct()
+    public function __construct(): void
     {
         $this->registerBuiltinMappings();
     }

@@ -22,7 +22,7 @@ final class WebhookReceivedEvent extends AnalyticsEvent
         string $event,
         ?string $payloadHash = null,
         ?string $ipAddress = null,
-    ) {
+    ): void {
         parent::__construct('webhook_received', array_filter([
             'source' => $source,
             'event' => $event,
