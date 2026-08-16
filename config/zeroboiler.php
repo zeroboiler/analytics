@@ -8515,4 +8515,47 @@ return [
         'at_risk_inactive_days' => (int) env('ANALYTICS_LIFECYCLE_STAGES_AT_RISK_DAYS', 14),
         'churned_inactive_days' => (int) env('ANALYTICS_LIFECYCLE_STAGES_CHURNED_DAYS', 45),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pipeline Orchestrator (v187.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | DAG-based event pipeline orchestration with dependency resolution,
+    | retry policies, and parallel execution hints. Define named pipelines
+    | with processing steps and let the orchestrator handle execution order,
+    | retries, and error handling.
+    |
+    */
+    'pipeline_orchestrator' => [
+        'enabled' => env('ANALYTICS_PIPELINE_ORCHESTRATOR_ENABLED', true),
+        'max_steps' => (int) env('ANALYTICS_PIPELINE_ORCHESTRATOR_MAX_STEPS', 50),
+        'max_retries' => (int) env('ANALYTICS_PIPELINE_ORCHESTRATOR_MAX_RETRIES', 3),
+        'backoff_multiplier' => (float) env('ANALYTICS_PIPELINE_ORCHESTRATOR_BACKOFF', 2.0),
+        'cache_ttl' => (int) env('ANALYTICS_PIPELINE_ORCHESTRATOR_CACHE_TTL', 3600), // 1 hour
+        'max_history' => (int) env('ANALYTICS_PIPELINE_ORCHESTRATOR_MAX_HISTORY', 100),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sentry Error Analytics (v187.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Bridge between Sentry error monitoring and product analytics.
+    | Ingests Sentry webhook payloads, computes error cohort analytics,
+    | and measures error-to-revenue impact on critical user paths.
+    |
+    */
+    'sentry_error_analytics' => [
+        'enabled' => env('ANALYTICS_SENTRY_ERROR_ANALYTICS_ENABLED', true),
+        'environment' => env('ANALYTICS_SENTRY_ERROR_ANALYTICS_ENV', 'production'),
+        'max_errors' => (int) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_MAX_ERRORS', 500),
+        'max_cohorts' => (int) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_MAX_COHORTS', 50),
+        'cache_ttl' => (int) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_CACHE_TTL', 7200), // 2 hours
+        'critical_paths' => ['checkout', 'payment', 'signup', 'trial_start', 'login'],
+        'impact_window_hours' => (int) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_IMPACT_WINDOW', 24),
+        'critical_path_weight' => (float) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_CRITICAL_WEIGHT', 2.0),
+        'revenue_impact_factor' => (float) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_REVENUE_FACTOR', 0.15),
+        'conversion_drop_threshold' => (float) env('ANALYTICS_SENTRY_ERROR_ANALYTICS_DROP_THRESHOLD', 5.0),
+    ],
 ];

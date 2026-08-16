@@ -6,7 +6,7 @@
  * of truth for all tracked event names.
  *
  * @package ZeroBoiler Analytics
- * @version 186.0.0
+ * @version 187.0.0
  */
 
 // ─── E-Commerce Events ───────────────────────────────────────────────

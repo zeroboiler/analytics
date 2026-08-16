@@ -135,10 +135,12 @@ use ZeroBoiler\Analytics\Services\EventAliasResolver;
 use ZeroBoiler\Analytics\Services\EventCacheService;
 use ZeroBoiler\Analytics\Services\EventBucketsService;
 use ZeroBoiler\Analytics\Services\FunnelSimulationService;
+use ZeroBoiler\Analytics\Services\PipelineOrchestratorService;
 use ZeroBoiler\Analytics\Services\SaaSFeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreService;
 use ZeroBoiler\Analytics\Services\SaaSRevenueFunnelService;
 use ZeroBoiler\Analytics\Services\SaaSLifecycleStageService;
+use ZeroBoiler\Analytics\Services\SentryErrorAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
@@ -451,7 +453,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 186.0.0
+ * @version 187.0.0
  *
  * @since 1.0.0
  */
@@ -2252,6 +2254,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSLifecycleStageService($manager, $cache, $config);
+        });
+
+        // v187.0.0 — DAG pipeline orchestrator
+        $this->app->singleton(PipelineOrchestratorService::class, function (Application $app): PipelineOrchestratorService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new PipelineOrchestratorService($cache, $config);
+        });
+
+        // v187.0.0 — Sentry error analytics integration
+        $this->app->singleton(SentryErrorAnalyticsService::class, function (Application $app): SentryErrorAnalyticsService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new SentryErrorAnalyticsService($cache, $config);
         });
 
         // Analytics health check service — comprehensive diagnostic
