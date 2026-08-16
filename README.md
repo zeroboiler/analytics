@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-193.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-194.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **197 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **398 services**, **86 artisan commands**, a fully-featured **JS client (~11,700 LOC)**, **11 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **SaaS revenue funnel analytics**, **feature adoption tracking with stickiness curves**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, **Monte Carlo funnel simulation**, **user lifecycle stage detection**, **DAG-based pipeline orchestration**, **Sentry error analytics integration**, **cross-provider schema validation**, **config drift detection**, **behavioral user segmentation**, **feature flag rollout guardrails**, and e-commerce format conversion across all providers.
@@ -56,6 +56,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v194.0.0
+
+**SaaS Lifecycle Flow Service + Webhook Event Catalog Parity — Industry-Standard SaaS Analytics Upgrade**:
+
+- **SaaSLifecycleFlowService** — 8-stage SaaS customer funnel tracking service (anonymous → signed_up → trialing → subscribed → activated → expanding → retained → champion). Each track method dispatches the appropriate analytics event AND returns the resulting funnel stage. Static utilities: stages(), stageIndex(), progressForStage(), nextStageAfter(), resolveStageForEvent(), isForwardProgression(), funnelSummary(), funnelBreakdown(). Event-to-stage mapping covers sign_up, start_trial, subscribe, plan_upgrade, subscription_renewal. Configured via AnalyticsManager injection.
+- **Webhook Event Catalog Parity** — WebhookEvents catalog (3 events: webhook_delivered, webhook_failed, webhook_received) now included in EventCatalog count, categorySummary, and all 8 provider name lists (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn).
+- **Phase 46 Production Readiness** — 80+ new assertions: SaaSLifecycleFlowService file quality (final, :void constructor, @since 194.0.0), 8-stage funnel validation, stageIndex/progressForStage consistency, isForwardProgression direction, resolveStageForEvent mapping, funnelSummary/funnelBreakdown structure, track method return types, constructor nullable manager, nextStageAfter boundary; exception hierarchy bidirectional @see validation (abstract AnalyticsException → 2 final leaves with factory methods); DTO immutability audit (AnalyticsEvent/AnalyticsGoal/GoalProgress final readonly with :void constructors and factory methods); ServiceProvider finality + register/provides #[Override]; Facade finality + getFacadeAccessor contract; AnalyticsManager finality + :void constructor; composer metadata integrity (PHP 8.5, namespace, provider, alias, scripts, MIT license); phpstan.neon.dist level 9 + rector.php PHP_85; version consistency (composer, DTO); source file count ≥ 862, test count ≥ 441; config file integrity; Phase 45 version fix (857→862+, 191.0.0→194.0.0); README badge sync (193.0.0→194.0.0).
+- **Tests** — Phase46ProductionReadinessTest (80+ assertions), V194EventCatalogWebhookParityAndFlowTest (15 assertions), V194SaaSLifecycleFlowServiceTest (50+ assertions), Phase45ProductionReadinessTest version sync. Total: 862+ src files, 441+ tests, 398 services.
 
 ### What's New in v193.0.0
 

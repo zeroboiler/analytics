@@ -1,5 +1,18 @@
 # Changelog
 
+## [194.0.0] - 2026-08-16
+
+### Added
+- **SaaSLifecycleFlowService** — 8-stage SaaS customer funnel tracking (anonymous → signed_up → trialing → subscribed → activated → expanding → retained → champion). Track methods dispatch events and return stage. Static utilities: stages(), stageIndex(), progressForStage(), nextStageAfter(), resolveStageForEvent(), isForwardProgression(), funnelSummary(), funnelBreakdown().
+- **WebhookEvents catalog parity** — WebhookEvents (3 events) now included in EventCatalog count, categorySummary, and all 8 provider name lists.
+- **Phase46ProductionReadinessTest** — 80+ assertions: SaaSLifecycleFlowService audit, exception hierarchy bidirectional @see, DTO immutability, ServiceProvider/Facade/Manager contracts, version consistency, config integrity.
+- **V194EventCatalogWebhookParityAndFlowTest** — 15 assertions covering webhook event catalog integration.
+- **V194SaaSLifecycleFlowServiceTest** — 50+ assertions covering flow service static methods and tracking.
+
+### Fixed
+- **Phase45ProductionReadinessTest** — Stale source file count (857 → 862+) and version (191.0.0 → 194.0.0) corrected.
+- **README badge** — Updated from 193.0.0 to 194.0.0.
+
 ## [193.0.0] - 2026-08-16
 
 ### Added
