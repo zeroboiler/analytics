@@ -1108,4 +1108,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('replay-ledger/{operationId}', [AnalyticsEventController::class, 'replayLedgerDetail']);
     Route::delete('replay-ledger', [AnalyticsEventController::class, 'replayLedgerClear']);
     Route::post('replay-ledger/prune', [AnalyticsEventController::class, 'replayLedgerPrune']);
+
+    // Event Dispatch Orchestration Engine (v207.0.0)
+    Route::get('orchestrator/health', [AnalyticsEventController::class, 'orchestratorHealth']);
+    Route::get('orchestrator/stats', [AnalyticsEventController::class, 'orchestratorStats']);
+    Route::get('orchestrator/outcomes', [AnalyticsEventController::class, 'orchestratorOutcomes']);
+    Route::post('orchestrator/evaluate', [AnalyticsEventController::class, 'orchestratorEvaluate']);
+    Route::post('orchestrator/clear', [AnalyticsEventController::class, 'orchestratorClear']);
 });

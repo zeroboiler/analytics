@@ -8996,4 +8996,27 @@ return [
         'max_operations' => (int) env('ANALYTICS_REPLAY_LEDGER_MAX_OPERATIONS', 500),
         'ttl' => (int) env('ANALYTICS_REPLAY_LEDGER_TTL', 86400), // 24 hours
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Dispatch Orchestration Engine (v207.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Unified coordinator for intelligent event dispatch across all providers.
+    | Bridges latency tracking, replay audit, circuit breaker, reliability
+    | scoring, and provider dispatch ordering into a single decision layer.
+    |
+    | Each dispatch decision considers provider health, latency budget,
+    | reliability score, event priority, consent state, and budget compliance.
+    | All decisions are logged to a cache-backed ledger for audit and debugging.
+    |
+    */
+    'dispatch_orchestrator' => [
+        'enabled' => env('ANALYTICS_DISPATCH_ORCHESTRATOR_ENABLED', true),
+        'decision_ttl' => (int) env('ANALYTICS_DISPATCH_ORCHESTRATOR_DECISION_TTL', 1800), // 30 minutes
+        'max_decisions' => (int) env('ANALYTICS_DISPATCH_ORCHESTRATOR_MAX_DECISIONS', 1000),
+        'min_reliability_auto' => (float) env('ANALYTICS_DISPATCH_ORCHESTRATOR_MIN_RELIABILITY', 60.0),
+        'min_reliability_critical' => (float) env('ANALYTICS_DISPATCH_ORCHESTRATOR_MIN_RELIABILITY_CRITICAL', 40.0),
+        'log_decisions' => env('ANALYTICS_DISPATCH_ORCHESTRATOR_LOG_DECISIONS', true),
+    ],
 ];

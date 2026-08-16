@@ -19516,4 +19516,151 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Dispatch Orchestrator (v207.0.0) ──────────────────────────
+
+    /**
+     * Get dispatch orchestration health summary.
+     *
+     * Returns composite health view: dispatch rate, defer rate, drop rate,
+     * and per-provider success rate summary.
+     *
+     * GET /api/analytics/orchestrator/health
+     *
+     * @since 207.0.0
+     */
+    public function orchestratorHealth(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchOrchestrator $orchestrator */
+            $orchestrator = app(\ZeroBoiler\Analytics\Services\EventDispatchOrchestrator::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$orchestrator->healthSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get orchestrator decision statistics.
+     *
+     * Returns aggregated decision counts by action and by provider,
+     * plus the 20 most recent decisions.
+     *
+     * GET /api/analytics/orchestrator/stats
+     *
+     * @since 207.0.0
+     */
+    public function orchestratorStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchOrchestrator $orchestrator */
+            $orchestrator = app(\ZeroBoiler\Analytics\Services\EventDispatchOrchestrator::class);
+
+            return response()->json([
+                'status' => 'ok',
+                ...$orchestrator->stats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get per-provider outcome statistics.
+     *
+     * Returns dispatch outcomes: total, success, failed, avg latency,
+     * and recent errors per provider.
+     *
+     * GET /api/analytics/orchestrator/outcomes
+     *
+     * @since 207.0.0
+     */
+    public function orchestratorOutcomes(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchOrchestrator $orchestrator */
+            $orchestrator = app(\ZeroBoiler\Analytics\Services\EventDispatchOrchestrator::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'outcomes' => $orchestrator->outcomeStats(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Evaluate dispatch for an event across multiple providers.
+     *
+     * Accepts event name, params, priority and provider context array.
+     * Returns ordered dispatch decisions with action and reasoning.
+     *
+     * POST /api/analytics/orchestrator/evaluate
+     *
+     * @since 207.0.0
+     */
+    public function orchestratorEvaluate(Request $request): JsonResponse
+    {
+        try {
+            $eventName = $request->input('event', '');
+            $params = $request->input('params', []);
+            $priority = $request->input('priority');
+            $providerContexts = $request->input('providers', []);
+
+            if (! is_string($eventName) || $eventName === '') {
+                return response()->json(['status' => 'error', 'error' => 'event name is required'], 422);
+            }
+
+            if (! is_array($providerContexts) || empty($providerContexts)) {
+                return response()->json(['status' => 'error', 'error' => 'providers context array is required'], 422);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: is_array($params) ? $params : [],
+                priority: is_string($priority) ? $priority : null,
+            );
+
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchOrchestrator $orchestrator */
+            $orchestrator = app(\ZeroBoiler\Analytics\Services\EventDispatchOrchestrator::class);
+
+            $decisions = $orchestrator->evaluateMulti($event, $providerContexts);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'decisions' => $decisions,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Clear all orchestrator data.
+     *
+     * POST /api/analytics/orchestrator/clear
+     *
+     * @since 207.0.0
+     */
+    public function orchestratorClear(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventDispatchOrchestrator $orchestrator */
+            $orchestrator = app(\ZeroBoiler\Analytics\Services\EventDispatchOrchestrator::class);
+            $orchestrator->clear();
+
+            return response()->json([
+                'status' => 'ok',
+                'cleared' => true,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

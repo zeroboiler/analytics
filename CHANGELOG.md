@@ -1,5 +1,18 @@
 # Changelog
 
+## [207.0.0] - 2026-08-16
+
+### Added
+- **EventDispatchOrchestrator** — Unified dispatch coordination engine that bridges latency tracking, replay audit, circuit breaker, reliability scoring, and provider dispatch ordering into a single decision-making layer. Each dispatch decision considers provider health, latency budget, reliability score, event priority, consent state, and budget compliance. Cache-backed decision ledger for audit and debugging.
+- **AnalyticsOrchestratorCommand** — `php artisan analytics:orchestrator` CLI with 5 actions: health, decisions, outcomes, stats, clear. Supports `--json` output for CI/CD integration.
+- **5 new API endpoints** — GET /api/analytics/orchestrator/health, /stats, /outcomes, POST /orchestrator/evaluate, /orchestrator/clear.
+- **Config expansion** — `zeroboiler.analytics.dispatch_orchestrator` section with 6 env-backed settings (enabled, decision_ttl, max_decisions, min_reliability_auto, min_reliability_critical, log_decisions).
+- **ServiceProvider registration** — EventDispatchOrchestrator registered as singleton.
+- **Comprehensive Pest test suite** — V207EventDispatchOrchestratorTest (20 assertions across 18 it blocks) covering: dispatch when healthy, consent denied, circuit breaker open, budget exceeded, reliability drop/defer, critical event bypass, replay routing, latency-based sampling, disabled orchestrator, multi-provider sorting, empty stats, health summary, outcome recording, clear operation, action constants.
+
+### Changed
+- **Version sweep** — Command count: 92 → 93. Source files: 892 → 894. Tests: 454 → 455.
+
 ## [205.0.0] - 2026-08-16
 
 ### Fixed

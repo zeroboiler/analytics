@@ -24,6 +24,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsTransformCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsConsoleCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueWaterfallCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventHealthCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsOrchestratorCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDeployGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSnapshotCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand;
@@ -160,6 +161,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
 use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
 use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
 use ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker;
+use ZeroBoiler\Analytics\Services\EventDispatchOrchestrator;
 use ZeroBoiler\Analytics\Services\EventReplayAuditLedger;
 use ZeroBoiler\Analytics\Services\EventSchemaVersioningService;
 use ZeroBoiler\Analytics\Services\AnalyticsReadinessService;
@@ -2625,6 +2627,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Dispatch Orchestration Engine (v207.0.0)
+        $this->app->singleton(EventDispatchOrchestrator::class, function (Application $app): EventDispatchOrchestrator {
+            return new EventDispatchOrchestrator(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Web Vitals Aggregator Service — RUM (v68.0.0)
         $this->app->singleton(WebVitalsAggregatorService::class, function (Application $app): WebVitalsAggregatorService {
             $config = $app->make(AnalyticsConfig::class);
@@ -4434,6 +4444,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsRevenueWaterfallCommand::class,
                 AnalyticsEventHealthCommand::class,
                 AnalyticsDeployGateCommand::class,
+                AnalyticsOrchestratorCommand::class,
                 AnalyticsForecastCommand::class,
                 AnalyticsGovernanceCommand::class,
                 AnalyticsFunnelLeakCommand::class,
