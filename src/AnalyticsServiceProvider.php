@@ -207,6 +207,8 @@ use ZeroBoiler\Analytics\Services\EventTraceContextService;
 use ZeroBoiler\Analytics\Services\AnalyticsDataLakeService;
 use ZeroBoiler\Analytics\Services\EventArchetypeService;
 use ZeroBoiler\Analytics\Services\ConfigDriftDetectionService;
+use ZeroBoiler\Analytics\Services\EventCatalogExplorerService;
+use ZeroBoiler\Analytics\Services\ProviderDispatchOrderService;
 use ZeroBoiler\Analytics\Services\EventSchemaValidatorService;
 use ZeroBoiler\Analytics\Services\EventAnonymizationAggregationService;
 use ZeroBoiler\Analytics\Services\EventArchiveService;
@@ -456,7 +458,7 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 189.0.0
+ * @version 190.0.0
  *
  * @since 1.0.0
  */
@@ -2322,6 +2324,26 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new ConfigDriftDetectionService($cache, $config);
+        });
+
+        // v190.0.0 — Provider dispatch order optimization
+        $this->app->singleton(ProviderDispatchOrderService::class, function (Application $app): ProviderDispatchOrderService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new ProviderDispatchOrderService($cache, $config);
+        });
+
+        // v190.0.0 — Event catalog explorer with fuzzy search
+        $this->app->singleton(EventCatalogExplorerService::class, function (Application $app): EventCatalogExplorerService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventCatalogExplorerService($cache, $config);
         });
 
         // Analytics health check service — comprehensive diagnostic

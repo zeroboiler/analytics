@@ -8633,4 +8633,61 @@ return [
         'baseline_label' => env('ANALYTICS_CONFIG_DRIFT_LABEL', 'default'),
         'ignore_keys' => [],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Provider Dispatch Order Optimization (v190.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Dynamically determines the optimal dispatch order for each event across
+    | all enabled analytics providers. Considers real-time provider health,
+    | cost constraints, SLA targets, budget utilization, and consent state.
+    |
+    | Scoring factors:
+    | - health (0.25): provider connectivity and success rate
+    | - sla (0.20): SLA compliance (P95 latency, error rate)
+    | - budget (0.15): remaining dispatch budget utilization
+    | - coverage (0.25): provider support for this event type
+    | - cost (0.10): cost efficiency (lower cost = higher score)
+    | - consent (0.05): GDPR consent readiness for this provider
+    |
+    | Providers scoring below min_score are excluded from dispatch.
+    |
+    */
+    'dispatch_order' => [
+        'enabled' => env('ANALYTICS_DISPATCH_ORDER_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_DISPATCH_ORDER_CACHE_TTL', 300), // 5 minutes
+        'min_score' => (float) env('ANALYTICS_DISPATCH_ORDER_MIN_SCORE', 25.0),
+        'provider_weights' => [
+            // Per-provider weight multiplier (1.0 = default, >1.0 = boost, <1.0 = deprioritize)
+            // 'ga4' => 1.0,
+            // 'posthog' => 1.2,
+        ],
+        'excluded_providers' => [
+            // Providers to globally exclude from dispatch optimization
+        ],
+        'respect_routing' => env('ANALYTICS_DISPATCH_ORDER_RESPECT_ROUTING', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Catalog Explorer (v190.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Advanced event catalog search with fuzzy matching, tag filtering,
+    | provider coverage analysis, and developer recommendations.
+    |
+    | Use for:
+    | - Developer tooling: "what events should I track for signups?"
+    | - Provider audits: "which events does Meta support?"
+    | - Similar events: "events related to purchase"
+    | - Tag exploration: "show me all revenue-tagged events"
+    |
+    */
+    'catalog_explorer' => [
+        'enabled' => env('ANALYTICS_CATALOG_EXPLORER_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_CATALOG_EXPLORER_CACHE_TTL', 1800), // 30 minutes
+        'max_results' => (int) env('ANALYTICS_CATALOG_EXPLORER_MAX_RESULTS', 50),
+        'fuzzy_sensitivity' => (int) env('ANALYTICS_CATALOG_EXPLORER_FUZZY_SENSITIVITY', 3), // Max Levenshtein distance
+    ],
 ];
