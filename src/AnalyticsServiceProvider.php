@@ -350,6 +350,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
 use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
 use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService;
+use ZeroBoiler\Analytics\Services\EventSemanticClassifierService;
+use ZeroBoiler\Analytics\Services\EventNamingConventionLinter;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
 use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
 use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
@@ -1201,6 +1203,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Time-Series Decomposition Engine (v221.0.0)
         $this->app->singleton(EventTimeSeriesDecompositionService::class, function (Application $app): EventTimeSeriesDecompositionService {
             return new EventTimeSeriesDecompositionService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Semantic Classifier & Auto-Categorization Engine (v222.0.0)
+        $this->app->singleton(EventSemanticClassifierService::class, function (Application $app): EventSemanticClassifierService {
+            return new EventSemanticClassifierService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Naming Convention Linter (v222.0.0)
+        $this->app->singleton(EventNamingConventionLinter::class, function (Application $app): EventNamingConventionLinter {
+            return new EventNamingConventionLinter(
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
@@ -4620,6 +4638,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
             ]));
         }
 

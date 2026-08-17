@@ -21331,4 +21331,173 @@ final class AnalyticsEventController extends Controller
 
         return $data;
     }
+
+    // ── Event Semantic Classifier & Naming Linter (v222.0.0) ─────────
+
+    /**
+     * Classify a single event semantically.
+     *
+     * GET /api/analytics/classify/{eventName}
+     */
+    public function semanticClassify(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSemanticClassifierService $classifier */
+            $classifier = app(\ZeroBoiler\Analytics\Services\EventSemanticClassifierService::class);
+
+            $params = $this->request()->query->all();
+            $result = $classifier->classify($eventName, is_array($params) ? $params : []);
+
+            return response()->json(['status' => 'ok', 'classification' => $result]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get category suggestions for an event.
+     *
+     * GET /api/analytics/classify/{eventName}/suggest
+     */
+    public function semanticClassifySuggest(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSemanticClassifierService $classifier */
+            $classifier = app(\ZeroBoiler\Analytics\Services\EventSemanticClassifierService::class);
+
+            $params = $this->request()->query->all();
+            $suggestions = $classifier->suggestCategory($eventName, is_array($params) ? $params : []);
+            $alias = $classifier->resolveAlias($eventName);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'alias' => $alias,
+                'suggestions' => $suggestions,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Full semantic classification report.
+     *
+     * GET /api/analytics/classify/report
+     */
+    public function semanticClassifyReport(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSemanticClassifierService $classifier */
+            $classifier = app(\ZeroBoiler\Analytics\Services\EventSemanticClassifierService::class);
+
+            $eventNames = $this->request()->query('events');
+
+            if (is_string($eventNames) && $eventNames !== '') {
+                $eventList = array_map('trim', explode(',', $eventNames));
+            } else {
+                $eventList = null;
+            }
+
+            $report = $classifier->classificationReport($eventList);
+
+            return response()->json(['status' => 'ok', 'report' => $report]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Lint a single event name.
+     *
+     * GET /api/analytics/lint/{eventName}
+     */
+    public function namingLintEvent(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventNamingConventionLinter $linter */
+            $linter = app(\ZeroBoiler\Analytics\Services\EventNamingConventionLinter::class);
+
+            $violations = $linter->lint($eventName);
+            $hasErrors = count(array_filter($violations, static fn (array $v): bool => $v['severity'] === 'error')) > 0;
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'valid' => ! $hasErrors,
+                'violations' => $violations,
+                'violation_count' => count($violations),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get naming suggestions for an event.
+     *
+     * GET /api/analytics/lint/{eventName}/suggest
+     */
+    public function namingLintSuggest(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventNamingConventionLinter $linter */
+            $linter = app(\ZeroBoiler\Analytics\Services\EventNamingConventionLinter::class);
+
+            $suggestions = $linter->suggestName($eventName);
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'suggestions' => $suggestions,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Full naming lint report.
+     *
+     * GET /api/analytics/lint/report
+     */
+    public function namingLintReport(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventNamingConventionLinter $linter */
+            $linter = app(\ZeroBoiler\Analytics\Services\EventNamingConventionLinter::class);
+
+            $eventNames = $this->request()->query('events');
+
+            if (is_string($eventNames) && $eventNames !== '') {
+                $eventList = array_map('trim', explode(',', $eventNames));
+            } else {
+                $eventList = null;
+            }
+
+            $report = $linter->lintReport($eventList);
+
+            return response()->json(['status' => 'ok', 'report' => $report]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate naming/classifier cache.
+     *
+     * POST /api/analytics/naming/invalidate-cache
+     */
+    public function namingInvalidateCache(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventNamingConventionLinter $linter */
+            $linter = app(\ZeroBoiler\Analytics\Services\EventNamingConventionLinter::class);
+            $linter->invalidateCache();
+
+            return response()->json(['status' => 'ok', 'message' => 'Naming lint cache invalidated']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

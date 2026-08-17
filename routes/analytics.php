@@ -1214,4 +1214,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('decomposition/profile/{eventName}', [AnalyticsEventController::class, 'decompositionProfile']);
     Route::get('decomposition/config', [AnalyticsEventController::class, 'decompositionConfig']);
     Route::post('prune-advisor/invalidate', [AnalyticsEventController::class, 'pruneAdvisorInvalidate']);
+
+    // Event Semantic Classifier & Naming Linter (v222.0.0)
+    Route::get('classify/{eventName}', [AnalyticsEventController::class, 'semanticClassify']);
+    Route::get('classify/{eventName}/suggest', [AnalyticsEventController::class, 'semanticClassifySuggest']);
+    Route::get('classify/report', [AnalyticsEventController::class, 'semanticClassifyReport']);
+    Route::get('lint/{eventName}', [AnalyticsEventController::class, 'namingLintEvent']);
+    Route::get('lint/{eventName}/suggest', [AnalyticsEventController::class, 'namingLintSuggest']);
+    Route::get('lint/report', [AnalyticsEventController::class, 'namingLintReport']);
+    Route::post('naming/invalidate-cache', [AnalyticsEventController::class, 'namingInvalidateCache']);
 });
