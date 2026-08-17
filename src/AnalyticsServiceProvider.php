@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\SaaSRevenueIntelligenceCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsObservabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRevenueAttributionCommand;
@@ -4562,6 +4563,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                SaaSRevenueIntelligenceCommand::class,
                 AnalyticsObservabilityCommand::class,
                 AnalyticsRevenueAttributionCommand::class,
                 AnalyticsExportCommand::class,
