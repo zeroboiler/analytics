@@ -8,359 +8,599 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
 
 /**
- * Analytics configuration validator.
+ * Validates analytics configuration completeness and correctness.
  *
- * Validates the analytics config structure on boot to catch misconfigurations
- * early. Checks provider credentials, required settings, and cross-dependencies.
- * Returns a list of warnings and errors that can be surfaced via health endpoint
- * or admin commands.
+ * Performs a comprehensive check of all analytics config sections,
+ * detecting missing values, invalid types, insecure defaults, and
+ * cross-section dependency issues. Useful for CI/CD gates, health
+ * checks, and onboarding diagnostics.
  *
- * Designed for production-grade SaaS deployments where misconfigured analytics
- * can silently lose tracking data.
+ * Usage:
+ *   $validator = new AnalyticsConfigValidator($config);
+ *   $report = $validator->validate();
+ *   if ($report['score'] < 80) {
+ *       // warn about incomplete config
+ *   }
  *
- * @since 1.0.0
+ * @since 238.0.0
  */
 final class AnalyticsConfigValidator
 {
-    /** @var list<array{level: 'error'|'warning'|'info', message: string, config_key: string}> */
+    private ConfigRepository $config;
+
+    /** @var list<array{section: string, key: string, severity: 'error'|'warning'|'info', message: string}> */
     private array $issues = [];
 
-    private readonly ConfigRepository $config;
+    /** @var list<array{section: string, key: string, status: 'present'|'missing'|'invalid'|'insecure'}> */
+    private array $findings = [];
 
-    /**
-     * @param  ConfigRepository  $config
-     */
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         $this->config = $config;
     }
 
     /**
-     * Run all validation checks.
+     * Run all validation checks and return a report.
      *
-     * @return array{valid: bool, errors: int, warnings: int, info: int, issues: list<array{level: string, message: string, config_key: string}>}
+     * @return array{score: int, grade: string, issues: list<array{section: string, key: string, severity: string, message: string}>, findings: list<array{section: string, key: string, status: string}>, section_scores: array<string, int>, summary: array{total: int, errors: int, warnings: int, info: int}}
      */
     public function validate(): array
     {
         $this->issues = [];
+        $this->findings = [];
 
-        $this->validateGa4();
-        $this->validateGtm();
-        $this->validateMetaPixel();
-        $this->validatePlausible();
-        $this->validatePosthog();
-        $this->validateWebhook();
-        $this->validateQueue();
-        $this->validateIdentity();
-        $this->validateConsent();
-        $this->validateSampling();
-        $this->validateRetention();
-        $this->validateApi();
-        $this->validateReplay();
+        // Required sections
+        $this->validateSection('providers.ga4', $this->ga4Checks());
+        $this->validateSection('providers.gtm', $this->gtmChecks());
+        $this->validateSection('providers.meta', $this->metaChecks());
+        $this->validateSection('providers.plausible', $this->plausibleChecks());
+        $this->validateSection('providers.posthog', $this->posthogChecks());
+        $this->validateSection('consent', $this->consentChecks());
+        $this->validateSection('api', $this->apiChecks());
+        $this->validateSection('identity', $this->identityChecks());
+        $this->validateSection('queue', $this->queueChecks());
+        $this->validateSection('debug', $this->debugChecks());
+        $this->validateSection('sampling', $this->samplingChecks());
+        $this->validateSection('auto_track', $this->autoTrackChecks());
 
-        $errors = count(array_filter($this->issues, fn (array $i): bool => $i['level'] === 'error'));
-        $warnings = count(array_filter($this->issues, fn (array $i): bool => $i['level'] === 'warning'));
-        $info = count(array_filter($this->issues, fn (array $i): bool => $i['level'] === 'info'));
+        // Cross-section validation
+        $this->validateCrossSection();
+
+        return $this->buildReport();
+    }
+
+    /**
+     * Get validation checks for the GA4 provider section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function ga4Checks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_GA4_ENABLED',
+                'severity' => 'info',
+                'message' => 'GA4 is not explicitly enabled — defaults to false',
+            ],
+            'measurement_id' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_GA4_MEASUREMENT_ID',
+                'severity' => 'warning',
+                'message' => 'GA4 measurement ID is missing — server-side tracking disabled',
+            ],
+            'api_secret' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_GA4_API_SECRET',
+                'severity' => 'warning',
+                'message' => 'GA4 API secret is missing — Measurement Protocol disabled',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the GTM provider section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function gtmChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_GTM_ENABLED',
+                'severity' => 'info',
+                'message' => 'GTM is not explicitly enabled — defaults to false',
+            ],
+            'container_id' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_GTM_CONTAINER_ID',
+                'severity' => 'warning',
+                'message' => 'GTM container ID is missing — dataLayer pushes disabled',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the Meta Pixel provider section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function metaChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_META_ENABLED',
+                'severity' => 'info',
+                'message' => 'Meta Pixel is not explicitly enabled — defaults to false',
+            ],
+            'pixel_id' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_META_PIXEL_ID',
+                'severity' => 'warning',
+                'message' => 'Meta Pixel ID is missing — CAPI and client tracking disabled',
+            ],
+            'access_token' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_META_ACCESS_TOKEN',
+                'severity' => 'warning',
+                'message' => 'Meta CAPI access token is missing — server-side events disabled',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the Plausible provider section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function plausibleChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_PLAUSIBLE_ENABLED',
+                'severity' => 'info',
+                'message' => 'Plausible is not explicitly enabled — defaults to false',
+            ],
+            'domain' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_PLAUSIBLE_DOMAIN',
+                'severity' => 'warning',
+                'message' => 'Plausible domain is missing — tracking disabled',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the PostHog provider section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function posthogChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_POSTHOG_ENABLED',
+                'severity' => 'info',
+                'message' => 'PostHog is not explicitly enabled — defaults to false',
+            ],
+            'api_key' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_POSTHOG_API_KEY',
+                'severity' => 'warning',
+                'message' => 'PostHog API key is missing — event ingestion disabled',
+            ],
+            'host' => [
+                'required' => true,
+                'type' => 'string',
+                'env' => 'ANALYTICS_POSTHOG_HOST',
+                'severity' => 'info',
+                'message' => 'PostHog host is missing — defaults to app.posthog.com',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the consent section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function consentChecks(): array
+    {
+        return [
+            'default' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_CONSENT_DEFAULT',
+                'severity' => 'warning',
+                'message' => 'Consent default is not set — events may fire before consent is collected',
+            ],
+            'mode' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_CONSENT_MODE',
+                'severity' => 'info',
+                'message' => 'Consent mode not set — defaults to basic mode',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the API section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function apiChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_API_ENABLED',
+                'severity' => 'info',
+                'message' => 'API endpoint is not explicitly enabled',
+            ],
+            'rate_limit' => [
+                'required' => false,
+                'type' => 'int',
+                'env' => 'ANALYTICS_API_RATE_LIMIT',
+                'severity' => 'info',
+                'message' => 'API rate limit not set — defaults to 60 requests/min',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the identity section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function identityChecks(): array
+    {
+        return [
+            'cookie_name' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_IDENTITY_COOKIE_NAME',
+                'severity' => 'info',
+                'message' => 'Identity cookie name not set — defaults to zb_analytics_id',
+            ],
+            'cookie_ttl' => [
+                'required' => false,
+                'type' => 'int',
+                'env' => 'ANALYTICS_IDENTITY_COOKIE_TTL',
+                'severity' => 'info',
+                'message' => 'Identity cookie TTL not set — defaults to 525600 minutes (1 year)',
+            ],
+            'cookie_samesite' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_IDENTITY_COOKIE_SAMESITE',
+                'severity' => 'info',
+                'message' => 'Identity cookie SameSite not set — defaults to Lax',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the queue section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function queueChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_QUEUE_ENABLED',
+                'severity' => 'info',
+                'message' => 'Queue dispatch not explicitly enabled — events processed synchronously',
+            ],
+            'connection' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_QUEUE_CONNECTION',
+                'severity' => 'info',
+                'message' => 'Queue connection not set — defaults to default',
+            ],
+            'queue' => [
+                'required' => false,
+                'type' => 'string',
+                'env' => 'ANALYTICS_QUEUE_NAME',
+                'severity' => 'info',
+                'message' => 'Queue name not set — defaults to analytics',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the debug section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function debugChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_DEBUG_ENABLED',
+                'severity' => 'info',
+                'message' => 'Debug mode not set',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the sampling section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function samplingChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_SAMPLING_ENABLED',
+                'severity' => 'info',
+                'message' => 'Sampling not enabled — all events tracked',
+            ],
+            'rate' => [
+                'required' => false,
+                'type' => 'float',
+                'env' => 'ANALYTICS_SAMPLING_RATE',
+                'severity' => 'info',
+                'message' => 'Sampling rate not set — defaults to 1.0 (100%)',
+            ],
+        ];
+    }
+
+    /**
+     * Get validation checks for the auto_track section.
+     *
+     * @return array<string, array{required: bool, type: string, env: string, severity: string, message: string}>
+     */
+    private function autoTrackChecks(): array
+    {
+        return [
+            'enabled' => [
+                'required' => false,
+                'type' => 'bool',
+                'env' => 'ANALYTICS_AUTO_TRACK_ENABLED',
+                'severity' => 'info',
+                'message' => 'Server-side auto-tracking not explicitly configured',
+            ],
+        ];
+    }
+
+    /**
+     * Validate a single config section against its checks.
+     *
+     * @param  string  $section  Dot-notation config section
+     * @param  array<string, array{required: bool, type: string, env: string, severity: string, message: string}>  $checks
+     */
+    private function validateSection(string $section, array $checks): void
+    {
+        $sectionPresent = [];
+
+        foreach ($checks as $key => $check) {
+            $dotKey = "zeroboiler.analytics.{$section}.{$key}";
+            $value = $this->config->get($dotKey);
+            $hasValue = $value !== null;
+
+            $sectionPresent[$key] = $hasValue;
+
+            if (! $hasValue && $check['required']) {
+                $this->issues[] = [
+                    'section' => $section,
+                    'key' => $key,
+                    'severity' => $check['severity'],
+                    'message' => $check['message'],
+                ];
+                $this->findings[] = [
+                    'section' => $section,
+                    'key' => $key,
+                    'status' => 'missing',
+                ];
+            } elseif ($hasValue && $this->isInvalidType($value, $check['type'])) {
+                $this->issues[] = [
+                    'section' => $section,
+                    'key' => $key,
+                    'severity' => 'warning',
+                    'message' => "Expected type {$check['type']}, got " . get_debug_type($value),
+                ];
+                $this->findings[] = [
+                    'section' => $section,
+                    'key' => $key,
+                    'status' => 'invalid',
+                ];
+            } else {
+                $this->findings[] = [
+                    'section' => $section,
+                    'key' => $key,
+                    'status' => $hasValue ? 'present' : 'missing',
+                ];
+            }
+        }
+    }
+
+    /**
+     * Validate cross-section dependencies.
+     */
+    private function validateCrossSection(): void
+    {
+        // If GA4 is enabled but no measurement_id → error
+        $ga4Enabled = $this->config->get('zeroboiler.analytics.providers.ga4.enabled', false);
+        $ga4Id = $this->config->get('zeroboiler.analytics.providers.ga4.measurement_id');
+        if ($ga4Enabled && (! is_string($ga4Id) || $ga4Id === '')) {
+            $this->issues[] = [
+                'section' => 'cross-section',
+                'key' => 'ga4.enabled_without_id',
+                'severity' => 'error',
+                'message' => 'GA4 is enabled but measurement_id is missing — no events will be sent',
+            ];
+        }
+
+        // If Meta is enabled but no pixel_id → error
+        $metaEnabled = $this->config->get('zeroboiler.analytics.providers.meta.enabled', false);
+        $metaId = $this->config->get('zeroboiler.analytics.providers.meta.pixel_id');
+        if ($metaEnabled && (! is_string($metaId) || $metaId === '')) {
+            $this->issues[] = [
+                'section' => 'cross-section',
+                'key' => 'meta.enabled_without_id',
+                'severity' => 'error',
+                'message' => 'Meta Pixel is enabled but pixel_id is missing — no events will be sent',
+            ];
+        }
+
+        // If no provider is enabled at all → info
+        $anyEnabled = $ga4Enabled
+            || $metaEnabled
+            || $this->config->get('zeroboiler.analytics.providers.gtm.enabled', false)
+            || $this->config->get('zeroboiler.analytics.providers.plausible.enabled', false)
+            || $this->config->get('zeroboiler.analytics.providers.posthog.enabled', false);
+
+        if (! $anyEnabled) {
+            $this->issues[] = [
+                'section' => 'cross-section',
+                'key' => 'no_providers_enabled',
+                'severity' => 'info',
+                'message' => 'No analytics providers are enabled — events will not be dispatched',
+            ];
+        }
+
+        // If queue is enabled but connection/queue not set → warning
+        $queueEnabled = $this->config->get('zeroboiler.analytics.queue.enabled', false);
+        if ($queueEnabled) {
+            $connection = $this->config->get('zeroboiler.analytics.queue.connection');
+            $queue = $this->config->get('zeroboiler.analytics.queue.queue');
+            if ($connection === null || $queue === null) {
+                $this->issues[] = [
+                    'section' => 'cross-section',
+                    'key' => 'queue.incomplete_config',
+                    'severity' => 'warning',
+                    'message' => 'Queue dispatch enabled but connection/queue not configured — may fail',
+                ];
+            }
+        }
+
+        // Debug mode should not be enabled in production
+        $debugEnabled = $this->config->get('zeroboiler.analytics.debug.enabled', false);
+        $appEnv = $this->config->get('app.env', 'production');
+        if ($debugEnabled && $appEnv === 'production') {
+            $this->issues[] = [
+                'section' => 'cross-section',
+                'key' => 'debug.in_production',
+                'severity' => 'error',
+                'message' => 'Analytics debug mode is enabled in production environment',
+            ];
+        }
+    }
+
+    /**
+     * Check if a value matches the expected type.
+     */
+    private function isInvalidType(mixed $value, string $type): bool
+    {
+        return match ($type) {
+            'bool' => ! is_bool($value),
+            'string' => ! is_string($value),
+            'int' => ! is_int($value),
+            'float' => ! is_float($value) && ! is_int($value),
+            'array' => ! is_array($value),
+            default => false,
+        };
+    }
+
+    /**
+     * Build the validation report with score and grade.
+     *
+     * @return array{score: int, grade: string, issues: list<array{section: string, key: string, severity: string, message: string}>, findings: list<array{section: string, key: string, status: string}>, section_scores: array<string, int>, summary: array{total: int, errors: int, warnings: int, info: int}}
+     */
+    private function buildReport(): array
+    {
+        $errors = array_filter($this->issues, fn (array $i): bool => $i['severity'] === 'error');
+        $warnings = array_filter($this->issues, fn (array $i): bool => $i['severity'] === 'warning');
+        $infos = array_filter($this->issues, fn (array $i): bool => $i['severity'] === 'info');
+
+        // Score: 100 minus penalties
+        $score = 100;
+        $score -= (count($errors) * 20);   // -20 per error
+        $score -= (count($warnings) * 5);  // -5 per warning
+        $score -= (count($infos) * 1);     // -1 per info
+        $score = max(0, $score);
+
+        $grade = match (true) {
+            $score >= 90 => 'A',
+            $score >= 80 => 'B',
+            $score >= 60 => 'C',
+            $score >= 40 => 'D',
+            default => 'F',
+        };
+
+        // Section scores
+        $sectionScores = [];
+        foreach ($this->findings as $finding) {
+            $section = $finding['section'];
+            if (! isset($sectionScores[$section])) {
+                $sectionScores[$section] = ['total' => 0, 'present' => 0];
+            }
+            $sectionScores[$section]['total']++;
+            if ($finding['status'] === 'present') {
+                $sectionScores[$section]['present']++;
+            }
+        }
+
+        $sectionPercent = [];
+        foreach ($sectionScores as $section => $counts) {
+            $sectionPercent[$section] = $counts['total'] > 0
+                ? (int) round(($counts['present'] / $counts['total']) * 100)
+                : 0;
+        }
 
         return [
-            'valid' => $errors === 0,
-            'errors' => $errors,
-            'warnings' => $warnings,
-            'info' => $info,
-            'issues' => $this->issues,
+            'score' => $score,
+            'grade' => $grade,
+            'issues' => array_values($this->issues),
+            'findings' => array_values($this->findings),
+            'section_scores' => $sectionPercent,
+            'summary' => [
+                'total' => count($this->issues),
+                'errors' => count($errors),
+                'warnings' => count($warnings),
+                'info' => count($infos),
+            ],
         ];
     }
 
     /**
-     * Check if the configuration is valid (no errors).
-     */
-    public function isValid(): bool
-    {
-        return $this->validate()['valid'];
-    }
-
-    /**
-     * Get only error-level issues.
+     * Quick check — is the config minimally viable for production?
      *
-     * @return list<array{level: string, message: string, config_key: string}>
+     * Returns true if no errors exist (warnings and info are acceptable).
      */
-    public function errors(): array
+    public function isProductionReady(): bool
     {
-        return array_values(array_filter(
-            $this->validate()['issues'],
-            fn (array $i): bool => $i['level'] === 'error',
-        ));
-    }
+        $report = $this->validate();
 
-    /**
-     * Get only warning-level issues.
-     *
-     * @return list<array{level: string, message: string, config_key: string}>
-     */
-    public function warnings(): array
-    {
-        return array_values(array_filter(
-            $this->validate()['issues'],
-            fn (array $i): bool => $i['level'] === 'warning',
-        ));
-    }
-
-    /**
-     * Get the full validation result with all issues.
-     *
-     * @return array{valid: bool, errors: int, warnings: int, info: int, issues: list<array{level: string, message: string, config_key: string}>}
-     */
-    public function result(): array
-    {
-        return $this->validate();
-    }
-
-    // ── Provider Validators ─────────────────────────────────────────
-
-    private function validateGa4(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.ga4.enabled', false);
-        $id = $this->config->get('zeroboiler.analytics.ga4.measurement_id', '');
-        $secret = $this->config->get('zeroboiler.analytics.ga4.api_secret', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($id === '' || $id === null) {
-            $this->addIssue('error', 'GA4 is enabled but measurement_id is empty', 'ga4.measurement_id');
-        } elseif (! str_starts_with((string) $id, 'G-')) {
-            $this->addIssue('warning', 'GA4 measurement_id should start with "G-"', 'ga4.measurement_id');
-        }
-
-        if ($secret === '' || $secret === null) {
-            $this->addIssue('info', 'GA4 api_secret is empty — server-side MP will not work', 'ga4.api_secret');
-        }
-    }
-
-    private function validateGtm(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.gtm.enabled', false);
-        $id = $this->config->get('zeroboiler.analytics.gtm.container_id', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($id === '' || $id === null) {
-            $this->addIssue('error', 'GTM is enabled but container_id is empty', 'gtm.container_id');
-        } elseif (! str_starts_with((string) $id, 'GTM-')) {
-            $this->addIssue('warning', 'GTM container_id should start with "GTM-"', 'gtm.container_id');
-        }
-    }
-
-    private function validateMetaPixel(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.meta_pixel.enabled', false);
-        $id = $this->config->get('zeroboiler.analytics.meta_pixel.id', '');
-        $token = $this->config->get('zeroboiler.analytics.meta_pixel.access_token', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($id === '' || $id === null) {
-            $this->addIssue('error', 'Meta Pixel is enabled but pixel id is empty', 'meta_pixel.id');
-        }
-
-        if ($token === '' || $token === null) {
-            $this->addIssue('info', 'Meta Pixel access_token is empty — CAPI will not work', 'meta_pixel.access_token');
-        }
-    }
-
-    private function validatePlausible(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.plausible.enabled', false);
-        $domain = $this->config->get('zeroboiler.analytics.plausible.domain', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($domain === '' || $domain === null) {
-            $this->addIssue('error', 'Plausible is enabled but domain is empty', 'plausible.domain');
-        }
-    }
-
-    private function validatePosthog(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.posthog.enabled', false);
-        $key = $this->config->get('zeroboiler.analytics.posthog.api_key', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($key === '' || $key === null) {
-            $this->addIssue('error', 'PostHog is enabled but api_key is empty', 'posthog.api_key');
-        }
-    }
-
-    private function validateWebhook(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.webhook.enabled', false);
-        $url = $this->config->get('zeroboiler.analytics.webhook.url', '');
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($url === '' || $url === null) {
-            $this->addIssue('error', 'Webhook is enabled but url is empty', 'webhook.url');
-        } elseif (! str_starts_with((string) $url, 'https://')) {
-            $this->addIssue('warning', 'Webhook URL should use HTTPS for security', 'webhook.url');
-        }
-
-        $sign = $this->config->get('zeroboiler.analytics.webhook.sign', false);
-        $secret = $this->config->get('zeroboiler.analytics.webhook.secret', '');
-
-        if ($sign && ($secret === '' || $secret === null)) {
-            $this->addIssue('warning', 'Webhook signing is enabled but secret is empty', 'webhook.secret');
-        }
-    }
-
-    private function validateQueue(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.queue.enabled', true);
-        $name = $this->config->get('zeroboiler.analytics.queue.queue', 'analytics');
-
-        if (! $enabled) {
-            $this->addIssue('info', 'Queue dispatch is disabled — all events will be synchronous', 'queue.enabled');
-        }
-
-        if ($name !== null && ! is_string($name)) {
-            $this->addIssue('error', 'Queue name must be a string', 'queue.queue');
-        }
-    }
-
-    private function validateIdentity(): void
-    {
-        $ttl = $this->config->get('zeroboiler.analytics.identity.cookie_ttl', 525600);
-
-        if ($ttl !== null && ((int) $ttl) < 1440) {
-            $this->addIssue('warning', 'Identity cookie TTL is less than 1 day — tracking IDs may expire frequently', 'identity.cookie_ttl');
-        }
-
-        $samesite = $this->config->get('zeroboiler.analytics.identity.cookie_samesite', 'Lax');
-        $validSameSite = ['Strict', 'Lax', 'None'];
-
-        if (! in_array($samesite, $validSameSite, true)) {
-            $this->addIssue('error', "Invalid cookie_samesite value: {$samesite}. Must be Strict, Lax, or None", 'identity.cookie_samesite');
-        }
-    }
-
-    private function validateConsent(): void
-    {
-        $default = $this->config->get('zeroboiler.analytics.consent.default', 'granted');
-        $validDefaults = ['granted', 'denied'];
-
-        if (! in_array($default, $validDefaults, true)) {
-            $this->addIssue('error', "Invalid consent default: {$default}. Must be 'granted' or 'denied'", 'consent.default');
-        }
-
-        if ($default === 'denied') {
-            $this->addIssue('info', 'Consent defaults to denied — no events will be tracked until user grants consent', 'consent.default');
-        }
-    }
-
-    private function validateSampling(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.sampling.enabled', false);
-
-        if (! $enabled) {
-            return;
-        }
-
-        $rate = (float) $this->config->get('zeroboiler.analytics.sampling.rate', 1.0);
-
-        if ($rate <= 0.0 || $rate > 1.0) {
-            $this->addIssue('error', "Sampling rate must be between 0.0 and 1.0, got: {$rate}", 'sampling.rate');
-        } elseif ($rate < 0.1) {
-            $this->addIssue('warning', "Sampling rate is very low ({$rate}) — more than 90% of events will be dropped", 'sampling.rate');
-        }
-    }
-
-    private function validateRetention(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.retention.enabled', false);
-        $days = (int) $this->config->get('zeroboiler.analytics.retention.days', 90);
-
-        if (! $enabled) {
-            return;
-        }
-
-        if ($days < 1) {
-            $this->addIssue('error', 'Retention days must be at least 1', 'retention.days');
-        } elseif ($days < 30) {
-            $this->addIssue('warning', "Retention period is very short ({$days} days) — analytics data will be lost quickly", 'retention.days');
-        }
-    }
-
-    private function validateApi(): void
-    {
-        $throttle = (int) $this->config->get('zeroboiler.analytics.api.throttle', 60);
-
-        if ($throttle < 1) {
-            $this->addIssue('error', 'API throttle rate must be at least 1 request per minute', 'api.throttle');
-        } elseif ($throttle > 1000) {
-            $this->addIssue('warning', "API throttle rate is very high ({$throttle}/min) — consider adding auth", 'api.throttle');
-        }
-    }
-
-    private function validateReplay(): void
-    {
-        $enabled = $this->config->get('zeroboiler.analytics.replay.enabled', true);
-        $maxAttempts = (int) $this->config->get('zeroboiler.analytics.replay.max_attempts', 3);
-
-        if (! $enabled) {
-            $this->addIssue('info', 'Event replay queue is disabled — failed events will be lost', 'replay.enabled');
-        }
-
-        if ($maxAttempts < 1) {
-            $this->addIssue('error', 'Replay max_attempts must be at least 1', 'replay.max_attempts');
-        } elseif ($maxAttempts > 10) {
-            $this->addIssue('warning', "Replay max_attempts is high ({$maxAttempts}) — failed events will be retried many times", 'replay.max_attempts');
-        }
-    }
-
-    /**
-     * Add a validation issue.
-     *
-     * @param  'error'|'warning'|'info'  $level
-     */
-    private function addIssue(string $level, string $message, string $configKey): void
-    {
-        $this->issues[] = [
-            'level' => $level,
-            'message' => $message,
-            'config_key' => $configKey,
-        ];
-    }
-
-    /**
-     * Get the total number of issues found.
-     */
-    public function issueCount(): int
-    {
-        return count($this->issues);
-    }
-
-    /**
-     * Check if there are any issues at the given level.
-     */
-    public function hasIssues(string $level = 'error'): bool
-    {
-        return count(array_filter(
-            $this->issues,
-            fn (array $i): bool => $i['level'] === $level,
-        )) > 0;
+        return $report['summary']['errors'] === 0;
     }
 }

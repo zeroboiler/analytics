@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-237.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-238.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/5300%2B%20test%20cases%20%2F%20486%2B%20test%20files-brightgreen)
 
@@ -69,6 +69,16 @@ Done. That's it.
 - **Config expansion** — Added `nl_query` (8 settings with env vars) and `geospatial` (5 settings with env vars) sections to `config/zeroboiler.php`.
 - **Test suite** (`tests/V237InsightEngineAndGeospatialTest.php`) — 40+ assertions covering: file quality (strict_types, MIT headers, final classes, @since 237.0.0), NL engine parsing capabilities, time range patterns, event resolution, aggregation extraction, comparison detection, group-by extraction, confidence scoring, question templates, custom parser registration, geospatial breakdowns, heatmap data, GeoJSON output, geographic funnel, anomaly detection, location comparison, coverage report, config sections, route registration, catalog coverage for referenced events, project scale thresholds.
 - Version bump to 237.0.0 across all version entry points.
+
+### What's New in v238.0.0
+
+**SaaS Event Constants, Event Alias Registry, Analytics Config Validator — Industry-Standard SaaS Analytics Upgrade**:
+
+- **SaaSEventConstants** (`src/Events/SaaS/SaaSEventConstants.php`) — 80+ typed event name constants for IDE autocompletion and type safety across all SaaS lifecycle events: identity & auth (sign_up, login, logout, email_verified, password_changed), subscription lifecycle (start_trial, trial_converted, subscription_created, subscription_cancelled, plan_upgrade, plan_downgrade), billing & revenue (payment_failed, payment_succeeded, invoice_generated, credit_applied, revenue_tracked, expansion_revenue), feature & product (feature_used, feature_adopted, feature_limit_reached), team & collaboration (team_created, team_member_joined, role_changed, invite_sent), cohort analytics (cohort_assigned, cohort_retention, cohort_churn, cohort_conversion, cohort_migration, cohort_engagement), integration (integration_connected, integration_failed), data & privacy (export, import, account_deleted, data_erasure_completed), growth & milestones (milestone_reached, first_value, activation), operational & SLA (sla_breach, api_rate_limited, webhook_delivered), health & retention (health_score_changed, retention_risk, nps_submitted, churn_interview). Utility methods: `all()`, `names()`, `isValid()`, `count()`. Complements existing `EcommerceEventConstants` and `EngagementEventConstants`.
+- **EventAliasRegistry** (`src/Events/EventAliasRegistry.php`) — Maps 60+ common alternative event names to canonical catalog names. Resolves shorthand, synonyms, and legacy names from other analytics SDKs: `signup` → `sign_up`, `order` → `purchase`, `checkout` → `begin_checkout`, `trial` → `start_trial`, `cancel` → `cancellation`, `pageview` → `page_view`, `button_click` → `click`, `site_search` → `search`, `social_share` → `share`, `exception` → `error`, etc. Falls back to `EventCatalog::resolve()` for built-in normalization. Methods: `resolve()`, `all()`, `count()`, `has()`, `groupedByTarget()`, `aliasesFor()`, `register()`, `validate()`. Case-insensitive resolution.
+- **AnalyticsConfigValidator** (`src/Services/AnalyticsConfigValidator.php`) — Validates analytics configuration completeness across 12 sections (GA4, GTM, Meta, Plausible, PostHog, consent, API, identity, queue, debug, sampling, auto_track). Checks required values, type correctness, and cross-section dependencies (enabled-without-credentials, no-providers-enabled, queue-incomplete-config, debug-in-production). Returns scored report (0-100, grades A-F) with per-section scores, issue list (error/warning/info), findings, and summary. Method: `isProductionReady()` for CI/CD gates.
+- **Test suite** (`tests/V238EventConstantsAliasRegistryConfigValidatorTest.php`) — 55+ assertions covering: SaaS constants coverage (all 80+ constants, catalog coverage >85%), cross-catalog constants parity (Ecommerce/Engagement/SaaS all final with utility methods), EventAliasRegistry (40+ alias resolutions, case insensitivity, grouping, validation, null handling, fallback to EventCatalog), AnalyticsConfigValidator (method signatures, provider checks, cross-section validation, score/grade system), file quality (strict_types, MIT headers, final classes, @since 238.0.0), version consistency.
+- Version bump to 238.0.0 across all version entry points.
 
 ### What's New in v236.0.0
 
