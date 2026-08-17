@@ -1223,4 +1223,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('lint/{eventName}/suggest', [AnalyticsEventController::class, 'namingLintSuggest']);
     Route::get('lint/report', [AnalyticsEventController::class, 'namingLintReport']);
     Route::post('naming/invalidate-cache', [AnalyticsEventController::class, 'namingInvalidateCache']);
+
+    // Schema Drift Detection (v223.0.0)
+    Route::get('drift/detect', [AnalyticsEventController::class, 'driftDetect']);
+    Route::get('drift/summary', [AnalyticsEventController::class, 'driftSummary']);
+    Route::get('drift/trend/{event}', [AnalyticsEventController::class, 'driftTrend']);
+    Route::get('drift/plan/{event}', [AnalyticsEventController::class, 'driftPlan']);
+    Route::post('drift/observe', [AnalyticsEventController::class, 'driftObserve']);
 });

@@ -497,6 +497,26 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Schema Drift Detection (v223.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Detects and monitors structural changes in event payload schemas.
+        | Tracks field additions, removals, and type changes across observation
+        | windows. Generates automated migration plans for downstream consumers.
+        |
+        | Observation windows are date-based (Y-m-d). Events are sampled
+        | continuously and compared to detect drift when enough samples accumulate.
+        |
+        */
+        'schema_drift' => [
+            'enabled' => env('ANALYTICS_SCHEMA_DRIFT_ENABLED', true),
+            'max_history_entries' => (int) env('ANALYTICS_SCHEMA_DRIFT_MAX_HISTORY', 20),
+            'min_sample_size' => (int) env('ANALYTICS_SCHEMA_DRIFT_MIN_SAMPLE', 10),
+            'drift_score_threshold' => (float) env('ANALYTICS_SCHEMA_DRIFT_THRESHOLD', 0.05),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Analytics Pipeline Health (v213.0.0)
         |--------------------------------------------------------------------------
         |

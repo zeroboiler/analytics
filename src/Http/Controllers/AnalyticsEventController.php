@@ -21500,4 +21500,144 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Schema Drift Detection (v223.0.0) ─────────────────────────────
+
+    /**
+     * Detect schema drift across all events.
+     *
+     * GET /api/analytics/drift/detect?baseline=2026-08-10&current=2026-08-17&severity=breaking
+     */
+    public function driftDetect(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService::class);
+
+            $baseline = $this->request()->query('baseline', date('Y-m-d', strtotime('-7 days')));
+            $current = $this->request()->query('current', date('Y-m-d'));
+
+            $drifts = $detector->detectDriftAll($baseline, $current);
+
+            $driftsArray = array_map(
+                static fn (\ZeroBoiler\Analytics\DTO\SchemaDriftRecord $d): array => $d->toArray(),
+                $drifts,
+            );
+
+            return response()->json([
+                'status' => 'ok',
+                'baseline' => $baseline,
+                'current' => $current,
+                'total_drifts' => count($drifts),
+                'drifts' => $driftsArray,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get schema drift summary.
+     *
+     * GET /api/analytics/drift/summary?baseline=2026-08-10&current=2026-08-17
+     */
+    public function driftSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService::class);
+
+            $baseline = $this->request()->query('baseline', date('Y-m-d', strtotime('-7 days')));
+            $current = $this->request()->query('current', date('Y-m-d'));
+
+            $summary = $detector->driftSummary($baseline, $current);
+
+            return response()->json(['status' => 'ok', 'summary' => $summary]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Analyze schema drift trend for a specific event.
+     *
+     * GET /api/analytics/drift/trend/{event}?windows=7
+     */
+    public function driftTrend(string $event): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService::class);
+
+            $windows = (int) $this->request()->query('windows', 7);
+            $trend = $detector->analyzeTrend($event, $windows);
+
+            return response()->json(['status' => 'ok', 'trend' => $trend->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Generate migration plan for a specific event drift.
+     *
+     * GET /api/analytics/drift/plan/{event}?baseline=2026-08-10&current=2026-08-17
+     */
+    public function driftPlan(string $event): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService::class);
+
+            $baseline = $this->request()->query('baseline', date('Y-m-d', strtotime('-7 days')));
+            $current = $this->request()->query('current', date('Y-m-d'));
+
+            $drift = $detector->detectDrift($event, $baseline, $current);
+
+            if ($drift === null) {
+                return response()->json([
+                    'status' => 'ok',
+                    'message' => "No schema drift detected for event '{$event}'.",
+                    'plan' => null,
+                ]);
+            }
+
+            $plan = $detector->generateMigrationPlan($drift);
+
+            return response()->json([
+                'status' => 'ok',
+                'plan' => $plan->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Record a schema observation for drift tracking.
+     *
+     * POST /api/analytics/drift/observe
+     */
+    public function driftObserve(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService $detector */
+            $detector = app(\ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService::class);
+
+            $data = $this->request()->json()->all();
+
+            if (isset($data['events']) && is_array($data['events'])) {
+                $detector->recordBatch($data['events']);
+            } elseif (isset($data['event']) && is_string($data['event']) && isset($data['params'])) {
+                $detector->recordObservation(
+                    $data['event'],
+                    is_array($data['params']) ? $data['params'] : [],
+                );
+            }
+
+            return response()->json(['status' => 'ok', 'message' => 'Observation recorded']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

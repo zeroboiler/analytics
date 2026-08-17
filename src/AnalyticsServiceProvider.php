@@ -352,6 +352,7 @@ use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
 use ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService;
 use ZeroBoiler\Analytics\Services\EventSemanticClassifierService;
 use ZeroBoiler\Analytics\Services\EventNamingConventionLinter;
+use ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
 use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
 use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
@@ -485,6 +486,7 @@ use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogVersionCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGlossaryCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsDriftCommand;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
 
 /**
@@ -1219,6 +1221,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Naming Convention Linter (v222.0.0)
         $this->app->singleton(EventNamingConventionLinter::class, function (Application $app): EventNamingConventionLinter {
             return new EventNamingConventionLinter(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Schema Drift Detector & Migration Planner (v223.0.0)
+        $this->app->singleton(EventSchemaDriftDetectorService::class, function (Application $app): EventSchemaDriftDetectorService {
+            return new EventSchemaDriftDetectorService(
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
@@ -4634,6 +4644,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCapabilityCommand::class,
                 AnalyticsCatalogVersionCommand::class,
                 AnalyticsGlossaryCommand::class,
+                AnalyticsDriftCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
