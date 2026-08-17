@@ -18,7 +18,7 @@ namespace ZeroBoiler\Analytics\DTO;
  *
  * @since 31.0.0
  */
-final class EventSequencePattern
+final readonly class EventSequencePattern
 {
     /**
      * @param  non-empty-string  $id  Unique pattern identifier (SHA-256 of sequence)

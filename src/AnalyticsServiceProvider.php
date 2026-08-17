@@ -468,6 +468,8 @@ use ZeroBoiler\Analytics\Services\SaaSTelemetryAggregatorService;
 use ZeroBoiler\Analytics\Services\EventReplayValidationService;
 use ZeroBoiler\Analytics\Services\BehavioralUserSegmentService;
 use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
+use ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSequenceValueCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -2617,9 +2619,17 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // SaaS Starter Instrumentation Service (v211.0.0)
+        // SaaS Starter Instrumentation Service (v211.0.0) — unchanged in v212
         $this->app->singleton(SaaSStarterInstrumentationService::class, function (Application $app): SaaSStarterInstrumentationService {
             return new SaaSStarterInstrumentationService();
+        });
+
+        // Event Sequence Value Attribution Service (v212.0.0) — business-value scoring for user journey sequences
+        $this->app->singleton(EventSequenceValueAttributionService::class, function (Application $app): EventSequenceValueAttributionService {
+            return new EventSequenceValueAttributionService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
         });
 
         // Event Dispatch Latency Tracker (v206.0.0)
@@ -4505,6 +4515,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCdpCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSyntheticCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCopilotCommand::class,
+                AnalyticsSequenceValueCommand::class,
             ]);
         }
 

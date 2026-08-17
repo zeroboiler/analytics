@@ -1132,4 +1132,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('reprocessor/status', [AnalyticsEventController::class, 'reprocessorStatus']);
     Route::get('reprocessor/metrics', [AnalyticsEventController::class, 'reprocessorMetrics']);
     Route::delete('reprocessor/history', [AnalyticsEventController::class, 'reprocessorClear']);
+
+    // Event Sequence Value Attribution (v212.0.0)
+    Route::get('sequence-value/matrix', [AnalyticsEventController::class, 'sequenceValueMatrix']);
+    Route::get('sequence-value/top', [AnalyticsEventController::class, 'sequenceValueTop']);
+    Route::get('sequence-value/negative', [AnalyticsEventController::class, 'sequenceValueNegative']);
+    Route::get('sequence-value/compare', [AnalyticsEventController::class, 'sequenceValueCompare']);
+    Route::get('sequence-value/multipliers', [AnalyticsEventController::class, 'sequenceValueMultipliers']);
 });

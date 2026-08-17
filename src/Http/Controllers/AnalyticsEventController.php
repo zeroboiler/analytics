@@ -19894,4 +19894,192 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Sequence Value Attribution (v212.0.0) ───────────────
+
+    /**
+     * Get the full event sequence value attribution matrix.
+     *
+     * Returns ranked sequences with composite value scores, grades,
+     * LTV attribution, conversion lift, retention impact, and ROI.
+     *
+     * Query params:
+     * - ?sequences=json_array  — Optional array of sequences to attribute
+     * - ?baselines=json_object — Optional baseline metrics for lift computation
+     */
+    public function sequenceValueMatrix(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
+
+            // Parse optional sequences from request
+            $sequences = $request->query('sequences');
+            $patterns = $this->resolvePatterns($sequences);
+
+            // Parse optional baselines
+            $baselinesRaw = $request->query('baselines');
+            $baselines = $baselinesRaw !== null ? json_decode($baselinesRaw, true) : null;
+
+            $matrix = $service->attributeMatrix($patterns, is_array($baselines) ? $baselines : null);
+
+            return response()->json($matrix);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get top N highest-value event sequences.
+     *
+     * Query params:
+     * - ?n=5 — Number of top sequences (default: 5)
+     */
+    public function sequenceValueTop(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
+
+            $sequences = $request->query('sequences');
+            $patterns = $this->resolvePatterns($sequences);
+            $n = (int) $request->query('n', 5);
+
+            $top = $service->topValueSequences($patterns, $n);
+
+            return response()->json([
+                'sequences' => array_map(
+                    fn (\ZeroBoiler\Analytics\DTO\SequenceValueAttribution $a): array => $a->toArray(),
+                    $top,
+                ),
+                'count' => count($top),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get negative-value sequences (churn/revenue leak).
+     */
+    public function sequenceValueNegative(Request $request): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
+
+            $sequences = $request->query('sequences');
+            $patterns = $this->resolvePatterns($sequences);
+
+            $negatives = $service->negativeValueSequences($patterns);
+
+            return response()->json([
+                'negative_sequences' => $negatives,
+                'count' => count($negatives),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compare two event sequences by value attribution.
+     *
+     * Query params:
+     * - ?seq_a=sign_up→trial→purchase — First sequence (→ separated)
+     * - ?seq_b=sign_up→trial→cancel — Second sequence (→ separated)
+     */
+    public function sequenceValueCompare(Request $request): JsonResponse
+    {
+        try {
+            $seqA = $request->query('seq_a', '');
+            $seqB = $request->query('seq_b', '');
+
+            if ($seqA === '' || $seqB === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'Both seq_a and seq_b query parameters are required. Use → as event separator.',
+                ], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
+
+            $eventsA = array_map('trim', explode('→', $seqA));
+            $eventsB = array_map('trim', explode('→', $seqB));
+
+            $hashA = hash('sha256', implode('|', $eventsA));
+            $hashB = hash('sha256', implode('|', $eventsB));
+
+            $patternA = new \ZeroBoiler\Analytics\DTO\EventSequencePattern(
+                id: $hashA,
+                sequence: $eventsA,
+            );
+            $patternB = new \ZeroBoiler\Analytics\DTO\EventSequencePattern(
+                id: $hashB,
+                sequence: $eventsB,
+            );
+
+            $comparison = $service->compare($patternA, $patternB);
+
+            return response()->json($comparison);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get event revenue multipliers used in sequence value attribution.
+     */
+    public function sequenceValueMultipliers(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
+
+            return response()->json([
+                'multipliers' => $service->getAllRevenueMultipliers(),
+                'weights' => $service->getWeights(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Resolve sequence patterns from JSON input or return empty array.
+     *
+     * @param  string|null  $sequencesJson
+     * @return list<\ZeroBoiler\Analytics\DTO\EventSequencePattern>
+     */
+    private function resolvePatterns(?string $sequencesJson): array
+    {
+        if ($sequencesJson === null) {
+            return [];
+        }
+
+        $decoded = json_decode($sequencesJson, true);
+
+        if (! is_array($decoded)) {
+            return [];
+        }
+
+        $patterns = [];
+
+        foreach ($decoded as $seq) {
+            if (! is_array($seq)) {
+                continue;
+            }
+
+            $events = array_map(fn (mixed $e): string => (string) $e, array_values($seq));
+            $hash = hash('sha256', implode('|', $events));
+
+            $patterns[] = new \ZeroBoiler\Analytics\DTO\EventSequencePattern(
+                id: $hash,
+                sequence: $events,
+            );
+        }
+
+        return $patterns;
+    }
 }

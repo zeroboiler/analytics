@@ -1,5 +1,20 @@
 # Changelog
 
+## [212.0.0] - 2026-08-17
+
+### Added
+- **Event Sequence Value Attribution Matrix** — Industry-standard SaaS analytics capability that ranks user journey sequences by their business value. Computes composite scores based on LTV correlation (30%), conversion lift (25%), retention impact (20%), revenue per occurrence (15%), and time-to-value velocity (10%).
+- **SequenceValueAttribution DTO** — Immutable readonly DTO for sequence value attribution data with full serialization and round-trip support. Fields: sequence_id, sequence, occurrences, unique_users, avg_ltv, total_revenue, conversion_rate, conversion_lift, d7_retention, d30_retention, time_to_value, sequence_roi, value_grade (S/A/B/C/D), composite_score.
+- **EventSequenceValueAttributionService** — Core service for computing business-value scores for detected user journey sequences. Features: single sequence attribution, full matrix computation with grade distribution, top-N ranking, negative-value (churn) detection, sequence comparison with recommendations, configurable scoring weights, cache-backed results.
+- **API endpoints** — `GET /api/analytics/sequence-value/matrix` (full attribution matrix), `GET /api/analytics/sequence-value/top` (top N sequences), `GET /api/analytics/sequence-value/negative` (churn/revenue leak sequences), `GET /api/analytics/sequence-value/compare` (compare two paths), `GET /api/analytics/sequence-value/multipliers` (event revenue multipliers + weights).
+- **AnalyticsSequenceValueCommand** — CLI command `php artisan analytics:sequence-value` with options: `--top=N`, `--negative`, `--matrix`, `--compare=`, `--multipliers`, `--demo` (sample SaaS sequences).
+- **useEventSequence Svelte composable** — Reactive composable for consuming sequence value attribution data from the API. Provides: fetchMatrix, topSequences, byGrade, gradeDistribution, compare, avgScore, topPath.
+- **V212 test suite** — 30+ test cases covering SequenceValueAttribution DTO (readonly immutability, serialization, round-trip, missing keys, string sequence), Service (single attribution, custom baselines, empty/single sequences, matrix ranking, grade distribution, top-N, negative detection, comparison, revenue multipliers, custom weights, value grades, full pipeline), PHP 8.5 type safety (strict_types, final, readonly, return types).
+- **33 event revenue multipliers** — Pre-configured multipliers for all key events (purchase: 10x, plan_upgrade: 18x, cancellation: -5x, subscription_cancelled: -8x, etc.) used in composite scoring.
+
+### Changed
+- Version bump: 211.0.0 → 212.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, analytics.js, ServiceProvider, version consistency test.
+
 ## [211.0.0] - 2026-08-17
 
 ### Added

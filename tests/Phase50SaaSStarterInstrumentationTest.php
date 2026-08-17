@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
  * - SaaSStarterInstrumentationService::completenessScore() — full coverage
  * - Snippet quality: params, php, js, blade keys present for all events
  * - OverviewCommand signature includes --starter and --snippets
- * - Version consistency: 211.0.0 across all touchpoints
+ * - Version consistency: 212.0.0 across all touchpoints
  *
  * @since 211.0.0
  */
@@ -202,8 +202,8 @@ test('SaaSStarterInstrumentationService is final class', function (): void {
     expect($reflector->getNamespaceName())->toBe('ZeroBoiler\\Analytics\\Services');
 });
 
-test('Version consistency across touchpoints at 211.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('211.0.0');
+test('Version consistency across touchpoints at 212.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('212.0.0');
 });
 
 test('Auto-tracked events have JS snippets indicating auto-tracking', function (): void {
