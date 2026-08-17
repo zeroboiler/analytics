@@ -202,7 +202,7 @@ final class ProviderCapabilityMatrixService
         ],
         // ── Advanced ────────────────────────────────────────────────
         [
-            'name' => 'event_de duplication',
+            'name' => 'event_deduplication',
             'type' => 'feature',
             'description' => 'Built-in event deduplication support',
             'check' => null,

@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\DTO\MarshalledPayload;
-use ZeroBoiler\Analytics\Schema\EventParam;
 use ZeroBoiler\Analytics\Schema\EventSchema;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
 
