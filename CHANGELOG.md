@@ -1,5 +1,18 @@
 # Changelog
 
+## [210.0.0] - 2026-08-17
+
+### Added
+- **SaaSStarterEvents** — Curated catalog of the 20 essential events every SaaS must track. Organized into 3 groups (SaaS Lifecycle: 8, E-commerce: 4, Engagement: 8) with human-readable labels and instrumentation hints. Provides `all()`, `names()`, `count()`, `byCategory()`, `isStarterEvent()`, `catalogPresence()`, `missingFromCatalog()`, `coveragePercent()`, `priorityOrder()`, and `clientSummary()` methods. Inspired by Segment's recommended events, PostHog's taxonomy, and Mixpanel's SaaS retention playbook.
+- **EventCatalog::clientSafeSummary()** — Public API-ready event catalog summary. Omits internal class references, returns compact structure (name, category, ga4, meta) suitable for Inertia props and API responses. Supports optional category filtering.
+- **EventCatalog::coreEvents()** — Quick access to the 20 essential SaaS starter event names for instrumentation completeness checks.
+- **EventCatalog::coreEventCoverage()** — Detailed map of each core starter event → boolean presence flag in the full catalog.
+- **EventCatalog::coreCoveragePercent()** — Returns 100.0% when all 20 starter events are present in the catalog.
+- **Phase49SaaSStarterCatalogUpgradeTest** — 20 assertions across 20 it blocks covering: SaaSStarterEvents structure (count, categories, entry keys), catalog integration (presence, coverage), priority ordering, client summary, EventCatalog delegation methods, version consistency, final class enforcement, and subset validation.
+
+### Changed
+- **Version sweep** — composer.json, AnalyticsEvent::VERSION, JS analytics.js (header + getVersion()) synced from 209.0.0 → 210.0.0. Source files: 899 → 900. Tests: 458 → 459.
+
 ## [209.0.0] - 2026-08-16
 
 ### Fixed

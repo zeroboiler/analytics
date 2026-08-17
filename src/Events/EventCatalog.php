@@ -3733,4 +3733,89 @@ final class EventCatalog
 
         return $result;
     }
+
+    /**
+     * Get a client-safe summary of the event catalog.
+     *
+     * Returns a compact structure suitable for Inertia props or API responses.
+     * Omits internal class references and provides only the fields needed
+     * for frontend instrumentation guidance and debugging.
+     *
+     * @param  string|null  $category  Filter by category (null = all)
+     * @return array{total: int, categories: array<string, int>, events: list<array{name: string, category: string, ga4: string, meta: string|null}>}
+     *
+     * @since 210.0.0
+     */
+    public static function clientSafeSummary(?string $category = null): array
+    {
+        $catalog = $category !== null
+            ? (self::byCategory()[$category] ?? [])
+            : self::all();
+
+        $categoryCounts = [];
+        $events = [];
+
+        foreach ($catalog as $name => $entry) {
+            $cat = $entry['category'] ?? 'unknown';
+            $categoryCounts[$cat] = ($categoryCounts[$cat] ?? 0) + 1;
+
+            $events[] = [
+                'name' => $name,
+                'category' => $cat,
+                'ga4' => $entry['ga4'] ?? $name,
+                'meta' => $entry['meta'] ?? null,
+            ];
+        }
+
+        return [
+            'total' => count($events),
+            'categories' => $categoryCounts,
+            'events' => $events,
+        ];
+    }
+
+    /**
+     * Get the core SaaS starter event names from the curated starter set.
+     *
+     * Delegates to SaaSStarterEvents::names() for the 20 essential events.
+     * Useful for quick instrumentation completeness checks.
+     *
+     * @return list<string>
+     *
+     * @since 210.0.0
+     *
+     * @see \ZeroBoiler\Analytics\Events\SaaSStarterEvents
+     */
+    public static function coreEvents(): array
+    {
+        return \ZeroBoiler\Analytics\Events\SaaSStarterEvents::names();
+    }
+
+    /**
+     * Check how many of the core SaaS starter events are present in the catalog.
+     *
+     * Returns a detailed map of each core event → boolean presence flag.
+     *
+     * @return array<string, bool>
+     *
+     * @since 210.0.0
+     */
+    public static function coreEventCoverage(): array
+    {
+        return \ZeroBoiler\Analytics\Events\SaaSStarterEvents::catalogPresence();
+    }
+
+    /**
+     * Get the instrumentation coverage percentage for core SaaS starter events.
+     *
+     * Returns 100.0 when all 20 starter events are present in the catalog.
+     *
+     * @return float
+     *
+     * @since 210.0.0
+     */
+    public static function coreCoveragePercent(): float
+    {
+        return \ZeroBoiler\Analytics\Events\SaaSStarterEvents::coveragePercent();
+    }
 }
