@@ -1,5 +1,19 @@
 # Changelog
 
+## [213.0.0] - 2026-08-17
+
+### Added
+- **Analytics Pipeline Health Service** — Composite infrastructure health score (0–100) aggregating 8 dimensions: provider health (20%), queue health (15%), delivery reliability (20%), latency performance (15%), deduplication (10%), budget compliance (10%), schema integrity (5%), and identity resolution (5%). Letter grades (A+ to F) and status badges (healthy/degraded/critical/down). Cache-backed with configurable TTL. Health history tracked for 24h trend visualization. Inspired by Datadog Infrastructure Health, Grafana Health Overview, and Segment Connection Health.
+- **AnalyticsPipelineHealthCommand** — `php artisan analytics:pipeline-health` CLI with actions: default (full dimension breakdown with two-column detail output), `--score` (quick score/grade), `--history` (trend history table), `--attention` (only degraded/critical dimensions), `--json`, `--invalidate` (cache clear + recompute).
+- **API endpoints** — `GET /api/analytics/pipeline-health` (full report + trend), `GET /pipeline-health/score`, `GET /pipeline-health/history`, `GET /pipeline-health/trend`, `GET /pipeline-health/attention`, `POST /pipeline-health/invalidate`, `GET /pipeline-health/config`.
+- **Config expansion** — `zeroboiler.analytics.pipeline_health` section with `enabled`, `cache_ttl`, and `weights` (optional per-dimension overrides) settings.
+- **Health trend detection** — automatic trend direction (improving/stable/degrading) computed from recent history snapshots with delta reporting.
+- **Attention mode** — `attention()` method returns only dimensions with score < 70 for focused operational monitoring.
+- **V213 test suite** — V213AnalyticsPipelineHealthTest (25+ assertions): service file quality (strict_types, MIT header, final class, @since 213.0.0), 8 dimension weights sum to 1.0, 14 public methods with return type declarations, command file quality (signature, 4 action methods, handle :int), ServiceProvider registration (singleton + command), routes (7 pipeline-health endpoints), controller (7 action methods :JsonResponse), config section, version consistency, source/test file count baselines.
+
+### Changed
+- Version bump: 212.0.0 → 213.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, analytics.js, README badge → 213.0.0. Service count 416→417, command count 96→97.
+
 ## [212.0.0] - 2026-08-17
 
 ### Added

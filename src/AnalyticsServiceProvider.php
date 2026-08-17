@@ -469,7 +469,9 @@ use ZeroBoiler\Analytics\Services\EventReplayValidationService;
 use ZeroBoiler\Analytics\Services\BehavioralUserSegmentService;
 use ZeroBoiler\Analytics\Services\FeatureFlagRolloutGuardrailService;
 use ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService;
+use ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSequenceValueCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineHealthCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -2632,6 +2634,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Analytics Pipeline Health Service (v213.0.0) — composite infrastructure health score
+        $this->app->singleton(AnalyticsPipelineHealthService::class, function (Application $app): AnalyticsPipelineHealthService {
+            return new AnalyticsPipelineHealthService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+                $app->make('zeroboiler.analytics'),
+            );
+        });
+
         // Event Dispatch Latency Tracker (v206.0.0)
         $this->app->singleton(EventDispatchLatencyTracker::class, function (Application $app): EventDispatchLatencyTracker {
             return new EventDispatchLatencyTracker(
@@ -4516,7 +4527,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSyntheticCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCopilotCommand::class,
                 AnalyticsSequenceValueCommand::class,
-            ]);
+                AnalyticsPipelineHealthCommand::class,
+            ]));
         }
 
         $this->registerBladeDirectives();

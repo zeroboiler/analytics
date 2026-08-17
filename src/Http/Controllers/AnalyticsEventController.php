@@ -20082,4 +20082,142 @@ final class AnalyticsEventController extends Controller
 
         return $patterns;
     }
+
+    /**
+     * Get full pipeline health report with dimension breakdown.
+     *
+     * GET /api/analytics/pipeline-health
+     */
+    public function pipelineHealth(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            $result = $service->compute();
+            $trend = $service->trend();
+
+            return response()->json([
+                'health' => $result,
+                'trend' => $trend,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get pipeline health score and grade only.
+     *
+     * GET /api/analytics/pipeline-health/score
+     */
+    public function pipelineHealthScore(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            return response()->json([
+                'score' => $service->score(),
+                'grade' => $service->grade(),
+                'status' => $service->status(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get pipeline health trend history.
+     *
+     * GET /api/analytics/pipeline-health/history
+     */
+    public function pipelineHealthHistory(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            return response()->json([
+                'history' => $service->history(),
+                'trend' => $service->trend(),
+                'count' => count($service->history()),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get pipeline health trend direction.
+     *
+     * GET /api/analytics/pipeline-health/trend
+     */
+    public function pipelineHealthTrend(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            return response()->json($service->trend());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get pipeline health dimensions needing attention (score < 70).
+     *
+     * GET /api/analytics/pipeline-health/attention
+     */
+    public function pipelineHealthAttention(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            return response()->json([
+                'attention_count' => count($service->attention()),
+                'issues' => $service->attention(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate pipeline health cache and force recomputation.
+     *
+     * POST /api/analytics/pipeline-health/invalidate
+     */
+    public function pipelineHealthInvalidate(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            $service->invalidate();
+
+            return response()->json(['status' => 'ok', 'message' => 'Pipeline health cache invalidated']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get pipeline health configuration summary.
+     *
+     * GET /api/analytics/pipeline-health/config
+     */
+    public function pipelineHealthConfig(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService::class);
+
+            return response()->json($service->configSummary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

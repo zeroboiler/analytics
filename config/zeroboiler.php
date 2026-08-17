@@ -496,6 +496,37 @@ return [
         ],
 
         /*
+        |--------------------------------------------------------------------------
+        | Analytics Pipeline Health (v213.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Composite infrastructure health score for the entire analytics pipeline.
+        | Aggregates health signals across 8 dimensions: provider health (20%),
+        | queue health (15%), delivery reliability (20%), latency performance (15%),
+        | deduplication (10%), budget compliance (10%), schema integrity (5%),
+        | and identity resolution (5%).
+        |
+        | Produces a unified 0–100 score with letter grade (A+ to F) and
+        | status badge (healthy/degraded/critical/down).
+        |
+        */
+        'pipeline_health' => [
+            'enabled' => env('ANALYTICS_PIPELINE_HEALTH_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PIPELINE_HEALTH_CACHE_TTL', 300), // 5 minutes
+            'weights' => [
+                // Override default dimension weights. Must sum to 1.0.
+                // 'provider_health' => 0.20,
+                // 'queue_health' => 0.15,
+                // 'delivery_reliability' => 0.20,
+                // 'latency_performance' => 0.15,
+                // 'deduplication' => 0.10,
+                // 'budget_compliance' => 0.10,
+                // 'schema_integrity' => 0.05,
+                // 'identity_resolution' => 0.05,
+            ],
+        ],
+
+        /*
         |-------------------------------------------------------------------------- 
         | Conversion Prediction (v193.0.0)
         |-------------------------------------------------------------------------- 

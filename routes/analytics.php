@@ -1139,4 +1139,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('sequence-value/negative', [AnalyticsEventController::class, 'sequenceValueNegative']);
     Route::get('sequence-value/compare', [AnalyticsEventController::class, 'sequenceValueCompare']);
     Route::get('sequence-value/multipliers', [AnalyticsEventController::class, 'sequenceValueMultipliers']);
+
+    // Analytics Pipeline Health (v213.0.0)
+    Route::get('pipeline-health', [AnalyticsEventController::class, 'pipelineHealth']);
+    Route::get('pipeline-health/score', [AnalyticsEventController::class, 'pipelineHealthScore']);
+    Route::get('pipeline-health/history', [AnalyticsEventController::class, 'pipelineHealthHistory']);
+    Route::get('pipeline-health/trend', [AnalyticsEventController::class, 'pipelineHealthTrend']);
+    Route::get('pipeline-health/attention', [AnalyticsEventController::class, 'pipelineHealthAttention']);
+    Route::post('pipeline-health/invalidate', [AnalyticsEventController::class, 'pipelineHealthInvalidate']);
+    Route::get('pipeline-health/config', [AnalyticsEventController::class, 'pipelineHealthConfig']);
 });
