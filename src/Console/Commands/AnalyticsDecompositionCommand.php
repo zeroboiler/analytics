@@ -52,23 +52,23 @@ final class AnalyticsDecompositionCommand extends Command
         }
 
         $asJson = (bool) $this->option('json');
+        $eventName = (string) $this->option('event');
+        $period = (int) $this->option('period');
 
-        // Single event decomposition
-        if ($this->option('event')) {
-            return $this->decomposeSingleEvent(
-                (string) $this->option('event'),
-                (int) $this->option('period'),
-                $asJson,
-            );
+        // Seasonal profile (check before --event so --event --profile works together)
+        if ($this->option('profile')) {
+            if ($eventName === '') {
+                $this->error('Please specify an event name with --event=<name>');
+
+                return self::FAILURE;
+            }
+
+            return $this->showSeasonalProfile($eventName, $period, $asJson);
         }
 
-        // Seasonal profile
-        if ($this->option('profile')) {
-            return $this->showSeasonalProfile(
-                (string) ($this->option('event') ?? ''),
-                (int) $this->option('period'),
-                $asJson,
-            );
+        // Single event decomposition
+        if ($eventName !== '') {
+            return $this->decomposeSingleEvent($eventName, $period, $asJson);
         }
 
         // Config overview (default when no event specified)

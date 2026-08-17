@@ -78,6 +78,7 @@ final class EventTimeSeriesDecompositionService
     /** @var int Forecast horizon (same as period for one seasonal cycle) */
     private const FORECAST_HORIZON_FACTOR = 1;
 
+    /** @var CacheRepository Reserved for future in-memory cache layer */
     private CacheRepository $cache;
 
     private int $cacheTtl;
