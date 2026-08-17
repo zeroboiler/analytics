@@ -1,5 +1,17 @@
 # Changelog
 
+## [232.0.0] - 2026-08-17
+
+### Added
+- **EventLifecycleState DTO** (`src/DTO/EventLifecycleState.php`) — Formal state machine for analytics event lifecycles. 10 states (created, validated, enqueued, dispatched, delivered, failed, replayed, dead_lettered, dropped, skipped), validated transition map with 3 initial states and 4 terminal states. Immutable readonly DTO with `canTransitionTo()`, `transition()`, `isTerminal()`, `isInitial()`, `allowedTransitions()`, `toArray()`/`fromArray()` serialization round-trips, transition history tracking with timestamps and reasons, attempt counter, and metadata merge across transitions.
+- **EventLifecycleTracker Service** (`src/Services/EventLifecycleTracker.php`) — Centralized lifecycle state management with cache-backed persistence, config-driven TTL and max-retries, transition enforcement, convenience methods (`markDelivered()`, `markFailed()`, `markDropped()`, `markSkipped()`), automatic replay with dead-letter routing when max retries exceeded, aggregate statistics (delivery rate, failure rate, dead letter count), local memory caching for performance.
+- **Config expansion** — `event_lifecycle` section (4 env-backed settings: `ANALYTICS_EVENT_LIFECYCLE_ENABLED`, `ANALYTICS_EVENT_LIFECYCLE_TTL`, `ANALYTICS_EVENT_LIFECYCLE_STATS_TTL`, `ANALYTICS_EVENT_LIFECYCLE_MAX_RETRIES`).
+- **ServiceProvider registration** — EventLifecycleTracker registered as singleton with config-driven options.
+- **Phase 56 production readiness test** — 80+ assertions covering: file quality (strict_types, MIT headers, final/readonly, @since annotations), state constants (10 states, 3 initial, 4 terminal), transition map integrity (no self-transitions, all targets valid, non-terminal states have rules), happy path lifecycle, failure-with-retry lifecycle, dead-letter lifecycle, terminal/initial detection, allowed transitions, serialization round-trips, factory method validation, transition history, metadata merge, attempt counter, tracker constructor, disabled mode, initialize/persist, transition validation, convenience methods (markDelivered/Failed/Dropped/Skipped), replay with max-retry enforcement, dead-letter routing, canTransition, purge/purgeAll, stats, version consistency 232.0.0 across 5 entry points, config section presence, ServiceProvider registration, namespace correctness, cross-references.
+
+### Changed
+- Version bump to 232.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, README badge).
+
 ## [231.0.0] - 2026-08-17
 
 ### Added

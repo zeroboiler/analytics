@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-231.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-232.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/29500%2B%20assertions%20%2F%20479%2B%20test%20files-brightgreen)
 
@@ -57,6 +57,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v232.0.0
+
+**Event Lifecycle State Machine — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventLifecycleState DTO** — Formal state machine with 10 lifecycle states (created, validated, enqueued, dispatched, delivered, failed, replayed, dead_lettered, dropped, skipped). Validated transition map with 3 initial states and 4 terminal states. Immutable readonly DTO with `canTransitionTo()`, `transition()`, `isTerminal()`, `isInitial()`, `allowedTransitions()`, transition history tracking with timestamps and reasons, attempt counter, and metadata merge.
+- **EventLifecycleTracker Service** — Centralized lifecycle state management with cache-backed persistence, config-driven TTL and max-retries, transition enforcement, convenience methods (`markDelivered()`, `markFailed()`, `markDropped()`, `markSkipped()`), automatic replay with dead-letter routing, aggregate statistics (delivery rate, failure rate, dead letter count).
+- **Config expansion** — New `event_lifecycle` section (4 env-backed settings).
+- **Phase 56 test suite** — 80+ assertions.
+- Version bump to 232.0.0 across all 5 version entry points.
 
 ### What's New in v231.0.0
 

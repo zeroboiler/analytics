@@ -379,6 +379,7 @@ use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
 use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
 use ZeroBoiler\Analytics\Services\EventPropertyTypeValidator;
+use ZeroBoiler\Analytics\Services\EventLifecycleTracker;
 use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
 use ZeroBoiler\Analytics\Services\OTLPExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
@@ -1500,6 +1501,21 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 maxParamCount: (int) ($pvConfig['max_param_count'] ?? 100),
                 maxKeyLength: (int) ($pvConfig['max_key_length'] ?? 100),
                 maxStringLength: (int) ($pvConfig['max_string_length'] ?? 4096),
+            );
+        });
+
+        // v232.0.0 — Event Lifecycle Tracker
+        $this->app->singleton(EventLifecycleTracker::class, function (Application $app): EventLifecycleTracker {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $lcConfig = $config->get('zeroboiler.analytics.event_lifecycle', []);
+
+            return new EventLifecycleTracker(
+                cache: $app->make('cache'),
+                enabled: (bool) ($lcConfig['enabled'] ?? false),
+                ttl: (int) ($lcConfig['ttl'] ?? 3600),
+                statsTtl: (int) ($lcConfig['stats_ttl'] ?? 300),
+                maxRetries: (int) ($lcConfig['max_retries'] ?? 3),
             );
         });
 

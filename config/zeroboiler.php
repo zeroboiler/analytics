@@ -143,6 +143,26 @@ return [
         ],
 
         /*
+        |--------------------------------------------------------------------------
+        | Event Lifecycle State Machine (v232.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Tracks each analytics event through its formal lifecycle states:
+        | created → validated → enqueued → dispatched → delivered.
+        | Also handles failure paths: failed → replayed → delivered/dead_lettered.
+        |
+        | Enable for production observability into event processing pipelines.
+        | State transitions are cache-backed with configurable TTL.
+        |
+        */
+        'event_lifecycle' => [
+            'enabled' => env('ANALYTICS_EVENT_LIFECYCLE_ENABLED', false),
+            'ttl' => (int) env('ANALYTICS_EVENT_LIFECYCLE_TTL', 3600),
+            'stats_ttl' => (int) env('ANALYTICS_EVENT_LIFECYCLE_STATS_TTL', 300),
+            'max_retries' => (int) env('ANALYTICS_EVENT_LIFECYCLE_MAX_RETRIES', 3),
+        ],
+
+        /*
         |-------------------------------------------------------------------------- 
         | Lifecycle Attribution Enrichment (v152.0.0)
         |-------------------------------------------------------------------------- 
