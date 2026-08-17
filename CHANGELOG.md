@@ -1,5 +1,20 @@
 # Changelog
 
+## [216.0.0] - 2026-08-17
+
+### Added
+- **EventCatalogVersioningEngine** — Semantic versioning engine for the analytics event catalog. Analyzes catalog diffs between versions and classifies each change as major (breaking), minor (feature), or patch (non-breaking) per SemVer 2.0.0 rules. Classification: event_removed/event_renamed/provider_mapping_removed/class_changed → MAJOR; event_added/provider_mapping_added → MINOR; category_changed/provider_mapping_changed → PATCH. Produces `CatalogVersionRecommendation` DTOs with version bump suggestion, rationale, and auto-generated release notes. Methods: `analyze()`, `analyzeAgainstBaseline()`, `quickSeveritySummary()`, `getLatestRecommendation()`, `getHistory()`, `getSeverityMap()`, `getBreakingTypes()`, `isBreakingType()`, `getDefaultSeverity()`.
+- **CatalogChangeImpact DTO** — Immutable readonly DTO for a single catalog change with severity classification, breaking flag, old/new values, and metadata. Factory methods: `major()`, `minor()`, `patch()`. Round-trip serialization via `toArray()`/`fromArray()`.
+- **CatalogVersionRecommendation DTO** — Immutable readonly DTO for version bump recommendations with computed next version, change summary, rationale, hasBreaking flag, and optional release notes. Factory method `noChange()`. Round-trip serialization.
+- **ReleaseChangelogGeneratorService** — Generates structured changelogs from version recommendations in 4 formats: markdown (GitHub-style), JSON (machine-readable), compact (single-line CI log), conventional (Conventional Commits format). Methods: `generate()`, `generateStructured()`, `generateForVersion()`, `catalogStats()`.
+- **AnalyticsCatalogVersionCommand** — `php artisan zb:analytics:catalog-version` CLI with options: default (full analysis with changelog), `--baseline=<label>` (specific baseline), `--capture` (save current as baseline), `--format=markdown|json|compact|conventional`, `--json`, `--severity` (quick summary), `--stats` (catalog statistics), `--history`.
+- **API endpoints** — 7 catalog-version endpoints (`GET /api/analytics/catalog-version/*`): recommendation, severity, changelog, stats, history; `POST /api/analytics/catalog-version/capture`; config.
+- **Config expansion** — `zeroboiler.analytics.catalog_versioning` section (enabled, cache_ttl, baseline_label).
+- **V216 test suite** — 30+ assertions.
+
+### Changed
+- Version bump: 215.0.0 → 216.0.0 across composer.json, package.json, AnalyticsEvent::VERSION. Service count 421→423, command count 99→100.
+
 ## [215.0.0] - 2026-08-17
 
 ### Added

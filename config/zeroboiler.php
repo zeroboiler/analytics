@@ -527,6 +527,25 @@ return [
         ],
 
         /*
+        |-------------------------------------------------------------------------- 
+        | Event Catalog Versioning (v216.0.0)
+        |-------------------------------------------------------------------------- 
+        |
+        | Semantic versioning engine for the analytics event catalog.
+        | Analyzes catalog diffs between versions and classifies changes as
+        | major (breaking), minor (feature), or patch (non-breaking).
+        | Produces version bump recommendations and auto-generated changelogs.
+        |
+        | Used by CI/CD pipelines to enforce catalog versioning discipline.
+        |
+        */
+        'catalog_versioning' => [
+            'enabled' => env('ANALYTICS_CATALOG_VERSIONING_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_CATALOG_VERSIONING_CACHE_TTL', 604800), // 7 days
+            'baseline_label' => env('ANALYTICS_CATALOG_VERSIONING_BASELINE', null), // Auto-detects if null
+        ],
+
+        /*
         |--------------------------------------------------------------------------
         | Event Volume Anomaly Detection (v214.0.0)
         |--------------------------------------------------------------------------

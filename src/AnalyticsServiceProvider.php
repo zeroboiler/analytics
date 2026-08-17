@@ -477,7 +477,10 @@ use ZeroBoiler\Analytics\Services\EventVolumeAnomalyDetectionService;
 use ZeroBoiler\Analytics\Services\ProviderResilienceService;
 use ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService;
 use ZeroBoiler\Analytics\Services\EventPayloadMarshallerService;
+use ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine;
+use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogVersionCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -4464,6 +4467,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(ConfigRepository::class),
             );
         });
+
+        // Event Catalog Versioning Engine (v216.0.0)
+        $this->app->singleton(EventCatalogVersioningEngine::class, function (Application $app): EventCatalogVersioningEngine {
+            return new EventCatalogVersioningEngine(
+                cache: $app->make(CacheRepository::class),
+                snapshotService: $app->make(CatalogSnapshotService::class),
+            );
+        });
+
+        // Release Changelog Generator (v216.0.0)
+        $this->app->singleton(ReleaseChangelogGeneratorService::class, function (Application $app): ReleaseChangelogGeneratorService {
+            return new ReleaseChangelogGeneratorService(
+                cache: $app->make(CacheRepository::class),
+                versioningEngine: $app->make(EventCatalogVersioningEngine::class),
+            );
+        });
     }
 
     /**
@@ -4570,6 +4589,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsPipelineHealthCommand::class,
                 AnalyticsResilienceCommand::class,
                 AnalyticsCapabilityCommand::class,
+                AnalyticsCatalogVersionCommand::class,
             ]));
         }
 

@@ -1163,4 +1163,13 @@ Route::prefix('analytics')->group(function () {
     Route::post('marshaller/marshal', [AnalyticsEventController::class, 'marshallerMarshal']);
     Route::post('marshaller/batch', [AnalyticsEventController::class, 'marshallerBatch']);
     Route::get('marshaller/config', [AnalyticsEventController::class, 'marshallerConfig']);
+
+    // Event Catalog Versioning (v216.0.0)
+    Route::get('catalog-version/recommendation', [AnalyticsEventController::class, 'catalogVersionRecommendation']);
+    Route::get('catalog-version/severity', [AnalyticsEventController::class, 'catalogVersionSeverity']);
+    Route::get('catalog-version/changelog', [AnalyticsEventController::class, 'catalogVersionChangelog']);
+    Route::get('catalog-version/stats', [AnalyticsEventController::class, 'catalogVersionStats']);
+    Route::get('catalog-version/history', [AnalyticsEventController::class, 'catalogVersionHistory']);
+    Route::post('catalog-version/capture', [AnalyticsEventController::class, 'catalogVersionCapture']);
+    Route::get('catalog-version/config', [AnalyticsEventController::class, 'catalogVersionConfig']);
 });

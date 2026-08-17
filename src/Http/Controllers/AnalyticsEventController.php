@@ -20428,4 +20428,137 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get catalog version recommendation.
+     */
+    public function catalogVersionRecommendation(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine::class);
+            $recommendation = $service->analyzeAgainstBaseline();
+
+            return response()->json($recommendation->toArray());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get quick severity summary.
+     */
+    public function catalogVersionSeverity(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine::class);
+            $recommendation = $service->analyzeAgainstBaseline();
+
+            return response()->json([
+                'severity' => $recommendation->summary,
+                'has_breaking' => $recommendation->hasBreaking,
+                'recommended' => $recommendation->recommended,
+                'total_changes' => array_sum($recommendation->summary),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get generated changelog.
+     */
+    public function catalogVersionChangelog(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine $versioningEngine */
+            $versioningEngine = app(\ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine::class);
+            /** @var \ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService $changelogService */
+            $changelogService = app(\ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService::class);
+
+            $recommendation = $versioningEngine->analyzeAgainstBaseline();
+
+            return response()->json([
+                'version' => $recommendation->nextVersion,
+                'changelog' => $changelogService->generate($recommendation, 'markdown'),
+                'structured' => $changelogService->generateStructured($recommendation),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get catalog statistics for versioning context.
+     */
+    public function catalogVersionStats(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService::class);
+
+            return response()->json($service->catalogStats());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get versioning history.
+     */
+    public function catalogVersionHistory(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine::class);
+            $history = $service->getHistory();
+
+            return response()->json(array_map(
+                fn(\ZeroBoiler\Analytics\DTO\CatalogVersionRecommendation $r): array => $r->toArray(),
+                $history,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Capture current catalog as new baseline snapshot.
+     */
+    public function catalogVersionCapture(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\CatalogSnapshotService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\CatalogSnapshotService::class);
+            $snapshot = $service->capture('baseline_' . \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION);
+
+            return response()->json([
+                'status' => 'captured',
+                'label' => $snapshot['label'],
+                'version' => $snapshot['version'],
+                'total_events' => $snapshot['total_events'],
+                'timestamp' => $snapshot['timestamp'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get catalog versioning config.
+     */
+    public function catalogVersionConfig(): JsonResponse
+    {
+        try {
+            /** @var \Illuminate\Contracts\Config\Repository $config */
+            $config = app(\Illuminate\Contracts\Config\Repository::class);
+
+            return response()->json([
+                'catalog_versioning' => $config->get('zeroboiler.analytics.catalog_versioning', []),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
