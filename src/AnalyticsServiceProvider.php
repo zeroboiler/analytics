@@ -4608,6 +4608,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCatalogVersionCommand::class,
                 AnalyticsGlossaryCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
             ]));
         }
 

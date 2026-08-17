@@ -20830,4 +20830,345 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Signal-to-Noise Ratio Calculator (v220.0.0) ───────────────
+
+    /**
+     * Full SNR report for all catalog events.
+     */
+    public function snrReport(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $report = $service->report();
+
+            // Convert DTOs to arrays for JSON
+            $report['events'] = array_map(
+                fn (\ZeroBoiler\Analytics\DTO\EventSNRResult $r): array => $r->toArray(),
+                $report['events'],
+            );
+
+            return response()->json($report);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SNR for a single event.
+     */
+    public function snrEvent(string $eventName): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $result = $service->calculate($eventName);
+
+            return response()->json($result->toArray());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Top signal events (SNR ≥ 70).
+     */
+    public function snrSignalEvents(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $events = $service->topSignalEvents(70.0, 25);
+
+            return response()->json(array_map(
+                fn (\ZeroBoiler\Analytics\DTO\EventSNRResult $r): array => $r->toArray(),
+                $events,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Noise events (SNR < 20).
+     */
+    public function snrNoiseEvents(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $events = $service->noiseEvents(20.0, 25);
+
+            return response()->json(array_map(
+                fn (\ZeroBoiler\Analytics\DTO\EventSNRResult $r): array => $r->toArray(),
+                $events,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Category-level SNR summary.
+     */
+    public function snrCategorySummary(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+
+            return response()->json($service->categorySummary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Grade distribution.
+     */
+    public function snrGrades(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $report = $service->report();
+
+            return response()->json([
+                'grades' => $report['grades'],
+                'total_events' => $report['total_events'],
+                'average_snr' => $report['average_snr'],
+                'median_snr' => $report['median_snr'],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate SNR cache.
+     */
+    public function snrInvalidate(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $service->invalidateCache();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'SNR cache invalidated. Next request will recompute.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * SNR calculator configuration.
+     */
+    public function snrConfig(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+
+            return response()->json($service->getConfig());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Event Pruning Advisor (v220.0.0) ───────────────────────────────
+
+    /**
+     * Full pruning advisor report.
+     */
+    public function pruneAdvisorReport(): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+            $report = $advisor->report();
+
+            // Convert DTOs to arrays for JSON
+            $report['recommendations'] = array_map(
+                fn (\ZeroBoiler\Analytics\DTO\EventPruningRecommendation $r): array => $r->toArray(),
+                $report['recommendations'],
+            );
+
+            return response()->json($report);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * High-priority pruning recommendations.
+     */
+    public function pruneAdvisorHighPriority(): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+            $recs = array_values($advisor->highPriorityRecommendations());
+
+            return response()->json(array_map(
+                fn (\ZeroBoiler\Analytics\DTO\EventPruningRecommendation $r): array => $r->toArray(),
+                $recs,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Consolidation opportunities.
+     */
+    public function pruneAdvisorConsolidate(): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+
+            return response()->json($advisor->consolidationOpportunities());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Protected events list.
+     */
+    public function pruneAdvisorProtected(): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+
+            return response()->json([
+                'protected_events' => $advisor->protectedEvents(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Pruning recommendation for a specific event.
+     */
+    public function pruneAdvisorForEvent(string $eventName): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+            $rec = $advisor->recommendationFor($eventName);
+
+            if ($rec === null) {
+                return response()->json([
+                    'event_name' => $eventName,
+                    'recommendation' => null,
+                    'is_protected' => $advisor->isProtected($eventName),
+                    'message' => $advisor->isProtected($eventName)
+                        ? 'This event is protected and will not be pruned.'
+                        : 'No pruning recommendation for this event (SNR is acceptable).',
+                ]);
+            }
+
+            return response()->json($rec->toArray());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate prune advisor cache.
+     */
+    public function pruneAdvisorInvalidate(): JsonResponse
+    {
+        try {
+            $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
+                app('cache'),
+                app('config'),
+                app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
+            );
+            $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
+                $snrService,
+                app('cache'),
+                app('config'),
+            );
+            $advisor->invalidateCache();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'Prune advisor cache invalidated. Next request will recompute.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

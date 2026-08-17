@@ -1190,4 +1190,22 @@ Route::prefix('analytics')->group(function () {
     Route::get('roi/efficiency', [AnalyticsEventController::class, 'roiEfficiency']);
     Route::get('roi/recommendations', [AnalyticsEventController::class, 'roiRecommendations']);
     Route::post('roi/invalidate', [AnalyticsEventController::class, 'roiInvalidate']);
+
+    // Event Signal-to-Noise Ratio Calculator (v220.0.0)
+    Route::get('snr', [AnalyticsEventController::class, 'snrReport']);
+    Route::get('snr/event/{eventName}', [AnalyticsEventController::class, 'snrEvent']);
+    Route::get('snr/signal', [AnalyticsEventController::class, 'snrSignalEvents']);
+    Route::get('snr/noise', [AnalyticsEventController::class, 'snrNoiseEvents']);
+    Route::get('snr/categories', [AnalyticsEventController::class, 'snrCategorySummary']);
+    Route::get('snr/grades', [AnalyticsEventController::class, 'snrGrades']);
+    Route::post('snr/invalidate', [AnalyticsEventController::class, 'snrInvalidate']);
+    Route::get('snr/config', [AnalyticsEventController::class, 'snrConfig']);
+
+    // Event Pruning Advisor (v220.0.0)
+    Route::get('prune-advisor', [AnalyticsEventController::class, 'pruneAdvisorReport']);
+    Route::get('prune-advisor/high-priority', [AnalyticsEventController::class, 'pruneAdvisorHighPriority']);
+    Route::get('prune-advisor/consolidate', [AnalyticsEventController::class, 'pruneAdvisorConsolidate']);
+    Route::get('prune-advisor/protected', [AnalyticsEventController::class, 'pruneAdvisorProtected']);
+    Route::get('prune-advisor/event/{eventName}', [AnalyticsEventController::class, 'pruneAdvisorForEvent']);
+    Route::post('prune-advisor/invalidate', [AnalyticsEventController::class, 'pruneAdvisorInvalidate']);
 });

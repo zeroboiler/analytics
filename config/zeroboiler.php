@@ -9192,4 +9192,34 @@ return [
         'audit_results' => env('ANALYTICS_REPROCESSOR_AUDIT', true),
         'audit_ttl' => (int) env('ANALYTICS_REPROCESSOR_AUDIT_TTL', 86400), // 24 hours
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Signal-to-Noise Ratio Calculator (v220.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Calculates a Signal-to-Noise Ratio (SNR) for each event in the catalog,
+    | measuring how much actionable insight an event provides relative to its
+    | operational cost. Events are classified as:
+    |
+    | - Signal (SNR ≥ 70): High-value events — keep tracking
+    | - Moderate (40 ≤ SNR < 70): Useful but could be optimized
+    | - Noise Candidate (20 ≤ SNR < 40): Review for pruning
+    | - Noise (SNR < 20): Remove or sample aggressively
+    |
+    | SNR is computed from 4 weighted dimensions: actionability (35%),
+    | correlation with conversion/retention (30%), uniqueness (20%), and
+    | cost efficiency (15%).
+    |
+    | Results are cached and used by EventPruningAdvisorService to generate
+    | removal/reduction/merge recommendations.
+    |
+    | Inspired by Segment's Event Value Analysis and Amplitude's Event Scoring.
+    |
+    */
+    'event_snr' => [
+        'enabled' => env('ANALYTICS_EVENT_SNR_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_SNR_CACHE_TTL', 3600), // 1 hour
+        'cost_per_dispatch' => (float) env('ANALYTICS_EVENT_SNR_COST_PER_DISPATCH', 0.0001), // $0.0001 per event
+    ],
 ];
