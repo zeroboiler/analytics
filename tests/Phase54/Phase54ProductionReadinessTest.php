@@ -309,7 +309,7 @@ final class Phase54ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     public function analytics_js_has_version(): void
     {
         $content = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-        $this->assertStringContainsString('@version 229.0.0', $content);
+        $this->assertStringContainsString('@version 231.0.0', $content);
     }
 
     #[Test]
@@ -539,7 +539,7 @@ final class Phase54ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     public function readme_has_current_version_badge(): void
     {
         $content = file_get_contents(__DIR__ . '/../../README.md');
-        $this->assertStringContainsString('version-229.0.0', $content, 'README should display v229.0.0 badge');
+        $this->assertStringContainsString('version-231.0.0', $content, 'README should display v231.0.0 badge');
     }
 
     #[Test]
@@ -552,7 +552,7 @@ final class Phase54ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     public function changelog_has_v229_entry(): void
     {
         $content = file_get_contents(__DIR__ . '/../../CHANGELOG.md');
-        $this->assertStringContainsString('[229.0.0]', $content, 'CHANGELOG should have 229.0.0 entry');
+        $this->assertStringContainsString('[231.0.0]', $content, 'CHANGELOG should have 231.0.0 entry');
     }
 
     // ── Version Consistency ──────────────────────────────────────────
@@ -561,16 +561,16 @@ final class Phase54ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     public function version_consistency_across_all_entry_points(): void
     {
         $dtoVersion = AnalyticsEvent::VERSION;
-        $this->assertSame('229.0.0', $dtoVersion, 'AnalyticsEvent::VERSION must be 229.0.0');
+        $this->assertSame('231.0.0', $dtoVersion, 'AnalyticsEvent::VERSION must be 231.0.0');
 
         $composerJson = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
-        $this->assertSame('229.0.0', $composerJson['version'], 'composer.json version must be 229.0.0');
+        $this->assertSame('231.0.0', $composerJson['version'], 'composer.json version must be 231.0.0');
 
         $packageJson = json_decode(file_get_contents(__DIR__ . '/../../package.json'), true);
-        $this->assertSame('229.0.0', $packageJson['version'], 'package.json version must be 229.0.0');
+        $this->assertSame('231.0.0', $packageJson['version'], 'package.json version must be 231.0.0');
 
         $jsContent = file_get_contents(__DIR__ . '/../../resources/js/analytics.js');
-        $this->assertStringContainsString('@version 229.0.0', $jsContent, 'analytics.js @version must be 229.0.0');
+        $this->assertStringContainsString('@version 231.0.0', $jsContent, 'analytics.js @version must be 231.0.0');
     }
 
     // ── Source File Quality ─────────────────────────────────────────
