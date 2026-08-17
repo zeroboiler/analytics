@@ -1,5 +1,14 @@
 # Changelog
 
+## [225.0.0] - 2026-08-17
+
+### Added
+- **Phase225ProductionReadinessTest** — 120+ new assertions covering comprehensive production readiness audit: exception hierarchy FQCN cross-references (3 classes, bidirectional @see), forMessage() factory validation with constructor default parity, ServiceProvider deep audit (final, #[Override] on register/boot/provides, provides() returns 4+ bindings, @since), Facade audit (final, #[Override] on getFacadeAccessor, accessor value, @see to AnalyticsManager + AnalyticsFake, @since), AnalyticsManager API surface (final, constructor :void, 9 public method return type verification, @since), key interface contracts (TrackerInterface 3 methods, AnalyticsEventStoreInterface, ValidationStageInterface, HttpMiddlewareContract, AnalyticsMiddlewareInterface), EventPriority enum (4 cases, weight/bypass/sampling/deferrable per case), AnalyticsEvent DTO (VERSION constant, named params, toArray), ConsentState DTO (granted/denied factories, isGranted), Composer metadata (PHP 8.5, Laravel 13, autoload-dev tests, provider/alias, MIT, scripts, require-dev, version 224.0.0), phpstan config (9-check parity: level 9, checkMissingIterableValueType, checkGenericClassInNonGenericObjectType, treatPhpDocTypesAsCertain, reportUnmatchedIgnoredErrors, excludePaths, bootstrapFiles, ignoreErrors section), rector PHP 8.5 target, config structure (13 sections: ga4, gtm, meta_pixel, consent, queue, api, ecommerce, revenue, identity, auto_track, dedup_cache, revenue_checksum, strict_types), source file quality (944+ strict_types, @since, zero TODO/FIXME, no static Eloquent), project structure (9 required files), file count baselines (944+ src, 474+ test), EventInterceptorRegistry (runBefore/runAfter), AnalyticsMetrics (recordDispatch/recordFailure), version consistency (composer ↔ AnalyticsEvent::VERSION).
+
+### Changed
+- README sync (5300+ assertions / 475+ test files).
+- CHANGELOG update.
+
 ## [218.0.0] - 2026-08-17
 
 ### Added
