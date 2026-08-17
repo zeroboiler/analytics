@@ -146,6 +146,7 @@ use ZeroBoiler\Analytics\Services\SaaSRevenueFunnelService;
 use ZeroBoiler\Analytics\Services\SaaSLifecycleStageService;
 use ZeroBoiler\Analytics\Services\SentryErrorAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
+use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
@@ -2614,6 +2615,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make('cache'),
                 $app->make(ConfigRepository::class),
             );
+        });
+
+        // SaaS Starter Instrumentation Service (v211.0.0)
+        $this->app->singleton(SaaSStarterInstrumentationService::class, function (Application $app): SaaSStarterInstrumentationService {
+            return new SaaSStarterInstrumentationService();
         });
 
         // Event Dispatch Latency Tracker (v206.0.0)

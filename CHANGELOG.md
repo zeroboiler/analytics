@@ -1,5 +1,16 @@
 # Changelog
 
+## [211.0.0] - 2026-08-17
+
+### Added
+- **SaaSStarterInstrumentationService** — Copy-paste code snippet wizard for all 20 essential SaaS starter events. Generates PHP server-side (Analytics facade), JavaScript client-side (trackEvent), and Blade template snippets for each event. Provides `snippets()` (all 20), `snippetsFor($event)` (per-event lookup), `clientGuide()` (Inertia/API-ready structure), `coverageAnalysis()` (auto-tracked vs manual), `completenessScore()` (4-point validation per event), and `autoCoveragePercent()`.
+- **OverviewCommand enhancements** — New `--starter` flag shows SaaS Starter Events instrumentation coverage (category breakdown, auto-tracked vs manual events, completeness score). New `--snippets=<event>` flag displays code snippets for a specific event (PHP, JS, Blade) with provider mappings and parameter docs. Both support `--json` output for CI/CD integration.
+- **ServiceProvider registration** — SaaSStarterInstrumentationService registered as singleton.
+- **Phase50SaaSStarterInstrumentationTest** — 22 assertions across 22 it blocks covering: snippet coverage (all 20 events), key structure validation, parameter definition quality, PHP/JS snippet content, snippetsFor lookup, clientGuide structure, coverageAnalysis auto vs manual, autoCoveragePercent math, completenessScore maximum, OverviewCommand signature validation, final class enforcement, version consistency, auto-tracking indicator in JS, Blade directive patterns.
+
+### Changed
+- **Version sweep** — composer.json, package.json, AnalyticsEvent::VERSION, JS analytics.js (header + getVersion()) synced from 210.0.0 → 211.0.0.
+
 ## [210.0.0] - 2026-08-17
 
 ### Added

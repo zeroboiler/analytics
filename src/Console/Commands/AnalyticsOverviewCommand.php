@@ -11,7 +11,9 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Events\SaaSStarterEvents;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
+use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
 use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
 
 /**
@@ -29,7 +31,9 @@ final class AnalyticsOverviewCommand extends Command
         {--json : Output as JSON}
         {--providers : Show detailed provider status}
         {--catalog : Show event catalog summary}
-        {--health : Show system health indicators}';
+        {--health : Show system health indicators}
+        {--starter : Show SaaS Starter Events instrumentation coverage}
+        {--snippets= : Show instrumentation snippet for a specific event}';
 
     protected $description = 'Display comprehensive analytics pipeline overview';
 
@@ -45,6 +49,22 @@ final class AnalyticsOverviewCommand extends Command
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');
+        $snippetEvent = $this->option('snippets');
+
+        // --snippets=<event> — show code snippets for a specific event
+        if (is_string($snippetEvent) && $snippetEvent !== '') {
+            $this->showSnippets($snippetEvent, $outputJson);
+
+            return self::SUCCESS;
+        }
+
+        // --starter — show SaaS Starter Events instrumentation coverage
+        if ((bool) $this->option('starter')) {
+            $this->showStarterCoverage($outputJson);
+
+            return self::SUCCESS;
+        }
+
         $overview = $this->buildOverview();
 
         if ($outputJson) {
@@ -436,5 +456,172 @@ final class AnalyticsOverviewCommand extends Command
         return $enabled
             ? '<fg=green>ENABLED</>'
             : '<fg=yellow>DISABLED</>';
+    }
+
+    /**
+     * Show instrumentation code snippets for a specific starter event.
+     *
+     * @param  string  $eventName  Event name (e.g. 'sign_up', 'purchase')
+     * @param  bool  $asJson  Output as JSON
+     */
+    private function showSnippets(string $eventName, bool $asJson): void
+    {
+        // Try resolving from the starter set
+        $resolved = SaaSStarterEvents::isStarterEvent($eventName)
+            ? $eventName
+            : SaaSStarterEvents::isStarterEvent(EventCatalog::resolve($eventName) ?? '')
+                ? (EventCatalog::resolve($eventName) ?? '')
+                : null;
+
+        if ($resolved === null) {
+            $this->error("Event '{$eventName}' is not in the SaaS Starter Events set.");
+
+            $this->line('');
+            $this->info('Available events:');
+            foreach (SaaSStarterEvents::priorityOrder() as $name) {
+                $entry = SaaSStarterEvents::all()[$name];
+                $this->line("   <info>{$name}</info> — {$entry['label']}");
+            }
+
+            return;
+        }
+
+        $snippets = SaaSStarterInstrumentationService::snippetsFor($resolved);
+        $entry = SaaSStarterEvents::all()[$resolved];
+        $catalogEntry = EventCatalog::get($resolved);
+
+        if ($asJson) {
+            $this->line(json_encode([
+                'event' => $resolved,
+                'label' => $entry['label'],
+                'category' => $entry['category'],
+                'hint' => $entry['hint'],
+                'ga4' => $catalogEntry['ga4'] ?? $resolved,
+                'meta' => $catalogEntry['meta'] ?? null,
+                'params' => $snippets['params'] ?? [],
+                'snippets' => [
+                    'php' => $snippets['php'] ?? '',
+                    'js' => $snippets['js'] ?? '',
+                    'blade' => $snippets['blade'] ?? '',
+                ],
+            ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+
+            return;
+        }
+
+        $this->info("📝 {$entry['label']} ({$resolved})");
+        $this->line("   Category: <comment>{$entry['category']}</comment>");
+        $this->line("   Hint: {$entry['hint']}");
+        $this->line("   GA4: <info>" . ($catalogEntry['ga4'] ?? $resolved) . '</info>');
+        if (($catalogEntry['meta'] ?? null) !== null) {
+            $this->line("   Meta: <info>{$catalogEntry['meta']}</info>");
+        }
+        $this->newLine();
+
+        // Parameters
+        $this->info('📦 Parameters:');
+        foreach ($snippets['params'] as $param) {
+            $req = $param['required'] ? '<fg=red>required</>' : '<comment>optional</>';
+            $this->line("   {$req} \${$param['name']} ({$param['type']}) — {$param['description']}");
+        }
+        $this->newLine();
+
+        // PHP snippet
+        $this->info('🐍 PHP (Server-side):');
+        $this->line('<comment>' . trim($snippets['php']) . '</comment>');
+        $this->newLine();
+
+        // JS snippet
+        $this->info('⚡ JavaScript (Client-side):');
+        $this->line('<comment>' . trim($snippets['js']) . '</comment>');
+        $this->newLine();
+
+        // Blade snippet
+        $this->info('📦 Blade Template:');
+        $this->line('<comment>' . trim($snippets['blade']) . '</comment>');
+    }
+
+    /**
+     * Show SaaS Starter Events instrumentation coverage report.
+     *
+     * @param  bool  $asJson  Output as JSON
+     */
+    private function showStarterCoverage(bool $asJson): void
+    {
+        $coverage = SaaSStarterInstrumentationService::coverageAnalysis();
+        $completeness = SaaSStarterInstrumentationService::completenessScore();
+        $byCategory = SaaSStarterEvents::byCategory();
+        $catalogPresence = SaaSStarterEvents::catalogPresence();
+
+        if ($asJson) {
+            $this->line(json_encode([
+                'starter_events' => SaaSStarterEvents::count(),
+                'catalog_coverage' => SaaSStarterEvents::coveragePercent(),
+                'auto_tracking_coverage' => $coverage['coverage'],
+                'auto_tracked_events' => $coverage['auto_tracked'],
+                'manual_events' => $coverage['manual'],
+                'completeness' => $completeness,
+                'by_category' => array_map(fn (array $events): int => count($events), $byCategory),
+                'catalog_presence' => $catalogPresence,
+                'priority_order' => SaaSStarterEvents::priorityOrder(),
+                'client_guide' => SaaSStarterInstrumentationService::clientGuide(),
+            ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+
+            return;
+        }
+
+        $this->info('🎯 SaaS Starter Events — Instrumentation Coverage');
+        $this->line('   Total events: <info>' . SaaSStarterEvents::count() . '</info>');
+        $this->line('   Catalog coverage: <info>' . SaaSStarterEvents::coveragePercent() . '%</info>');
+        $this->line('   Auto-tracking: <info>' . $coverage['coverage'] . '%</info> (' . count($coverage['auto_tracked']) . '/' . SaaSStarterEvents::count() . ')');
+        $this->line('   Completeness: <info>' . $completeness['score'] . '/' . $completeness['max'] . '</info>');
+
+        // Category breakdown
+        $this->newLine();
+        $this->info('📂 By Category:');
+        foreach ($byCategory as $category => $events) {
+            $count = count($events);
+            $icon = match ($category) {
+                'saas' => '🔄',
+                'ecommerce' => '🛒',
+                'engagement' => '📊',
+                default => '📋',
+            };
+            $this->line("   {$icon} {$category}: <info>{$count}</info> events");
+        }
+
+        // Auto-tracked events
+        $this->newLine();
+        $this->info('🤖 Auto-Tracked (no manual code needed):');
+        foreach ($coverage['auto_tracked'] as $name) {
+            $entry = SaaSStarterEvents::all()[$name];
+            $this->line("   ✅ {$entry['label']} (<comment>{$name}</comment>)");
+        }
+
+        // Manual events in priority order
+        $this->newLine();
+        $this->info('✏️  Manual Instrumentation (priority order):');
+        foreach ($coverage['manual'] as $name) {
+            $entry = SaaSStarterEvents::all()[$name];
+            $inCatalog = $catalogPresence[$name] ?? false;
+            $status = $inCatalog ? '✅' : '⚠️';
+            $this->line("   {$status} {$entry['label']} (<comment>{$name}</comment>) — {$entry['hint']}");
+        }
+
+        // Completeness details
+        $this->newLine();
+        $incomplete = array_filter($completeness['details'], fn (bool $v): bool => ! $v);
+        if (count($incomplete) > 0) {
+            $this->warn('⚠️  Incomplete instrumentation entries:');
+            foreach ($incomplete as $name => $_) {
+                $this->line("   - {$name}");
+            }
+        } else {
+            $this->info('✅ All 20 starter events have complete instrumentation entries.');
+        }
+
+        $this->newLine();
+        $this->comment('Use --snippets=<event_name> to see code snippets for a specific event.');
+        $this->comment('Use --json for machine-readable output.');
     }
 }
