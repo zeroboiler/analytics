@@ -349,6 +349,7 @@ use ZeroBoiler\Analytics\Services\ComposableEnrichmentPipeline;
 use ZeroBoiler\Analytics\Services\AnalyticsAuditLogService;
 use ZeroBoiler\Analytics\Services\ProviderEventCompatibilityMatrix;
 use ZeroBoiler\Analytics\Services\AnalyticsDataQualityScorer;
+use ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
 use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
 use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
@@ -1195,6 +1196,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Data Quality Scorer (v21.0.0)
         $this->app->singleton(AnalyticsDataQualityScorer::class, function (Application $app): AnalyticsDataQualityScorer {
             return new AnalyticsDataQualityScorer;
+        });
+
+        // Event Time-Series Decomposition Engine (v221.0.0)
+        $this->app->singleton(EventTimeSeriesDecompositionService::class, function (Application $app): EventTimeSeriesDecompositionService {
+            return new EventTimeSeriesDecompositionService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
         });
 
         // Event Classification Service (v21.0.0)
@@ -4610,6 +4619,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,
             ]));
         }
 

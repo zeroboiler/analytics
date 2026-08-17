@@ -1207,5 +1207,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('prune-advisor/consolidate', [AnalyticsEventController::class, 'pruneAdvisorConsolidate']);
     Route::get('prune-advisor/protected', [AnalyticsEventController::class, 'pruneAdvisorProtected']);
     Route::get('prune-advisor/event/{eventName}', [AnalyticsEventController::class, 'pruneAdvisorForEvent']);
+
+    // Event Time-Series Decomposition (v221.0.0)
+    Route::get('decomposition', [AnalyticsEventController::class, 'decompositionReport']);
+    Route::get('decomposition/event/{eventName}', [AnalyticsEventController::class, 'decompositionEvent']);
+    Route::get('decomposition/profile/{eventName}', [AnalyticsEventController::class, 'decompositionProfile']);
+    Route::get('decomposition/config', [AnalyticsEventController::class, 'decompositionConfig']);
     Route::post('prune-advisor/invalidate', [AnalyticsEventController::class, 'pruneAdvisorInvalidate']);
 });

@@ -9222,4 +9222,30 @@ return [
         'cache_ttl' => (int) env('ANALYTICS_EVENT_SNR_CACHE_TTL', 3600), // 1 hour
         'cost_per_dispatch' => (float) env('ANALYTICS_EVENT_SNR_COST_PER_DISPATCH', 0.0001), // $0.0001 per event
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Time-Series Decomposition (v221.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Decomposes event volume time-series into trend, seasonality, and noise
+    | components using a moving-average approach inspired by STL decomposition.
+    |
+    | This enables:
+    | - Identifying genuine growth trends vs. seasonal spikes
+    | - Detecting anomalies after removing seasonal patterns
+    | - Forecasting future event volumes with seasonal awareness
+    | - Comparing predictability across events
+    |
+    | Inspired by Facebook Prophet, STL decomposition, and Seasonal-trend
+    | decomposition used by Mixpanel and Amplitude.
+    |
+    */
+    'decomposition' => [
+        'enabled' => env('ANALYTICS_DECOMPOSITION_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_DECOMPOSITION_CACHE_TTL', 1800), // 30 minutes
+        'default_period' => (int) env('ANALYTICS_DECOMPOSITION_DEFAULT_PERIOD', 7), // 7 for weekly
+        'forecast_horizon' => (int) env('ANALYTICS_DECOMPOSITION_FORECAST_HORIZON', 1), // 1× period
+        'confidence_width' => (float) env('ANALYTICS_DECOMPOSITION_CONFIDENCE_WIDTH', 1.96), // 95% CI
+    ],
 ];

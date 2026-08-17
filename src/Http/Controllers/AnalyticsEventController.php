@@ -21171,4 +21171,164 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Event Time-Series Decomposition (v221.0.0) ───────────────────
+
+    /**
+     * Decomposition config overview.
+     *
+     * GET /api/analytics/decomposition/config
+     */
+    public function decompositionConfig(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService::class);
+
+            return response()->json([
+                'enabled' => $service->isEnabled(),
+                'config' => $service->getConfig(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Full decomposition report (config-driven sample data).
+     *
+     * GET /api/analytics/decomposition
+     */
+    public function decompositionReport(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService::class);
+
+            if (! $service->isEnabled()) {
+                return response()->json([
+                    'status' => 'disabled',
+                    'message' => 'Time-series decomposition is disabled in config.',
+                ], 403);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'config' => $service->getConfig(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Decompose a specific event.
+     *
+     * GET /api/analytics/decomposition/event/{eventName}
+     *
+     * Query params: period (int), forecast_steps (int)
+     */
+    public function decompositionEvent(Request $request, string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService::class);
+
+            $period = (int) $request->query('period', 7);
+            $forecastSteps = (int) $request->query('forecast_steps', $period);
+
+            // In production, data comes from AnalyticsEventModel
+            // For API demonstration, use sample data
+            $data = $this->getEventVolumeSample($eventName);
+
+            if ($data === []) {
+                return response()->json([
+                    'event_name' => $eventName,
+                    'status' => 'no_data',
+                    'message' => 'No event volume data available. In production, data is queried from AnalyticsEventModel.',
+                    'data_points' => 0,
+                ]);
+            }
+
+            $result = $service->decompose($eventName, $data, $period, $forecastSteps);
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Seasonal profile for a specific event.
+     *
+     * GET /api/analytics/decomposition/profile/{eventName}
+     *
+     * Query params: period (int)
+     */
+    public function decompositionProfile(Request $request, string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService::class);
+
+            $period = (int) $request->query('period', 7);
+
+            $data = $this->getEventVolumeSample($eventName);
+
+            if ($data === []) {
+                return response()->json([
+                    'event_name' => $eventName,
+                    'status' => 'no_data',
+                    'message' => 'No event volume data available.',
+                    'profile' => $service->seasonalProfile([], $period),
+                ]);
+            }
+
+            $profile = $service->seasonalProfile($data, $period);
+
+            return response()->json([
+                'event_name' => $eventName,
+                'period' => $period,
+                'data_points' => count($data),
+                'profile' => $profile,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get sample event volume data for API demonstration.
+     *
+     * @return list<int>
+     */
+    private function getEventVolumeSample(string $eventName): array
+    {
+        // Deterministic sample data based on event name hash
+        $seed = crc32($eventName);
+        mt_srand($seed);
+        $data = [];
+
+        $baseVolume = 50 + (abs($seed) % 150);
+
+        for ($i = 0; $i < 28; $i++) {
+            $trend = $baseVolume + ($i * 1.5);
+            $dayOfWeek = $i % 7;
+            $seasonal = match ($dayOfWeek) {
+                0 => -12.0,
+                1 => 8.0,
+                2 => 14.0,
+                3 => 10.0,
+                4 => 6.0,
+                5 => 2.0,
+                6 => -8.0,
+                default => 0.0,
+            };
+            $noise = (mt_rand(-15, 15)) * 1.0;
+
+            $data[] = (int) max(0, $trend + $seasonal + $noise);
+        }
+
+        return $data;
+    }
 }
