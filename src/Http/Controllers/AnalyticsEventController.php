@@ -22412,4 +22412,160 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Behavioral Segmentation (v239.0.0) ──────────────────────────────
+
+    /**
+     * GET /api/analytics/segments/tiers
+     * List all behavioral segment tier definitions.
+     */
+    public function behavioralSegmentsTiers(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+
+            return response()->json([
+                'tiers' => $service->tiers(),
+                'config' => $service->configSummary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/segments/distribution
+     * Get segment distribution summary (user counts per tier).
+     */
+    public function behavioralSegmentsDistribution(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $userIds = $request->query('user_ids') ? explode(',', (string) $request->query('user_ids')) : null;
+
+            return response()->json([
+                'distribution' => $service->segmentDistribution($userIds),
+                'total' => array_sum($service->segmentDistribution($userIds)),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/segments/user/{userId}
+     * Segment a specific user by behavioral profile.
+     */
+    public function behavioralSegmentsUser(Request $request, string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $clientId = $request->query('client_id');
+
+            return response()->json($service->segmentUser($userId, $clientId));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/segments/migration/{userId}
+     * Get segment migration (current vs previous) for a user.
+     */
+    public function behavioralSegmentsMigration(string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+
+            return response()->json($service->segmentMigration($userId));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/segments/history/{userId}
+     * Get segment history for a user.
+     */
+    public function behavioralSegmentsHistory(Request $request, string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $limit = (int) $request->query('limit', 10);
+
+            return response()->json([
+                'user_id' => $userId,
+                'history' => $service->segmentHistory($userId, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/segments/{segment}
+     * List users in a specific segment tier.
+     */
+    public function behavioralSegmentsList(Request $request, string $segment): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $limit = (int) $request->query('limit', 50);
+
+            return response()->json([
+                'segment' => $segment,
+                'users' => $service->getUsersInSegment($segment, $limit),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/analytics/segments/snapshot/{userId}
+     * Record a segment snapshot for historical tracking.
+     */
+    public function behavioralSegmentsSnapshot(string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $service->recordSnapshot($userId);
+
+            return response()->json(['status' => 'ok', 'user_id' => $userId]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/analytics/segments/cache/{userId}
+     * Invalidate segment cache for a specific user.
+     */
+    public function behavioralSegmentsInvalidateUser(string $userId): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $service->invalidateUser($userId);
+
+            return response()->json(['status' => 'ok', 'user_id' => $userId]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/analytics/segments/cache
+     * Invalidate all segment caches.
+     */
+    public function behavioralSegmentsInvalidateAll(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\BehavioralSegmentationService::class);
+            $service->invalidateAll();
+
+            return response()->json(['status' => 'ok']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

@@ -9544,4 +9544,56 @@ return [
         'heatmap_bucket_size' => (int) env('ANALYTICS_GEOSPATIAL_HEATMAP_BUCKET', 1),
         'include_unknown' => env('ANALYTICS_GEOSPATIAL_INCLUDE_UNKNOWN', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Behavioral Segmentation (v239.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | RFM-based user behavioral segmentation engine. Classifies users into
+    | 10 tiers (champions, loyal, potential_loyalists, new_users, promising,
+    | need_attention, about_to_sleep, at_risk, hibernating, lost) based on
+    | configurable behavioral signals.
+    |
+    | Each dimension receives a weight that contributes to the composite score
+    | (0–100). Tier boundaries are configurable for custom segmentation logic.
+    |
+    */
+    'behavioral_segmentation' => [
+        'enabled' => env('ANALYTICS_BEHAVIORAL_SEGMENTATION_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_BEHAVIORAL_SEGMENTATION_CACHE_TTL', 3600),
+        'rfm_weights' => [
+            'recency' => (float) env('ANALYTICS_BSEG_RFM_RECENCY', 0.30),
+            'frequency' => (float) env('ANALYTICS_BSEG_RFM_FREQUENCY', 0.30),
+            'monetary' => (float) env('ANALYTICS_BSEG_RFM_MONETARY', 0.20),
+            'engagement' => (float) env('ANALYTICS_BSEG_RFM_ENGAGEMENT', 0.10),
+            'growth' => (float) env('ANALYTICS_BSEG_RFM_GROWTH', 0.10),
+        ],
+        'dimensions' => [
+            'recency' => (float) env('ANALYTICS_BSEG_DIM_RECENCY', 0.25),
+            'frequency' => (float) env('ANALYTICS_BSEG_DIM_FREQUENCY', 0.20),
+            'monetary' => (float) env('ANALYTICS_BSEG_DIM_MONETARY', 0.15),
+            'engagement_breadth' => (float) env('ANALYTICS_BSEG_DIM_BREADTH', 0.15),
+            'session_regularity' => (float) env('ANALYTICS_BSEG_DIM_REGULARITY', 0.15),
+            'growth_trajectory' => (float) env('ANALYTICS_BSEG_DIM_GROWTH', 0.10),
+        ],
+        'tiers' => [
+            'champions' => ['min' => (float) env('ANALYTICS_BSEG_CHAMPIONS_MIN', 80), 'max' => 100.0],
+            'loyal' => ['min' => (float) env('ANALYTICS_BSEG_LOYAL_MIN', 65), 'max' => 79.99],
+            'potential_loyalists' => ['min' => (float) env('ANALYTICS_BSEG_POTENTIAL_MIN', 55), 'max' => 64.99],
+            'promising' => ['min' => (float) env('ANALYTICS_BSEG_PROMISING_MIN', 45), 'max' => 54.99],
+            'new_users' => ['min' => (float) env('ANALYTICS_BSEG_NEW_MIN', 30), 'max' => 44.99],
+            'need_attention' => ['min' => (float) env('ANALYTICS_BSEG_ATTENTION_MIN', 20), 'max' => 29.99],
+            'about_to_sleep' => ['min' => (float) env('ANALYTICS_BSEG_SLEEP_MIN', 10), 'max' => 19.99],
+            'at_risk' => ['min' => (float) env('ANALYTICS_BSEG_ATRISK_MIN', 5), 'max' => 24.99],
+            'hibernating' => ['min' => (float) env('ANALYTICS_BSEG_HIBERNATING_MIN', 1), 'max' => 9.99],
+            'lost' => ['min' => 0.0, 'max' => 0.99],
+        ],
+        'thresholds' => [
+            'lost_inactive_days' => (int) env('ANALYTICS_BSEG_LOST_DAYS', 90),
+            'hibernating_inactive_days' => (int) env('ANALYTICS_BSEG_HIBERNATING_DAYS', 60),
+            'at_risk_decline_percent' => (int) env('ANALYTICS_BSEG_ATRISK_DECLINE', 50),
+            'min_events_for_segment' => (int) env('ANALYTICS_BSEG_MIN_EVENTS', 3),
+        ],
+    ],
 ];

@@ -1286,4 +1286,15 @@ Route::prefix('analytics')->group(function () {
     Route::get('geo/compare', [AnalyticsEventController::class, 'geoCompare']);
     Route::get('geo/coverage', [AnalyticsEventController::class, 'geoCoverage']);
     Route::get('geo/summary', [AnalyticsEventController::class, 'geoSummary']);
+
+    // Behavioral Segmentation (v239.0.0)
+    Route::get('segments/tiers', [AnalyticsEventController::class, 'behavioralSegmentsTiers']);
+    Route::get('segments/distribution', [AnalyticsEventController::class, 'behavioralSegmentsDistribution']);
+    Route::get('segments/user/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsUser']);
+    Route::get('segments/migration/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsMigration']);
+    Route::get('segments/history/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsHistory']);
+    Route::get('segments/{segment}', [AnalyticsEventController::class, 'behavioralSegmentsList']);
+    Route::post('segments/snapshot/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsSnapshot']);
+    Route::delete('segments/cache/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsInvalidateUser']);
+    Route::delete('segments/cache', [AnalyticsEventController::class, 'behavioralSegmentsInvalidateAll']);
 });

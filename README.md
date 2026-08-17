@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-238.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-239.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/5300%2B%20test%20cases%20%2F%20486%2B%20test%20files-brightgreen)
 
@@ -69,6 +69,17 @@ Done. That's it.
 - **Config expansion** — Added `nl_query` (8 settings with env vars) and `geospatial` (5 settings with env vars) sections to `config/zeroboiler.php`.
 - **Test suite** (`tests/V237InsightEngineAndGeospatialTest.php`) — 40+ assertions covering: file quality (strict_types, MIT headers, final classes, @since 237.0.0), NL engine parsing capabilities, time range patterns, event resolution, aggregation extraction, comparison detection, group-by extraction, confidence scoring, question templates, custom parser registration, geospatial breakdowns, heatmap data, GeoJSON output, geographic funnel, anomaly detection, location comparison, coverage report, config sections, route registration, catalog coverage for referenced events, project scale thresholds.
 - Version bump to 237.0.0 across all version entry points.
+
+### What's New in v239.0.0
+
+**Behavioral Segmentation Engine — Industry-Standard SaaS Analytics Upgrade**:
+
+- **BehavioralSegmentationService** (`src/Services/BehavioralSegmentationService.php`) — RFM-based user behavioral segmentation engine with 10 tiers: Champions, Loyal, Potential Loyalists, New Users, Promising, Need Attention, About to Sleep, At Risk, Hibernating, Lost. Computes Recency (1–5), Frequency (1–5), Monetary (1–5) scores plus 6 behavioral dimensions: engagement breadth (category coverage), session regularity, growth trajectory (7-day vs previous period comparison), all weighted into a composite score (0–100). Features: trait vector export (9 floats for ML pipelines), segment migration tracking (current vs previous with direction), segment history snapshots (last 30), batch segmentation, segment distribution analysis, tier classification with special overrides (lost/at_risk), configurable weights/tiers/thresholds, cache-backed per-user scoring. Inspired by Klaviyo segmentation, Amplitude Cohorts, and Mixpanel Behavioral cohorts. ~450 LOC, 20+ public methods.
+- **AnalyticsSegmentsCommand** (`zb:analytics:segments`) — CLI entry point with 8 modes: default (distribution summary), `--user=<id>` (individual segmentation with visual dimension bars), `--segment=<tier>` (list users in tier), `--tiers` (all tier definitions), `--migration` (segment change tracking), `--record` (snapshot recording), `--invalidate` (cache clear), `--json` (JSON output).
+- **API endpoints** — 9 new REST endpoints: GET segments/tiers, GET segments/distribution, GET segments/user/{userId}, GET segments/migration/{userId}, GET segments/history/{userId}, GET segments/{segment}, POST segments/snapshot/{userId}, DELETE segments/cache/{userId}, DELETE segments/cache.
+- **Config expansion** — Added `behavioral_segmentation` section (20+ env vars) to `config/zeroboiler.php` with: enabled flag, cache TTL, RFM weights (5 dimensions), behavioral dimension weights (6 dimensions), tier boundaries (10 tiers with min/max), and thresholds (lost days, hibernating days, at-risk decline percent, min events).
+- **Test suite** (`tests/V239BehavioralSegmentationTest.php`) — 60+ assertions covering: file quality (strict_types, MIT headers, final classes, @since 239.0.0), service method signatures (14 public methods with return types), config section (8 sections, 10 tiers, all keys), API routes (9 endpoints), controller methods (9 endpoints), segment tier definitions, RFM scoring boundaries, dimension scoring logic, trait vector structure, command options (7), project scale thresholds, version consistency.
+- Version bump to 239.0.0 across all version entry points.
 
 ### What's New in v238.0.0
 
