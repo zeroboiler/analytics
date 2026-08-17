@@ -1,5 +1,17 @@
 # Changelog
 
+## [218.0.0] - 2026-08-17
+
+### Added
+- **SaaSAnalyticsROIService** — Analytics stack ROI calculator. Measures cost efficiency (dispatch, infrastructure, labor), revenue attribution (per-event revenue, conversion uplift, prevented churn), insight yield per 1K events, per-provider ROI breakdown with efficiency scores, per-category impact analysis, letter grades (A+ through F), and actionable optimization recommendations. Methods: `calculate()`, `roiPercent()`, `grade()`, `providerRois()`, `categoryRois()`, `recommendations()`, `costEfficiency()`, `getConfig()`, `invalidateCache()`. Cache-backed.
+- **AnalyticsROICommand** — `php artisan zb:analytics:roi` CLI with 8 action modes: default, `--score`, `--providers`, `--categories`, `--efficiency`, `--recommendations`, `--invalidate`, `--json`.
+- **API endpoints** — 7 ROI endpoints: `GET /api/analytics/roi`, `GET /roi/score`, `GET /roi/providers`, `GET /roi/categories`, `GET /roi/efficiency`, `GET /roi/recommendations`, `POST /roi/invalidate`.
+- **V218 test suite** — 40+ assertions.
+- **ServiceProvider registration** — SaaSAnalyticsROIService (singleton), AnalyticsROICommand.
+
+### Changed
+- Version bump: 217.0.0 → 218.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, README badge. Service count 423→424, command count 101→102.
+
 ## [217.0.0] - 2026-08-17
 
 ### Added

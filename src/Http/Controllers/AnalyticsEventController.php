@@ -20711,4 +20711,123 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── SaaS Analytics ROI Calculator (v218.0.0) ──────────────────
+
+    /**
+     * Get full ROI report.
+     */
+    public function roiReport(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => $service->calculate(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get ROI score and grade.
+     */
+    public function roiScore(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => [
+                    'roi_percent' => $service->roiPercent(),
+                    'grade' => $service->grade(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get provider-level ROI breakdown.
+     */
+    public function roiProviders(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => $service->providerRois(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get category-level ROI breakdown.
+     */
+    public function roiCategories(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => $service->categoryRois(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get cost efficiency metrics.
+     */
+    public function roiEfficiency(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => $service->costEfficiency(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get actionable ROI recommendations.
+     */
+    public function roiRecommendations(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+
+            return response()->json([
+                'data' => $service->recommendations(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate ROI cache and recompute.
+     */
+    public function roiInvalidate(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService;
+            $service->invalidateCache();
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => 'ROI cache invalidated. Next request will recompute.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

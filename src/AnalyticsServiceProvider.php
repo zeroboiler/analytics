@@ -4492,6 +4492,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 cache: $app->make(CacheRepository::class),
             );
         });
+
+        // SaaS Analytics ROI Service (v218.0.0)
+        $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService {
+            return new \ZeroBoiler\Analytics\Services\SaaSAnalyticsROIService(
+                cache: $app->make(CacheRepository::class),
+            );
+        });
     }
 
     /**
@@ -4600,6 +4607,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCapabilityCommand::class,
                 AnalyticsCatalogVersionCommand::class,
                 AnalyticsGlossaryCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand::class,
             ]));
         }
 

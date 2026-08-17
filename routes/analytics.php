@@ -1181,4 +1181,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('glossary/cross-ref', [AnalyticsEventController::class, 'glossaryCrossRef']);
     Route::get('glossary/coverage', [AnalyticsEventController::class, 'glossaryCoverage']);
     Route::get('glossary/tags', [AnalyticsEventController::class, 'glossaryTags']);
+
+    // SaaS Analytics ROI Calculator (v218.0.0)
+    Route::get('roi', [AnalyticsEventController::class, 'roiReport']);
+    Route::get('roi/score', [AnalyticsEventController::class, 'roiScore']);
+    Route::get('roi/providers', [AnalyticsEventController::class, 'roiProviders']);
+    Route::get('roi/categories', [AnalyticsEventController::class, 'roiCategories']);
+    Route::get('roi/efficiency', [AnalyticsEventController::class, 'roiEfficiency']);
+    Route::get('roi/recommendations', [AnalyticsEventController::class, 'roiRecommendations']);
+    Route::post('roi/invalidate', [AnalyticsEventController::class, 'roiInvalidate']);
 });
