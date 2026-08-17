@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\Http\Requests\OptOutRequest;
 use ZeroBoiler\Analytics\Http\Requests\OptInRequest;
 use ZeroBoiler\Analytics\Http\Requests\PageViewRequest;
 use ZeroBoiler\Analytics\Inertia\HandleInertiaAnalytics;
-use ZeroBoiler\Analytics\Services\EcommerceFormatConverter;
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Services\IdentityGraphService;
 use ZeroBoiler\Analytics\Services\CrossDeviceIdentityMergeService;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
