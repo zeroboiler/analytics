@@ -1148,4 +1148,19 @@ Route::prefix('analytics')->group(function () {
     Route::get('pipeline-health/attention', [AnalyticsEventController::class, 'pipelineHealthAttention']);
     Route::post('pipeline-health/invalidate', [AnalyticsEventController::class, 'pipelineHealthInvalidate']);
     Route::get('pipeline-health/config', [AnalyticsEventController::class, 'pipelineHealthConfig']);
+
+    // Provider Capability Matrix (v215.0.0)
+    Route::get('capabilities/ranking', [AnalyticsEventController::class, 'capabilityRanking']);
+    Route::get('capabilities/summary', [AnalyticsEventController::class, 'capabilitySummary']);
+    Route::get('capabilities/providers', [AnalyticsEventController::class, 'capabilityProviders']);
+    Route::get('capabilities/profile/{provider}', [AnalyticsEventController::class, 'capabilityProfile']);
+    Route::get('capabilities/compare', [AnalyticsEventController::class, 'capabilityCompare']);
+    Route::get('capabilities/check', [AnalyticsEventController::class, 'capabilityCheck']);
+    Route::get('capabilities/definitions', [AnalyticsEventController::class, 'capabilityDefinitions']);
+    Route::get('capabilities/matrix', [AnalyticsEventController::class, 'capabilityMatrix']);
+
+    // Event Payload Marshaller (v215.0.0)
+    Route::post('marshaller/marshal', [AnalyticsEventController::class, 'marshallerMarshal']);
+    Route::post('marshaller/batch', [AnalyticsEventController::class, 'marshallerBatch']);
+    Route::get('marshaller/config', [AnalyticsEventController::class, 'marshallerConfig']);
 });

@@ -475,6 +475,9 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsResilienceCommand;
 use ZeroBoiler\Analytics\Services\EventVolumeAnomalyDetectionService;
 use ZeroBoiler\Analytics\Services\ProviderResilienceService;
+use ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService;
+use ZeroBoiler\Analytics\Services\EventPayloadMarshallerService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -4444,6 +4447,23 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 $app->make(\ZeroBoiler\Analytics\AnalyticsManager::class),
             );
         });
+
+        // Provider Capability Matrix (v215.0.0) — feature/limit registry per provider
+        $this->app->singleton(ProviderCapabilityMatrixService::class, function (Application $app): ProviderCapabilityMatrixService {
+            return new ProviderCapabilityMatrixService(
+                $app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Payload Marshaller (v215.0.0) — request→DTO assembly pipeline
+        $this->app->singleton(EventPayloadMarshallerService::class, function (Application $app): EventPayloadMarshallerService {
+            return new EventPayloadMarshallerService(
+                $app->make(\ZeroBoiler\Analytics\Schema\EventSchemaRegistry::class),
+                $app->make(\ZeroBoiler\Analytics\Services\EventFieldCoercer::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -4549,6 +4569,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsSequenceValueCommand::class,
                 AnalyticsPipelineHealthCommand::class,
                 AnalyticsResilienceCommand::class,
+                AnalyticsCapabilityCommand::class,
             ]));
         }
 

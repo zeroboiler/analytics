@@ -20220,4 +20220,212 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Provider Capability Matrix (v215.0.0) ─────────────────────────
+
+    /**
+     * GET /api/analytics/capabilities/ranking
+     */
+    public function capabilityRanking(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json($service->coverageRanking());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/summary
+     */
+    public function capabilitySummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json($service->coverageSummary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/providers
+     */
+    public function capabilityProviders(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json(['providers' => $service->getProviders()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/profile/{provider}
+     */
+    public function capabilityProfile(string $provider): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+            $profile = $service->getProfile($provider);
+
+            if ($profile === null) {
+                return response()->json(['status' => 'error', 'error' => "Unknown provider: {$provider}"], 404);
+            }
+
+            return response()->json($profile->toArray());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/compare?provider_a=ga4&provider_b=meta_pixel
+     */
+    public function capabilityCompare(): JsonResponse
+    {
+        try {
+            $providerA = request()->query('provider_a');
+            $providerB = request()->query('provider_b');
+
+            if ($providerA === null || $providerB === null) {
+                return response()->json(['status' => 'error', 'error' => 'provider_a and provider_b query params required'], 400);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json($service->compare($providerA, $providerB));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/check?capability=batch_api
+     */
+    public function capabilityCheck(): JsonResponse
+    {
+        try {
+            $capability = request()->query('capability');
+
+            if ($capability === null) {
+                return response()->json(['status' => 'error', 'error' => 'capability query param required'], 400);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+            $providers = $service->getProviders();
+            $support = [];
+
+            foreach ($providers as $p) {
+                $support[$p] = $service->supports($p, $capability);
+            }
+
+            return response()->json(['capability' => $capability, 'support' => $support]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/definitions
+     */
+    public function capabilityDefinitions(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json(['definitions' => $service->getCapabilityDefinitions()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/capabilities/matrix
+     */
+    public function capabilityMatrix(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService::class);
+
+            return response()->json($service->matrixTable());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ─── Event Payload Marshaller (v215.0.0) ────────────────────────────
+
+    /**
+     * POST /api/analytics/marshaller/marshal
+     */
+    public function marshallerMarshal(): JsonResponse
+    {
+        try {
+            $event = request()->input('event', 'unknown');
+            $properties = request()->input('properties', []);
+            $context = request()->input('context', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\EventPayloadMarshallerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPayloadMarshallerService::class);
+
+            return response()->json($service->marshal($event, $properties, $context)->toArray());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/analytics/marshaller/batch
+     */
+    public function marshallerBatch(): JsonResponse
+    {
+        try {
+            $events = request()->input('events', []);
+
+            /** @var \ZeroBoiler\Analytics\Services\EventPayloadMarshallerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPayloadMarshallerService::class);
+            $result = $service->marshalBatch($events);
+
+            return response()->json([
+                'valid_count' => $result['valid_count'],
+                'invalid_count' => $result['invalid_count'],
+                'total' => $result['total'],
+                'results' => array_map(
+                    static fn (\ZeroBoiler\Analytics\DTO\MarshalledPayload $r): array => $r->toArray(),
+                    $result['results'],
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/marshaller/config
+     */
+    public function marshallerConfig(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventPayloadMarshallerService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventPayloadMarshallerService::class);
+
+            return response()->json($service->getConfig());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

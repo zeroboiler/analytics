@@ -584,6 +584,46 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Provider Capability Matrix (v215.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Centralized feature/limit registry for all analytics providers.
+        | Used by the event router and admin dashboards for provider
+        | comparison, gap analysis, and dispatch decisions.
+        |
+        | Configured via ANALYTICS_PROVIDER_CAPABILITIES_* env vars.
+        |
+        */
+        'provider_capabilities' => [
+            'enabled' => env('ANALYTICS_PROVIDER_CAPABILITIES_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PROVIDER_CAPABILITIES_CACHE_TTL', 21600), // 6 hours
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Event Payload Marshaller (v215.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Unified request-to-DTO assembly pipeline that handles field coercion,
+        | validation, default population, PII detection, and unknown field
+        | stripping for incoming event payloads.
+        |
+        | Configured via ANALYTICS_MARSHALLER_* env vars.
+        |
+        */
+        'marshaller' => [
+            'strict' => env('ANALYTICS_MARSHALLER_STRICT', false),
+            'strip_unknown' => env('ANALYTICS_MARSHALLER_STRIP_UNKNOWN', true),
+            'detect_pii' => env('ANALYTICS_MARSHALLER_DETECT_PII', true),
+            'populate_defaults' => env('ANALYTICS_MARSHALLER_POPULATE_DEFAULTS', true),
+            'global_defaults' => [
+                // 'source' => 'server',
+                // 'environment' => env('APP_ENV', 'production'),
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Conversion Prediction (v193.0.0)
         |--------------------------------------------------------------------------
         |

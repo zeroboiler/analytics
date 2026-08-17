@@ -1,5 +1,21 @@
 # Changelog
 
+## [215.0.0] - 2026-08-17
+
+### Added
+- **ProviderCapabilityMatrixService** — Centralized feature/limit registry for all 10 analytics providers. 33 capability definitions across core protocol, identity, e-commerce, consent/privacy, limits, and advanced features. Per-provider `ProviderCapabilityProfile` DTOs with coverage percentages, letter grades, and gap analysis. Methods: `getProfile()`, `supports()`, `getCapabilityValue()`, `getAllProfiles()`, `compare()`, `findProvidersSupporting()`, `findProvidersMissing()`, `coverageRanking()`, `coverageSummary()`, `matrixTable()`, `getCapabilityDefinitions()`.
+- **ProviderCapability DTO** — Immutable readonly DTO for a single capability with `toArray()`/`fromArray()` round-trip.
+- **ProviderCapabilityProfile DTO** — Immutable readonly DTO with `supports()`, `getCapabilityValue()`, `capabilitiesList()`, `toArray()`.
+- **EventPayloadMarshallerService** — Unified request→DTO assembly pipeline with schema lookup, field coercion, required validation, default population, PII detection, and unknown field stripping. Methods: `marshal()`, `marshalBatch()`, `getConfig()`.
+- **MarshalledPayload DTO** — Immutable readonly result DTO with `success()`, `failure()` factories and `toArray()`.
+- **AnalyticsCapabilityCommand** — `php artisan analytics:capability` CLI with 6 actions: ranking, compare, check, profile, summary, matrix.
+- **API endpoints** — 8 capability endpoints (`GET /api/analytics/capabilities/*`) and 3 marshaller endpoints (`POST /api/analytics/marshaller/*`).
+- **Config expansion** — `provider_capabilities` section (enabled, cache_ttl) and `marshaller` section (strict, strip_unknown, detect_pii, populate_defaults, global_defaults).
+- **V215 test suite** — 30+ assertions.
+
+### Changed
+- Version bump: 214.0.0 → 215.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, README badge. Service count 419→421, command count 98→99.
+
 ## [213.0.0] - 2026-08-17
 
 ### Added
