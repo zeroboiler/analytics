@@ -13,6 +13,8 @@
 
 ### Changed
 - Version bump to 230.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, AnalyticsIntegrityCommand, AnalyticsServiceProvider).
+- **README metrics sync** — Updated badge: 29,500+ assertions / 479+ test files (actual: 29,502 expect() across 479 test files). Command count: 109 → 110. JS client: ~12,000 → ~14,300 LOC.
+- **README Configuration section** — Added `ANALYTICS_EVENT_ACTIONS_ENABLED` and `ANALYTICS_EVENT_ACTIONS_DEBUG` env variables.
 
 ## [229.0.0] - 2026-08-17
 
