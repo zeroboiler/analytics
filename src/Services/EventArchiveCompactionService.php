@@ -152,7 +152,6 @@ final class EventArchiveCompactionService
         $this->runResults = [];
         $startTime = microtime(true);
         $age = $maxAgeDays ?? $this->maxAgeDays;
-        $recommendations = [];
 
         foreach (self::ALL_STRATEGIES as $strategy) {
             $events = $this->strategyEvents[$strategy] ?? [];
@@ -165,7 +164,6 @@ final class EventArchiveCompactionService
             $this->runResults[] = $strategyResult;
         }
 
-        // Generate recommendations based on results
         $recommendations = $this->generateRecommendations();
 
         $durationMs = (microtime(true) - $startTime) * 1000;
@@ -575,7 +573,7 @@ final class EventArchiveCompactionService
             ];
         }
 
-        return array_slice($buckets, 0, min(count($buckets), $bucketCount));
+        return $buckets;
     }
 
     /**
@@ -658,7 +656,6 @@ final class EventArchiveCompactionService
     {
         $recommendations = [];
         $truncatedEvents = $this->strategyEvents[self::STRATEGY_TRUNCATE] ?? [];
-        $sampledEvents = $this->strategyEvents[self::STRATEGY_SAMPLE] ?? [];
 
         if (count($truncatedEvents) > 0) {
             $recommendations[] = sprintf(

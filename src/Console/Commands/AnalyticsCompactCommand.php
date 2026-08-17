@@ -54,7 +54,7 @@ final class AnalyticsCompactCommand extends Command
         if (! $service->isEnabled()) {
             $this->warn('Archive compaction is disabled in configuration.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         // Config mode
@@ -103,7 +103,7 @@ final class AnalyticsCompactCommand extends Command
             $estimate = $service->estimateSavings($maxAge);
             $this->displayEstimate($estimate);
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->info('Running full archive compaction...');
@@ -114,7 +114,7 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($report->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->displayReport($report);
@@ -141,7 +141,7 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->displayResult($result);
@@ -163,7 +163,7 @@ final class AnalyticsCompactCommand extends Command
         if (! in_array($strategy, EventArchiveCompactionService::ALL_STRATEGIES, true)) {
             $this->error("Invalid strategy: {$strategy}. Valid: " . implode(', ', EventArchiveCompactionService::ALL_STRATEGIES));
 
-            return 1;
+            return self::FAILURE;
         }
 
         $this->info("Compacting strategy: {$strategy}");
@@ -173,7 +173,7 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($result->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->displayResult($result);
@@ -195,7 +195,7 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($estimate, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->displayEstimate($estimate);
@@ -216,7 +216,7 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($stats, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->info('Archive Compaction Configuration');
@@ -263,13 +263,13 @@ final class AnalyticsCompactCommand extends Command
         if ($this->option('json')) {
             $this->line(json_encode($history, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            return 0;
+            return self::SUCCESS;
         }
 
         if ($history === []) {
             $this->info('No compaction history found.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         $this->info('Compaction History (last ' . count($history) . ' runs)');
