@@ -9492,4 +9492,56 @@ return [
         'growth_assumption' => (float) env('ANALYTICS_COST_GROWTH_ASSUMPTION', 1.0),
         'min_sample_days' => (int) env('ANALYTICS_COST_MIN_SAMPLE_DAYS', 3),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Natural Language Query Engine (v237.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Converts plain-language questions about analytics data into structured
+    | event queries. Uses a self-contained pattern-matching engine (no
+    | external AI API required). Optionally delegates to an LLM provider
+    | for complex queries when llm_fallback_enabled is true.
+    |
+    | Supports questions like:
+    |   - "How many page views last week?"
+    |   - "Show me top 10 purchases this month"
+    |   - "Signups by country compared to last month"
+    |   - "What is our conversion rate?"
+    |
+    */
+    'nl_query' => [
+        'enabled' => env('ANALYTICS_NL_QUERY_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_NL_QUERY_CACHE_TTL', 300),
+        'cache_prefix' => env('ANALYTICS_NL_QUERY_CACHE_PREFIX', 'zb_nlq_'),
+        'default_limit' => (int) env('ANALYTICS_NL_QUERY_DEFAULT_LIMIT', 20),
+        'max_limit' => (int) env('ANALYTICS_NL_QUERY_MAX_LIMIT', 1000),
+        'llm_fallback_enabled' => env('ANALYTICS_NL_QUERY_LLM_ENABLED', false),
+        'llm_provider' => env('ANALYTICS_NL_QUERY_LLM_PROVIDER', 'openai'),
+        'llm_model' => env('ANALYTICS_NL_QUERY_LLM_MODEL', 'gpt-4o-mini'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Geospatial Analytics (v237.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Geographic event aggregations and heatmap data generation.
+    | Uses event params enriched by GeolocationEnricher (country, region,
+    | city, timezone) as the primary data source.
+    |
+    | Provides:
+    | - Country/region/city/continent/timezone breakdowns
+    | - GeoJSON export for map visualizations
+    | - Geographic funnel analysis
+    | - Geo-based anomaly detection
+    |
+    */
+    'geospatial' => [
+        'enabled' => env('ANALYTICS_GEOSPATIAL_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_GEOSPATIAL_CACHE_TTL', 600),
+        'top_locations_limit' => (int) env('ANALYTICS_GEOSPATIAL_TOP_LIMIT', 20),
+        'heatmap_bucket_size' => (int) env('ANALYTICS_GEOSPATIAL_HEATMAP_BUCKET', 1),
+        'include_unknown' => env('ANALYTICS_GEOSPATIAL_INCLUDE_UNKNOWN', false),
+    ],
 ];

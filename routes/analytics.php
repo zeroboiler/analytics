@@ -1266,4 +1266,24 @@ Route::prefix('analytics')->group(function () {
     Route::get('semantic-metrics/validate', [AnalyticsEventController::class, 'semanticMetricsValidate']);
     Route::get('semantic-metrics/config', [AnalyticsEventController::class, 'semanticMetricsConfig']);
     Route::post('semantic-metrics/invalidate', [AnalyticsEventController::class, 'semanticMetricsInvalidate']);
+
+    // Natural Language Query Engine (v237.0.0)
+    Route::post('nl-query/ask', [AnalyticsEventController::class, 'nlQueryAsk']);
+    Route::post('nl-query/parse', [AnalyticsEventController::class, 'nlQueryParse']);
+    Route::get('nl-query/templates', [AnalyticsEventController::class, 'nlQueryTemplates']);
+    Route::get('nl-query/summary', [AnalyticsEventController::class, 'nlQuerySummary']);
+
+    // Geospatial Analytics (v237.0.0)
+    Route::get('geo/country', [AnalyticsEventController::class, 'geoCountry']);
+    Route::get('geo/region', [AnalyticsEventController::class, 'geoRegion']);
+    Route::get('geo/city', [AnalyticsEventController::class, 'geoCity']);
+    Route::get('geo/continent', [AnalyticsEventController::class, 'geoContinent']);
+    Route::get('geo/timezone', [AnalyticsEventController::class, 'geoTimezone']);
+    Route::get('geo/heatmap', [AnalyticsEventController::class, 'geoHeatmap']);
+    Route::get('geo/geojson', [AnalyticsEventController::class, 'geoGeoJson']);
+    Route::post('geo/funnel', [AnalyticsEventController::class, 'geoFunnel']);
+    Route::get('geo/anomalies', [AnalyticsEventController::class, 'geoAnomalies']);
+    Route::get('geo/compare', [AnalyticsEventController::class, 'geoCompare']);
+    Route::get('geo/coverage', [AnalyticsEventController::class, 'geoCoverage']);
+    Route::get('geo/summary', [AnalyticsEventController::class, 'geoSummary']);
 });
