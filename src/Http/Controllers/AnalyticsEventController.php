@@ -21640,4 +21640,118 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ─── Archive Compaction (v224.0.0) ─────────────────────────────────────
+
+    /**
+     * Run full archive compaction.
+     *
+     * POST /api/analytics/compact/run
+     * Body (optional): { "max_age_days": 30, "strategy": "aggregate" }
+     *
+     * @return JsonResponse
+     */
+    public function compactRun(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveCompactionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchiveCompactionService::class);
+
+            $data = $this->request()->json()->all();
+            $maxAge = isset($data['max_age_days']) ? (int) $data['max_age_days'] : null;
+
+            $report = $service->compact($maxAge);
+
+            return response()->json(['status' => 'ok', 'report' => $report->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compact a single event.
+     *
+     * POST /api/analytics/compact/event/{eventName}
+     * Body (optional): { "strategy": "aggregate", "max_age_days": 30 }
+     *
+     * @param  string  $eventName
+     * @return JsonResponse
+     */
+    public function compactEvent(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveCompactionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchiveCompactionService::class);
+
+            $data = $this->request()->json()->all();
+            $strategy = isset($data['strategy']) && is_string($data['strategy']) ? $data['strategy'] : null;
+            $maxAge = isset($data['max_age_days']) ? (int) $data['max_age_days'] : null;
+
+            $result = $service->compactEvent($eventName, $strategy, $maxAge);
+
+            return response()->json(['status' => 'ok', 'result' => $result->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Estimate compaction savings.
+     *
+     * GET /api/analytics/compact/estimate?max_age_days=30
+     *
+     * @return JsonResponse
+     */
+    public function compactEstimate(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveCompactionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchiveCompactionService::class);
+
+            $maxAge = $this->request()->query('max_age_days');
+            $estimate = $service->estimateSavings($maxAge !== null ? (int) $maxAge : null);
+
+            return response()->json(['status' => 'ok', 'estimate' => $estimate]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get compaction configuration.
+     *
+     * GET /api/analytics/compact/config
+     *
+     * @return JsonResponse
+     */
+    public function compactConfig(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveCompactionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchiveCompactionService::class);
+
+            return response()->json(['status' => 'ok', 'config' => $service->stats()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get compaction history.
+     *
+     * GET /api/analytics/compact/history
+     *
+     * @return JsonResponse
+     */
+    public function compactHistory(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\Services\EventArchiveCompactionService $service */
+            $service = app(\ZeroBoiler\Analytics\Services\EventArchiveCompactionService::class);
+
+            return response()->json(['status' => 'ok', 'history' => $service->getHistory()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

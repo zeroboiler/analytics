@@ -9261,6 +9261,46 @@ return [
     | decomposition used by Mixpanel and Amplitude.
     |
     */
+    /*
+    |-------------------------------------------------------------------------- 
+    | Event Archive Compaction (v224.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Reduces analytics archive storage cost by applying configurable
+    | compaction strategies to aged events. Supports 4 strategies:
+    |
+    | - aggregate: Collapses events into time-bucketed counts (best for
+    |   high-volume, low-value events like page_view, scroll_depth)
+    | - truncate: Removes old events entirely (irreversible)
+    | - sample: Keeps only N% of events via random sampling
+    | - expire: Removes events past per-event TTL overrides
+    |
+    | Each strategy has a configurable event list. Events exceeding
+    | max_age_days become candidates for compaction.
+    |
+    | Inspired by Segment Event Archiving, Amplitude Event Export/Delete,
+    | Snowflake Time Travel & Fail-Safe, and Datadog Metric Compression.
+    |
+    */
+    'archive_compaction' => [
+        'enabled' => env('ANALYTICS_ARCHIVE_COMPACTION_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_ARCHIVE_COMPACTION_CACHE_TTL', 86400), // 24 hours
+        'max_age_days' => (int) env('ANALYTICS_ARCHIVE_COMPACTION_MAX_AGE_DAYS', 30),
+        'sample_rate' => (float) env('ANALYTICS_ARCHIVE_COMPACTION_SAMPLE_RATE', 0.1),
+        'bytes_per_event' => (int) env('ANALYTICS_ARCHIVE_COMPACTION_BYTES_PER_EVENT', 512),
+        'aggregate_bucket_seconds' => (int) env('ANALYTICS_ARCHIVE_COMPACTION_BUCKET_SECONDS', 3600), // 1 hour
+        'strategy_events' => [
+            'aggregate' => ['page_view', 'scroll_depth', 'time_on_page', 'session_start', 'session_end'],
+            'truncate' => [],
+            'sample' => ['click', 'hover', 'element_visibility', 'copy_text', 'outbound_click'],
+            'expire' => ['consent_granted', 'consent_withdrawn', 'notification'],
+        ],
+        'event_ttl_overrides' => [
+            // 'session_start' => 7, // Expire session_start after 7 days
+            // 'consent_granted' => 90, // Expire consent events after 90 days
+        ],
+    ],
+
     'decomposition' => [
         'enabled' => env('ANALYTICS_DECOMPOSITION_ENABLED', true),
         'cache_ttl' => (int) env('ANALYTICS_DECOMPOSITION_CACHE_TTL', 1800), // 30 minutes

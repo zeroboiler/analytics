@@ -1230,4 +1230,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('drift/trend/{event}', [AnalyticsEventController::class, 'driftTrend']);
     Route::get('drift/plan/{event}', [AnalyticsEventController::class, 'driftPlan']);
     Route::post('drift/observe', [AnalyticsEventController::class, 'driftObserve']);
+
+    // Archive Compaction (v224.0.0)
+    Route::post('compact/run', [AnalyticsEventController::class, 'compactRun']);
+    Route::post('compact/event/{eventName}', [AnalyticsEventController::class, 'compactEvent']);
+    Route::get('compact/estimate', [AnalyticsEventController::class, 'compactEstimate']);
+    Route::get('compact/config', [AnalyticsEventController::class, 'compactConfig']);
+    Route::get('compact/history', [AnalyticsEventController::class, 'compactHistory']);
 });

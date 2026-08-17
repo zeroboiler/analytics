@@ -353,6 +353,7 @@ use ZeroBoiler\Analytics\Services\EventTimeSeriesDecompositionService;
 use ZeroBoiler\Analytics\Services\EventSemanticClassifierService;
 use ZeroBoiler\Analytics\Services\EventNamingConventionLinter;
 use ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService;
+use ZeroBoiler\Analytics\Services\EventArchiveCompactionService;
 use ZeroBoiler\Analytics\Services\EventClassificationService;
 use ZeroBoiler\Analytics\Services\AnalyticsFeatureFlagService;
 use ZeroBoiler\Analytics\Services\AnalyticsJourneyOrchestrator;
@@ -1229,6 +1230,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Schema Drift Detector & Migration Planner (v223.0.0)
         $this->app->singleton(EventSchemaDriftDetectorService::class, function (Application $app): EventSchemaDriftDetectorService {
             return new EventSchemaDriftDetectorService(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Event Archive Compaction Service (v224.0.0)
+        $this->app->singleton(EventArchiveCompactionService::class, function (Application $app): EventArchiveCompactionService {
+            return new EventArchiveCompactionService(
                 $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
@@ -4650,6 +4659,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
             ]));
         }
 
