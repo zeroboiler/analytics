@@ -9308,4 +9308,45 @@ return [
         'forecast_horizon' => (int) env('ANALYTICS_DECOMPOSITION_FORECAST_HORIZON', 1), // 1× period
         'confidence_width' => (float) env('ANALYTICS_DECOMPOSITION_CONFIDENCE_WIDTH', 1.96), // 95% CI
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event-Driven Actions (v230.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Register side-effect actions that execute when specific analytics events
+    | are dispatched. Actions are callable handlers (closures or invokable classes)
+    | matched by event name, glob pattern, or category prefix.
+    |
+    | Supported patterns:
+    | - Exact: 'purchase' → matches purchase event only
+    | - Glob: 'saas.*' → matches all SaaS events
+    | - Category: 'category:ecommerce' → matches all ecommerce events
+    |
+    | Config-driven actions use 'handler' as a class reference:
+    | - 'App\Actions\NotifyPurchase@handle' → [app(class), 'handle']
+    | - 'App\Actions\NotifyPurchase' → app(class) (invokable)
+    |
+    | Each action supports:
+    | - priority: execution order (lower = first)
+    | - cooldown: minimum seconds between executions
+    | - condition: param-based expression (e.g. 'param.revenue > 100')
+    | - metadata: arbitrary key-value pairs for observability
+    |
+    | Actions can also be registered programmatically via the
+    | EventActionRegistry singleton in ServiceProvider boot.
+    |
+    */
+    'event_actions' => [
+        'enabled' => env('ANALYTICS_EVENT_ACTIONS_ENABLED', false),
+        'debug' => env('ANALYTICS_EVENT_ACTIONS_DEBUG', false),
+        'actions' => [
+            // Example: Notify team on high-value purchases
+            // ['id' => 'notify_high_value', 'on' => 'purchase', 'handler' => \App\Actions\NotifyHighValuePurchase::class, 'priority' => 10, 'cooldown' => 300, 'condition' => 'param.value > 1000'],
+            // Example: Log all SaaS events
+            // ['id' => 'log_saas_events', 'on' => 'category:saas', 'handler' => \App\Actions\LogSaaSEvent::class, 'priority' => 100],
+            // Example: Welcome new users
+            // ['id' => 'welcome_user', 'on' => 'sign_up', 'handler' => \App\Actions\WelcomeNewUser::class, 'priority' => 50, 'cooldown' => 60],
+        ],
+    ],
 ];

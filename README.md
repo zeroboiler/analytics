@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-229.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-230.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/29000%2B%20assertions%20%2F%20477%2B%20test%20files-brightgreen)
 
@@ -57,6 +57,18 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v230.0.0
+
+**Event-Driven Action System — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventAction DTO** — Immutable readonly DTO for registered side-effect actions with pattern matching (exact, glob, category), param-based conditional expressions, priority ordering, cooldown tracking, and serialization.
+- **EventActionRegistry** — Central registry for event-driven actions. Config-driven (`zeroboiler.analytics.event_actions`) and programmatic registration. Dispatches matching actions with cooldown, condition, and priority awareness. Error isolation ensures actions never break the dispatch chain.
+- **AnalyticsEventActionsCommand** — `php artisan zb:analytics:event-actions list|show|test` CLI with `--json` output for CI/CD integration.
+- **API endpoints** — 5 REST endpoints: summary, list, detail, dry-run test, config status.
+- **V230 test suite** — 30+ assertions covering DTO matching, condition evaluation, registry lifecycle, dispatch priority, error isolation, file quality.
+- Version bump to 230.0.0 across all 6 version sources.
+
 
 ### What's New in v229.0.0
 

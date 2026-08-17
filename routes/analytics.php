@@ -1237,4 +1237,11 @@ Route::prefix('analytics')->group(function () {
     Route::get('compact/estimate', [AnalyticsEventController::class, 'compactEstimate']);
     Route::get('compact/config', [AnalyticsEventController::class, 'compactConfig']);
     Route::get('compact/history', [AnalyticsEventController::class, 'compactHistory']);
+
+    // Event-Driven Actions (v230.0.0)
+    Route::get('event-actions', [AnalyticsEventController::class, 'eventActionsSummary']);
+    Route::get('event-actions/list', [AnalyticsEventController::class, 'eventActionsList']);
+    Route::get('event-actions/{actionId}', [AnalyticsEventController::class, 'eventActionDetail']);
+    Route::get('event-actions/test/{eventName}', [AnalyticsEventController::class, 'eventActionsTest']);
+    Route::get('event-actions/config', [AnalyticsEventController::class, 'eventActionsConfig']);
 });

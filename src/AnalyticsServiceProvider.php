@@ -254,6 +254,8 @@ use ZeroBoiler\Analytics\Services\EventTaxonomyService;
 use ZeroBoiler\Analytics\Tracking\TenantAnalyticsContext;
 use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
+use ZeroBoiler\Analytics\EventActionRegistry;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventActionsCommand;
 use ZeroBoiler\Analytics\Services\RegionalConsentService;
 use ZeroBoiler\Analytics\Services\PLGScoringService;
 use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
@@ -497,7 +499,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 229.0.0
+ * @version 230.0.0
  *
  * @since 1.0.0
  */
@@ -4546,6 +4548,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 cache: $app->make(CacheRepository::class),
             );
         });
+
+        // Event Action Registry (v230.0.0) — event-driven side-effect actions
+        $this->app->singleton(EventActionRegistry::class, function (Application $app): EventActionRegistry {
+            return new EventActionRegistry(
+                config: $app->make(ConfigRepository::class),
+                cache: $app->make(CacheRepository::class),
+            );
+        });
     }
 
     /**
@@ -4662,6 +4672,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
+                AnalyticsEventActionsCommand::class,
             ]));
         }
 

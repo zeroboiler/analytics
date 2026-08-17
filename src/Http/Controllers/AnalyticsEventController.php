@@ -21754,4 +21754,147 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get event actions summary.
+     *
+     * GET /api/analytics/event-actions
+     *
+     * @return JsonResponse
+     *
+     * @since 230.0.0
+     */
+    public function eventActionsSummary(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\EventActionRegistry $registry */
+            $registry = app(\ZeroBoiler\Analytics\EventActionRegistry::class);
+
+            return response()->json(['status' => 'ok'] + $registry->summary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * List all registered event actions.
+     *
+     * GET /api/analytics/event-actions/list
+     *
+     * @return JsonResponse
+     *
+     * @since 230.0.0
+     */
+    public function eventActionsList(): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\EventActionRegistry $registry */
+            $registry = app(\ZeroBoiler\Analytics\EventActionRegistry::class);
+
+            $actions = [];
+            foreach ($registry->all() as $action) {
+                $actions[] = $action->toArray() + [
+                    'executions' => $registry->executionCount($action->id),
+                ];
+            }
+
+            return response()->json(['status' => 'ok', 'actions' => $actions, 'total' => $registry->count()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a specific event action by ID.
+     *
+     * GET /api/analytics/event-actions/{actionId}
+     *
+     * @return JsonResponse
+     *
+     * @since 230.0.0
+     */
+    public function eventActionDetail(string $actionId): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\EventActionRegistry $registry */
+            $registry = app(\ZeroBoiler\Analytics\EventActionRegistry::class);
+
+            $action = $registry->get($actionId);
+
+            if ($action === null) {
+                return response()->json(['status' => 'error', 'error' => "Action '{$actionId}' not found"], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'action' => $action->toArray(),
+                'executions' => $registry->executionCount($actionId),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Test event action matching for a specific event name (dry-run).
+     *
+     * GET /api/analytics/event-actions/test/{eventName}
+     *
+     * @return JsonResponse
+     *
+     * @since 230.0.0
+     */
+    public function eventActionsTest(string $eventName): JsonResponse
+    {
+        try {
+            /** @var \ZeroBoiler\Analytics\EventActionRegistry $registry */
+            $registry = app(\ZeroBoiler\Analytics\EventActionRegistry::class);
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(name: $eventName, params: []);
+            $matching = $registry->findMatchingActions($event);
+
+            $data = [];
+            foreach ($matching as $action) {
+                $data[] = $action->toArray() + [
+                    'condition_satisfied' => $action->conditionSatisfied($event),
+                ];
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'event' => $eventName,
+                'matching' => $data,
+                'total_matching' => count($matching),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get event actions configuration.
+     *
+     * GET /api/analytics/event-actions/config
+     *
+     * @return JsonResponse
+     *
+     * @since 230.0.0
+     */
+    public function eventActionsConfig(): JsonResponse
+    {
+        try {
+            $config = app('config')->get('zeroboiler.analytics.event_actions', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'config' => [
+                    'enabled' => $config['enabled'] ?? false,
+                    'debug' => $config['debug'] ?? false,
+                    'actions_count' => count($config['actions'] ?? []),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

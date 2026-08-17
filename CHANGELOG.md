@@ -1,5 +1,19 @@
 # Changelog
 
+## [230.0.0] - 2026-08-17
+
+### Added
+- **Event-Driven Action System** — Register side-effect callable actions that execute when specific analytics events are dispatched. Supports exact event name matching, glob pattern matching (`saas.*`), and category-level matching (`category:ecommerce`). Actions have priority ordering, per-action cooldown (cache-backed), and param-based conditional expressions (`param.value > 100`, `param.plan == "pro"`, with `&&` support).
+- **EventAction DTO** (`src/DTO/EventAction.php`) — Immutable readonly DTO with `matches()`, `conditionSatisfied()`, `toArray()` methods. Supports glob pattern conversion, dot-notation field resolution, and multi-operator comparisons (`==`, `!=`, `>`, `<`, `>=`, `<=`, `===`, `!==`).
+- **EventActionRegistry** (`src/EventActionRegistry.php`) — Central registry for event-driven actions. Config-driven registration (via `zeroboiler.analytics.event_actions`), programmatic API (`register()`, `unregister()`), `dispatch()` with cooldown/condition/priority-aware execution, `findMatchingActions()` for dry-run testing, `summary()` for observability.
+- **AnalyticsEventActionsCommand** (`zb:analytics:event-actions`) — CLI with 3 actions: `list` (all registered actions with execution counts), `show --id=X` (action detail), `test --event=X` (dry-run matching test). All support `--json` output.
+- **API endpoints** — 5 event-actions endpoints: `GET /api/analytics/event-actions` (summary), `GET /event-actions/list` (all actions), `GET /event-actions/{id}` (detail), `GET /event-actions/test/{eventName}` (dry-run), `GET /event-actions/config` (config status).
+- **Config expansion** — `zeroboiler.analytics.event_actions` section with 3 env-backed settings: enabled, debug, actions.
+- **V230 test suite** — 30+ assertions covering EventAction DTO (exact/glob/category matching, condition evaluation, numeric/equality/AND conditions, serialization), EventActionRegistry (register/unregister, find/dispatch, priority ordering, condition filtering, error isolation, disabled state, grouping, summary, execution counts, flush), file quality (strict_types, MIT headers, final classes, readonly, return types, @since 230.0.0, version consistency).
+
+### Changed
+- Version bump to 230.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, AnalyticsIntegrityCommand, AnalyticsServiceProvider).
+
 ## [229.0.0] - 2026-08-17
 
 ### Fixed
