@@ -472,6 +472,9 @@ use ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService;
 use ZeroBoiler\Analytics\Services\AnalyticsPipelineHealthService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSequenceValueCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineHealthCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsResilienceCommand;
+use ZeroBoiler\Analytics\Services\EventVolumeAnomalyDetectionService;
+use ZeroBoiler\Analytics\Services\ProviderResilienceService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -4424,6 +4427,23 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new LifecycleAttributionEnricher($config);
         });
+
+        // Event Volume Anomaly Detection (v214.0.0) — statistical volume anomaly detection
+        $this->app->singleton(EventVolumeAnomalyDetectionService::class, function (Application $app): EventVolumeAnomalyDetectionService {
+            return new EventVolumeAnomalyDetectionService(
+                $app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Provider Resilience — Circuit Breaker (v214.0.0) — automatic failover
+        $this->app->singleton(ProviderResilienceService::class, function (Application $app): ProviderResilienceService {
+            return new ProviderResilienceService(
+                $app->make(\Illuminate\Contracts\Cache\Repository::class),
+                $app->make(ConfigRepository::class),
+                $app->make(\ZeroBoiler\Analytics\AnalyticsManager::class),
+            );
+        });
     }
 
     /**
@@ -4528,6 +4548,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCopilotCommand::class,
                 AnalyticsSequenceValueCommand::class,
                 AnalyticsPipelineHealthCommand::class,
+                AnalyticsResilienceCommand::class,
             ]));
         }
 

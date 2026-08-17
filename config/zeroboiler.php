@@ -527,9 +527,65 @@ return [
         ],
 
         /*
-        |-------------------------------------------------------------------------- 
+        |--------------------------------------------------------------------------
+        | Event Volume Anomaly Detection (v214.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Statistical anomaly detection for event volume patterns using
+        | Z-score analysis over a sliding window. Detects sudden spikes,
+        | unexpected drops, and zero-to-active transitions that may
+        | indicate bugs, attacks, or infrastructure issues.
+        |
+        | Events are bucketed by fixed intervals (default: 60 seconds).
+        | Each dimension (global, per-category, per-event) maintains its own
+        | sliding window of configurable size (default: 60 buckets = 1 hour).
+        |
+        */
+        'anomaly_detection' => [
+            'enabled' => env('ANALYTICS_ANOMALY_DETECTION_ENABLED', true),
+            'window_size' => (int) env('ANALYTICS_ANOMALY_WINDOW_SIZE', 60),
+            'bucket_interval' => (int) env('ANALYTICS_ANOMALY_BUCKET_INTERVAL', 60), // seconds
+            'zscore_threshold' => (float) env('ANALYTICS_ANOMALY_ZSCORE_THRESHOLD', 2.5),
+            'min_data_points' => (int) env('ANALYTICS_ANOMALY_MIN_DATA_POINTS', 10),
+            'cache_ttl' => (int) env('ANALYTICS_ANOMALY_CACHE_TTL', 7200), // 2 hours
+            'log_anomalies' => env('ANALYTICS_ANOMALY_LOG_ENABLED', true),
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Provider Resilience — Circuit Breaker (v214.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Automatic failover between analytics providers using circuit breaker
+        | pattern. Each provider has an independent circuit breaker with three
+        | states: closed (healthy), open (unhealthy), and half-open (recovering).
+        |
+        | When a provider fails `failure_threshold` consecutive times, its circuit
+        | opens and events are re-routed to the next available provider in its
+        | fallback chain. After a cooldown period (exponential backoff), the
+        | circuit transitions to half-open for a single test event.
+        |
+        */
+        'provider_resilience' => [
+            'enabled' => env('ANALYTICS_PROVIDER_RESILIENCE_ENABLED', true),
+            'failure_threshold' => (int) env('ANALYTICS_PROVIDER_RESILIENCE_FAILURE_THRESHOLD', 3),
+            'base_cooldown' => (int) env('ANALYTICS_PROVIDER_RESILIENCE_COOLDOWN', 60), // seconds
+            'cooldown_multiplier' => (float) env('ANALYTICS_PROVIDER_RESILIENCE_COOLDOWN_MULTIPLIER', 2.0),
+            'max_cooldown' => (int) env('ANALYTICS_PROVIDER_RESILIENCE_MAX_COOLDOWN', 3600), // 1 hour
+            'failure_window' => (int) env('ANALYTICS_PROVIDER_RESILIENCE_FAILURE_WINDOW', 300), // seconds
+            'log_failures' => env('ANALYTICS_PROVIDER_RESILIENCE_LOG_ENABLED', true),
+            'cache_ttl' => (int) env('ANALYTICS_PROVIDER_RESILIENCE_CACHE_TTL', 7200),
+            'fallback_chains' => [
+                // Override default fallback chains per provider:
+                // 'ga4' => ['posthog', 'plausible', 'webhook'],
+                // 'meta_pixel' => ['ga4', 'posthog', 'webhook'],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Conversion Prediction (v193.0.0)
-        |-------------------------------------------------------------------------- 
+        |--------------------------------------------------------------------------
         |
         | Heuristic-based conversion probability estimation using behavioral
         | signal scoring. Predicts which users are most likely to convert
