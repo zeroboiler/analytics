@@ -48,7 +48,7 @@ final class EventPruningRecommendation
         public readonly ?int $suggestedSampleRate = null,
         public readonly string $priority = 'medium',
         public readonly array $alternatives = [],
-    ) {}
+    ): void  {}
 
     /**
      * Convert to array for API/CLI output.

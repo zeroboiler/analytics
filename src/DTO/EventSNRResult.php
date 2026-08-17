@@ -51,7 +51,7 @@ final class EventSNRResult
         public readonly float $snr,
         public readonly string $grade,
         public readonly string $verdict,
-    ) {}
+    ): void  {}
 
     /**
      * Convert to array for API/CLI output.

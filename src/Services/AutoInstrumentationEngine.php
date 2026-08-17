@@ -315,14 +315,14 @@ final class AutoInstrumentationEngine
     {
         /** @var array<string, string> $paramMap */
         $paramMap = [];
-        $modelConfig = $this->config['models'][get_class($model)] ?? [];
+        $modelConfig = $this->config['models'][$model::class] ?? [];
         $paramMap = $modelConfig['param_map'] ?? [];
 
         /** @var list<string> $excludeParams */
         $excludeParams = $modelConfig['exclude_params'] ?? ['password', 'password_hash', 'remember_token', 'two_factor_secret'];
 
         $params = [
-            '_model' => get_class($model),
+            '_model' => $model::class,
             '_model_event' => $eloquentEvent,
             '_model_id' => $model->getKey(),
         ];

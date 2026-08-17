@@ -327,7 +327,7 @@ final class AnalyticsWarmupCommand extends Command
      */
     private function displayCacheStats(CacheRepository $cache): void
     {
-        $this->check('  ✓ Cache store: ' . get_class($cache), true);
+        $this->check('  ✓ Cache store: ' . $cache::class, true);
 
         // Check for cached analytics data
         $prefixes = ['zb_', 'analytics_'];

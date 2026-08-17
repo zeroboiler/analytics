@@ -87,7 +87,7 @@ final class EventNamingConventionLinter
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {
+    )): void {
         $this->rules = $this->loadRules();
     }
 

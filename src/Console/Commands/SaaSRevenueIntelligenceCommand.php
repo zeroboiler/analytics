@@ -67,7 +67,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
 
     private ConfigRepository $config;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
     {
         parent::__construct();
         $this->manager = $manager;

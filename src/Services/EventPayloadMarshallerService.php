@@ -83,7 +83,7 @@ final class EventPayloadMarshallerService
         EventSchemaRegistry $schemaRegistry,
         EventFieldCoercer $coercer,
         ConfigRepository $config,
-    ) {
+    )): void {
         $this->schemaRegistry = $schemaRegistry;
         $this->coercer = $coercer;
         $marshallerConfig = $config->get('zeroboiler.analytics.marshaller', []);

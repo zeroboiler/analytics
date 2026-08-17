@@ -41,7 +41,7 @@ final class AnalyticsPipelineHealthCommand extends Command
 
     private AnalyticsPipelineHealthService $service;
 
-    public function __construct(AnalyticsPipelineHealthService $service)
+    public function __construct(AnalyticsPipelineHealthService $service): void
     {
         parent::__construct();
         $this->service = $service;

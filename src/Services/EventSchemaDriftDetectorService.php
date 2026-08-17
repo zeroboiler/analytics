@@ -73,7 +73,7 @@ final class EventSchemaDriftDetectorService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ) {
+    )): void {
         $driftConfig = $config->get('zeroboiler.analytics.schema_drift', []);
         /** @var array{max_history_entries?: int, min_sample_size?: int, drift_score_threshold?: float} $driftConfig */
 
