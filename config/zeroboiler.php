@@ -9435,4 +9435,61 @@ return [
             // ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Lineage Graph (v236.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Builds a Directed Acyclic Graph (DAG) from event lineage tracking data.
+    | Enables critical path analysis, bottleneck detection, and DOT/JSON
+    | export for visualization tools (Graphviz, D3.js, Cytoscape).
+    |
+    */
+    'event_lineage_graph' => [
+        'enabled' => env('ANALYTICS_LINEAGE_GRAPH_ENABLED', true),
+        'cache_prefix' => env('ANALYTICS_LINEAGE_GRAPH_CACHE_PREFIX', 'zb_lineage_graph_'),
+        'graph_ttl' => (int) env('ANALYTICS_LINEAGE_GRAPH_TTL', 3600),
+        'max_nodes' => (int) env('ANALYTICS_LINEAGE_GRAPH_MAX_NODES', 5000),
+        'max_edges' => (int) env('ANALYTICS_LINEAGE_GRAPH_MAX_EDGES', 20000),
+        'auto_build' => env('ANALYTICS_LINEAGE_GRAPH_AUTO_BUILD', false),
+        'track_critical_path' => env('ANALYTICS_LINEAGE_GRAPH_CRITICAL_PATH', true),
+        'bottleneck_threshold_ms' => (int) env('ANALYTICS_LINEAGE_GRAPH_BOTTLENECK_MS', 100),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Cost Projection (v236.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Forecasts analytics event costs by provider with budget projection,
+    | threshold alerts, and cost optimization recommendations.
+    |
+    */
+    'cost_projection' => [
+        'enabled' => env('ANALYTICS_COST_PROJECTION_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_COST_PROJECTION_CACHE_TTL', 300),
+        'rolling_window_days' => (int) env('ANALYTICS_COST_PROJECTION_WINDOW', 7),
+        'projection_days' => (int) env('ANALYTICS_COST_PROJECTION_DAYS', 30),
+        'cost_rates' => [
+            // Cost per 1000 events by provider ($)
+            'ga4' => (float) env('ANALYTICS_COST_RATE_GA4', 0.0),
+            'gtm' => (float) env('ANALYTICS_COST_RATE_GTM', 0.0),
+            'meta_pixel' => (float) env('ANALYTICS_COST_RATE_META', 0.0),
+            'plausible' => (float) env('ANALYTICS_COST_RATE_PLAUSIBLE', 0.25),
+            'posthog' => (float) env('ANALYTICS_COST_RATE_POSTHOG', 0.10),
+            'mixpanel' => (float) env('ANALYTICS_COST_RATE_MIXPANEL', 0.20),
+            'amplitude' => (float) env('ANALYTICS_COST_RATE_AMPLITUDE', 0.15),
+            'webhook' => (float) env('ANALYTICS_COST_RATE_WEBHOOK', 0.001),
+            'tiktok' => (float) env('ANALYTICS_COST_RATE_TIKTOK', 0.0),
+            'linkedin' => (float) env('ANALYTICS_COST_RATE_LINKEDIN', 0.0),
+            'default' => 0.0,
+        ],
+        'monthly_budget' => env('ANALYTICS_COST_MONTHLY_BUDGET') !== null
+            ? (float) env('ANALYTICS_COST_MONTHLY_BUDGET')
+            : null,
+        'alert_thresholds' => [50, 75, 90, 100],
+        'growth_assumption' => (float) env('ANALYTICS_COST_GROWTH_ASSUMPTION', 1.0),
+        'min_sample_days' => (int) env('ANALYTICS_COST_MIN_SAMPLE_DAYS', 3),
+    ],
 ];

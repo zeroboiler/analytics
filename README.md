@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-235.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-236.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/5300%2B%20test%20cases%20%2F%20486%2B%20test%20files-brightgreen)
 
@@ -57,6 +57,15 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v236.0.0
+
+**Event Data Lineage Graph + Cost Projection Engine — Industry-Standard SaaS Analytics Upgrade**:
+
+- **Event Data Lineage Graph Service** (`src/Services/EventLineageGraphService.php`) — Converts flat event lineage tracking data into a Directed Acyclic Graph (DAG) with: topological sort (Kahn's algorithm), critical path analysis (longest latency path via dynamic programming), bottleneck detection (configurable threshold), DOT format export (Graphviz), JSON export (D3.js/Cytoscape compatible), subgraph extraction by stage type, cycle detection (DFS), aggregate multi-event graph construction with averaged latency stats, and cache-backed graph persistence. ~570 LOC, 20+ methods.
+- **Event Cost Projection Engine** (`src/Services/EventCostProjectionService.php`) — Forecasts analytics event costs by provider with: rolling window volume extrapolation, configurable per-event cost rates (10 providers), monthly budget projection with growth assumption, multi-tier threshold alerts (50%/75%/90%/100%), cost efficiency scoring (events per dollar), provider cost comparison/ranking, cost optimization recommendations (high-cost provider identification, consolidation suggestions, growth impact warnings), and cache-backed projection with daily invalidation. ~480 LOC, 15+ methods.
+- **Config expansion** — Added `event_lineage_graph` (8 settings) and `cost_projection` (8 settings + 10 provider cost rate env vars) sections to `config/zeroboiler.php`.
+- **Version bump to 236.0.0** across all version entry points.
 
 ### What's New in v235.0.0
 
