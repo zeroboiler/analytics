@@ -1244,4 +1244,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('event-actions/{actionId}', [AnalyticsEventController::class, 'eventActionDetail']);
     Route::get('event-actions/test/{eventName}', [AnalyticsEventController::class, 'eventActionsTest']);
     Route::get('event-actions/config', [AnalyticsEventController::class, 'eventActionsConfig']);
+
+    // Event Property Type Validation (v231.0.0)
+    Route::get('property-validation/config', [AnalyticsEventController::class, 'propertyValidationConfig']);
+    Route::post('property-validation/validate', [AnalyticsEventController::class, 'propertyValidationValidate']);
+    Route::post('property-validation/validate-event', [AnalyticsEventController::class, 'propertyValidationValidateEvent']);
+
+    // Event Query Builder (v231.0.0)
+    Route::post('query', [AnalyticsEventController::class, 'eventQuery']);
+    Route::get('query/schema', [AnalyticsEventController::class, 'eventQuerySchema']);
 });

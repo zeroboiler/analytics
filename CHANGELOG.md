@@ -1,5 +1,20 @@
 # Changelog
 
+## [231.0.0] - 2026-08-17
+
+### Added
+- **EventPropertyTypeValidator** (`src/Services/EventPropertyTypeValidator.php`) — Runtime type-safety validation for event parameters against EventSchemaRegistry schemas. Validates types, required fields, ranges, string lengths, key naming, and max param count. Provides structured diagnostics with error codes (missing_required, type_mismatch, range_violation, length_exceeded, unknown_param, no_schema, invalid_param_key) and severity levels (error, warning, info).
+- **PropertyViolation DTO** (`src/Services/PropertyViolation.php`) — Immutable readonly DTO for individual validation violations with code, message, severity, param, expected/actual type. toArray/fromArray round-trip support.
+- **PropertyValidationResult DTO** (`src/Services/PropertyValidationResult.php`) — Immutable readonly DTO for complete validation results with passed(), failed(), violationCount(), warningCount(), hasTypeMismatches(), hasMissingRequired(), violationsForParam(), errorsOnly() convenience methods.
+- **EventQueryBuilder** (`src/Services/EventQueryBuilder.php`) — Fluent query builder for analytics event searches. Supports name, category, param, clientId, userId, since/until, source, priority, sessionId filters with orderBy, limit, offset, withSchema options. Integrates with DatabaseEventStore.
+- **Config expansion** — `property_validation` section (7 env-backed settings) and `event_query` section (5 env-backed settings).
+- **API endpoints** — 5 new REST endpoints: GET property-validation/config, POST property-validation/validate, POST property-validation/validate-event, POST query, GET query/schema.
+- **ServiceProvider registration** — EventPropertyTypeValidator registered as singleton.
+- **V231 test suite** — 60+ assertions.
+
+### Changed
+- Version bump to 231.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, README badge).
+
 ## [230.0.0] - 2026-08-17
 
 ### Added

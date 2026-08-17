@@ -378,6 +378,7 @@ use ZeroBoiler\Analytics\Services\CustomerProfileUnificationService;
 use ZeroBoiler\Analytics\Services\ComputedTraitsService;
 use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
 use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
+use ZeroBoiler\Analytics\Services\EventPropertyTypeValidator;
 use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
 use ZeroBoiler\Analytics\Services\OTLPExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
@@ -499,7 +500,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 230.0.0
+ * @version 231.0.0
  *
  * @since 1.0.0
  */
@@ -1480,6 +1481,25 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventDebugCaptureService(
                 cache: $app->make('cache'),
                 config: $app->make(ConfigRepository::class),
+            );
+        });
+
+        // v231.0.0 — Event Property Type Validator
+        $this->app->singleton(EventPropertyTypeValidator::class, function (Application $app): EventPropertyTypeValidator {
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            /** @var EventSchemaRegistry $schemaRegistry */
+            $schemaRegistry = $app->make(EventSchemaRegistry::class);
+            $pvConfig = $config->get('zeroboiler.analytics.property_validation', []);
+
+            return new EventPropertyTypeValidator(
+                schemaRegistry: $schemaRegistry,
+                strictTypes: (bool) ($pvConfig['strict_types'] ?? false),
+                allowUnknownParams: (bool) ($pvConfig['allow_unknown_params'] ?? true),
+                enforceRequired: (bool) ($pvConfig['enforce_required'] ?? true),
+                maxParamCount: (int) ($pvConfig['max_param_count'] ?? 100),
+                maxKeyLength: (int) ($pvConfig['max_key_length'] ?? 100),
+                maxStringLength: (int) ($pvConfig['max_string_length'] ?? 4096),
             );
         });
 

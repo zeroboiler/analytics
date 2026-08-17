@@ -9337,6 +9337,53 @@ return [
     | EventActionRegistry singleton in ServiceProvider boot.
     |
     */
+    /*
+    |--------------------------------------------------------------------------
+    | Event Property Type Validation (v231.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Runtime type-safety validation for event parameters against registered
+    | schemas in EventSchemaRegistry. Validates parameter types, required fields,
+    | numeric ranges, string lengths, and key naming conventions.
+    |
+    | - enabled: Master switch for property type validation
+    | - strict_types: If true, reject events with any type mismatch (vs warn-only)
+    | - allow_unknown_params: Allow params not defined in schema (warning only)
+    | - enforce_required: Fail validation on missing required parameters
+    | - max_param_count: Maximum parameters allowed per event
+    | - max_key_length: Maximum parameter key length
+    | - max_string_length: Global string value length cap
+    |
+    | Used by EventPropertyTypeValidator in the validation pipeline.
+    |
+    */
+    'property_validation' => [
+        'enabled' => env('ANALYTICS_PROPERTY_VALIDATION_ENABLED', false),
+        'strict_types' => env('ANALYTICS_PROPERTY_VALIDATION_STRICT', false),
+        'allow_unknown_params' => env('ANALYTICS_PROPERTY_VALIDATION_UNKNOWN_PARAMS', true),
+        'enforce_required' => env('ANALYTICS_PROPERTY_VALIDATION_REQUIRED', true),
+        'max_param_count' => (int) env('ANALYTICS_PROPERTY_VALIDATION_MAX_PARAMS', 100),
+        'max_key_length' => (int) env('ANALYTICS_PROPERTY_VALIDATION_MAX_KEY_LENGTH', 100),
+        'max_string_length' => (int) env('ANALYTICS_PROPERTY_VALIDATION_MAX_STRING', 4096),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Query Builder (v231.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the fluent EventQueryBuilder API.
+    | Controls default limits, allowed sort fields, and query behavior.
+    |
+    */
+    'event_query' => [
+        'default_limit' => (int) env('ANALYTICS_EVENT_QUERY_LIMIT', 100),
+        'max_limit' => (int) env('ANALYTICS_EVENT_QUERY_MAX_LIMIT', 10000),
+        'allowed_sort_fields' => ['timestamp', 'name', 'category', 'priority'],
+        'cache_results' => env('ANALYTICS_EVENT_QUERY_CACHE', false),
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_QUERY_CACHE_TTL', 300),
+    ],
+
     'event_actions' => [
         'enabled' => env('ANALYTICS_EVENT_ACTIONS_ENABLED', false),
         'debug' => env('ANALYTICS_EVENT_ACTIONS_DEBUG', false),

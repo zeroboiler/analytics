@@ -21897,4 +21897,276 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Property Type Validation (v231.0.0)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get property validation configuration.
+     *
+     * GET /api/analytics/property-validation/config
+     *
+     * @since 231.0.0
+     */
+    public function propertyValidationConfig(): JsonResponse
+    {
+        try {
+            $config = app('config')->get('zeroboiler.analytics.property_validation', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'config' => [
+                    'enabled' => $config['enabled'] ?? false,
+                    'strict_types' => $config['strict_types'] ?? false,
+                    'allow_unknown_params' => $config['allow_unknown_params'] ?? true,
+                    'enforce_required' => $config['enforce_required'] ?? true,
+                    'max_param_count' => $config['max_param_count'] ?? 100,
+                    'max_key_length' => $config['max_key_length'] ?? 100,
+                    'max_string_length' => $config['max_string_length'] ?? 4096,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate raw event params against a named event schema.
+     *
+     * POST /api/analytics/property-validation/validate
+     * Body: { "event_name": "purchase", "params": { "transaction_id": "TXN-1", "value": "not_a_number" } }
+     *
+     * @since 231.0.0
+     */
+    public function propertyValidationValidate(Request $request): JsonResponse
+    {
+        try {
+            /** @var array{event_name?: string, params?: array<string, mixed>} $input */
+            $input = $request->json()->all();
+            $eventName = is_string($input['event_name'] ?? null) ? $input['event_name'] : '';
+            $params = is_array($input['params'] ?? null) ? $input['params'] : [];
+
+            if ($eventName === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'event_name is required and must be a non-empty string.',
+                ], 422);
+            }
+
+            /** @var \ZeroBoiler\Analytics\Services\EventPropertyTypeValidator $validator */
+            $validator = app(\ZeroBoiler\Analytics\Services\EventPropertyTypeValidator::class);
+            $result = $validator->validateParams($eventName, $params);
+
+            return response()->json([
+                'status' => 'ok',
+                'event_name' => $eventName,
+                'valid' => $result->passed(),
+                'violation_count' => $result->violationCount(),
+                'warning_count' => $result->warningCount(),
+                'violations' => array_map(
+                    fn (\ZeroBoiler\Analytics\Services\PropertyViolation $v): array => $v->toArray(),
+                    $result->violations,
+                ),
+                'warnings' => array_map(
+                    fn (\ZeroBoiler\Analytics\Services\PropertyViolation $v): array => $v->toArray(),
+                    $result->warnings,
+                ),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate a full AnalyticsEvent DTO against its schema.
+     *
+     * POST /api/analytics/property-validation/validate-event
+     * Body: { "name": "purchase", "params": {...}, "client_id": "...", "user_id": "..." }
+     *
+     * @since 231.0.0
+     */
+    public function propertyValidationValidateEvent(Request $request): JsonResponse
+    {
+        try {
+            /** @var array{name?: string, params?: array<string, mixed>, client_id?: string, user_id?: string} $input */
+            $input = $request->json()->all();
+            $eventName = is_string($input['name'] ?? null) ? $input['name'] : '';
+            $params = is_array($input['params'] ?? null) ? $input['params'] : [];
+            $clientId = isset($input['client_id']) && is_string($input['client_id']) ? $input['client_id'] : null;
+            $userId = isset($input['user_id']) && is_string($input['user_id']) ? $input['user_id'] : null;
+
+            if ($eventName === '') {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => 'name is required and must be a non-empty string.',
+                ], 422);
+            }
+
+            $event = new \ZeroBoiler\Analytics\DTO\AnalyticsEvent(
+                name: $eventName,
+                params: $params,
+                clientId: $clientId,
+                userId: $userId,
+            );
+
+            /** @var \ZeroBoiler\Analytics\Services\EventPropertyTypeValidator $validator */
+            $validator = app(\ZeroBoiler\Analytics\Services\EventPropertyTypeValidator::class);
+            $result = $validator->validate($event);
+
+            return response()->json([
+                'status' => 'ok',
+                'validation' => $result->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Query Builder (v231.0.0)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Execute a fluent event query.
+     *
+     * POST /api/analytics/query
+     * Body: { "event_name": "purchase", "category": "ecommerce", "params": {...}, "since": "...", "until": "...", "limit": 50, "offset": 0 }
+     *
+     * @since 231.0.0
+     */
+    public function eventQuery(Request $request): JsonResponse
+    {
+        try {
+            /** @var array<string, mixed> $input */
+            $input = $request->json()->all();
+
+            $builder = \ZeroBoiler\Analytics\Services\EventQueryBuilder::make();
+
+            if (isset($input['event_name']) && (is_string($input['event_name']) || is_array($input['event_name']))) {
+                $builder->name($input['event_name']);
+            }
+
+            if (isset($input['category']) && (is_string($input['category']) || is_array($input['category']))) {
+                $builder->category($input['category']);
+            }
+
+            if (isset($input['params']) && is_array($input['params'])) {
+                foreach ($input['params'] as $key => $value) {
+                    $builder->param((string) $key, $value);
+                }
+            }
+
+            if (isset($input['client_id']) && is_string($input['client_id'])) {
+                $builder->clientId($input['client_id']);
+            }
+
+            if (isset($input['user_id']) && is_string($input['user_id'])) {
+                $builder->userId($input['user_id']);
+            }
+
+            if (isset($input['since']) && is_string($input['since'])) {
+                $since = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $input['since']);
+                if ($since !== false) {
+                    $builder->since($since);
+                }
+            }
+
+            if (isset($input['until']) && is_string($input['until'])) {
+                $until = \DateTimeImmutable::createFromFormat(\DateTimeInterface::ATOM, $input['until']);
+                if ($until !== false) {
+                    $builder->until($until);
+                }
+            }
+
+            if (isset($input['source']) && is_string($input['source'])) {
+                $builder->source($input['source']);
+            }
+
+            if (isset($input['priority']) && is_string($input['priority'])) {
+                $builder->priority($input['priority']);
+            }
+
+            if (isset($input['session_id']) && is_string($input['session_id'])) {
+                $builder->sessionId($input['session_id']);
+            }
+
+            if (isset($input['order_by']) && is_string($input['order_by'])) {
+                $direction = is_string($input['order_direction'] ?? null) && strtolower($input['order_direction']) === 'asc' ? 'asc' : 'desc';
+                $builder->orderBy($input['order_by'], $direction);
+            }
+
+            if (isset($input['limit']) && is_numeric($input['limit'])) {
+                $builder->limit((int) $input['limit']);
+            }
+
+            if (isset($input['offset']) && is_numeric($input['offset'])) {
+                $builder->offset((int) $input['offset']);
+            }
+
+            if (isset($input['with_schema']) && (bool) $input['with_schema']) {
+                $builder->withSchema();
+            }
+
+            $result = $builder->get();
+
+            return response()->json([
+                'status' => 'ok',
+                ...$result,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get the event query schema for API documentation.
+     *
+     * GET /api/analytics/query/schema
+     *
+     * @since 231.0.0
+     */
+    public function eventQuerySchema(): JsonResponse
+    {
+        try {
+            $config = app('config')->get('zeroboiler.analytics.event_query', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'schema' => [
+                    'description' => 'Fluent event query builder for analytics event searches.',
+                    'filters' => [
+                        'event_name' => ['type' => 'string|array', 'description' => 'Exact event name or list of names'],
+                        'category' => ['type' => 'string|array', 'description' => 'Event category filter (ecommerce, saas, engagement, etc.)'],
+                        'params' => ['type' => 'object', 'description' => 'Exact-match parameter filters'],
+                        'client_id' => ['type' => 'string', 'description' => 'Filter by client ID'],
+                        'user_id' => ['type' => 'string', 'description' => 'Filter by user ID'],
+                        'since' => ['type' => 'string', 'format' => 'ISO 8601', 'description' => 'Start timestamp (inclusive)'],
+                        'until' => ['type' => 'string', 'format' => 'ISO 8601', 'description' => 'End timestamp (inclusive)'],
+                        'source' => ['type' => 'string', 'description' => 'Event source filter (api, server, client, webhook, replay, batch)'],
+                        'priority' => ['type' => 'string', 'description' => 'Event priority filter (critical, normal, low, background)'],
+                        'session_id' => ['type' => 'string', 'description' => 'Filter by session ID'],
+                    ],
+                    'options' => [
+                        'order_by' => ['type' => 'string', 'default' => 'timestamp'],
+                        'order_direction' => ['type' => 'string', 'enum' => ['asc', 'desc'], 'default' => 'desc'],
+                        'limit' => ['type' => 'integer', 'default' => $config['default_limit'] ?? 100, 'max' => $config['max_limit'] ?? 10000],
+                        'offset' => ['type' => 'integer', 'default' => 0],
+                        'with_schema' => ['type' => 'boolean', 'default' => false],
+                    ],
+                    'config' => [
+                        'default_limit' => $config['default_limit'] ?? 100,
+                        'max_limit' => $config['max_limit'] ?? 10000,
+                        'allowed_sort_fields' => $config['allowed_sort_fields'] ?? ['timestamp', 'name', 'category', 'priority'],
+                    ],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

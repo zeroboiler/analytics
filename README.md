@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-230.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-231.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/29500%2B%20assertions%20%2F%20479%2B%20test%20files-brightgreen)
 
@@ -57,6 +57,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v231.0.0
+
+**Event Property Type Validator + Event Query Builder — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventPropertyTypeValidator** — Runtime type-safety validation for event parameters against registered EventSchemaRegistry schemas. Validates parameter types (string/int/float/bool/array), required fields, numeric range constraints, string length enforcement, parameter key naming conventions, and max parameter count. Provides structured diagnostics with machine-readable error codes, severity levels, and per-parameter violation details. Inspired by Segment's Event Validation API, PostHog's event property types, and Mixpanel's event schema enforcement.
+- **PropertyViolation DTO** — Immutable readonly DTO for individual validation violations. Includes error code, message, severity (error/warning/info), affected parameter name, and expected/actual type information. Supports toArray/fromArray round-trip serialization.
+- **PropertyValidationResult DTO** — Immutable readonly DTO for complete validation results. Contains event name, validity flag, violations list (blocking), and warnings list (non-blocking). Provides convenience methods: passed(), failed(), hasTypeMismatches(), hasMissingRequired(), violationsForParam(), errorsOnly(). Supports toArray/fromArray round-trip.
+- **EventQueryBuilder** — Fluent query builder for analytics event searches with chainable API. Supports filtering by event name, category, params, clientId, userId, source, priority, sessionId, time range (since/until), and comparison operators. Includes ordering, pagination (limit/offset), schema enrichment, and count/first helpers. Integrates with DatabaseEventStore for query execution.
+- **Config expansion** — New `property_validation` section (7 env-backed settings: enabled, strict_types, allow_unknown_params, enforce_required, max_param_count, max_key_length, max_string_length) and `event_query` section (5 settings: default_limit, max_limit, allowed_sort_fields, cache_results, cache_ttl).
+- **API endpoints** — 5 new REST endpoints: GET/POST property-validation/config, property-validation/validate, property-validation/validate-event, POST query, GET query/schema.
+- **ServiceProvider registration** — EventPropertyTypeValidator registered as singleton with config-driven options.
+- **V231 test suite** — 60+ assertions covering: file quality (strict_types, MIT header, final, @since 231.0.0), DTO construction, serialization round-trips, severity classification, result filtering, validator creation modes, schema validation (with/without schema), param count enforcement, single param validation, type mismatch/range violation detection, query builder fluent chaining, filter combinations, limit/offset clamping, get/count/first execution, toFilters serialization, config section presence, ServiceProvider registration, route registration, namespace correctness.
 
 ### What's New in v230.0.0
 
