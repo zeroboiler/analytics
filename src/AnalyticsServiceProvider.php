@@ -495,6 +495,9 @@ use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogVersionCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGlossaryCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickDeployCommand;
+use ZeroBoiler\Analytics\Services\EventCatalogSemVerService;
+use ZeroBoiler\Analytics\Services\CustomerHealthScoreService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDriftCommand;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
 
@@ -504,7 +507,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 236.0.0
+ * @version 240.0.0
  *
  * @since 1.0.0
  */
@@ -4713,8 +4716,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCapabilityCommand::class,
                 AnalyticsCatalogVersionCommand::class,
                 AnalyticsGlossaryCommand::class,
+                AnalyticsSaaSQuickDeployCommand::class,
                 AnalyticsDriftCommand::class,
-                \ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand::class,
+                \\ZeroBoiler\\Analytics\\Console\\Commands\\AnalyticsROICommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,

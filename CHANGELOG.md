@@ -1,5 +1,18 @@
 # Changelog
 
+## [240.0.0] - 2026-08-17
+
+### Added
+- **Event Catalog SemVer Service** (`src/Services/EventCatalogSemVerService.php`) — Semantic versioning for the event catalog schema. Tracks catalog changes with MAJOR (events removed/renamed), MINOR (new events), PATCH (metadata changes). Cache-backed with history tracking, diff comparison, and deterministic hash computation.
+- **Customer Health Score Service** (`src/Services/CustomerHealthScoreService.php`) — Composite 0-100 health score with 5 weighted signal dimensions: Engagement (30%), Revenue (25%), Retention (20%), Support (15%), Growth (10%). 5-tier grading (Critical → Thriving), batch computation, distribution analysis, cache-backed per customer. Inspired by Gainsight, Totango, HubSpot health scoring.
+- **SaaS Quick Deploy Command** (`src/Console/Commands/AnalyticsSaaSQuickDeployCommand.php`) — `zb:analytics:saas:deploy-check` one-command SaaS deployment readiness validator. 14 checks across provider config, catalog coverage, lifecycle, queue, API, identity, consent, KPI, health score, SemVer, auto-track, ecommerce, Inertia, SDK. Outputs readiness score with grade (A-F) and gap list. JSON output for CI/CD pipeline gates.
+- **v240 Production Readiness Test** (`tests/V240/V240SaaSQuickDeploySemVerHealthScoreTest.php`) — 20+ assertions covering EventCatalogSemVerService (version format, summary fields, diff detection, invalidation, history tracking, clearHistory), CustomerHealthScoreService (score computation, critical detection, thriving detection, batch, distribution, tier definitions, default weights, caching, invalidation, empty signals), and integration coexistence checks.
+- **ServiceProvider registration** — EventCatalogSemVerService, CustomerHealthScoreService singletons + AnalyticsSaaSQuickDeployCommand.
+
+### Changed
+- Version bump to 240.0.0 (composer.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider @version, README badge).
+- README: Updated service count (442), command count (114), test badge (5,400+ / 487+), added 3 new features to feature list.
+
 ## [234.0.0] - 2026-08-17
 
 ### Added
