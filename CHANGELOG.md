@@ -1,5 +1,21 @@
 # Changelog
 
+## [233.0.0] - 2026-08-17
+
+### Added
+- **MetricDefinition DTO** (`src/DTO/MetricDefinition.php`) — Formal metric definition with 8 aggregation types (count, sum, avg, max, min, unique_count, percentile, ratio). Factory methods, dimensional breakdowns, validation, derived detection, serialization round-trips.
+- **MetricComputationResult DTO** (`src/DTO/MetricComputationResult.php`) — Computation result with value, comparison, breakdowns, time series, formatting. Factory methods and `withComparison()`.
+- **MetricComputationRequest DTO** (`src/DTO/MetricComputationRequest.php`) — Computation request with time range, granularity, dimensions, filters, tenant scoping, cache key.
+- **AnalyticsSemanticMetricsService** (`src/Services/AnalyticsSemanticMetricsService.php`) — Semantic metrics engine with 30+ built-in SaaS metrics across 6 categories. Registration, batch computation, derived ratio metrics, dimensional breakdowns, time series, comparison, caching, validation.
+- **AnalyticsSemanticMetricsCommand** (`src/Console/Commands/AnalyticsSemanticMetricsCommand.php`) — `zb:analytics:semantic-metrics` CLI with 8 actions (list, show, compute, summary, validate, categories, types, derived) and 10 options.
+- **API endpoints** — 11 REST endpoints under `semantic-metrics/` for summary, list, detail, compute, batch compute, categories, types, derived, validate, config, invalidate.
+- **Config expansion** — `semantic_metrics` section (3 env-backed settings: `ANALYTICS_SEMANTIC_METRICS_ENABLED`, `ANALYTICS_SEMANTIC_METRICS_CACHE_ENABLED`, `ANALYTICS_SEMANTIC_METRICS_CACHE_TTL`) + `custom_metrics` registration.
+- **ServiceProvider registration** — AnalyticsSemanticMetricsService singleton + AnalyticsSemanticMetricsCommand.
+- **Phase 58 test suite** — 50+ assertions covering DTOs, service, command, routes, config, version consistency.
+
+### Changed
+- Version bump to 233.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, README badge).
+
 ## [232.0.0] - 2026-08-17
 
 ### Added

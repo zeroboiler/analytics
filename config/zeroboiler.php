@@ -9416,4 +9416,23 @@ return [
             // ['id' => 'welcome_user', 'on' => 'sign_up', 'handler' => \App\Actions\WelcomeNewUser::class, 'priority' => 50, 'cooldown' => 60],
         ],
     ],
+
+    'semantic_metrics' => [
+        'enabled' => env('ANALYTICS_SEMANTIC_METRICS_ENABLED', true),
+        'cache_enabled' => env('ANALYTICS_SEMANTIC_METRICS_CACHE_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_SEMANTIC_METRICS_CACHE_TTL', 300),
+        'custom_metrics' => [
+            // Register custom metric definitions:
+            // 'custom_conversion_rate' => [
+            //     'name' => 'custom_conversion_rate',
+            //     'label' => 'Custom Conversion Rate',
+            //     'description' => 'Custom business metric',
+            //     'type' => 'ratio',
+            //     'ratio_numerator' => 'subscriptions_created',
+            //     'ratio_denominator' => 'signups',
+            //     'category' => 'growth',
+            //     'unit' => 'percentage',
+            // ],
+        ],
+    ],
 ];

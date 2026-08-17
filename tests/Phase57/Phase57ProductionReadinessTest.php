@@ -578,21 +578,21 @@ final class Phase57ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     public function analytics_event_version_is_current(): void
     {
         $version = AnalyticsEvent::VERSION;
-        self::assertSame('232.0.0', $version, 'AnalyticsEvent::VERSION must be 232.0.0');
+        self::assertSame('233.0.0', $version, 'AnalyticsEvent::VERSION must be 233.0.0');
     }
 
     #[Test]
     public function readme_version_matches(): void
     {
         $readme = file_get_contents(__DIR__ . '/../../README.md');
-        self::assertStringContainsString('232.0.0', $readme, 'README must reference version 232.0.0');
+        self::assertStringContainsString('233.0.0', $readme, 'README must reference version 233.0.0');
     }
 
     #[Test]
     public function changelog_has_latest_version(): void
     {
         $changelog = file_get_contents(__DIR__ . '/../../CHANGELOG.md');
-        self::assertStringContainsString('232.0.0', $changelog, 'CHANGELOG must reference version 232.0.0');
+        self::assertStringContainsString('233.0.0', $changelog, 'CHANGELOG must reference version 233.0.0');
     }
 
     #[Test]
@@ -600,7 +600,7 @@ final class Phase57ProductionReadinessTest extends \PHPUnit\Framework\TestCase
     {
         $composer = json_decode(file_get_contents(__DIR__ . '/../../composer.json'), true);
         self::assertArrayHasKey('version', $composer, 'composer.json must have version key');
-        self::assertSame('232.0.0', $composer['version'], 'composer.json version must be 232.0.0');
+        self::assertSame('233.0.0', $composer['version'], 'composer.json version must be 233.0.0');
     }
 
     #[Test]

@@ -1253,4 +1253,17 @@ Route::prefix('analytics')->group(function () {
     // Event Query Builder (v231.0.0)
     Route::post('query', [AnalyticsEventController::class, 'eventQuery']);
     Route::get('query/schema', [AnalyticsEventController::class, 'eventQuerySchema']);
+
+    // Semantic Metrics Layer (v233.0.0)
+    Route::get('semantic-metrics', [AnalyticsEventController::class, 'semanticMetricsSummary']);
+    Route::get('semantic-metrics/list', [AnalyticsEventController::class, 'semanticMetricsList']);
+    Route::get('semantic-metrics/{metricName}', [AnalyticsEventController::class, 'semanticMetricsShow']);
+    Route::post('semantic-metrics/compute', [AnalyticsEventController::class, 'semanticMetricsCompute']);
+    Route::post('semantic-metrics/compute-batch', [AnalyticsEventController::class, 'semanticMetricsComputeBatch']);
+    Route::get('semantic-metrics/categories', [AnalyticsEventController::class, 'semanticMetricsCategories']);
+    Route::get('semantic-metrics/types', [AnalyticsEventController::class, 'semanticMetricsTypes']);
+    Route::get('semantic-metrics/derived', [AnalyticsEventController::class, 'semanticMetricsDerived']);
+    Route::get('semantic-metrics/validate', [AnalyticsEventController::class, 'semanticMetricsValidate']);
+    Route::get('semantic-metrics/config', [AnalyticsEventController::class, 'semanticMetricsConfig']);
+    Route::post('semantic-metrics/invalidate', [AnalyticsEventController::class, 'semanticMetricsInvalidate']);
 });

@@ -256,6 +256,7 @@ use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\EventActionRegistry;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventActionsCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSemanticMetricsCommand;
 use ZeroBoiler\Analytics\Services\RegionalConsentService;
 use ZeroBoiler\Analytics\Services\PLGScoringService;
 use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
@@ -380,6 +381,8 @@ use ZeroBoiler\Analytics\Services\PrivacyReportGeneratorService;
 use ZeroBoiler\Analytics\Services\EventDebugCaptureService;
 use ZeroBoiler\Analytics\Services\EventPropertyTypeValidator;
 use ZeroBoiler\Analytics\Services\EventLifecycleTracker;
+use ZeroBoiler\Analytics\Services\AnalyticsSemanticMetricsService;
+use ZeroBoiler\Analytics\Store\DatabaseEventStore;
 use ZeroBoiler\Analytics\Services\UserEngagementScoringService;
 use ZeroBoiler\Analytics\Services\OTLPExportService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOTLPCommand;
@@ -1516,6 +1519,15 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 ttl: (int) ($lcConfig['ttl'] ?? 3600),
                 statsTtl: (int) ($lcConfig['stats_ttl'] ?? 300),
                 maxRetries: (int) ($lcConfig['max_retries'] ?? 3),
+            );
+        });
+
+        // v233.0.0 — Analytics Semantic Metrics Layer
+        $this->app->singleton(AnalyticsSemanticMetricsService::class, function (Application $app): AnalyticsSemanticMetricsService {
+            return new AnalyticsSemanticMetricsService(
+                cache: $app->make('cache'),
+                config: $app->make(ConfigRepository::class),
+                eventStore: $app->make(DatabaseEventStore::class),
             );
         });
 
@@ -4709,6 +4721,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
                 AnalyticsEventActionsCommand::class,
+                \ZeroBoiler\Analytics\Console\Commands\AnalyticsSemanticMetricsCommand::class,
             ]));
         }
 

@@ -58,6 +58,8 @@ use ZeroBoiler\Analytics\Services\UserJourneyService;
 use ZeroBoiler\Analytics\Services\SaaSConversionService;
 use ZeroBoiler\Analytics\Services\EventGovernanceService;
 use ZeroBoiler\Analytics\Services\EventImpactService;
+use ZeroBoiler\Analytics\Services\AnalyticsSemanticMetricsService;
+use ZeroBoiler\Analytics\DTO\MetricComputationRequest;
 use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
 use ZeroBoiler\Analytics\Services\EventContractTestService;
@@ -22165,6 +22167,247 @@ final class AnalyticsEventController extends Controller
                     ],
                 ],
             ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Semantic Metrics Layer (v233.0.0) ───────────────────────────
+
+    /**
+     * Get Semantic Metrics Layer summary.
+     *
+     * GET /api/analytics/semantic-metrics
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsSummary(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            return response()->json(['status' => 'ok', ...$service->summary()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * List all registered semantic metrics.
+     *
+     * GET /api/analytics/semantic-metrics/list
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsList(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $metrics = [];
+            foreach ($service->all() as $definition) {
+                $metrics[] = $definition->toArray();
+            }
+            return response()->json(['status' => 'ok', 'metrics' => $metrics, 'total' => $service->count()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Show a single semantic metric definition.
+     *
+     * GET /api/analytics/semantic-metrics/{metricName}
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsShow(string $metricName): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $definition = $service->get($metricName);
+            if ($definition === null) {
+                return response()->json(['status' => 'error', 'error' => "Metric '{$metricName}' not found"], 404);
+            }
+            return response()->json(['status' => 'ok', ...$definition->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compute a semantic metric.
+     *
+     * POST /api/analytics/semantic-metrics/compute
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsCompute(Request $request): JsonResponse
+    {
+        try {
+            $data = $request->json()->all();
+            $computationRequest = MetricComputationRequest::fromArray($data);
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $result = $service->compute($computationRequest);
+            return response()->json(['status' => 'ok', ...$result->toArray()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Compute multiple semantic metrics in batch.
+     *
+     * POST /api/analytics/semantic-metrics/compute-batch
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsComputeBatch(Request $request): JsonResponse
+    {
+        try {
+            $data = $request->json()->all();
+            $requests = [];
+            foreach ($data['metrics'] ?? [] as $metricData) {
+                $requests[] = MetricComputationRequest::fromArray($metricData);
+            }
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $results = $service->computeBatch($requests);
+            $output = [];
+            foreach ($results as $name => $result) {
+                $output[$name] = $result->toArray();
+            }
+            return response()->json(['status' => 'ok', 'results' => $output, 'total' => count($output)]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get metrics grouped by category.
+     *
+     * GET /api/analytics/semantic-metrics/categories
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsCategories(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $byCategory = [];
+            foreach ($service->byCategory() as $category => $definitions) {
+                $byCategory[$category] = [
+                    'count' => count($definitions),
+                    'metrics' => array_keys($definitions),
+                ];
+            }
+            return response()->json(['status' => 'ok', 'categories' => $byCategory]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get metrics grouped by type.
+     *
+     * GET /api/analytics/semantic-metrics/types
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsTypes(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $byType = [];
+            foreach ($service->byType('') as $definition) {
+                $byType[$definition->type][] = $definition->name;
+            }
+            // Re-group properly
+            $grouped = [];
+            foreach ($service->all() as $definition) {
+                $grouped[$definition->type][] = $definition->name;
+            }
+            $output = [];
+            foreach ($grouped as $type => $names) {
+                $output[] = ['type' => $type, 'count' => count($names), 'metrics' => $names];
+            }
+            return response()->json(['status' => 'ok', 'types' => $output]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get derived (ratio) metrics.
+     *
+     * GET /api/analytics/semantic-metrics/derived
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsDerived(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $derived = [];
+            foreach ($service->derivedMetrics() as $definition) {
+                $derived[] = $definition->toArray();
+            }
+            return response()->json(['status' => 'ok', 'derived' => $derived, 'total' => count($derived)]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate all semantic metric definitions.
+     *
+     * GET /api/analytics/semantic-metrics/validate
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsValidate(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $validation = $service->validate();
+            return response()->json(['status' => 'ok', ...$validation]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get Semantic Metrics Layer configuration.
+     *
+     * GET /api/analytics/semantic-metrics/config
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsConfig(): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            return response()->json(['status' => 'ok', ...$service->getConfig()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Invalidate semantic metric caches.
+     *
+     * POST /api/analytics/semantic-metrics/invalidate
+     *
+     * @since 233.0.0
+     */
+    public function semanticMetricsInvalidate(Request $request): JsonResponse
+    {
+        try {
+            $service = app(AnalyticsSemanticMetricsService::class);
+            $metricName = $request->json('metric_name');
+            if ($metricName !== null) {
+                $service->invalidateCache((string) $metricName);
+            } else {
+                $service->invalidateAllCache();
+            }
+            return response()->json(['status' => 'ok', 'invalidated' => $metricName ?? 'all']);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
