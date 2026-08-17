@@ -1,5 +1,17 @@
 # Changelog
 
+## [217.0.0] - 2026-08-17
+
+### Added
+- **SaaSAnalyticsGlossaryService** — Industry-standard SaaS metric definitions and event-to-metric cross-reference service. 28 metrics across 6 categories (Revenue, Growth, Unit Economics, Engagement, Retention, Funnel) with canonical formulas, industry benchmarks (good/acceptable/poor), source events mapping, required config references, and tag-based discovery. Methods: `all()`, `get()`, `groupedByCategory()`, `byTag()`, `sourceEventsFor()`, `metricsForEvent()`, `eventToMetricMap()`, `quickReference()`, `clientSummary()`, `coverageAnalysis()`, `names()`, `categories()`, `count()`, `has()`. Inspired by ChartMogul's SaaS Metrics Glossary, ProfitWell's Metric Library, and OpenView's SaaS Benchmarks.
+- **AnalyticsGlossaryCommand** — `php artisan zb:analytics:glossary` CLI with 9 action modes: default (full grouped glossary), `--metric=<key>`, `--search=<keyword>`, `--event=<event>`, `--cross-ref`, `--coverage`, `--tags`, `--compact`, `--json`.
+- **API endpoints** — 7 glossary endpoints: `GET /api/analytics/glossary`, `GET /glossary/{metric}`, `GET /glossary/search/{query}`, `GET /glossary/event/{event}`, `GET /glossary/cross-ref`, `GET /glossary/coverage`, `GET /glossary/tags`.
+- **V217 test suite** — 45+ assertions.
+- **ServiceProvider registration** — SaaSAnalyticsGlossaryService (singleton), AnalyticsGlossaryCommand.
+
+### Changed
+- Version bump: 216.0.0 → 217.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, README badge. Command count 100→101.
+
 ## [216.0.0] - 2026-08-17
 
 ### Added

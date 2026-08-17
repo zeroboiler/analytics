@@ -20561,4 +20561,154 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── SaaS Analytics Glossary (v217.0.0) ───────────────────────────
+
+    /**
+     * Get full glossary grouped by category.
+     */
+    public function glossary(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+
+            return response()->json([
+                'data' => $service->groupedByCategory(),
+                'meta' => [
+                    'total_metrics' => $service->count(),
+                    'categories' => $service->categories(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get a single glossary metric by key.
+     */
+    public function glossaryMetric(string $metric): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+            $entry = $service->get($metric);
+
+            if ($entry === null) {
+                return response()->json([
+                    'status' => 'error',
+                    'error' => "Metric '{$metric}' not found",
+                    'available' => $service->names(),
+                ], 404);
+            }
+
+            return response()->json(['data' => ['key' => $metric] + $entry]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Search glossary metrics by keyword.
+     */
+    public function glossarySearch(string $query): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+            $results = [];
+            $queryLower = strtolower($query);
+
+            foreach ($service->all() as $key => $metric) {
+                $searchable = strtolower(implode(' ', [
+                    $key, $metric['name'], $metric['description'],
+                    $metric['category'], implode(' ', $metric['tags']),
+                ]));
+
+                if (str_contains($searchable, $queryLower)) {
+                    $results[$key] = $metric;
+                }
+            }
+
+            return response()->json([
+                'data' => $results,
+                'meta' => ['query' => $query, 'total' => count($results)],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get metrics that consume a given event.
+     */
+    public function glossaryMetricsForEvent(string $event): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+            $metrics = $service->metricsForEvent($event);
+
+            return response()->json([
+                'data' => $metrics,
+                'meta' => ['event' => $event, 'total' => count($metrics)],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get event-to-metric cross-reference map.
+     */
+    public function glossaryCrossRef(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+
+            return response()->json([
+                'data' => $service->eventToMetricMap(),
+                'meta' => ['total_events' => count($service->eventToMetricMap()), 'total_metrics' => $service->count()],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get glossary coverage analysis.
+     */
+    public function glossaryCoverage(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+
+            return response()->json(['data' => $service->coverageAnalysis()]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get all glossary tags.
+     */
+    public function glossaryTags(): JsonResponse
+    {
+        try {
+            $service = new \ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
+            $tags = [];
+
+            foreach ($service->all() as $metric) {
+                foreach ($metric['tags'] as $tag) {
+                    $tags[$tag] = ($tags[$tag] ?? 0) + 1;
+                }
+            }
+
+            arsort($tags);
+
+            return response()->json([
+                'data' => $tags,
+                'meta' => ['total_unique' => count($tags)],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

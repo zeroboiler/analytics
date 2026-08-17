@@ -1172,4 +1172,13 @@ Route::prefix('analytics')->group(function () {
     Route::get('catalog-version/history', [AnalyticsEventController::class, 'catalogVersionHistory']);
     Route::post('catalog-version/capture', [AnalyticsEventController::class, 'catalogVersionCapture']);
     Route::get('catalog-version/config', [AnalyticsEventController::class, 'catalogVersionConfig']);
+
+    // SaaS Analytics Glossary (v217.0.0)
+    Route::get('glossary', [AnalyticsEventController::class, 'glossary']);
+    Route::get('glossary/{metric}', [AnalyticsEventController::class, 'glossaryMetric']);
+    Route::get('glossary/search/{query}', [AnalyticsEventController::class, 'glossarySearch']);
+    Route::get('glossary/event/{event}', [AnalyticsEventController::class, 'glossaryMetricsForEvent']);
+    Route::get('glossary/cross-ref', [AnalyticsEventController::class, 'glossaryCrossRef']);
+    Route::get('glossary/coverage', [AnalyticsEventController::class, 'glossaryCoverage']);
+    Route::get('glossary/tags', [AnalyticsEventController::class, 'glossaryTags']);
 });

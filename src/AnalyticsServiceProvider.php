@@ -481,6 +481,8 @@ use ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine;
 use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogVersionCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsGlossaryCommand;
+use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
 
 /**
  * Laravel service provider for the ZeroBoiler Analytics package.
@@ -4483,6 +4485,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 versioningEngine: $app->make(EventCatalogVersioningEngine::class),
             );
         });
+
+        // SaaS Analytics Glossary Service (v217.0.0)
+        $this->app->singleton(SaaSAnalyticsGlossaryService::class, function (Application $app): SaaSAnalyticsGlossaryService {
+            return new SaaSAnalyticsGlossaryService(
+                cache: $app->make(CacheRepository::class),
+            );
+        });
     }
 
     /**
@@ -4590,6 +4599,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsResilienceCommand::class,
                 AnalyticsCapabilityCommand::class,
                 AnalyticsCatalogVersionCommand::class,
+                AnalyticsGlossaryCommand::class,
             ]));
         }
 
