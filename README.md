@@ -57,6 +57,21 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 
 Done. That's it.
 
+### What's New in v212.0.0
+
+**Event Sequence Value Attribution — Industry-Standard SaaS Analytics Upgrade**:
+
+- **EventSequenceValueAttributionService** — Computes business-value scores for detected user journey sequences by correlating event sequences with revenue, LTV, conversion, and retention outcomes. Produces a ranked "value matrix" identifying the highest-impact user paths. Composite scoring with 5 configurable weights: LTV correlation (30%), conversion lift (25%), retention impact (20%), revenue per occurrence (15%), and time-to-value velocity (10%). Letter grades (S/A/B/C/D) classify sequences from top 5% to bottom 10%.
+- **SequenceValueAttribution DTO** — Immutable readonly value object capturing sequence attribution: sequence ID, event names, occurrence/user counts, avg LTV, total revenue, conversion rate/lift, D7/D30 retention, time-to-value, ROI, value grade, composite score, and metadata. Includes `toArray()`/`fromArray()` round-trip serialization.
+- **AnalyticsSequenceValueCommand** — `php artisan analytics:sequence-value` CLI with 7 actions: default (top N sequences), `--negative` (churn/revenue-leak paths), `--matrix` (full attribution matrix with grade distribution), `--compare` (side-by-side path comparison), `--multipliers` (event revenue multipliers), `--demo` (sample SaaS sequences), `--json` output.
+- **useEventSequence Svelte composable** — Reactive composable for consuming sequence value attribution data from the API. Provides `fetchMatrix()`, `topSequences()`, `byGrade()`, `gradeDistribution()`, `compare()`, `avgScore()`, `topPath()`.
+- **30 event revenue multipliers** — Built-in revenue value multipliers for common SaaS and e-commerce events (purchase: 10x, plan_upgrade: 18x, cancellation: -5x, refund: -6x, etc.) powering the sequence scoring engine.
+- **ServiceProvider registration** — EventSequenceValueAttributionService registered as singleton with cache/config injection, AnalyticsSequenceValueCommand registered in artisan commands.
+- **Tests** — Phase51EventSequenceValueAttributionTest (40+ assertions): DTO file quality, service file quality, command file quality, instantiation (default + custom weights), single pattern attribution, composite score bounds, value grade mapping, revenue multiplier lookup, matrix attribution structure, top value sequences ranking, negative value sequence detection, sequence comparison delta, cache clear no-throw, DTO round-trip, Svelte composable existence, source file counts, weight configuration.
+- **Bug fix** — Service `compare()` method: corrected JavaScript-style dot notation (`$attrA.compositeScore`) to PHP arrow notation (`$attrA->compositeScore`) in 8 property accesses.
+- **EventSequencePattern DTO upgrade** — Promoted to `final readonly class` for immutability consistency with other DTOs.
+- **Version sweep** — composer.json → 212.0.0, README badge → 212.0.0, service/command counts updated (416 services, 96 commands, 14 Svelte composables). Total: 904+ src files, 461+ tests.
+
 ### What's New in v203.0.0
 - **Intelligence Suite** — EventCorrelationMatrixService (statistical correlation between events, conversion driver detection, retention correlation analysis), DataQualityScoringEngine (multi-dimensional quality scoring: completeness, consistency, timeliness, validity, uniqueness with letter grades A+ to F), EventReplayAuditTrailService (tamper-evident audit trail for replay operations with checksum integrity verification), FeatureFlagAnalyticsBridge (feature flag evaluation → analytics event bridge with exposure deduplication, variant tracking, and conversion rate computation).
 - **Analytics Intelligence Command** — `analytics:intelligence` CLI with sub-actions: overview, quality, correlation, replay-audit, feature-flags.
