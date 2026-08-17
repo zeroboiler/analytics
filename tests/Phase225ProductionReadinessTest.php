@@ -173,7 +173,6 @@ describe('Phase 225 Production Readiness — Analytics Package', function (): vo
 
         it('getFacadeAccessor() returns zeroboiler.analytics', function (): void {
             $method = new ReflectionMethod(Analytics::class, 'getFacadeAccessor');
-            $method->setAccessible(true);
             $result = $method->invoke(null);
             expect($result)->toBe('zeroboiler.analytics');
         });
