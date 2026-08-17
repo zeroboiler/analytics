@@ -1,5 +1,17 @@
 # Changelog
 
+## [229.0.0] - 2026-08-17
+
+### Fixed
+- **README metrics sync** — Updated assertion badge from 5,300+ to 29,000+ (actual count: 29,407 expect() assertions). Service count: 427 → 432. Command count: 106 → 109. JS client: ~11,700 → ~12,000 LOC.
+
+### Added
+- **Phase 54 production readiness test** — 100+ assertions validating all 12 SaaS starter features at production quality.
+- **Source file quality audit** — 945 source files verified: strict_types=1, MIT headers, final classes, PHP 8.5 syntax, return types.
+
+### Changed
+- Version bump to 229.0.0 (composer.json, package.json, AnalyticsEvent::VERSION, analytics.js @version, README badge).
+
 ## [228.0.0] - 2026-08-17
 
 ### Fixed
