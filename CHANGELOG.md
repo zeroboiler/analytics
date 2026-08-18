@@ -1,5 +1,16 @@
 # Changelog
 
+## [248.0.0] - 2026-08-18
+
+### Fixed
+- **Restored truncated config/zeroboiler.php** — The v247 import cleanup commit (376d81f) accidentally removed 9,687 lines from `config/zeroboiler.php`, leaving only the final 15 lines (the `watermark` section). This restored the full 9,702-line configuration file with all 30+ config sections (ga4, gtm, meta_pixel, consent, auto_track, queue, lifecycle, api, client_auto_track, identity, ecommerce, revenue, dedup, event_costs, sampling, cross_domain, session_recording, observability, regional_consent, geolocation, and more).
+
+### Changed
+- **JS client version sync** — `resources/js/analytics.js` @version updated from 239.0.0 to 248.0.0 (was 8 versions behind).
+- **Version bump to 248.0.0** across all 5 version entry points (composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider @version, README badge).
+- **README test badge** updated from 496+ to 498+ test files.
+
+
 ## [247.0.0] - 2026-08-18
 
 ### Fixed
