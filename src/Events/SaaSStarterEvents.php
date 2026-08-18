@@ -301,6 +301,43 @@ final class SaaSStarterEvents
     }
 
     /**
+     * Build an instrumentation payload for the Inertia page props.
+     *
+     * Returns the client summary plus gap analysis and priority ordering,
+     * designed to be injected into zbAnalytics.recommendedEvents by the
+     * HandleInertiaAnalytics middleware.
+     *
+     * @return array{total: int, coverage: float, categories: array{saas: int, ecommerce: int, engagement: int}, events: list<array{name: string, label: string, category: string, hint: string, priority_index: int, is_gap: bool}>, gaps: list<string>, gapCount: int, priorityOrder: list<string>}
+     */
+    public static function instrumentationPayload(): array
+    {
+        $summary = self::clientSummary();
+        $missing = self::missingFromCatalog();
+
+        // Enrich events with priority order index and gap status
+        $priorityIndexed = [];
+        $priorityOrder = self::priorityOrder();
+        foreach ($summary['events'] as $event) {
+            $priorityIndex = array_search($event['name'], $priorityOrder, true);
+            $priorityIndexed[] = [
+                ...$event,
+                'priority_index' => $priorityIndex !== false ? $priorityIndex : 999,
+                'is_gap' => in_array($event['name'], $missing, true),
+            ];
+        }
+
+        return [
+            'total' => $summary['total'],
+            'coverage' => $summary['coverage'],
+            'categories' => $summary['categories'],
+            'events' => $priorityIndexed,
+            'gaps' => $missing,
+            'gapCount' => count($missing),
+            'priorityOrder' => $priorityOrder,
+        ];
+    }
+
+    /**
      * Get a client-safe summary for instrumentation guidance.
      *
      * Returns a compact structure suitable for Inertia props or API response.

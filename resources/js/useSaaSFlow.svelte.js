@@ -19,7 +19,7 @@
  *   console.log($flow.stageHistory); // ['anonymous', 'signed_up', 'trialing', 'subscribed']
  *
  * @package ZeroBoiler Analytics
- * @version 235.0.0
+ * @version 251.0.0
  */
 
 import { writable, derived } from 'svelte/store';

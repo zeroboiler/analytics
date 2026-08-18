@@ -1,6 +1,6 @@
 {
     "name": "@zeroboiler/analytics",
-    "version": "249.0.0",
+    "version": "251.0.0",
     "description": "Client-side analytics library for ZeroBoiler Analytics — Svelte/Inertia/Laravel apps",
     "type": "module",
     "main": "./dist/analytics.js",
@@ -17,10 +17,15 @@
             "import": "./dist/useAnalytics.svelte.js",
             "default": "./dist/useAnalytics.svelte.js"
         },
+        "./advisor": {
+            "import": "./resources/js/useInstrumentationAdvisor.svelte.js",
+            "default": "./resources/js/useInstrumentationAdvisor.svelte.js"
+        },
         "./analytics.css": "./dist/analytics.css"
     },
     "files": [
-        "dist/"
+        "dist/",
+        "resources/js/"
     ],
     "sideEffects": false,
     "keywords": [

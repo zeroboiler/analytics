@@ -10,7 +10,7 @@
  * and provides derived stores for conversion tracking and attribution reporting.
  *
  * @package ZeroBoiler Analytics
- * @version 235.0.0
+ * @version 251.0.0
  */
 
 import { writable, derived } from 'svelte/store';
