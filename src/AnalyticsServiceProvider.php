@@ -149,6 +149,7 @@ use ZeroBoiler\Analytics\Services\SaaSLifecycleStageService;
 use ZeroBoiler\Analytics\Services\SentryErrorAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
+use ZeroBoiler\Analytics\Services\SaaSStarterJourneyService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
@@ -509,7 +510,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 248.0.0
+ * @version 249.0.0
  *
  * @since 1.0.0
  */
@@ -2765,6 +2766,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Starter Instrumentation Service (v211.0.0) — unchanged in v212
         $this->app->singleton(SaaSStarterInstrumentationService::class, function (Application $app): SaaSStarterInstrumentationService {
             return new SaaSStarterInstrumentationService();
+        });
+
+        // SaaS Starter Journey Service (v249.0.0) — catalog-validated SaaS lifecycle journey tracking
+        $this->app->singleton(SaaSStarterJourneyService::class, function (Application $app): SaaSStarterJourneyService {
+            return new SaaSStarterJourneyService($app->make(AnalyticsManager::class));
         });
 
         // Event Sequence Value Attribution Service (v212.0.0) — business-value scoring for user journey sequences

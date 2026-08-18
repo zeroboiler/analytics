@@ -1,4 +1,13 @@
 # Changelog
+## [249.0.0] - 2026-08-18
+
+### Added
+- **SaaSStarterJourneyService** — Catalog-validated SaaS lifecycle journey tracking service with EventCatalog validation for all 20 starter events. Registered as singleton in ServiceProvider.
+- **SaaS Starter Journey integration test** — 18 assertions validating catalog coverage, provider mappings, journey service, format conversion, and EventCatalog integrity.
+
+### Changed
+- **Version bump to 249.0.0** across all 5 version entry points.
+
 n## [248.0.1] - 2026-08-18
 
 ### Fixed

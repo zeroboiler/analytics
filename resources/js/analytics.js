@@ -181,7 +181,7 @@ export function getUserId() {
  * @returns {string}
  */
 export function getVersion() {
-    return '235.0.0';
+    return '249.0.0';
 }
 
 // ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
