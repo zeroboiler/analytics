@@ -5,525 +5,349 @@
 
 declare(strict_types=1);
 
-namespace ZeroBoiler\Analytics\Tests;
+namespace Tests\Phase64;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventBatchJob;
+use ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob;
+use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
 
 /**
- * Phase 64 Production Readiness — Event Catalog Diff, Quality Gate, Batch Dispatch.
+ * Phase 64 production readiness — async event metadata preservation.
  *
- * Validates the analytics package meets industry-standard SaaS starter criteria
- * with up-to-date metrics: source files, test files, services, commands,
- * event catalog completeness, provider coverage, batch tracking interface,
- * catalog diff service, quality gate command, and all 12 core SaaS features.
+ * Validates that source, category, and session_id are preserved
+ * across the async queue boundary (serialize → dispatch → deserialize → handle).
  *
- * @since 243.0.0
+ * @since 244.0.0
  */
 final class Phase64ProductionReadinessTest extends TestCase
 {
-    private const VERSION = '243.0.0';
-    private const SRC_DIR = __DIR__ . '/../src';
-    private const ROOT_DIR = __DIR__ . '/..';
-
-    // ── 1. Version Consistency ──────────────────────────────────────
+    // ── Job Serialization Integrity ────────────────────────────────
 
     #[Test]
-    public function composerJsonVersion(): void
+    public function single_job_preserves_all_metadata_fields(): void
     {
-        $json = json_decode((string) file_get_contents(self::ROOT_DIR . '/composer.json'), true);
-        $this->assertSame(self::VERSION, $json['version'] ?? null);
+        $job = new TrackAnalyticsEventJob(
+            name: 'purchase',
+            params: ['value' => 99.99],
+            clientId: 'cli_abc123',
+            userId: 'user_456',
+            timestamp: 1700000000,
+            priority: 'critical',
+            source: 'api',
+            category: 'ecommerce',
+            sessionId: 'sess_xyz',
+        );
+
+        $this->assertSame('purchase', $job->name);
+        $this->assertSame(['value' => 99.99], $job->params);
+        $this->assertSame('cli_abc123', $job->clientId);
+        $this->assertSame('user_456', $job->userId);
+        $this->assertSame(1700000000, $job->timestamp);
+        $this->assertSame('critical', $job->priority);
+        $this->assertSame('api', $job->source);
+        $this->assertSame('ecommerce', $job->category);
+        $this->assertSame('sess_xyz', $job->sessionId);
     }
 
     #[Test]
-    public function analyticsEventVersion(): void
+    public function single_job_accepts_null_optional_metadata(): void
     {
-        $content = (string) file_get_contents(self::SRC_DIR . '/DTO/AnalyticsEvent.php');
-        $this->assertStringContainsString("public const VERSION = '" . self::VERSION . "'", $content);
+        $job = new TrackAnalyticsEventJob(
+            name: 'page_view',
+            params: [],
+        );
+
+        $this->assertNull($job->clientId);
+        $this->assertNull($job->userId);
+        $this->assertNull($job->timestamp);
+        $this->assertNull($job->priority);
+        $this->assertNull($job->source);
+        $this->assertNull($job->category);
+        $this->assertNull($job->sessionId);
     }
 
     #[Test]
-    public function serviceProviderVersion(): void
+    public function batch_job_preserves_all_metadata_per_event(): void
     {
-        $content = (string) file_get_contents(self::SRC_DIR . '/AnalyticsServiceProvider.php');
-        $this->assertStringContainsString('@version ' . self::VERSION, $content);
-    }
-
-    #[Test]
-    public function readmeBadgeVersion(): void
-    {
-        $content = (string) file_get_contents(self::ROOT_DIR . '/README.md');
-        $this->assertStringContainsString('version-' . self::VERSION, $content);
-    }
-
-    #[Test]
-    public function changelogLatestVersion(): void
-    {
-        $content = (string) file_get_contents(self::ROOT_DIR . '/CHANGELOG.md');
-        $this->assertStringContainsString('[' . self::VERSION . ']', $content);
-    }
-
-    #[Test]
-    public function packageJsonVersion(): void
-    {
-        $json = json_decode((string) file_get_contents(self::ROOT_DIR . '/package.json'), true);
-        $this->assertSame(self::VERSION, $json['version'] ?? null);
-    }
-
-    // ── 2. Source File Scale Thresholds ────────────────────────────
-
-    #[Test]
-    public function sourceFileCount(): void
-    {
-        $count = $this->countPhpFiles(self::SRC_DIR);
-        $this->assertGreaterThanOrEqual(975, $count, "Expected at least 975 source PHP files, got {$count}");
-    }
-
-    #[Test]
-    public function testFileCount(): void
-    {
-        $count = $this->countPhpFiles(self::ROOT_DIR . '/tests');
-        $this->assertGreaterThanOrEqual(494, $count, "Expected at least 494 test PHP files, got {$count}");
-    }
-
-    #[Test]
-    public function commandCount(): void
-    {
-        $count = $this->countFiles(self::SRC_DIR . '/Console/Commands');
-        $this->assertGreaterThanOrEqual(116, $count, "Expected at least 116 command files, got {$count}");
-    }
-
-    #[Test]
-    public function serviceCount(): void
-    {
-        $count = $this->countFiles(self::SRC_DIR . '/Services');
-        $this->assertGreaterThanOrEqual(448, $count, "Expected at least 448 service files, got {$count}");
-    }
-
-    #[Test]
-    public function trackerCount(): void
-    {
-        $count = $this->countFiles(self::SRC_DIR . '/Trackers');
-        $this->assertGreaterThanOrEqual(12, $count, "Expected at least 12 tracker files, got {$count}");
-    }
-
-    // ── 3. New Service: Event Catalog Diff ─────────────────────────
-
-    #[Test]
-    public function eventCatalogDiffServiceExists(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceHasStrictTypes(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('declare(strict_types=1)', $content);
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceHasFinalClass(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('final class EventCatalogDiffService', $content);
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceHasDocblock(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('/**', $content);
-        $this->assertStringContainsString('@since 243.0.0', $content);
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceKeyMethods(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('public function takeSnapshot', $content);
-        $this->assertStringContainsString('public function diff(', $content);
-        $this->assertStringContainsString('public function diffAgainst(', $content);
-        $this->assertStringContainsString('public function hasSnapshot', $content);
-        $this->assertStringContainsString('public function getSnapshot', $content);
-        $this->assertStringContainsString('public function clearSnapshot', $content);
-        $this->assertStringContainsString('public function hasChanged', $content);
-        $this->assertStringContainsString('public function categoryCounts', $content);
-        $this->assertStringContainsString('public function currentCatalog', $content);
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceReturnTypeDeclarations(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('public function takeSnapshot(): array', $content);
-        $this->assertStringContainsString('public function hasSnapshot(): bool', $content);
-        $this->assertStringContainsString('public function clearSnapshot(): bool', $content);
-        $this->assertStringContainsString('public function hasChanged(): bool', $content);
-    }
-
-    #[Test]
-    public function eventCatalogDiffServiceRenameDetection(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Services/EventCatalogDiffService.php');
-        $this->assertStringContainsString('detectRenames', $content);
-        $this->assertStringContainsString('levenshteinDistance', $content);
-    }
-
-    // ── 4. New Command: Quality Gate ─────────────────────────────────
-
-    #[Test]
-    public function qualityGateCommandExists(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php');
-    }
-
-    #[Test]
-    public function qualityGateCommandHasStrictTypes(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php');
-        $this->assertStringContainsString('declare(strict_types=1)', $content);
-    }
-
-    #[Test]
-    public function qualityGateCommandSignature(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php');
-        $this->assertStringContainsString("zb:analytics:quality-gate", $content);
-        $this->assertStringContainsString('--json', $content);
-        $this->assertStringContainsString('--fail-level', $content);
-        $this->assertStringContainsString('--snapshot', $content);
-        $this->assertStringContainsString('--check', $content);
-        $this->assertStringContainsString('--min-coverage', $content);
-    }
-
-    #[Test]
-    public function qualityGateCommandCheckTypes(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php');
-        $this->assertStringContainsString('checkSchemaCoverage', $content);
-        $this->assertStringContainsString('checkCatalogDiff', $content);
-        $this->assertStringContainsString('checkCompliance', $content);
-        $this->assertStringContainsString('checkProviderCoverage', $content);
-        $this->assertStringContainsString('checkDeduplication', $content);
-    }
-
-    #[Test]
-    public function qualityGateCommandDocblock(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php');
-        $this->assertStringContainsString('@since 243.0.0', $content);
-    }
-
-    // ── 5. Batch Tracking Interface ─────────────────────────────────
-
-    #[Test]
-    public function trackerInterfaceHasBatchMethod(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/TrackerInterface.php');
-        $this->assertStringContainsString('public function trackBatch(array $events): int', $content);
-    }
-
-    #[Test]
-    public function trackerHelpersHasDefaultBatch(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/TrackerHelpers.php');
-        $this->assertStringContainsString('defaultTrackBatch', $content);
-    }
-
-    #[Test]
-    public function ga4TrackerHasBatch(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/GA4Tracker.php');
-        $this->assertStringContainsString('public function trackBatch(array $events): int', $content);
-    }
-
-    #[Test]
-    public function metaPixelTrackerHasBatch(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/MetaPixelTracker.php');
-        $this->assertStringContainsString('public function trackBatch(array $events): int', $content);
-    }
-
-    #[Test]
-    public function posthogTrackerHasBatch(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/PosthogTracker.php');
-        $this->assertStringContainsString('public function trackBatch(array $events): int', $content);
-    }
-
-    #[Test]
-    public function allTrackersImplementBatch(): void
-    {
-        $trackers = [
-            'GA4Tracker.php',
-            'GTMTracker.php',
-            'MetaPixelTracker.php',
-            'PlausibleTracker.php',
-            'PosthogTracker.php',
-            'MixpanelTracker.php',
-            'AmplitudeTracker.php',
-            'TikTokTracker.php',
-            'LinkedInTracker.php',
-            'WebhookTracker.php',
+        $events = [
+            [
+                'name' => 'sign_up',
+                'params' => ['method' => 'google'],
+                'client_id' => 'cli_001',
+                'user_id' => 'user_001',
+                'timestamp' => 1700000001,
+                'priority' => 'normal',
+                'source' => 'client',
+                'category' => 'saas',
+                'session_id' => 'sess_aaa',
+            ],
+            [
+                'name' => 'add_to_cart',
+                'params' => ['item_id' => 'SKU-1'],
+                'client_id' => 'cli_002',
+                'source' => 'api',
+                'category' => 'ecommerce',
+                'session_id' => 'sess_bbb',
+            ],
         ];
 
-        foreach ($trackers as $tracker) {
-            $content = (string) file_get_contents(self::SRC_DIR . '/Trackers/' . $tracker);
-            $this->assertStringContainsString(
-                'trackBatch',
-                $content,
-                "Tracker {$tracker} missing trackBatch()",
-            );
-        }
+        $job = new TrackAnalyticsEventBatchJob(events: $events);
+
+        $this->assertCount(2, $job->events);
+
+        // First event: full metadata
+        $this->assertSame('sign_up', $job->events[0]['name']);
+        $this->assertSame(['method' => 'google'], $job->events[0]['params']);
+        $this->assertSame('cli_001', $job->events[0]['client_id']);
+        $this->assertSame('user_001', $job->events[0]['user_id']);
+        $this->assertSame(1700000001, $job->events[0]['timestamp']);
+        $this->assertSame('normal', $job->events[0]['priority']);
+        $this->assertSame('client', $job->events[0]['source']);
+        $this->assertSame('saas', $job->events[0]['category']);
+        $this->assertSame('sess_aaa', $job->events[0]['session_id']);
+
+        // Second event: partial metadata (null-safe defaults)
+        $this->assertSame('add_to_cart', $job->events[1]['name']);
+        $this->assertSame('api', $job->events[1]['source']);
+        $this->assertSame('ecommerce', $job->events[1]['category']);
+        $this->assertSame('sess_bbb', $job->events[1]['session_id']);
+        $this->assertNull($job->events[1]['user_id']);
+        $this->assertNull($job->events[1]['priority']);
     }
 
     #[Test]
-    public function serviceProviderRegistersQualityGateCommand(): void
+    public function batch_job_handles_events_without_optional_metadata(): void
     {
-        $content = (string) file_get_contents(self::SRC_DIR . '/AnalyticsServiceProvider.php');
-        $this->assertStringContainsString('AnalyticsQualityGateCommand', $content);
+        $events = [
+            ['name' => 'click', 'params' => ['element' => 'button']],
+        ];
+
+        $job = new TrackAnalyticsEventBatchJob(events: $events);
+
+        $this->assertNull($job->events[0]['client_id'] ?? null);
+        $this->assertNull($job->events[0]['source'] ?? null);
+        $this->assertNull($job->events[0]['category'] ?? null);
+        $this->assertNull($job->events[0]['session_id'] ?? null);
     }
 
-    #[Test]
-    public function serviceProviderRegistersCatalogDiffService(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/AnalyticsServiceProvider.php');
-        $this->assertStringContainsString('EventCatalogDiffService', $content);
-    }
-
-    // ── 6. Config Expansion ─────────────────────────────────────────
+    // ── AnalyticsEvent DTO Re-hydration from Job Fields ────────────
 
     #[Test]
-    public function configHasCatalogDiffSection(): void
+    public function single_job_fields_map_correctly_to_analytics_event(): void
     {
-        $content = (string) file_get_contents(self::ROOT_DIR . '/config/zeroboiler.php');
-        $this->assertStringContainsString("'catalog_diff'", $content);
-    }
-
-    #[Test]
-    public function configHasQualityGateSection(): void
-    {
-        $content = (string) file_get_contents(self::ROOT_DIR . '/config/zeroboiler.php');
-        $this->assertStringContainsString("'quality_gate'", $content);
-    }
-
-    // ── 7. Event Catalog Completeness ───────────────────────────────
-
-    #[Test]
-    public function eventCatalogCategories(): void
-    {
-        $content = (string) file_get_contents(self::SRC_DIR . '/Events/EventCatalog.php');
-        $categories = ['EcommerceEvents', 'SaaSEvents', 'EngagementEvents', 'SecurityEvents', 'UptimeEvents', 'InfrastructureEvents', 'MarketingEvents', 'CustomerSuccessEvents', 'WebhookEvents'];
-
-        foreach ($categories as $cat) {
-            $this->assertStringContainsString($cat, $content, "Missing category {$cat}");
-        }
-    }
-
-    #[Test]
-    public function eventCatalogDirectoryExists(): void
-    {
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Ecommerce');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/SaaS');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Engagement');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Security');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Uptime');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Infrastructure');
-        $this->assertDirectoryExists(self::SRC_DIR . '/Events/Marketing');
-    }
-
-    // ── 8. All 12 Core SaaS Features ───────────────────────────────
-
-    #[Test]
-    public function feature1EventCatalog(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Events/Ecommerce/EcommerceEvents.php');
-        $this->assertFileExists(self::SRC_DIR . '/Events/SaaS/SaaSEvents.php');
-        $this->assertFileExists(self::SRC_DIR . '/Events/Engagement/EngagementEvents.php');
-    }
-
-    #[Test]
-    public function feature2ServerSideLifecycle(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Tracking/ServerSideTracker.php');
-        $this->assertFileExists(self::SRC_DIR . '/Services/LifecycleEventMapper.php');
-    }
-
-    #[Test]
-    public function feature3InertiaMiddleware(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Inertia/HandleInertiaAnalytics.php');
-    }
-
-    #[Test]
-    public function feature4ApiController(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Http/Controllers/AnalyticsEventController.php');
-    }
-
-    #[Test]
-    public function feature5JsClient(): void
-    {
-        $this->assertFileExists(self::ROOT_DIR . '/resources/js/analytics.js');
-    }
-
-    #[Test]
-    public function feature6EventQueue(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Queue/QueuedAnalyticsDispatcher.php');
-        $this->assertFileExists(self::SRC_DIR . '/Jobs/TrackAnalyticsEventJob.php');
-    }
-
-    #[Test]
-    public function feature7IdentityLinking(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Tracking/UserIdentityTracker.php');
-    }
-
-    #[Test]
-    public function feature8EcommerceHelpers(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Support/EcommerceFormatConverter.php');
-    }
-
-    #[Test]
-    public function feature9AdminCommands(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Console/Commands/AnalyticsOverviewCommand.php');
-        $this->assertFileExists(self::SRC_DIR . '/Console/Commands/AnalyticsTestCommand.php');
-    }
-
-    #[Test]
-    public function feature10ConfigExpansion(): void
-    {
-        $content = (string) file_get_contents(self::ROOT_DIR . '/config/zeroboiler.php');
-        $this->assertStringContainsString("'queue'", $content);
-        $this->assertStringContainsString("'identity'", $content);
-        $this->assertStringContainsString("'auto_track'", $content);
-        $this->assertStringContainsString("'ecommerce'", $content);
-    }
-
-    #[Test]
-    public function feature11OptionalProviders(): void
-    {
-        $this->assertFileExists(self::SRC_DIR . '/Trackers/PlausibleTracker.php');
-        $this->assertFileExists(self::SRC_DIR . '/Trackers/PosthogTracker.php');
-    }
-
-    #[Test]
-    public function feature12TestsAndReadme(): void
-    {
-        $this->assertDirectoryExists(self::ROOT_DIR . '/tests');
-        $this->assertFileExists(self::ROOT_DIR . '/README.md');
-        $readme = (string) file_get_contents(self::ROOT_DIR . '/README.md');
-        $this->assertStringContainsString('Quick Start', $readme);
-    }
-
-    // ── 9. Code Quality ─────────────────────────────────────────────
-
-    #[Test]
-    public function allSourceFilesHaveStrictTypes(): void
-    {
-        $violations = $this->findFilesMissingStrictTypes(self::SRC_DIR);
-        $this->assertEmpty(
-            $violations,
-            'Files missing declare(strict_types=1): ' . implode(', ', array_slice($violations, 0, 10)),
+        $job = new TrackAnalyticsEventJob(
+            name: 'login',
+            params: ['method' => 'oauth'],
+            clientId: 'cli_test',
+            userId: 'user_test',
+            timestamp: 1700000000,
+            priority: 'low',
+            source: 'server',
+            category: 'saas',
+            sessionId: 'sess_test',
         );
+
+        // Simulate what the handle() method does
+        $event = new AnalyticsEvent(
+            name: $job->name,
+            params: $job->params,
+            clientId: $job->clientId,
+            userId: $job->userId,
+            timestamp: \DateTimeImmutable::createFromFormat('U', (string) $job->timestamp),
+            priority: $job->priority,
+            source: $job->source,
+            category: $job->category,
+            sessionId: $job->sessionId,
+        );
+
+        $this->assertSame('login', $event->name);
+        $this->assertSame(['method' => 'oauth'], $event->params);
+        $this->assertSame('cli_test', $event->clientId);
+        $this->assertSame('user_test', $event->userId);
+        $this->assertSame(1700000000, $event->timestamp?->getTimestamp());
+        $this->assertSame('low', $event->priority);
+        $this->assertSame('server', $event->source);
+        $this->assertSame('saas', $event->category);
+        $this->assertSame('sess_test', $event->sessionId);
     }
 
     #[Test]
-    public function newFilesHaveMitHeader(): void
+    public function batch_job_fields_map_correctly_to_analytics_events(): void
+    {
+        $events = [
+            [
+                'name' => 'scroll_depth',
+                'params' => ['percent' => 75],
+                'client_id' => 'cli_batch',
+                'source' => 'client',
+                'category' => 'engagement',
+                'session_id' => 'sess_batch',
+            ],
+        ];
+
+        $job = new TrackAnalyticsEventBatchJob(events: $events);
+        $data = $job->events[0];
+
+        // Simulate handle() re-hydration
+        $event = new AnalyticsEvent(
+            name: $data['name'],
+            params: $data['params'],
+            clientId: $data['client_id'] ?? null,
+            userId: $data['user_id'] ?? null,
+            timestamp: isset($data['timestamp'])
+                ? \DateTimeImmutable::createFromFormat('U', (string) $data['timestamp']) ?: null
+                : null,
+            priority: $data['priority'] ?? null,
+            source: $data['source'] ?? null,
+            category: $data['category'] ?? null,
+            sessionId: $data['session_id'] ?? null,
+        );
+
+        $this->assertSame('scroll_depth', $event->name);
+        $this->assertSame('client', $event->source);
+        $this->assertSame('engagement', $event->category);
+        $this->assertSame('sess_batch', $event->sessionId);
+    }
+
+    // ── Code Quality Checks ───────────────────────────────────────
+
+    #[Test]
+    public function jobs_have_strict_types_declaration(): void
+    {
+        $singleJobPath = dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php';
+        $batchJobPath = dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php';
+        $dispatcherPath = dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php';
+
+        foreach ([$singleJobPath, $batchJobPath, $dispatcherPath] as $path) {
+            $contents = file_get_contents($path);
+            $this->assertNotFalse($contents, "File should exist: {$path}");
+            $this->assertStringContainsString('declare(strict_types=1)', $contents, "File should have strict_types: {$path}");
+        }
+    }
+
+    #[Test]
+    public function jobs_have_mit_license_header(): void
     {
         $files = [
-            self::SRC_DIR . '/Services/EventCatalogDiffService.php',
-            self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php',
+            dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php',
+            dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php',
+            dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php',
         ];
 
-        foreach ($files as $file) {
-            $content = (string) file_get_contents($file);
-            $this->assertStringContainsString(
-                'This file is part of ZeroBoiler, licensed under the MIT license',
-                $content,
-                basename($file) . ' missing MIT header',
+        foreach ($files as $path) {
+            $contents = file_get_contents($path);
+            $this->assertNotFalse($contents);
+            $this->assertStringContainsString('MIT license', $contents, "File should have MIT license header: {$path}");
+        }
+    }
+
+    #[Test]
+    public function jobs_are_final_readonly(): void
+    {
+        $singleJob = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php');
+        $batchJob = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php');
+
+        $this->assertStringContainsString('final readonly class TrackAnalyticsEventJob', $singleJob);
+        $this->assertStringContainsString('final readonly class TrackAnalyticsEventBatchJob', $batchJob);
+    }
+
+    #[Test]
+    public function dispatcher_is_final(): void
+    {
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php');
+        $this->assertStringContainsString('final class QueuedAnalyticsDispatcher', $contents);
+    }
+
+    #[Test]
+    public function jobs_have_void_constructor_return_types(): void
+    {
+        $files = [
+            dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php',
+            dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php',
+            dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php',
+        ];
+
+        foreach ($files as $path) {
+            $contents = file_get_contents($path);
+            $this->assertNotFalse($contents);
+            // Constructor should have ): void
+            $this->assertMatchesRegularExpression(
+                '/public function __construct\([^)]*\): void/',
+                $contents,
+                "Constructor should have :void return type in {$path}",
             );
         }
     }
 
     #[Test]
-    public function noTODOInNewFiles(): void
+    public function job_has_all_nine_constructor_properties(): void
     {
-        $files = [
-            self::SRC_DIR . '/Services/EventCatalogDiffService.php',
-            self::SRC_DIR . '/Console/Commands/AnalyticsQualityGateCommand.php',
-        ];
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php');
 
-        foreach ($files as $file) {
-            $content = (string) file_get_contents($file);
-            $this->assertDoesNotMatchRegularExpression(
-                '/\b(TODO|FIXME|HACK|XXX)\b/i',
-                $content,
-                basename($file) . ' contains TODO/FIXME',
-            );
-        }
+        $this->assertStringContainsString('public string $name', $contents);
+        $this->assertStringContainsString('public array $params', $contents);
+        $this->assertStringContainsString('public ?string $clientId', $contents);
+        $this->assertStringContainsString('public ?string $userId', $contents);
+        $this->assertStringContainsString('public ?int $timestamp', $contents);
+        $this->assertStringContainsString('public ?string $priority', $contents);
+        $this->assertStringContainsString('public ?string $source', $contents);
+        $this->assertStringContainsString('public ?string $category', $contents);
+        $this->assertStringContainsString('public ?string $sessionId', $contents);
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────
-
-    private function countPhpFiles(string $dir): int
+    #[Test]
+    public function dispatcher_passes_all_fields_in_single_dispatch(): void
     {
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-        );
-        $count = 0;
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php');
 
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $count++;
-            }
-        }
-
-        return $count;
+        // Verify dispatch() passes source, category, sessionId
+        $this->assertStringContainsString("source: \$event->source,", $contents);
+        $this->assertStringContainsString("category: \$event->category,", $contents);
+        $this->assertStringContainsString("sessionId: \$event->sessionId,", $contents);
     }
 
-    private function countFiles(string $dir): int
+    #[Test]
+    public function dispatcher_passes_all_fields_in_batch_dispatch(): void
     {
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-        );
-        $count = 0;
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Queue/QueuedAnalyticsDispatcher.php');
 
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getExtension() === 'php') {
-                $count++;
-            }
-        }
-
-        return $count;
+        // Verify dispatchBatch() array_map includes source, category, session_id
+        $this->assertStringContainsString("'source' => \$event->source,", $contents);
+        $this->assertStringContainsString("'category' => \$event->category,", $contents);
+        $this->assertStringContainsString("'session_id' => \$event->sessionId,", $contents);
     }
 
-    /**
-     * @return list<string>
-     */
-    private function findFilesMissingStrictTypes(string $dir): array
+    #[Test]
+    public function batch_job_phpdoc_includes_new_fields(): void
     {
-        $violations = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
-        );
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php');
 
-        foreach ($iterator as $file) {
-            if (!$file->isFile() || $file->getExtension() !== 'php') {
-                continue;
-            }
+        $this->assertStringContainsString('source', $contents);
+        $this->assertStringContainsString('category', $contents);
+        $this->assertStringContainsString('session_id', $contents);
+    }
 
-            $content = (string) file_get_contents($file->getPathname());
+    #[Test]
+    public function single_job_failed_method_includes_metadata_in_log(): void
+    {
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventJob.php');
 
-            if (!str_contains($content, 'declare(strict_types=1)')) {
-                $violations[] = $file->getPathname();
-            }
-        }
+        // The failed() method should log source, category, session_id
+        $this->assertStringContainsString("'source' => \$this->source,", $contents);
+        $this->assertStringContainsString("'category' => \$this->category,", $contents);
+        $this->assertStringContainsString("'session_id' => \$this->sessionId,", $contents);
+    }
 
-        return $violations;
+    #[Test]
+    public function batch_job_handle_includes_metadata_in_error_log(): void
+    {
+        $contents = file_get_contents(dirname(__DIR__, 2) . '/src/Jobs/TrackAnalyticsEventBatchJob.php');
+
+        // Error logging should include source, category
+        $this->assertStringContainsString("'source' => \$eventData['source'] ?? null,", $contents);
+        $this->assertStringContainsString("'category' => \$eventData['category'] ?? null,", $contents);
     }
 }

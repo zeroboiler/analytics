@@ -21,6 +21,9 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * Events that fail individually are logged but do not prevent
  * remaining events from being processed.
  *
+ * Preserves full event metadata (source, category, session_id) across
+ * async boundaries to maintain event context integrity.
+ *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
  *
  * @since 1.0.0
@@ -46,7 +49,7 @@ final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
     public int $timeout = 120;
 
     /**
-     * @param  list<array{name: string, params: array<string, mixed>, client_id?: string|null, user_id?: string|null, timestamp?: int|null, priority?: string|null}>  $events
+     * @param  list<array{name: string, params: array<string, mixed>, client_id?: string|null, user_id?: string|null, timestamp?: int|null, priority?: string|null, source?: string|null, category?: string|null, session_id?: string|null}>  $events
      */
     public function __construct(
         public array $events,
@@ -70,6 +73,9 @@ final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
                     ? \DateTimeImmutable::createFromFormat('U', (string) $eventData['timestamp']) ?: null
                     : null,
                 priority: $eventData['priority'] ?? null,
+                source: $eventData['source'] ?? null,
+                category: $eventData['category'] ?? null,
+                sessionId: $eventData['session_id'] ?? null,
             );
 
             try {
@@ -78,6 +84,8 @@ final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
                 $failedCount++;
                 Log::error('TrackAnalyticsEventBatchJob: failed to track event in batch', [
                     'event' => $eventData['name'],
+                    'source' => $eventData['source'] ?? null,
+                    'category' => $eventData['category'] ?? null,
                     'error' => $e->getMessage(),
                 ]);
             }

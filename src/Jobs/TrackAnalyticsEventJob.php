@@ -21,6 +21,9 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * a proper serializable job class. This is required for redis/database
  * queue drivers where closures cannot be serialized.
  *
+ * Preserves full event metadata across async boundaries: source, category,
+ * and session_id are serialized alongside core fields.
+ *
  * @see \ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher
  *
  * @since 1.0.0
@@ -54,6 +57,9 @@ final readonly class TrackAnalyticsEventJob implements ShouldQueue
      * @param  string|null  $userId  Authenticated user ID
      * @param  int|null  $timestamp  Event timestamp (Unix epoch)
      * @param  string|null  $priority  Event priority level
+     * @param  string|null  $source  Event origin (api|server|client|webhook|replay|batch)
+     * @param  string|null  $category  Event category (ecommerce|saas|engagement|security|uptime|infrastructure|marketing|customer_success|webhook)
+     * @param  string|null  $sessionId  Session identifier for event grouping
      */
     public function __construct(
         public string $name,
@@ -62,6 +68,9 @@ final readonly class TrackAnalyticsEventJob implements ShouldQueue
         public ?string $userId = null,
         public ?int $timestamp = null,
         public ?string $priority = null,
+        public ?string $source = null,
+        public ?string $category = null,
+        public ?string $sessionId = null,
     ): void {}
 
     /**
@@ -79,6 +88,9 @@ final readonly class TrackAnalyticsEventJob implements ShouldQueue
                 ? \DateTimeImmutable::createFromFormat('U', (string) $this->timestamp) ?: null
                 : null,
             priority: $this->priority,
+            source: $this->source,
+            category: $this->category,
+            sessionId: $this->sessionId,
         );
 
         $manager->trackEvent($event);
@@ -93,6 +105,9 @@ final readonly class TrackAnalyticsEventJob implements ShouldQueue
             'event' => $this->name,
             'client_id' => $this->clientId,
             'user_id' => $this->userId,
+            'source' => $this->source,
+            'category' => $this->category,
+            'session_id' => $this->sessionId,
             'attempt' => $this->attempts(),
             'error' => $exception->getMessage(),
         ]);

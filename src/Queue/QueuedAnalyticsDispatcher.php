@@ -76,6 +76,9 @@ final class QueuedAnalyticsDispatcher
             userId: $event->userId,
             timestamp: $event->timestamp?->getTimestamp(),
             priority: $event->priority,
+            source: $event->source,
+            category: $event->category,
+            sessionId: $event->sessionId,
         );
 
         $pendingJob = dispatch($job)
@@ -122,6 +125,9 @@ final class QueuedAnalyticsDispatcher
                     'user_id' => $event->userId,
                     'timestamp' => $event->timestamp?->getTimestamp(),
                     'priority' => $event->priority,
+                    'source' => $event->source,
+                    'category' => $event->category,
+                    'session_id' => $event->sessionId,
                 ],
                 $chunk,
             );
