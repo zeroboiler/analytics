@@ -1,5 +1,18 @@
 # Changelog
 
+## [242.0.0] - 2026-08-18
+
+### Added
+- **Event Throttle Service** (`src/Services/EventThrottleService.php`) — Per-client event dispatch rate limiting with sliding window counter algorithm. Prevents pipeline flooding by enforcing configurable global (120/min) and per-event (30/min) limits per client ID. Supports overflow strategies (drop, sample, delay), critical-priority bypass, exempt event lists, and cache-backed counter management. Config: `zeroboiler.analytics.event_throttle`.
+- **SaaS Health Score Aggregator** (`src/Services/SaaSHealthScoreAggregator.php`) — Composite health score (0–100) evaluating 12 SaaS analytics dimensions: event coverage, provider diversity, identity linking, ecommerce tracking, funnel completeness, revenue tracking, consent compliance, observability, deduplication, queue reliability, schema validation, and data governance. Configurable weights, letter grades (A+→F), cache-backed scoring, weak dimension identification, threshold checking. Config: `zeroboiler.analytics.saas_health`.
+- **SaaS Health Dashboard Command** (`src/Console/Commands/AnalyticsSaaSHealthCommand.php`) — `analytics:saas-health` admin command displaying composite health score, per-dimension breakdown with status indicators, and weak dimension recommendations. Supports `--json`, `--reset-cache`, and `--min-score` (CI/CD gate) options.
+- **Config expansion** — `event_throttle` section (global_limit, per_event_limit, burst_size, overflow strategy, cache_ttl, exempt_events) and `saas_health` section (12 dimension weights) added to `config/zeroboiler.php`.
+- **Phase 63 Production Readiness Test** (`tests/Phase63/Phase63ProductionReadinessTest.php`) — 70+ assertions covering version consistency (6 entry points), source file thresholds (≥965 source, ≥495 test, ≥115 commands, ≥447 services), event catalog completeness, 9-provider coverage, new service/command validation, config expansion, all 12 core SaaS features, code quality (strict_types, MIT headers, finality, docblocks, zero TODO/FIXME).
+
+### Changed
+- Version bump to 242.0.0 across 6 entry points (composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider @version, README badge, CHANGELOG).
+- ServiceProvider: Registered EventThrottleService and SaaSHealthScoreAggregator singletons, added AnalyticsSaaSHealthCommand.
+
 ## [241.0.0] - 2026-08-17
 
 ### Added

@@ -9596,4 +9596,74 @@ return [
             'min_events_for_segment' => (int) env('ANALYTICS_BSEG_MIN_EVENTS', 3),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Dispatch Throttle (v242.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Per-client event dispatch rate limiting to prevent pipeline flooding.
+    | Unlike provider rate limits (which are per-destination), this operates
+    | at the dispatch layer — capping how many events a single client can
+    | push per minute.
+    |
+    | Sliding window counter algorithm, cache-backed.
+    | Critical-priority events and exempt event names bypass the throttle.
+    |
+    | Overflow strategies:
+    | - 'drop':    Silently discard the event (default)
+    | - 'sample':  Allow 10% through (probabilistic)
+    | - 'delay':   Allow through (caller may add latency)
+    |
+    */
+    'event_throttle' => [
+        'enabled' => env('ANALYTICS_EVENT_THROTTLE_ENABLED', true),
+        'global_limit' => (int) env('ANALYTICS_EVENT_THROTTLE_GLOBAL_LIMIT', 120),
+        'per_event_limit' => (int) env('ANALYTICS_EVENT_THROTTLE_PER_EVENT_LIMIT', 30),
+        'burst_size' => (int) env('ANALYTICS_EVENT_THROTTLE_BURST_SIZE', 20),
+        'overflow' => env('ANALYTICS_EVENT_THROTTLE_OVERFLOW', 'drop'), // drop|sample|delay
+        'cache_ttl' => (int) env('ANALYTICS_EVENT_THROTTLE_CACHE_TTL', 65),
+        'exempt_events' => [
+            'purchase',
+            'sign_up',
+            'subscription_created',
+            'trial_start',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SaaS Health Score Aggregator (v242.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Composite health score (0–100) for SaaS analytics instrumentation.
+    | Evaluates 12 dimensions: event coverage, provider diversity, identity
+    | linking, ecommerce tracking, funnel completeness, revenue tracking,
+    | consent compliance, observability, deduplication, queue reliability,
+    | schema validation, and data governance.
+    |
+    | Weights must sum to 1.0. Each dimension is scored independently
+    | and combined using the configured weights.
+    |
+    | Grades: A+ (≥95), A (≥85), B (≥70), C (≥55), D (≥40), F (<40)
+    |
+    */
+    'saas_health' => [
+        'enabled' => env('ANALYTICS_SAAS_HEALTH_ENABLED', true),
+        'cache_ttl' => (int) env('ANALYTICS_SAAS_HEALTH_CACHE_TTL', 300), // 5 minutes
+        'weights' => [
+            'event_coverage' => (float) env('ANALYTICS_SAAS_HEALTH_W_COVERAGE', 0.15),
+            'provider_diversity' => (float) env('ANALYTICS_SAAS_HEALTH_W_PROVIDERS', 0.10),
+            'identity_linking' => (float) env('ANALYTICS_SAAS_HEALTH_W_IDENTITY', 0.10),
+            'ecommerce_tracking' => (float) env('ANALYTICS_SAAS_HEALTH_W_ECOMMERCE', 0.10),
+            'funnel_completeness' => (float) env('ANALYTICS_SAAS_HEALTH_W_FUNNEL', 0.08),
+            'revenue_tracking' => (float) env('ANALYTICS_SAAS_HEALTH_W_REVENUE', 0.10),
+            'consent_compliance' => (float) env('ANALYTICS_SAAS_HEALTH_W_CONSENT', 0.08),
+            'observability' => (float) env('ANALYTICS_SAAS_HEALTH_W_OBSERVABILITY', 0.07),
+            'deduplication' => (float) env('ANALYTICS_SAAS_HEALTH_W_DEDUP', 0.06),
+            'queue_reliability' => (float) env('ANALYTICS_SAAS_HEALTH_W_QUEUE', 0.06),
+            'schema_validation' => (float) env('ANALYTICS_SAAS_HEALTH_W_SCHEMA', 0.05),
+            'data_governance' => (float) env('ANALYTICS_SAAS_HEALTH_W_GOVERNANCE', 0.05),
+        ],
+    ],
 ];
