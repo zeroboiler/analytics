@@ -1133,6 +1133,8 @@ final class EcommerceFormatConverter
      * @param  string  $eventName  Source provider's event name
      * @param  array<string, mixed>  $params  Source provider's event parameters
      * @return array{ga4_event: string, ga4_params: array<string, mixed>}  GA4-format event data
+     *
+     * @since 18.0.0
      */
     public static function fromGa4Format(
         string $sourceProvider,
@@ -1147,6 +1149,22 @@ final class EcommerceFormatConverter
                 ],
                 'AddToCart' => [
                     'ga4_event' => 'add_to_cart',
+                    'ga4_params' => self::metaToGa4AddToCart($params),
+                ],
+                'ViewContent' => [
+                    'ga4_event' => 'view_item',
+                    'ga4_params' => self::metaToGa4View($params),
+                ],
+                'InitiateCheckout' => [
+                    'ga4_event' => 'begin_checkout',
+                    'ga4_params' => self::metaToGa4BeginCheckout($params),
+                ],
+                'AddPaymentInfo' => [
+                    'ga4_event' => 'add_payment_info',
+                    'ga4_params' => self::metaToGa4AddPaymentInfo($params),
+                ],
+                'AddToWishlist' => [
+                    'ga4_event' => 'add_to_wishlist',
                     'ga4_params' => array_merge(
                         self::metaToGa4Items($params['contents'] ?? []),
                         [
@@ -1539,15 +1557,106 @@ final class EcommerceFormatConverter
         );
     }
 
+    // ── Meta → GA4 Reverse Conversions (v254.0.0) ──────────────
+
+    /**
+     * Convert Meta Pixel ViewContent params to GA4 view_item format.
+     *
+     * @param  array<string, mixed>  $metaParams  Meta Pixel event parameters
+     * @return array{currency: string, value: float, items: array<int, array<string, mixed>>}  GA4 event parameters
+     *
+     * @since 254.0.0
+     */
+    public static function metaToGa4View(array $metaParams): array
+    {
+        $contents = $metaParams['contents'] ?? [];
+        /** @var array<int, array<string, mixed>> $contents */
+        $items = self::metaToGa4Items($contents);
+
+        return [
+            'currency' => (string) ($metaParams['currency'] ?? 'USD'),
+            'value' => (float) ($metaParams['value'] ?? 0),
+            'content_name' => (string) ($metaParams['content_name'] ?? ''),
+            'content_type' => (string) ($metaParams['content_type'] ?? 'product'),
+            'items' => $items,
+        ];
+    }
+
+    /**
+     * Convert Meta Pixel AddToCart params to GA4 add_to_cart format.
+     *
+     * @param  array<string, mixed>  $metaParams  Meta Pixel event parameters
+     * @return array{currency: string, value: float, items: array<int, array<string, mixed>>}  GA4 event parameters
+     *
+     * @since 254.0.0
+     */
+    public static function metaToGa4AddToCart(array $metaParams): array
+    {
+        $contents = $metaParams['contents'] ?? [];
+        /** @var array<int, array<string, mixed>> $contents */
+        $items = self::metaToGa4Items($contents);
+
+        return [
+            'currency' => (string) ($metaParams['currency'] ?? 'USD'),
+            'value' => (float) ($metaParams['value'] ?? 0),
+            'items' => $items,
+        ];
+    }
+
+    /**
+     * Convert Meta Pixel InitiateCheckout params to GA4 begin_checkout format.
+     *
+     * @param  array<string, mixed>  $metaParams  Meta Pixel event parameters
+     * @return array{currency: string, value: float, num_items: int, items: array<int, array<string, mixed>>}  GA4 event parameters
+     *
+     * @since 254.0.0
+     */
+    public static function metaToGa4BeginCheckout(array $metaParams): array
+    {
+        $contents = $metaParams['contents'] ?? [];
+        /** @var array<int, array<string, mixed>> $contents */
+        $items = self::metaToGa4Items($contents);
+
+        return [
+            'currency' => (string) ($metaParams['currency'] ?? 'USD'),
+            'value' => (float) ($metaParams['value'] ?? 0),
+            'num_items' => (int) ($metaParams['num_items'] ?? count($items)),
+            'items' => $items,
+        ];
+    }
+
+    /**
+     * Convert Meta Pixel AddPaymentInfo params to GA4 add_payment_info format.
+     *
+     * @param  array<string, mixed>  $metaParams  Meta Pixel event parameters
+     * @return array{currency: string, value: float, content_type: string, items: array<int, array<string, mixed>>}  GA4 event parameters
+     *
+     * @since 254.0.0
+     */
+    public static function metaToGa4AddPaymentInfo(array $metaParams): array
+    {
+        $contents = $metaParams['contents'] ?? [];
+        /** @var array<int, array<string, mixed>> $contents */
+        $items = self::metaToGa4Items($contents);
+
+        return [
+            'currency' => (string) ($metaParams['currency'] ?? 'USD'),
+            'value' => (float) ($metaParams['value'] ?? 0),
+            'content_type' => (string) ($metaParams['content_type'] ?? 'product'),
+            'items' => $items,
+        ];
+    }
+
     // ── Universal Multi-Provider Builder ────────────────────────────────
 
     /**
      * Build e-commerce event parameters for all 10 supported providers at once.
      *
      * Returns a map of provider name → formatted event parameters for the
-     * given event type (purchase, refund, add_to_cart, view_item).
+     * given event type (purchase, refund, add_to_cart, view_item, begin_checkout,
+     * add_payment_info, add_to_wishlist).
      *
-     * @param  'purchase'|'refund'|'add_to_cart'|'view_item'  $eventType
+     * @param  'purchase'|'refund'|'add_to_cart'|'view_item'|'begin_checkout'|'add_payment_info'|'add_to_wishlist'  $eventType
      * @param  array<string, mixed>  $ga4Params  GA4-format event parameters
      * @return array{ga4: array<string, mixed>, meta: array<string, mixed>, posthog: array<string, mixed>, mixpanel: array<string, mixed>, amplitude: array<string, mixed>, plausible: array{event_name: string, props: array<string, string>}|null, tiktok: array<string, mixed>, linkedin: array<string, mixed>}
      *
@@ -1560,11 +1669,33 @@ final class EcommerceFormatConverter
             'meta' => match ($eventType) {
                 'purchase' => self::ga4ToMetaPurchase($ga4Params),
                 'refund' => self::ga4ToMetaRefund($ga4Params),
+                'view_item' => self::ga4ToMetaView($ga4Params),
+                'add_to_cart' => self::ga4ToMetaAddToCart($ga4Params),
+                'begin_checkout' => self::ga4ToMetaBeginCheckout($ga4Params),
+                'add_payment_info' => self::ga4ToMetaAddPaymentInfo($ga4Params),
+                'add_to_wishlist' => self::ga4ToMetaAuto('add_to_wishlist', $ga4Params)['meta_params'] ?? [
+                    'content_type' => 'product',
+                    'value' => (float) ($ga4Params['value'] ?? 0),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                ],
                 default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
             },
             'posthog' => match ($eventType) {
                 'purchase' => self::ga4ToPosthogPurchase($ga4Params),
                 'refund' => self::ga4ToPosthogRefund($ga4Params),
+                'view_item' => self::buildPosthogViewItem(
+                    $ga4Params['items'][0] ?? [],
+                    (string) ($ga4Params['currency'] ?? 'USD'),
+                ),
+                'add_to_cart' => self::buildPosthogAddToCart(
+                    $ga4Params['items'][0] ?? [],
+                    (string) ($ga4Params['currency'] ?? 'USD'),
+                ),
+                'begin_checkout' => self::buildPosthogBeginCheckout(
+                    $ga4Params['items'] ?? [],
+                    (float) ($ga4Params['value'] ?? 0),
+                    (string) ($ga4Params['currency'] ?? 'USD'),
+                ),
                 default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
             },
             'mixpanel' => match ($eventType) {
@@ -1587,8 +1718,59 @@ final class EcommerceFormatConverter
             'linkedin' => match ($eventType) {
                 'purchase' => self::ga4ToLinkedinPurchase($ga4Params),
                 'add_to_cart' => self::ga4ToLinkedinAddToCart($ga4Params),
+                'view_item' => [
+                    'value' => (float) (($ga4Params['items'][0]['price'] ?? $ga4Params['value'] ?? 0)),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                ],
+                'begin_checkout' => [
+                    'value' => (float) ($ga4Params['value'] ?? 0),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                    'num_items' => count($ga4Params['items'] ?? []),
+                ],
+                'add_payment_info' => [
+                    'value' => (float) ($ga4Params['value'] ?? 0),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                ],
+                'add_to_wishlist' => [
+                    'value' => (float) (($ga4Params['items'][0]['price'] ?? 0)),
+                    'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
+                ],
                 default => ['value' => (float) ($ga4Params['value'] ?? 0), 'currency' => (string) ($ga4Params['currency'] ?? 'USD')],
             },
         ];
+    }
+
+    // ── Supported Event Types (v254.0.0) ─────────────────────────────
+
+    /**
+     * Get the list of event types with full multi-provider conversion support.
+     *
+     * Event types listed here have dedicated Meta Pixel, PostHog, Plausible,
+     * TikTok, and LinkedIn format conversions. All other e-commerce events
+     * fall back to generic value/currency passthrough.
+     *
+     * @return list<'purchase'|'refund'|'add_to_cart'|'view_item'|'begin_checkout'|'add_payment_info'|'add_to_wishlist'|'remove_from_cart'|'view_cart'|'select_item'|'select_promotion'|'view_promotion'|'checkout_step'|'abandoned_cart'|'checkout_abandon'>
+     *
+     * @since 254.0.0
+     */
+    public static function supportedEventTypes(): array
+    {
+        return [
+            'purchase', 'refund', 'add_to_cart', 'view_item',
+            'begin_checkout', 'add_payment_info', 'add_to_wishlist',
+            'remove_from_cart', 'view_cart', 'select_item',
+            'select_promotion', 'view_promotion', 'checkout_step',
+            'abandoned_cart', 'checkout_abandon',
+        ];
+    }
+
+    /**
+     * Check if a given event type has full multi-provider conversion support.
+     *
+     * @since 254.0.0
+     */
+    public static function hasFullProviderSupport(string $eventType): bool
+    {
+        return in_array($eventType, ['purchase', 'refund', 'add_to_cart', 'view_item', 'begin_checkout', 'add_payment_info', 'add_to_wishlist'], true);
     }
 }
