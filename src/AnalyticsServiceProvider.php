@@ -17,6 +17,7 @@ use ZeroBoiler\Analytics\Blade\Directives\AnalyticsDirectives;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCoverageCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDebugCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsWatermarkCommand;
 use ZeroBoiler\Analytics\Console\Commands\SaaSRevenueIntelligenceCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsObservabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsPipelineValidateCommand;
@@ -165,6 +166,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsRecoveryService;
 use ZeroBoiler\Analytics\Services\AnalyticsSandboxService;
 use ZeroBoiler\Analytics\Services\ProviderRateLimitService;
 use ZeroBoiler\Analytics\Services\EventDispatchLatencyTracker;
+use ZeroBoiler\Analytics\Services\DispatchDecisionReplayService;
+use ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService;
 use ZeroBoiler\Analytics\Services\EventDispatchOrchestrator;
 use ZeroBoiler\Analytics\Services\EventReplayAuditLedger;
 use ZeroBoiler\Analytics\Services\AnalyticsEventGateway;
@@ -512,7 +515,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 244.0.0
+ * @version 245.0.0
  *
  * @since 1.0.0
  */
@@ -2811,6 +2814,22 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
+        // Event Delivery Watermark Service (v245.0.0)
+        $this->app->singleton(EventDeliveryWatermarkService::class, function (Application $app): EventDeliveryWatermarkService {
+            return new EventDeliveryWatermarkService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
+        // Dispatch Decision Replay Service (v245.0.0)
+        $this->app->singleton(DispatchDecisionReplayService::class, function (Application $app): DispatchDecisionReplayService {
+            return new DispatchDecisionReplayService(
+                $app->make('cache'),
+                $app->make(ConfigRepository::class),
+            );
+        });
+
         // Analytics Event Gateway (v208.0.0)
         $this->app->singleton(AnalyticsEventGateway::class, function (Application $app): AnalyticsEventGateway {
             return new AnalyticsEventGateway(
@@ -4657,6 +4676,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $this->commands([
                 AnalyticsTestCommand::class,
                 AnalyticsOverviewCommand::class,
+                AnalyticsWatermarkCommand::class,
                 SaaSRevenueIntelligenceCommand::class,
                 AnalyticsObservabilityCommand::class,
                 AnalyticsRevenueAttributionCommand::class,

@@ -1297,4 +1297,27 @@ Route::prefix('analytics')->group(function () {
     Route::post('segments/snapshot/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsSnapshot']);
     Route::delete('segments/cache/{userId}', [AnalyticsEventController::class, 'behavioralSegmentsInvalidateUser']);
     Route::delete('segments/cache', [AnalyticsEventController::class, 'behavioralSegmentsInvalidateAll']);
+
+    // Event Delivery Watermark (v245.0.0)
+    Route::get('watermark', [AnalyticsEventController::class, 'watermarkDashboard']);
+    Route::get('watermark/status', [AnalyticsEventController::class, 'watermarkStatus']);
+    Route::get('watermark/status/{provider}', [AnalyticsEventController::class, 'watermarkProviderStatus']);
+    Route::get('watermark/gaps', [AnalyticsEventController::class, 'watermarkGaps']);
+    Route::get('watermark/gaps/{provider}', [AnalyticsEventController::class, 'watermarkProviderGaps']);
+    Route::get('watermark/consistency', [AnalyticsEventController::class, 'watermarkConsistency']);
+    Route::get('watermark/log', [AnalyticsEventController::class, 'watermarkLog']);
+    Route::get('watermark/log/{provider}', [AnalyticsEventController::class, 'watermarkProviderLog']);
+    Route::get('watermark/stats', [AnalyticsEventController::class, 'watermarkStats']);
+    Route::delete('watermark', [AnalyticsEventController::class, 'watermarkReset']);
+
+    // Dispatch Decision Replay (v245.0.0)
+    Route::get('decision-replay', [AnalyticsEventController::class, 'decisionReplaySummary']);
+    Route::get('decision-replay/analysis', [AnalyticsEventController::class, 'decisionReplayAnalysis']);
+    Route::get('decision-replay/recent', [AnalyticsEventController::class, 'decisionReplayRecent']);
+    Route::get('decision-replay/dropped', [AnalyticsEventController::class, 'decisionReplayDropped']);
+    Route::get('decision-replay/circuit-open', [AnalyticsEventController::class, 'decisionReplayCircuitOpen']);
+    Route::get('decision-replay/consent-denied', [AnalyticsEventController::class, 'decisionReplayConsentDenied']);
+    Route::get('decision-replay/reasoning', [AnalyticsEventController::class, 'decisionReplayReasoning']);
+    Route::get('decision-replay/debug/event/{event}', [AnalyticsEventController::class, 'decisionReplayDebugEvent']);
+    Route::get('decision-replay/debug/provider/{provider}', [AnalyticsEventController::class, 'decisionReplayDebugProvider']);
 });

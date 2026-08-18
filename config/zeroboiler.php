@@ -9699,4 +9699,35 @@ return [
         'fail_level' => env('ANALYTICS_QG_FAIL_LEVEL', 'warning'), // error|warning|none
         'auto_snapshot' => (bool) env('ANALYTICS_QG_AUTO_SNAPSHOT', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Event Delivery Watermark (v245.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Kafka-inspired delivery cursor tracking for gap detection and
+    | cross-provider consistency monitoring. Tracks per-provider
+    | confirmed watermarks and detects sequence number gaps.
+    |
+    | The watermark service maintains:
+    | - Global high-water mark (monotonically increasing sequence counter)
+    | - Per-provider confirmed watermarks (last successfully delivered seq)
+    | - Dispatch log (recent dispatch/fail/confirm entries)
+    | - Gap records (dispatched-but-not-confirmed events per provider)
+    |
+    | Use `zb:analytics:watermark` command to monitor and debug.
+    |
+    */
+    'watermark' => [
+        'enabled' => env('ANALYTICS_WATERMARK_ENABLED', true),
+        'ttl' => (int) env('ANALYTICS_WATERMARK_TTL', 3600), // 1 hour
+        'log_size' => (int) env('ANALYTICS_WATERMARK_LOG_SIZE', 1000),
+        'gap_window' => (int) env('ANALYTICS_WATERMARK_GAP_WINDOW', 500),
+        'lag_warning' => (int) env('ANALYTICS_WATERMARK_LAG_WARNING', 50),
+        'lag_critical' => (int) env('ANALYTICS_WATERMARK_LAG_CRITICAL', 200),
+        'providers' => [
+            // Override with specific provider list if needed
+            // Default: all 10 providers tracked automatically
+        ],
+    ],
 ];

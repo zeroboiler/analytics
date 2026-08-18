@@ -22568,4 +22568,333 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    // ── Event Delivery Watermark Endpoints (v245.0.0) ───────────────
+
+    /**
+     * GET /api/analytics/watermark
+     * Full watermark dashboard.
+     */
+    public function watermarkDashboard(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+
+            return response()->json($service->dashboard());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/status
+     * Per-provider watermark status.
+     */
+    public function watermarkStatus(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+
+            return response()->json([
+                'global_hwm' => $service->globalHighWaterMark(),
+                'providers' => $service->providerStatuses(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/status/{provider}
+     * Single provider watermark status.
+     */
+    public function watermarkProviderStatus(string $provider): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+            $watermark = $service->providerWatermark($provider);
+            $globalHwm = $service->globalHighWaterMark();
+            $gaps = $service->gapsForProvider($provider);
+            $replayable = $service->replayableGaps($provider);
+
+            return response()->json([
+                'provider' => $provider,
+                'confirmed_watermark' => $watermark,
+                'global_hwm' => $globalHwm,
+                'lag' => max(0, $globalHwm - $watermark),
+                'resume_checkpoint' => $service->resumeCheckpoint($provider),
+                'open_gaps' => count($gaps),
+                'gaps' => $gaps,
+                'replayable' => $replayable,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/gaps
+     * Detect and show delivery gaps for all providers.
+     */
+    public function watermarkGaps(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+
+            return response()->json($service->detectGaps());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/gaps/{provider}
+     * Delivery gaps for a specific provider.
+     */
+    public function watermarkProviderGaps(string $provider): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+            $gaps = $service->gapsForProvider($provider);
+            $replayable = $service->replayableGaps($provider);
+
+            return response()->json([
+                'provider' => $provider,
+                'open_gaps' => count($gaps),
+                'gaps' => $gaps,
+                'replayable_from_checkpoint' => $replayable,
+                'resume_checkpoint' => $service->resumeCheckpoint($provider),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/consistency
+     * Cross-provider delivery consistency report.
+     */
+    public function watermarkConsistency(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+
+            return response()->json($service->consistencyReport());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/log
+     * Recent dispatch log.
+     */
+    public function watermarkLog(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+            $limit = (int) ($request->query('limit', 50));
+
+            return response()->json($service->dispatchLog($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/log/{provider}
+     * Dispatch log for a specific provider.
+     */
+    public function watermarkProviderLog(string $provider, Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+            $limit = (int) ($request->query('limit', 50));
+
+            return response()->json($service->dispatchLogForProvider($provider, $limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/watermark/stats
+     * Dispatch statistics summary.
+     */
+    public function watermarkStats(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+
+            return response()->json($service->dispatchStats());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/analytics/watermark
+     * Reset all watermarks and counters.
+     */
+    public function watermarkReset(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\EventDeliveryWatermarkService::class);
+            $service->reset();
+
+            return response()->json(['status' => 'ok', 'message' => 'All watermarks, gaps, and counters have been reset.']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ── Dispatch Decision Replay Endpoints (v245.0.0) ──────────────
+
+    /**
+     * GET /api/analytics/decision-replay
+     * Decision replay quick summary.
+     */
+    public function decisionReplaySummary(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+
+            return response()->json($service->summary());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/analysis
+     * Full decision analysis with patterns.
+     */
+    public function decisionReplayAnalysis(): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+
+            return response()->json($service->analyze());
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/recent
+     * Recent dispatch decisions with optional filtering.
+     */
+    public function decisionReplayRecent(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+            $limit = (int) ($request->query('limit', 50));
+            $action = $request->query('action');
+            $provider = $request->query('provider');
+            $event = $request->query('event');
+
+            return response()->json($service->recentDecisions(
+                $limit,
+                is_string($action) ? $action : null,
+                is_string($provider) ? $provider : null,
+                is_string($event) ? $event : null,
+            ));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/dropped
+     * Decisions that resulted in event drops.
+     */
+    public function decisionReplayDropped(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+            $limit = (int) ($request->query('limit', 50));
+
+            return response()->json($service->droppedDecisions($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/circuit-open
+     * Decisions that hit circuit breaker open state.
+     */
+    public function decisionReplayCircuitOpen(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+            $limit = (int) ($request->query('limit', 50));
+
+            return response()->json($service->circuitOpenDecisions($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/consent-denied
+     * Decisions blocked by consent.
+     */
+    public function decisionReplayConsentDenied(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+            $limit = (int) ($request->query('limit', 50));
+
+            return response()->json($service->consentDeniedDecisions($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/reasoning
+     * Decision reasoning breakdown.
+     */
+    public function decisionReplayReasoning(Request $request): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+            $limit = (int) ($request->query('limit', 20));
+
+            return response()->json($service->reasoningBreakdown($limit));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/debug/event/{event}
+     * Debug a specific event's dispatch decisions.
+     */
+    public function decisionReplayDebugEvent(string $event): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+
+            return response()->json($service->debugEvent($event));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/decision-replay/debug/provider/{provider}
+     * Debug a specific provider's dispatch decisions.
+     */
+    public function decisionReplayDebugProvider(string $provider): JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Services\DispatchDecisionReplayService::class);
+
+            return response()->json($service->debugProvider($provider));
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
