@@ -1,4 +1,18 @@
 # Changelog
+## [252.0.0] - 2026-08-18
+
+### Added
+- **SaaSStarterQuickAuditService** — Single-call production readiness auditor that validates all 12 industry-standard SaaS analytics features. Weighted scoring model (0–100) across Event Catalog, Server-Side Lifecycle Tracker, Inertia Middleware, API Controller + Routes, JS Client Library, Event Queue, User Identity Linking, E-commerce Helpers, Admin Commands, Config Expansion, Optional Providers, and Tests + Documentation. Returns A+ through F grade with per-feature scores, actionable gap analysis with severity classification (critical/warning/info), and prioritized remediation suggestions. Methods: `audit()`, `quickScore()`, `isProductionReady()`, `featureDefinitions()`, `totalWeight()`.
+- **AnalyticsSaaSQuickAuditCommand** — `php artisan zb:analytics:saas-audit` CLI with 4 modes: default (full report with visual bar chart per feature, summary stats, gap list, and production readiness verdict), `--score` (quick score + grade), `--gaps` (only failed checks with remediations), `--json` (machine-readable output), `--gates` (CI/CD exit code 1 if not production-ready).
+- **V252SaaSStarterQuickAuditTest** — 21 test cases: service finality, constructor void return, audit structure (12 features, correct keys), score bounds 0–100, valid grade, summary structure, gap structure, quickScore consistency, weight validation (sum = 1.0), command class exists and is final, command signature options, event catalog audit checks, starter coverage match, config sensitivity, isProductionReady boolean, source file count thresholds, version consistency across 5 entry points.
+
+### Fixed
+- **Version drift** — AnalyticsIntegrityCommand::EXPECTED_VERSION synced from 235.0.0 to 252.0.0 (was 16 versions behind).
+- **README badge** — Version badge updated from 250.0.0 to 252.0.0, test badge updated to 501+ test files / 983+ source files.
+
+### Changed
+- **Version bump to 252.0.0** across all 5 version entry points (composer.json, package.json, AnalyticsEvent::VERSION, resources/js/analytics.js, README badge). All 16 JS module @version annotations synced.
+
 ## [250.0.0] - 2026-08-18
 
 ### Added

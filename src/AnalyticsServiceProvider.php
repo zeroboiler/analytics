@@ -150,6 +150,7 @@ use ZeroBoiler\Analytics\Services\SentryErrorAnalyticsService;
 use ZeroBoiler\Analytics\Services\SaaSCoverageReportService;
 use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
 use ZeroBoiler\Analytics\Services\SaaSStarterJourneyService;
+use ZeroBoiler\Analytics\Services\SaaSStarterQuickAuditService;
 use ZeroBoiler\Analytics\Services\WebVitalsAggregatorService;
 use ZeroBoiler\Analytics\Services\EventInspectorService;
 use ZeroBoiler\Analytics\Services\AnalyticsHealthCheckService;
@@ -257,6 +258,7 @@ use ZeroBoiler\Analytics\Services\EventSchemaJsonGenerator;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\EventActionRegistry;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventActionsCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickAuditCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQualityGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSemanticMetricsCommand;
@@ -2773,6 +2775,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new SaaSStarterJourneyService($app->make(AnalyticsManager::class));
         });
 
+        // SaaS Starter Quick Audit Service (v252.0.0) — 12-feature production readiness scorer
+        $this->app->singleton(SaaSStarterQuickAuditService::class, function (Application $app): SaaSStarterQuickAuditService {
+            return new SaaSStarterQuickAuditService($app->make(ConfigRepository::class));
+        });
+
         // Event Sequence Value Attribution Service (v212.0.0) — business-value scoring for user journey sequences
         $this->app->singleton(EventSequenceValueAttributionService::class, function (Application $app): EventSequenceValueAttributionService {
             return new EventSequenceValueAttributionService(
@@ -4794,6 +4801,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
                 AnalyticsEventActionsCommand::class,
+                AnalyticsSaaSQuickAuditCommand::class,
             ]));
         }
 
