@@ -1,4 +1,8 @@
 # Changelog
+n## [248.0.1] - 2026-08-18
+
+### Fixed
+- Version consistency: composer.json and README badge synced to 248.0.1
 
 ## [248.0.0] - 2026-08-18
 
