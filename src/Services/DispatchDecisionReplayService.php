@@ -39,24 +39,10 @@ final class DispatchDecisionReplayService
     /** @var string Cache key for the orchestrator decision ledger */
     private const LEDGER_KEY = 'zb_orchestrator_decisions';
 
-    /** @var string Cache key prefix for replay snapshots */
-    private const REPLAY_PREFIX = 'zb_decision_replay_';
-
-    /** @var int Default replay TTL (30 minutes) */
-    private const REPLAY_TTL = 1800;
-
-    /** @var int Maximum decisions to process in a single replay */
-    private const MAX_REPLAY_DECISIONS = 1000;
-
     /**
      * Decision record from the orchestrator ledger.
      *
      * @phpstan-type DecisionRecord array{id: string, event: string, provider: string, action: string, reasoning: string, latency_estimate?: float|null, priority?: string|null, timestamp: float}
-     */
-    /**
-     * Replay result structure.
-     *
-     * @phpstan-type ReplayResult array{original_decision: string, replayed_decision: string, changed: bool, event: string, provider: string}
      */
     /**
      * Decision analysis summary.
@@ -67,8 +53,6 @@ final class DispatchDecisionReplayService
     private readonly CacheRepository $cache;
 
     private readonly bool $enabled;
-
-    private readonly int $replayTtl;
 
     /**
      * @param  CacheRepository  $cache  Cache repository
@@ -81,10 +65,9 @@ final class DispatchDecisionReplayService
         $this->cache = $cache;
 
         $orchConfig = $config->get('zeroboiler.analytics.dispatch_orchestrator', []);
-        /** @var array{enabled?: bool, decision_ttl?: int} $orchConfig */
+        /** @var array{enabled?: bool} $orchConfig */
 
         $this->enabled = (bool) ($orchConfig['enabled'] ?? true);
-        $this->replayTtl = (int) ($orchConfig['decision_ttl'] ?? self::REPLAY_TTL);
     }
 
     // ── Ledger Access ───────────────────────────────────────────────

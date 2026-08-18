@@ -130,6 +130,7 @@ final class Phase65ProductionReadinessTest extends TestCase
             'droppedDecisions',
             'circuitOpenDecisions',
             'consentDeniedDecisions',
+            'budgetExceededDecisions',
             'debugEvent',
             'debugProvider',
             'compareWindows',
@@ -328,9 +329,6 @@ final class Phase65ProductionReadinessTest extends TestCase
         $ref = new \ReflectionClass(DispatchDecisionReplayService::class);
 
         $this->assertSame('zb_orchestrator_decisions', $ref->getConstant('LEDGER_KEY'));
-        $this->assertSame('zb_decision_replay_', $ref->getConstant('REPLAY_PREFIX'));
-        $this->assertSame(1800, $ref->getConstant('REPLAY_TTL'));
-        $this->assertSame(1000, $ref->getConstant('MAX_REPLAY_DECISIONS'));
     }
 
     // ── Return Type Declarations ───────────────────────────────────
