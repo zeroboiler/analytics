@@ -36,7 +36,7 @@ final class AnalyticsConfigValidator
     /** @var list<array{section: string, key: string, status: 'present'|'missing'|'invalid'|'insecure'}> */
     private array $findings = [];
 
-    public function __construct(ConfigRepository $config)
+    public function __construct(ConfigRepository $config): void
     {
         $this->config = $config;
     }

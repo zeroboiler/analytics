@@ -46,7 +46,7 @@ final readonly class EventAction
         public ?int $cooldownSeconds = null,
         public ?string $condition = null,
         public array $metadata = [],
-    ) {}
+    ): void {}
 
     /**
      * Check if this action matches a given event name.

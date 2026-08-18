@@ -16762,7 +16762,7 @@ final class AnalyticsEventController extends Controller
         try {
             $serializer = new \ZeroBoiler\Analytics\Services\EventCompactSerializer;
             $payload = $serializer->serializeBatch($analyticsEvents);
-            $jsonSize = strlen(json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $jsonSize = strlen(json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
             $compactSize = strlen($payload);
             $ratio = $jsonSize > 0 ? round((float) $compactSize / (float) $jsonSize, 4) : 1.0;
 

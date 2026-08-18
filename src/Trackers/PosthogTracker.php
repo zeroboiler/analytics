@@ -349,7 +349,7 @@ final class PosthogTracker implements TrackerInterface
                 'api_key' => $this->apiKey,
                 'feature_flag' => $flagKey,
                 'distinct_id' => $distinctId,
-                'person_properties' => json_encode($personProperties),
+                'person_properties' => json_encode($personProperties, JSON_THROW_ON_ERROR),
             ]);
 
             if ($response->successful()) {

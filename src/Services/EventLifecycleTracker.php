@@ -64,7 +64,7 @@ final class EventLifecycleTracker
         int $ttl = 3600,
         int $statsTtl = 300,
         int $maxRetries = 3,
-    ) {
+    ): void {
         $this->enabled = $enabled;
         $this->ttl = $ttl;
         $this->statsTtl = $statsTtl;

@@ -224,7 +224,7 @@ final class EventBlueprintBuilder
     /** @var array<string, mixed> */
     private array $metadata = [];
 
-    public function __construct(string $name, string $label)
+    public function __construct(string $name, string $label): void
     {
         $this->name = $name;
         $this->label = $label !== '' ? $label : $name;

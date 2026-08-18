@@ -1,21 +1,2 @@
-<?php
-
-declare(strict_types=1);
-
-return PHPStan\Config\Initiator::init()
-    ->basePath(__DIR__)
-    ->level(9)
-    ->paths([__DIR__ . '/src'])
-    ->excludePaths([
-        'tests/*',
-        'stubs/*',
-    ])
-    ->bootstrapFiles([
-        __DIR__ . '/stubs/laravel-helpers.php',
-    ])
-    ->checkMissingIterableValueType(false)
-    ->checkUnusedParameters(true)
-    ->checkUninitializedProperties(true)
-    ->treatPhpDocTypesAsCertain(false)
-    ->reportUnmatchedIgnoredErrors(false)
-    ->checkGenericClassInNonGenericObjectType(true);
+includes:
+    - phpstan.neon.dist

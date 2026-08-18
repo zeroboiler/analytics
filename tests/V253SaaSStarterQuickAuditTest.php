@@ -271,14 +271,14 @@ test('source file counts are above minimums', function (): void {
     expect(is_array($testFiles) ? count($testFiles) : 0)->toBeGreaterThanOrEqual(498);
 });
 
-test('version consistency at 252.0.0', function (): void {
+test('version consistency at 253.0.0', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
     $dtoVersion = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
     $jsContent = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
     $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
 
-    expect($composer['version'])->toBe('252.0.0');
-    expect($dtoVersion)->toBe('252.0.0');
-    expect($pkg['version'])->toBe('252.0.0');
-    expect(str_contains($jsContent, '@version 252.0.0'))->toBeTrue();
+    expect($composer['version'])->toBe('253.0.0');
+    expect($dtoVersion)->toBe('253.0.0');
+    expect($pkg['version'])->toBe('253.0.0');
+    expect(str_contains($jsContent, '@version 253.0.0'))->toBeTrue();
 });

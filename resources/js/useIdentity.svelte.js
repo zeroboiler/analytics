@@ -11,7 +11,7 @@
  * stores for real-time identity state in Svelte components.
  *
  * @package ZeroBoiler Analytics
- * @version 252.0.0
+ * @version 253.0.0
  */
 
 import { writable, derived } from 'svelte/store';

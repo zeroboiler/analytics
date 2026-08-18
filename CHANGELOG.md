@@ -1,4 +1,16 @@
 # Changelog
+## [253.0.0] - 2026-08-18
+
+### Fixed
+- **phpstan.neon** — Replaced broken programmatic PHP init file with proper neon `includes: phpstan.neon.dist`. Ensures custom ignoreErrors are honored.
+- **Blank line after `<?php`** — Removed spurious blank line in AnalyticsReprocessorCommand and EventReprocessorService.
+- **json_encode safety** — Added `JSON_THROW_ON_ERROR` to `PosthogTracker::evaluateFeatureFlag()` and `AnalyticsEventController` compact serializer size comparison.
+- **Version consistency** — Bumped 252.0.0 → 253.0.0 across composer.json, package.json, AnalyticsEvent::VERSION, README badge, ServiceProvider @version.
+
+### Added
+- **Phase85ProductionReadinessTest** — 35-test comprehensive structural audit: version consistency across 4 entry points, composer metadata (PSR-4, dev deps, PHP 8.5, Laravel 13), strict_types + license on all 983 src files, zero TODO/FIXME, no blank line after `<?php`, exception hierarchy (AnalyticsException abstract base, 2 final leaves with forMessage self-return), ServiceProvider final+#[Override] on register/boot/provides, Facade final+#[Override], AnalyticsManager final+constructor :void, tracker+store constructor :void audit (14 classes), 5 core interfaces, config structure (16+ sections with sub-key validation, 20+ section count minimum), phpstan parity (neon includes dist, level 9, required settings), project scale thresholds (983 src, 502 tests, 118 commands, 452 services, 40 namespaces), API endpoint count (893+), AnalyticsFake non-final, migration file, DTO finality, license file, project structure files, README version badge.
+
+## [252.0.0] - 2026-08-18
 ## [252.0.0] - 2026-08-18
 
 ### Added
