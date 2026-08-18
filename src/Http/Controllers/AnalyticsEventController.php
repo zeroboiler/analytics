@@ -22898,3 +22898,197 @@ final class AnalyticsEventController extends Controller
         }
     }
 }
+
+    // ==================================================================
+    // Event Blueprint Builder (v246.0.0)
+    // ==================================================================
+
+    /**
+     * GET /api/analytics/blueprints
+     * List all registered event blueprints.
+     *
+     * @return JsonResponse
+     */
+    public function blueprintList(): JsonResponse
+    {
+        try {
+            $registry = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => [
+                    'blueprints' => $registry->all(),
+                    'count' => $registry->count(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/blueprints/{name}
+     * Get the full schema of a specific blueprint.
+     *
+     * @param string $name Blueprint name
+     * @return JsonResponse
+     */
+    public function blueprintSchema(string $name): JsonResponse
+    {
+        try {
+            $registry = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry::class);
+            $blueprint = $registry->get($name);
+
+            if ($blueprint === null) {
+                return response()->json(['status' => 'error', 'error' => "Blueprint \"{$name}\" not found."], 404);
+            }
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $blueprint->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/analytics/blueprints/{name}/validate
+     * Dry-run validate a blueprint without building it.
+     *
+     * @param string $name Blueprint name
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function blueprintValidate(Request $request, string $name): JsonResponse
+    {
+        try {
+            $builder = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintBuilderService::class);
+            $params = $request->input('params', []);
+
+            $report = $builder->dryRunValidate($name, $params);
+
+            return response()->json([
+                'status' => $report['valid'] ? 'ok' : 'validation_failed',
+                'data' => $report,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/analytics/blueprints/{name}/build
+     * Build an event from a blueprint with given params.
+     *
+     * @param string $name Blueprint name
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function blueprintBuild(Request $request, string $name): JsonResponse
+    {
+        try {
+            $builder = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintBuilderService::class);
+            $params = $request->input('params', []);
+            $userId = $request->input('user_id');
+            $sessionId = $request->input('session_id');
+            $redactPii = $request->boolean('redact_pii', false);
+            $provider = $request->input('provider');
+
+            $builder->withUserId($userId)->withSessionId($sessionId);
+
+            if ($redactPii) {
+                $builder->withPiiRedaction();
+            }
+
+            if ($provider !== null) {
+                $builder->withProviderFormat($provider);
+            }
+
+            $result = $builder->build($name, $params);
+
+            return response()->json(['status' => 'ok', 'data' => $result]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['status' => 'validation_error', 'error' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/analytics/blueprints/{name}/payloads
+     * Build an event and get provider-ready payloads for all (or specific) providers.
+     *
+     * @param string $name Blueprint name
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function blueprintPayloads(Request $request, string $name): JsonResponse
+    {
+        try {
+            $builder = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintBuilderService::class);
+            $params = $request->input('params', []);
+            $userId = $request->input('user_id');
+            $sessionId = $request->input('session_id');
+            $redactPii = $request->boolean('redact_pii', false);
+
+            $builder->withUserId($userId)->withSessionId($sessionId);
+
+            if ($redactPii) {
+                $builder->withPiiRedaction();
+            }
+
+            $payloads = $builder->buildProviderPayloads($name, $params);
+
+            return response()->json(['status' => 'ok', 'data' => $payloads]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['status' => 'validation_error', 'error' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/analytics/blueprints/{name}/batch
+     * Build multiple events from a blueprint with varying params.
+     *
+     * @param string $name Blueprint name
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function blueprintBatch(Request $request, string $name): JsonResponse
+    {
+        try {
+            $builder = app(\ZeroBoiler\Analytics\Blueprints\EventBlueprintBuilderService::class);
+            $variations = $request->input('variations', []);
+            $userId = $request->input('user_id');
+            $sessionId = $request->input('session_id');
+            $redactPii = $request->boolean('redact_pii', false);
+            $provider = $request->input('provider');
+
+            $builder->withUserId($userId)->withSessionId($sessionId);
+
+            if ($redactPii) {
+                $builder->withPiiRedaction();
+            }
+
+            if ($provider !== null) {
+                $builder->withProviderFormat($provider);
+            }
+
+            $results = $builder->buildBatch($name, $variations);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => [
+                    'built' => count($results),
+                    'events' => $results,
+                ],
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['status' => 'validation_error', 'error' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+}

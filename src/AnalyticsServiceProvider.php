@@ -498,6 +498,9 @@ use ZeroBoiler\Analytics\Services\EventVolumeAnomalyDetectionService;
 use ZeroBoiler\Analytics\Services\ProviderResilienceService;
 use ZeroBoiler\Analytics\Services\ProviderCapabilityMatrixService;
 use ZeroBoiler\Analytics\Services\EventPayloadMarshallerService;
+use ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry;
+use ZeroBoiler\Analytics\Blueprints\EventBlueprintBuilderService;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsBlueprintCommand;
 use ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine;
 use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
@@ -507,6 +510,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickDeployCommand;
 use ZeroBoiler\Analytics\Services\EventCatalogSemVerService;
 use ZeroBoiler\Analytics\Services\CustomerHealthScoreService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDriftCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
 
 /**
@@ -515,7 +519,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 245.0.0
+ * @version 246.0.0
  *
  * @since 1.0.0
  */
@@ -4659,6 +4663,18 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 cache: $app->make(CacheRepository::class),
             );
         });
+
+        // Event Blueprint Builder (v246.0.0)
+        $this->app->singleton(EventBlueprintRegistry::class, function (Application $app): EventBlueprintRegistry {
+            return new EventBlueprintRegistry($app->make(CacheRepository::class));
+        });
+
+        $this->app->singleton(EventBlueprintBuilderService::class, function (Application $app): EventBlueprintBuilderService {
+            return new EventBlueprintBuilderService(
+                $app->make(EventBlueprintRegistry::class),
+                $app->make(ConfigRepository::class),
+            );
+        });
     }
 
     /**
@@ -4769,18 +4785,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsCapabilityCommand::class,
                 AnalyticsCatalogVersionCommand::class,
                 AnalyticsGlossaryCommand::class,
+                AnalyticsSaaSHealthCommand::class,
+                AnalyticsQualityGateCommand::class,
+                AnalyticsBlueprintCommand::class,
+                AnalyticsSemanticMetricsCommand::class,
                 AnalyticsSaaSQuickDeployCommand::class,
                 AnalyticsDriftCommand::class,
-                \\ZeroBoiler\\Analytics\\Console\\Commands\\AnalyticsROICommand::class,
+                AnalyticsROICommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsSnrCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsPruneAdvisorCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsDecompositionCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogQualityCommand::class,
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
                 AnalyticsEventActionsCommand::class,
-                \\ZeroBoiler\\Analytics\\Console\\Commands\\AnalyticsSemanticMetricsCommand::class,
-                AnalyticsSaaSHealthCommand::class,
-                AnalyticsQualityGateCommand::class,
             ]));
         }
 
@@ -5203,6 +5220,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/webhooks/relay/destinations', [$controller, 'webhookRelayDestinations']);
                 Route::get('analytics/webhooks/relay/{destination}/log', [$controller, 'webhookRelayLog']);
                 Route::post('analytics/webhooks/relay/test/{destination}', [$controller, 'webhookRelayTest']);
+
+                // Event Blueprint Builder (v246.0.0) — read-only catalog endpoints
+                Route::get('analytics/blueprints', [$controller, 'blueprintList']);
+                Route::get('analytics/blueprints/{name}', [$controller, 'blueprintSchema']);
+                Route::get('analytics/blueprints/{name}/validate', [$controller, 'blueprintValidate']);
             });
 
         // Authenticated endpoints
@@ -5408,6 +5430,11 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::post('analytics/reprocessor/audit', [$controller, 'reprocessorAudit']);
                 Route::get('analytics/reprocessor/status', [$controller, 'reprocessorStatus']);
                 Route::get('analytics/reprocessor/metrics', [$controller, 'reprocessorMetrics']);
+
+                // Event Blueprint Builder (v246.0.0) — mutation endpoints
+                Route::post("analytics/blueprints/{name}/build", [$controller, "blueprintBuild"]);
+                Route::post("analytics/blueprints/{name}/payloads", [$controller, "blueprintPayloads"]);
+                Route::post("analytics/blueprints/{name}/batch", [$controller, "blueprintBatch"]);
                 Route::delete('analytics/reprocessor/history', [$controller, 'reprocessorClear']);
             });
     }

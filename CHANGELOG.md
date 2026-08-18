@@ -1,5 +1,19 @@
 # Changelog
 
+## [246.0.0] - 2026-08-18
+
+### Added
+- **Event Blueprint Builder Service** (`src/Blueprints/EventBlueprintBuilderService.php`) — Fluent event builder powered by blueprint definitions. Features: automatic parameter type coercion (string → int/float/bool/array), computed/derived parameters (`price * quantity`), provider-ready payload generation (GA4, Meta, PostHog), batch building from param variations, detailed dry-run validation reports, PII field auto-redaction from payloads. Config: `zeroboiler.analytics.blueprint_builder`.
+- **Analytics Blueprint Command** (`src/Console/Commands/AnalyticsBlueprintCommand.php`) — Rewritten `zb:analytics:blueprint` command with sub-actions: `list` (table/JSON), `schema` (inspect param types/defaults/required), `build` (dry-run event building with coercion/computed params), `payloads` (GA4/Meta/PostHog payload generation), `validate` (registry integrity check), `config` (builder configuration).
+- **Config expansion** — `blueprint_builder` section (enabled, pii_fields) added to `config/zeroboiler.php`.
+- **EventBlueprintBuilderService Tests** (`tests/EventBlueprintBuilderServiceTest.php`) — 30+ tests covering fluent API, build/buildReport, type coercion (int/float/bool/array), computed params (arithmetic, count, upper/lower), PII redaction, batch building, schema introspection, diagnostics, and production readiness.
+- **Version bump to 246.0.0** across all 5 version entry points.
+
+### Changed
+- **AnalyticsServiceProvider** — Registered `EventBlueprintRegistry` and `EventBlueprintBuilderService` singletons. Added `AnalyticsBlueprintCommand`. Fixed duplicate command registrations (AnalyticsSaaSQuickDeployCommand, AnalyticsDriftCommand, AnalyticsROICommand, AnalyticsSemanticMetricsCommand). Unified import style (no FQCN in command array for imported classes).
+- **AnalyticsBlueprintCommand** — Complete rewrite: from `zb:analytics:blueprints` (3 options) to `zb:analytics:blueprint` (6 sub-actions). Added `EventBlueprintBuilderService` dependency injection. Fixed `#[Override]` attribute.
+- **README** — Updated version badge (246.0.0), test badge (496+ / 980+), service count (450), command count (117).
+
 ## [243.0.0] - 2026-08-18
 
 ### Added
