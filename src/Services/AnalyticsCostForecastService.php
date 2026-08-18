@@ -11,8 +11,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\CostForecastProjection;
-use ZeroBoiler\Analytics\DTO\EventPriority;
-
 /**
  * Analytics cost forecast service — provider cost projection based on event volume trends.
  *

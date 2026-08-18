@@ -9,9 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Store\DatabaseEventStore;
-
 /**
  * Geospatial Analytics Service — geo-based event aggregations and heatmap data.
  *

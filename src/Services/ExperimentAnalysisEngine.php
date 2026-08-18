@@ -9,10 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\Engagement\ExperimentResultEvent;
-
 /**
  * Experiment analysis engine with Bayesian and Frequentist hypothesis testing.
  *

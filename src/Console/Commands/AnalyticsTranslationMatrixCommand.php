@@ -12,8 +12,6 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Schema\EventFieldRegistry;
 use ZeroBoiler\Analytics\Services\CrossProviderTranslationMatrix;
 use ZeroBoiler\Analytics\Services\RevenueHealthScoreService;
-use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
-
 /**
  * Analytics Translation Matrix Command.
  *

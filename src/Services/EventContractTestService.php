@@ -11,7 +11,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 

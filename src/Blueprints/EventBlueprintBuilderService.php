@@ -10,10 +10,6 @@ namespace ZeroBoiler\Analytics\Blueprints;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Support\EcommerceFormatConverter;
-use ZeroBoiler\Analytics\Support\EngagementFormatConverter;
-use ZeroBoiler\Analytics\Support\SaaSFormatConverter;
-
 /**
  * Fluent event builder service powered by blueprint definitions.
  *
@@ -25,7 +21,7 @@ use ZeroBoiler\Analytics\Support\SaaSFormatConverter;
  * - Detailed validation reports (dry-run mode)
  * - PII field auto-redaction from payloads
  *
- * @since 246.0.0
+ * @since 247.0.0
  *
  * @example
  *   $event = $builder->from('ecommerce.purchase.completed')

@@ -9,9 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Cache;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Services\SubscriptionMetricsCalculator;
-
 /**
  * Revenue forecasting service for SaaS analytics.
  *

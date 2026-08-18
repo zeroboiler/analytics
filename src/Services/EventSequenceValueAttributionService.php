@@ -11,8 +11,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\DTO\EventSequencePattern;
 use ZeroBoiler\Analytics\DTO\SequenceValueAttribution;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-
 /**
  * Event Sequence Value Attribution Matrix Service.
  *

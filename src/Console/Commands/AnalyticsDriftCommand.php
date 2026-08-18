@@ -9,7 +9,6 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\DTO\SchemaDriftRecord;
-use ZeroBoiler\Analytics\DTO\SchemaMigrationPlan;
 use ZeroBoiler\Analytics\Services\EventSchemaDriftDetectorService;
 
 /**

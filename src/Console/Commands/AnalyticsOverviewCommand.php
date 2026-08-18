@@ -14,8 +14,6 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\SaaSStarterEvents;
 use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 use ZeroBoiler\Analytics\Services\SaaSStarterInstrumentationService;
-use ZeroBoiler\Analytics\Tracking\LifecycleEventSubscriber;
-
 /**
  * Displays a comprehensive overview of the analytics configuration,
  * enabled providers, event catalog statistics, and system health.

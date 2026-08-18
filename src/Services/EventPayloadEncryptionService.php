@@ -10,8 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
-
 /**
  * Field-level event payload encryption service.
  *

@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreAggregator;
-use ZeroBoiler\Analytics\Services\EventThrottleService;
-
 /**
  * SaaS Analytics Health Dashboard command.
  *

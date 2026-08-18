@@ -9,15 +9,11 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Foundation\Application;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
 use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
-
 /**
  * Analytics Service Bundle Diagnostic Command.
  *

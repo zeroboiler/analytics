@@ -186,11 +186,9 @@ use ZeroBoiler\Analytics\Services\SaaSKpiCalculatorService;
 use ZeroBoiler\Analytics\Services\ProviderEventValidator;
 use ZeroBoiler\Analytics\Services\EventAffinityService;
 use ZeroBoiler\Analytics\Services\SchemaDrivenEventBuilder;
-use ZeroBoiler\Analytics\Services\SegmentExportService;
 use ZeroBoiler\Analytics\Services\SchemaDiffReporter;
 use ZeroBoiler\Analytics\Services\AdvancedPIIDetector;
 use ZeroBoiler\Analytics\Services\SessionReplayService;
-use ZeroBoiler\Analytics\Support\EventBuilder;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaExportCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSchemaCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBehavioralCommand;
@@ -236,7 +234,6 @@ use ZeroBoiler\Analytics\Events\EventPluginRegistry;
 use ZeroBoiler\Analytics\Services\AnalyticsDataResidencyService;
 use ZeroBoiler\Analytics\Services\EventConsistencyValidatorService;
 use ZeroBoiler\Analytics\Services\EventTemplateEngine;
-use ZeroBoiler\Analytics\Enrichment\EventEnrichmentPlugin;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry;
 use ZeroBoiler\Analytics\Enrichment\EventEnrichmentOrchestrator;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand;
@@ -329,9 +326,6 @@ use ZeroBoiler\Analytics\Services\EventPolicyEngine;
 use ZeroBoiler\Analytics\Services\SaaSFeatureUsageTrackerService;
 use ZeroBoiler\Analytics\Services\EventBudgetOptimizerService;
 use ZeroBoiler\Analytics\Services\TenantAnalyticsDashboardService;
-use ZeroBoiler\Analytics\DTO\ProviderSLARecord;
-use ZeroBoiler\Analytics\DTO\CostForecastProjection;
-use ZeroBoiler\Analytics\DTO\PolicyViolation;
 use ZeroBoiler\Analytics\Services\GroupAnalyticsService;
 use ZeroBoiler\Analytics\Services\EventImpactScoreService;
 use ZeroBoiler\Analytics\Services\ProviderAnalyticsIntelligenceService;
@@ -471,8 +465,6 @@ use ZeroBoiler\Analytics\Services\StructuredEventLogger;
 use ZeroBoiler\Analytics\Tracking\LifecycleAttributionEnricher;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsProjectionsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsTranslationMatrixCommand;
-use ZeroBoiler\Analytics\Services\CrossProviderTranslationMatrix;
-use ZeroBoiler\Analytics\Services\RevenueHealthScoreService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDependencyTopologyCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsRuntimeProfilerCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsBundleDiagnosticCommand;
@@ -507,8 +499,6 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsCapabilityCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsCatalogVersionCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsGlossaryCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickDeployCommand;
-use ZeroBoiler\Analytics\Services\EventCatalogSemVerService;
-use ZeroBoiler\Analytics\Services\CustomerHealthScoreService;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDriftCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
@@ -519,7 +509,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 246.0.0
+ * @version 247.0.0
  *
  * @since 1.0.0
  */
@@ -4664,7 +4654,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Event Blueprint Builder (v246.0.0)
+        // Event Blueprint Builder (v247.0.0)
         $this->app->singleton(EventBlueprintRegistry::class, function (Application $app): EventBlueprintRegistry {
             return new EventBlueprintRegistry($app->make(CacheRepository::class));
         });
@@ -5221,7 +5211,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/webhooks/relay/{destination}/log', [$controller, 'webhookRelayLog']);
                 Route::post('analytics/webhooks/relay/test/{destination}', [$controller, 'webhookRelayTest']);
 
-                // Event Blueprint Builder (v246.0.0) — read-only catalog endpoints
+                // Event Blueprint Builder (v247.0.0) — read-only catalog endpoints
                 Route::get('analytics/blueprints', [$controller, 'blueprintList']);
                 Route::get('analytics/blueprints/{name}', [$controller, 'blueprintSchema']);
                 Route::get('analytics/blueprints/{name}/validate', [$controller, 'blueprintValidate']);
@@ -5431,7 +5421,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/reprocessor/status', [$controller, 'reprocessorStatus']);
                 Route::get('analytics/reprocessor/metrics', [$controller, 'reprocessorMetrics']);
 
-                // Event Blueprint Builder (v246.0.0) — mutation endpoints
+                // Event Blueprint Builder (v247.0.0) — mutation endpoints
                 Route::post("analytics/blueprints/{name}/build", [$controller, "blueprintBuild"]);
                 Route::post("analytics/blueprints/{name}/payloads", [$controller, "blueprintPayloads"]);
                 Route::post("analytics/blueprints/{name}/batch", [$controller, "blueprintBatch"]);

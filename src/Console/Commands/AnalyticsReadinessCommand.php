@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Services\SaaSReadinessAssessment;
 use ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions;
 

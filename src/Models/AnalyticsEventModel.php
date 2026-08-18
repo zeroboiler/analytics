@@ -10,10 +10,7 @@ namespace ZeroBoiler\Analytics\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-
 /**
  * Eloquent model for persistent analytics event storage.
  *

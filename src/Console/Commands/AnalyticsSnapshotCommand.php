@@ -9,10 +9,7 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\DTO\EventContext;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Services\EventContextSnapshotService;
-use ZeroBoiler\Analytics\Services\UserJourneyReconstructionService;
 use ZeroBoiler\Analytics\Services\IdentityResolutionService;
 use ZeroBoiler\Analytics\Services\EventCorrelationService;
 

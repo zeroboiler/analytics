@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
-use ZeroBoiler\Analytics\DTO\UtmAttribution;
 use ZeroBoiler\Analytics\Store\EventStoreManager;
 
 /**

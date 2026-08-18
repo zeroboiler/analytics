@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Growth Metrics Service for SaaS products.
  *

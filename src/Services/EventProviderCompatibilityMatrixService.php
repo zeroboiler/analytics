@@ -7,17 +7,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\Infrastructure\InfrastructureEvents;
-use ZeroBoiler\Analytics\Events\Marketing\MarketingEvents;
-use ZeroBoiler\Analytics\Events\SaaS\CustomerSuccessEvents;
-use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
-use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
-
 /**
  * Provider compatibility matrix service — validates event-to-provider mapping coverage.
  *

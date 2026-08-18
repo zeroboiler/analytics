@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
-
 /**
  * SaaS retention cohort analytics service.
  *

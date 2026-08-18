@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
-
 /**
  * Event Data Lineage Graph Service — builds a Directed Acyclic Graph (DAG)
  * from event lineage tracking data for visualization and path analysis.

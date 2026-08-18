@@ -10,10 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
-
 /**
  * Event Instrumentation Advisor — recommends which events to track for SaaS maturity.
  *

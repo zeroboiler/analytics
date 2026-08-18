@@ -10,8 +10,6 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
-
 /**
  * Comprehensive diagnostic command for ZeroBoiler Analytics.
  *

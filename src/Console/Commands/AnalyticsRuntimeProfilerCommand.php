@@ -8,15 +8,10 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Bus\AnalyticsEventDispatcher;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Queue\QueuedAnalyticsDispatcher;
-use ZeroBoiler\Analytics\Services\AnalyticsEventBuffer;
-use ZeroBoiler\Analytics\Tracking\ServerSideTracker;
-
 /**
  * Analytics Runtime Pipeline Profiler Command.
  *

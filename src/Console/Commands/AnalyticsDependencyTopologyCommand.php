@@ -10,9 +10,7 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Container\Container;
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionNamedType;
-use ReflectionParameter;
 use ReflectionUnionType;
 
 /**

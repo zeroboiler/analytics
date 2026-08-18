@@ -8,10 +8,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Services\EventCostTracker;
-use ZeroBoiler\Analytics\Services\NotificationWebhookService;
-
 /**
  * Analytics Cost Report Command.
  *

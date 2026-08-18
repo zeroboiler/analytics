@@ -9,7 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\MetricProjectionResult;
 use ZeroBoiler\Analytics\DTO\ProjectionDefinition;
 
 /**

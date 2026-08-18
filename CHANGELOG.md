@@ -1,5 +1,13 @@
 # Changelog
 
+## [247.0.0] - 2026-08-18
+
+### Fixed
+- **Removed 192 unused imports across 120 source files** — Systematic static analysis identified and removed 192 unused `use` statements from production source code. Affected areas: AnalyticsServiceProvider (10), SaaSRevenueIntelligenceCommand (9), EventProviderCompatibilityMatrixService (9), EventVersioningService (6), AnalyticsRuntimeProfilerCommand (4), AnalyticsBundleDiagnosticCommand (3), EventBlueprintBuilderService (3), EventInstrumentationAdvisor (3), EventTemplateEngine (3), and 111 additional files. All files retain MIT headers, `declare(strict_types=1)`, proper namespaces, and correct code structure. Zero unused imports remaining across 980 source files.
+
+### Changed
+- **Version bump to 247.0.0** across all 5 version entry points (composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider @version, README badge).
+
 ## [246.0.0] - 2026-08-18
 
 ### Added

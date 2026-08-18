@@ -8,10 +8,7 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-
 /**
  * Automated behavioral cohort clustering service.
  *

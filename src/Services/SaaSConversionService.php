@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialConvertedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\SubscriptionResumedEvent;
 use ZeroBoiler\Analytics\Events\SaaS\MilestoneReachedEvent;

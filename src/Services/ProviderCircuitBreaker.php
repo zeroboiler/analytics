@@ -9,10 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\AnalyticsMetrics;
-use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\Services\DeadLetterQueueService;
-
 /**
  * Provider Circuit Breaker — prevents cascading failures when analytics providers are down.
  *

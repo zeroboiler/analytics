@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\Blueprints\EventBlueprintRegistry;
  * building events (dry-run), generating provider payloads,
  * and validating the blueprint registry.
  *
- * @since 246.0.0
+ * @since 247.0.0
  */
 final class AnalyticsBlueprintCommand extends Command
 {

@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Enrichment;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Registry for analytics event enrichment plugins.
  *

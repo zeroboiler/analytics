@@ -11,21 +11,11 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Services\SaasKpiTracker;
-use ZeroBoiler\Analytics\Services\SaaSAnalyticsService;
-use ZeroBoiler\Analytics\Services\RevenueAnalyticsService;
 use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
 use ZeroBoiler\Analytics\Services\RetentionCalculator;
-use ZeroBoiler\Analytics\Services\ChurnPredictionService;
 use ZeroBoiler\Analytics\Services\RevenueForecastService;
 use ZeroBoiler\Analytics\Services\SaaSRevenueFunnelService;
-use ZeroBoiler\Analytics\Services\SaaSKpiCalculatorService;
-use ZeroBoiler\Analytics\Services\SubscriptionMetricsCalculator;
 use ZeroBoiler\Analytics\Services\SaaSMomentumService;
-use ZeroBoiler\Analytics\Services\CohortRevenueAttributionService;
-use ZeroBoiler\Analytics\Services\EventQueryEngine;
-use ZeroBoiler\Analytics\Services\GrowthMetricsService;
-
 /**
  * SaaS Revenue Intelligence — unified revenue metrics dashboard.
  *

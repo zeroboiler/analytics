@@ -12,8 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\Support\AnalyticsContext;
-use ZeroBoiler\Analytics\AnalyticsManager;
-
 /**
  * Middleware that wraps HTTP requests in an analytics context.
  *

@@ -7,14 +7,7 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
-use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
-use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
-
 /**
  * Event Versioning Service — catalog-level version metadata enrichment.
  *

@@ -8,9 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Event Inspector Service — debug-mode lifecycle event tracking.
  *

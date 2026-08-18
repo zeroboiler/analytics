@@ -9,9 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
-use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
-use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
-
 /**
  * SaaS Analytics Readiness Assessment service.
  *

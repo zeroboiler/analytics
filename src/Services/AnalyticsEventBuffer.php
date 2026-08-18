@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Collection;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 

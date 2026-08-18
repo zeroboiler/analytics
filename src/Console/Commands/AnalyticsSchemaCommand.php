@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Console\Commands;
 
 use Illuminate\Console\Command;
-use ZeroBoiler\Analytics\Schema\EventSchemaBuilder;
 use ZeroBoiler\Analytics\Schema\EventSchemaRegistryExtended;
 
 /**

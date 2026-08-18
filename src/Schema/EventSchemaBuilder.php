@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Schema;
 
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Fluent analytics event schema builder — Laravel Schema Builder for analytics events.
  *

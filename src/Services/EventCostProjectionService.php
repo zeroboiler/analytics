@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Support\Facades\Log;
-
 /**
  * Event Cost Projection Engine — forecasts analytics event costs by provider
  * with budget projection, threshold alerts, and cost optimization recommendations.

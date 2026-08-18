@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-
 /**
  * SaaS Onboarding Wizard Service — guides new users through analytics setup.
  *

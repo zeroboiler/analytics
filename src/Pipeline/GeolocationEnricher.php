@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Pipeline;
 
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\Services\DeviceContextService;
 
 /**

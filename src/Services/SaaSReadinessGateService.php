@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Routing\Registrar;
 use Illuminate\Filesystem\Filesystem;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Trackers\TrackerInterface;

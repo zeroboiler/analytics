@@ -11,11 +11,7 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
 use ZeroBoiler\Analytics\DTO\EventContextEvent;
-use ZeroBoiler\Analytics\Support\AnalyticsConfig;
-use ZeroBoiler\Analytics\Tracking\AnonymousIdTracker;
-
 /**
  * Builds fully-qualified event envelopes with rich context.
  *

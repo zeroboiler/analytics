@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**

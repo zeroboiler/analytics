@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Real-time event stream collector for SSE (Server-Sent Events) broadcasting.
  *

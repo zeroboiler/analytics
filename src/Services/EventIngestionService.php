@@ -12,8 +12,6 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\DTO\ConsentState;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Pipeline\EventPipeline;
 use ZeroBoiler\Analytics\Services\EventCostTracker;
 use ZeroBoiler\Analytics\Services\EventValidationService;

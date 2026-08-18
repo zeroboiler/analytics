@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Tracking;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Log;
-
 /**
  * Multi-tenant analytics context for workspace-aware event tracking.
  *

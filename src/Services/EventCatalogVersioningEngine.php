@@ -8,11 +8,9 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\CatalogChangeImpact;
 use ZeroBoiler\Analytics\DTO\CatalogVersionRecommendation;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Services\CatalogSnapshotService;
 
 /**

@@ -9,10 +9,7 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
-use ZeroBoiler\Analytics\Store\DatabaseEventStore;
-
 /**
  * Natural Language Analytics Query Engine — converts plain-language questions
  * about analytics data into structured event queries.

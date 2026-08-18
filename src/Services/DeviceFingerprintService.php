@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-
 /**
  * Device fingerprint generation service.
  *

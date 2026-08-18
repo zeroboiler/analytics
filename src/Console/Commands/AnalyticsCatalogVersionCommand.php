@@ -10,7 +10,6 @@ namespace ZeroBoiler\Analytics\Console\Commands;
 use Illuminate\Console\Command;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\CatalogVersionRecommendation;
-use ZeroBoiler\Analytics\Events\EventCatalog;
 use ZeroBoiler\Analytics\Services\CatalogSnapshotService;
 use ZeroBoiler\Analytics\Services\EventCatalogVersioningEngine;
 use ZeroBoiler\Analytics\Services\ReleaseChangelogGeneratorService;

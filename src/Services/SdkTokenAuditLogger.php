@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use ZeroBoiler\Analytics\Services\TrackAnalyticsEventJob;
-
 /**
  * SDK Token Audit Logger — Tracks all SDK token lifecycle events for security auditing.
  *

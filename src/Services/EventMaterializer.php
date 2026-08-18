@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\DTO\MetricProjectionResult;
-use ZeroBoiler\Analytics\DTO\ProjectionDefinition;
-
 /**
  * Materializes metric projection results into queryable, cache-backed views.
  *

@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Str;
-
 /**
  * Referrer tracking service for conversion attribution.
  *

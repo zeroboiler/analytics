@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\AnalyticsMetrics;
 
 /**

@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Event Replay Audit Trail Service.
  *

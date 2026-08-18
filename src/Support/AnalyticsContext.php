@@ -8,8 +8,6 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Support;
 
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Scoped analytics context for automatic source tagging, timing, and error handling.
  *

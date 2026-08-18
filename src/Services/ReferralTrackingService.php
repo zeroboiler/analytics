@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Str;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Referral and viral loop tracking service for SaaS growth analytics.
  *

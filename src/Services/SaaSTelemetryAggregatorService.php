@@ -11,8 +11,6 @@ use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-use ZeroBoiler\Analytics\Events\EventCatalog;
-
 /**
  * SaaS Telemetry Aggregation Service — unified provider telemetry dashboard.
  *

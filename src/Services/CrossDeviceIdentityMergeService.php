@@ -10,8 +10,6 @@ namespace ZeroBoiler\Analytics\Services;
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-
 /**
  * Cross-device identity merge service — resolves and merges multi-identity graphs.
  *

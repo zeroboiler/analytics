@@ -9,8 +9,6 @@ namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Log;
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
-
 /**
  * Real User Monitoring (RUM) — Web Vitals aggregation service.
  *
