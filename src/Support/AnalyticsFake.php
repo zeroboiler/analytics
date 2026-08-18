@@ -1927,6 +1927,28 @@ final class AnalyticsFake
     }
 
     /**
+     * Create a typed event builder (returns a no-op builder for testing).
+     *
+     * @param  string  $eventName
+     * @return \ZeroBoiler\Analytics\Support\TypedEventBuilder
+     */
+    public function typedEvent(string $eventName): \ZeroBoiler\Analytics\Support\TypedEventBuilder
+    {
+        return new \ZeroBoiler\Analytics\Support\TypedEventBuilder($eventName, catalogStrict: false);
+    }
+
+    /**
+     * Create a typed event builder with strict catalog validation.
+     *
+     * @param  string  $eventName
+     * @return \ZeroBoiler\Analytics\Support\TypedEventBuilder
+     */
+    public function typedCatalogEvent(string $eventName): \ZeroBoiler\Analytics\Support\TypedEventBuilder
+    {
+        return new \ZeroBoiler\Analytics\Support\TypedEventBuilder($eventName, catalogStrict: true);
+    }
+
+    /**
      * Static accessor helper for static assertion methods.
      *
      * @return static

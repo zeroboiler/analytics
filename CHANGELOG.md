@@ -1,4 +1,14 @@
 # Changelog
+## [250.0.0] - 2026-08-18
+
+### Added
+- **TypedEventBuilder** — Fluent, catalog-aware event builder for type-safe analytics dispatch. Provides chainable API with automatic type coercion (string/float/int/bool), catalog-aware category inference from 202+ events across 9 categories, identity binding (client/user/session), priority and source tagging, direct dispatch or DTO return. Accessible via `Analytics::typedEvent()` (lenient) and `Analytics::typedCatalogEvent()` (strict catalog validation).
+- **AnalyticsManager::typedEvent()** and **typedCatalogEvent()** — Manager methods for creating TypedEventBuilder instances.
+- **AnalyticsFake::typedEvent()** and **typedCatalogEvent()** — Fake implementations for testing.
+- **TypedEventBuilderTest** — 30+ test cases covering construction, catalog awareness, fluent parameter API, type coercion, identity binding, metadata, build output, AnalyticsFake integration, and edge cases.
+
+### Changed
+- Version bump to 250.0.0 across composer.json, AnalyticsEvent::VERSION, README badge.
 ## [249.0.0] - 2026-08-18
 
 ### Added

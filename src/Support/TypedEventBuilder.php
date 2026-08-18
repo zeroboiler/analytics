@@ -7,134 +7,132 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Support;
 
+use ZeroBoiler\Analytics\AnalyticsManager;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
- * Type-safe event builder with compile-time event name validation.
+ * Fluent, catalog-aware event builder for type-safe analytics dispatch.
  *
- * Provides a fluent API for constructing typed events with parameter validation
- * against the registered event catalog schemas. Ensures events conform to
- * expected structure before dispatch.
+ * Provides a chainable API for constructing analytics events with:
+ * - Catalog validation (warns if event name is not in the catalog)
+ * - Automatic category inference from the event catalog
+ * - Type coercion for known parameter types
+ * - Identity (client ID / user ID) binding
+ * - Priority and source tagging
+ * - Direct dispatch or event object return
  *
- * @since 41.0.0
+ * Usage:
+ *   Analytics::typedEvent('purchase')
+ *       ->param('transaction_id', 'TXN-123')
+ *       ->param('value', 99.99)
+ *       ->param('currency', 'USD')
+ *       ->param('items', $items)
+ *       ->user($userId)
+ *       ->dispatch();
  *
- * @example
- * ```php
- * $event = TypedEventBuilder::for('purchase')
- *     ->param('transaction_id', 'txn_123')
- *     ->param('value', 99.99)
- *     ->param('currency', 'USD')
- *     ->param('items', $items)
- *     ->clientId($trackingId)
- *     ->userId($userId)
- *     ->priority('critical')
- *     ->build();
+ *   // Or for catalog events (auto-validates against catalog schema):
+ *   Analytics::typedCatalogEvent('sign_up')
+ *       ->param('method', 'email')
+ *       ->client($clientId)
+ *       ->dispatch();
  *
- * Analytics::trackEvent($event);
- * ```
+ * @since 250.0.0
  */
 final class TypedEventBuilder
 {
-    /** @var string The event name being built */
-    private string $name;
-
-    /** @var array<string, mixed> Event parameters */
+    /** @var array<string, mixed> Accumulated event parameters */
     private array $params = [];
 
-    /** @var string|null Client ID */
+    /** @var string|null Client ID for anonymous tracking */
     private ?string $clientId = null;
 
-    /** @var string|null User ID */
+    /** @var string|null User ID for authenticated tracking */
     private ?string $userId = null;
 
-    /** @var string|null Event priority */
-    private ?string $priority = null;
+    /** @var string|null Session ID */
+    private ?string $sessionId = null;
 
-    /** @var string|null Event source */
-    private ?string $source = null;
+    /** @var int Event priority (0-100, default 50) */
+    private int $priority = 50;
 
-    /** @var list<string> Validation errors accumulated during building */
-    private array $errors = [];
+    /** @var string Event source label */
+    private string $source = 'server';
 
-    /**
-     * @param  string  $name  Event name
-     */
-    private function __construct(string $name): void
-    {
-        $this->name = $name;
-    }
+    /** @var string|null Inferred category from catalog */
+    private ?string $category = null;
 
-    /**
-     * Create a new typed event builder for a named event.
-     *
-     * @param  string  $name  Event name (should exist in EventCatalog for full validation)
-     * @return self
-     */
-    public static function for(string $name): self
-    {
-        return new self($name);
-    }
+    /** @var bool Whether to validate the event name against the catalog */
+    private bool $catalogStrict;
+
+    /** @var list<string> Validation warnings collected during build */
+    private array $warnings = [];
 
     /**
-     * Create a builder for a catalog-validated event.
-     *
-     * Validates that the event name exists in the catalog and provides
-     * type hints for required parameters based on the schema.
-     *
-     * @param  string  $name  Event name that must exist in EventCatalog
-     * @return self
-     *
-     * @throws \InvalidArgumentException If the event name does not exist in the catalog
+     * @param  string  $eventName  The analytics event name to build
+     * @param  bool  $catalogStrict  Whether to warn on unknown event names
      */
-    public static function catalogEvent(string $name): self
-    {
-        if (! EventCatalog::has($name)) {
-            throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException(
-                "Event '{$name}' does not exist in the EventCatalog. " .
-                "Available events: " . implode(', ', array_slice(EventCatalog::names(), 0, 10)) .
-                ' (+' . (EventCatalog::count() - 10) . ' more)',
-            );
+    public function __construct(
+        private readonly string $eventName,
+        bool $catalogStrict = false,
+    ) {
+        $this->catalogStrict = $catalogStrict;
+
+        // Auto-infer category from catalog
+        $entry = EventCatalog::get($this->eventName);
+        if ($entry !== null) {
+            $this->category = $entry['category'] ?? null;
+        } elseif ($this->catalogStrict) {
+            $this->warnings[] = "Event '{$this->eventName}' is not in the event catalog.";
         }
-
-        return new self($name);
     }
 
     /**
-     * Add a parameter to the event.
+     * Set a parameter on the event.
+     *
+     * Values are type-coerced based on common analytics conventions:
+     * - Numeric strings → float/int
+     * - Boolean strings ('true'/'false') → bool
+     * - Empty strings → skipped (not set)
      *
      * @param  string  $key  Parameter name
      * @param  mixed  $value  Parameter value
-     * @return self
+     * @return $this
      */
     public function param(string $key, mixed $value): self
     {
-        $this->params[$key] = $value;
+        // Skip empty strings — they add noise to analytics payloads
+        if (is_string($value) && $value === '') {
+            return $this;
+        }
+
+        $this->params[$key] = $this->coerce($key, $value);
 
         return $this;
     }
 
     /**
-     * Add multiple parameters at once.
+     * Set multiple parameters at once.
      *
      * @param  array<string, mixed>  $params  Key-value pairs
-     * @return self
+     * @return $this
      */
     public function params(array $params): self
     {
         foreach ($params as $key => $value) {
-            $this->params[$key] = $value;
+            $this->param($key, $value);
         }
 
         return $this;
     }
 
     /**
-     * Set the client ID for the event.
+     * Set the client (anonymous) ID.
      *
-     * @return self
+     * @param  string  $clientId  Client-side tracking ID (from cookie)
+     * @return $this
      */
-    public function clientId(string $clientId): self
+    public function client(string $clientId): self
     {
         $this->clientId = $clientId;
 
@@ -142,159 +140,125 @@ final class TypedEventBuilder
     }
 
     /**
-     * Set the user ID for the event.
+     * Set the authenticated user ID.
      *
-     * @return self
+     * @param  int|string  $userId  User ID
+     * @return $this
      */
-    public function userId(string $userId): self
+    public function user(int|string|null $userId): self
     {
-        $this->userId = $userId;
+        $this->userId = $userId !== null ? (string) $userId : null;
 
         return $this;
     }
 
     /**
-     * Set the event priority.
+     * Set the session ID.
      *
-     * @param  'critical'|'normal'|'low'|'background'  $priority
-     * @return self
+     * @param  string  $sessionId  Session identifier
+     * @return $this
      */
-    public function priority(string $priority): self
+    public function session(string $sessionId): self
     {
-        $validPriorities = ['critical', 'normal', 'low', 'background'];
-
-        if (! in_array($priority, $validPriorities, true)) {
-            $this->errors[] = "Invalid priority '{$priority}'. Must be one of: " .
-                implode(', ', $validPriorities);
-        }
-
-        $this->priority = $priority;
+        $this->sessionId = $sessionId;
 
         return $this;
     }
 
     /**
-     * Set the event source.
+     * Set the event priority (0-100).
      *
-     * @param  'api'|'server'|'client'|'webhook'|'replay'|'batch'  $source
-     * @return self
+     * Higher priority events are dispatched first in batch operations.
+     *
+     * @param  int  $priority  Priority value (0-100)
+     * @return $this
+     */
+    public function priority(int $priority): self
+    {
+        $this->priority = max(0, min(100, $priority));
+
+        return $this;
+    }
+
+    /**
+     * Set the event source label.
+     *
+     * Useful for distinguishing server-dispatched vs client-dispatched events.
+     *
+     * @param  string  $source  Source label (e.g., 'server', 'client', 'cron')
+     * @return $this
      */
     public function source(string $source): self
     {
-        $validSources = ['api', 'server', 'client', 'webhook', 'replay', 'batch'];
-
-        if (! in_array($source, $validSources, true)) {
-            $this->errors[] = "Invalid source '{$source}'. Must be one of: " .
-                implode(', ', $validSources);
-        }
-
         $this->source = $source;
 
         return $this;
     }
 
     /**
-     * Merge params from an existing event (for replay/enrichment).
+     * Override the auto-inferred event category.
      *
-     * @return self
+     * @param  string  $category  Category name (e.g., 'ecommerce', 'saas', 'engagement')
+     * @return $this
      */
-    public function mergeFrom(AnalyticsEvent $event): self
+    public function category(string $category): self
     {
-        $this->params = array_merge($event->params, $this->params);
-
-        if ($this->clientId === null && $event->clientId !== null) {
-            $this->clientId = $event->clientId;
-        }
-
-        if ($this->userId === null && $event->userId !== null) {
-            $this->userId = $event->userId;
-        }
-
-        if ($this->priority === null && $event->priority !== null) {
-            $this->priority = $event->priority;
-        }
-
-        if ($this->source === null && $event->source !== null) {
-            $this->source = $event->source;
-        }
+        $this->category = $category;
 
         return $this;
     }
 
     /**
-     * Build the AnalyticsEvent DTO.
+     * Build the AnalyticsEvent DTO without dispatching.
      *
      * @return AnalyticsEvent
-     *
-     * @throws \RuntimeException If validation errors were accumulated
      */
     public function build(): AnalyticsEvent
     {
-        if ($this->errors !== []) {
-            $errorMsg = implode('; ', $this->errors);
-            throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException(
-                "Cannot build event '{$this->name}': {$errorMsg}",
-            );
-        }
-
         return new AnalyticsEvent(
-            name: $this->name,
+            name: $this->eventName,
             params: $this->params,
             clientId: $this->clientId,
             userId: $this->userId,
+            sessionId: $this->sessionId,
             priority: $this->priority,
             source: $this->source,
+            category: $this->category,
         );
     }
 
     /**
-     * Build the AnalyticsEvent DTO without throwing on validation errors.
+     * Build and dispatch the event through the analytics manager.
      *
-     * Returns the event even if there were validation warnings.
-     * Use getErrors() to check for warnings after building.
-     *
-     * @return AnalyticsEvent
+     * @param  AnalyticsManager|null  $manager  Optional manager (auto-resolved if null)
      */
-    public function buildUnsafe(): AnalyticsEvent
+    public function dispatch(?AnalyticsManager $manager = null): void
     {
-        return new AnalyticsEvent(
-            name: $this->name,
-            params: $this->params,
-            clientId: $this->clientId,
-            userId: $this->userId,
-            priority: $this->priority,
-            source: $this->source,
-        );
+        $manager ??= $this->resolveManager();
+        $manager->trackEvent($this->build());
     }
 
     /**
-     * Get any validation errors accumulated during building.
+     * Build and queue the event for async dispatch.
      *
-     * @return list<string>
+     * @param  AnalyticsManager|null  $manager  Optional manager (auto-resolved if null)
      */
-    public function getErrors(): array
+    public function dispatchAsync(?AnalyticsManager $manager = null): void
     {
-        return $this->errors;
-    }
-
-    /**
-     * Check if there are any validation errors.
-     */
-    public function hasErrors(): bool
-    {
-        return $this->errors !== [];
+        $manager ??= $this->resolveManager();
+        $manager->trackAsync($this->eventName, $this->params);
     }
 
     /**
      * Get the event name being built.
      */
-    public function getName(): string
+    public function name(): string
     {
-        return $this->name;
+        return $this->eventName;
     }
 
     /**
-     * Get the current parameters.
+     * Get all parameters set on this builder.
      *
      * @return array<string, mixed>
      */
@@ -304,50 +268,148 @@ final class TypedEventBuilder
     }
 
     /**
-     * Check if the event exists in the catalog.
+     * Get the inferred or overridden category.
+     */
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    /**
+     * Get any validation warnings collected during building.
+     *
+     * @return list<string>
+     */
+    public function getWarnings(): array
+    {
+        return $this->warnings;
+    }
+
+    /**
+     * Check if the event name exists in the catalog.
      */
     public function isInCatalog(): bool
     {
-        return EventCatalog::has($this->name);
+        return EventCatalog::get($this->eventName) !== null;
     }
 
     /**
-     * Get the catalog category for this event.
-     */
-    public function getCatalogCategory(): ?string
-    {
-        return EventCatalog::getCategory($this->name);
-    }
-
-    /**
-     * Get a human-readable description of the event being built.
+     * Get the catalog entry for this event, or null.
      *
-     * Useful for debugging and logging.
+     * @return array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}|null
      */
-    public function describe(): string
+    public function catalogEntry(): ?array
     {
-        $parts = ["TypedEvent(event={$this->name}"];
+        return EventCatalog::get($this->eventName);
+    }
 
-        if ($this->isInCatalog()) {
-            $parts[] = "category={$this->getCatalogCategory()}";
+    /**
+     * Coerce a value to the appropriate type based on the parameter key.
+     *
+     * Applies conventions used across GA4, Meta, and PostHog:
+     * - Keys ending in '_id', 'id' → string
+     * - Keys like 'value', 'price', 'amount', 'revenue' → float
+     * - Keys like 'quantity', 'count', 'days', 'step' → int
+     * - Keys like 'enabled', 'required', 'success' → bool
+     * - Keys like 'items', 'products' → array
+     *
+     * @param  string  $key  Parameter name
+     * @param  mixed  $value  Raw value
+     * @return mixed Coerced value
+     */
+    private function coerce(string $key, mixed $value): mixed
+    {
+        // Don't coerce nulls or already-correct types for complex values
+        if ($value === null || is_array($value) || is_object($value)) {
+            return $value;
         }
 
-        $parts[] = 'params=' . count($this->params);
+        // String coercion targets
+        $stringKeys = ['transaction_id', 'order_id', 'item_id', 'user_id',
+            'client_id', 'session_id', 'currency', 'method', 'reason',
+            'plan', 'category', 'label', 'name', 'email', 'phone',
+            'url', 'referrer', 'page_title', 'page_location', 'page_referrer',
+            'search_term', 'form_id', 'form_name', 'feature_name',
+            'feature_category', 'error_message', 'error_code', 'source',
+            'medium', 'campaign', 'content', 'creative_name', 'creative_slot',
+            'promotion_id', 'promotion_name', 'item_list_id', 'item_list_name',
+            'item_name', 'item_brand', 'item_variant', 'item_category',
+            'payment_type', 'shipping_tier', 'coupon', 'affiliation',
+            'billing_cycle', 'role', 'guard', 'integration',
+            'endpoint', 'provider', 'type', 'status', 'grade',
+        ];
 
-        if ($this->clientId !== null) {
-            $parts[] = 'client=' . substr($this->clientId, 0, 8) . '...';
+        if (in_array($key, $stringKeys, true)) {
+            return is_string($value) ? $value : (string) $value;
         }
 
-        if ($this->userId !== null) {
-            $parts[] = 'user=' . $this->userId;
+        // Float coercion targets
+        $floatKeys = ['value', 'price', 'amount', 'revenue', 'tax',
+            'shipping', 'total', 'score', 'percent', 'rate', 'duration',
+            'timeout', 'threshold', 'weight',
+        ];
+
+        if (in_array($key, $floatKeys, true)) {
+            if (is_float($value)) {
+                return $value;
+            }
+            if (is_numeric($value)) {
+                return (float) $value;
+            }
+
+            return $value;
         }
 
-        if ($this->priority !== null) {
-            $parts[] = "priority={$this->priority}";
+        // Integer coercion targets
+        $intKeys = ['quantity', 'count', 'days', 'step', 'step_number',
+            'total_steps', 'results_count', 'num_items', 'duration_seconds',
+            'attempt', 'attempt_number', 'limit', 'max_retries',
+        ];
+
+        if (in_array($key, $intKeys, true)) {
+            if (is_int($value)) {
+                return $value;
+            }
+            if (is_numeric($value)) {
+                return (int) $value;
+            }
+
+            return $value;
         }
 
-        $parts[] = ')';
+        // Boolean coercion targets
+        $boolKeys = ['enabled', 'required', 'success', 'fatal', 'is_new',
+            'authenticated', 'anonymous',
+        ];
 
-        return implode(', ', $parts);
+        if (in_array($key, $boolKeys, true)) {
+            if (is_bool($value)) {
+                return $value;
+            }
+            if (is_string($value)) {
+                $lower = strtolower($value);
+                if ($lower === 'true' || $lower === '1') {
+                    return true;
+                }
+                if ($lower === 'false' || $lower === '0') {
+                    return false;
+                }
+            }
+
+            return $value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Resolve the AnalyticsManager from the container.
+     */
+    private function resolveManager(): AnalyticsManager
+    {
+        /** @var AnalyticsManager $manager */
+        $manager = app('zeroboiler.analytics');
+
+        return $manager;
     }
 }

@@ -4272,4 +4272,38 @@ final class AnalyticsManager
 
         return true;
     }
+
+    /**
+     * Create a typed event builder for any event name.
+     *
+     * The builder provides a fluent API with automatic type coercion,
+     * catalog-aware category inference, and optional catalog validation.
+     *
+     * @param  string  $eventName  The analytics event name
+     * @return \ZeroBoiler\Analytics\Support\TypedEventBuilder
+     *
+     * @since 250.0.0
+     */
+    public function typedEvent(string $eventName): \ZeroBoiler\Analytics\Support\TypedEventBuilder
+    {
+        return new \ZeroBoiler\Analytics\Support\TypedEventBuilder($eventName, catalogStrict: false);
+    }
+
+    /**
+     * Create a typed event builder with strict catalog validation.
+     *
+     * Unlike typedEvent(), this method enables catalog-strict mode which
+     * will collect warnings when the event name is not found in the
+     * event catalog. This is recommended for SaaS applications that want
+     * to ensure all tracked events are part of the defined catalog.
+     *
+     * @param  string  $eventName  The analytics event name (should exist in catalog)
+     * @return \ZeroBoiler\Analytics\Support\TypedEventBuilder
+     *
+     * @since 250.0.0
+     */
+    public function typedCatalogEvent(string $eventName): \ZeroBoiler\Analytics\Support\TypedEventBuilder
+    {
+        return new \ZeroBoiler\Analytics\Support\TypedEventBuilder($eventName, catalogStrict: true);
+    }
 }
