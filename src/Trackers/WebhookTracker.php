@@ -189,4 +189,10 @@ final class WebhookTracker implements TrackerInterface
 
         return $client;
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        return $this->defaultTrackBatch($events);
+    }
 }

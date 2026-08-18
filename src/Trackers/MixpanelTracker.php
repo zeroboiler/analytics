@@ -247,4 +247,10 @@ HTML;
             random_int(100000, 999999),
         );
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        return $this->defaultTrackBatch($events);
+    }
 }

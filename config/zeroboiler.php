@@ -9666,4 +9666,37 @@ return [
             'data_governance' => (float) env('ANALYTICS_SAAS_HEALTH_W_GOVERNANCE', 0.05),
         ],
     ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Catalog Diff (v243.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Controls for the Event Catalog Diff Service which compares catalog
+    | snapshots between versions to detect added/removed/renamed events.
+    | Used by the quality gate CI/CD command.
+    |
+    */
+    'catalog_diff' => [
+        'cache_key' => env('ANALYTICS_CATALOG_DIFF_CACHE_KEY', 'zb_analytics_catalog_snapshot'),
+        'cache_ttl' => (int) env('ANALYTICS_CATALOG_DIFF_CACHE_TTL', 7776000), // 90 days
+        'rename_threshold' => (int) env('ANALYTICS_CATALOG_DIFF_RENAME_THRESHOLD', 3), // Levenshtein distance
+    ],
+
+    /*
+    |-------------------------------------------------------------------------- 
+    | Quality Gate (v243.0.0)
+    |-------------------------------------------------------------------------- 
+    |
+    | Configuration for the CI/CD quality gate command (zb:analytics:quality-gate).
+    | Controls minimum thresholds for passing the gate and check behavior.
+    |
+    */
+    'quality_gate' => [
+        'min_schema_coverage' => (int) env('ANALYTICS_QG_MIN_SCHEMA_COVERAGE', 80),
+        'min_compliance_score' => (int) env('ANALYTICS_QG_MIN_COMPLIANCE_SCORE', 70),
+        'min_provider_coverage' => (int) env('ANALYTICS_QG_MIN_PROVIDER_COVERAGE', 70),
+        'fail_level' => env('ANALYTICS_QG_FAIL_LEVEL', 'warning'), // error|warning|none
+        'auto_snapshot' => (bool) env('ANALYTICS_QG_AUTO_SNAPSHOT', false),
+    ],
 ];

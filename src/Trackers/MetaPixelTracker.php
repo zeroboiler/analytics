@@ -220,4 +220,66 @@ HTML;
     {
         return self::GRAPH_API_URL."/{$this->pixelId}/events";
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        if (empty($events) || !$this->isEnabled()) {
+            return 0;
+        }
+
+        try {
+            $request = app(\Illuminate\Http\Request::class);
+            $url = $request->fullUrl();
+            $ip = $request->ip() ?? '127.0.0.1';
+            $ua = $request->userAgent() ?? '';
+        } catch (\Throwable) {
+            $url = '';
+            $ip = '127.0.0.1';
+            $ua = '';
+        }
+
+        $metaEvents = [];
+        foreach ($events as $event) {
+            $metaEvents[] = [
+                'event_name' => $event->name,
+                'event_time' => time(),
+                'event_id' => $event->params['event_id'] ?? uniqid('', true),
+                'action_source' => 'website',
+                'event_source_url' => $event->params['url'] ?? $url,
+                'user_data' => [
+                    'client_ip_address' => $ip,
+                    'client_user_agent' => $ua,
+                ],
+                'custom_data' => array_diff_key($event->params, array_flip(['event_id', 'url'])),
+            ];
+        }
+
+        $payload = [
+            'data' => $metaEvents,
+        ];
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withToken($this->accessToken)
+                ->post($this->buildUrl(), $payload);
+
+            if (!$response->successful()) {
+                \Illuminate\Support\Facades\Log::warning('MetaPixelTracker: batch dispatch failed', [
+                    'event_count' => count($events),
+                    'status' => $response->status(),
+                ]);
+
+                return 0;
+            }
+
+            return count($events);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('MetaPixelTracker: batch dispatch error', [
+                'event_count' => count($events),
+                'error' => $e->getMessage(),
+            ]);
+
+            return 0;
+        }
+    }
 }

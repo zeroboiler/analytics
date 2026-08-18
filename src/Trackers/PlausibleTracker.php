@@ -370,4 +370,10 @@ HTML;
     {
         return $this->customScriptUrl !== null && $this->customScriptUrl !== '';
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        return $this->defaultTrackBatch($events);
+    }
 }

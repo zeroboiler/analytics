@@ -498,4 +498,54 @@ HTML;
             random_int(100000, 999999),
         );
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        if (empty($events) || !$this->isEnabled()) {
+            return 0;
+        }
+
+        $batch = [];
+        foreach ($events as $event) {
+            $batch[] = [
+                'event' => $event->name,
+                'properties' => array_merge($event->params, [
+                    'distinct_id' => $event->clientId ?? $event->userId ?? $this->generateDistinctId(),
+                    '$lib' => 'zeroboiler-php',
+                ]),
+                'timestamp' => $event->timestamp?->format('c') ?? (new \DateTimeImmutable())->format('c'),
+            ];
+        }
+
+        $payload = [
+            'api_key' => $this->apiKey,
+            'batch' => $batch,
+        ];
+
+        try {
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl . '/batch', $payload);
+
+            if (!$response->successful()) {
+                \Illuminate\Support\Facades\Log::warning('PosthogTracker: batch dispatch failed', [
+                    'event_count' => count($events),
+                    'status' => $response->status(),
+                ]);
+
+                return 0;
+            }
+
+            return count($events);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('PosthogTracker: batch dispatch error', [
+                'event_count' => count($events),
+                'error' => $e->getMessage(),
+            ]);
+
+            return 0;
+        }
+    }
 }

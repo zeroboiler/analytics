@@ -44,4 +44,19 @@ interface TrackerInterface
      * Get the current consent state applied to this tracker.
      */
     public function getConsent(): ConsentState;
+
+    /**
+     * Track multiple analytics events in a single batch dispatch.
+     *
+     * Providers that support batch APIs (GA4 Measurement Protocol, Meta CAPI,
+     * PostHog /batch, Plausible /api/v2/event batch) will send all events
+     * in one HTTP request. Providers without native batch support fall back
+     * to sequential track() calls.
+     *
+     * @param  list<AnalyticsEvent>  $events  Events to dispatch
+     * @return int  Number of events successfully dispatched
+     *
+     * @since 243.0.0
+     */
+    public function trackBatch(array $events): int;
 }

@@ -244,4 +244,54 @@ HTML;
 
         return $baseUrl.'?'.$params;
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        if (empty($events) || !$this->isEnabled()) {
+            return 0;
+        }
+
+        $clientId = null;
+        $ga4Events = [];
+
+        foreach ($events as $event) {
+            $clientId ??= $event->clientId ?? $this->generateClientId();
+            $ga4Events[] = [
+                'name' => $event->name,
+                'params' => $event->params,
+            ];
+        }
+
+        $payload = [
+            'client_id' => $clientId,
+            'events' => $ga4Events,
+        ];
+
+        try {
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = \Illuminate\Support\Facades\Http::post(
+                $this->buildUrl(self::MEASUREMENT_PROTOCOL_URL),
+                $payload,
+            );
+
+            if (!$response->successful()) {
+                \Illuminate\Support\Facades\Log::warning('GA4Tracker: batch dispatch failed', [
+                    'event_count' => count($events),
+                    'status' => $response->status(),
+                ]);
+
+                return 0;
+            }
+
+            return count($events);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('GA4Tracker: batch dispatch error', [
+                'event_count' => count($events),
+                'error' => $e->getMessage(),
+            ]);
+
+            return 0;
+        }
+    }
 }

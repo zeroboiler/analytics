@@ -257,10 +257,12 @@ use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\EventActionRegistry;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventActionsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSHealthCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsQualityGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSemanticMetricsCommand;
 use ZeroBoiler\Analytics\Services\RegionalConsentService;
 use ZeroBoiler\Analytics\Services\EventThrottleService;
 use ZeroBoiler\Analytics\Services\SaaSHealthScoreAggregator;
+use ZeroBoiler\Analytics\Services\EventCatalogDiffService;
 use ZeroBoiler\Analytics\Services\PLGScoringService;
 use ZeroBoiler\Analytics\Services\RevenueWaterfallService;
 use ZeroBoiler\Analytics\Services\FeatureFlagAnalyticsService;
@@ -510,7 +512,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 242.0.0
+ * @version 243.0.0
  *
  * @since 1.0.0
  */
@@ -2366,6 +2368,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSHealthScoreAggregator($cache, $config);
+        });
+
+        // Event Catalog Diff Service — catalog version comparison and regression detection
+        $this->app->singleton(EventCatalogDiffService::class, function (Application $app): EventCatalogDiffService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+
+            return new EventCatalogDiffService($cache);
         });
 
         // SaaS Revenue Funnel service — full lifecycle funnel analytics
@@ -4750,6 +4760,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEventActionsCommand::class,
                 \\ZeroBoiler\\Analytics\\Console\\Commands\\AnalyticsSemanticMetricsCommand::class,
                 AnalyticsSaaSHealthCommand::class,
+                AnalyticsQualityGateCommand::class,
             ]));
         }
 

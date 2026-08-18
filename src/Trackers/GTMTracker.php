@@ -147,4 +147,10 @@ HTML;
 
         return $output;
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        return $this->defaultTrackBatch($events);
+    }
 }

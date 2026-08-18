@@ -1,5 +1,20 @@
 # Changelog
 
+## [243.0.0] - 2026-08-18
+
+### Added
+- **Event Catalog Diff Service** (`src/Services/EventCatalogDiffService.php`) — Tracks and compares event catalog snapshots between versions. Detects added, removed, renamed events (Levenshtein distance heuristic), and category changes. Cache-backed snapshot persistence with 90-day TTL. Supports CI/CD regression detection (accidental event removals). `takeSnapshot()`, `diff()`, `diffAgainst()`, `hasChanged()`, `categoryCounts()`.
+- **Analytics Quality Gate Command** (`src/Console/Commands/AnalyticsQualityGateCommand.php`) — `zb:analytics:quality-gate` CI/CD quality gate command running 5 checks: schema coverage (%), catalog diff (added/removed/renamed), compliance scoring (GDPR/PII/retention), provider coverage (GA4+Meta mapping), deduplication (duplicate GA4/Meta event names). Supports `--json`, `--fail-level=error|warning|none`, `--snapshot`, `--check=schema|diff|compliance|coverage|dedup|all`, `--min-coverage`, `--min-compliance`. Human-readable report with status icons.
+- **Batch Event Dispatch** — Added `trackBatch(array $events): int` to `TrackerInterface` with implementation across all 10 trackers. Native batch APIs for GA4 (Measurement Protocol multi-event), Meta Pixel (CAPI batch `data[]`), PostHog (`/batch` endpoint). Default sequential fallback for GTM, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn, Webhook via `TrackerHelpers::defaultTrackBatch()`.
+- **Config expansion** — `quality_gate` section (5 settings) and `catalog_diff` section (cache_key, ttl) added to `config/zeroboiler.php`.
+- **Phase 64 Production Readiness Test** (`tests/Phase64/Phase64ProductionReadinessTest.php`) — 75+ assertions covering version consistency (6 entry points), source file thresholds (≥975 source, ≥495 test, ≥116 commands, ≥448 services), new service/command validation, batch interface across all trackers, catalog diff service, quality gate command, all 12 core SaaS features, code quality.
+
+### Changed
+- Version bump to 243.0.0 across 6 entry points (composer.json, package.json, AnalyticsEvent::VERSION, AnalyticsServiceProvider @version, README badge, CHANGELOG).
+- ServiceProvider: Registered EventCatalogDiffService singleton, added AnalyticsQualityGateCommand.
+- TrackerInterface: Added `trackBatch()` method (v243.0.0).
+- TrackerHelpers: Added `defaultTrackBatch()` for sequential fallback.
+
 ## [242.0.0] - 2026-08-18
 
 ### Added

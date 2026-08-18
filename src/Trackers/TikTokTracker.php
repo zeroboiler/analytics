@@ -244,4 +244,10 @@ HTML;
     {
         return hash('xxh128', $event->name . ':' . json_encode($event->params, JSON_THROW_ON_ERROR));
     }
+
+    #[\Override]
+    public function trackBatch(array $events): int
+    {
+        return $this->defaultTrackBatch($events);
+    }
 }
