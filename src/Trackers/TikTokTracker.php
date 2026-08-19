@@ -250,4 +250,18 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        // TikTok Events API has no dedicated identify endpoint.
+        // User identification is handled via advanced matching parameters
+        // (email, phone, etc.) on individual event payloads. No-op is intentional.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'tiktok';
+    }
 }

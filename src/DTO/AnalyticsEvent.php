@@ -21,7 +21,7 @@ final readonly class AnalyticsEvent
 {
     /**
      * Package version for schema versioning.
-    public const VERSION = '257.0.0';
+    public const VERSION = '258.0.0';
      */
 
     /**

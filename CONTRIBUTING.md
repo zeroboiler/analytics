@@ -1,99 +1,78 @@
 # Contributing to ZeroBoiler Analytics
 
-## Code Standards
+Thank you for your interest in contributing! This guide covers the essentials.
 
-- **PHP 8.5+** — `declare(strict_types=1)` on every file
-- **Final classes** on all service/DTO/event classes
-- **Final readonly** on all DTOs (AnalyticsEvent, ConsentState, UtmAttribution, EventContextEvent)
-- **`:void` return types** on all constructors
-- **Return type declarations** on all public methods
-- **Facades are NOT final** — standard Laravel pattern
-- **Traits are NOT final** — designed for inheritance
-- **Zero TODO/FIXME markers** in production source
-
-## Package Architecture
-
-```
-AnalyticsServiceProvider       ← Registers manager, trackers, pipeline, services, routes
-
-Core:
-  ├── AnalyticsManager         ← Central dispatcher (GA4, GTM, Meta, Plausible, PostHog, Webhook)
-  ├── AnalyticsMetrics         ← Dispatch/failure counters
-  ├── EventInterceptorRegistry ← Before/after event interceptor chains
-  └── Facades\Analytics        ← Static proxy with full @method annotations
-
-DTOs (final readonly):
-  ├── AnalyticsEvent           ← Core event DTO (name, params, clientId, userId, timestamp)
-  ├── ConsentState             ← GDPR Consent Mode v2 signals
-  ├── UtmAttribution           ← UTM campaign tracking
-  └── EventContextEvent        ← Fully-qualified event envelope
-
-Trackers:
-  ├── GA4Tracker               ← Google Analytics 4 (Measurement Protocol)
-  ├── GTMTracker               ← Google Tag Manager (dataLayer push + scripts)
-  ├── MetaPixelTracker         ← Meta Pixel (Conversions API + pixel)
-  ├── PlausibleTracker         ← Plausible Analytics (custom events API)
-  ├── PosthogTracker           ← PostHog (capture API)
-  └── WebhookTracker           ← Generic webhook dispatch with HMAC signing
-
-Events (3 categories, 60+ event classes):
-  ├── Engagement/              ← page_view, click, form, scroll, search, video, etc.
-  ├── Ecommerce/               ← purchase, cart, checkout, wishlist, refund, etc.
-  └── SaaS/                    ← signup, login, trial, plan, revenue, cohort, etc.
-
-Pipeline (decorator chain):
-  ├── EventPipeline            ← Orchestrates filter → enricher chain
-  ├── Filters:                 ← Consent, Sampling, Debounce, Dedup, TrackingPreference
-  └── Enrichers:               ← UTM, Timestamp, UserContext, Geo, Metadata, Schema
-
-Services (50+):
-  ├── GoogleAnalyticsService   ← GA4 convenience wrapper
-  ├── GoogleTagManagerService  ← GTM convenience wrapper
-  ├── MetaPixelService         ← Meta Pixel convenience wrapper
-  ├── EcommerceAnalyticsService ← E-commerce tracking shortcuts
-  ├── SaaSAnalyticsService     ← SaaS lifecycle event shortcuts
-  ├── RevenueAnalyticsService  ← Revenue tracking & MRR
-  ├── FunnelAnalyticsService   ← Funnel step tracking
-  └── ... (see Services/ directory)
-
-Middleware:
-  ├── InjectAnalyticsScripts   ← Auto-inject tracker scripts in responses
-  ├── ConsentGateMiddleware    ← Block events without consent
-  ├── PiiSanitizationMiddleware ← Strip/mask PII before dispatch
-  ├── TimestampMiddleware      ← Add server timestamp to events
-  ├── SchemaValidationMiddleware ← Validate against EventSchemaRegistry
-  └── AnalyticsMiddlewareStack ← Compose middleware chain
-
-Pipeline Filters & Enrichers:
-  ├── ConsentFilter            ← Skip denied-consent events
-  ├── SamplingFilter           ← Probabilistic/deterministic sampling
-  ├── EventDeduplicationFilter  ← Cache-based fingerprint dedup
-  ├── EventDebounceFilter      ← Throttle rapid duplicate events
-  ├── UtmEnricher              ← Extract UTM from request
-  ├── GeolocationEnricher       ← Geo from headers/IP
-  └── UserContextEnricher       ← User/tenant context
-
-Tracking:
-  ├── AnonymousIdTracker       ← Persistent client ID generation
-  ├── ServerSideTracker        ← Server-to-server GA4/GTM
-  ├── SessionTracker           ← Session lifecycle tracking
-  └── UserIdentityTracker      ← User ID ↔ client ID linking
-
-## Quality Checks
+## Development Setup
 
 ```bash
-composer test              # Run Pest test suite
-composer cs-check           # Pint style check
-composer cs-fix             # Pint style fix
-composer analyse            # PHPStan static analysis
-composer rector             # Rector automated refactoring
-composer rector-dry         # Rector dry-run
+git clone https://github.com/zeroboiler/analytics.git
+cd analytics
+cp .env.example .env
+composer install
 ```
 
-## Pull Requests
+## Code Standards
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/my-feature`)
-3. Ensure all quality checks pass
-4. Commit with conventional prefix (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`)
-5. Push and open a pull request
+- **PHP 8.5+** — All source files use `declare(strict_types=1)`.
+- **Return types** — Every method must have an explicit return type declaration.
+- **Docblocks** — All public/protected methods must have PHPDoc with `@param`, `@return`, and `@since` tags.
+- **Final classes** — All concrete classes are `final`. Only abstract classes and interfaces are non-final.
+- **MIT header** — Every PHP file must start with the license header comment.
+- **Formatting** — Follow PSR-12. We use [Laravel Pint](https://github.com/laravel/pint).
+- **Static analysis** — PHPStan level 9 with `.neon.dist` configuration.
+- **EditorConfig** — Install the EditorConfig plugin for your editor to match project settings.
+
+## Running Checks
+
+```bash
+# Code formatting (must pass)
+vendor/bin/pint --test
+
+# Static analysis (must pass)
+vendor/bin/phpstan analyse --no-progress
+
+# Tests (minimum 43% coverage)
+vendor/bin/pest --coverage --min=43
+
+# All quality checks at once
+vendor/bin/pint --test && vendor/bin/phpstan analyse --no-progress && vendor/bin/pest
+```
+
+## Pull Request Process
+
+1. Create a feature branch from `main`.
+2. Write code following the standards above.
+3. Add tests for new functionality.
+4. Ensure all CI checks pass.
+5. Update the changelog (if user-facing).
+6. Submit the PR with a clear description.
+
+## Versioning
+
+This project uses [Semantic Versioning](https://semver.org/). When updating the version:
+
+1. Update `composer.json` `version` field
+2. Update `package.json` `version` field  
+3. Update `AnalyticsEvent::VERSION` constant in `src/DTO/AnalyticsEvent.php`
+4. Update `@version` in `resources/js/analytics.js` (header + `getVersion()`)
+5. Update `@version` in `resources/js/analytics.d.ts`
+6. Update `@version` in `resources/js/analytics.constants.js`
+7. Update `@version` in all Svelte composables (`resources/js/use*.svelte.js`)
+8. Update `@version` in `AnalyticsServiceProvider.php`
+9. Update `EXPECTED_VERSION` in `AnalyticsIntegrityCommand.php`
+10. Update README badge
+11. Add changelog entry
+
+## Architecture
+
+- **Trackers** (`src/Trackers/`) — Provider-specific implementations of `TrackerInterface`
+- **Events** (`src/Events/`) — Typed event catalogs (Ecommerce, SaaS, Engagement, etc.)
+- **Services** (`src/Services/`) — Business logic services
+- **DTO** (`src/DTO/`) — Data transfer objects
+- **Commands** (`src/Console/Commands/`) — Artisan commands
+- **Middleware** (`src/Http/Middleware/`) — HTTP middleware
+- **JS Client** (`resources/js/`) — Browser/Node analytics library
+
+## Questions?
+
+Open a [GitHub Discussion](https://github.com/zeroboiler/analytics/discussions) for questions about contributing.

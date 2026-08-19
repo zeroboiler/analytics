@@ -202,4 +202,18 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        // LinkedIn Conversions API has no dedicated identify endpoint.
+        // User identification is handled via match_fields on individual event payloads.
+        // No-op is intentional.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'linkedin';
+    }
 }

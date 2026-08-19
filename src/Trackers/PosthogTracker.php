@@ -548,4 +548,10 @@ HTML;
             return 0;
         }
     }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'posthog';
+    }
 }

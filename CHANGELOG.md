@@ -1,4 +1,22 @@
 # Changelog
+## [258.0.0] - 2026-08-19
+
+### Added
+- **TrackerInterface::identify()** — Formal identity contract across all 10 providers. Each tracker now implements a `identify(string $userId, array $traits = []): void` method that calls provider-specific identity APIs (PostHog $identify, Mixpanel /engage, Amplitude /v2/httpapi) or no-ops gracefully where no native API exists (GA4, Plausible, TikTok, LinkedIn, Meta CAPI).
+- **TrackerInterface::providerName()** — Machine-readable provider name for observability, targeted dispatch, and error routing. Returns lowercase snake_case matching config keys (ga4, gtm, meta, plausible, posthog, mixpanel, amplitude, tiktok, linkedin, webhook).
+- **AnalyticsManager::identifyAll()** — Calls native identify() on all 10 trackers with error handling. Returns per-provider success map.
+- **AnalyticsManager::identifyTo()** — Targeted identify dispatch to specific providers by name. Returns per-provider success map.
+- **Facade methods** — `Analytics::identifyAll()` and `Analytics::identifyTo()` documented in Facade PHPDoc.
+- **.editorconfig** — Project-wide editor configuration (PHP 4-space, JS/JSON/YAML 2-space, UTF-8, LF line endings).
+- **CONTRIBUTING.md** — Development setup, code standards, CI commands, PR process, versioning guide.
+- **Phase87ProductionReadinessTest** — 22-test production readiness check: TrackerInterface contract, all 10 tracker implementations, AnalyticsManager methods, Facade documentation, CI workflow, project hygiene files, version consistency.
+
+### Changed
+- **CI workflow** — Removed broken redacted dependency clone steps. Simplified to standard `composer install`.
+- **Version bump to 258.0.0** across all 23 version entry points.
+
+
+# Changelog
 ## [257.0.0] - 2026-08-19
 
 ### Fixed

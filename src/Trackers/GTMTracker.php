@@ -153,4 +153,26 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        // GTM handles identity via dataLayer push — no dedicated server-side identify endpoint.
+        // Client-side GTM containers handle user_id via dataLayer variables.
+        $this->push([
+            'event' => 'identify',
+            'userId' => $userId,
+            'userProperties' => $traits,
+        ]);
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'gtm';
+    }
 }

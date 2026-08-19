@@ -259,6 +259,95 @@ final class AnalyticsManager
     }
 
     /**
+     * Call native identify on all trackers that support it.
+     *
+     * Unlike identify() which fires a generic 'identify' event,
+     * this calls each tracker's own identify() method, which uses
+     * provider-specific identity APIs (PostHog $identify, Mixpanel /engage,
+     * Amplitude /v2/httpapi, etc.).
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  array<string, mixed>  $traits  User traits (name, email_hash, plan, etc.)
+     * @return array<string, bool>  Provider name → success boolean
+     *
+     * @since 258.0.0
+     */
+    public function identifyAll(string $userId, array $traits = []): array
+    {
+        $trackers = [
+            $this->ga4, $this->gtm, $this->meta, $this->plausible,
+            $this->posthog, $this->webhook, $this->mixpanel,
+            $this->amplitude, $this->tiktok, $this->linkedin,
+        ];
+
+        $results = [];
+        foreach ($trackers as $tracker) {
+            try {
+                $tracker->identify($userId, $traits);
+                $results[$tracker->providerName()] = true;
+            } catch (\Throwable $e) {
+                $results[$tracker->providerName()] = false;
+                Log::warning('AnalyticsManager: identify failed for ' . $tracker->providerName(), [
+                    'user_id' => $userId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Call native identify on specific providers.
+     *
+     * @param  string  $userId  Authenticated user ID
+     * @param  list<string>  $providers  Provider names (e.g. ['posthog', 'amplitude'])
+     * @param  array<string, mixed>  $traits  User traits
+     * @return array<string, bool>  Provider name → success boolean
+     *
+     * @since 258.0.0
+     */
+    public function identifyTo(string $userId, array $providers, array $traits = []): array
+    {
+        $trackerMap = [
+            'ga4' => $this->ga4,
+            'gtm' => $this->gtm,
+            'meta' => $this->meta,
+            'plausible' => $this->plausible,
+            'posthog' => $this->posthog,
+            'webhook' => $this->webhook,
+            'mixpanel' => $this->mixpanel,
+            'amplitude' => $this->amplitude,
+            'tiktok' => $this->tiktok,
+            'linkedin' => $this->linkedin,
+        ];
+
+        $results = [];
+        foreach ($providers as $provider) {
+            $tracker = $trackerMap[$provider] ?? null;
+
+            if ($tracker === null) {
+                $results[$provider] = false;
+
+                continue;
+            }
+
+            try {
+                $tracker->identify($userId, $traits);
+                $results[$provider] = true;
+            } catch (\Throwable $e) {
+                $results[$provider] = false;
+                Log::warning('AnalyticsManager: identifyTo failed for ' . $provider, [
+                    'user_id' => $userId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Dispatch an event to all enabled trackers.
      */
     private function dispatchToTrackers(AnalyticsEvent $event): void

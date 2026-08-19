@@ -195,4 +195,18 @@ final class WebhookTracker implements TrackerInterface
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        // Webhook tracker is a generic relay — no native identity system.
+        // If the consumer needs identify events, they should use track() with
+        // event name 'identify' and include traits in the params.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'webhook';
+    }
 }

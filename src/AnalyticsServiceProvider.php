@@ -512,7 +512,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 257.0.0
+ * @version 258.0.0
  *
  * @since 1.0.0
  */

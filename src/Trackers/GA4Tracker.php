@@ -294,4 +294,22 @@ HTML;
             return 0;
         }
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        // GA4 Measurement Protocol identifies users via user_id param on events.
+        // There is no dedicated identify endpoint — user_id is included in
+        // subsequent event payloads. This no-op is intentional.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'ga4';
+    }
 }

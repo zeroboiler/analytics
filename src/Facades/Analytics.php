@@ -194,6 +194,10 @@ use ZeroBoiler\Analytics\Trackers\PosthogTracker;
  * Identity + Event (v145.0.0)
  * @method static void identifyAndTrack(string $userId, string $eventName, string|null $clientId = null, array<string, mixed> $params = [], array<string, mixed> $traits = [])
  *
+ * Native Identify Methods (v258.0.0)
+ * @method static array<string, bool> identifyAll(string $userId, array<string, mixed> $traits = [])
+ * @method static array<string, bool> identifyTo(string $userId, list<string> $providers, array<string, mixed> $traits = [])
+ *
  * Additional Engagement Convenience Methods (v145.0.0)
  * @method static void webVitals(string $metricName, float|int $value, array<string, mixed> $params = [])
  * @method static void jsError(string $message, string|null $source = null, int|null $line = null, int|null $col = null, array<string, mixed> $params = [])

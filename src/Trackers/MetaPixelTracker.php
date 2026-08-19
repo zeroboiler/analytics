@@ -282,4 +282,23 @@ HTML;
             return 0;
         }
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        // Meta CAPI supports user data on events but has no dedicated identify endpoint.
+        // User data (email, phone, etc.) is included as hashed values in event payloads
+        // via the user_data field. Traits should contain pre-hashed values per Meta's
+        // Advanced Matching specification.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'meta';
+    }
 }

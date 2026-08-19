@@ -253,4 +253,21 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        if (! $this->isEnabled()) {
+            return;
+        }
+
+        // Delegate to the existing setUserProfile method which calls /engage $set
+        $this->setUserProfile($userId, $traits);
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'mixpanel';
+    }
 }

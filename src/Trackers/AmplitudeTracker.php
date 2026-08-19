@@ -299,4 +299,10 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'amplitude';
+    }
 }

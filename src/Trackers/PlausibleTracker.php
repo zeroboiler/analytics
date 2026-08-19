@@ -376,4 +376,17 @@ HTML;
     {
         return $this->defaultTrackBatch($events);
     }
+
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
+    {
+        // Plausible is a privacy-focused, cookie-free analytics service.
+        // It has no user identity or user profile API. No-op is intentional.
+    }
+
+    #[\Override]
+    public function providerName(): string
+    {
+        return 'plausible';
+    }
 }
