@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 254.0.0
+ * @version 255.0.0
  */
 
 let trackingId = null;
@@ -2160,6 +2160,123 @@ export function initScrollDepth() {
 }
 
 // ─── Inertia Page View Tracker ───────────────────────────────────────────
+
+/**
+ * Initialize Inertia page view tracking (canonical API).
+ *
+ * One-call setup for Inertia.js apps. Listens for `inertia:success` events
+ * and fires `page_view` analytics events with page title, URL, referrer.
+ * Also manages client ID cookie read and optional scroll depth reset.
+ *
+ * This is the primary API referenced in the documentation.
+ * Uses the newer `inertia:success` event when available, falls back
+ * to `inertia:navigate` for older Inertia versions.
+ *
+ * @param {object} [options] - Configuration options
+ * @param {boolean} [options.scrollDepth=true] - Reset scroll depth tracking on each navigation
+ * @param {boolean} [options.trackInitial=true] - Track the initial page view immediately
+ * @param {Function} [options.onPageView] - Callback: (url, title) => void
+ * @returns {function} Cleanup function — call on component unmount
+ *
+ * @example
+ * // Svelte/Inertia root layout:
+ * import { initInertiaPageViewTracker } from '@zeroboiler/analytics';
+ * onMount(() => {
+ *     const cleanup = initInertiaPageViewTracker({ scrollDepth: true });
+ *     return cleanup;
+ * });
+ */
+export function initInertiaPageViewTracker(options = {}) {
+    if (!initialized) return () => {};
+
+    const { scrollDepth = true, trackInitial = true, onPageView } = options;
+    const cleanups = [];
+    let lastUrl = window.location.href;
+    let scrollCleanup = null;
+
+    function handleNavigation() {
+        const url = window.location.href;
+        if (url === lastUrl) return;
+        lastUrl = url;
+
+        // Reset scroll depth on navigation
+        if (scrollCleanup) {
+            scrollCleanup();
+            scrollCleanup = null;
+        }
+
+        trackPageView(document.title, url, document.referrer);
+
+        // Re-init scroll depth for new page
+        if (scrollDepth) {
+            scrollCleanup = initScrollDepth();
+        }
+
+        if (typeof onPageView === 'function') {
+            onPageView(url, document.title);
+        }
+    }
+
+    // Modern Inertia (v1.x) uses 'inertia:success' for completed navigations
+    document.addEventListener('inertia:success', handleNavigation);
+    cleanups.push(() => document.removeEventListener('inertia:success', handleNavigation));
+
+    // Fallback for older Inertia versions
+    document.addEventListener('inertia:navigate', (e) => {
+        if (e.detail?.visit?.completed) handleNavigation();
+    });
+    cleanups.push(() => document.removeEventListener('inertia:navigate', handleNavigation));
+
+    // Track initial page view
+    if (trackInitial) {
+        trackPageView(document.title, window.location.href, document.referrer);
+    }
+
+    // Init scroll depth for initial page
+    if (scrollDepth) {
+        scrollCleanup = initScrollDepth();
+        cleanups.push(() => { if (scrollCleanup) scrollCleanup(); });
+    }
+
+    return () => { for (const fn of cleanups) fn(); cleanups.length = 0; };
+}
+
+/**
+ * Get or create the client tracking ID from the cookie set by the server.
+ *
+ * Reads the `zb_analytics_id` cookie (or the name configured via
+ * `config.identity.cookie_name`). If no cookie exists, generates
+ * a new UUID and stores it in a cookie for client-side tracking.
+ *
+ * @param {string} [cookieName='zb_analytics_id'] - Cookie name
+ * @returns {string} The client tracking ID
+ */
+export function getOrCreateClientId(cookieName = 'zb_analytics_id') {
+    if (trackingId) return trackingId;
+
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [name, ...rest] = cookie.trim().split('=');
+        if (name === cookieName && rest.length > 0) {
+            trackingId = decodeURIComponent(rest.join('='));
+            return trackingId;
+        }
+    }
+
+    // Generate new UUID v4
+    trackingId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
+
+    // Persist in cookie (1 year)
+    const maxAge = 365 * 24 * 60 * 60;
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${cookieName}=${trackingId}; path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`;
+
+    return trackingId;
+}
 
 /**
  * Initialize automatic page view tracking for Inertia.js.
@@ -4554,118 +4671,6 @@ export function getForwarderNames() {
  */
 export function _getInternalVersion() {
         return '210.0.0';
-}
-
-// ─── Inertia Page View Auto-Tracker (v2.96.0) ────────────────────
-
-/**
- * Initialize automatic Inertia page view tracking.
- *
- * Hooks into the Inertia.js event system to automatically fire `trackPageView()`
- * on every SPA navigation. Handles both initial page load and subsequent
- * client-side navigations. Compatible with Svelte, Vue, and React Inertia adapters.
- *
- * Uses the proper Inertia event system via `page` store subscription for
- * framework-agnostic compatibility.
- *
- * @param {object} [options] - Configuration options
- * @param {boolean} [options.trackInitial=true] - Track the initial page view immediately
- * @param {number} [options.delayMs=50] - Delay after navigation before tracking (ms)
- * @param {Function} [options.onTrack] - Callback after each page view is tracked (receives title, location)
- * @param {boolean} [options.enableScrollDepth=false] - Also enable scroll depth tracking
- * @returns {Function} Cleanup function to stop tracking
- *
- * @example
- * // Svelte
- * import { onMount } from 'svelte';
- * import { initInertiaPageViewTracker } from '../resources/js/analytics';
- *
- * onMount(() => {
- *     const cleanup = initInertiaPageViewTracker({ enableScrollDepth: true });
- *     return cleanup;
- * });
- *
- * // Vue
- * import { onMounted, onUnmounted } from 'vue';
- * import { initInertiaPageViewTracker } from '../resources/js/analytics';
- *
- * onMounted(() => {
- *     cleanup = initInertiaPageViewTracker();
- * });
- * onUnmounted(() => { cleanup?.(); });
- *
- * // React
- * import { useEffect } from 'react';
- * import { initInertiaPageViewTracker } from '../resources/js/analytics';
- *
- * useEffect(() => initInertiaPageViewTracker(), []);
- */
-export function initInertiaPageViewTracker(options = {}) {
-    const {
-        trackInitial = true,
-        delayMs = 50,
-        onTrack = null,
-        enableScrollDepth = false,
-    } = options;
-
-    if (!initialized) return () => {};
-
-    const cleanupFns = [];
-
-    // Track initial page view
-    if (trackInitial) {
-        trackPageView();
-        if (onTrack) onTrack(document.title, window.location.href);
-    }
-
-    // Enable scroll depth if requested
-    if (enableScrollDepth) {
-        cleanupFns.push(initScrollDepthTracker());
-    }
-
-    // Track subsequent Inertia navigations
-    // Try multiple Inertia event patterns for compatibility across adapters
-    let previousUrl = window.location.href;
-
-    // Pattern 1: inertia:navigate event (Inertia.js v1.x)
-    const handleNavigate = () => {
-        setTimeout(() => {
-            const currentUrl = window.location.href;
-            if (currentUrl !== previousUrl) {
-                previousUrl = currentUrl;
-                trackPageView();
-                if (onTrack) onTrack(document.title, currentUrl);
-            }
-        }, delayMs);
-    };
-    window.addEventListener('inertia:navigate', handleNavigate);
-    cleanupFns.push(() => window.removeEventListener('inertia:navigate', handleNavigate));
-
-    // Pattern 2: inertia:success event (fired after successful navigation completes)
-    const handleSuccess = () => {
-        setTimeout(() => {
-            trackPageView();
-            if (onTrack) onTrack(document.title, window.location.href);
-        }, delayMs);
-    };
-    window.addEventListener('inertia:success', handleSuccess);
-    cleanupFns.push(() => window.removeEventListener('inertia:success', handleSuccess));
-
-    // Pattern 3: PopState event fallback (covers browser back/forward)
-    const handlePopState = () => {
-        setTimeout(() => {
-            trackPageView();
-            if (onTrack) onTrack(document.title, window.location.href);
-        }, delayMs);
-    };
-    window.addEventListener('popstate', handlePopState);
-    cleanupFns.push(() => window.removeEventListener('popstate', handlePopState));
-
-    return function cleanupInertiaPageViewTracker() {
-        cleanupFns.forEach((fn) => {
-            if (typeof fn === 'function') fn();
-        });
-    };
 }
 
 // ─── Svelte Tracker (Zero-Config Component) ────────────────────────

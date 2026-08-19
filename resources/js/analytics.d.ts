@@ -642,7 +642,15 @@ export function initScrollDepth(): void;
  */
 export function initInertiaPageViewTracker(options?: {
   scrollDepth?: boolean;
-}): void;
+  trackInitial?: boolean;
+  onPageView?: (url: string, title: string) => void;
+}): () => void;
+
+/**
+ * Get or create the client tracking ID from cookie.
+ * Generates a UUID if no cookie exists.
+ */
+export function getOrCreateClientId(cookieName?: string): string;
 
 /**
  * Initialize Inertia page view tracking with Svelte page store integration.
