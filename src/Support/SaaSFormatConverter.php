@@ -771,6 +771,147 @@ final class SaaSFormatConverter
         ];
     }
 
+    // ── plan_downgrade → Meta / PostHog / GA4 / Mixpanel / Amplitude / Plausible / TikTok / LinkedIn ─────────────────────
+
+    /**
+     * Convert plan_downgrade event params to Meta Pixel format.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{content_name: string, value: float, currency: string, from_plan: string|null, to_plan: string|null}
+     */
+    public static function planDowngradeToMeta(array $params): array
+    {
+        return [
+            'content_name' => (string) ($params['content_name'] ?? 'plan_downgrade'),
+            'value' => (float) ($params['value'] ?? $params['revenue_delta'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to PostHog properties.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{from_plan: string|null, to_plan: string|null, value: float, currency: string, revenue_delta: float}
+     */
+    public static function planDowngradeToPosthog(array $params): array
+    {
+        return [
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+            'value' => (float) ($params['value'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'revenue_delta' => (float) ($params['revenue_delta'] ?? 0.0),
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to GA4 custom event format.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{items: list<array<string, mixed>>, value: float, currency: string}
+     */
+    public static function planDowngradeToGa4(array $params): array
+    {
+        return [
+            'items' => [[
+                'item_id' => (string) ($params['to_plan'] ?? $params['new_plan'] ?? 'plan_downgrade'),
+                'item_name' => (string) ($params['to_plan'] ?? $params['new_plan'] ?? ''),
+                'item_category' => 'plan_downgrade',
+                'item_variant' => (string) ($params['from_plan'] ?? $params['previous_plan'] ?? ''),
+            ]],
+            'value' => (float) ($params['value'] ?? $params['revenue_delta'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to Mixpanel event properties.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{from_plan: string|null, to_plan: string|null, value: float, currency: string, revenue_delta: float}
+     */
+    public static function planDowngradeToMixpanel(array $params): array
+    {
+        return [
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+            'value' => (float) ($params['value'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'revenue_delta' => (float) ($params['revenue_delta'] ?? 0.0),
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to Amplitude event properties.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{from_plan: string|null, to_plan: string|null, value: float, currency: string, user_properties: array{plan: mixed, mrr: mixed}}
+     */
+    public static function planDowngradeToAmplitude(array $params): array
+    {
+        $toPlan = $params['to_plan'] ?? $params['new_plan'] ?? null;
+
+        return [
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $toPlan,
+            'value' => (float) ($params['value'] ?? $params['revenue_delta'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'user_properties' => $toPlan !== null
+                ? ['plan' => $toPlan, 'mrr' => (float) ($params['value'] ?? 0.0)]
+                : [],
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to Plausible event properties.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{from_plan: string|null, to_plan: string|null}
+     */
+    public static function planDowngradeToPlausible(array $params): array
+    {
+        return [
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to TikTok Events API format.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{content_name: string, value: float, currency: string, from_plan: string|null, to_plan: string|null}
+     */
+    public static function planDowngradeToTiktok(array $params): array
+    {
+        return [
+            'content_name' => 'plan_downgrade',
+            'value' => (float) ($params['value'] ?? $params['revenue_delta'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+        ];
+    }
+
+    /**
+     * Convert plan_downgrade event params to LinkedIn Conversions API format.
+     *
+     * @param  array<string, mixed>  $params  Internal plan_downgrade params
+     * @return array{value: float, currency: string, from_plan: string|null, to_plan: string|null}
+     */
+    public static function planDowngradeToLinkedin(array $params): array
+    {
+        return [
+            'value' => (float) ($params['value'] ?? $params['revenue_delta'] ?? 0.0),
+            'currency' => (string) ($params['currency'] ?? 'USD'),
+            'from_plan' => $params['from_plan'] ?? $params['previous_plan'] ?? null,
+            'to_plan' => $params['to_plan'] ?? $params['new_plan'] ?? null,
+        ];
+    }
+
     // ── cancellation → Meta CancelSubscription / PostHog / GA4 / Mixpanel / Amplitude / Plausible / TikTok / LinkedIn ───────────────
 
     /**
@@ -995,6 +1136,17 @@ final class SaaSFormatConverter
                 'plausible' => self::planUpgradeToPlausible($params),
                 'tiktok' => self::planUpgradeToTiktok($params),
                 'linkedin' => self::planUpgradeToLinkedin($params),
+                default => $params,
+            },
+            'plan_downgrade' => match ($provider) {
+                'meta' => self::planDowngradeToMeta($params),
+                'posthog' => self::planDowngradeToPosthog($params),
+                'ga4' => self::planDowngradeToGa4($params),
+                'mixpanel' => self::planDowngradeToMixpanel($params),
+                'amplitude' => self::planDowngradeToAmplitude($params),
+                'plausible' => self::planDowngradeToPlausible($params),
+                'tiktok' => self::planDowngradeToTiktok($params),
+                'linkedin' => self::planDowngradeToLinkedin($params),
                 default => $params,
             },
             'cancellation' => match ($provider) {
@@ -1256,6 +1408,6 @@ final class SaaSFormatConverter
      */
     public static function supports(string $eventName): bool
     {
-        return in_array($eventName, ['sign_up', 'login', 'start_trial', 'subscribe', 'subscription', 'plan_upgrade', 'cancellation'], true);
+        return in_array($eventName, ['sign_up', 'login', 'start_trial', 'subscribe', 'subscription', 'plan_upgrade', 'plan_downgrade', 'cancellation'], true);
     }
 }

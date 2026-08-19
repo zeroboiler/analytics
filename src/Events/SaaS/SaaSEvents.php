@@ -1360,6 +1360,17 @@ final class SaaSEvents
     }
 
     /**
+     * Build a typed start_trial event (alias for startTrial).
+     *
+     * @param  array{plan_name?: string, trial_days?: int}  $params
+     * @return AnalyticsEvent
+     */
+    public static function trialStart(array $params = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(name: 'start_trial', params: $params, category: 'saas');
+    }
+
+    /**
      * Build a typed subscribe (subscription created) event.
      *
      * @param  array{plan_name?: string, amount?: float, currency?: string, billing_cycle?: string}  $params
@@ -1399,6 +1410,28 @@ final class SaaSEvents
     {
         return new AnalyticsEvent(
             name: 'plan_downgrade',
+            params: array_merge(['from_plan' => $fromPlan, 'to_plan' => $toPlan], $extra),
+            category: 'saas',
+        );
+    }
+
+    /**
+     * Build a typed plan_changed event (generic plan change with from/to).
+     *
+     * Use when the direction (upgrade/downgrade) is determined dynamically.
+     * Automatically sets the plan_upgrade or plan_downgrade name based on comparison.
+     *
+     * @param  string  $fromPlan
+     * @param  string  $toPlan
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function planChanged(string $fromPlan, string $toPlan, array $extra = []): AnalyticsEvent
+    {
+        $name = self::inferPlanChangeName($fromPlan, $toPlan);
+
+        return new AnalyticsEvent(
+            name: $name,
             params: array_merge(['from_plan' => $fromPlan, 'to_plan' => $toPlan], $extra),
             category: 'saas',
         );
@@ -1552,6 +1585,23 @@ final class SaaSEvents
     public static function paymentSucceeded(array $params = []): AnalyticsEvent
     {
         return new AnalyticsEvent(name: 'payment_succeeded', params: $params, category: 'saas');
+    }
+
+    /**
+     * Infer whether a plan change is an upgrade or downgrade.
+     *
+     * Uses a simple lexicographic comparison of plan names.
+     * Override by passing 'direction' in the extra params when calling planChanged().
+     *
+     * @param  string  $fromPlan
+     * @param  string  $toPlan
+     * @return string  'plan_upgrade' or 'plan_downgrade'
+     */
+    private static function inferPlanChangeName(string $fromPlan, string $toPlan): string
+    {
+        return strtolower($toPlan) === strtolower($fromPlan)
+            ? 'plan_changed'
+            : (strcasecmp($toPlan, $fromPlan) > 0 ? 'plan_upgrade' : 'plan_downgrade');
     }
 
     /**

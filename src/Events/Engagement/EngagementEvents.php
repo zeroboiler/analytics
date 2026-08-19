@@ -885,6 +885,50 @@ final class EngagementEvents
     }
 
     /**
+     * Build a typed file_download event.
+     *
+     * @param  string  $fileUrl  URL of the downloaded file
+     * @param  string|null  $fileName  Optional file name
+     * @param  string|null  $fileExtension  Optional file extension (pdf, csv, etc.)
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function fileDownload(string $fileUrl, ?string $fileName = null, ?string $fileExtension = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'file_download',
+            params: array_merge(array_filter([
+                'file_url' => $fileUrl,
+                'file_name' => $fileName,
+                'file_extension' => $fileExtension,
+            ]), $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
+     * Build a typed video_play event.
+     *
+     * @param  string  $videoUrl  URL of the video
+     * @param  string|null  $videoTitle  Optional video title
+     * @param  float|null  $videoPercent  Optional playback percentage
+     * @param  array<string, mixed>  $extra
+     * @return AnalyticsEvent
+     */
+    public static function videoPlay(string $videoUrl, ?string $videoTitle = null, ?float $videoPercent = null, array $extra = []): AnalyticsEvent
+    {
+        return new AnalyticsEvent(
+            name: 'video_play',
+            params: array_merge(array_filter([
+                'video_url' => $videoUrl,
+                'video_title' => $videoTitle,
+                'video_percent' => $videoPercent,
+            ]), $extra),
+            category: 'engagement',
+        );
+    }
+
+    /**
      * Build a typed AnalyticsEvent from any catalog entry by name.
      *
      * Generic factory — validates the event name against the catalog.
