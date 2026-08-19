@@ -1,4 +1,16 @@
 # Changelog
+## [260.0.0] - 2026-08-19
+
+### Fixed
+- **Constructor `: void` return type sweep** — Added missing `: void` return type declarations to 4 constructors: `InertiaAnalyticsMiddleware`, `AnalyticsQueueService`, `DispatchAnalyticsJob`, `BatchDispatchAnalyticsJob`. Comprehensive scan confirms zero remaining non-readonly constructors in `src/` are missing `: void`.
+
+### Changed
+- **Version synchronization** — All 22 version entry points now report 260.0.0.
+- **README badge** — Updated test count to 509+ test files / 989+ source files.
+
+### Tests
+- **V260Phase89ConstructorVoidSweepTest** — 7 assertions: fixed constructors verify `: void`, full `src/` constructor void sweep (zero missing), version consistency (4 entry points), strict_types coverage (all 989 src files), project scale thresholds, all 12 SaaS starter features exist, JS client version consistency.
+
 ## [259.0.0] - 2026-08-19
 
 ### Fixed

@@ -59,7 +59,7 @@ final class DispatchAnalyticsJob implements ShouldQueue
         private array $events,
         private ?string $clientId = null,
         private ?string $userId = null,
-    ) {
+    ): void {
         $queueConfig = config('zeroboiler.analytics.queue', []);
         /** @var array{queue?: string, connection?: string|null} $queueConfig */
         $this->queue = (string) ($queueConfig['queue'] ?? 'analytics');

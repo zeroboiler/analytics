@@ -60,7 +60,7 @@ final class InertiaAnalyticsMiddleware implements HttpMiddlewareContract
     public function __construct(
         private AnalyticsManager $manager,
         ConfigRepository $config,
-    ) {
+    ): void {
         $this->analyticsConfig = $config->get('zeroboiler.analytics', []);
 
         $identityConfig = $this->analyticsConfig['identity'] ?? [];

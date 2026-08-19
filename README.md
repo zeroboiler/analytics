@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-259.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-260.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/508%2B%20test%20files%20%2F%20991%2B%20source%20files-brightgreen)
 
@@ -57,6 +57,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+ cat /tmp/readme_patch.txt
+### What's New in v260.0.0
+
+**Phase 89 — Constructor `: void` Return Type Sweep:**
+
+- **4 constructors fixed** — Added missing `: void` return type declarations to `InertiaAnalyticsMiddleware`, `AnalyticsQueueService`, `DispatchAnalyticsJob`, `BatchDispatchAnalyticsJob`. Full `src/` scan confirms zero remaining non-readonly constructors are missing `: void`.
+- **Version synchronization** — All 22 version entry points now report 260.0.0.
+- **README test badge sync** — Updated to 509+ test files / 989+ source files.
+- Version bump to 260.0.0.
 
 ### What's New in v259.0.0
 
