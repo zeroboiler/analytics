@@ -1311,6 +1311,50 @@ return [
             'base_url' => env('ANALYTICS_PLAUSIBLE_BASE_URL', 'https://plausible.io/api/event'),
             'custom_script_url' => env('ANALYTICS_PLAUSIBLE_CUSTOM_SCRIPT_URL'), // e.g., 'https://stats.example.com/js/script.js'
             'batch_size' => (int) env('ANALYTICS_PLAUSIBLE_BATCH_SIZE', 20), // Max events per batch API call
+
+            /*
+            | Plausible Enhanced Tracking (v256.0.0)
+            |
+            | Control which auto-tracking features are enabled for Plausible.
+            | These map to Plausible's script extensions (outbound-links,
+            | file-downloads, 404 tracking).
+            |
+            */
+            'enhanced_tracking' => [
+                'outbound_links' => env('ANALYTICS_PLAUSIBLE_OUTBOUND_LINKS', true),
+                'file_downloads' => env('ANALYTICS_PLAUSIBLE_FILE_DOWNLOADS', true),
+                'track_404' => env('ANALYTICS_PLAUSIBLE_TRACK_404', true),
+            ],
+
+            /*
+            | Plausible Revenue Goals (v256.0.0)
+            |
+            | Define revenue goal event names that map to purchase/revenue events.
+            | When the JS client tracks a matching event, it also fires a
+            | Plausible revenue goal via the custom properties API.
+            |
+            | Example: ['purchase', 'subscription']
+            |
+            */
+            'revenue_goals' => [
+                // 'purchase',
+                // 'subscription',
+            ],
+
+            /*
+            | Plausible Custom Event Goals (v256.0.0)
+            |
+            | Define additional custom event goals to track in Plausible.
+            | Events in this list are sent as Plausible custom events.
+            |
+            | Example: ['signup', 'trial_start', 'plan_upgrade']
+            |
+            */
+            'custom_event_goals' => [
+                // 'signup',
+                // 'trial_start',
+                // 'plan_upgrade',
+            ],
         ],
 
         /*
@@ -1341,6 +1385,49 @@ return [
             'capi_enabled' => env('ANALYTICS_POSTHOG_CAPI_ENABLED', true),
             'capture_path' => env('ANALYTICS_POSTHOG_CAPTURE_PATH', '/capture/'),
             'batch_size' => (int) env('ANALYTICS_POSTHOG_BATCH_SIZE', 50), // Max events per batch capture call
+
+            /*
+            | PostHog Autocapture (v256.0.0)
+            |
+            | Control which client-side autocapture features are enabled.
+            | These are passed to the PostHog JS init() call.
+            |
+            */
+            'autocapture' => [
+                'pageviews' => env('ANALYTICS_POSTHOG_AUTOCAPTURE_PAGEVIEWS', true),
+                'clicks' => env('ANALYTICS_POSTHOG_AUTOCAPTURE_CLICKS', true),
+                'form_submissions' => env('ANALYTICS_POSTHOG_AUTOCAPTURE_FORMS', true),
+            ],
+
+            /*
+            | PostHog Session Recording (v256.0.0)
+            |
+            | Controls session replay/recording configuration.
+            | When enabled, PostHog records user sessions for replay analysis.
+            |
+            */
+            'session_recording' => [
+                'enabled' => env('ANALYTICS_POSTHOG_RECORDING_ENABLED', false),
+                'sample_rate' => (float) env('ANALYTICS_POSTHOG_RECORDING_SAMPLE_RATE', 0.1), // 10% of sessions
+                'minimum_duration' => (int) env('ANALYTICS_POSTHOG_RECORDING_MIN_DURATION', 5000), // 5 seconds minimum
+            ],
+
+            /*
+            | PostHog Feature Flags (v256.0.0)
+            |
+            | Configuration for server-side feature flag evaluation.
+            | When enabled, the PostHog tracker can evaluate feature flags
+            | via the /api/feature_flag/eval endpoint.
+            |
+            | Bootstrap properties allow pre-loading feature flag values
+            | in the initial HTML response to prevent flicker.
+            |
+            */
+            'feature_flags' => [
+                'enabled' => env('ANALYTICS_POSTHOG_FEATURE_FLAGS_ENABLED', true),
+                'rollout_percentage' => (float) env('ANALYTICS_POSTHOG_FF_ROLLOUT', 100.0),
+                'bootstrap_props' => [],
+            ],
         ],
 
         /*
