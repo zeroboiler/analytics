@@ -1,4 +1,15 @@
 # Changelog
+## [264.0.0] - 2026-08-19
+
+### Added
+- **SaaSStarterEvents::providerCoverage()** — Per-event provider mapping coverage for all 20 starter events across 8 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn). Returns coverage percentage, provider map, and fully_covered flag per event.
+- **SaaSStarterEvents::providerCoverageSummary()** — Aggregated provider coverage summary with per-provider covered/total counts, percentage, uncovered event lists, overall average coverage, and fully-covered event count. Ideal for admin dashboards and instrumentation gap analysis.
+- **V264SaaSStarterProviderCoverageTest** — 10 tests: all 20 events returned, correct structure, GA4 100% coverage, consistency checks, summary structure, all 8 providers, uncovered validation, EventCatalog cross-check, file quality.
+
+### Changed
+- **Version synchronization** — All 22 version entry points now report 264.0.0.
+- **README badge** — Updated test count to 516+ test files / 996+ source files.
+
 ## [260.0.0] - 2026-08-19
 
 ### Fixed

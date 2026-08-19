@@ -338,6 +338,113 @@ final class SaaSStarterEvents
     }
 
     /**
+     * Get provider coverage for each starter event.
+     *
+     * Returns a per-event breakdown showing which of the 8 providers
+     * (ga4, meta, posthog, plausible, mixpanel, amplitude, tiktok, linkedin)
+     * have a mapping for that event. Events with 100% coverage (all 8 providers)
+     * are flagged as `fully_covered`.
+     *
+     * @return array<string, array{event: string, label: string, category: string, providers: array<string, string|null>, covered_count: int, total_providers: int, coverage_pct: float, fully_covered: bool}>
+     *
+     * @since 264.0.0
+     */
+    public static function providerCoverage(): array
+    {
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $result = [];
+
+        foreach (self::all() as $name => $entry) {
+            $catalogEntry = EventCatalog::get($name);
+            $providerMap = [];
+            $coveredCount = 0;
+
+            foreach ($providers as $provider) {
+                $mapped = $catalogEntry[$provider] ?? null;
+                $providerMap[$provider] = $mapped;
+
+                if ($mapped !== null && $mapped !== '') {
+                    $coveredCount++;
+                }
+            }
+
+            $totalProviders = count($providers);
+
+            $result[$name] = [
+                'event' => $name,
+                'label' => $entry['label'],
+                'category' => $entry['category'],
+                'providers' => $providerMap,
+                'covered_count' => $coveredCount,
+                'total_providers' => $totalProviders,
+                'coverage_pct' => round(($coveredCount / $totalProviders) * 100.0, 1),
+                'fully_covered' => $coveredCount === $totalProviders,
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get a summary of provider coverage across all starter events.
+     *
+     * Returns per-provider counts, percentages, and lists of uncovered events.
+     * Useful for admin dashboards and instrumentation gap analysis.
+     *
+     * @return array{providers: array<string, array{covered: int, total: int, pct: float, uncovered_events: list<string>}>, overall_pct: float, fully_covered_events: int, total_events: int}
+     *
+     * @since 264.0.0
+     */
+    public static function providerCoverageSummary(): array
+    {
+        $coverage = self::providerCoverage();
+        $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $totalEvents = count($coverage);
+        $providerSummary = [];
+        $fullyCoveredCount = 0;
+
+        foreach ($providers as $provider) {
+            $covered = 0;
+            $uncovered = [];
+
+            foreach ($coverage as $name => $eventData) {
+                $mapped = $eventData['providers'][$provider] ?? null;
+
+                if ($mapped !== null && $mapped !== '') {
+                    $covered++;
+                } else {
+                    $uncovered[] = $name;
+                }
+            }
+
+            $providerSummary[$provider] = [
+                'covered' => $covered,
+                'total' => $totalEvents,
+                'pct' => $totalEvents > 0 ? round(($covered / $totalEvents) * 100.0, 1) : 0.0,
+                'uncovered_events' => $uncovered,
+            ];
+        }
+
+        // Count fully covered events (all 8 providers)
+        foreach ($coverage as $eventData) {
+            if ($eventData['fully_covered']) {
+                $fullyCoveredCount++;
+            }
+        }
+
+        // Overall average coverage
+        $allPcts = array_column($providerSummary, 'pct');
+        $overallPct = count($allPcts) > 0 ? round(array_sum($allPcts) / count($allPcts), 1) : 0.0;
+
+        return [
+            'providers' => $providerSummary,
+            'overall_pct' => $overallPct,
+            'fully_covered_events' => $fullyCoveredCount,
+            'total_events' => $totalEvents,
+        ];
+    }
+
+    /**
      * Get a client-safe summary for instrumentation guidance.
      *
      * Returns a compact structure suitable for Inertia props or API response.
