@@ -9847,4 +9847,69 @@ return [
         'fail_level' => env('ANALYTICS_QG_FAIL_LEVEL', 'warning'), // error|warning|none
         'auto_snapshot' => (bool) env('ANALYTICS_QG_AUTO_SNAPSHOT', false),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Incident Response (v262.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Automated analytics pipeline incident detection, classification,
+    | and response. Monitors provider health (error budgets, latency),
+    | queue backlogs, and triggers remediation actions.
+    |
+    | Incident types: error_budget_breach, provider_outage, latency_spike,
+    | queue_backlog, identity_failure, consent_violation
+    |
+    | Severities: P1 (critical), P2 (high), P3 (medium), P4 (low)
+    |
+    */
+    'incident_response' => [
+        'enabled' => env('ANALYTICS_INCIDENT_RESPONSE_ENABLED', true),
+        'detection_interval' => (int) env('ANALYTICS_INCIDENT_DETECTION_INTERVAL', 60), // seconds
+        'error_budget_breach_threshold' => (float) env('ANALYTICS_INCIDENT_BUDGET_THRESHOLD', 0.95),
+        'latency_degradation_multiplier' => (float) env('ANALYTICS_INCIDENT_LATENCY_MULTIPLIER', 3.0),
+        'queue_backlog_threshold' => (int) env('ANALYTICS_INCIDENT_QUEUE_THRESHOLD', 1000),
+        'consecutive_failures_threshold' => (int) env('ANALYTICS_INCIDENT_FAILURES_THRESHOLD', 5),
+        'auto_resolve_after' => (int) env('ANALYTICS_INCIDENT_AUTO_RESOLVE', 1800), // 30 minutes
+        'auto_remediation' => env('ANALYTICS_INCIDENT_AUTO_REMEDIATION', true),
+        'fire_analytics_events' => env('ANALYTICS_INCIDENT_FIRE_EVENTS', true),
+        'retention' => (int) env('ANALYTICS_INCIDENT_RETENTION', 2592000), // 30 days
+        'monitored_providers' => [
+            'ga4', 'meta_pixel', 'posthog', 'plausible',
+            'mixpanel', 'amplitude', 'tiktok', 'linkedin',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | On-Call Routing (v262.0.0)
+    |--------------------------------------------------------------------------
+    |
+    | Routes incidents to on-call responders based on severity and
+    | escalation policies. Supports log, webhook, Slack, and email channels.
+    |
+    | Escalation levels:
+    |   L0: Auto-remediation (no notification)
+    |   L1: Primary on-call (P1 immediately, P2 after timeout, P3/P4 after 2x timeout)
+    |   L2: Secondary on-call (P2 after level_2_timeout)
+    |   L3: Manager escalation (P1 after extended time)
+    |
+    */
+    'on_call' => [
+        'enabled' => env('ANALYTICS_ON_CALL_ENABLED', false),
+        'level_1_timeout' => (int) env('ANALYTICS_ON_CALL_L1_TIMEOUT', 300), // 5 minutes
+        'level_2_timeout' => (int) env('ANALYTICS_ON_CALL_L2_TIMEOUT', 900), // 15 minutes
+        'channels' => ['log'], // log|webhook|slack|email
+        'webhook_url' => env('ANALYTICS_ON_CALL_WEBHOOK_URL'),
+        'slack_webhook_url' => env('ANALYTICS_ON_CALL_SLACK_WEBHOOK_URL'),
+        'email_recipients' => [], // e.g. ['oncall@example.com']
+        'routing' => [
+            'P1' => ['log', 'webhook', 'slack'],
+            'P2' => ['log', 'webhook'],
+            'P3' => ['log'],
+            'P4' => ['log'],
+        ],
+        'rotation_enabled' => env('ANALYTICS_ON_CALL_ROTATION_ENABLED', false),
+        'rotation_minutes' => (int) env('ANALYTICS_ON_CALL_ROTATION_MINUTES', 10080), // 1 week
+    ],
 ];

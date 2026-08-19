@@ -259,6 +259,7 @@ use ZeroBoiler\Analytics\Bus\AnalyticsEventBus;
 use ZeroBoiler\Analytics\EventActionRegistry;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsEventActionsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickAuditCommand;
+use ZeroBoiler\Analytics\Console\Commands\AnalyticsIncidentsCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSHealthCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsQualityGateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSemanticMetricsCommand;
@@ -346,6 +347,8 @@ use ZeroBoiler\Analytics\Services\AnalyticsEventSanitizer;
 use ZeroBoiler\Analytics\Services\EventBudgetService;
 use ZeroBoiler\Analytics\Services\AnalyticsApiGuard;
 use ZeroBoiler\Analytics\Services\AnalyticsObservabilityService;
+use ZeroBoiler\Analytics\Services\AnalyticsIncidentService;
+use ZeroBoiler\Analytics\Services\AnalyticsOnCallRouter;
 use ZeroBoiler\Analytics\Services\EventDeconflictionService;
 use ZeroBoiler\Analytics\Services\SaaSOnboardingFunnelService;
 use ZeroBoiler\Analytics\Services\EventTransportService;
@@ -1119,6 +1122,29 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new AnalyticsObservabilityService($cache, $config);
+        });
+
+        // Incident response service (v262.0.0)
+        $this->app->singleton(AnalyticsIncidentService::class, function (Application $app): AnalyticsIncidentService {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+            $observability = $app->bound(AnalyticsObservabilityService::class)
+                ? $app->make(AnalyticsObservabilityService::class)
+                : null;
+
+            return new AnalyticsIncidentService($cache, $config, $observability);
+        });
+
+        // On-call router (v262.0.0)
+        $this->app->singleton(AnalyticsOnCallRouter::class, function (Application $app): AnalyticsOnCallRouter {
+            /** @var \Illuminate\Contracts\Cache\Repository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new AnalyticsOnCallRouter($cache, $config);
         });
 
         // Event deconfliction service (v17.0.0) — singleton for multi-provider analysis
@@ -4828,6 +4854,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 \ZeroBoiler\Analytics\Console\Commands\AnalyticsCompactCommand::class,
                 AnalyticsEventActionsCommand::class,
                 AnalyticsSaaSQuickAuditCommand::class,
+                AnalyticsIncidentsCommand::class,
             ]));
         }
 
