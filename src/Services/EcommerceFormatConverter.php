@@ -7,413 +7,308 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Services;
 
-use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
+use ZeroBoiler\Analytics\Events\EventCatalog;
 
 /**
  * Converts e-commerce analytics events between GA4 and Meta Pixel formats.
  *
- * Provides industry-standard format transformation for multi-provider
- * e-commerce tracking. When events are dispatched to both GA4 and Meta,
- * the payload structures differ significantly:
+ * Provides bidirectional conversion for the core e-commerce events:
+ * - view_item / ViewContent
+ * - add_to_cart / AddToCart
+ * - purchase / Purchase
+ * - refund / Refund
+ * - begin_checkout / InitiateCheckout
+ * - add_to_wishlist / AddToWishlist
  *
- * GA4 uses `items[]` array with item-level parameters.
- * Meta uses `content_ids[]`, `contents[]`, `value`, and `currency`.
+ * Each converter method accepts a generic event payload and returns
+ * the provider-specific format. This is useful for:
+ * - Server-side event forwarding (GA4 MP → Meta CAPI)
+ * - Unified event logging / replay
+ * - Multi-provider payload generation
  *
- * This converter handles the mapping bidirectionally and provides
- * convenience methods for the most common e-commerce event types.
- *
- * @since 255.0.0
+ * @since 262.0.0
  */
 final class EcommerceFormatConverter
 {
     /**
-     * Convert an AnalyticsEvent to GA4 e-commerce format.
+     * Convert an event payload to GA4 Measurement Protocol format.
      *
-     * GA4 expects:
-     * ```json
-     * {
-     *   "currency": "USD",
-     *   "value": 99.99,
-     *   "transaction_id": "TX-123",
-     *   "items": [{ "item_id": "SKU-1", "item_name": "Widget", "price": 49.99, "quantity": 2 }]
-     * }
-     * ```
+     * GA4 expects params as a flat object with specific naming conventions
+     * (currency, value, items array with item_id, item_name, price, quantity).
      *
-     * @return array{event: string, params: array<string, mixed>}
+     * @param  string  $eventName  Canonical catalog event name (e.g. 'purchase')
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{name: string, params: array<string, mixed>}  GA4-formatted payload
      */
-    public function toGa4(AnalyticsEvent $event): array
+    public function toGa4(string $eventName, array $params): array
     {
-        $params = $event->params;
-        $ga4EventName = $this->resolveGa4Name($event);
+        $entry = EventCatalog::get($eventName);
+        $ga4Name = $entry['ga4'] ?? $eventName;
 
-        // Build GA4 items array from flat or nested params
-        $ga4Params = $this->buildGa4Params($params);
+        $ga4Params = [];
+
+        // Copy standard GA4 e-commerce params
+        if (isset($params['transaction_id'])) {
+            $ga4Params['transaction_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['value'])) {
+            $ga4Params['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $ga4Params['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['tax'])) {
+            $ga4Params['tax'] = (float) $params['tax'];
+        }
+        if (isset($params['shipping'])) {
+            $ga4Params['shipping'] = (float) $params['shipping'];
+        }
+        if (isset($params['coupon'])) {
+            $ga4Params['coupon'] = (string) $params['coupon'];
+        }
+
+        // Convert items array to GA4 format
+        if (isset($params['items']) && is_array($params['items'])) {
+            $ga4Params['items'] = $this->convertItemsToGa4($params['items']);
+        }
+
+        // Copy any remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($ga4Params[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties'], true)) {
+                $ga4Params[$key] = $value;
+            }
+        }
 
         return [
-            'event' => $ga4EventName,
+            'name' => $ga4Name,
             'params' => $ga4Params,
         ];
     }
 
     /**
-     * Convert an AnalyticsEvent to Meta Pixel (CAPI) format.
+     * Convert an event payload to Meta Pixel / CAPI format.
      *
-     * Meta expects:
-     * ```json
-     * {
-     *   "event_id": "evt_123",
-     *   "event_name": "Purchase",
-     *   "event_time": 1690000000,
-     *   "user_data": { "client_user_agent": "...", "fbp": "..." },
-     *   "custom_data": {
-     *     "currency": "USD",
-     *     "value": 99.99,
-     *     "content_ids": ["SKU-1"],
-     *     "contents": [{ "id": "SKU-1", "quantity": 2, "item_price": 49.99 }],
-     *     "content_type": "product",
-     *     "num_items": 2
-     *   },
-     *   "action_source": "website"
-     * }
-     * ```
+     * Meta expects: event_name, custom_data (value, currency, content_ids,
+     * content_type, contents array with id, quantity, item_price), user_data.
      *
-     * @param  array{fbp?: string, fbc?: string, client_user_agent?: string, external_id?: string}  $userData  Optional Meta user data
-     * @return array{event_name: string, event_id: string|null, event_time: int, custom_data: array<string, mixed>, user_data: array<string, string|null>, action_source: string}
+     * @param  string  $eventName  Canonical catalog event name (e.g. 'purchase')
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event: string, custom_data: array<string, mixed>, user_data?: array<string, mixed>}  Meta-formatted payload
      */
-    public function toMeta(AnalyticsEvent $event, array $userData = []): array
+    public function toMeta(string $eventName, array $params): array
     {
-        $params = $event->params;
-        $metaEventName = $this->resolveMetaName($event);
+        $entry = EventCatalog::get($eventName);
+        $metaName = $entry['meta'] ?? null;
 
-        return [
-            'event_name' => $metaEventName,
-            'event_id' => $event->id ?? $this->generateEventId(),
-            'event_time' => $event->timestamp?->getTimestamp() ?? time(),
-            'custom_data' => $this->buildMetaCustomData($params),
-            'user_data' => $this->buildMetaUserData($userData),
-            'action_source' => 'website',
-        ];
-    }
+        if ($metaName === null) {
+            // No Meta mapping — return null-safe structure
+            return [
+                'event' => $eventName,
+                'custom_data' => $params,
+            ];
+        }
 
-    /**
-     * Convert an AnalyticsEvent to both GA4 and Meta formats.
-     *
-     * Returns both payloads in a single call for efficient multi-provider dispatch.
-     *
-     * @param  array<string, string|null>  $metaUserData  Optional Meta user data
-     * @return array{ga4: array{event: string, params: array<string, mixed>}, meta: array{event_name: string, event_id: string|null, event_time: int, custom_data: array<string, mixed>, user_data: array<string, string|null>, action_source: string}}
-     */
-    public function toBoth(AnalyticsEvent $event, array $metaUserData = []): array
-    {
-        return [
-            'ga4' => $this->toGa4($event),
-            'meta' => $this->toMeta($event, $metaUserData),
-        ];
-    }
+        $customData = [];
 
-    /**
-     * Build a GA4 items array from event params.
-     *
-     * Handles both flat single-item params and pre-structured `items` arrays.
-     *
-     * @param  array<string, mixed>  $params
-     * @return list<array<string, mixed>>
-     */
-    public function buildGa4Items(array $params): array
-    {
-        // If items array already provided, normalize each item
+        // Standard e-commerce params
+        if (isset($params['value'])) {
+            $customData['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $customData['currency'] = (string) $params['currency'];
+        }
+
+        // Convert items to Meta contents format
         if (isset($params['items']) && is_array($params['items'])) {
-            $items = [];
+            $metaItems = [];
+            $contentIds = [];
+
             foreach ($params['items'] as $item) {
-                if (is_array($item)) {
-                    $items[] = $this->normalizeGa4Item($item);
+                if (! is_array($item)) {
+                    continue;
                 }
+                $metaItem = [];
+                if (isset($item['item_id'])) {
+                    $metaItem['id'] = (string) $item['item_id'];
+                    $contentIds[] = (string) $item['item_id'];
+                }
+                if (isset($item['quantity'])) {
+                    $metaItem['quantity'] = (int) $item['quantity'];
+                }
+                if (isset($item['price'])) {
+                    $metaItem['item_price'] = (float) $item['price'];
+                }
+                $metaItems[] = $metaItem;
             }
 
-            return $items;
-        }
-
-        // Build single-item array from flat params
-        if (isset($params['item_id'])) {
-            return [$this->normalizeGa4Item($params)];
-        }
-
-        return [];
-    }
-
-    /**
-     * Convert a GA4 purchase event to Meta's Server-Side API format.
-     *
-     * This is a specialized converter for the most critical conversion event.
-     *
-     * @param  array{transaction_id: string, value: float, currency?: string, items?: list<array<string, mixed>>, item_id?: string, price?: float, quantity?: int, item_name?: string}  $ga4Params
-     * @param  array{fbp?: string, fbc?: string, client_user_agent?: string, external_id?: string, em?: string, fn?: string, ln?: string, ph?: string, ct?: string, zp?: string, country?: string, st?: string}  $userData
-     * @return array{event_name: string, event_id: string, event_time: int, custom_data: array<string, mixed>, user_data: array<string, string|null>, action_source: string}
-     */
-    public static function purchaseGa4ToMeta(array $ga4Params, array $userData = []): array
-    {
-        $items = $ga4Params['items'] ?? [];
-        if (isset($ga4Params['item_id']) && $items === []) {
-            $items = [[
-                'item_id' => $ga4Params['item_id'],
-                'item_name' => $ga4Params['item_name'] ?? '',
-                'price' => $ga4Params['price'] ?? $ga4Params['value'],
-                'quantity' => $ga4Params['quantity'] ?? 1,
-            ]];
-        }
-
-        $contentIds = [];
-        $contents = [];
-        $numItems = 0;
-
-        foreach ($items as $item) {
-            $id = (string) ($item['item_id'] ?? '');
-            $quantity = (int) ($item['quantity'] ?? 1);
-            $price = (float) ($item['price'] ?? 0);
-
-            if ($id !== '') {
-                $contentIds[] = $id;
+            if ($contentIds !== []) {
+                $customData['content_ids'] = $contentIds;
+                $customData['content_type'] = 'product';
             }
-
-            $contents[] = [
-                'id' => $id,
-                'quantity' => $quantity,
-                'item_price' => $price,
-            ];
-            $numItems += $quantity;
+            if ($metaItems !== []) {
+                $customData['contents'] = $metaItems;
+            }
         }
 
-        $customData = [
-            'currency' => (string) ($ga4Params['currency'] ?? 'USD'),
-            'value' => (float) ($ga4Params['value'] ?? 0),
-        ];
-
-        if ($contentIds !== []) {
-            $customData['content_ids'] = $contentIds;
-        }
-
-        if ($contents !== []) {
-            $customData['contents'] = $contents;
+        // Single item shorthand
+        if (isset($params['item_id']) && ! isset($params['items'])) {
+            $customData['content_ids'] = [(string) $params['item_id']];
             $customData['content_type'] = 'product';
-            $customData['num_items'] = $numItems;
+            if (isset($params['quantity'])) {
+                $customData['contents'] = [
+                    ['id' => (string) $params['item_id'], 'quantity' => (int) $params['quantity']]
+                    +(isset($params['price']) ? ['item_price' => (float) $params['price']] : []),
+                ];
+            }
         }
 
-        return [
-            'event_name' => 'Purchase',
-            'event_id' => 'meta_' . ($ga4Params['transaction_id'] ?? uniqid('evt_', true)),
-            'event_time' => time(),
-            'custom_data' => $customData,
-            'user_data' => array_filter(
-                array_merge([
-                    'client_user_agent' => null,
-                    'fbp' => null,
-                    'fbc' => null,
-                    'external_id' => null,
-                ], $userData),
-                fn (mixed $v): bool => $v !== null,
-            ),
-            'action_source' => 'website',
-        ];
-    }
+        // Copy transaction data
+        if (isset($params['transaction_id'])) {
+            $customData['content_name'] = (string) $params['transaction_id'];
+        }
 
-    /**
-     * Convert a GA4 items array to Meta contents array.
-     *
-     * @param  list<array{item_id?: string, quantity?: int, price?: float, item_name?: string}>  $ga4Items
-     * @return array{content_ids: list<string>, contents: list<array{id: string, quantity: int, item_price: float}>, content_type: string, num_items: int}
-     */
-    public static function itemsGa4ToMeta(array $ga4Items): array
-    {
-        $contentIds = [];
-        $contents = [];
-        $numItems = 0;
-
-        foreach ($ga4Items as $item) {
-            $id = (string) ($item['item_id'] ?? '');
-            $quantity = (int) ($item['quantity'] ?? 1);
-            $price = (float) ($item['price'] ?? 0);
-
-            if ($id !== '') {
-                $contentIds[] = $id;
+        // Merge remaining non-standard params
+        foreach ($params as $key => $value) {
+            if (! isset($customData[$key]) && ! in_array($key, ['items', 'user_data', 'item_id', 'transaction_id'], true)) {
+                $customData[$key] = $value;
             }
-
-            $contents[] = [
-                'id' => $id,
-                'quantity' => $quantity,
-                'item_price' => $price,
-            ];
-            $numItems += $quantity;
         }
 
         $result = [
-            'content_type' => 'product',
-            'num_items' => $numItems,
+            'event' => $metaName,
+            'custom_data' => $customData,
         ];
 
-        if ($contentIds !== []) {
-            $result['content_ids'] = $contentIds;
-        }
-
-        if ($contents !== []) {
-            $result['contents'] = $contents;
+        if (isset($params['user_data']) && is_array($params['user_data'])) {
+            $result['user_data'] = $params['user_data'];
         }
 
         return $result;
     }
 
-    // ── Internal Helpers ────────────────────────────────────────────
-
     /**
-     * Resolve the GA4 event name for an analytics event.
-     */
-    private function resolveGa4Name(AnalyticsEvent $event): string
-    {
-        // Check event catalog for provider-specific name
-        $catalog = \ZeroBoiler\Analytics\Events\EventCatalog::get($event->name);
-
-        if ($catalog !== null && isset($catalog['ga4'])) {
-            return (string) $catalog['ga4'];
-        }
-
-        return $event->name;
-    }
-
-    /**
-     * Resolve the Meta Pixel event name for an analytics event.
-     */
-    private function resolveMetaName(AnalyticsEvent $event): string
-    {
-        $catalog = \ZeroBoiler\Analytics\Events\EventCatalog::get($event->name);
-
-        if ($catalog !== null && isset($catalog['meta']) && $catalog['meta'] !== null) {
-            return (string) $catalog['meta'];
-        }
-
-        return $event->name;
-    }
-
-    /**
-     * Build GA4-formatted params from generic event params.
+     * Convert a single item or items array to GA4 item format.
      *
-     * @param  array<string, mixed>  $params
-     * @return array<string, mixed>
+     * GA4 items use: item_id, item_name, item_category, item_variant,
+     * price, quantity, index.
+     *
+     * @param  list<array<string, mixed>>  $items  Raw items array
+     * @return list<array<string, mixed>>  GA4-formatted items
      */
-    private function buildGa4Params(array $params): array
+    private function convertItemsToGa4(array $items): array
     {
-        $ga4Params = [];
+        $ga4Items = [];
 
-        // Copy known GA4 e-commerce fields
-        $ga4Fields = [
-            'currency', 'value', 'transaction_id', 'tax', 'shipping',
-            'coupon', 'payment_type', 'shipping_tier', 'affiliation',
-            'checkout_step', 'checkout_option',
-        ];
+        foreach ($items as $index => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
 
-        foreach ($ga4Fields as $field) {
-            if (array_key_exists($field, $params)) {
-                $ga4Params[$field] = $params[$field];
+            $ga4Item = [];
+
+            // Map common field names
+            $fieldMap = [
+                'item_id' => 'item_id',
+                'id' => 'item_id',
+                'item_name' => 'item_name',
+                'name' => 'item_name',
+                'item_category' => 'item_category',
+                'category' => 'item_category',
+                'item_variant' => 'item_variant',
+                'variant' => 'item_variant',
+                'item_brand' => 'item_brand',
+                'brand' => 'item_brand',
+                'price' => 'price',
+                'quantity' => 'quantity',
+            ];
+
+            foreach ($fieldMap as $from => $to) {
+                if (isset($item[$from]) && ! isset($item[$to])) {
+                    $ga4Item[$to] = $item[$from];
+                } elseif (isset($item[$to])) {
+                    $ga4Item[$to] = $item[$to];
+                }
+            }
+
+            // Auto-add index if not present
+            if (! isset($ga4Item['index'])) {
+                $ga4Item['index'] = $index;
+            }
+
+            $ga4Items[] = $ga4Item;
+        }
+
+        return $ga4Items;
+    }
+
+    /**
+     * Convert from GA4 format to Meta format.
+     *
+     * Convenience method for server-side event forwarding.
+     * Accepts a GA4-formatted payload and converts to Meta CAPI format.
+     *
+     * @param  array{name: string, params: array<string, mixed>}  $ga4Payload
+     * @return array{event: string, custom_data: array<string, mixed>}
+     */
+    public function ga4ToMeta(array $ga4Payload): array
+    {
+        $name = $ga4Payload['name'] ?? '';
+        $params = $ga4Payload['params'] ?? [];
+
+        // Reverse-resolve the canonical name from GA4 name
+        $canonical = $this->resolveGa4ToCanonical($name);
+
+        return $this->toMeta($canonical ?? $name, $params);
+    }
+
+    /**
+     * Convert from Meta format to GA4 format.
+     *
+     * Accepts a Meta-formatted payload and converts to GA4 MP format.
+     *
+     * @param  array{event: string, custom_data?: array<string, mixed>}  $metaPayload
+     * @return array{name: string, params: array<string, mixed>}
+     */
+    public function metaToGa4(array $metaPayload): array
+    {
+        $name = $metaPayload['event'] ?? '';
+        $params = $metaPayload['custom_data'] ?? $metaPayload;
+
+        // Reverse-resolve the canonical name from Meta name
+        $canonical = $this->resolveMetaToCanonical($name);
+
+        return $this->toGa4($canonical ?? $name, $params);
+    }
+
+    /**
+     * Resolve a GA4 event name back to its canonical catalog name.
+     *
+     * @return string|null  Canonical name or null if not found
+     */
+    private function resolveGa4ToCanonical(string $ga4Name): ?string
+    {
+        foreach (EventCatalog::all() as $name => $entry) {
+            if (($entry['ga4'] ?? '') === $ga4Name) {
+                return $name;
             }
         }
 
-        // Build items array
-        $items = $this->buildGa4Items($params);
-        if ($items !== []) {
-            $ga4Params['items'] = $items;
-        }
-
-        return $ga4Params;
+        return null;
     }
 
     /**
-     * Build Meta custom_data from generic event params.
+     * Resolve a Meta event name back to its canonical catalog name.
      *
-     * @param  array<string, mixed>  $params
-     * @return array<string, mixed>
+     * @return string|null  Canonical name or null if not found
      */
-    private function buildMetaCustomData(array $params): array
+    private function resolveMetaToCanonical(string $metaName): ?string
     {
-        $customData = [];
-
-        if (isset($params['currency'])) {
-            $customData['currency'] = (string) $params['currency'];
-        }
-
-        if (isset($params['value'])) {
-            $customData['value'] = (float) $params['value'];
-        }
-
-        // Map items to Meta format
-        $items = $params['items'] ?? [];
-        if ($items === [] && isset($params['item_id'])) {
-            $items = [[
-                'item_id' => $params['item_id'],
-                'item_name' => $params['item_name'] ?? '',
-                'price' => $params['price'] ?? 0,
-                'quantity' => $params['quantity'] ?? 1,
-            ]];
-        }
-
-        if ($items !== []) {
-            $metaItems = self::itemsGa4ToMeta($items);
-            $customData = array_merge($customData, $metaItems);
-        }
-
-        // Map transaction_id
-        if (isset($params['transaction_id'])) {
-            $customData['order_id'] = (string) $params['transaction_id'];
-        }
-
-        return $customData;
-    }
-
-    /**
-     * Build Meta user_data array.
-     *
-     * @param  array<string, string|null>  $userData
-     * @return array<string, string|null>
-     */
-    private function buildMetaUserData(array $userData): array
-    {
-        return array_filter(array_merge([
-            'client_user_agent' => null,
-            'fbp' => null,
-            'fbc' => null,
-            'external_id' => null,
-        ], $userData), fn (mixed $v): bool => $v !== null);
-    }
-
-    /**
-     * Normalize a single item to GA4 format.
-     *
-     * @param  array<string, mixed>  $item
-     * @return array<string, mixed>
-     */
-    private function normalizeGa4Item(array $item): array
-    {
-        $ga4Item = [];
-
-        $itemFields = [
-            'item_id', 'item_name', 'affiliation', 'coupon',
-            'discount', 'index', 'item_brand', 'item_category',
-            'item_category2', 'item_category3', 'item_category4',
-            'item_list_id', 'item_list_name', 'item_variant',
-            'location_id', 'price', 'quantity',
-        ];
-
-        foreach ($itemFields as $field) {
-            if (array_key_exists($field, $item)) {
-                $ga4Item[$field] = $item[$field];
+        foreach (EventCatalog::all() as $name => $entry) {
+            if (($entry['meta'] ?? null) === $metaName) {
+                return $name;
             }
         }
 
-        return $ga4Item;
-    }
-
-    /**
-     * Generate a unique event ID for Meta deduplication.
-     */
-    private function generateEventId(): string
-    {
-        return 'meta_' . bin2hex(random_bytes(12));
+        return null;
     }
 }

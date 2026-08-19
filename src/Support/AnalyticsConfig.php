@@ -171,6 +171,26 @@ final class AnalyticsConfig
         return (string) $this->get('identity.cookie_samesite', 'Lax');
     }
 
+    public function identityCachePrefix(): string
+    {
+        return (string) $this->get('identity.cache_prefix', 'zb_identity_');
+    }
+
+    public function identityLinkTtl(): int
+    {
+        return (int) $this->get('identity.link_ttl', 7776000);
+    }
+
+    public function identityMaxLinksPerUser(): int
+    {
+        return (int) $this->get('identity.max_links_per_user', 50);
+    }
+
+    public function identityMaxLinksPerClient(): int
+    {
+        return (int) $this->get('identity.max_links_per_client', 10);
+    }
+
     // ── API ────────────────────────────────────────────────────────────
 
     public function apiEnabled(): bool

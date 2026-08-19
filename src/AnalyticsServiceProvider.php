@@ -478,9 +478,11 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsGovernanceValidateCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWarmupCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsProviderTagManager;
-use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
-use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
 use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
+use ZeroBoiler\Analytics\Services\EcommerceFormatConverter;
+use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
+use ZeroBoiler\Analytics\Services\IdentityLinkService;
+use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
 use ZeroBoiler\Analytics\Services\SaaSTelemetryAggregatorService;
 use ZeroBoiler\Analytics\Services\EventReplayValidationService;
 use ZeroBoiler\Analytics\Services\BehavioralUserSegmentService;
@@ -582,6 +584,19 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new EventComplianceScoringService($cache, $config);
         });
+
+        // Identity Link Service (v262.0.0) — client ID ↔ user ID linking
+        $this->app->singleton(IdentityLinkService::class, function (Application $app): IdentityLinkService {
+            /** @var CacheRepository $cache */
+            $cache = $app->make(CacheRepository::class);
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new IdentityLinkService($cache, new \ZeroBoiler\Analytics\Support\AnalyticsConfig($config));
+        });
+
+        // E-commerce Format Converter (v262.0.0) — GA4 ↔ Meta format conversion
+        $this->app->singleton(EcommerceFormatConverter::class);
 
         $this->app->singleton(ServerSideTracker::class, function (Application $app): ServerSideTracker {
             /** @var AnalyticsManager $manager */
