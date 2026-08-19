@@ -302,6 +302,7 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthIntelligenceCommand;
 use ZeroBoiler\Analytics\Services\CohortWaterfallService;
 use ZeroBoiler\Analytics\Services\FunnelDropoffIntelligenceService;
 use ZeroBoiler\Analytics\Services\EventSignalIntelligenceService;
+use ZeroBoiler\Analytics\Services\EventSequenceRuleEngine;
 use ZeroBoiler\Analytics\Services\AnalyticsCompositeHealthIndex;
 use ZeroBoiler\Analytics\Services\MultiTouchAttributionService;
 use ZeroBoiler\Analytics\Services\RealTimeEventCorrelationEngine;
@@ -3503,6 +3504,16 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $metrics = $app->make(AnalyticsMetrics::class);
 
             return new EventSignalIntelligenceService($cache, $config, $metrics);
+        });
+
+        // Event Sequence Rule Engine (v261.0.0)
+        $this->app->singleton(EventSequenceRuleEngine::class, function (Application $app): EventSequenceRuleEngine {
+            /** @var CacheRepository $cache */
+            $cache = $app->make('cache');
+            /** @var ConfigRepository $config */
+            $config = $app->make(ConfigRepository::class);
+
+            return new EventSequenceRuleEngine($cache, $config);
         });
 
         // Composite Health Index (v204.0.0)

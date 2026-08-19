@@ -947,6 +947,67 @@ return [
 
         /*
         |--------------------------------------------------------------------------
+        | Event Sequence Rule Engine (v261.0.0)
+        |--------------------------------------------------------------------------
+        |
+        | Config-driven event sequence detection and anomaly alerting.
+        | Defines expected, prohibited, rate-limited, and multi-step conversion
+        | gate sequences. The engine evaluates rules against each incoming event
+        | using a sliding window of recent events stored in cache.
+        |
+        | Rule types:
+        | - expected:     A must be followed by B within window_seconds
+        | - prohibited:   A must NOT be followed by B (unless an "unless" event intervenes)
+        | - rate_limit:   Event X must not fire more than max_per_session times
+        | - conversion_gate: Multi-step sequence with min/max timing constraints
+        |
+        | Inspired by Segment Protocols, Amplitude Compass, and Mixpanel Signal.
+        |
+        */
+        'sequence_rules' => [
+            'enabled' => env('ANALYTICS_SEQUENCE_RULES_ENABLED', false),
+            'history_ttl' => (int) env('ANALYTICS_SEQUENCE_RULES_HISTORY_TTL', 86400), // 24 hours
+            'max_recent_violations' => (int) env('ANALYTICS_SEQUENCE_RULES_MAX_VIOLATIONS', 100),
+            'rules' => [
+                // SaaS onboarding funnel: trial should convert within 14 days
+                // [
+                //     'name' => 'trial_conversion',
+                //     'type' => 'expected',
+                //     'from' => 'start_trial',
+                //     'to' => 'subscribe',
+                //     'window_seconds' => 1209600, // 14 days
+                // ],
+                // Prevent direct subscription without trial
+                // [
+                //     'name' => 'no_skip_trial',
+                //     'type' => 'prohibited',
+                //     'from' => 'sign_up',
+                //     'to' => 'subscribe',
+                //     'window_seconds' => 86400,
+                //     'unless' => ['start_trial', 'plan_upgrade'],
+                // ],
+                // Limit checkout attempts per session
+                // [
+                //     'name' => 'checkout_velocity',
+                //     'type' => 'rate_limit',
+                //     'event' => 'begin_checkout',
+                //     'max_per_session' => 5,
+                // ],
+                // Full onboarding gate with timing
+                // [
+                //     'name' => 'onboarding_gate',
+                //     'type' => 'conversion_gate',
+                //     'steps' => [
+                //         ['event' => 'sign_up'],
+                //         ['event' => 'start_trial', 'max_seconds' => 3600],
+                //         ['event' => 'first_value', 'max_seconds' => 86400],
+                //     ],
+                // ],
+            ],
+        ],
+
+        /*
+        |--------------------------------------------------------------------------
         | Lifecycle Event Mapping (v15.0.0)
         |--------------------------------------------------------------------------
         |
