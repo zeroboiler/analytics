@@ -32,7 +32,7 @@ final class PlausibleEventTracker
         private readonly string $domain,
         private readonly string $apiKey = '',
         private readonly string $apiUrl = self::DEFAULT_API_URL,
-    ) {}
+    ): void {}
 
     /**
      * Track a single event via the Plausible custom event API.

@@ -36,7 +36,7 @@ final class PostHogEventTracker
      * @param  string  $apiKey  PostHog project API key
      * @param  string  $host  PostHog host URL (with trailing slash removed)
      */
-    public function __construct(string $apiKey, string $host)
+    public function __construct(string $apiKey, string $host): void
     {
         $this->apiKey = $apiKey;
         $this->host = rtrim($host, '/');

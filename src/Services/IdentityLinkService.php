@@ -35,7 +35,7 @@ final class IdentityLinkService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly AnalyticsConfig $config,
-    ) {}
+    ): void {}
 
     /**
      * Link a client ID to a user ID.

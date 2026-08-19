@@ -86,7 +86,7 @@ final class EventSemanticClassifierService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    )): void {
+    ): void {
         $this->patterns = $this->buildPatterns();
         $this->payloadHints = $this->buildPayloadHints();
         $this->aliasMap = $this->buildAliasMap();

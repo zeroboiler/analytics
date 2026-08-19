@@ -518,7 +518,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 262.0.0
+ * @version 263.0.0
  *
  * @since 1.0.0
  */
@@ -588,7 +588,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventComplianceScoringService($cache, $config);
         });
 
-        // Identity Link Service (v262.0.0) — client ID ↔ user ID linking
+        // Identity Link Service (v263.0.0) — client ID ↔ user ID linking
         $this->app->singleton(IdentityLinkService::class, function (Application $app): IdentityLinkService {
             /** @var CacheRepository $cache */
             $cache = $app->make(CacheRepository::class);
@@ -598,7 +598,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new IdentityLinkService($cache, new \ZeroBoiler\Analytics\Support\AnalyticsConfig($config));
         });
 
-        // E-commerce Format Converter (v262.0.0) — GA4 ↔ Meta format conversion
+        // E-commerce Format Converter (v263.0.0) — GA4 ↔ Meta format conversion
         $this->app->singleton(EcommerceFormatConverter::class);
 
         $this->app->singleton(ServerSideTracker::class, function (Application $app): ServerSideTracker {
@@ -1124,7 +1124,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsObservabilityService($cache, $config);
         });
 
-        // Incident response service (v262.0.0)
+        // Incident response service (v263.0.0)
         $this->app->singleton(AnalyticsIncidentService::class, function (Application $app): AnalyticsIncidentService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
@@ -1137,7 +1137,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsIncidentService($cache, $config, $observability);
         });
 
-        // On-call router (v262.0.0)
+        // On-call router (v263.0.0)
         $this->app->singleton(AnalyticsOnCallRouter::class, function (Application $app): AnalyticsOnCallRouter {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make('cache');
