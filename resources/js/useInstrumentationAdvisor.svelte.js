@@ -18,7 +18,7 @@
  *   console.log($advisor.suggestions);   // actionable items
  *
  * @package ZeroBoiler Analytics
- * @version 258.0.0
+ * @version 259.0.0
  */
 
 import { writable, derived } from 'svelte/store';

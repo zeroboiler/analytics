@@ -71,7 +71,7 @@ final class LifecycleEventTracker
  public function __construct(
   private AnalyticsQueueService $queueService,
   ConfigRepository $config,
- ) {
+ ) : void {
   $lifecycleConfig = $config->get('zeroboiler.analytics.lifecycle', []);
   /** @var array{enabled?: bool, queue_events?: bool, enrich_attribution?: bool, custom_mappings?: array<string, string>} $lifecycleConfig */
   $this->enabled = (bool) ($lifecycleConfig['enabled'] ?? true);
@@ -133,11 +133,7 @@ final class LifecycleEventTracker
     category: $this->guessCategory($analyticsEvent),
    );
 
-   if ($this->queueEvents) {
-    $this->queueService->dispatch($analyticsEventObj);
-   } else {
-    $this->queueService->dispatch($analyticsEventObj);
-   }
+   $this->queueService->dispatch($analyticsEventObj);
   };
  }
 

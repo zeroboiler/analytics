@@ -21,14 +21,14 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Facade documents the new methods
  * - CI workflow is clean (no redacted secrets)
  * - .editorconfig and CONTRIBUTING.md exist
- * - Version consistency at 258.0.0
+ * - Version consistency at 259.0.0
  * - All source files maintain strict_types + MIT headers
  *
- * @since 258.0.0
+ * @since 259.0.0
  */
 final class Phase87ProductionReadinessTest extends TestCase
 {
-    private const EXPECTED_VERSION = '258.0.0';
+    private const EXPECTED_VERSION = '259.0.0';
 
     private const TRACKER_FILES = [
         'GA4Tracker.php' => 'ga4',
@@ -57,7 +57,7 @@ final class Phase87ProductionReadinessTest extends TestCase
     {
         $content = file_get_contents($this->srcDir . '/Trackers/TrackerInterface.php');
         $this->assertStringContainsString('public function identify(string $userId, array $traits = []): void', $content);
-        $this->assertStringContainsString('@since 258.0.0', $content);
+        $this->assertStringContainsString('@since 259.0.0', $content);
     }
 
     #[Test]
@@ -65,7 +65,7 @@ final class Phase87ProductionReadinessTest extends TestCase
     {
         $content = file_get_contents($this->srcDir . '/Trackers/TrackerInterface.php');
         $this->assertStringContainsString('public function providerName(): string', $content);
-        $this->assertStringContainsString('@since 258.0.0', $content);
+        $this->assertStringContainsString('@since 259.0.0', $content);
     }
 
     // ── All 10 Trackers Implement Both Methods ─────────────────
@@ -116,7 +116,7 @@ final class Phase87ProductionReadinessTest extends TestCase
     {
         $content = file_get_contents($this->srcDir . '/AnalyticsManager.php');
         $this->assertStringContainsString('public function identifyAll(string $userId, array $traits = []): array', $content);
-        $this->assertStringContainsString('@since 258.0.0', $content);
+        $this->assertStringContainsString('@since 259.0.0', $content);
     }
 
     #[Test]
@@ -142,7 +142,7 @@ final class Phase87ProductionReadinessTest extends TestCase
         $content = file_get_contents($this->srcDir . '/Facades/Analytics.php');
         $this->assertStringContainsString('identifyAll', $content);
         $this->assertStringContainsString('identifyTo', $content);
-        $this->assertStringContainsString('v258.0.0', $content);
+        $this->assertStringContainsString('v259.0.0', $content);
     }
 
     // ── CI Workflow Clean ──────────────────────────────────────
@@ -275,11 +275,11 @@ final class Phase87ProductionReadinessTest extends TestCase
     public function trackerInterfaceHasIdentifySinceTag(): void
     {
         $content = file_get_contents($this->srcDir . '/Trackers/TrackerInterface.php');
-        // Verify identify has @since 258.0.0
+        // Verify identify has @since 259.0.0
         $this->assertMatchesRegularExpression(
             '/identify\(string\ \$userId.*?@since 258\.0\.0/s',
             $content,
-            'identify() must have @since 258.0.0 docblock',
+            'identify() must have @since 259.0.0 docblock',
         );
     }
 

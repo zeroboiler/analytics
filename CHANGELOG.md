@@ -1,4 +1,14 @@
 # Changelog
+## [259.0.0] - 2026-08-19
+
+### Fixed
+- **AnalyticsEvent::VERSION** — Fixed constant trapped inside docblock comment (was never declared as actual PHP code). It is now a proper `public const VERSION = '259.0.0'` that can be referenced at runtime.
+- **LifecycleEventTracker constructor** — Added missing `: void` return type declaration to comply with project PHP 8.5 constructor standards.
+- **LifecycleEventTracker dead-code** — Removed dead `if/else` branch in `createListener()` where both branches called identical `queueService->dispatch()`. The `$queueEvents` flag is now unused dead config; the queue service handles sync/async internally.
+
+### Changed
+- **Version synchronization** — All 22 version entry points now report 259.0.0: `composer.json`, `package.json`, `AnalyticsEvent::VERSION`, `analytics.js` (header `@version` + `getVersion()` return), `analytics.d.ts` `@version`, `analytics.constants.js` `@version`, 14 Svelte composables `@version`, `AnalyticsServiceProvider` `@version`, `AnalyticsIntegrityCommand::EXPECTED_VERSION`, README badge.
+
 ## [258.0.0] - 2026-08-19
 
 ### Added

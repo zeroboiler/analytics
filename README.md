@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-258.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-259.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/508%2B%20test%20files%20%2F%20991%2B%20source%20files-brightgreen)
 
@@ -57,6 +57,16 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v259.0.0
+
+**Phase 88 — Production Bugfixes & Version Sweep:**
+
+- **AnalyticsEvent::VERSION** — Fixed critical bug where the VERSION constant was trapped inside a docblock comment (never compiled as PHP code). It is now a proper `public const VERSION = '259.0.0'` that can be referenced at runtime.
+- **LifecycleEventTracker constructor** — Added missing `: void` return type declaration to comply with project PHP 8.5 constructor standards (CONTRIBUTING.md requirement).
+- **LifecycleEventTracker dead-code** — Removed dead `if/else` branch in `createListener()` where both branches called identical `queueService->dispatch()`. The `$queueEvents` flag was never functionally checked.
+- **Version synchronization** — All 22 version entry points now report 259.0.0.
+- Version bump to 259.0.0.
 
 ### What's New in v258.0.0
 
