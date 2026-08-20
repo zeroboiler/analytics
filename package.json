@@ -1,6 +1,6 @@
 {
     "name": "@zeroboiler/analytics",
-    "version": "266.0.0",
+    "version": "272.0.0",
     "description": "Client-side analytics library for ZeroBoiler Analytics — Svelte/Inertia/Laravel apps",
     "type": "module",
     "main": "./dist/analytics.js",
