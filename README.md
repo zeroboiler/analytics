@@ -2,9 +2,9 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-272.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-273.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
-![Tests](https://img.shields.io/badge/521%2B test files / 996%2B source files-brightgreen)
+![Tests](https://img.shields.io/badge/527%2B test files / 998%2B source files-brightgreen)
 
 Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **202 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **457 services**, **119 artisan commands**, a fully-featured **JS client (~8,500 LOC)**, **16 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **SaaS revenue funnel analytics**, **feature adoption tracking with stickiness curves**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, **Monte Carlo funnel simulation**, **user lifecycle stage detection**, **DAG-based pipeline orchestration**, **Sentry error analytics integration**, **cross-provider schema validation**, **config drift detection**, **behavioral user segmentation**, **feature flag rollout guardrails**, **SaaS event helpers**, **campaign context hydration**, **CDP (Customer Data Platform) with user profiles, computed traits, and dynamic segments**, **synthetic event data factory**, **event schema evolution tracking**, **privacy data clean room**, **event flow analyzer with bottleneck detection**, **real-time observability dashboard command**, **analytics pipeline health score**, **provider capability matrix**, **event payload marshaller**, **analytics ROI calculator**, **natural language analytics query engine**, **geospatial analytics with heatmap data and GeoJSON export**, **event catalog semantic versioning (SemVer)**, **composite customer health scoring with 5 signal dimensions**, **SaaS quick deploy readiness check command**, **event catalog diff service with rename detection**, **CI/CD quality gate command**, **batch event dispatch across all 10 trackers**, **event blueprint builder with type coercion and PII redaction**, and e-commerce format conversion across all providers.
 
@@ -57,6 +57,26 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v273.0.0
+
+**EcommerceFormatConverter Full 8-Provider Parity:**
+
+- **`Services\EcommerceFormatConverter` expanded from 2 to 8 providers** — Previously only supported GA4 and Meta Pixel. Now supports all 8 analytics providers: GA4, Meta Pixel, PostHog, Mixpanel, Amplitude, Plausible, TikTok, and LinkedIn.
+- **`toPostHog()`** — Converts e-commerce events to PostHog format with `$currency`, `sku`/`name`/`category` items structure, and `transaction_id`.
+- **`toMixpanel()`** — Converts to Mixpanel format with flat event properties and item arrays.
+- **`toAmplitude()`** — Converts to Amplitude format with `event_type`/`event_properties` structure.
+- **`toPlausible()`** — Converts to Plausible format with `{name, props}` structure, revenue in cents, and JSON-encoded items.
+- **`toTikTok()`** — Converts to TikTok Pixel format with `contents` array, `content_type: 'product'`, and `content_id`.
+- **`toLinkedIn()`** — Converts to LinkedIn Insight Tag format with `conversionValue` and JSON-encoded items.
+- **`toProvider($provider, $eventName, $params)`** — Universal dispatcher method. Accepts provider identifier, dispatches to the correct converter, throws `InvalidArgumentException` for unsupported providers.
+- **`toAllProviders($eventName, $params)`** — Converts an event to all 8 provider formats in a single call. Returns a keyed array for multi-provider forwarding, event replay, and CAPI multi-provider dispatch.
+- **`providerMappingStatus($eventName)`** — Checks which providers have native catalog mappings for a given event.
+- **`hasFullProviderSupport($eventName)`** — Returns true if all 8 providers have a non-null catalog mapping.
+- **`supportedProviders()`** — Returns the list of all 8 supported provider identifiers.
+- **Delegates to `Support\EcommerceFormatConverter`** for PostHog, Mixpanel, Amplitude, and TikTok item conversion (DRY — no code duplication).
+- **Version sync** — All version entry points updated to 273.0.0. **README badge sync** — 527+ test files / 998+ source files.
+- Version bump to 273.0.0.
 
 ### What's New in v272.0.0
 

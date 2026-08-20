@@ -536,7 +536,7 @@ final class SaaSStarterQuickAuditService
         $converterExists = class_exists(\ZeroBoiler\Analytics\Services\EcommerceFormatConverter::class);
         $checks[] = [
             'pass'        => $converterExists,
-            'description' => 'EcommerceFormatConverter class exists (GA4 ↔ Meta)',
+            'description' => 'EcommerceFormatConverter class exists (8-provider parity)',
         ];
 
         // Check 5: Checkout tracking config exists

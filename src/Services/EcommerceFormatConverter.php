@@ -8,28 +8,40 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Services;
 
 use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Support\EcommerceFormatConverter as SupportConverter;
 
 /**
- * Converts e-commerce analytics events between GA4 and Meta Pixel formats.
+ * Converts e-commerce analytics events between all 8 supported provider formats.
  *
- * Provides bidirectional conversion for the core e-commerce events:
- * - view_item / ViewContent
- * - add_to_cart / AddToCart
- * - purchase / Purchase
- * - refund / Refund
- * - begin_checkout / InitiateCheckout
- * - add_to_wishlist / AddToWishlist
+ * Service-layer entry point for e-commerce format conversion. Delegates to
+ * Support\EcommerceFormatConverter for the heavy lifting, while adding:
+ * - Canonical event name resolution via EventCatalog
+ * - Universal `toProvider()` dispatcher
+ * - `toAllProviders()` bulk conversion
+ * - GA4 ↔ Meta bidirectional convenience methods
+ * - Provider parity validation
  *
- * Each converter method accepts a generic event payload and returns
- * the provider-specific format. This is useful for:
- * - Server-side event forwarding (GA4 MP → Meta CAPI)
- * - Unified event logging / replay
- * - Multi-provider payload generation
+ * Supported providers: GA4, Meta Pixel, PostHog, Mixpanel, Amplitude,
+ * Plausible, TikTok, LinkedIn.
+ *
+ * Supported e-commerce events:
+ * - view_item, add_to_cart, remove_from_cart, view_cart
+ * - add_to_wishlist, select_item, select_promotion, view_promotion
+ * - begin_checkout, add_payment_info, purchase, refund
+ *
+ * @see \ZeroBoiler\Analytics\Support\EcommerceFormatConverter
+ * @see \ZeroBoiler\Analytics\Events\EventCatalog
  *
  * @since 262.0.0
+ * @since 273.0.0  Full 8-provider parity (delegates to Support\EcommerceFormatConverter)
  */
 final class EcommerceFormatConverter
 {
+    /** @var list<string> All supported provider identifiers */
+    private const PROVIDERS = [
+        'ga4', 'meta', 'posthog', 'mixpanel', 'amplitude', 'plausible', 'tiktok', 'linkedin',
+    ];
+
     /**
      * Convert an event payload to GA4 Measurement Protocol format.
      *
@@ -187,6 +199,478 @@ final class EcommerceFormatConverter
     }
 
     /**
+     * Convert an event payload to PostHog format.
+     *
+     * PostHog uses flat event properties with $-prefixed special fields.
+     * Items use `sku`, `name`, `category`, `price`, `quantity`, `variant`, `brand`.
+     * Currency is passed as `$currency`.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event: string, properties: array<string, mixed>}  PostHog-formatted payload
+     */
+    public function toPostHog(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $posthogName = $entry['posthog'] ?? $eventName;
+
+        $properties = [];
+
+        // Standard e-commerce params
+        if (isset($params['value'])) {
+            $properties['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $properties['$currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $properties['transaction_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['coupon'])) {
+            $properties['coupon'] = (string) $params['coupon'];
+        }
+        if (isset($params['tax'])) {
+            $properties['tax'] = (float) $params['tax'];
+        }
+        if (isset($params['shipping'])) {
+            $properties['shipping'] = (float) $params['shipping'];
+        }
+
+        // Convert items to PostHog format
+        if (isset($params['items']) && is_array($params['items'])) {
+            $properties = array_merge($properties, SupportConverter::ga4ToPosthogProperties($params['items']));
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($properties[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties'], true)) {
+                $properties[$key] = $value;
+            }
+        }
+
+        return [
+            'event' => $posthogName,
+            'properties' => $properties,
+        ];
+    }
+
+    /**
+     * Convert an event payload to Mixpanel format.
+     *
+     * Mixpanel uses flat event properties. Items are sent as `items` array
+     * with `sku`, `name`, `price`, `quantity`, `category`, `variant`, `brand`.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event: string, properties: array<string, mixed>}  Mixpanel-formatted payload
+     */
+    public function toMixpanel(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $mixpanelName = $entry['mixpanel'] ?? $eventName;
+
+        $properties = [];
+
+        if (isset($params['value'])) {
+            $properties['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $properties['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $properties['transaction_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['coupon'])) {
+            $properties['coupon'] = (string) $params['coupon'];
+        }
+        if (isset($params['tax'])) {
+            $properties['tax'] = (float) $params['tax'];
+        }
+        if (isset($params['shipping'])) {
+            $properties['shipping'] = (float) $params['shipping'];
+        }
+
+        // Convert items to Mixpanel format via Support converter
+        if (isset($params['items']) && is_array($params['items'])) {
+            $properties = array_merge($properties, SupportConverter::ga4ToMixpanelProperties($params['items']));
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($properties[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties'], true)) {
+                $properties[$key] = $value;
+            }
+        }
+
+        return [
+            'event' => $mixpanelName,
+            'properties' => $properties,
+        ];
+    }
+
+    /**
+     * Convert an event payload to Amplitude format.
+     *
+     * Amplitude uses event properties with Revenue objects for monetary values.
+     * Items use `sku`, `name`, `category`, `price`, `quantity`, `variant`, `brand`.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event_type: string, event_properties: array<string, mixed>}  Amplitude-formatted payload
+     */
+    public function toAmplitude(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $amplitudeName = $entry['amplitude'] ?? $eventName;
+
+        $eventProperties = [];
+
+        if (isset($params['value'])) {
+            $eventProperties['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $eventProperties['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $eventProperties['transaction_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['coupon'])) {
+            $eventProperties['coupon'] = (string) $params['coupon'];
+        }
+
+        // Convert items to Amplitude format via Support converter
+        if (isset($params['items']) && is_array($params['items'])) {
+            $properties = SupportConverter::ga4ToAmplitudeProperties($params['items']);
+            $eventProperties['items'] = $properties['items'] ?? [];
+            $eventProperties['total_value'] = $properties['total_value'] ?? 0.0;
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($eventProperties[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties'], true)) {
+                $eventProperties[$key] = $value;
+            }
+        }
+
+        return [
+            'event_type' => $amplitudeName,
+            'event_properties' => $eventProperties,
+        ];
+    }
+
+    /**
+     * Convert an event payload to Plausible format.
+     *
+     * Plausible uses a simple {name, props, url, referrer, domain} structure.
+     * Revenue is sent as `revenue` prop. Items are sent as JSON-encoded `items` prop.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{name: string, props: array<string, mixed>}  Plausible-formatted payload
+     */
+    public function toPlausible(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $plausibleName = $entry['plausible'] ?? $eventName;
+
+        // Plausible falls back to canonical name if no mapping
+        if ($plausibleName === null) {
+            $plausibleName = $eventName;
+        }
+
+        $props = [];
+
+        if (isset($params['value'])) {
+            $props['revenue'] = (float) ($params['value'] * 100); // Plausible expects cents
+        }
+        if (isset($params['currency'])) {
+            $props['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $props['transaction_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['coupon'])) {
+            $props['coupon'] = (string) $params['coupon'];
+        }
+
+        // Plausible stores items as a JSON-encoded string in props
+        if (isset($params['items']) && is_array($params['items']) && $params['items'] !== []) {
+            $props['items'] = json_encode($params['items'], JSON_THROW_ON_ERROR);
+            $props['num_items'] = count($params['items']);
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($props[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties'], true)) {
+                $props[$key] = $value;
+            }
+        }
+
+        return [
+            'name' => $plausibleName,
+            'props' => $props,
+        ];
+    }
+
+    /**
+     * Convert an event payload to TikTok Pixel format.
+     *
+     * TikTok uses flat event properties with `contents` array (id, quantity, price),
+     * `content_type`, `content_id`, `value`, and `currency`.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event: string, properties: array<string, mixed>}  TikTok-formatted payload
+     */
+    public function toTikTok(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $tiktokName = $entry['tiktok'] ?? null;
+
+        // TikTok falls back to canonical name if no mapping
+        if ($tiktokName === null) {
+            $tiktokName = $eventName;
+        }
+
+        $properties = [];
+
+        if (isset($params['value'])) {
+            $properties['value'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $properties['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $properties['content_id'] = (string) $params['transaction_id'];
+        }
+        if (isset($params['coupon'])) {
+            $properties['coupon'] = (string) $params['coupon'];
+        }
+
+        // Convert items to TikTok format via Support converter
+        if (isset($params['items']) && is_array($params['items']) && $params['items'] !== []) {
+            $tiktokProps = SupportConverter::ga4ToTiktokProperties($params['items']);
+            $properties['contents'] = $tiktokProps['contents'] ?? [];
+            $properties['content_type'] = 'product';
+            if (isset($tiktokProps['content_id']) && $tiktokProps['content_id'] !== '') {
+                $properties['content_id'] = $tiktokProps['content_id'];
+            }
+        } elseif (isset($params['item_id'])) {
+            // Single item shorthand
+            $properties['content_id'] = (string) $params['item_id'];
+            $properties['content_type'] = 'product';
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($properties[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties', 'transaction_id', 'item_id'], true)) {
+                $properties[$key] = $value;
+            }
+        }
+
+        return [
+            'event' => $tiktokName,
+            'properties' => $properties,
+        ];
+    }
+
+    /**
+     * Convert an event payload to LinkedIn Insight Tag format.
+     *
+     * LinkedIn uses flat event properties with `currency`, and a simple
+     * `conversionValue` for revenue. Items are passed as a JSON-encoded string.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{event: string, properties: array<string, mixed>}  LinkedIn-formatted payload
+     */
+    public function toLinkedIn(string $eventName, array $params): array
+    {
+        $entry = EventCatalog::get($eventName);
+        $linkedinName = $entry['linkedin'] ?? null;
+
+        // LinkedIn falls back to canonical name if no mapping
+        if ($linkedinName === null) {
+            $linkedinName = $eventName;
+        }
+
+        $properties = [];
+
+        if (isset($params['value'])) {
+            $properties['conversionValue'] = (float) $params['value'];
+        }
+        if (isset($params['currency'])) {
+            $properties['currency'] = (string) $params['currency'];
+        }
+        if (isset($params['transaction_id'])) {
+            $properties['transactionId'] = (string) $params['transaction_id'];
+        }
+
+        // LinkedIn stores items as a JSON-encoded array in properties
+        if (isset($params['items']) && is_array($params['items']) && $params['items'] !== []) {
+            $properties['items'] = json_encode($params['items'], JSON_THROW_ON_ERROR);
+            $properties['numItems'] = count($params['items']);
+        }
+
+        // Copy remaining params
+        foreach ($params as $key => $value) {
+            if (! isset($properties[$key]) && ! in_array($key, ['items', 'user_data', 'custom_properties', 'transaction_id'], true)) {
+                $properties[$key] = $value;
+            }
+        }
+
+        return [
+            'event' => $linkedinName,
+            'properties' => $properties,
+        ];
+    }
+
+    /**
+     * Universal provider dispatcher.
+     *
+     * Converts an event payload to any supported provider format.
+     * Uses the provider identifier as the first argument.
+     *
+     * @param  'ga4'|'meta'|'posthog'|'mixpanel'|'amplitude'|'plausible'|'tiktok'|'linkedin'  $provider  Target provider
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array<string, mixed>  Provider-formatted payload
+     *
+     * @throws \InvalidArgumentException  If provider is not supported
+     */
+    public function toProvider(string $provider, string $eventName, array $params): array
+    {
+        return match ($provider) {
+            'ga4' => $this->toGa4($eventName, $params),
+            'meta' => $this->toMeta($eventName, $params),
+            'posthog' => $this->toPostHog($eventName, $params),
+            'mixpanel' => $this->toMixpanel($eventName, $params),
+            'amplitude' => $this->toAmplitude($eventName, $params),
+            'plausible' => $this->toPlausible($eventName, $params),
+            'tiktok' => $this->toTikTok($eventName, $params),
+            'linkedin' => $this->toLinkedIn($eventName, $params),
+            default => throw new \InvalidArgumentException(
+                "Unsupported provider: {$provider}. Supported: " . implode(', ', self::PROVIDERS),
+            ),
+        };
+    }
+
+    /**
+     * Convert an event payload to all 8 provider formats in one call.
+     *
+     * Returns a keyed array where each key is a provider identifier and
+     * each value is the provider-formatted payload. Useful for:
+     * - Server-side multi-provider event forwarding
+     * - Event replay across providers
+     * - Multi-provider payload generation for CAPI
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @param  array<string, mixed>  $params  Event parameters
+     * @return array{ga4: array<string, mixed>, meta: array<string, mixed>, posthog: array<string, mixed>, mixpanel: array<string, mixed>, amplitude: array<string, mixed>, plausible: array<string, mixed>, tiktok: array<string, mixed>, linkedin: array<string, mixed>}
+     */
+    public function toAllProviders(string $eventName, array $params): array
+    {
+        return [
+            'ga4' => $this->toGa4($eventName, $params),
+            'meta' => $this->toMeta($eventName, $params),
+            'posthog' => $this->toPostHog($eventName, $params),
+            'mixpanel' => $this->toMixpanel($eventName, $params),
+            'amplitude' => $this->toAmplitude($eventName, $params),
+            'plausible' => $this->toPlausible($eventName, $params),
+            'tiktok' => $this->toTikTok($eventName, $params),
+            'linkedin' => $this->toLinkedIn($eventName, $params),
+        ];
+    }
+
+    /**
+     * Check which providers have a native catalog mapping for this event.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     * @return array{provider: string, mapped: bool, provider_name: string|null}[]
+     */
+    public function providerMappingStatus(string $eventName): array
+    {
+        $entry = EventCatalog::get($eventName);
+
+        return array_map(fn (string $provider): array => [
+            'provider' => $provider,
+            'mapped' => ($entry[$provider] ?? null) !== null,
+            'provider_name' => $entry[$provider] ?? null,
+        ], self::PROVIDERS);
+    }
+
+    /**
+     * Check if an event has full 8-provider support.
+     *
+     * An event has full support when every provider has a non-null mapping
+     * in the event catalog. E-commerce events like `purchase` and `add_to_cart`
+     * should have full support, while niche events may not.
+     *
+     * @param  string  $eventName  Canonical catalog event name
+     */
+    public function hasFullProviderSupport(string $eventName): bool
+    {
+        $entry = EventCatalog::get($eventName);
+
+        foreach (self::PROVIDERS as $provider) {
+            if (($entry[$provider] ?? null) === null) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the list of supported provider identifiers.
+     *
+     * @return list<string>
+     */
+    public function supportedProviders(): array
+    {
+        return self::PROVIDERS;
+    }
+
+    /**
+     * Convert from GA4 format to Meta format.
+     *
+     * Convenience method for server-side event forwarding.
+     * Accepts a GA4-formatted payload and converts to Meta CAPI format.
+     *
+     * @param  array{name: string, params: array<string, mixed>}  $ga4Payload
+     * @return array{event: string, custom_data: array<string, mixed>}
+     */
+    public function ga4ToMeta(array $ga4Payload): array
+    {
+        $name = $ga4Payload['name'] ?? '';
+        $params = $ga4Payload['params'] ?? [];
+
+        // Reverse-resolve the canonical name from GA4 name
+        $canonical = $this->resolveGa4ToCanonical($name);
+
+        return $this->toMeta($canonical ?? $name, $params);
+    }
+
+    /**
+     * Convert from Meta format to GA4 format.
+     *
+     * Accepts a Meta-formatted payload and converts to GA4 MP format.
+     *
+     * @param  array{event: string, custom_data?: array<string, mixed>}  $metaPayload
+     * @return array{name: string, params: array<string, mixed>}
+     */
+    public function metaToGa4(array $metaPayload): array
+    {
+        $name = $metaPayload['event'] ?? '';
+        $params = $metaPayload['custom_data'] ?? $metaPayload;
+
+        // Reverse-resolve the canonical name from Meta name
+        $canonical = $this->resolveMetaToCanonical($name);
+
+        return $this->toGa4($canonical ?? $name, $params);
+    }
+
+    /**
      * Convert a single item or items array to GA4 item format.
      *
      * GA4 items use: item_id, item_name, item_category, item_variant,
@@ -239,45 +723,6 @@ final class EcommerceFormatConverter
         }
 
         return $ga4Items;
-    }
-
-    /**
-     * Convert from GA4 format to Meta format.
-     *
-     * Convenience method for server-side event forwarding.
-     * Accepts a GA4-formatted payload and converts to Meta CAPI format.
-     *
-     * @param  array{name: string, params: array<string, mixed>}  $ga4Payload
-     * @return array{event: string, custom_data: array<string, mixed>}
-     */
-    public function ga4ToMeta(array $ga4Payload): array
-    {
-        $name = $ga4Payload['name'] ?? '';
-        $params = $ga4Payload['params'] ?? [];
-
-        // Reverse-resolve the canonical name from GA4 name
-        $canonical = $this->resolveGa4ToCanonical($name);
-
-        return $this->toMeta($canonical ?? $name, $params);
-    }
-
-    /**
-     * Convert from Meta format to GA4 format.
-     *
-     * Accepts a Meta-formatted payload and converts to GA4 MP format.
-     *
-     * @param  array{event: string, custom_data?: array<string, mixed>}  $metaPayload
-     * @return array{name: string, params: array<string, mixed>}
-     */
-    public function metaToGa4(array $metaPayload): array
-    {
-        $name = $metaPayload['event'] ?? '';
-        $params = $metaPayload['custom_data'] ?? $metaPayload;
-
-        // Reverse-resolve the canonical name from Meta name
-        $canonical = $this->resolveMetaToCanonical($name);
-
-        return $this->toGa4($canonical ?? $name, $params);
     }
 
     /**
