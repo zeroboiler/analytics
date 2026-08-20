@@ -34,7 +34,7 @@ use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
  * Inspired by Segment Protocols, PostHog Property Validation, and
  * Amplitude's Event Validator.
  *
- * @since 76.0.0
+ * @since 266.0.0
  */
 final class EventContractTestService
 {

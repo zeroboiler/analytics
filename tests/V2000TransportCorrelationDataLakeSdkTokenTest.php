@@ -573,25 +573,25 @@ describe('SdkScopeTokenService', function (): void {
 
 describe('Version Sweep', function (): void {
     test('AnalyticsEvent VERSION is 266.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('266.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
     });
 
     test('composer.json version matches', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        expect($composer['version'])->toBe('266.0.0');
+        expect($composer['version'])->toBe('268.0.0');
     });
 
     test('package.json version matches', function (): void {
         $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
 
-        expect($pkg['version'])->toBe('266.0.0');
+        expect($pkg['version'])->toBe('268.0.0');
     });
 
     test('JS client version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($js)->toContain("'266.0.0'");
+        expect($js)->toContain("'268.0.0'");
         expect($js)->not->toContain("'19.0.0'");
     });
 });
@@ -708,12 +708,12 @@ describe('Config Integrity', function (): void {
     test('ServiceProvider version is 266.0.0', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
-        expect($content)->toContain('@version 266.0.0');
+        expect($content)->toContain('@version 268.0.0');
     });
 
     test('IntegrityCommand expected version is 266.0.0', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/Console/Commands/AnalyticsIntegrityCommand.php');
 
-        expect($content)->toContain("EXPECTED_VERSION = '266.0.0'");
+        expect($content)->toContain("EXPECTED_VERSION = '268.0.0'");
     });
 });

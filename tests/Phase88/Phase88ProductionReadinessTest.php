@@ -45,7 +45,7 @@ class Phase88ProductionReadinessTest extends TestCase
         );
 
         $version = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
-        $this->assertSame('266.0.0', $version, 'AnalyticsEvent::VERSION must be 266.0.0');
+        $this->assertSame('268.0.0', $version, 'AnalyticsEvent::VERSION must be 266.0.0');
     }
 
     /**
@@ -110,7 +110,7 @@ class Phase88ProductionReadinessTest extends TestCase
      */
     public function testVersionConsistency(): void
     {
-        $expected = '266.0.0';
+        $expected = '268.0.0';
 
         // composer.json
         $composer = json_decode(file_get_contents(dirname(__DIR__, 2) . '/composer.json'), true);

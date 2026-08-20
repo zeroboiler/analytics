@@ -122,7 +122,7 @@ describe('v130 — JS Client API & Revenue Tracking Enhancements', function () {
 
     describe('AnalyticsEvent::VERSION', function () {
         test('is 266.0.0', function () {
-            expect(AnalyticsEvent::VERSION)->toBe('266.0.0');
+            expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
         });
     });
 });

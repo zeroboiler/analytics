@@ -518,7 +518,7 @@ use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
  * Registers the analytics manager, tracker services, pipeline,
  * schema registry, Blade directives, middleware, and API routes.
  *
- * @version 266.0.0
+ * @version 268.0.0
  *
  * @since 1.0.0
  */
@@ -4514,7 +4514,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new ExperimentAnalysisEngine($cache, $config);
         });
 
-        // Event Contract Testing Engine (v76.0.0) — provider-specific contract validation
+        // Event Contract Testing Engine (v266.0.0) — provider-specific contract validation
         $this->app->singleton(EventContractTestService::class, function (Application $app): EventContractTestService {
             /** @var CacheRepository $cache */
             $cache = $app->make('cache');
@@ -5250,7 +5250,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 Route::get('analytics/geo/anomalies', [$controller, 'geoAnomalies']);
                 Route::get('analytics/geo/continents', [$controller, 'geoContinents']);
 
-                // Event Contract Testing (v76.0.0)
+                // Event Contract Testing (v266.0.0)
                 Route::get('analytics/contracts', [$controller, 'contractList']);
                 Route::get('analytics/contracts/catalog', [$controller, 'contractCatalog']);
                 Route::get('analytics/contracts/coverage/{provider}', [$controller, 'contractProviderCoverage']);

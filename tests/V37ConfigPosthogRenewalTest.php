@@ -331,13 +331,13 @@ describe('V37 Config Expansion + PostHog Mapping + New Event', function (): void
     test('version is 2.41.0 across all sources', function (): void {
         $manager = new AnalyticsManager($this->config);
 
-        expect($manager->version())->toBe('76.0.0');
+        expect($manager->version())->toBe('268.0.0');
 
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-        expect($composer['version'])->toBe('76.0.0');
+        expect($composer['version'])->toBe('268.0.0');
 
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'76.0.0'");
-        expect($js)->toContain('@version 76.0.0');
+        expect($js)->toContain("'268.0.0'");
+        expect($js)->toContain('@version 268.0.0');
     });
 });

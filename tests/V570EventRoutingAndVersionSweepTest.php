@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\Services\ProviderHealthMonitor;
 /**
  * V570 — Event Routing, Provider Health Monitor, and Version Sweep Test.
  *
- * Validates v76.0.0 features:
+ * Validates v268.0.0 features:
  * - Full version sweep to 5.9.0 across PHP, JS, Svelte, TypeScript, composer
  * - AnalyticsEventRouter with pattern matching and provider targeting
  * - ProviderHealthMonitor with score tracking and unhealthy detection
@@ -26,33 +26,33 @@ use ZeroBoiler\Analytics\Services\ProviderHealthMonitor;
  * - Client-side trackEventWithProviders and trackEcommerceWithProviders
  * - Config section count increase (26+ sections now)
  */
-test('v76.0.0 version sweep: all version references are 5.9.0', function (): void {
+test('v268.0.0 version sweep: all version references are 5.9.0', function (): void {
     // PHP AnalyticsEvent constant
-    expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
+    expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
 
     // composer.json
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('76.0.0');
+    expect($composer['version'])->toBe('268.0.0');
 
     // JS client
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain('@version 76.0.0');
-    expect($js)->toContain("'76.0.0'");
+    expect($js)->toContain('@version 268.0.0');
+    expect($js)->toContain("'268.0.0'");
 
     // Svelte composables
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 76.0.0');
+    expect($svelte)->toContain('@version 268.0.0');
 
     // TypeScript definitions
     $dts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($dts)->toContain('@version 76.0.0');
+    expect($dts)->toContain('@version 268.0.0');
 
     // README badge
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-76.0.0');
+    expect($readme)->toContain('version-266.0.0');
 });
 
-test('v76.0.0 feature: AnalyticsEventRouter exists with required methods', function (): void {
+test('v268.0.0 feature: AnalyticsEventRouter exists with required methods', function (): void {
     expect(class_exists(AnalyticsEventRouter::class))->toBeTrue();
 
     $ref = new ReflectionClass(AnalyticsEventRouter::class);
@@ -73,7 +73,7 @@ test('v76.0.0 feature: AnalyticsEventRouter exists with required methods', funct
     expect($methods)->toContain('hasRule');
 });
 
-test('v76.0.0 feature: AnalyticsEventRouter pattern matching works correctly', function (): void {
+test('v268.0.0 feature: AnalyticsEventRouter pattern matching works correctly', function (): void {
     $manager = new AnalyticsManager;
     $config = new Illuminate\Config\Repository([
         'zeroboiler' => [
@@ -112,7 +112,7 @@ test('v76.0.0 feature: AnalyticsEventRouter pattern matching works correctly', f
     expect($router->matchProviders('page_view'))->toBe(['ga4', 'plausible']);
 });
 
-test('v76.0.0 feature: AnalyticsEventRouter runtime rule management', function (): void {
+test('v268.0.0 feature: AnalyticsEventRouter runtime rule management', function (): void {
     $manager = new AnalyticsManager;
     $config = new Illuminate\Config\Repository([
         'zeroboiler' => [
@@ -148,7 +148,7 @@ test('v76.0.0 feature: AnalyticsEventRouter runtime rule management', function (
     expect($router->hasRule('test_event'))->toBeFalse();
 });
 
-test('v76.0.0 feature: ProviderHealthMonitor exists with required methods', function (): void {
+test('v268.0.0 feature: ProviderHealthMonitor exists with required methods', function (): void {
     expect(class_exists(ProviderHealthMonitor::class))->toBeTrue();
 
     $ref = new ReflectionClass(ProviderHealthMonitor::class);
@@ -167,7 +167,7 @@ test('v76.0.0 feature: ProviderHealthMonitor exists with required methods', func
     expect($methods)->toContain('activeProviders');
 });
 
-test('v76.0.0 feature: ProviderHealthMonitor tracks health scores', function (): void {
+test('v268.0.0 feature: ProviderHealthMonitor tracks health scores', function (): void {
     $metrics = new ZeroBoiler\Analytics\AnalyticsMetrics;
     $config = new Illuminate\Config\Repository([
         'zeroboiler' => [
@@ -205,7 +205,7 @@ test('v76.0.0 feature: ProviderHealthMonitor tracks health scores', function ():
     expect($monitor->isHealthy('ga4'))->toBeTrue();
 });
 
-test('v76.0.0 feature: ProviderHealthMonitor summary returns all providers', function (): void {
+test('v268.0.0 feature: ProviderHealthMonitor summary returns all providers', function (): void {
     $metrics = new ZeroBoiler\Analytics\AnalyticsMetrics;
     $config = new Illuminate\Config\Repository([
         'zeroboiler' => [
@@ -222,13 +222,13 @@ test('v76.0.0 feature: ProviderHealthMonitor summary returns all providers', fun
     $summary = $monitor->summary();
 
     expect($summary)->toHaveKeys(['overall_score', 'healthy_count', 'unhealthy_providers', 'version']);
-    expect($summary['version'])->toBe('76.0.0');
+    expect($summary['version'])->toBe('268.0.0');
     expect($summary['overall_score'])->toBe(100);
     expect($summary['healthy_count'])->toBe(6); // 6 providers
     expect($summary['unhealthy_providers'])->toBeEmpty();
 });
 
-test('v76.0.0 feature: config has routing and provider_health sections', function (): void {
+test('v268.0.0 feature: config has routing and provider_health sections', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
 
@@ -239,7 +239,7 @@ test('v76.0.0 feature: config has routing and provider_health sections', functio
     expect($config)->toContain('ANALYTICS_PROVIDER_HEALTH_ENABLED');
 });
 
-test('v76.0.0 feature: routes include routing and provider-health endpoints', function (): void {
+test('v268.0.0 feature: routes include routing and provider-health endpoints', function (): void {
     $routes = file_get_contents(__DIR__ . '/../routes/analytics.php');
     expect($routes)->not->toBeFalse();
 
@@ -257,7 +257,7 @@ test('v76.0.0 feature: routes include routing and provider-health endpoints', fu
     expect($routes)->toContain("Route::post('provider-health/reset'");
 });
 
-test('v76.0.0 feature: JS client has trackEventWithProviders and trackEcommerceWithProviders', function (): void {
+test('v268.0.0 feature: JS client has trackEventWithProviders and trackEcommerceWithProviders', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
     expect($js)->not->toBeFalse();
 
@@ -266,7 +266,7 @@ test('v76.0.0 feature: JS client has trackEventWithProviders and trackEcommerceW
     expect($js)->toContain('_target_providers');
 });
 
-test('v76.0.0 feature: config section count is 27+', function (): void {
+test('v268.0.0 feature: config section count is 27+', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
 
@@ -291,7 +291,7 @@ test('v76.0.0 feature: config section count is 27+', function (): void {
     }
 });
 
-test('v76.0.0 feature: route count is 155+', function (): void {
+test('v268.0.0 feature: route count is 155+', function (): void {
     $routes = file_get_contents(__DIR__ . '/../routes/analytics.php');
     expect($routes)->not->toBeFalse();
 
@@ -299,7 +299,7 @@ test('v76.0.0 feature: route count is 155+', function (): void {
     expect(count($matches[0]))->toBeGreaterThanOrEqual(155);
 });
 
-test('v76.0.0 backward compatibility: event catalog still intact', function (): void {
+test('v268.0.0 backward compatibility: event catalog still intact', function (): void {
     expect(EventCatalog::count())->toBeGreaterThanOrEqual(100);
     expect(EcommerceEvents::count())->toBeGreaterThanOrEqual(15);
     expect(SaaSEvents::count())->toBeGreaterThanOrEqual(50);

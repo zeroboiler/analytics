@@ -44,9 +44,13 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialEndEvent;
 use ZeroBoiler\Analytics\Events\SaaS\TrialStartEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ConsentGrantedEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ConsentWithdrawnEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ContentEngagementEvent;
 use ZeroBoiler\Analytics\Events\Engagement\ErrorEvent;
+use ZeroBoiler\Analytics\Events\Engagement\FileDownloadEvent;
 use ZeroBoiler\Analytics\Events\Engagement\FormSubmitEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ScrollDepthEvent;
 use ZeroBoiler\Analytics\Events\Engagement\SearchEvent;
+use ZeroBoiler\Analytics\Events\Engagement\ShareEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\PurchaseEvent;
 use ZeroBoiler\Analytics\Events\Ecommerce\RefundEvent;
 use ZeroBoiler\Analytics\Events\SaaS\DataErasureCompletedEvent;
@@ -74,7 +78,7 @@ use ZeroBoiler\Analytics\Events\SaaS\TrialExpiredEvent;
 final class LifecycleEventMapper
 {
     /** @var int Number of built-in lifecycle event mappings (computed for overview display) */
-    public const DEFAULT_MAPPING_COUNT = 67;
+    public const DEFAULT_MAPPING_COUNT = 66;
     /**
      * Built-in lifecycle mapping templates for common SaaS patterns.
      *
@@ -382,12 +386,38 @@ final class LifecycleEventMapper
             'priority' => 70,
         ],
 
-        // ── Expansion & Growth Lifecycle (v2.77) ─────────────────────
-        'team.invite_accepted' => [
-            'source' => 'team.invite_accepted',
-            'target' => \ZeroBoiler\Analytics\Events\SaaS\TeamMemberJoinedEvent::class,
-            'params_extractor' => 'extractTeamParams',
-            'priority' => 75,
+        // -- Engagement & Growth Lifecycle (v268.0.0) --
+        'engagement.share' => [
+            'source' => 'engagement.share',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\ShareEvent::class,
+            'params_extractor' => 'extractEngagementShareParams',
+            'priority' => 70,
+        ],
+        'engagement.scroll_depth' => [
+            'source' => 'engagement.scroll_depth',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\ScrollDepthEvent::class,
+            'params_extractor' => 'extractScrollDepthParams',
+            'priority' => 50,
+        ],
+        'engagement.file_download' => [
+            'source' => 'engagement.file_download',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\FileDownloadEvent::class,
+            'params_extractor' => 'extractFileDownloadParams',
+            'priority' => 65,
+        ],
+        'engagement.content_engagement' => [
+            'source' => 'engagement.content_engagement',
+            'target' => \ZeroBoiler\Analytics\Events\Engagement\ContentEngagementEvent::class,
+            'params_extractor' => 'extractContentEngagementParams',
+            'priority' => 65,
+        ],
+
+        // ── Subscription Renewal Lifecycle (v268.0.0) ────────────
+        'subscription.expiring_soon' => [
+            'source' => 'subscription.expiring_soon',
+            'target' => \ZeroBoiler\Analytics\Events\SaaS\SubscriptionRenewalEvent::class,
+            'params_extractor' => 'extractSubscriptionParams',
+            'priority' => 80,
         ],
         'subscription.trial_end_reminder' => [
             'source' => 'subscription.trial_end_reminder',
@@ -1229,6 +1259,91 @@ final class LifecycleEventMapper
         };
 
         return $this->constructWithParams($class, $mapped);
+    }
+
+    /**
+     * Extract params from share events.
+     *
+     * ShareEvent constructor: (method, contentType, itemId)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractEngagementShareParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        return new ShareEvent(
+            method: (string) ($params['method'] ?? $params['sharing_method'] ?? ''),
+            contentType: (string) ($params['content_type'] ?? $params['contentType'] ?? ''),
+            itemId: isset($params['item_id']) ? (string) $params['item_id'] : null,
+        );
+    }
+
+    /**
+     * Extract params from scroll depth events.
+     *
+     * ScrollDepthEvent constructor: (percent, pagePath, pageTitle)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractScrollDepthParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        return new ScrollDepthEvent(
+            percent: (int) ($params['percent'] ?? $params['scroll_percent'] ?? 0),
+            pagePath: (string) ($params['page_path'] ?? $params['pagePath'] ?? ''),
+            pageTitle: isset($params['page_title']) ? (string) $params['page_title'] : null,
+        );
+    }
+
+    /**
+     * Extract params from file download events.
+     *
+     * FileDownloadEvent constructor: (fileName, fileType, fileSize, extra)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractFileDownloadParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        return new FileDownloadEvent(
+            fileName: (string) ($params['file_name'] ?? $params['fileName'] ?? ''),
+            fileType: isset($params['file_type']) ? (string) $params['file_type'] : null,
+            fileSize: isset($params['file_size']) ? (int) $params['file_size'] : null,
+            extra: array_filter([
+                'url' => (string) ($params['url'] ?? ''),
+                'user_id' => (string) ($params['user_id'] ?? $params['userId'] ?? ''),
+            ]),
+        );
+    }
+
+    /**
+     * Extract params from content engagement events.
+     *
+     * ContentEngagementEvent constructor: (contentType, contentId, title, author, category, engagementPercent, timeSpentSeconds, completed)
+     *
+     * @param  string  $class
+     * @param  array<string, mixed>|object  $payload
+     */
+    private function extractContentEngagementParams(string $class, mixed $payload): AnalyticsEvent
+    {
+        $params = $this->payloadToArray($payload);
+
+        return new ContentEngagementEvent(
+            contentType: (string) ($params['content_type'] ?? $params['contentType'] ?? 'article'),
+            contentId: (string) ($params['content_id'] ?? $params['contentId'] ?? ''),
+            title: isset($params['title']) ? (string) $params['title'] : null,
+            author: isset($params['author']) ? (string) $params['author'] : null,
+            category: isset($params['category']) ? (string) $params['category'] : null,
+            engagementPercent: isset($params['engagement_percent']) ? (int) $params['engagement_percent'] : null,
+            timeSpentSeconds: isset($params['time_spent_seconds']) ? (int) $params['time_spent_seconds'] : null,
+            completed: isset($params['completed']) ? (bool) $params['completed'] : null,
+        );
     }
 
     /**

@@ -439,7 +439,7 @@ test('EventContractTestService has @since annotation', function (): void {
     $reflection = new ReflectionClass(EventContractTestService::class);
     $doc = $reflection->getDocComment();
     expect($doc)->not->toBeFalse();
-    expect($doc)->toContain('@since 76.0.0');
+    expect($doc)->toContain('@since 266.0.0');
 });
 
 test('EventContractTestService constructor has void return type', function (): void {

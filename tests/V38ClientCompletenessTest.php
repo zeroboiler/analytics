@@ -32,7 +32,7 @@ beforeEach(function (): void {
 
 describe('V38 JS Client Completeness', function (): void {
     test('version is 2.41.0', function (): void {
-        expect($this->manager->version())->toBe('76.0.0');
+        expect($this->manager->version())->toBe('268.0.0');
     });
 
     test('event catalog has ecommerce events with meta pixel mappings', function (): void {
@@ -207,13 +207,13 @@ describe('V38 JS Client Feature Parity', function (): void {
     test('js client has version 2.41.0', function (): void {
         $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
         expect($js)->not->toBeFalse();
-        expect(str_contains($js, "'76.0.0'"))->toBeTrue();
+        expect(str_contains($js, "'268.0.0'"))->toBeTrue();
     });
 
     test('typescript definitions include all new types', function (): void {
         $dts = file_get_contents(__DIR__.'/../resources/js/analytics.d.ts');
         expect($dts)->not->toBeFalse();
-        expect(str_contains($dts, '76.0.0'))->toBeTrue();
+        expect(str_contains($dts, '268.0.0'))->toBeTrue();
 
         // New interfaces
         expect(str_contains($dts, 'SearchOptions'))->toBeTrue();

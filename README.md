@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-266.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-268.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/520%2B test files / 996%2B source files-brightgreen)
 

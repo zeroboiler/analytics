@@ -16,7 +16,7 @@ use ZeroBoiler\Analytics\Services\LifecycleEventMapper;
 use ZeroBoiler\Analytics\Support\EcommerceFormatConverter as EcommerceConverter;
 
 /**
- * V3.5.0 — SaaS Starter Industry Standard Final Validation Test.
+ * V266.0.0 — SaaS Starter Industry Standard Final Validation Test.
  *
  * Comprehensive validation of all 12 SaaS starter features:
  * 1. Event Catalog completeness (100+ events across 3 categories)
@@ -325,7 +325,7 @@ test('feature 5: JS client exports trackEvent, trackPageView, initInertiaPageVie
     expect($jsClient)->toContain('function autoIdentify');
 
     // Version string
-    expect($jsClient)->toContain('3.5.0');
+    expect($jsClient)->toContain('268.0.0');
 
     // File is substantial (5K+ lines)
     $lineCount = substr_count($jsClient, "\n");
@@ -366,7 +366,7 @@ test('feature 5b: Svelte composables export useAnalytics, useEcommerce, useConse
     expect($composables)->toContain("from './analytics.js'");
 
     // Version string
-    expect($composables)->toContain('3.5.0');
+    expect($composables)->toContain('268.0.0');
 
     // File is substantial (800+ lines)
     $lineCount = substr_count($composables, "\n");
@@ -583,20 +583,20 @@ test('feature 12: test coverage with 150+ test files', function (): void {
     expect(file_exists($testDir . '/V21InertiaAndIdentityTest.php'))->toBeTrue();
 });
 
-test('version consistency: all components report v76.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
+test('version consistency: all components report v268.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
 
     // JS client version
     $jsClient = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($jsClient)->toContain('@version 76.0.0');
+    expect($jsClient)->toContain('@version 268.0.0');
 
     // Svelte composables version
     $composables = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($composables)->toContain('@version 76.0.0');
+    expect($composables)->toContain('@version 268.0.0');
 
     // README version badge
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-76.0.0');
+    expect($readme)->toContain('version-266.0.0');
 });
 
 test('event catalog validation passes', function (): void {
@@ -641,7 +641,7 @@ test('analytics event DTO is immutable and readonly', function (): void {
     expect($event->params)->toBe(['key' => 'value']);
     expect($event->clientId)->toBe('client-123');
     expect($event->userId)->toBe('user-456');
-    expect($event->VERSION)->toBe('76.0.0');
+    expect($event->VERSION)->toBe('268.0.0');
 });
 
 test('analytics manager facade proxy methods cover SaaS lifecycle', function (): void {

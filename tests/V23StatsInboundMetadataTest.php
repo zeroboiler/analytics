@@ -195,7 +195,7 @@ describe('v2.23 — AnalyticsStatsService', function () {
         expect($summary['unique_events'])->toBe(0);
         expect($summary['top_events'])->toEqual([]);
         expect($summary['categories'])->toEqual([]);
-        expect($summary['version'])->toBe('76.0.0');
+        expect($summary['version'])->toBe('268.0.0');
         expect($summary['catalog'])->toHaveKey('ecommerce');
         expect($summary['catalog'])->toHaveKey('saas');
         expect($summary['catalog'])->toHaveKey('engagement');
@@ -688,17 +688,17 @@ describe('v2.23 — Version Consistency', function () {
 
         $manager = new AnalyticsManager($config);
 
-        expect($manager->version())->toBe('76.0.0');
+        expect($manager->version())->toBe('268.0.0');
     });
 
     it('composer.json version matches', function () {
         $composer = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
-        expect($composer['version'])->toBe('76.0.0');
+        expect($composer['version'])->toBe('268.0.0');
     });
 
     it('JS client version matches', function () {
         $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-        expect($js)->toContain('@version 76.0.0');
+        expect($js)->toContain('@version 268.0.0');
     });
 });
 

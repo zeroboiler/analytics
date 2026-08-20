@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Phase63ProductionReadinessTest extends TestCase
 {
-    private const VERSION = '266.0.0';
+    private const VERSION = '268.0.0';
     private const SRC_DIR = __DIR__ . '/../src';
     private const ROOT_DIR = __DIR__ . '/..';
 

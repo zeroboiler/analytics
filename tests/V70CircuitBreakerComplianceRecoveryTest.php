@@ -483,7 +483,7 @@ describe('Version Consistency v2.70.0', function (): void {
     test('composer.json version is 2.70.0', function (): void {
         $json = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        expect($json['version'])->toBe('76.0.0');
+        expect($json['version'])->toBe('268.0.0');
     });
 
     test('new service files exist', function (): void {
@@ -597,12 +597,12 @@ describe('Version Consistency v2.70.0', function (): void {
         $contents = file_get_contents(__DIR__ . '/../src/Http/Controllers/AnalyticsEventController.php');
 
         // New v2.70.0 endpoints should have version 2.70.0
-        expect(str_contains($contents, "'version' => '76.0.0'"))->toBeTrue();
+        expect(str_contains($contents, "'version' => AnalyticsEvent::VERSION"))->toBeTrue();
     });
 
     test('JS version is 2.70.0', function (): void {
         $contents = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect(str_contains($contents, '@version 76.0.0'))->toBeTrue();
+        expect(str_contains($contents, '@version 268.0.0'))->toBeTrue();
     });
 });

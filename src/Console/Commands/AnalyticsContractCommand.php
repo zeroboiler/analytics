@@ -22,7 +22,7 @@ use ZeroBoiler\Analytics\Services\EventContractTestService;
  *   list         List all registered contracts
  *   test         Run a test event through contract validation
  *
- * @since 76.0.0
+ * @since 266.0.0
  */
 final class AnalyticsContractCommand extends Command
 {

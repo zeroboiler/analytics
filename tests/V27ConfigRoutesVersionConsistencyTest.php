@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\AnalyticsServiceProvider;
 describe('V2.27 Version Consistency', function () {
     it('AnalyticsManager::version() returns 2.27.0', function () {
         $manager = new AnalyticsManager;
-        expect($manager->version())->toBe('76.0.0');
+        expect($manager->version())->toBe('268.0.0');
     });
 
     it('Facade directDispatch return type is bool', function () {
@@ -38,13 +38,13 @@ describe('V2.27 Version Consistency', function () {
             JSON_THROW_ON_ERROR,
         );
 
-        expect($composer['version'])->toBe('76.0.0');
+        expect($composer['version'])->toBe('268.0.0');
     });
 
     it('JS client version is 2.27.0', function () {
         $js = file_get_contents(__DIR__.'/../resources/js/analytics.js');
-        expect($js)->toContain('@version 76.0.0');
-        expect($js)->toContain("'76.0.0'");
+        expect($js)->toContain('@version 268.0.0');
+        expect($js)->toContain("'268.0.0'");
     });
 
     it('JS client exports getVersion()', function () {
@@ -195,23 +195,24 @@ describe('V2.27 Route Registration', function () {
 // ─── Controller Version Strings ────────────────────────────────────────
 
 describe('V2.27 Controller Version Strings', function () {
-    it('catalog endpoint returns version 2.27.0', function () {
+    it('catalog endpoint returns current version via AnalyticsEvent::VERSION', function () {
         $controller = file_get_contents(__DIR__.'/../src/Http/Controllers/AnalyticsEventController.php');
-        // The catalog method has the version
-        expect($controller)->toContain("'version' => '76.0.0'");
+        // The catalog method uses the constant reference
+        expect($controller)->toContain("'version' => AnalyticsEvent::VERSION");
     });
 
-    it('health endpoint returns version 2.35.0', function () {
-        // Both catalog and health use the same version string now
+    it('health endpoint returns version via AnalyticsEvent::VERSION', function () {
+        // Both catalog and health use the same constant reference
         $controller = file_get_contents(__DIR__.'/../src/Http/Controllers/AnalyticsEventController.php');
-        $count = substr_count($controller, "'version' => '76.0.0'");
-        // catalog, health, stats = 3 occurrences
+        $count = substr_count($controller, "'version' => AnalyticsEvent::VERSION");
+        // catalog, health, stats, etc. — multiple endpoints
         expect($count)->toBeGreaterThanOrEqual(3);
     });
 
-    it('no stale 2.24.0 version strings remain in controller', function () {
+    it('no stale version strings remain in controller', function () {
         $controller = file_get_contents(__DIR__.'/../src/Http/Controllers/AnalyticsEventController.php');
-        expect($controller)->not->toContain("'version' => '76.0.0'");
+        // Verify no leftover version fragments from previous releases
+        expect($controller)->not->toContain("'version' => '2.24.0'");
         expect($controller)->not->toContain("'version' => '76.0.0'");
     });
 });

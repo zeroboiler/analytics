@@ -28,7 +28,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class Phase87ProductionReadinessTest extends TestCase
 {
-    private const EXPECTED_VERSION = '266.0.0';
+    private const EXPECTED_VERSION = '268.0.0';
 
     private const TRACKER_FILES = [
         'GA4Tracker.php' => 'ga4',
@@ -142,7 +142,7 @@ final class Phase87ProductionReadinessTest extends TestCase
         $content = file_get_contents($this->srcDir . '/Facades/Analytics.php');
         $this->assertStringContainsString('identifyAll', $content);
         $this->assertStringContainsString('identifyTo', $content);
-        $this->assertStringContainsString('v266.0.0', $content);
+        $this->assertStringContainsString('v268.0.0', $content);
     }
 
     // ── CI Workflow Clean ──────────────────────────────────────

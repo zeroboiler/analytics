@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Phase33VersionIntegrityAuditTest extends TestCase
 {
-    private const EXPECTED_VERSION = '266.0.0';
+    private const EXPECTED_VERSION = '268.0.0';
 
     /**
      * @var array<string, array{path: string, pattern: string, description: string}>
@@ -29,72 +29,72 @@ final class Phase33VersionIntegrityAuditTest extends TestCase
     private const EXPECTED_FILES = [
         'php-dto' => [
             'path' => __DIR__ . '/../src/DTO/AnalyticsEvent.php',
-            'pattern' => "/public const VERSION = '266.0.0'/",
+            'pattern' => "/public const VERSION = '268.0.0'/",
             'description' => 'AnalyticsEvent::VERSION constant',
         ],
         'composer' => [
             'path' => __DIR__ . '/../composer.json',
-            'pattern' => '/"version": "266.0.0"/',
+            'pattern' => '/"version": "268.0.0"/',
             'description' => 'composer.json version field',
         ],
         'package-json' => [
             'path' => __DIR__ . '/../package.json',
-            'pattern' => '/"version": "266.0.0"/',
+            'pattern' => '/"version": "268.0.0"/',
             'description' => 'package.json version field',
         ],
         'integrity-command' => [
             'path' => __DIR__ . '/../src/Console/Commands/AnalyticsIntegrityCommand.php',
-            'pattern' => "/private const EXPECTED_VERSION = '266.0.0'/",
+            'pattern' => "/private const EXPECTED_VERSION = '268.0.0'/",
             'description' => 'AnalyticsIntegrityCommand::EXPECTED_VERSION',
         ],
         'service-provider' => [
             'path' => __DIR__ . '/../src/AnalyticsServiceProvider.php',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'AnalyticsServiceProvider docblock @version',
         ],
         'js-client' => [
             'path' => __DIR__ . '/../resources/js/analytics.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'JS client library @version tag',
         ],
         'js-getVersion' => [
             'path' => __DIR__ . '/../resources/js/analytics.js',
-            'pattern' => "/return '266.0.0'/",
+            'pattern' => "/return '268.0.0'/",
             'description' => 'JS client getVersion() return value',
         ],
         'ts-types' => [
             'path' => __DIR__ . '/../resources/js/analytics.d.ts',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'TypeScript type definitions @version tag',
         ],
         'svelte-use-analytics' => [
             'path' => __DIR__ . '/../resources/js/useAnalytics.svelte.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'useAnalytics Svelte composable @version tag',
         ],
         'svelte-use-lifecycle' => [
             'path' => __DIR__ . '/../resources/js/useLifecycle.svelte.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'useLifecycle Svelte composable @version tag',
         ],
         'svelte-use-config' => [
             'path' => __DIR__ . '/../resources/js/useAnalyticsConfig.svelte.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'useAnalyticsConfig Svelte composable @version tag',
         ],
         'svelte-use-session-replay' => [
             'path' => __DIR__ . '/../resources/js/useSessionReplay.svelte.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'useSessionReplay Svelte composable @version tag',
         ],
         'svelte-use-performance' => [
             'path' => __DIR__ . '/../resources/js/usePerformanceTracker.svelte.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'usePerformanceTracker Svelte composable @version tag',
         ],
         'js-constants' => [
             'path' => __DIR__ . '/../resources/js/analytics.constants.js',
-            'pattern' => '/@version 266.0.0/',
+            'pattern' => '/@version 268.0.0/',
             'description' => 'JS constants @version tag',
         ],
         'readme-badge' => [

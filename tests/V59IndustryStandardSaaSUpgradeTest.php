@@ -26,7 +26,7 @@ beforeEach(function (): void {
 
 describe('Version Integrity', function (): void {
     test('DTO version matches expected', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
+        expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
     });
 
     test('all version strings are consistent across package', function (): void {
@@ -40,7 +40,7 @@ describe('Version Integrity', function (): void {
         foreach ($files as $file) {
             $content = file_get_contents($file);
             expect($content)->not->toContain('5.7.0');
-            expect($content)->toContain('76.0.0');
+            expect($content)->toContain('268.0.0');
         }
     });
 });
@@ -503,7 +503,7 @@ describe('JS Client — Full Feature Set', function (): void {
 
     test('JS client version matches PHP version', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-        expect($js)->toContain("'76.0.0'");
+        expect($js)->toContain("'268.0.0'");
     });
 });
 

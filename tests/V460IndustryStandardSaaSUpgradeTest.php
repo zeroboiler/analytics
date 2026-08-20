@@ -13,10 +13,10 @@ use ZeroBoiler\Analytics\Services\SaaSQuickStartService;
 use ZeroBoiler\Analytics\AnalyticsManager;
 
 /**
- * V76.0.0 — Industry-Standard SaaS Analytics Upgrade Test
+ * V266.0.0 — Industry-Standard SaaS Analytics Upgrade Test
  *
  * Validates:
- * 1. Version consistency across all source files (76.0.0)
+ * 1. Version consistency across all source files (266.0.0)
  * 2. AnalyticsAIService — anomaly detection, insights, trend analysis, event suggestions
  * 3. EventExperimentTracker — A/B test tracking, statistical significance (z-test)
  * 4. SaaSQuickStartService — one-call SaaS event tracking API
@@ -26,39 +26,39 @@ use ZeroBoiler\Analytics\AnalyticsManager;
  * 8. All 12 SaaS starter features still passing
  */
 
-test('v76.0.0: AnalyticsEvent VERSION is 76.0.0', function (): void {
-    expect(AnalyticsEvent::VERSION)->toBe('76.0.0');
+test('v268.0.0: AnalyticsEvent VERSION is 266.0.0', function (): void {
+    expect(AnalyticsEvent::VERSION)->toBe('268.0.0');
 });
 
-test('v76.0.0: composer.json version is 76.0.0', function (): void {
+test('v268.0.0: composer.json version is 266.0.0', function (): void {
     $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
-    expect($composer['version'])->toBe('76.0.0');
+    expect($composer['version'])->toBe('268.0.0');
 });
 
-test('v76.0.0: JS client version is 76.0.0', function (): void {
+test('v268.0.0: JS client version is 266.0.0', function (): void {
     $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
-    expect($js)->toContain("'76.0.0'");
-    expect($js)->toContain('@version 76.0.0');
+    expect($js)->toContain("'268.0.0'");
+    expect($js)->toContain('@version 268.0.0');
 });
 
-test('v76.0.0: Svelte composables version is 76.0.0', function (): void {
+test('v268.0.0: Svelte composables version is 266.0.0', function (): void {
     $svelte = file_get_contents(__DIR__ . '/../resources/js/useAnalytics.svelte.js');
-    expect($svelte)->toContain('@version 76.0.0');
+    expect($svelte)->toContain('@version 268.0.0');
 });
 
-test('v76.0.0: TypeScript definitions version is 76.0.0', function (): void {
+test('v268.0.0: TypeScript definitions version is 266.0.0', function (): void {
     $ts = file_get_contents(__DIR__ . '/../resources/js/analytics.d.ts');
-    expect($ts)->toContain('@version 76.0.0');
+    expect($ts)->toContain('@version 268.0.0');
 });
 
-test('v76.0.0: no stale @version docblocks remain', function (): void {
+test('v268.0.0: no stale @version docblocks remain', function (): void {
     // All @version tags in src/ should be 5.9.0
     $output = shell_exec('grep -rn "@version [0-9]" ' . escapeshellarg(__DIR__ . '/../src') . ' --include="*.php" 2>/dev/null') ?: '';
     $lines = array_filter(explode("\n", trim($output)));
 
     $stale = [];
     foreach ($lines as $line) {
-        if (! str_contains($line, '@version 76.0.0')) {
+        if (! str_contains($line, '@version 268.0.0')) {
             $stale[] = $line;
         }
     }
@@ -66,13 +66,13 @@ test('v76.0.0: no stale @version docblocks remain', function (): void {
     expect($stale)->toBeEmpty('Found stale @version docblocks: ' . implode("\n", $stale));
 });
 
-test('v76.0.0: no stale VERSION constants remain', function (): void {
+test('v268.0.0: no stale VERSION constants remain', function (): void {
     $output = shell_exec('grep -rn "VERSION = '"'"'[0-9]' . escapeshellarg(__DIR__ . '/../src') . ' --include="*.php" 2>/dev/null') ?: '';
     $lines = array_filter(explode("\n", trim($output)));
 
     $stale = [];
     foreach ($lines as $line) {
-        if (! str_contains($line, "VERSION = '76.0.0'")) {
+        if (! str_contains($line, "VERSION = '268.0.0'")) {
             $stale[] = $line;
         }
     }
@@ -82,11 +82,11 @@ test('v76.0.0: no stale VERSION constants remain', function (): void {
 
 // ── AnalyticsAIService Tests ─────────────────────────────────────────
 
-test('v76.0.0: AnalyticsAIService class exists', function (): void {
+test('v268.0.0: AnalyticsAIService class exists', function (): void {
     expect(class_exists(AnalyticsAIService::class))->toBeTrue();
 });
 
-test('v76.0.0: AnalyticsAIService has required methods', function (): void {
+test('v268.0.0: AnalyticsAIService has required methods', function (): void {
     $ref = new ReflectionClass(AnalyticsAIService::class);
     $methods = array_map(fn (\ReflectionMethod $m) => $m->getName(), $ref->getMethods(\ReflectionMethod::IS_PUBLIC));
 
@@ -100,12 +100,12 @@ test('v76.0.0: AnalyticsAIService has required methods', function (): void {
     expect($methods)->toContain('clearBuffer');
 });
 
-test('v76.0.0: AnalyticsAIService is final', function (): void {
+test('v268.0.0: AnalyticsAIService is final', function (): void {
     $ref = new ReflectionClass(AnalyticsAIService::class);
     expect($ref->isFinal())->toBeTrue();
 });
 
-test('v76.0.0: AnalyticsAIService constructor has proper type hints', function (): void {
+test('v268.0.0: AnalyticsAIService constructor has proper type hints', function (): void {
     $ref = new ReflectionClass(AnalyticsAIService::class);
     $ctor = $ref->getMethod('__construct');
     $params = $ctor->getParameters();
@@ -115,7 +115,7 @@ test('v76.0.0: AnalyticsAIService constructor has proper type hints', function (
     expect($params[1]->getType()?->getName())->toBe('Illuminate\\Contracts\\Cache\\Repository');
 });
 
-test('v76.0.0: AnalyticsAIService has return type declarations', function (): void {
+test('v268.0.0: AnalyticsAIService has return type declarations', function (): void {
     $ref = new ReflectionClass(AnalyticsAIService::class);
 
     $detectAnomaly = $ref->getMethod('detectAnomaly');
@@ -133,7 +133,7 @@ test('v76.0.0: AnalyticsAIService has return type declarations', function (): vo
     expect($suggestEvents->getReturnType())->not->toBeNull();
 });
 
-test('v76.0.0: AnalyticsAIService detectAnomaly returns null for disabled service', function (): void {
+test('v268.0.0: AnalyticsAIService detectAnomaly returns null for disabled service', function (): void {
     // Constructor with enabled=false config
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
@@ -144,7 +144,7 @@ test('v76.0.0: AnalyticsAIService detectAnomaly returns null for disabled servic
     expect($service->detectAnomaly('test_event', 100.0))->toBeNull();
 });
 
-test('v76.0.0: AnalyticsAIService detectAnomaly returns null for insufficient data', function (): void {
+test('v268.0.0: AnalyticsAIService detectAnomaly returns null for insufficient data', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -157,7 +157,7 @@ test('v76.0.0: AnalyticsAIService detectAnomaly returns null for insufficient da
     expect($service->detectAnomaly('test_event', 12.0))->toBeNull();
 });
 
-test('v76.0.0: AnalyticsAIService detectAnomaly detects anomaly after sufficient data', function (): void {
+test('v268.0.0: AnalyticsAIService detectAnomaly detects anomaly after sufficient data', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn([
@@ -182,7 +182,7 @@ test('v76.0.0: AnalyticsAIService detectAnomaly detects anomaly after sufficient
     expect($anomaly['severity'])->toBeIn(['low', 'medium', 'high', 'critical']);
 });
 
-test('v76.0.0: AnalyticsAIService generateInsights returns insights for event data', function (): void {
+test('v268.0.0: AnalyticsAIService generateInsights returns insights for event data', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -213,7 +213,7 @@ test('v76.0.0: AnalyticsAIService generateInsights returns insights for event da
     expect($hasVolumeInsight)->toBeTrue();
 });
 
-test('v76.0.0: AnalyticsAIService generateInsights detects missing lifecycle events', function (): void {
+test('v268.0.0: AnalyticsAIService generateInsights detects missing lifecycle events', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -240,7 +240,7 @@ test('v76.0.0: AnalyticsAIService generateInsights detects missing lifecycle eve
     expect($hasMissing)->toBeTrue();
 });
 
-test('v76.0.0: AnalyticsAIService analyzeTrend returns flat for insufficient data', function (): void {
+test('v268.0.0: AnalyticsAIService analyzeTrend returns flat for insufficient data', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -252,7 +252,7 @@ test('v76.0.0: AnalyticsAIService analyzeTrend returns flat for insufficient dat
     expect($trend['confidence'])->toBe(0.0);
 });
 
-test('v76.0.0: AnalyticsAIService analyzeTrend detects upward trend', function (): void {
+test('v268.0.0: AnalyticsAIService analyzeTrend detects upward trend', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -264,7 +264,7 @@ test('v76.0.0: AnalyticsAIService analyzeTrend detects upward trend', function (
     expect($trend['slope'])->toBeGreaterThan(0);
 });
 
-test('v76.0.0: AnalyticsAIService analyzeTrend detects downward trend', function (): void {
+test('v268.0.0: AnalyticsAIService analyzeTrend detects downward trend', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -276,7 +276,7 @@ test('v76.0.0: AnalyticsAIService analyzeTrend detects downward trend', function
     expect($trend['slope'])->toBeLessThan(0);
 });
 
-test('v76.0.0: AnalyticsAIService suggestEvents returns catalog coverage', function (): void {
+test('v268.0.0: AnalyticsAIService suggestEvents returns catalog coverage', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -293,7 +293,7 @@ test('v76.0.0: AnalyticsAIService suggestEvents returns catalog coverage', funct
     expect($result['tracked_count'])->toBe(3);
 });
 
-test('v76.0.0: AnalyticsAIService getStatus returns config', function (): void {
+test('v268.0.0: AnalyticsAIService getStatus returns config', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn([
@@ -311,7 +311,7 @@ test('v76.0.0: AnalyticsAIService getStatus returns config', function (): void {
     expect($status)->toHaveKey('buffer_size');
 });
 
-test('v76.0.0: AnalyticsAIService clearBuffer works', function (): void {
+test('v268.0.0: AnalyticsAIService clearBuffer works', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.ai', [])->andReturn(['enabled' => true]);
@@ -326,16 +326,16 @@ test('v76.0.0: AnalyticsAIService clearBuffer works', function (): void {
 
 // ── EventExperimentTracker Tests ────────────────────────────────────
 
-test('v76.0.0: EventExperimentTracker class exists', function (): void {
+test('v268.0.0: EventExperimentTracker class exists', function (): void {
     expect(class_exists(EventExperimentTracker::class))->toBeTrue();
 });
 
-test('v76.0.0: EventExperimentTracker is final', function (): void {
+test('v268.0.0: EventExperimentTracker is final', function (): void {
     $ref = new ReflectionClass(EventExperimentTracker::class);
     expect($ref->isFinal())->toBeTrue();
 });
 
-test('v76.0.0: EventExperimentTracker has required methods', function (): void {
+test('v268.0.0: EventExperimentTracker has required methods', function (): void {
     $ref = new ReflectionClass(EventExperimentTracker::class);
     $methods = array_map(fn (\ReflectionMethod $m) => $m->getName(), $ref->getMethods(\ReflectionMethod::IS_PUBLIC));
 
@@ -350,7 +350,7 @@ test('v76.0.0: EventExperimentTracker has required methods', function (): void {
     expect($methods)->toContain('isEnabled');
 });
 
-test('v76.0.0: EventExperimentTracker has return type declarations', function (): void {
+test('v268.0.0: EventExperimentTracker has return type declarations', function (): void {
     $ref = new ReflectionClass(EventExperimentTracker::class);
 
     foreach (['createExperiment', 'getExperiment', 'calculateSignificance', 'getSummary', 'completeExperiment'] as $method) {
@@ -359,7 +359,7 @@ test('v76.0.0: EventExperimentTracker has return type declarations', function ()
     }
 });
 
-test('v76.0.0: EventExperimentTracker constructor has proper type hints', function (): void {
+test('v268.0.0: EventExperimentTracker constructor has proper type hints', function (): void {
     $ref = new ReflectionClass(EventExperimentTracker::class);
     $ctor = $ref->getMethod('__construct');
     $params = $ctor->getParameters();
@@ -367,7 +367,7 @@ test('v76.0.0: EventExperimentTracker constructor has proper type hints', functi
     expect(count($params))->toBe(2);
 });
 
-test('v76.0.0: EventExperimentTracker creates experiment correctly', function (): void {
+test('v268.0.0: EventExperimentTracker creates experiment correctly', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.experiment', [])->andReturn(['enabled' => true]);
@@ -385,7 +385,7 @@ test('v76.0.0: EventExperimentTracker creates experiment correctly', function ()
     expect($experiment['variants'][0]['events'])->toBe(0);
 });
 
-test('v76.0.0: EventExperimentTracker tracks events and updates conversion rates', function (): void {
+test('v268.0.0: EventExperimentTracker tracks events and updates conversion rates', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.experiment', [])->andReturn(['enabled' => true]);
@@ -422,7 +422,7 @@ test('v76.0.0: EventExperimentTracker tracks events and updates conversion rates
     expect($experiment['variants'][1]['conversions'])->toBe(2);
 });
 
-test('v76.0.0: EventExperimentTracker significance calculation returns correct structure', function (): void {
+test('v268.0.0: EventExperimentTracker significance calculation returns correct structure', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.experiment', [])->andReturn([
@@ -461,7 +461,7 @@ test('v76.0.0: EventExperimentTracker significance calculation returns correct s
     expect($result['z_score'])->toBeFloat();
 });
 
-test('v76.0.0: EventExperimentTracker pause/resume lifecycle works', function (): void {
+test('v268.0.0: EventExperimentTracker pause/resume lifecycle works', function (): void {
     $config = Mockery::mock(\Illuminate\Contracts\Config\Repository::class);
     $cache = Mockery::mock(\Illuminate\Contracts\Cache\Repository::class);
     $config->shouldReceive('get')->with('zeroboiler.analytics.experiment', [])->andReturn(['enabled' => true]);
@@ -493,16 +493,16 @@ test('v76.0.0: EventExperimentTracker pause/resume lifecycle works', function ()
 
 // ── SaaSQuickStartService Tests ─────────────────────────────────────
 
-test('v76.0.0: SaaSQuickStartService class exists', function (): void {
+test('v268.0.0: SaaSQuickStartService class exists', function (): void {
     expect(class_exists(SaaSQuickStartService::class))->toBeTrue();
 });
 
-test('v76.0.0: SaaSQuickStartService is final', function (): void {
+test('v268.0.0: SaaSQuickStartService is final', function (): void {
     $ref = new ReflectionClass(SaaSQuickStartService::class);
     expect($ref->isFinal())->toBeTrue();
 });
 
-test('v76.0.0: SaaSQuickStartService has all tracking methods', function (): void {
+test('v268.0.0: SaaSQuickStartService has all tracking methods', function (): void {
     $ref = new ReflectionClass(SaaSQuickStartService::class);
     $methods = array_map(fn (\ReflectionMethod $m) => $m->getName(), $ref->getMethods(\ReflectionMethod::IS_PUBLIC));
 
@@ -519,7 +519,7 @@ test('v76.0.0: SaaSQuickStartService has all tracking methods', function (): voi
     expect($methods)->toContain('trackOnboardingSequence');
 });
 
-test('v76.0.0: SaaSQuickStartService methods have return type void', function (): void {
+test('v268.0.0: SaaSQuickStartService methods have return type void', function (): void {
     $ref = new ReflectionClass(SaaSQuickStartService::class);
 
     $voidMethods = ['trackSignUp', 'trackLogin', 'trackTrialStart', 'trackTrialConversion',
@@ -532,7 +532,7 @@ test('v76.0.0: SaaSQuickStartService methods have return type void', function ()
     }
 });
 
-test('v76.0.0: SaaSQuickStartService constructor accepts AnalyticsManager', function (): void {
+test('v268.0.0: SaaSQuickStartService constructor accepts AnalyticsManager', function (): void {
     $ref = new ReflectionClass(SaaSQuickStartService::class);
     $ctor = $ref->getMethod('__construct');
     $params = $ctor->getParameters();
@@ -544,7 +544,7 @@ test('v76.0.0: SaaSQuickStartService constructor accepts AnalyticsManager', func
 
 // ── Config Expansion Tests ───────────────────────────────────────────
 
-test('v76.0.0: config has ai section', function (): void {
+test('v268.0.0: config has ai section', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
     expect($config)->toContain("'ai' => [");
@@ -553,7 +553,7 @@ test('v76.0.0: config has ai section', function (): void {
     expect($config)->toContain('ANALYTICS_AI_ROLLING_WINDOW');
 });
 
-test('v76.0.0: config has experiment section', function (): void {
+test('v268.0.0: config has experiment section', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     expect($config)->not->toBeFalse();
     expect($config)->toContain("'experiment' => [");
@@ -562,7 +562,7 @@ test('v76.0.0: config has experiment section', function (): void {
     expect($config)->toContain('ANALYTICS_EXPERIMENT_MIN_SAMPLE');
 });
 
-test('v76.0.0: config has 30+ sections total', function (): void {
+test('v268.0.0: config has 30+ sections total', function (): void {
     $config = file_get_contents(__DIR__ . '/../config/zeroboiler.php');
     preg_match_all("/'([a-z_]+)' => \[/", $config, $matches);
     $sections = array_unique($matches[1]);
@@ -571,25 +571,25 @@ test('v76.0.0: config has 30+ sections total', function (): void {
 
 // ── ServiceProvider Registration Tests ────────────────────────────────
 
-test('v76.0.0: ServiceProvider registers AnalyticsAIService', function (): void {
+test('v268.0.0: ServiceProvider registers AnalyticsAIService', function (): void {
     $provider = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
     expect($provider)->toContain('AnalyticsAIService::class');
     expect($provider)->toContain('singleton(AnalyticsAIService');
 });
 
-test('v76.0.0: ServiceProvider registers EventExperimentTracker', function (): void {
+test('v268.0.0: ServiceProvider registers EventExperimentTracker', function (): void {
     $provider = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
     expect($provider)->toContain('EventExperimentTracker::class');
     expect($provider)->toContain('singleton(EventExperimentTracker');
 });
 
-test('v76.0.0: ServiceProvider registers SaaSQuickStartService', function (): void {
+test('v268.0.0: ServiceProvider registers SaaSQuickStartService', function (): void {
     $provider = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
     expect($provider)->toContain('SaaSQuickStartService::class');
     expect($provider)->toContain('singleton(SaaSQuickStartService');
 });
 
-test('v76.0.0: ServiceProvider has import statements for new services', function (): void {
+test('v268.0.0: ServiceProvider has import statements for new services', function (): void {
     $provider = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
     expect($provider)->toContain('use ZeroBoiler\\Analytics\\Services\\AnalyticsAIService');
     expect($provider)->toContain('use ZeroBoiler\\Analytics\\Services\\EventExperimentTracker');
@@ -598,17 +598,17 @@ test('v76.0.0: ServiceProvider has import statements for new services', function
 
 // ── Event Catalog Integrity ──────────────────────────────────────────
 
-test('v76.0.0: event catalog is valid', function (): void {
+test('v268.0.0: event catalog is valid', function (): void {
     $result = EventCatalog::validate();
     expect($result['valid'])->toBeTrue('Event catalog validation failed: ' . implode(', ', $result['errors']));
     expect($result['errors'])->toBeEmpty();
 });
 
-test('v76.0.0: event catalog has 100+ events', function (): void {
+test('v268.0.0: event catalog has 100+ events', function (): void {
     expect(EventCatalog::count())->toBeGreaterThanOrEqual(100);
 });
 
-test('v76.0.0: event catalog has core SaaS events', function (): void {
+test('v268.0.0: event catalog has core SaaS events', function (): void {
     $core = EventCatalog::coreSaaS();
     $names = array_map(fn (array $e): string => $e['name'], $core);
     expect($names)->toContain('sign_up');
@@ -620,14 +620,14 @@ test('v76.0.0: event catalog has core SaaS events', function (): void {
 
 // ── README ───────────────────────────────────────────────────────────
 
-test('v76.0.0: README version badge is 76.0.0', function (): void {
+test('v268.0.0: README version badge is 266.0.0', function (): void {
     $readme = file_get_contents(__DIR__ . '/../README.md');
-    expect($readme)->toContain('version-76.0.0-blue');
+    expect($readme)->toContain('version-266.0.0-blue');
 });
 
 // ── CHANGELOG ────────────────────────────────────────────────────────
 
-test('v76.0.0: CHANGELOG has 76.0.0 entry', function (): void {
+test('v268.0.0: CHANGELOG has 266.0.0 entry', function (): void {
     $changelog = file_get_contents(__DIR__ . '/../CHANGELOG.md');
-    expect($changelog)->toContain('## [76.0.0]');
+    expect($changelog)->toContain('## [266.0.0]');
 });

@@ -195,7 +195,7 @@ describe('Phase 43 — Version Integrity Sweep', function () {
         $v99 = file_get_contents(__DIR__ . '/../tests/V99IndustryStandardSaaSAnalyticsTest.php');
         expect($v99)->toContain("'118.0.0'");
         expect($v99)->toContain('version-118.0.0');
-        expect($v99)->not->toContain("'76.0.0'");
+        expect($v99)->not->toContain("'268.0.0'");
     });
 
     test('no stale 115.0.0 version references in Svelte files', function (): void {

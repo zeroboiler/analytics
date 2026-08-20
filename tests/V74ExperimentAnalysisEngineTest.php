@@ -29,22 +29,22 @@ beforeEach(function (): void {
 
 // ── Constructor & Configuration ────────────────────────────────────
 
-test('v76.0.0 feature 1: ExperimentAnalysisEngine class exists and is final', function (): void {
+test('v268.0.0 feature 1: ExperimentAnalysisEngine class exists and is final', function (): void {
     expect(ExperimentAnalysisEngine::class)->toBeFinal();
 });
 
-test('v76.0.0 feature 2: constructor accepts CacheRepository and ConfigRepository', function (): void {
+test('v268.0.0 feature 2: constructor accepts CacheRepository and ConfigRepository', function (): void {
     $cache = app(CacheRepository::class);
     $config = app(ConfigRepository::class);
 
     expect(fn () => new ExperimentAnalysisEngine($cache, $config))->not->toThrow(\Throwable::class);
 });
 
-test('v76.0.0 feature 3: isEnabled returns true when config enabled', function (): void {
+test('v268.0.0 feature 3: isEnabled returns true when config enabled', function (): void {
     expect($this->engine->isEnabled())->toBeTrue();
 });
 
-test('v76.0.0 feature 4: config has experiment_analysis section with required keys', function (): void {
+test('v268.0.0 feature 4: config has experiment_analysis section with required keys', function (): void {
     $config = app(ConfigRepository::class);
     $expConfig = $config->get('zeroboiler.analytics.experiment_analysis', []);
 
@@ -59,7 +59,7 @@ test('v76.0.0 feature 4: config has experiment_analysis section with required ke
 
 // ── Comprehensive Analysis ──────────────────────────────────────────
 
-test('v76.0.0 feature 5: analyze returns full result structure', function (): void {
+test('v268.0.0 feature 5: analyze returns full result structure', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 50],
         'variant_a' => ['exposures' => 1000, 'conversions' => 70],
@@ -78,14 +78,14 @@ test('v76.0.0 feature 5: analyze returns full result structure', function (): vo
     expect($result['analyzed_at'])->toBeInt();
 });
 
-test('v76.0.0 feature 6: analyze with empty variants returns empty analysis', function (): void {
+test('v268.0.0 feature 6: analyze with empty variants returns empty analysis', function (): void {
     $result = $this->engine->analyze('empty_exp', []);
 
     expect($result['recommendation'])->toBe('NO_DATA: No variant data provided.');
     expect($result['winner'])->toBeNull();
 });
 
-test('v76.0.0 feature 7: analyze caches result', function (): void {
+test('v268.0.0 feature 7: analyze caches result', function (): void {
     $variants = [
         'control' => ['exposures' => 500, 'conversions' => 25],
         'treatment' => ['exposures' => 500, 'conversions' => 35],
@@ -98,7 +98,7 @@ test('v76.0.0 feature 7: analyze caches result', function (): void {
     expect($cached['experiment_id'])->toBe('cache_test');
 });
 
-test('v76.0.0 feature 8: clearAnalysis removes cached result', function (): void {
+test('v268.0.0 feature 8: clearAnalysis removes cached result', function (): void {
     $variants = [
         'control' => ['exposures' => 100, 'conversions' => 5],
         'treatment' => ['exposures' => 100, 'conversions' => 7],
@@ -113,7 +113,7 @@ test('v76.0.0 feature 8: clearAnalysis removes cached result', function (): void
 
 // ── Frequentist Analysis ───────────────────────────────────────────
 
-test('v76.0.0 feature 9: frequentist analysis detects significant difference', function (): void {
+test('v268.0.0 feature 9: frequentist analysis detects significant difference', function (): void {
     $variants = [
         'control' => ['exposures' => 5000, 'conversions' => 250], // 5% rate
         'treatment' => ['exposures' => 5000, 'conversions' => 400], // 8% rate
@@ -128,7 +128,7 @@ test('v76.0.0 feature 9: frequentist analysis detects significant difference', f
     expect($result['test_used'])->toBe('two_proportion_z_test');
 });
 
-test('v76.0.0 feature 10: frequentist returns null result when no variant beats control', function (): void {
+test('v268.0.0 feature 10: frequentist returns null result when no variant beats control', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 100],
         'variant_a' => ['exposures' => 1000, 'conversions' => 50],
@@ -140,7 +140,7 @@ test('v76.0.0 feature 10: frequentist returns null result when no variant beats 
     expect($result['p_value'])->toBeNull();
 });
 
-test('v76.0.0 feature 11: frequentist handles missing control gracefully', function (): void {
+test('v268.0.0 feature 11: frequentist handles missing control gracefully', function (): void {
     $variants = [
         'variant_a' => ['exposures' => 1000, 'conversions' => 50],
     ];
@@ -153,7 +153,7 @@ test('v76.0.0 feature 11: frequentist handles missing control gracefully', funct
 
 // ── Bayesian Analysis ──────────────────────────────────────────────
 
-test('v76.0.0 feature 12: bayesian analysis returns P(Best), P(Beat Control), expected loss, credible intervals', function (): void {
+test('v268.0.0 feature 12: bayesian analysis returns P(Best), P(Beat Control), expected loss, credible intervals', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 50],
         'treatment' => ['exposures' => 1000, 'conversions' => 80],
@@ -175,7 +175,7 @@ test('v76.0.0 feature 12: bayesian analysis returns P(Best), P(Beat Control), ex
     expect($result['expected_loss']['control'])->toBeNull();
 });
 
-test('v76.0.0 feature 13: bayesian credible intervals have valid range [0,1]', function (): void {
+test('v268.0.0 feature 13: bayesian credible intervals have valid range [0,1]', function (): void {
     $variants = [
         'control' => ['exposures' => 500, 'conversions' => 25],
         'treatment' => ['exposures' => 500, 'conversions' => 40],
@@ -192,7 +192,7 @@ test('v76.0.0 feature 13: bayesian credible intervals have valid range [0,1]', f
 
 // ── Effect Size ───────────────────────────────────────────────────
 
-test('v76.0.0 feature 14: effect size computes relative uplift and Cohen h', function (): void {
+test('v268.0.0 feature 14: effect size computes relative uplift and Cohen h', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 50], // 5%
         'treatment' => ['exposures' => 1000, 'conversions' => 60], // 6%
@@ -215,7 +215,7 @@ test('v76.0.0 feature 14: effect size computes relative uplift and Cohen h', fun
 
 // ── Confidence Intervals ───────────────────────────────────────────
 
-test('v76.0.0 feature 15: Wilson score intervals are valid', function (): void {
+test('v268.0.0 feature 15: Wilson score intervals are valid', function (): void {
     $result = $this->engine->wilsonScoreInterval(50, 1000);
 
     expect($result['lower'])->toBeGreaterThanOrEqual(0.0);
@@ -224,7 +224,7 @@ test('v76.0.0 feature 15: Wilson score intervals are valid', function (): void {
     expect($result['method'])->toBe('wilson');
 });
 
-test('v76.0.0 feature 16: computeConfidenceIntervals returns results for all variants', function (): void {
+test('v268.0.0 feature 16: computeConfidenceIntervals returns results for all variants', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 50],
         'variant_a' => ['exposures' => 1000, 'conversions' => 70],
@@ -241,13 +241,13 @@ test('v76.0.0 feature 16: computeConfidenceIntervals returns results for all var
 
 // ── Multi-Variant Correction ───────────────────────────────────────
 
-test('v76.0.0 feature 17: multi-variant correction returns null for 2 variants', function (): void {
+test('v268.0.0 feature 17: multi-variant correction returns null for 2 variants', function (): void {
     $result = $this->engine->multiVariantCorrection(['a', 'b']);
 
     expect($result)->toBeNull();
 });
 
-test('v76.0.0 feature 18: Bonferroni correction adjusts alpha correctly', function (): void {
+test('v268.0.0 feature 18: Bonferroni correction adjusts alpha correctly', function (): void {
     $result = $this->engine->multiVariantCorrection(['control', 'v1', 'v2', 'v3'], null, 'bonferroni');
 
     expect($result)->not->toBeNull();
@@ -256,7 +256,7 @@ test('v76.0.0 feature 18: Bonferroni correction adjusts alpha correctly', functi
     expect($result['num_comparisons'])->toBe(3);
 });
 
-test('v76.0.0 feature 19: Šidák correction is less conservative than Bonferroni', function (): void {
+test('v268.0.0 feature 19: Šidák correction is less conservative than Bonferroni', function (): void {
     $bonferroni = $this->engine->multiVariantCorrection(['control', 'v1', 'v2'], null, 'bonferroni');
     $sidak = $this->engine->multiVariantCorrection(['control', 'v1', 'v2'], null, 'sidak');
 
@@ -265,14 +265,14 @@ test('v76.0.0 feature 19: Šidák correction is less conservative than Bonferron
 
 // ── Sequential Testing ──────────────────────────────────────────────
 
-test('v76.0.0 feature 20: sequential test allows continuation with low z-score', function (): void {
+test('v268.0.0 feature 20: sequential test allows continuation with low z-score', function (): void {
     $result = $this->engine->sequentialTest('test', 3, 10, 0.5);
 
     expect($result['should_stop'])->toBeFalse();
     expect($result['recommendation'])->toContain('CONTINUE');
 });
 
-test('v76.0.0 feature 21: sequential test returns valid structure', function (): void {
+test('v268.0.0 feature 21: sequential test returns valid structure', function (): void {
     $result = $this->engine->sequentialTest('test', 5, 10, 2.0);
 
     expect($result)->toHaveKeys([
@@ -283,7 +283,7 @@ test('v76.0.0 feature 21: sequential test returns valid structure', function ():
 
 // ── Sample Size Calculator ─────────────────────────────────────────
 
-test('v76.0.0 feature 22: calculateSampleSize returns valid results', function (): void {
+test('v268.0.0 feature 22: calculateSampleSize returns valid results', function (): void {
     $result = $this->engine->calculateSampleSize(0.05, 0.10);
 
     expect($result)->toHaveKeys([
@@ -295,7 +295,7 @@ test('v76.0.0 feature 22: calculateSampleSize returns valid results', function (
     expect($result['mde_relative'])->toBe(0.10);
 });
 
-test('v76.0.0 feature 23: calculateSampleSize with Bonferroni correction for 4 variants', function (): void {
+test('v268.0.0 feature 23: calculateSampleSize with Bonferroni correction for 4 variants', function (): void {
     $result = $this->engine->calculateSampleSize(0.05, 0.15, null, null, 4);
 
     expect($result['correction'])->toBe('bonferroni');
@@ -305,7 +305,7 @@ test('v76.0.0 feature 23: calculateSampleSize with Bonferroni correction for 4 v
 
 // ── MDE Calculator ────────────────────────────────────────────────
 
-test('v76.0.0 feature 24: calculateMDE returns valid results', function (): void {
+test('v268.0.0 feature 24: calculateMDE returns valid results', function (): void {
     $result = $this->engine->calculateMDE(0.05, 5000);
 
     expect($result)->toHaveKeys([
@@ -317,7 +317,7 @@ test('v76.0.0 feature 24: calculateMDE returns valid results', function (): void
 
 // ── Quick Significance ──────────────────────────────────────────────
 
-test('v76.0.0 feature 25: quickSignificance returns valid result', function (): void {
+test('v268.0.0 feature 25: quickSignificance returns valid result', function (): void {
     $result = $this->engine->quickSignificance(100, 2000, 130, 2000);
 
     expect($result)->toHaveKeys([
@@ -326,7 +326,7 @@ test('v76.0.0 feature 25: quickSignificance returns valid result', function (): 
     ]);
 });
 
-test('v76.0.0 feature 26: quickSignificance with zero conversions returns non-significant', function (): void {
+test('v268.0.0 feature 26: quickSignificance with zero conversions returns non-significant', function (): void {
     $result = $this->engine->quickSignificance(0, 100, 0, 100);
 
     expect($result['significant'])->toBeFalse();
@@ -334,7 +334,7 @@ test('v76.0.0 feature 26: quickSignificance with zero conversions returns non-si
 
 // ── Experiment Health ──────────────────────────────────────────────
 
-test('v76.0.0 feature 27: assessExperimentHealth returns valid structure', function (): void {
+test('v268.0.0 feature 27: assessExperimentHealth returns valid structure', function (): void {
     $variants = [
         'control' => ['exposures' => 500, 'conversions' => 25],
         'variant_a' => ['exposures' => 500, 'conversions' => 30],
@@ -349,7 +349,7 @@ test('v76.0.0 feature 27: assessExperimentHealth returns valid structure', funct
     ]);
 });
 
-test('v76.0.0 feature 28: assessExperimentHealth detects low sample size', function (): void {
+test('v268.0.0 feature 28: assessExperimentHealth detects low sample size', function (): void {
     $variants = [
         'control' => ['exposures' => 10, 'conversions' => 1],
     ];
@@ -366,7 +366,7 @@ test('v76.0.0 feature 28: assessExperimentHealth detects low sample size', funct
     expect($hasSampleFail)->toBeTrue();
 });
 
-test('v76.0.0 feature 29: assessExperimentHealth detects balanced traffic', function (): void {
+test('v268.0.0 feature 29: assessExperimentHealth detects balanced traffic', function (): void {
     $variants = [
         'control' => ['exposures' => 1000, 'conversions' => 50],
         'variant_a' => ['exposures' => 980, 'conversions' => 50],
@@ -386,7 +386,7 @@ test('v76.0.0 feature 29: assessExperimentHealth detects balanced traffic', func
 
 // ── Integration: Full Analysis Pipeline ─────────────────────────────
 
-test('v76.0.0 feature 30: full analysis pipeline — significant result', function (): void {
+test('v268.0.0 feature 30: full analysis pipeline — significant result', function (): void {
     // Large sample, 60% relative uplift — should be significant
     $variants = [
         'control' => ['exposures' => 10000, 'conversions' => 500], // 5%
@@ -404,13 +404,13 @@ test('v76.0.0 feature 30: full analysis pipeline — significant result', functi
 
 // ── CLI Command Registration ────────────────────────────────────────
 
-test('v76.0.0 feature 31: AnalyticsExperimentCommand class exists and extends Command', function (): void {
+test('v268.0.0 feature 31: AnalyticsExperimentCommand class exists and extends Command', function (): void {
     $class = \ZeroBoiler\Analytics\Console\Commands\AnalyticsExperimentCommand::class;
     expect(class_exists($class))->toBeTrue();
     expect(new ReflectionClass($class))->isFinal()->toBeTrue();
 });
 
-test('v76.0.0 feature 32: AnalyticsExperimentCommand has correct signature', function (): void {
+test('v268.0.0 feature 32: AnalyticsExperimentCommand has correct signature', function (): void {
     $command = new \ZeroBoiler\Analytics\Console\Commands\AnalyticsExperimentCommand;
 
     expect($command->getSignature())->toContain('zb:analytics:experiment');

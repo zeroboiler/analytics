@@ -12,7 +12,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\Services\EventContractTestService;
 
 /**
- * Tests for the Event Contract Testing Engine (v76.0.0).
+ * Tests for the Event Contract Testing Engine (v268.0.0).
  *
  * @covers \ZeroBoiler\Analytics\Services\EventContractTestService
  */
@@ -358,7 +358,7 @@ final class V76EventContractTestingTest extends TestCase
     /** @test */
     public function analytics_event_version_is_76(): void
     {
-        $this->assertSame('76.0.0', AnalyticsEvent::VERSION);
+        $this->assertSame('268.0.0', AnalyticsEvent::VERSION);
     }
 
     /** @test */

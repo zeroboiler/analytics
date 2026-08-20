@@ -14069,7 +14069,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ─── Event Contract Testing (v76.0.0) ─────────────────────────────────
+    // ─── Event Contract Testing (v266.0.0) ─────────────────────────────────
 
     /**
      * List all registered provider contracts.
