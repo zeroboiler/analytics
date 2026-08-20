@@ -23091,4 +23091,66 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get queue backpressure summary.
+     *
+     * Returns circuit breaker state, rate limit config, and rejection stats.
+     *
+     * @since 270.0.0
+     */
+    public function backpressureSummary(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Queue\EventBackpressureService::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reset the backpressure circuit breaker.
+     *
+     * @since 270.0.0
+     */
+    public function backpressureResetCircuit(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $service = app(\ZeroBoiler\Analytics\Queue\EventBackpressureService::class);
+            $service->resetCircuitBreaker();
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $service->circuitBreakerState(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Validate lifecycle event mappings from configuration.
+     *
+     * Returns errors, warnings, and info about custom lifecycle mappings.
+     *
+     * @since 270.0.0
+     */
+    public function lifecycleValidation(): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validator = app(\ZeroBoiler\Analytics\Services\LifecycleMappingValidator::class);
+
+            return response()->json([
+                'status' => 'ok',
+                'data' => $validator->summary(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

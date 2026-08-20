@@ -114,6 +114,30 @@ return [
             'queue' => env('ANALYTICS_QUEUE', 'analytics'),
             'connection' => env('ANALYTICS_QUEUE_CONNECTION'),
             'max_batch_size' => (int) env('ANALYTICS_QUEUE_MAX_BATCH_SIZE', 50),
+
+            /*
+            |--------------------------------------------------------------------------
+            | Event Queue Backpressure (v270.0.0)
+            |--------------------------------------------------------------------------
+            |
+            | Rate limiting and circuit-breaker protection for the analytics event
+            | queue. Prevents queue flooding during traffic spikes and protects
+            | downstream analytics providers from cascading failures.
+            |
+            | - max_events_per_minute: Per-client rate limit (events per client per minute)
+            | - max_global_per_second: Global throughput cap (total events per second)
+            | - circuit_breaker_threshold: Consecutive failures before circuit opens
+            | - circuit_breaker_reset_seconds: Seconds before circuit auto-closes
+            |
+            */
+            'backpressure' => [
+                'enabled' => env('ANALYTICS_BACKPRESSURE_ENABLED', true),
+                'max_events_per_minute' => (int) env('ANALYTICS_BACKPRESSURE_MAX_PER_MINUTE', 600),
+                'max_global_per_second' => (int) env('ANALYTICS_BACKPRESSURE_MAX_GLOBAL_PER_SECOND', 100),
+                'circuit_breaker_threshold' => (int) env('ANALYTICS_BACKPRESSURE_CB_THRESHOLD', 10),
+                'circuit_breaker_reset_seconds' => (int) env('ANALYTICS_BACKPRESSURE_CB_RESET', 60),
+                'cache_prefix' => env('ANALYTICS_BACKPRESSURE_CACHE_PREFIX', 'zb_bp_'),
+            ],
         ],
 
         /*
