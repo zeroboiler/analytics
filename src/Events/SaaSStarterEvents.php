@@ -352,10 +352,28 @@ final class SaaSStarterEvents
     public static function providerCoverage(): array
     {
         $providers = ['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
+        $totalProviders = count($providers);
         $result = [];
 
         foreach (self::all() as $name => $entry) {
             $catalogEntry = EventCatalog::get($name);
+
+            // If event is not in the unified catalog, report zero coverage
+            if ($catalogEntry === null) {
+                $result[$name] = [
+                    'event' => $name,
+                    'label' => $entry['label'],
+                    'category' => $entry['category'],
+                    'providers' => array_fill_keys($providers, null),
+                    'covered_count' => 0,
+                    'total_providers' => $totalProviders,
+                    'coverage_pct' => 0.0,
+                    'fully_covered' => false,
+                ];
+
+                continue;
+            }
+
             $providerMap = [];
             $coveredCount = 0;
 
@@ -367,8 +385,6 @@ final class SaaSStarterEvents
                     $coveredCount++;
                 }
             }
-
-            $totalProviders = count($providers);
 
             $result[$name] = [
                 'event' => $name,

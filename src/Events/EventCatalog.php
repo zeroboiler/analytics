@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Events\Webhook\WebhookEvents;
  * and provider mappings across Ecommerce, SaaS (including cohort), Engagement,
  * Security, Uptime, Infrastructure, Marketing, and CustomerSuccess.
  *
- * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, category: string}
+ * @phpstan-type EventEntry array{name: string, class: class-string<AnalyticsEvent>, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null, category: string}
  *
  * @since 1.0.0
  */
@@ -648,7 +648,7 @@ final class EventCatalog
     /**
      * Annotate event entries with their category.
      *
-     * @param  array<string, array{name: string, class: class-string, ga4: string, meta: string|null}>  $events
+     * @param  array<string, array{name: string, class: class-string, ga4: string, meta: string|null, posthog: string, plausible: string|null, mixpanel: string, amplitude: string, tiktok: string|null, linkedin: string|null}>  $events
      * @return array<string, EventEntry>
      */
     private static function withCategory(array $events, string $category): array

@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\Services\EventGovernanceRuntimeValidator;
 final class V160GovernanceRuntimeValidatorTest extends TestCase
 {
     private const PKG_ROOT = __DIR__ . '/..';
-    private const VERSION = '160.0.0';
+    private const VERSION = '264.0.0';
 
     // ── 1. EventGovernanceRuntimeValidator: Known Event Validation ─────
 

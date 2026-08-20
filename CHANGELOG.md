@@ -1,4 +1,17 @@
 # Changelog
+## [265.0.0] - 2026-08-20
+
+### Fixed
+- **PosthogTracker::trackBatch() critical runtime error** — Fixed reference to non-existent `$this->baseUrl` property (changed to `{$this->host}{$this->capturePath}batch/`), corrected `$lib` identifier from `'zeroboiler-php'` to `'zeroboiler-analytics-server'`, added missing consent gate (`isAnalyticsDenied()`), and fixed `empty()` → `$events === []` for PHP 8.5 strict types compliance.
+- **SaaSStarterEvents::providerCoverage() null safety** — Fixed null dereference when `EventCatalog::get()` returns null for a starter event. The null check now runs before accessing provider fields, preventing a runtime TypeError.
+- **phpstan.neon reverted to NEON format** — Previous commit accidentally replaced the NEON includes file with a PHP initializer that would break `phpstan analyse phpstan.neon`. Restored the proper `includes: [phpstan.neon.dist]` format.
+
+### Changed
+- **EventCatalog::EventEntry type expanded** — The `@phpstan-type EventEntry` now includes all 8 provider fields (`ga4`, `meta`, `posthog`, `plausible`, `mixpanel`, `amplitude`, `tiktok`, `linkedin`) plus `category`, matching the actual runtime shape. The `withCategory()` param docblock also updated.
+
+### Added
+- **V265PosthogTrackerBatchFixAndCatalogTypeSafetyTest** — 10 tests validating: PosthogTracker trackBatch structure and property usage, correct $lib identifier, consent gate, EventEntry type completeness, providerCoverage null safety, providerCoverageSummary structure, phpstan.neon format, version consistency, and starter event catalog coverage.
+
 ## [264.0.0] - 2026-08-19
 
 ### Added

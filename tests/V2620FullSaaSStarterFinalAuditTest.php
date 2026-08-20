@@ -6,7 +6,7 @@
 declare(strict_types=1);
 
 /**
- * Full SaaS Starter Final Audit — All 12 Industry-Standard Features at v262.0.0
+ * Full SaaS Starter Final Audit — All 12 Industry-Standard Features at v264.0.0
  *
  * Validates production readiness across the complete feature set:
  * 1. Event Catalog (EcommerceEvents, SaaSEvents, EngagementEvents)
@@ -22,7 +22,7 @@ declare(strict_types=1);
  * 11. Optional providers (Plausible, PostHog)
  * 12. Tests + README
  *
- * @since 262.0.0
+ * @since 264.0.0
  */
 describe('V262 Full SaaS Starter Final Audit', function () {
     $srcDir = __DIR__ . '/../src';
@@ -516,63 +516,63 @@ describe('V262 Full SaaS Starter Final Audit', function () {
 
     // ── Version Consistency ────────────────────────────────────────────
     describe('Version Consistency', function () {
-        it('AnalyticsEvent::VERSION is 262.0.0', function () {
+        it('AnalyticsEvent::VERSION is 264.0.0', function () {
             $content = (string) file_get_contents($srcDir . '/DTO/AnalyticsEvent.php');
-            expect($content)->toContain("VERSION = '262.0.0'");
+            expect($content)->toContain("VERSION = '264.0.0'");
         });
 
-        it('composer.json version is 262.0.0', function () {
+        it('composer.json version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/composer.json');
-            expect($content)->toContain('"version": "262.0.0"');
+            expect($content)->toContain('"version": "264.0.0"');
         });
 
-        it('package.json version is 262.0.0', function () {
+        it('package.json version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/package.json');
-            expect($content)->toContain('"version": "262.0.0"');
+            expect($content)->toContain('"version": "264.0.0"');
         });
 
-        it('analytics.js getVersion returns 262.0.0', function () {
+        it('analytics.js getVersion returns 264.0.0', function () {
             $content = (string) file_get_contents($root . '/resources/js/analytics.js');
-            expect($content)->toContain("return '262.0.0'");
+            expect($content)->toContain("return '264.0.0'");
         });
 
-        it('analytics.js @version is 262.0.0', function () {
+        it('analytics.js @version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/resources/js/analytics.js');
-            expect($content)->toContain('@version 262.0.0');
+            expect($content)->toContain('@version 264.0.0');
         });
 
-        it('analytics.d.ts @version is 262.0.0', function () {
+        it('analytics.d.ts @version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/resources/js/analytics.d.ts');
-            expect($content)->toContain('@version 262.0.0');
+            expect($content)->toContain('@version 264.0.0');
         });
 
-        it('analytics.constants.js @version is 262.0.0', function () {
+        it('analytics.constants.js @version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/resources/js/analytics.constants.js');
-            expect($content)->toContain('@version 262.0.0');
+            expect($content)->toContain('@version 264.0.0');
         });
 
-        it('all 15 Svelte composables @version is 262.0.0', function () {
+        it('all 15 Svelte composables @version is 264.0.0', function () {
             $composables = glob($root . '/resources/js/use*.svelte.js');
             foreach ($composables as $file) {
                 $content = (string) file_get_contents($file);
-                expect($content)->toContain('@version 262.0.0')
-                    ->fail("{$file} is not at v262.0.0");
+                expect($content)->toContain('@version 264.0.0')
+                    ->fail("{$file} is not at v264.0.0");
             }
         });
 
-        it('AnalyticsIntegrityCommand EXPECTED_VERSION is 262.0.0', function () {
+        it('AnalyticsIntegrityCommand EXPECTED_VERSION is 264.0.0', function () {
             $content = (string) file_get_contents($srcDir . '/Console/Commands/AnalyticsIntegrityCommand.php');
-            expect($content)->toContain("EXPECTED_VERSION = '262.0.0'");
+            expect($content)->toContain("EXPECTED_VERSION = '264.0.0'");
         });
 
-        it('AnalyticsServiceProvider @version is 262.0.0', function () {
+        it('AnalyticsServiceProvider @version is 264.0.0', function () {
             $content = (string) file_get_contents($srcDir . '/AnalyticsServiceProvider.php');
-            expect($content)->toContain('@version 262.0.0');
+            expect($content)->toContain('@version 264.0.0');
         });
 
-        it('README badge version is 262.0.0', function () {
+        it('README badge version is 264.0.0', function () {
             $content = (string) file_get_contents($root . '/README.md');
-            expect($content)->toContain('version-262.0.0');
+            expect($content)->toContain('version-264.0.0');
         });
     });
 

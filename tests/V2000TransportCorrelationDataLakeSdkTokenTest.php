@@ -572,26 +572,26 @@ describe('SdkScopeTokenService', function (): void {
 // ─── Version Sweep ──────────────────────────────────────────────────────────
 
 describe('Version Sweep', function (): void {
-    test('AnalyticsEvent VERSION is 20.0.0', function (): void {
-        expect(AnalyticsEvent::VERSION)->toBe('20.0.0');
+    test('AnalyticsEvent VERSION is 264.0.0', function (): void {
+        expect(AnalyticsEvent::VERSION)->toBe('264.0.0');
     });
 
     test('composer.json version matches', function (): void {
         $composer = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true);
 
-        expect($composer['version'])->toBe('20.0.0');
+        expect($composer['version'])->toBe('264.0.0');
     });
 
     test('package.json version matches', function (): void {
         $pkg = json_decode(file_get_contents(__DIR__ . '/../package.json'), true);
 
-        expect($pkg['version'])->toBe('20.0.0');
+        expect($pkg['version'])->toBe('264.0.0');
     });
 
     test('JS client version matches', function (): void {
         $js = file_get_contents(__DIR__ . '/../resources/js/analytics.js');
 
-        expect($js)->toContain("'20.0.0'");
+        expect($js)->toContain("'264.0.0'");
         expect($js)->not->toContain("'19.0.0'");
     });
 });
@@ -705,15 +705,15 @@ describe('Config Integrity', function (): void {
         expect($content)->toContain('use ZeroBoiler\\Analytics\\Services\\SdkScopeTokenService');
     });
 
-    test('ServiceProvider version is 20.0.0', function (): void {
+    test('ServiceProvider version is 264.0.0', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/AnalyticsServiceProvider.php');
 
-        expect($content)->toContain('@version 20.0.0');
+        expect($content)->toContain('@version 264.0.0');
     });
 
-    test('IntegrityCommand expected version is 20.0.0', function (): void {
+    test('IntegrityCommand expected version is 264.0.0', function (): void {
         $content = file_get_contents(__DIR__ . '/../src/Console/Commands/AnalyticsIntegrityCommand.php');
 
-        expect($content)->toContain("EXPECTED_VERSION = '20.0.0'");
+        expect($content)->toContain("EXPECTED_VERSION = '264.0.0'");
     });
 });

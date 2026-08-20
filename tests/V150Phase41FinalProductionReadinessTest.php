@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\Facades\Analytics;
 use ZeroBoiler\Analytics\Trackers\TrackerInterface;
 
 /**
- * Phase 41 Final Production Readiness Audit — ZeroBoiler Analytics v150.0.0
+ * Phase 41 Final Production Readiness Audit — ZeroBoiler Analytics v264.0.0
  *
  * Comprehensive audit covering code quality, version consistency, exception hierarchy,
  * finality enforcement, #[Override] attributes on console commands/jobs/middleware,
@@ -36,7 +36,7 @@ use ZeroBoiler\Analytics\Trackers\TrackerInterface;
  */
 final class V150Phase41FinalProductionReadinessTest extends TestCase
 {
-    private const VERSION = '150.0.0';
+    private const VERSION = '264.0.0';
 
     private const PKG_ROOT = __DIR__ . '/../..';
 

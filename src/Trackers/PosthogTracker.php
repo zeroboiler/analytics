@@ -161,7 +161,8 @@ final class PosthogTracker implements TrackerInterface
      *
      * @param array<string, mixed> $properties Person properties to set
      */
-    public function identify(string $distinctId, array $properties = []): void
+    #[\Override]
+    public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
             return;
@@ -171,9 +172,9 @@ final class PosthogTracker implements TrackerInterface
             'api_key' => $this->apiKey,
             'event' => '$identify',
             'properties' => array_merge([
-                'distinct_id' => $distinctId,
+                'distinct_id' => $userId,
                 '$lib' => 'zeroboiler-analytics-server',
-            ], $properties),
+            ], $traits),
         ];
 
         if ($this->projectId !== '') {
@@ -184,7 +185,7 @@ final class PosthogTracker implements TrackerInterface
             Http::post("{$this->host}{$this->capturePath}", $payload);
         } catch (\Throwable $e) {
             Log::error('PosthogTracker: identify error', [
-                'distinct_id' => $distinctId,
+                'user_id' => $userId,
                 'error' => $e->getMessage(),
             ]);
         }
@@ -502,46 +503,56 @@ HTML;
     #[\Override]
     public function trackBatch(array $events): int
     {
-        if (empty($events) || !$this->isEnabled()) {
+        if ($events === [] || ! $this->isEnabled()) {
+            return 0;
+        }
+
+        if ($this->isAnalyticsDenied()) {
             return 0;
         }
 
         $batch = [];
         foreach ($events as $event) {
-            $batch[] = [
-                'event' => $event->name,
-                'properties' => array_merge($event->params, [
-                    'distinct_id' => $event->clientId ?? $event->userId ?? $this->generateDistinctId(),
-                    '$lib' => 'zeroboiler-php',
-                ]),
-                'timestamp' => $event->timestamp?->format('c') ?? (new \DateTimeImmutable())->format('c'),
-            ];
-        }
+            $distinctId = $event->userId ?? $event->clientId ?? $this->generateDistinctId();
 
-        $payload = [
-            'api_key' => $this->apiKey,
-            'batch' => $batch,
-        ];
+            $payload = [
+                'event' => $event->name,
+                'properties' => array_merge([
+                    'distinct_id' => $distinctId,
+                    '$lib' => 'zeroboiler-analytics-server',
+                ], $event->params),
+            ];
+
+            if ($this->projectId !== '') {
+                $payload['project_id'] = $this->projectId;
+            }
+
+            $batch[] = $payload;
+        }
 
         try {
             /** @var \Illuminate\Http\Client\Response $response */
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/batch', $payload);
+            $response = \Illuminate\Support\Facades\Http::post(
+                "{$this->host}{$this->capturePath}batch/",
+                [
+                    'api_key' => $this->apiKey,
+                    'batch' => $batch,
+                ],
+            );
 
-            if (!$response->successful()) {
-                \Illuminate\Support\Facades\Log::warning('PosthogTracker: batch dispatch failed', [
-                    'event_count' => count($events),
+            if (! $response->successful()) {
+                Log::warning('PosthogTracker: batch dispatch failed', [
+                    'count' => count($batch),
                     'status' => $response->status(),
                 ]);
 
                 return 0;
             }
 
-            return count($events);
+            return count($batch);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('PosthogTracker: batch dispatch error', [
-                'event_count' => count($events),
+            Log::error('PosthogTracker: batch dispatch error', [
+                'count' => count($batch),
                 'error' => $e->getMessage(),
             ]);
 

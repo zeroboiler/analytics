@@ -33,7 +33,7 @@ use ZeroBoiler\Analytics\Services\BehavioralSegmentationService;
  */
 final class V239BehavioralSegmentationTest extends \PHPUnit\Framework\TestCase
 {
-    private const VERSION = '239.0.0';
+    private const VERSION = '264.0.0';
     private const SERVICE_FILE = __DIR__ . '/../src/Services/BehavioralSegmentationService.php';
     private const COMMAND_FILE = __DIR__ . '/../src/Console/Commands/AnalyticsSegmentsCommand.php';
     private const CONFIG_FILE = __DIR__ . '/../config/zeroboiler.php';

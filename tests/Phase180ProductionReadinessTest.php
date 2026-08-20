@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Phase180ProductionReadinessTest extends TestCase
 {
-    private const EXPECTED_VERSION = '180.0.0';
+    private const EXPECTED_VERSION = '264.0.0';
 
     /** @var list<string> Files that should contain the version */
     private const VERSION_ENTRY_POINTS = [
