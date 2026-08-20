@@ -33,7 +33,7 @@ final class AnalyticsIntegrityCommand extends Command
 
     protected $description = 'Comprehensive analytics integrity check — version, catalog, config, and plugin validation';
 
-    private const EXPECTED_VERSION = '264.0.0';
+    private const EXPECTED_VERSION = '266.0.0';
 
     private bool $hasErrors = false;
 

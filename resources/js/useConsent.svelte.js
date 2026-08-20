@@ -11,7 +11,7 @@
  * security_storage) with automatic gtag consent API calls when GA4 is enabled.
  *
  * @package ZeroBoiler Analytics
- * @version 264.0.0
+ * @version 266.0.0
  */
 
 import { writable, derived, readonly } from 'svelte/store';

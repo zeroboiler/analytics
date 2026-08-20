@@ -17,10 +17,10 @@ use PHPUnit\Framework\TestCase;
  * - AnalyticsEvent::VERSION is a real constant (not trapped in docblock)
  * - LifecycleEventTracker constructor has `: void` return type
  * - LifecycleEventTracker createListener has no dead if/else on queueEvents
- * - Version consistency at 264.0.0
+ * - Version consistency at 266.0.0
  * - All source files maintain strict_types + MIT headers
  *
- * @since 264.0.0
+ * @since 266.0.0
  */
 #[Group('production-readiness')]
 class Phase88ProductionReadinessTest extends TestCase
@@ -45,7 +45,7 @@ class Phase88ProductionReadinessTest extends TestCase
         );
 
         $version = \ZeroBoiler\Analytics\DTO\AnalyticsEvent::VERSION;
-        $this->assertSame('264.0.0', $version, 'AnalyticsEvent::VERSION must be 264.0.0');
+        $this->assertSame('266.0.0', $version, 'AnalyticsEvent::VERSION must be 266.0.0');
     }
 
     /**
@@ -106,11 +106,11 @@ class Phase88ProductionReadinessTest extends TestCase
     }
 
     /**
-     * Version consistency: all entry points must report 264.0.0.
+     * Version consistency: all entry points must report 266.0.0.
      */
     public function testVersionConsistency(): void
     {
-        $expected = '264.0.0';
+        $expected = '266.0.0';
 
         // composer.json
         $composer = json_decode(file_get_contents(dirname(__DIR__, 2) . '/composer.json'), true);

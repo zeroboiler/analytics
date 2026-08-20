@@ -11,7 +11,7 @@ use ZeroBoiler\Analytics\Events\SaaSStarterEvents;
 /**
  * Validates SaaSStarterEvents::providerCoverage() and providerCoverageSummary().
  *
- * @since 264.0.0
+ * @since 266.0.0
  */
 test('SaaSStarterEvents::providerCoverage returns all 20 starter events', function (): void {
     $coverage = SaaSStarterEvents::providerCoverage();

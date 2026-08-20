@@ -347,7 +347,7 @@ final class SaaSStarterEvents
      *
      * @return array<string, array{event: string, label: string, category: string, providers: array<string, string|null>, covered_count: int, total_providers: int, coverage_pct: float, fully_covered: bool}>
      *
-     * @since 264.0.0
+     * @since 266.0.0
      */
     public static function providerCoverage(): array
     {
@@ -409,7 +409,7 @@ final class SaaSStarterEvents
      *
      * @return array{providers: array<string, array{covered: int, total: int, pct: float, uncovered_events: list<string>}>, overall_pct: float, fully_covered_events: int, total_events: int}
      *
-     * @since 264.0.0
+     * @since 266.0.0
      */
     public static function providerCoverageSummary(): array
     {

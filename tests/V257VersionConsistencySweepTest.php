@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class V257VersionConsistencySweepTest extends TestCase
 {
-    private const EXPECTED_VERSION = '264.0.0';
+    private const EXPECTED_VERSION = '266.0.0';
 
     // ── Version Entry Points ───────────────────────────────────
 

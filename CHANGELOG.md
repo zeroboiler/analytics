@@ -1,4 +1,13 @@
 # Changelog
+## [266.0.0] - 2026-08-20
+
+### Added
+- **V266IdentityLinkServiceTest** — 12 dedicated unit tests for IdentityLinkService: link/unlink, per-user limit enforcement (oldest evicted), overwrite, empty ID edge cases, corrupted cache handling, and stats. Previously had zero dedicated tests.
+- **V266EcommerceFormatConverterServiceTest** — 12 tests for the OOP EcommerceFormatConverter service: GA4/Meta bidirectional conversion, item field aliasing (`id` → `item_id`), single-item Meta shorthand, unknown event fallback, non-array item filtering, and `user_data` passthrough.
+- **V266SaaSStarterPipelineIntegrationTest** — 17 integration tests validating all 17 core SaaS starter events end-to-end: typed event class creation, EventCatalog membership, cross-provider name mapping (GA4, Meta, PostHog, Mixpanel, Plausible, Amplitude, TikTok, LinkedIn), EcommerceFormatConverter bidirectional conversion, and data-driven engagement event coverage.
+- **Version synchronization** — All 22+ version entry points (PHP, JS, TypeScript, JSON) updated to 266.0.0.
+- **README badge sync** — Updated to 520+ test files / 996+ source files.
+
 ## [265.0.0] - 2026-08-20
 
 ### Fixed
@@ -11,17 +20,6 @@
 
 ### Added
 - **V265PosthogTrackerBatchFixAndCatalogTypeSafetyTest** — 10 tests validating: PosthogTracker trackBatch structure and property usage, correct $lib identifier, consent gate, EventEntry type completeness, providerCoverage null safety, providerCoverageSummary structure, phpstan.neon format, version consistency, and starter event catalog coverage.
-
-## [264.0.0] - 2026-08-19
-
-### Added
-- **SaaSStarterEvents::providerCoverage()** — Per-event provider mapping coverage for all 20 starter events across 8 providers (GA4, Meta, PostHog, Plausible, Mixpanel, Amplitude, TikTok, LinkedIn). Returns coverage percentage, provider map, and fully_covered flag per event.
-- **SaaSStarterEvents::providerCoverageSummary()** — Aggregated provider coverage summary with per-provider covered/total counts, percentage, uncovered event lists, overall average coverage, and fully-covered event count. Ideal for admin dashboards and instrumentation gap analysis.
-- **V264SaaSStarterProviderCoverageTest** — 10 tests: all 20 events returned, correct structure, GA4 100% coverage, consistency checks, summary structure, all 8 providers, uncovered validation, EventCatalog cross-check, file quality.
-
-### Changed
-- **Version synchronization** — All 22 version entry points now report 264.0.0.
-- **README badge** — Updated test count to 516+ test files / 996+ source files.
 
 ## [260.0.0] - 2026-08-19
 

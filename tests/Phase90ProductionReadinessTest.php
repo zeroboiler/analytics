@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * Phase 90 production readiness test.
  *
  * Validates:
- * 1. Version consistency (264.0.0) across all entry points
+ * 1. Version consistency (266.0.0) across all entry points
  * 2. Zero double-paren constructor syntax errors ()): void → ): void)
  * 3. Constructor `: void` return type compliance (non-readonly classes)
  * 4. strict_types on all source files
@@ -25,11 +25,11 @@ use PHPUnit\Framework\TestCase;
  * 10. Exception hierarchy consistency
  * 11. Source and test file counts
  *
- * @since 264.0.0
+ * @since 266.0.0
  */
 final class Phase90ProductionReadinessTest extends TestCase
 {
-    private const EXPECTED_VERSION = '264.0.0';
+    private const EXPECTED_VERSION = '266.0.0';
 
     /** @var list<string> Files that must contain the version string */
     private const VERSION_ENTRY_POINTS = [
@@ -78,7 +78,7 @@ final class Phase90ProductionReadinessTest extends TestCase
             $this->assertStringContainsString(
                 self::EXPECTED_VERSION,
                 $content,
-                "Version entry point contains 264.0.0: {$relativePath}",
+                "Version entry point contains 266.0.0: {$relativePath}",
             );
         }
     }
@@ -87,9 +87,9 @@ final class Phase90ProductionReadinessTest extends TestCase
     {
         $content = (string) file_get_contents("{$this->baseDir}/src/DTO/AnalyticsEvent.php");
         $this->assertStringContainsString(
-            "public const VERSION = '264.0.0'",
+            "public const VERSION = '266.0.0'",
             $content,
-            'AnalyticsEvent::VERSION is 264.0.0',
+            'AnalyticsEvent::VERSION is 266.0.0',
         );
     }
 
@@ -97,9 +97,9 @@ final class Phase90ProductionReadinessTest extends TestCase
     {
         $content = (string) file_get_contents("{$this->baseDir}/src/Console/Commands/AnalyticsIntegrityCommand.php");
         $this->assertStringContainsString(
-            "EXPECTED_VERSION = '264.0.0'",
+            "EXPECTED_VERSION = '266.0.0'",
             $content,
-            'AnalyticsIntegrityCommand::EXPECTED_VERSION is 264.0.0',
+            'AnalyticsIntegrityCommand::EXPECTED_VERSION is 266.0.0',
         );
     }
 
