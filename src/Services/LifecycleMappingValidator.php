@@ -23,7 +23,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Used by the overview command and diagnostic endpoints.
  *
- * @since 270.0.0
+ * @since 271.0.0
  */
 final class LifecycleMappingValidator
 {
@@ -102,10 +102,12 @@ final class LifecycleMappingValidator
         $this->registerDefaultSources();
 
         if ($overrideDefaults) {
-            $this->validateMappings($customMappings);
-        } else {
-            $this->validateMappings($customMappings);
+            // When overriding defaults, clear the default source registry
+            // so that custom mappings are the only ones validated (no duplicate warnings).
+            $this->sourceRegistry = [];
         }
+
+        $this->validateMappings($customMappings);
     }
 
     /**

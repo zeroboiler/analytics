@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 270.0.0
+ * @version 271.0.0
  */
 
 let trackingId = null;
@@ -181,7 +181,7 @@ export function getUserId() {
  * @returns {string}
  */
 export function getVersion() {
-    return '270.0.0';
+    return '271.0.0';
 }
 
 // ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
@@ -6454,6 +6454,50 @@ export function getFunnelReadinessFromProps() {
 export function getRecommendedEvents() {
     if (!initialized || !config?.recommendedEvents) return [];
     return [...config.recommendedEvents];
+}
+
+/**
+ * Get the lifecycle mapping health summary from Inertia props.
+ *
+ * Returns validation results for the configured lifecycle event mappings.
+ * Useful for admin dashboards and developer tooling to detect mapping issues.
+ *
+ * @returns {object} Lifecycle health summary { valid, errors, warnings, info, total_issues }
+ *
+ * @since 271.0.0
+ *
+ * @example
+ * const health = getLifecycleHealth();
+ * if (!health.valid) {
+ *     console.warn(`Lifecycle mappings have ${health.errors} errors`);
+ * }
+ */
+export function getLifecycleHealth() {
+    if (!initialized || !config?.lifecycleHealth) return { valid: true, errors: 0, warnings: 0, info: 0, total_issues: 0 };
+    return { ...config.lifecycleHealth };
+}
+
+/**
+ * Get the SaaS Starter Events instrumentation payload from Inertia props.
+ *
+ * Returns the full starter event list with priority ordering, gap analysis,
+ * and coverage metrics. Use this to build instrumentation checklists,
+ * admin dashboards, and onboarding guidance UIs.
+ *
+ * @returns {object} Starter events payload { total, coverage, categories, events, gaps, gapCount, priorityOrder }
+ *
+ * @since 271.0.0
+ *
+ * @example
+ * const starter = getStarterEvents();
+ * console.log(`Coverage: ${starter.coverage}%`);
+ * starter.gaps.forEach(gap => console.log(`Missing: ${gap}`));
+ */
+export function getStarterEvents() {
+    if (!initialized || !config?.starterEvents) {
+        return { total: 0, coverage: 0, categories: { saas: 0, ecommerce: 0, engagement: 0 }, events: [], gaps: [], gapCount: 0, priorityOrder: [] };
+    }
+    return { ...config.starterEvents, events: [...config.starterEvents.events], gaps: [...config.starterEvents.gaps], priorityOrder: [...config.starterEvents.priorityOrder] };
 }
 
 /**

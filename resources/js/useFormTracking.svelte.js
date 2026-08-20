@@ -6,7 +6,7 @@
  * and provides reactive stores for form engagement metrics.
  *
  * @package ZeroBoiler Analytics
- * @version 270.0.0
+ * @version 271.0.0
  */
 
 import { writable, derived } from 'svelte/store';

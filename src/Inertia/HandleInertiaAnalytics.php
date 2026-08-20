@@ -354,6 +354,18 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             ];
         }
 
+        // Lifecycle mapping health for admin dashboards (v271.0.0)
+        // Lightweight — only computed when analytics debug mode is on or user is admin
+        $analyticsProps['lifecycleHealth'] = $this->getLifecycleHealth();
+
+        // SaaS starter events instrumentation payload (v271.0.0)
+        // Full event list with priority ordering and gap analysis for client-side guidance
+        try {
+            $analyticsProps['starterEvents'] = \ZeroBoiler\Analytics\Events\SaaSStarterEvents::instrumentationPayload();
+        } catch (\Throwable) {
+            $analyticsProps['starterEvents'] = ['total' => 0, 'coverage' => 0.0, 'categories' => ['saas' => 0, 'ecommerce' => 0, 'engagement' => 0], 'events' => [], 'gaps' => [], 'gapCount' => 0, 'priorityOrder' => []];
+        }
+
         return $response->with('zbAnalytics', $analyticsProps);
     }
 
@@ -455,6 +467,41 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             || $this->manager->mixpanel()->isEnabled()
             || $this->manager->tiktok()->isEnabled()
             || $this->manager->linkedin()->isEnabled();
+    }
+
+    /**
+     * Get lifecycle mapping health summary for the Inertia props.
+     *
+     * Runs the LifecycleMappingValidator and returns a compact summary.
+     * This is lightweight (no I/O, just config reads and reflection).
+     * Only computed once per request — safe for every page load.
+     *
+     * @return array{valid: bool, errors: int, warnings: int, info: int, total_issues: int}
+     *
+     * @since 271.0.0
+     */
+    private function getLifecycleHealth(): array
+    {
+        try {
+            $validator = new \ZeroBoiler\Analytics\Services\LifecycleMappingValidator($this->config);
+            $summary = $validator->summary();
+
+            return [
+                'valid' => $summary['valid'],
+                'errors' => $summary['errors'],
+                'warnings' => $summary['warnings'],
+                'info' => $summary['info'],
+                'total_issues' => $summary['total_issues'],
+            ];
+        } catch (\Throwable) {
+            return [
+                'valid' => true,
+                'errors' => 0,
+                'warnings' => 0,
+                'info' => 0,
+                'total_issues' => 0,
+            ];
+        }
     }
 
     /**

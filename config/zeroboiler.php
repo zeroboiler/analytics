@@ -117,7 +117,7 @@ return [
 
             /*
             |--------------------------------------------------------------------------
-            | Event Queue Backpressure (v270.0.0)
+            | Event Queue Backpressure (v271.0.0)
             |--------------------------------------------------------------------------
             |
             | Rate limiting and circuit-breaker protection for the analytics event

@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  * - Dead-letter queue routing: failed events are logged for replay
  * - In-memory sliding window counters with cache backing
  *
- * @since 270.0.0
+ * @since 271.0.0
  */
 final class EventBackpressureService
 {

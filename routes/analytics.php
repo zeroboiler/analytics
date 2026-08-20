@@ -1321,7 +1321,7 @@ Route::prefix('analytics')->group(function () {
     Route::get('decision-replay/debug/event/{event}', [AnalyticsEventController::class, 'decisionReplayDebugEvent']);
     Route::get('decision-replay/debug/provider/{provider}', [AnalyticsEventController::class, 'decisionReplayDebugProvider']);
 
-    // Queue Backpressure Diagnostics (v270.0.0)
+    // Queue Backpressure Diagnostics (v271.0.0)
     Route::get('backpressure', [AnalyticsEventController::class, 'backpressureSummary']);
     Route::post('backpressure/reset', [AnalyticsEventController::class, 'backpressureResetCircuit']);
     Route::get('lifecycle/validation', [AnalyticsEventController::class, 'lifecycleValidation']);

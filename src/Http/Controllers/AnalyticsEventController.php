@@ -23097,7 +23097,7 @@ final class AnalyticsEventController extends Controller
      *
      * Returns circuit breaker state, rate limit config, and rejection stats.
      *
-     * @since 270.0.0
+     * @since 271.0.0
      */
     public function backpressureSummary(): \Illuminate\Http\JsonResponse
     {
@@ -23116,7 +23116,7 @@ final class AnalyticsEventController extends Controller
     /**
      * Reset the backpressure circuit breaker.
      *
-     * @since 270.0.0
+     * @since 271.0.0
      */
     public function backpressureResetCircuit(): \Illuminate\Http\JsonResponse
     {
@@ -23138,7 +23138,7 @@ final class AnalyticsEventController extends Controller
      *
      * Returns errors, warnings, and info about custom lifecycle mappings.
      *
-     * @since 270.0.0
+     * @since 271.0.0
      */
     public function lifecycleValidation(): \Illuminate\Http\JsonResponse
     {

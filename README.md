@@ -2,7 +2,7 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-268.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-271.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
 ![Tests](https://img.shields.io/badge/520%2B test files / 996%2B source files-brightgreen)
 
@@ -57,6 +57,19 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v271.0.0
+
+**Inertia Lifecycle Health & Starter Events Props:**
+
+- **Lifecycle mapping health in Inertia props** -- The zbAnalytics.lifecycleHealth prop now exposes the LifecycleMappingValidator summary (valid, errors, warnings, info) to every Inertia page.
+- **SaaS Starter Events instrumentation payload in Inertia props** -- The zbAnalytics.starterEvents prop now surfaces the full SaaSStarterEvents::instrumentationPayload() output with priority ordering, gap analysis, and coverage percentage.
+- **getLifecycleHealth() and getStarterEvents() JS accessors** -- New exported functions in analytics.js.
+- **useStarterEvents Svelte composable** -- New reactive composable with derived stores for sortedEvents, gapEvents, coverage, isFullyCovered, and isLifecycleValid.
+- **TypeScript definitions** -- Added LifecycleHealth, StarterEventEntry, StarterEventsPayload interfaces to analytics.d.ts.
+- **LifecycleMappingValidator override_defaults fix** -- Fixed no-op branch where override_defaults=true now correctly clears the default source registry.
+- **Version synchronization** -- All 25+ version entry points updated to 271.0.0.
+- Version bump to 271.0.0.
 
 ### What's New in v266.0.0
 

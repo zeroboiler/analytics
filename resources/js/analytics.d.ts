@@ -5,7 +5,7 @@
  * Provides full IntelliSense support for Svelte, Vue, React, and vanilla TS projects.
  *
  * @package ZeroBoiler Analytics
- * @version 266.0.0
+ * @version 271.0.0
  */
 
 // ─── Inertia Page Props ───────────────────────────────────────────────
@@ -60,6 +60,8 @@ export interface ZbAnalyticsProps {
   crossDomain: CrossDomainConfig;
   sessionRecording: SessionRecordingConfig;
   observability: ObservabilityConfig;
+  lifecycleHealth: LifecycleHealth;
+  starterEvents: StarterEventsPayload;
 }
 
 export interface ConsentState {
@@ -1751,6 +1753,52 @@ export function enableOfflineRecovery(): void;
 export interface ObservabilityConfig {
   enabled: boolean;
   slowDispatchMs: number;
+}
+
+// ─── Lifecycle Health (v271.0.0) ──────────────────────────────────────
+
+/**
+ * Lifecycle mapping validation health summary.
+ * Injected into Inertia props as `zbAnalytics.lifecycleHealth`.
+ */
+export interface LifecycleHealth {
+  valid: boolean;
+  errors: number;
+  warnings: number;
+  info: number;
+  total_issues: number;
+}
+
+// ─── SaaS Starter Events (v271.0.0) ───────────────────────────────────
+
+/**
+ * A single starter event entry with priority and gap metadata.
+ */
+export interface StarterEventEntry {
+  name: string;
+  label: string;
+  category: string;
+  hint: string;
+  priority_index: number;
+  is_gap: boolean;
+}
+
+/**
+ * SaaS Starter Events instrumentation payload.
+ * Injected into Inertia props as `zbAnalytics.starterEvents`.
+ */
+export interface StarterEventsPayload {
+  total: number;
+  coverage: number;
+  categories: {
+    saas: number;
+    ecommerce: number;
+    engagement: number;
+  };
+  events: StarterEventEntry[];
+  gaps: string[];
+  gapCount: number;
+  priorityOrder: string[];
 }
 
 // ─── Product-Market Fit Scoring (v61.0.0) ────────────────────────────────
