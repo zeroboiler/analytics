@@ -6,7 +6,7 @@
  * result counts, and search context. Supports debouncing and result correlation.
  *
  * @package ZeroBoiler Analytics
- * @version 271.0.0
+ * @version 272.0.0
  */
 
 import { writable, derived } from 'svelte/store';

@@ -5,7 +5,7 @@
  * from Inertia page props. Provides derived stores for gaps, coverage,
  * category counts, and priority-sorted event lists.
  *
- * @since 271.0.0
+ * @since 272.0.0
  * @package ZeroBoiler Analytics
  */
 

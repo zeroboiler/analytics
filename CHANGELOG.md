@@ -1,4 +1,19 @@
 # Changelog
+## [272.0.0] - 2026-08-20
+
+### Added
+- **useEngagement.svelte.js** — Unified Svelte composable that bundles all 6 engagement sub-composables (click, form, search, share, error, scroll depth) into a single entry point with one-call `initEngagement(zbProps)` initialization.
+- **Derived stores** — `totalInteractions` (aggregate count), `engagementScore` (0–100 heuristic scoring), `engagementBreakdown` (per-category counts), `lastEngagementEvent` (most recent across all categories).
+- **`getEngagementSnapshot()`** — Point-in-time snapshot of all engagement state for analytics event tracking or debugging.
+- **`resetEngagement()`** — Reset all sub-composable state (useful on SPA page changes).
+- **TypeScript definitions** — `EngagementConfig`, `EngagementBreakdown`, `EngagementSnapshot`, `EngagementEventSnapshot` interfaces plus `declare module 'useEngagement'` added to `analytics.d.ts`.
+- **V272UnifiedEngagementComposableTest** — 40+ tests: file existence, sub-composable imports, all 9 required exports, initEngagement logic, derived stores, getEngagementSnapshot, TypeScript definitions, version consistency, PHP 8.5 quality, and package metrics.
+
+### Changed
+- **Svelte composable count: 16** — Previously 15 individual composables; now 15 + 1 unified engagement entry point.
+- **Version synchronization** — All 25+ version entry points updated to 272.0.0.
+- **README badge** — Updated to 521+ test files / 996+ source files.
+
 ## [266.0.0] - 2026-08-20
 
 ### Added

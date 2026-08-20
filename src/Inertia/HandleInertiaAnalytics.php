@@ -354,11 +354,11 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             ];
         }
 
-        // Lifecycle mapping health for admin dashboards (v271.0.0)
+        // Lifecycle mapping health for admin dashboards (v272.0.0)
         // Lightweight — only computed when analytics debug mode is on or user is admin
         $analyticsProps['lifecycleHealth'] = $this->getLifecycleHealth();
 
-        // SaaS starter events instrumentation payload (v271.0.0)
+        // SaaS starter events instrumentation payload (v272.0.0)
         // Full event list with priority ordering and gap analysis for client-side guidance
         try {
             $analyticsProps['starterEvents'] = \ZeroBoiler\Analytics\Events\SaaSStarterEvents::instrumentationPayload();
@@ -478,7 +478,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
      *
      * @return array{valid: bool, errors: int, warnings: int, info: int, total_issues: int}
      *
-     * @since 271.0.0
+     * @since 272.0.0
      */
     private function getLifecycleHealth(): array
     {

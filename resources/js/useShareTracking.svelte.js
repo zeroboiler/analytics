@@ -6,7 +6,7 @@
  * Fires `share` analytics events with share method, content type, and metadata.
  *
  * @package ZeroBoiler Analytics
- * @version 271.0.0
+ * @version 272.0.0
  */
 
 import { writable } from 'svelte/store';

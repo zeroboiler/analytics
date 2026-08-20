@@ -2,11 +2,11 @@
 
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel 13+](https://img.shields.io/badge/Laravel-13%2B-red.svg)
-![Latest Version](https://img.shields.io/badge/version-271.0.0-blue)
+![Latest Version](https://img.shields.io/badge/version-272.0.0-blue)
 ![PHP 8.5+](https://img.shields.io/badge/PHP-8.5%2B-8892BF.svg)
-![Tests](https://img.shields.io/badge/520%2B test files / 996%2B source files-brightgreen)
+![Tests](https://img.shields.io/badge/521%2B test files / 996%2B source files-brightgreen)
 
-Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **202 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **457 services**, **119 artisan commands**, a fully-featured **JS client (~8,500 LOC)**, **15 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **SaaS revenue funnel analytics**, **feature adoption tracking with stickiness curves**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, **Monte Carlo funnel simulation**, **user lifecycle stage detection**, **DAG-based pipeline orchestration**, **Sentry error analytics integration**, **cross-provider schema validation**, **config drift detection**, **behavioral user segmentation**, **feature flag rollout guardrails**, **SaaS event helpers**, **campaign context hydration**, **CDP (Customer Data Platform) with user profiles, computed traits, and dynamic segments**, **synthetic event data factory**, **event schema evolution tracking**, **privacy data clean room**, **event flow analyzer with bottleneck detection**, **real-time observability dashboard command**, **analytics pipeline health score**, **provider capability matrix**, **event payload marshaller**, **analytics ROI calculator**, **natural language analytics query engine**, **geospatial analytics with heatmap data and GeoJSON export**, **event catalog semantic versioning (SemVer)**, **composite customer health scoring with 5 signal dimensions**, **SaaS quick deploy readiness check command**, **event catalog diff service with rename detection**, **CI/CD quality gate command**, **batch event dispatch across all 10 trackers**, **event blueprint builder with type coercion and PII redaction**, and e-commerce format conversion across all providers.
+Industry-standard SaaS analytics for Laravel — production-ready event tracking across **10 providers** (GA4, GTM, Meta Pixel, Plausible, PostHog, Mixpanel, Amplitude, TikTok, LinkedIn, and generic HTTP) with **202 typed events**, **9 categories** (Ecommerce, SaaS, Engagement, Security, Uptime, Infrastructure, Marketing, CustomerSuccess, and Webhook), **457 services**, **119 artisan commands**, a fully-featured **JS client (~8,500 LOC)**, **16 Svelte composables**, comprehensive **TypeScript type definitions (~3,100 LOC)**, **Inertia.js middleware**, **Blade directives**, server-side lifecycle tracking, queue dispatch, identity resolution, cross-device identity merge, event budget enforcement, cohort analytics, event replay, GDPR consent, data residency routing, event consistency validation, feature gating analytics, customer success analytics, pipeline performance profiling, event delivery reliability scoring, SDK token gateway with audit logging, **event behavioral fingerprinting**, **intent detection**, **predictive churn scoring**, **server-side tag management with health monitoring & auto-failover**, **automated GDPR/CCPA/SOC2 compliance scoring**, **event value attribution**, **SaaS momentum analytics**, **SaaS revenue funnel analytics**, **feature adoption tracking with stickiness curves**, **goal tracker with alerting**, **rolling window trend analysis**, **automated quick insights**, **Monte Carlo funnel simulation**, **user lifecycle stage detection**, **DAG-based pipeline orchestration**, **Sentry error analytics integration**, **cross-provider schema validation**, **config drift detection**, **behavioral user segmentation**, **feature flag rollout guardrails**, **SaaS event helpers**, **campaign context hydration**, **CDP (Customer Data Platform) with user profiles, computed traits, and dynamic segments**, **synthetic event data factory**, **event schema evolution tracking**, **privacy data clean room**, **event flow analyzer with bottleneck detection**, **real-time observability dashboard command**, **analytics pipeline health score**, **provider capability matrix**, **event payload marshaller**, **analytics ROI calculator**, **natural language analytics query engine**, **geospatial analytics with heatmap data and GeoJSON export**, **event catalog semantic versioning (SemVer)**, **composite customer health scoring with 5 signal dimensions**, **SaaS quick deploy readiness check command**, **event catalog diff service with rename detection**, **CI/CD quality gate command**, **batch event dispatch across all 10 trackers**, **event blueprint builder with type coercion and PII redaction**, and e-commerce format conversion across all providers.
 
 ## Table of Contents
 
@@ -57,6 +57,22 @@ await trackEvent('tutorial_completed', { duration_seconds: 300 });
 ```
 
 Done. That's it.
+
+### What's New in v272.0.0
+
+**Unified Engagement Composable (useEngagement.svelte.js):**
+
+- **`useEngagement.svelte.js`** — Single entry point that bundles all 6 engagement sub-composables (click, form, search, share, error, scroll depth) with unified reactive stores.
+- **`initEngagement(zbProps)`** — One-call initialization that reads `zbAnalytics.autoTrack` from Inertia props and activates sub-composables accordingly.
+- **`totalInteractions`** — Derived store aggregating clicks, forms, searches, shares, and errors.
+- **`engagementScore`** — 0–100 heuristic scoring (click breadth, form engagement, search activity, sharing, scroll depth) for user engagement dashboards.
+- **`engagementBreakdown`** — Per-category reactive breakdown: `{ clicks, forms, searches, shares, errors }`.
+- **`lastEngagementEvent`** — Most recent engagement event across all categories, sorted by timestamp.
+- **`getEngagementSnapshot()`** — Point-in-time snapshot of all engagement state for event tracking or debugging.
+- **`resetEngagement()`** — Reset all sub-composables (useful on SPA page changes).
+- **TypeScript definitions** — `EngagementConfig`, `EngagementBreakdown`, `EngagementSnapshot`, `EngagementEventSnapshot` interfaces + `declare module 'useEngagement'` added to analytics.d.ts.
+- **Composable count: 16** — Previously 15 individual composables; now 15 + 1 unified entry point.
+- Version bump to 272.0.0.
 
 ### What's New in v271.0.0
 

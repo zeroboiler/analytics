@@ -3165,3 +3165,77 @@ export function inspectSdkTranslation(
   eventName: string,
   params?: Record<string, unknown>,
 ): SdkBridgeInspection;
+
+// ────────────────────────────────────────────────────────────────────
+// useEngagement Unified Composable (v272.0.0)
+// ────────────────────────────────────────────────────────────────────
+
+/** Engagement tracking configuration flags. */
+export interface EngagementConfig {
+  clickTracking: boolean;
+  formTracking: boolean;
+  searchTracking: boolean;
+  shareTracking: boolean;
+  errorTracking: boolean;
+  scrollDepth: boolean;
+  scrollDepthThresholds: number[];
+}
+
+/** Per-category engagement breakdown counts. */
+export interface EngagementBreakdown {
+  clicks: number;
+  forms: number;
+  searches: number;
+  shares: number;
+  errors: number;
+}
+
+/** A timestamped engagement event from any sub-composable. */
+export interface EngagementEventSnapshot {
+  timestamp?: string | number;
+  [key: string]: unknown;
+}
+
+/** Point-in-time snapshot of all engagement tracking state. */
+export interface EngagementSnapshot {
+  clicks: number;
+  forms: number;
+  searches: number;
+  shares: number;
+  errors: number;
+  scroll_depth: number;
+  max_scroll_depth: number;
+  total_interactions: number;
+  last_click: EngagementEventSnapshot | null;
+  last_form: EngagementEventSnapshot | null;
+  last_search: EngagementEventSnapshot | null;
+  last_share: EngagementEventSnapshot | null;
+  last_error: EngagementEventSnapshot | null;
+}
+
+/** Module type for useEngagement.svelte.js */
+export declare module 'useEngagement' {
+  import { Writable, Readable } from 'svelte/store';
+
+  export const isInitialized: Writable<boolean>;
+  export const config: Writable<EngagementConfig>;
+  export const totalInteractions: Readable<number>;
+  export const lastEngagementEvent: Readable<EngagementEventSnapshot | null>;
+  export const engagementScore: Readable<number>;
+  export const engagementBreakdown: Readable<EngagementBreakdown>;
+
+  /**
+   * Initialize all engagement tracking from Inertia page props.
+   */
+  export function initEngagement(zbProps: Record<string, unknown>): void;
+
+  /**
+   * Reset all engagement tracking state.
+   */
+  export function resetEngagement(): void;
+
+  /**
+   * Get a point-in-time snapshot of current engagement state.
+   */
+  export function getEngagementSnapshot(): EngagementSnapshot;
+}

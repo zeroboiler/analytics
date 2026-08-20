@@ -23,7 +23,7 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  *
  * Used by the overview command and diagnostic endpoints.
  *
- * @since 271.0.0
+ * @since 272.0.0
  */
 final class LifecycleMappingValidator
 {
