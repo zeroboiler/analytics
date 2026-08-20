@@ -6,7 +6,7 @@
  * a unified API for tracking events across GA4, GTM, Meta Pixel, Plausible, and PostHog.
  *
  * @package ZeroBoiler Analytics
- * @version 268.0.0
+ * @version 269.0.0
  */
 
 let trackingId = null;
@@ -181,7 +181,7 @@ export function getUserId() {
  * @returns {string}
  */
 export function getVersion() {
-    return '268.0.0';
+    return '269.0.0';
 }
 
 // ─── Event Debug Logger (v102.0.0) ─────────────────────────────────
@@ -3668,6 +3668,169 @@ export async function trackShare(method, contentType, contentId = null, params =
 
     // Server-side dispatch
     await trackEvent('share', shareParams, { immediate: true });
+}
+
+// ─── Click Tracking Shortcut ──────────────────────────────────────
+
+/**
+ * Track a click event.
+ *
+ * Convenience shortcut for the `click` SaaS starter event.
+ * Fires to GA4, Meta, PostHog, and server-side in one call.
+ *
+ * @param {string} label - Click target label (element text, CTA name, etc.)
+ * @param {object} [params] - Additional parameters
+ * @param {string} [params.element_tag] - HTML tag name (e.g. 'button', 'a')
+ * @param {string} [params.element_role] - Role (e.g. 'cta', 'nav', 'external_link')
+ * @param {string} [params.href] - Link URL (if applicable)
+ * @param {object} [options] - Track options (passed to trackEvent)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackClick('Sign Up CTA', { element_tag: 'button', element_role: 'cta' });
+ */
+export async function trackClick(label, params = {}, options = {}) {
+    if (!initialized) return;
+
+    const clickParams = {
+        label,
+        ...params,
+    };
+
+    // Push to GA4 via gtag (client-side)
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'click', clickParams);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('click', clickParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('click', clickParams, options);
+}
+
+// ─── Form Tracking Shortcuts ─────────────────────────────────────
+
+/**
+ * Track a form_start event.
+ *
+ * Fires when a user first interacts with a form.
+ *
+ * @param {string} formName - Form identifier (data-zb-form, id, or action)
+ * @param {object} [params] - Additional parameters
+ * @param {string} [params.form_id] - Form element ID
+ * @param {string} [params.form_method] - HTTP method (GET/POST)
+ * @param {object} [options] - Track options (passed to trackEvent)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackFormStart('contact-form', { form_method: 'POST' });
+ */
+export async function trackFormStart(formName, params = {}, options = {}) {
+    if (!initialized) return;
+
+    const formParams = {
+        form_name: formName,
+        ...params,
+    };
+
+    // Push to GA4
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'form_start', formParams);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('form_start', formParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('form_start', formParams, options);
+}
+
+/**
+ * Track a form_submit event.
+ *
+ * Fires when a form is submitted.
+ *
+ * @param {string} formName - Form identifier
+ * @param {object} [params] - Additional parameters
+ * @param {string} [params.form_id] - Form element ID
+ * @param {string} [params.form_method] - HTTP method (GET/POST)
+ * @param {boolean} [params.success] - Whether submission succeeded
+ * @param {object} [options] - Track options (passed to trackEvent)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * await trackFormSubmit('contact-form', { success: true, form_method: 'POST' });
+ */
+export async function trackFormSubmit(formName, params = {}, options = {}) {
+    if (!initialized) return;
+
+    const formParams = {
+        form_name: formName,
+        ...params,
+    };
+
+    // Push to GA4
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'generate_lead', formParams);
+    }
+
+    // Push to Meta Pixel
+    if (config?.metaPixelId && window.fbq) {
+        window.fbq('track', 'Lead', formParams);
+    }
+
+    // Push to PostHog
+    if (config?.posthogHost && window.posthog) {
+        window.posthog.capture('form_submit', formParams);
+    }
+
+    // Server-side dispatch
+    await trackEvent('form_submit', formParams, options);
+}
+
+// ─── Error Tracking Shortcut ─────────────────────────────────────
+
+/**
+ * Track a JS error event.
+ *
+ * Convenience shortcut for manually tracking caught or uncaught errors.
+ * Use for explicit error reporting from try/catch blocks.
+ *
+ * @param {Error|string} error - The error object or message
+ * @param {object} [params] - Additional parameters
+ * @param {string} [params.error_source] - Error source/context
+ * @param {object} [options] - Track options (passed to trackEvent)
+ * @returns {Promise<void>}
+ *
+ * @example
+ * try { riskyOperation(); } catch (e) { await trackError(e, { error_source: 'risky_operation' }); }
+ */
+export async function trackError(error, params = {}, options = {}) {
+    if (!initialized) return;
+
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    const errorParams = {
+        error_message: errorObj.message || String(error),
+        error_type: errorObj.name || 'Error',
+        error_stack: errorObj.stack || null,
+        ...params,
+    };
+
+    // Push to GA4
+    if (config?.ga4MeasurementId && window.gtag) {
+        window.gtag('event', 'exception', {
+            description: errorParams.error_message,
+            fatal: false,
+        });
+    }
+
+    // Server-side dispatch
+    await trackEvent('error', errorParams, { immediate: true, ...options });
 }
 
 // ─── File Download Tracking ─────────────────────────────────────────
