@@ -37,9 +37,13 @@ final class AnalyticsEncryptionCommand extends Command
 
     private EventPayloadEncryptionService $encryptionService;
 
-    public function __construct(EventPayloadEncryptionService $encryptionService){
-        parent::__construct();
-        $this->encryptionService = $encryptionService;
+    /**
+     * Resolved lazily: the encrypter requires APP_KEY, which is absent until
+     * key:generate runs — eager ctor injection would break every artisan boot.
+     */
+    private function service(): EventPayloadEncryptionService
+    {
+        return $this->encryptionService ??= app(EventPayloadEncryptionService::class);
     }
 
     /**
@@ -65,7 +69,7 @@ final class AnalyticsEncryptionCommand extends Command
      */
     private function showStatus(): int
     {
-        $report = $this->encryptionService->healthReport();
+        $report = $this->service()->healthReport();
 
         $this->info('┌─────────────────────────────────────────────────────┐');
         $this->info('│  ZeroBoiler Analytics — Payload Encryption Status     │');
@@ -132,7 +136,7 @@ final class AnalyticsEncryptionCommand extends Command
             $this->buildEncryptionRows($params, $eventName),
         );
 
-        $encrypted = $this->encryptionService->encryptParams($params, $eventName);
+        $encrypted = $this->service()->encryptParams($params, $eventName);
 
         $this->newLine();
         $this->info('Encrypted payload:');
@@ -151,7 +155,7 @@ final class AnalyticsEncryptionCommand extends Command
         $fieldName = $this->option('field');
 
         if ($fieldName !== null) {
-            $decrypted = $this->encryptionService->decryptField($params, $fieldName);
+            $decrypted = $this->service()->decryptField($params, $fieldName);
 
             $this->info("Decrypted field '{$fieldName}':");
             $this->line(is_string($decrypted) || is_array($decrypted)
@@ -161,7 +165,7 @@ final class AnalyticsEncryptionCommand extends Command
             return self::SUCCESS;
         }
 
-        $decrypted = $this->encryptionService->decryptParams($params);
+        $decrypted = $this->service()->decryptParams($params);
 
         $this->info('Decrypted payload:');
         $this->line(json_encode($decrypted, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -182,7 +186,7 @@ final class AnalyticsEncryptionCommand extends Command
             return self::FAILURE;
         }
 
-        $fields = $this->encryptionService->getFieldsForEvent($eventName);
+        $fields = $this->service()->getFieldsForEvent($eventName);
 
         $this->info("Fields encrypted for event: <comment>{$eventName}</comment>");
         $this->newLine();
@@ -212,9 +216,9 @@ final class AnalyticsEncryptionCommand extends Command
         $this->info('Rotating encryption on payload...');
         $this->newLine();
 
-        $rotated = $this->encryptionService->rotateEncryption($params);
+        $rotated = $this->service()->rotateEncryption($params);
 
-        $encryptedCount = $this->encryptionService->countEncryptedFields($rotated);
+        $encryptedCount = $this->service()->countEncryptedFields($rotated);
 
         $this->table(
             ['Metric', 'Value'],
@@ -268,7 +272,7 @@ final class AnalyticsEncryptionCommand extends Command
 
         foreach ($params as $key => $value) {
             $original = is_string($value) ? $value : json_encode($value);
-            $shouldEncrypt = $this->encryptionService->shouldEncryptFieldForEvent($key, $eventName);
+            $shouldEncrypt = $this->service()->shouldEncryptFieldForEvent($key, $eventName);
 
             $rows[] = [
                 $key,
