@@ -15,7 +15,7 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  *
  * @since 1.0.0
  */
-final class TrialConvertedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
+final readonly class TrialConvertedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {
     /**
      * @param  string  $plan  The plan the user converted to (e.g. 'pro', 'enterprise')

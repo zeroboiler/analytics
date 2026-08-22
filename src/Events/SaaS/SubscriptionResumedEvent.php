@@ -14,7 +14,7 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  *
  * @since 1.0.0
  */
-final class SubscriptionResumedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
+final readonly class SubscriptionResumedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {
     /**
      * @param  string  $plan  The plan being resumed

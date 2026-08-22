@@ -16,7 +16,7 @@ namespace ZeroBoiler\Analytics\Events\SaaS;
  *
  * @since 1.0.0
  */
-final class MilestoneReachedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
+final readonly class MilestoneReachedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEvent
 {
     /**
      * @param  string  $milestone  Milestone identifier (e.g. 'first_project', 'login_100', 'year_anniversary')
