@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 174.0.0
  */
-final class PaybackPeriodEvent extends AnalyticsEvent
+final readonly class PaybackPeriodEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $paybackMonths  Payback period in months (e.g. 8.5)

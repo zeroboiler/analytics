@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class DeploymentRolledBackEvent extends AnalyticsEvent
+final readonly class DeploymentRolledBackEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $version  Version being rolled back from

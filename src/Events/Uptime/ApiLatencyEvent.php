@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class ApiLatencyEvent extends AnalyticsEvent
+final readonly class ApiLatencyEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $endpoint  API endpoint or route that exceeded the threshold

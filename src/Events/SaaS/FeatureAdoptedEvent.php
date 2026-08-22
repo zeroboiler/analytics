@@ -20,7 +20,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class FeatureAdoptedEvent extends AnalyticsEvent
+final readonly class FeatureAdoptedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $featureName  The feature identifier (e.g. 'export', 'api_access', 'team_collaboration')

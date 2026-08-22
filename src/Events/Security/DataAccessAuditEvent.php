@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 90.0.0
  */
-final class DataAccessAuditEvent extends AnalyticsEvent
+final readonly class DataAccessAuditEvent extends AnalyticsEvent
 {
     /**
      * @param  string|null  $dataType  Type of data accessed (e.g., 'user_profile', 'analytics_events', 'payment_info')

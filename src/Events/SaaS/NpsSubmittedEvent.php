@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class NpsSubmittedEvent extends AnalyticsEvent
+final readonly class NpsSubmittedEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: score (int), category (string)

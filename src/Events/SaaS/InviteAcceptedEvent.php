@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 131.0.0
  */
-final class InviteAcceptedEvent extends AnalyticsEvent
+final readonly class InviteAcceptedEvent extends AnalyticsEvent
 {
     public function __construct(
         array $params = [],

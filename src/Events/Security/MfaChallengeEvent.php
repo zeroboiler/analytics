@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class MfaChallengeEvent extends AnalyticsEvent
+final readonly class MfaChallengeEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $method  MFA method (totp, sms, email, hardware_key, backup_codes)

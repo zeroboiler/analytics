@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class ChurnInterviewEvent extends AnalyticsEvent
+final readonly class ChurnInterviewEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: reason (string), feedback (string), competitor (string|null)

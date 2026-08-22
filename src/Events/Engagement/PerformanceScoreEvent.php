@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 24.0.0
  */
-final class PerformanceScoreEvent extends AnalyticsEvent
+final readonly class PerformanceScoreEvent extends AnalyticsEvent
 {
     /**
      * Create a new performance score event.

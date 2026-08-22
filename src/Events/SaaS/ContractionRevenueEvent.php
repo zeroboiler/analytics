@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 174.0.0
  */
-final class ContractionRevenueEvent extends AnalyticsEvent
+final readonly class ContractionRevenueEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $amount  The contraction revenue amount (negative value)

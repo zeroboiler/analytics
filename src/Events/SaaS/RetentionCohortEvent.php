@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 93.0.0
  */
-final class RetentionCohortEvent extends AnalyticsEvent
+final readonly class RetentionCohortEvent extends AnalyticsEvent
 {
     /**
      * Create a new retention cohort event.

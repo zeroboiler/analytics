@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class RenewalReminderSentEvent extends AnalyticsEvent
+final readonly class RenewalReminderSentEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: channel (string), days_until_renewal (int)

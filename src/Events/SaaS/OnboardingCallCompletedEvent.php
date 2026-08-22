@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class OnboardingCallCompletedEvent extends AnalyticsEvent
+final readonly class OnboardingCallCompletedEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: duration_minutes (int), outcome (string), cs_rep (string|null)

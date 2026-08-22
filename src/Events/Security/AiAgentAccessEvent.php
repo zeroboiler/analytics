@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 90.0.0
  */
-final class AiAgentAccessEvent extends AnalyticsEvent
+final readonly class AiAgentAccessEvent extends AnalyticsEvent
 {
     /**
      * @param  string|null  $agent  Name of the AI agent (e.g., 'claude', 'gpt', 'copilot')

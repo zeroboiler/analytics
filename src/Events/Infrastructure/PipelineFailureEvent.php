@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class PipelineFailureEvent extends AnalyticsEvent
+final readonly class PipelineFailureEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $stage  Pipeline stage that failed (ingestion, enrichment, dispatch, store)

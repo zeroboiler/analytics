@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class ErrorBudgetBurnedEvent extends AnalyticsEvent
+final readonly class ErrorBudgetBurnedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $sloName  SLO identifier

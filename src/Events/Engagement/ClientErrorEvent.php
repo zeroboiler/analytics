@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 93.0.0
  */
-final class ClientErrorEvent extends AnalyticsEvent
+final readonly class ClientErrorEvent extends AnalyticsEvent
 {
     /**
      * Create a new client error event.

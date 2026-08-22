@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class NotificationEvent extends AnalyticsEvent
+final readonly class NotificationEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $channel  Notification channel (email, push, in_app, sms)

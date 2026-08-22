@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class RateLimitExceededEvent extends AnalyticsEvent
+final readonly class RateLimitExceededEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $endpoint  The endpoint or resource that was rate-limited

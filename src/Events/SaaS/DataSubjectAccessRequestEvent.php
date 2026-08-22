@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class DataSubjectAccessRequestEvent extends AnalyticsEvent
+final readonly class DataSubjectAccessRequestEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $clientId  Client tracking ID

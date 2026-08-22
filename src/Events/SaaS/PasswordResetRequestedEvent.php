@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 131.0.0
  */
-final class PasswordResetRequestedEvent extends AnalyticsEvent
+final readonly class PasswordResetRequestedEvent extends AnalyticsEvent
 {
     public function __construct(
         array $params = [],

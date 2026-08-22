@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class DeploymentEvent extends AnalyticsEvent
+final readonly class DeploymentEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $environment  Deployment environment (production, staging, etc.)

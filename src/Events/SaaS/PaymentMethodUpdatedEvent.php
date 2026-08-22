@@ -26,7 +26,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class PaymentMethodUpdatedEvent extends AnalyticsEvent
+final readonly class PaymentMethodUpdatedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $paymentMethod  New payment method type (credit_card, bank_transfer, paypal, etc.)

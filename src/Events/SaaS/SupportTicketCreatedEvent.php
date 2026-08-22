@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class SupportTicketCreatedEvent extends AnalyticsEvent
+final readonly class SupportTicketCreatedEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters

@@ -28,7 +28,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class SlaBreachEvent extends AnalyticsEvent
+final readonly class SlaBreachEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $slaType  Type of SLA breached (uptime, response_time, resolution_time)

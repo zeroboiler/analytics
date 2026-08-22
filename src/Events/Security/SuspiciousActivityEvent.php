@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class SuspiciousActivityEvent extends AnalyticsEvent
+final readonly class SuspiciousActivityEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $type  Activity type (brute_force, unusual_location, permission_escalation, data_exfiltration, etc.)

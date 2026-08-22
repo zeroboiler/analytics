@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class MaintenanceStartedEvent extends AnalyticsEvent
+final readonly class MaintenanceStartedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $maintenanceId  Maintenance window identifier

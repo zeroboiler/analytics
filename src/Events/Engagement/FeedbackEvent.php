@@ -28,7 +28,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class FeedbackEvent extends AnalyticsEvent
+final readonly class FeedbackEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $feedbackType  Type of feedback (nps, csat, ces, feature_request, bug_report)

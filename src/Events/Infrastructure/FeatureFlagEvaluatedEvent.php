@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class FeatureFlagEvaluatedEvent extends AnalyticsEvent
+final readonly class FeatureFlagEvaluatedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $flagName  Feature flag name/identifier

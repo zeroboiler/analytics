@@ -27,7 +27,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class GoalConversionEvent extends AnalyticsEvent
+final readonly class GoalConversionEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $goalName  Name of the conversion goal

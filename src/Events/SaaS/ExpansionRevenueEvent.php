@@ -21,7 +21,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class ExpansionRevenueEvent extends AnalyticsEvent
+final readonly class ExpansionRevenueEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $amount  The expansion revenue amount

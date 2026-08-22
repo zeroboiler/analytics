@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class IncidentResolvedEvent extends AnalyticsEvent
+final readonly class IncidentResolvedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $incidentId  Incident identifier (matches incident_started)

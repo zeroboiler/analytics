@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class ExperimentExposedEvent extends AnalyticsEvent
+final readonly class ExperimentExposedEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $experimentId  Experiment identifier

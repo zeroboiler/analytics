@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class CustomerReviewEvent extends AnalyticsEvent
+final readonly class CustomerReviewEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: rating (int), platform (string), public (bool)

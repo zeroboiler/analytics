@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 174.0.0
  */
-final class NetRevenueRetentionEvent extends AnalyticsEvent
+final readonly class NetRevenueRetentionEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $nrr  Net revenue retention percentage (e.g. 115.0 for 115%)

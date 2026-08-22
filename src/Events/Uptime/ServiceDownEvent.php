@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class ServiceDownEvent extends AnalyticsEvent
+final readonly class ServiceDownEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $service  Service name (api, database, cache, queue, email, storage)

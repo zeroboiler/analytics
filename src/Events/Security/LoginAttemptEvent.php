@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class LoginAttemptEvent extends AnalyticsEvent
+final readonly class LoginAttemptEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $method  Auth method used (password, oauth, sso, mfa)

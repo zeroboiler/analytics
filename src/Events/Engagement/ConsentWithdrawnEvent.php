@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class ConsentWithdrawnEvent extends AnalyticsEvent
+final readonly class ConsentWithdrawnEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $clientId  Client tracking ID

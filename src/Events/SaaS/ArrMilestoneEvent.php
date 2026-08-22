@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 174.0.0
  */
-final class ArrMilestoneEvent extends AnalyticsEvent
+final readonly class ArrMilestoneEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $arr  The ARR amount at milestone (e.g. 1_000_000.0)

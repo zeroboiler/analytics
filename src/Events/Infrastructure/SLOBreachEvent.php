@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 46.0.0
  */
-final class SLOBreachEvent extends AnalyticsEvent
+final readonly class SLOBreachEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $sloName  SLO identifier

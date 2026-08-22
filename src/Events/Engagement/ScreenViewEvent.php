@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class ScreenViewEvent extends AnalyticsEvent
+final readonly class ScreenViewEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $screenName  Screen or view name (e.g. 'dashboard', 'settings', 'billing')

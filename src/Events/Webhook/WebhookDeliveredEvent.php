@@ -14,7 +14,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 182.0.0
  */
-final class WebhookDeliveredEvent extends AnalyticsEvent
+final readonly class WebhookDeliveredEvent extends AnalyticsEvent
 {
     public function __construct(
         string $webhookId,

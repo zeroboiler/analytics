@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class DataErasureCompletedEvent extends AnalyticsEvent
+final readonly class DataErasureCompletedEvent extends AnalyticsEvent
 {
     /**
      * @param  string|null  $userId  User ID whose data was erased

@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 93.0.0
  */
-final class ActivationEvent extends AnalyticsEvent
+final readonly class ActivationEvent extends AnalyticsEvent
 {
     /**
      * Create a new activation event.

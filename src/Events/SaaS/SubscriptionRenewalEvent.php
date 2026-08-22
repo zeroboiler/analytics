@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class SubscriptionRenewalEvent extends AnalyticsEvent
+final readonly class SubscriptionRenewalEvent extends AnalyticsEvent
 {
     /**
      * @param  string|null  $planName  Current plan name (e.g. 'pro', 'enterprise')

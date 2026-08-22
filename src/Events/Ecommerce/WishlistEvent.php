@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final class WishlistEvent extends AnalyticsEvent
+final readonly class WishlistEvent extends AnalyticsEvent
 {
     public function __construct(
         string $itemId,

@@ -19,7 +19,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 174.0.0
  */
-final class BurnMultipleEvent extends AnalyticsEvent
+final readonly class BurnMultipleEvent extends AnalyticsEvent
 {
     /**
      * @param  float  $burnMultiple  The burn multiple ratio (e.g. 1.5)

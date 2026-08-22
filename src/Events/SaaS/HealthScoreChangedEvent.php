@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 135.0.0
  */
-final class HealthScoreChangedEvent extends AnalyticsEvent
+final readonly class HealthScoreChangedEvent extends AnalyticsEvent
 {
     /**
      * @param  array<string, mixed>  $params  Event parameters. Expected: previous_score (float), new_score (float), reason (string)

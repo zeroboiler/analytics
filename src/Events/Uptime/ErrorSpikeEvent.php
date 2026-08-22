@@ -17,7 +17,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 9.9.0
  */
-final class ErrorSpikeEvent extends AnalyticsEvent
+final readonly class ErrorSpikeEvent extends AnalyticsEvent
 {
     /**
      * @param  string  $errorType  Error classification (http_5xx, exception, timeout, validation)
