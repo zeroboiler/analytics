@@ -1,3 +1,5 @@
+<?php
+
 /**
  * This file is part of ZeroBoiler, licensed under the MIT license.
  */
