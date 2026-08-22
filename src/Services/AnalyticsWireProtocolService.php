@@ -46,7 +46,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 41.0.0
  */
-final class AnalyticsWireProtocol
+final class AnalyticsWireProtocolService
 {
     /** @var string Wire protocol identifier */
     private const PROTOCOL = 'zb_analytics/1.0';

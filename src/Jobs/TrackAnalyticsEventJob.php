@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace ZeroBoiler\Analytics\Jobs;
 
+use Illuminate\Bus\Queueable as QueueableTrait;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 use ZeroBoiler\Analytics\AnalyticsManager;
@@ -31,7 +31,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 final class TrackAnalyticsEventJob implements ShouldQueue
 {
     use InteractsWithQueue;
-    use Queueable;
+    use QueueableTrait;
 
     /**
      * The number of times the job may be attempted.

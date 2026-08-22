@@ -18,7 +18,7 @@ use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
 use ZeroBoiler\Analytics\Events\Security\SecurityEvents;
 use ZeroBoiler\Analytics\Events\Uptime\UptimeEvents;
 use ZeroBoiler\Analytics\Events\Webhook\WebhookEvents;
-use ZeroBoiler\Analytics\Events\WebhookEventConstants;
+use ZeroBoiler\Analytics\Events\Webhook\WebhookEventConstants;
 use ZeroBoiler\Analytics\Tracking\TrackerInterface;
 
 /**

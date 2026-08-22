@@ -5,7 +5,7 @@
 
 declare(strict_types=1);
 
-namespace ZeroBoiler\Services;
+namespace ZeroBoiler\Analytics\Services;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
@@ -150,11 +150,11 @@ final class EventContextResolver
     {
         // Check explicit consent param from request (e.g. cookie banner)
         $consentParam = $request->header('X-Analytics-Consent');
-        if ($consParam === 'denied') {
+        if ($consentParam === 'denied') {
             return false;
         }
 
-        if ($consent === 'granted') {
+        if ($consentParam === 'granted') {
             return true;
         }
 
