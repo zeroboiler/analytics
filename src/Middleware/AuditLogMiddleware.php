@@ -38,20 +38,23 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
         $this->priority = $priority;
     }
 
-    public function process(AnalyticsEvent $event, callable $next): ?AnalyticsEvent
+    public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
-        $result = $next($event);
-
-        if ($this->enabled && $result !== null) {
-            $this->logAudit($result);
+        if ($this->enabled) {
+            $this->logAudit($event);
         }
 
-        return $result;
+        return $event;
     }
 
-    public function getPriority(): int
+    public function priority(): int
     {
         return $this->priority;
+    }
+
+    public function name(): string
+    {
+        return 'audit-log';
     }
 
     /**

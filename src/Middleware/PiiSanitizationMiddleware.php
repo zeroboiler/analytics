@@ -96,9 +96,14 @@ final class PiiSanitizationMiddleware implements AnalyticsMiddlewareInterface
         );
     }
 
-    public function getPriority(): int
+    public function priority(): int
     {
         return $this->priority;
+    }
+
+    public function name(): string
+    {
+        return 'pii-sanitization';
     }
 
     /**
