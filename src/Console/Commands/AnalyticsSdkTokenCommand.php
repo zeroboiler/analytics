@@ -47,9 +47,9 @@ final class AnalyticsSdkTokenCommand extends Command
 
     private const string DESCRIPTION = 'Manage SDK scoped tokens — generate, list, revoke, rotate, and audit';
 
-    private $signature = self::SIGNATURE;
+    protected $signature = self::SIGNATURE;
 
-    private $description = self::DESCRIPTION;
+    protected $description = self::DESCRIPTION;
 
     private CacheRepository $cache;
 
