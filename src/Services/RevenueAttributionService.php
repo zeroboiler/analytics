@@ -47,7 +47,7 @@ final class RevenueAttributionService
         QueuedAnalyticsDispatcher $queue,
         string $defaultCurrency = 'USD',
         bool $useAsync = true,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->queue = $queue;
         $this->defaultCurrency = $defaultCurrency;

@@ -87,7 +87,7 @@ final class EventPropertyTypeValidator
         int $maxParamCount = 100,
         int $maxKeyLength = 100,
         int $maxStringLength = 4096,
-    ): void {
+    ){
         $this->schemaRegistry = $schemaRegistry;
         $this->strictTypes = $strictTypes;
         $this->allowUnknownParams = $allowUnknownParams;

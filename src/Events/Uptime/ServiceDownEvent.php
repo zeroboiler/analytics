@@ -30,7 +30,7 @@ final class ServiceDownEvent extends AnalyticsEvent
         ?string $error = null,
         string $impact = 'partial',
         array $context = [],
-    ): void {
+    ){
         parent::__construct('service_down', array_filter([
             'service' => $service,
             'error' => $error,

@@ -64,8 +64,7 @@ final class CampaignContextHydratorService
      * @param  ConfigRepository  $config  Application config repository
      * @param  int|null  $cacheTtl  Cache TTL for campaign context (seconds). Null = disabled.
      */
-    public function __construct(ConfigRepository $config, ?int $cacheTtl = null): void
-    {
+    public function __construct(ConfigRepository $config, ?int $cacheTtl = null){
         $this->config = $config;
         $this->cacheTtl = $cacheTtl;
     }

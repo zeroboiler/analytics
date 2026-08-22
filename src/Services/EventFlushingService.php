@@ -72,8 +72,7 @@ final class EventFlushingService
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
 
         $flushConfig = $config->get('zeroboiler.analytics.flushing', []);

@@ -39,13 +39,13 @@ final class ProviderRateLimitService
      */
     private array $providerEnabled = [];
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly string $overflowStrategy;
+    private string $overflowStrategy;
 
-    private readonly bool $logViolations;
+    private bool $logViolations;
 
     private bool $enabled;
 
@@ -56,7 +56,7 @@ final class ProviderRateLimitService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $prlConfig = $config->get('zeroboiler.analytics.provider_rate_limits', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string, providers?: array<string, array{limit?: int, enabled?: bool}>, overflow_strategy?: string, log_violations?: bool} $prlConfig */
 
@@ -140,7 +140,7 @@ final class ProviderRateLimitService
         try {
             $current = $this->cache->get($key, 0);
             $this->cache->put($key, (int) $current + 1, $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail — rate limiting should never break dispatch
         }
     }
@@ -154,7 +154,7 @@ final class ProviderRateLimitService
     {
         try {
             return (int) $this->cache->get($this->cacheKey($provider), 0);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }
@@ -217,14 +217,14 @@ final class ProviderRateLimitService
         if ($provider !== null) {
             try {
                 $this->cache->forget($this->cacheKey($provider));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Silently fail
             }
         } else {
             foreach (array_keys($this->providerLimits) as $p) {
                 try {
                     $this->cache->forget($this->cacheKey($p));
-                } catch (\Throwable) {
+                } catch (\Throwable $e) {
                     // Silently fail
                 }
             }
@@ -262,7 +262,7 @@ final class ProviderRateLimitService
             }
 
             Log::info('ProviderRateLimit: throttle applied', $context);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }

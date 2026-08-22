@@ -37,8 +37,7 @@ final class AnalyticsCoverageCommand extends Command
 
     private SaaSCoverageReportService $service;
 
-    public function __construct(SaaSCoverageReportService $service): void
-    {
+    public function __construct(SaaSCoverageReportService $service){
         parent::__construct();
         $this->service = $service;
     }

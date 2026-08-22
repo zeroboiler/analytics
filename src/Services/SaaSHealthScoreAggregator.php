@@ -58,7 +58,7 @@ final class SaaSHealthScoreAggregator
         'data_governance' => 0.05,
     ];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * @param  CacheRepository  $cache  Cache repository for score persistence
@@ -67,7 +67,7 @@ final class SaaSHealthScoreAggregator
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $healthConfig = $config->get('zeroboiler.analytics.saas_health', []);
         /** @var array{enabled?: bool, cache_ttl?: int, weights?: array<string, float>} $healthConfig */
         $this->enabled = (bool) ($healthConfig['enabled'] ?? true);

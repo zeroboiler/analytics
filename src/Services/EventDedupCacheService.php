@@ -64,8 +64,7 @@ final class EventDedupCacheService
      * @param  ConfigRepository  $config
      * @param  CacheRepository  $cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache): void
-    {
+    public function __construct(ConfigRepository $config, CacheRepository $cache){
         $dedupConfig = $config->get('zeroboiler.analytics.dedup_cache', []);
         /** @var array{enabled?: bool, strategy?: string, windows?: array<string, int>, max_keys?: int} $dedupConfig */
 

@@ -63,7 +63,7 @@ final class EventGovernanceRuntimeValidator
         bool $checkProviderGaps = true,
         bool $autoResolve = true,
         int $maxLogSize = 1000,
-    ): void {
+    ){
         $this->checkProviderGaps = $checkProviderGaps;
         $this->autoResolve = $autoResolve;
         $this->maxLogSize = $maxLogSize;

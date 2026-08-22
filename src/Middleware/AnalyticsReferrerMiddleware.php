@@ -37,7 +37,7 @@ final class AnalyticsReferrerMiddleware
     public function __construct(
         ReferrerTrackingService $referrerService,
         AnalyticsManager $manager,
-    ): void {
+    ){
         $this->referrerService = $referrerService;
         $this->manager = $manager;
     }

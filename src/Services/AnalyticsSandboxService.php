@@ -37,19 +37,19 @@ final class AnalyticsSandboxService
 
     private bool $active;
 
-    private readonly int $maxEvents;
+    private int $maxEvents;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly bool $includeContext;
+    private bool $includeContext;
 
-    private readonly bool $allowReplay;
+    private bool $allowReplay;
 
-    private readonly bool $stagingLogOnly;
+    private bool $stagingLogOnly;
 
-    private readonly string $appEnv;
+    private string $appEnv;
 
     /**
      * @param  CacheRepository  $cache
@@ -58,7 +58,7 @@ final class AnalyticsSandboxService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $sandboxConfig = $config->get('zeroboiler.analytics.sandbox', []);
         /** @var array{enabled?: bool|null, auto_local?: bool, auto_testing?: bool, staging_log_only?: bool, max_events?: int, cache_ttl?: int, cache_prefix?: string, include_context?: bool, allow_replay?: bool} $sandboxConfig */
 
@@ -163,7 +163,7 @@ final class AnalyticsSandboxService
                     'error' => $e->getMessage(),
                     'event' => $event->name,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Silently fail
             }
         }
@@ -187,7 +187,7 @@ final class AnalyticsSandboxService
             $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
 
             return is_array($decoded) ? $decoded : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -216,7 +216,7 @@ final class AnalyticsSandboxService
     {
         try {
             return (int) $this->cache->get($this->cachePrefix.self::CACHE_KEY_META, 0);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }
@@ -307,7 +307,7 @@ final class AnalyticsSandboxService
             $this->cache->forget($this->cachePrefix.self::CACHE_KEY_EVENTS);
             $this->cache->forget($this->cachePrefix.self::CACHE_KEY_META);
             $this->cache->forget($this->cachePrefix.self::CACHE_KEY_REPLAY);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }
@@ -330,7 +330,7 @@ final class AnalyticsSandboxService
             $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
 
             return is_array($decoded) ? $decoded : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -367,7 +367,7 @@ final class AnalyticsSandboxService
                 $current + 1,
                 $this->cacheTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }
@@ -400,7 +400,7 @@ final class AnalyticsSandboxService
                 json_encode($log, JSON_UNESCAPED_UNICODE),
                 $this->cacheTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }

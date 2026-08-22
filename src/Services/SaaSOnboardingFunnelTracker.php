@@ -86,9 +86,9 @@ final class SaaSOnboardingFunnelTracker
      */
     private array $customStages;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /**
      * @param  ConfigRepository  $config  Application config
@@ -98,7 +98,7 @@ final class SaaSOnboardingFunnelTracker
         private readonly ConfigRepository $config,
         private readonly AnalyticsManager $manager,
         CacheRepository $cache,
-    ): void {
+    ){
         $onboardingConfig = $config->get('zeroboiler.analytics.onboarding_funnel', []);
         /** @var array{custom_stages?: array<string, array{name: string, event: string, description: string, successor?: string|null}>, cache_ttl?: int} $onboardingConfig */
         $this->customStages = $onboardingConfig['custom_stages'] ?? [];

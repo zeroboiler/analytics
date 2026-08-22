@@ -166,7 +166,7 @@ final class AnalyticsCohortIntelligenceCommand extends Command
     {
         $cohort = $this->option('cohort');
 
-        $this->info("🔍 Cohort Insights: {$cohort ?? 'all'}");
+        $this->info('🔍 Cohort Insights: ' . (cohort ?? 'all'));
         $this->newLine();
         $this->info('Pass user events via the cohortInsights() method or API endpoint:');
         $this->info('  GET /api/analytics/cohort-intelligence/insights/{cohort}');

@@ -35,7 +35,7 @@ final readonly class AccountDeletedEvent extends AnalyticsEvent
         ?string $method = null,
         ?int $accountAgeDays = null,
         ?string $lastPlan = null,
-    ): void {
+    ){
         parent::__construct('account_deleted', array_filter([
             'reason' => $reason,
             'method' => $method,

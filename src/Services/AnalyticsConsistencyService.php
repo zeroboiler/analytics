@@ -44,7 +44,7 @@ final class AnalyticsConsistencyService
         ConfigRepository $config,
         CacheRepository $cache,
         int $cacheTtl = 300,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->config = $config;
         $this->cache = $cache;

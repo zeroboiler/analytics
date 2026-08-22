@@ -52,7 +52,7 @@ final class FunnelDataBuilderService
         AnalyticsMetrics $metrics,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->cache = $cache;
@@ -85,7 +85,7 @@ final class FunnelDataBuilderService
                 if (is_array($cached)) {
                     return $cached;
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Cache miss or unavailable
             }
         }
@@ -96,7 +96,7 @@ final class FunnelDataBuilderService
 
         try {
             $this->cache->put($cacheKey, $data, $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache may not be available
         }
 
@@ -277,7 +277,7 @@ final class FunnelDataBuilderService
     {
         try {
             $this->cache->forget("zeroboiler.analytics.funnel_data.{$funnelName}");
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache may not be available
         }
 
@@ -291,7 +291,7 @@ final class FunnelDataBuilderService
     {
         try {
             $this->cache->forget('zeroboiler.analytics.funnel_data.all');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache may not be available
         }
 

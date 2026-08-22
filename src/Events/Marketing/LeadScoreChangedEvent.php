@@ -27,7 +27,7 @@ final readonly class LeadScoreChangedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('lead_score_changed', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

@@ -29,11 +29,11 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 final class AnalyticsJourneyOrchestrator
 {
     /** @var list<string> */
-    private readonly array $stages;
+    private array $stages;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /**
      * @param  AnalyticsManager  $manager  Analytics manager instance
@@ -44,7 +44,7 @@ final class AnalyticsJourneyOrchestrator
         private readonly AnalyticsManager $manager,
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ): void {
+    ){
         $journeyConfig = $config->get('zeroboiler.analytics.journey', []);
         /** @var array{stages?: list<string>, cache_prefix?: string, cache_ttl?: int} $journeyConfig */
 

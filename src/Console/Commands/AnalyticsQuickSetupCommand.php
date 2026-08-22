@@ -275,8 +275,8 @@ final class AnalyticsQuickSetupCommand extends Command
         $this->line("  • {$totalEvents} events in catalog ({$industry['count']} industry-standard)");
         $this->line("  • Run <fg=cyan>zb:analytics:setup --env</> to see required .env variables");
         $this->line("  • Run <fg=cyan>zb:analytics:setup --aarrr</> to see AARRR framework analysis");
-        $this->line("  • Run <fg=cyan>zb:analytics:test</> to verify provider connectivity');
-        $this->line("  • Run <fg=cyan>zb:analytics:readiness</> for full readiness report');
+        $this->line("  • Run <fg=cyan>zb:analytics:test</> to verify provider connectivity");
+        $this->line("  • Run <fg=cyan>zb:analytics:readiness</> for full readiness report");
     }
 
     /**

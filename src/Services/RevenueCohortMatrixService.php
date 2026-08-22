@@ -63,7 +63,7 @@ final class RevenueCohortMatrixService
     public function __construct(
         private readonly ConfigRepository $config,
         ?CacheRepository $cache = null,
-    ): void {
+    ){
         $this->cache = $cache ?? app(CacheRepository::class);
 
         $matrixConfig = $config->get('zeroboiler.analytics.revenue_cohort_matrix', []);

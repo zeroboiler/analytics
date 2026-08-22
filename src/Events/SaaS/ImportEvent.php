@@ -36,7 +36,7 @@ final readonly class ImportEvent extends AnalyticsEvent
         ?int $recordCount = null,
         ?bool $success = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('import', array_filter([
             'format' => $format,
             'resource' => $resource,

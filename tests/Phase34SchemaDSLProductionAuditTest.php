@@ -365,7 +365,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
                 public function putMultiple(array $values, $ttl = null) { $this->putMany($values, $ttl); }
                 public function flush() { $this->store = []; return true; }
                 public function clear() { $this->store = []; return true; }
-                public function tags(array|mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
+                public function tags(mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
             };
 
             $registry = new EventSchemaRegistryExtended($cache);
@@ -401,7 +401,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
                 public function putMultiple(array $values, $ttl = null) {}
                 public function flush() { return true; }
                 public function clear() { return true; }
-                public function tags(array|mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
+                public function tags(mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
             };
 
             $registry = new EventSchemaRegistryExtended($cache);
@@ -579,7 +579,7 @@ describe('Phase 34 — Schema DSL Production Audit', function () {
                 public function putMultiple(array $values, $ttl = null) {}
                 public function flush() { return true; }
                 public function clear() { return true; }
-                public function tags(array|mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
+                public function tags(mixed $names) { return new class implements \Illuminate\Contracts\Cache\Store { public function get($key) {} public function many(array $keys) {} public function put($key, $value, $seconds) {} public function putMany(array $values, $seconds) {} public function increment($key, $value = 1) {} public function decrement($key, $value = 1) {} public function forever($key, $value) {} public function forget($key) {} public function flush() {} public function getPrefix() { return ''; } }; }
             };
 
             $registry = new EventSchemaRegistryExtended($cache);

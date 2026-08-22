@@ -30,8 +30,7 @@ abstract class AnalyticsException extends Exception
      * @param  int  $code  Application-specific error code (default: 0)
      * @param  \Throwable|null  $previous  The exception chain predecessor
      */
-    public function __construct(string $message, int $code = 0, ?\Throwable $previous = null): void
-    {
+    public function __construct(string $message, int $code = 0, ?\Throwable $previous = null){
         parent::__construct($message, $code, $previous);
     }
 }

@@ -58,8 +58,7 @@ final class EventBuilder
 
     private ?string $group = null;
 
-    private function __construct(string $name): void
-    {
+    private function __construct(string $name){
         $this->name = $name;
     }
 
@@ -909,7 +908,7 @@ final class EventBuilder
             try {
                 $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
                 $manager->trackEvent($event);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Silent fail — already logged
             }
         }

@@ -48,7 +48,7 @@ final class EventCatalogDiffService
         CacheRepository $cache,
         string $cacheKey = self::CACHE_KEY,
         int $cacheTtl = self::CACHE_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->cacheKey = $cacheKey;
         $this->cacheTtl = $cacheTtl;

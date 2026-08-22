@@ -46,8 +46,8 @@ final class ProviderSLARecord
         public readonly float $uptimePercentage,
         public readonly int $breachCount,
         public readonly bool $slaMet,
-        public readonly array $metadata = [],
-    ): void {}
+        public array $metadata = [],
+    ){}
 
     /**
      * Get the failure rate as a percentage.

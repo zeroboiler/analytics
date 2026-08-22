@@ -139,19 +139,19 @@ final class SaaSMomentumService
         ],
     ];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /** @var int Number of periods to average for trend smoothing */
-    private readonly int $smoothingWindow;
+    private int $smoothingWindow;
 
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $momentumConfig = $config->get('zeroboiler.analytics.momentum', []);

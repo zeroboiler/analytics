@@ -64,11 +64,11 @@ final class AutoInstrumentationEngine
     private const MODEL_EVENTS = ['created', 'updated', 'deleted', 'restored'];
 
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
-    private readonly EventDispatcher $dispatcher;
+    private EventDispatcher $dispatcher;
 
     /** @var bool Whether the engine has been booted */
     private bool $booted = false;
@@ -88,7 +88,7 @@ final class AutoInstrumentationEngine
         ConfigRepository $config,
         AnalyticsManager $manager,
         EventDispatcher $dispatcher,
-    ): void {
+    ){
         $this->config = $config->get('zeroboiler.analytics.auto_instrument', []);
         $this->manager = $manager;
         $this->dispatcher = $dispatcher;

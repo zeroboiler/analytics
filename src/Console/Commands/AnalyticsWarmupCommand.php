@@ -209,7 +209,7 @@ final class AnalyticsWarmupCommand extends Command
             $calculator = new EventPriorityCalculator;
             $maturity = $calculator->maturityScore();
             $this->check("  ✓ Maturity score: {$maturity['score']} ({$maturity['grade']})", true);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->check('  ⚠ Maturity score unavailable', false);
             $this->warnings++;
         }

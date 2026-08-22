@@ -39,8 +39,7 @@ final class ProviderDispatchDedupService
      * @param  CacheRepository  $cache  Cache repository for dedup state
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->settings = $config->get('zeroboiler.analytics.dispatch_dedup', []);
         $this->cachePrefix = (string) ($this->settings['cache_prefix'] ?? 'zb_dedup_');

@@ -39,28 +39,27 @@ final class EventCostLedgerService
     /** @var int Default daily budget threshold for alerts (in USD) */
     private const DEFAULT_DAILY_BUDGET = 100.0;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly float $dailyBudget;
+    private float $dailyBudget;
 
-    private readonly float $monthlyBudget;
+    private float $monthlyBudget;
 
     /** @var array<string, float> Per-provider estimated cost per 1000 events (USD) */
-    private readonly array $providerCostRates;
+    private array $providerCostRates;
 
     /** @var list<string> Events exempt from cost tracking */
-    private readonly array $exemptEvents;
+    private array $exemptEvents;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $ledgerConfig = $config->get('zeroboiler.analytics.cost_ledger', []);

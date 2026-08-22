@@ -58,7 +58,7 @@ final class EventReplayValidationService
         CacheRepository $cache,
         ConfigRepository $config,
         private readonly EventCatalogValidator $catalogValidator,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $replayConfig = $config->get('zeroboiler.analytics.replay_validation', []);

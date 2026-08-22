@@ -67,15 +67,15 @@ final class RealTimeEventCorrelationEngine
         'element_visibility',
     ];
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $windowHours;
+    private int $windowHours;
 
-    private readonly int $minEventCount;
+    private int $minEventCount;
 
-    private readonly float $correlationThreshold;
+    private float $correlationThreshold;
 
-    private readonly int $maxResults;
+    private int $maxResults;
 
     /**
      * @param  CacheRepository  $cache
@@ -84,7 +84,7 @@ final class RealTimeEventCorrelationEngine
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $engineConfig = $config->get('zeroboiler.analytics.event_correlation_engine', []);
         /** @var array{cache_ttl?: int, window_hours?: int, min_event_count?: int, correlation_threshold?: float, max_results?: int} $engineConfig */
 

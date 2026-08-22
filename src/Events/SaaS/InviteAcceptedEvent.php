@@ -23,7 +23,7 @@ final class InviteAcceptedEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'invite_accepted',
             params: $params,

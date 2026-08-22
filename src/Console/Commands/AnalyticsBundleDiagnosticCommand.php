@@ -79,7 +79,7 @@ final class AnalyticsBundleDiagnosticCommand extends Command
         'sampling',
     ];
 
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         parent::__construct();
         $this->config = $config;
@@ -673,7 +673,7 @@ final class AnalyticsBundleDiagnosticCommand extends Command
             };
 
             $label = $this->formatSubsystemLabel($result['subsystem']);
-            $this->line("  {$icon} {$label}  <fg=gray>(" . $result['passed'] . '/' . $result['checks'] . ' passed";
+            $this->line('  '.$icon.' '.$label.'  <fg=gray>(' . $result['passed'] . '/' . $result['checks'] . ' passed');
             if ($result['warnings'] > 0) {
                 $this->line(', ' . $result['warnings'] . ' warnings');
             }
@@ -696,7 +696,7 @@ final class AnalyticsBundleDiagnosticCommand extends Command
         $this->newLine();
         $total = $this->totalPassed + $this->totalWarnings + $this->totalCritical;
 
-        $this->line("  Total: <fg=cyan>{$total}</> checks, <fg=green>{$this->totalPassed}</> passed, <fg=yellow>{$this->totalWarnings}</> warnings, <fg=red>{$this->totalCritical}</> critical");
+        $this->line('  Total: <fg=cyan>{$total}</> checks, <fg=green>' . (this->totalPassed) . '</> passed, <fg=yellow>' . (this->totalWarnings) . '</> warnings, <fg=red>' . (this->totalCritical) . '</> critical');
 
         if ($this->totalCritical === 0 && $this->totalWarnings === 0) {
             $this->newLine();

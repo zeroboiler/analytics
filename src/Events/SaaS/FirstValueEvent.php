@@ -41,7 +41,7 @@ final readonly class FirstValueEvent extends AnalyticsEvent
         ?string $clientId = null,
         ?string $userId = null,
         public ?int $timeToValue = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'first_value',
             params: array_merge($params, [

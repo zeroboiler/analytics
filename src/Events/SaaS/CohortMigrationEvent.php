@@ -34,7 +34,7 @@ final readonly class CohortMigrationEvent extends AnalyticsEvent
         string $toCohort,
         ?string $reason = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('cohort_migration', array_filter([
             'user_id' => $userId,
             'from_cohort' => $fromCohort,

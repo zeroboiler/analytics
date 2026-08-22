@@ -43,7 +43,7 @@ final class FeedbackEvent extends AnalyticsEvent
         ?string $rating = null,
         ?string $category = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'feedback',
             params: array_merge([

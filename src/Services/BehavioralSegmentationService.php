@@ -56,7 +56,7 @@ final class BehavioralSegmentationService
         private readonly CacheRepository $cache,
         private readonly AnalyticsMetrics $metrics,
         ConfigRepository $configRepo,
-    ): void {
+    ){
         $raw = $configRepo->get('zeroboiler.analytics.behavioral_segmentation', []);
         /** @var array{cache_ttl?: int, rfm_weights?: array<string, float>, dimensions?: array<string, float>, tiers?: array<string, array{min: float, max: float}>, thresholds?: array<string, int>} $raw */
         $this->config = [

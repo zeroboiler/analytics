@@ -52,8 +52,7 @@ final class SaaSBundleEventService
     /**
      * @param  AnalyticsManager  $manager
      */
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         $this->manager = $manager;
     }
 

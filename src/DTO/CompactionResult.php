@@ -42,7 +42,7 @@ final readonly class CompactionResult
         public float $durationMs,
         public bool $success,
         public ?string $error = null,
-    ): void  {}
+    ){}
 
     /**
      * Create a successful compaction result.

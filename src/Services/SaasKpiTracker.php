@@ -49,7 +49,7 @@ final class SaasKpiTracker
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
 

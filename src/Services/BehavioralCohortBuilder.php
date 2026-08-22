@@ -75,8 +75,7 @@ final class BehavioralCohortBuilder
     /** @var array<string, array{label: string, rules: list<array>}> */
     private array $customCohorts;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

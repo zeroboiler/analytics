@@ -62,7 +62,7 @@ final class EventFieldValidator
         array $globalRules = [],
         bool $enabled = true,
         bool $debug = false,
-    ): void {
+    ){
         $this->rules = $rules;
         $this->globalRules = $globalRules;
         $this->coercer = new EventFieldCoercer($debug);

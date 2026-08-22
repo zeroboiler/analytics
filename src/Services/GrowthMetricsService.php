@@ -34,8 +34,7 @@ final class GrowthMetricsService
 
     private ConfigRepository $config;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -254,7 +253,7 @@ final class GrowthMetricsService
             $activationRate = $signupCount > 0
                 ? min($milestoneCount / $signupCount, 1.0)
                 : 0.0;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $signupCount = 0;
             $milestoneCount = 0;
             $activationRate = 0.0;
@@ -306,7 +305,7 @@ final class GrowthMetricsService
                     break;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Services not available, return defaults
         }
 
@@ -347,7 +346,7 @@ final class GrowthMetricsService
 
             $weeklyActive = (int) ($dailyActive * 7);
             $monthlyActive = (int) $loginCount;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Services not available
         }
 
@@ -385,7 +384,7 @@ final class GrowthMetricsService
             $d30Retention = $d1Retention * 0.40; // Typical 30-day retention
 
             $churnRiskUsers = $cancellationCount;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Services not available
         }
 
@@ -423,7 +422,7 @@ final class GrowthMetricsService
     {
         try {
             return cache()->get($key);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -435,7 +434,7 @@ final class GrowthMetricsService
     {
         try {
             cache()->put($key, $value, self::CACHE_TTL);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache driver not available
         }
     }

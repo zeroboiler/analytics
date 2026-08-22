@@ -73,7 +73,7 @@ final class AnalyticsDashboardDataProvider
         ?FunnelDataBuilderService $funnelDataBuilder = null,
         ?SaasFunnelService $funnelService = null,
         ?AnalyticsSnapshotService $snapshotService = null,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->kpiTracker = $kpiTracker;
         $this->realtimeService = $realtimeService;

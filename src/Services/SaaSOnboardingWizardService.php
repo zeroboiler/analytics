@@ -48,8 +48,7 @@ final class SaaSOnboardingWizardService
     /** @var list<array{key: string, label: string, description: string, priority: 'critical'|'high'|'medium'|'low', category: string}> */
     private array $steps;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
         $this->steps = $this->defineSteps();

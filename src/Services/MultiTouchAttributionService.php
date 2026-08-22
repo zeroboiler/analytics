@@ -72,13 +72,13 @@ final class MultiTouchAttributionService
     /** @var array<string, float> Decay factor per model */
     private const TIME_DECAY_HALF_LIFE_HOURS = 168.0; // 7 days
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $defaultModel;
+    private string $defaultModel;
 
-    private readonly int $maxTouchpoints;
+    private int $maxTouchpoints;
 
-    private readonly int $lookbackDays;
+    private int $lookbackDays;
 
     /**
      * @param  CacheRepository  $cache
@@ -87,7 +87,7 @@ final class MultiTouchAttributionService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $attributionConfig = $config->get('zeroboiler.analytics.multi_touch_attribution', []);
         /** @var array{cache_ttl?: int, default_model?: string, max_touchpoints?: int, lookback_days?: int} $attributionConfig */
 
@@ -421,7 +421,7 @@ final class MultiTouchAttributionService
                 $tpTime = new \DateTimeImmutable($tp['timestamp']);
                 $secondsAgo = max(0, $conversionTime->getTimestamp() - $tpTime->getTimestamp());
                 $weight = pow(2, -$secondsAgo / $halfLifeSeconds);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $weight = 0.001;
             }
 

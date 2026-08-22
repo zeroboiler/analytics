@@ -39,8 +39,7 @@ final class EcommerceAnalyticsService
 
     private string $brand;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
 
         $ecommerce = $config->get('zeroboiler.analytics.ecommerce', []);

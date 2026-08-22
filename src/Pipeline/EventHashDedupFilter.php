@@ -44,8 +44,7 @@ final class EventHashDedupFilter
     /**
      * @param  array{max_memory_entries?: int, cross_request_dedup?: bool, cross_request_ttl?: int, cache_prefix?: string}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->maxMemoryEntries = $config['max_memory_entries'] ?? 1000;
         $this->crossRequestDedup = $config['cross_request_dedup'] ?? false;
         $this->crossRequestTtl = $config['cross_request_ttl'] ?? 60;
@@ -81,7 +80,7 @@ final class EventHashDedupFilter
                 }
 
                 $cache->put($cacheKey, true, $this->crossRequestTtl);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Cache unavailable — skip cross-request check, allow event through
             }
         }

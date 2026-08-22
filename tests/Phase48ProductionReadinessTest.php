@@ -280,7 +280,7 @@ describe('Phase 48 Production Readiness', function (): void {
                         if (class_exists($className) && (new ReflectionClass($className))->getFileName() === realpath($file)) {
                             $ref = new ReflectionClass($className);
                         }
-                    } catch (Throwable) {
+                    } catch (Throwable $e) {
                         continue;
                     }
 

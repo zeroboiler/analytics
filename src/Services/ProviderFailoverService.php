@@ -97,9 +97,9 @@ final class ProviderFailoverService
     /** @var array<string, int> Round-robin index per provider */
     private array $roundRobinIndex = [];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     /**
      * Create a new ProviderFailoverService.
@@ -107,8 +107,7 @@ final class ProviderFailoverService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

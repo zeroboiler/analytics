@@ -70,8 +70,7 @@ final class PrivacySandboxService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $sandboxConfig = $config->get('zeroboiler.analytics.privacy_sandbox', []);
         /** @var array{enabled?: bool, topics_cache_prefix?: string, topics_cache_ttl?: int, attribution_window_days?: int, aggregation_cache_prefix?: string, aggregation_cache_ttl?: int} $sandboxConfig */
 

@@ -37,8 +37,7 @@ final class EventAuditTrailService
     private int $ttl;
     private int $maxEntries;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $auditConfig = $config->get('zeroboiler.analytics.audit_trail', []);
         /** @var array{enabled?: bool, ttl?: int, max_entries?: int} $auditConfig */

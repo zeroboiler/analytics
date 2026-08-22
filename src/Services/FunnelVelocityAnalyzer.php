@@ -37,7 +37,7 @@ final class FunnelVelocityAnalyzer
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Record a step advancement event for velocity tracking.

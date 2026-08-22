@@ -95,7 +95,7 @@ final class EventInterceptorRegistry
         foreach ($this->afterInterceptors as $interceptor) {
             try {
                 $interceptor($event, $success);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // After-interceptors must not break the dispatch chain
             }
         }

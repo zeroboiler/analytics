@@ -34,7 +34,7 @@ final readonly class SessionStartEvent extends AnalyticsEvent
         ?string $pagePath = null,
         ?string $referrer = null,
         ?string $source = null,
-    ): void {
+    ){
         parent::__construct('session_start', array_filter([
             'session_id' => $sessionId,
             'page_path' => $pagePath,

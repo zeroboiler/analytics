@@ -77,8 +77,7 @@ final class EventRouterService
      * @param  ConfigRepository  $config  Application config repository
      * @param  CacheRepository  $cache  Cache repository
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache): void
-    {
+    public function __construct(ConfigRepository $config, CacheRepository $cache){
         $routerConfig = $config->get('zeroboiler.analytics.event_router', []);
         /** @var array{enabled?: bool, category_routes?: array<string, list<string>>, pattern_rules?: list<array{pattern: string, providers: list<string>, type?: string}>, priority_routes?: array<string, list<string>>, cost_optimized?: bool, cost_threshold?: float, deny_list?: array<string, list<string>>, allow_list?: array<string, list<string>>, default_providers?: list<string>|null, cache_ttl?: int} $routerConfig */
 

@@ -27,7 +27,7 @@ final readonly class EmailUnsubscribedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('email_unsubscribed', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

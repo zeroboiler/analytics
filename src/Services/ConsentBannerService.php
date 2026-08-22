@@ -57,8 +57,7 @@ final class ConsentBannerService
     /**
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -103,6 +102,7 @@ final class ConsentBannerService
         $saveLabel = $options['save_label'] ?? 'Save Preferences';
         $closeLabel = $options['close_label'] ?? 'Close';
         $showCustomize = $options['show_customize'] ?? true;
+        $customizeButton = $showCustomize ? '<button class="zb-consent-btn zb-consent-btn--customize" onclick="zbConsentToggleCustomize()">'.e($customizeLabel).'</button>' : '';
 
         $purposes = $consentConfig['purposes'] ?? [];
         /** @var array<string, array{label?: string, required?: bool, default?: bool}> $purposes */
@@ -115,6 +115,7 @@ final class ConsentBannerService
             $required = (bool) ($purposeConfig['required'] ?? false);
             $default = (bool) ($purposeConfig['default'] ?? ($defaultConsent === 'granted'));
             $checked = $required ? 'checked disabled' : ($default ? 'checked' : '');
+            $requiredBadge = $required ? '<span class="zb-consent-required">Required</span>' : '';
             $description = self::$defaultPurposeDescriptions[$key] ?? '';
 
             $purposeItems .= <<<HTML
@@ -125,7 +126,7 @@ final class ConsentBannerService
                                class="zb-consent-checkbox"
                                aria-describedby="zb-desc-{$key}">
                         <span class="zb-consent-purpose-name">{$label}</span>
-                        {$required ? '<span class="zb-consent-required">Required</span>' : ''}
+                        {$requiredBadge}
                     </label>
                     <p id="zb-desc-{$key}" class="zb-consent-purpose-desc">{$description}</p>
                 </div>
@@ -157,7 +158,7 @@ final class ConsentBannerService
                     <button class="zb-consent-btn zb-consent-btn--reject" onclick="zbConsentRejectAll('{$apiBase}')">
                         {$rejectLabel}
                     </button>
-                    {$showCustomize ? '<button class="zb-consent-btn zb-consent-btn--customize" onclick="zbConsentToggleCustomize()">'.e($customizeLabel).'</button>' : ''}
+                    {$customizeButton}
                     <button class="zb-consent-btn zb-consent-btn--save" onclick="zbConsentSave('{$apiBase}', '{$consentCookieName}')" style="display:none">
                         {$saveLabel}
                     </button>
@@ -245,7 +246,7 @@ final class ConsentBannerService
                 var purposes = {necessary:true,analytics:true,marketing:true,functional:true};
                 setConsentCookie(purposes);
                 updateGtagConsent(purposes);
-                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function(){});
+                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function( $e) {});
                 zbConsentClose();
             };
 
@@ -253,7 +254,7 @@ final class ConsentBannerService
                 var purposes = {necessary:true,analytics:false,marketing:false,functional:false};
                 setConsentCookie(purposes);
                 updateGtagConsent(purposes);
-                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function(){});
+                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function( $e) {});
                 zbConsentClose();
             };
 
@@ -265,7 +266,7 @@ final class ConsentBannerService
                 });
                 setConsentCookie(purposes);
                 updateGtagConsent(purposes);
-                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function(){});
+                fetch(apiBase + '/consent', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({purposes:purposes}),keepalive:true}).catch(function( $e) {});
                 zbConsentClose();
             };
         })();

@@ -61,9 +61,9 @@ final class AnalyticsSelfHealingService
     public function __construct(
         private readonly CacheRepository $cache,
         ?ConfigRepository $config = null,
-        private readonly ?UnifiedHealthEndpointService $healthService = null,
-        private readonly ?DeadLetterQueueService $dlqService = null,
-    ): void {
+        private ?UnifiedHealthEndpointService $healthService = null,
+        private ?DeadLetterQueueService $dlqService = null,
+    ){
         $config ??= app(ConfigRepository::class);
         $this->config = $config->get('zeroboiler.analytics.self_healing', []);
         $this->cachePrefix = (string) ($this->config['cache_prefix'] ?? 'zb_heal_');

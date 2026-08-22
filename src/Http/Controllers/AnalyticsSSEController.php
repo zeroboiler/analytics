@@ -32,8 +32,7 @@ final class AnalyticsSSEController extends Controller
 {
     private EventStreamService $streamService;
 
-    public function __construct(EventStreamService $streamService): void
-    {
+    public function __construct(EventStreamService $streamService){
         $this->streamService = $streamService;
     }
 

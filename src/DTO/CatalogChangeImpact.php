@@ -38,7 +38,7 @@ final readonly class CatalogChangeImpact
         public ?string $category = null,
         public bool $breaking = false,
         public array $metadata = [],
-    ): void {}
+    ) {}
 
     /**
      * Create a major (breaking) change impact.

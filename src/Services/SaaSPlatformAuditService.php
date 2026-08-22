@@ -1025,7 +1025,7 @@ final class SaaSPlatformAuditService
             'Anomaly Detection Service',
             \ZeroBoiler\Analytics\Services\AnomalyDetectionService::class,
             3.0,
-        ];
+        );
 
         // SSE for real-time dashboards
         $checks[] = [
@@ -1078,7 +1078,7 @@ final class SaaSPlatformAuditService
             $config = app(\Illuminate\Contracts\Config\Repository::class);
 
             return $config->get($key, $default);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $default;
         }
     }
@@ -1158,7 +1158,7 @@ final class SaaSPlatformAuditService
                 'linkedin' => $manager->linkedin()->isEnabled(),
                 default => false,
             };
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -1170,7 +1170,7 @@ final class SaaSPlatformAuditService
     {
         try {
             return app(AnalyticsManager::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return new AnalyticsManager;
         }
     }

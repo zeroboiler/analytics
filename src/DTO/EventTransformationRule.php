@@ -34,8 +34,8 @@ final readonly class EventTransformationRule
         public mixed $defaultValue = null,
         public bool $dropIfMissing = false,
         public bool $dropAlways = false,
-        public ?callable $condition = null,
-    ): void {}
+        public ?\Closure $condition = null,
+    ){}
 
     /**
      * Create a "rename" rule — changes field name for the target provider.

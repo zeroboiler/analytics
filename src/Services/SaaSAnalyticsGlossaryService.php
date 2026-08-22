@@ -54,8 +54,7 @@ final class SaaSAnalyticsGlossaryService
     /**
      * @param  CacheRepository|null  $cache  Optional cache repository for testing
      */
-    public function __construct(?CacheRepository $cache = null): void
-    {
+    public function __construct(?CacheRepository $cache = null){
         $this->cache = $cache ?? Cache::store();
         $this->buildGlossary();
     }

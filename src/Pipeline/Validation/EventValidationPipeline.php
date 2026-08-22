@@ -48,8 +48,7 @@ final class EventValidationPipeline
     /**
      * @param  bool  $failFast  Stop on first critical error (severity=error)
      */
-    public function __construct(bool $failFast = false): void
-    {
+    public function __construct(bool $failFast = false){
         $this->failFast = $failFast;
     }
 

@@ -27,7 +27,7 @@ final class WishlistEvent extends AnalyticsEvent
         string $currency = 'USD',
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'add_to_wishlist',
             params: array_filter([

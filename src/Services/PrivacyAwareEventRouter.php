@@ -78,8 +78,7 @@ final class PrivacyAwareEventRouter
     /**
      * @param  array<string, mixed>  $config  zeroboiler.analytics.privacy_router
      */
-    public function __construct(array $config): void
-    {
+    public function __construct(array $config){
         $this->enabled = (bool) ($config['enabled'] ?? true);
         $this->defaultZone = (string) ($config['default_zone'] ?? 'none');
         $this->customBlockFields = (array) ($config['custom_block_fields'] ?? []);

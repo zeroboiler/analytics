@@ -75,7 +75,7 @@ final class AnalyticsManager
     /**
      * @param  ConfigRepository|null  $config  Optional config repository for testing
      */
-    public function __construct(?ConfigRepository $config = null): void
+    public function __construct(?ConfigRepository $config = null)
     {
         if ($config === null) {
             $container = $this->getContainer();
@@ -152,7 +152,7 @@ final class AnalyticsManager
         $amplitudeConfig = $config->get('zeroboiler.analytics.amplitude', []);
         /** @var array{enabled?: bool, api_key?: string, host?: string, platform?: string} $amplitudeConfig */
         $this->amplitude = new AmplitudeTracker(
-            apiKey: $ampli...ey'] ?? '',
+            apiKey: $amplitudeConfig['api_key'] ?? '',
             host: $amplitudeConfig['host'] ?? 'https://api2.amplitude.com',
             platform: $amplitudeConfig['platform'] ?? 'Laravel/Server',
             enabled: $amplitudeConfig['enabled'] ?? false,
@@ -389,7 +389,7 @@ final class AnalyticsManager
 
                 return;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // DataBus not available — fall through to standard dispatch
         }
 
@@ -1142,7 +1142,7 @@ final class AnalyticsManager
 
         try {
             $buffer = app(\ZeroBoiler\Analytics\Services\AnalyticsEventBuffer::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fallback: dispatch directly if buffer unavailable
             $this->trackEvent($event);
 
@@ -1183,7 +1183,7 @@ final class AnalyticsManager
 
         try {
             $buffer = app(\ZeroBoiler\Analytics\Services\AnalyticsEventBuffer::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fallback: dispatch directly if buffer unavailable
             $this->trackEvent($event);
 
@@ -1770,7 +1770,7 @@ final class AnalyticsManager
             if (! $preferences->shouldTrack($userId, $clientId)) {
                 return false;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // TrackingPreferenceService not available — continue with consent check only
         }
 
@@ -1827,7 +1827,7 @@ final class AnalyticsManager
         try {
             $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
             $preferences->suppressClient($clientId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent fail
         }
     }
@@ -1843,7 +1843,7 @@ final class AnalyticsManager
             $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
 
             return $preferences->transferClientToUser($clientId, $userId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -2145,7 +2145,7 @@ final class AnalyticsManager
             $dlq = app(\ZeroBoiler\Analytics\Services\DeadLetterQueueService::class);
 
             return $dlq->summary();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'enabled' => false,
                 'strategy' => 'null',
@@ -2172,7 +2172,7 @@ final class AnalyticsManager
             $profile = app(\ZeroBoiler\Analytics\Services\AnalyticsProfileService::class);
 
             return $profile->getProfile($userId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'event_counts' => [],
                 'total_events' => 0,
@@ -2199,7 +2199,7 @@ final class AnalyticsManager
             $profile = app(\ZeroBoiler\Analytics\Services\AnalyticsProfileService::class);
 
             return $profile->getProfileSummary($userId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'user_id' => $userId,
                 'total_events' => 0,
@@ -2450,7 +2450,7 @@ final class AnalyticsManager
                 totalSteps: $totalSteps,
                 params: $params,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fallback to basic track if tracker unavailable
             $this->trackFunnel($funnelName, $stepName, $stepNumber, $totalSteps, $params);
 
@@ -2866,7 +2866,7 @@ final class AnalyticsManager
                 \ZeroBoiler\Analytics\Services\IdentityResolutionService::class,
             );
             $service->link($clientId, $userId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available — identity event still dispatched
         }
     }
@@ -2894,7 +2894,7 @@ final class AnalyticsManager
         try {
             $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
             $service->identify($groupId, $traits);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available — event still dispatched
         }
     }
@@ -2914,7 +2914,7 @@ final class AnalyticsManager
         try {
             $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
             $service->addMember($userId, $groupId, $role, $traits);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available
         }
 
@@ -2937,7 +2937,7 @@ final class AnalyticsManager
             $service = $this->getContainer()->make(\ZeroBoiler\Analytics\Services\GroupAnalyticsService::class);
 
             return $service->getGroup($groupId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'group_id' => $groupId,
                 'traits' => [],
@@ -2961,7 +2961,7 @@ final class AnalyticsManager
     {
         try {
             return $this->getContainer()->make(AnalyticsContextBus::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Return a fresh instance if container resolution fails
             return new AnalyticsContextBus($this->getContainer()->make(\Illuminate\Contracts\Config\Repository::class));
         }
@@ -3849,7 +3849,7 @@ final class AnalyticsManager
      * @param  int|null  $recordCount  Number of records exported
      * @param  array<string, mixed>  $params  Additional event parameters
      */
-    public function exportEvent(?string $format = null, ?string $resource = null, ?int $recordCount = null, array $params = []): void
+    public function trackExport(?string $format = null, ?string $resource = null, ?int $recordCount = null, array $params = []): void
     {
         $this->track('export', array_merge($params, array_filter([
             'format' => $format,
@@ -3870,7 +3870,7 @@ final class AnalyticsManager
      * @param  bool|null  $success  Whether the import succeeded
      * @param  array<string, mixed>  $params  Additional event parameters
      */
-    public function importEvent(?string $format = null, ?string $resource = null, ?int $recordCount = null, ?bool $success = null, array $params = []): void
+    public function importEventLegacy(?string $format = null, ?string $resource = null, ?int $recordCount = null, ?bool $success = null, array $params = []): void
     {
         $this->track('import', array_merge($params, array_filter([
             'format' => $format,

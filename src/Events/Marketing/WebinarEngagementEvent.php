@@ -27,7 +27,7 @@ final readonly class WebinarEngagementEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('webinar_engagement', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

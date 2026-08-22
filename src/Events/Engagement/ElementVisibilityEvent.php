@@ -38,7 +38,7 @@ final readonly class ElementVisibilityEvent extends AnalyticsEvent
         ?string $elementClass = null,
         ?string $section = null,
         ?string $pagePath = null,
-    ): void {
+    ){
         parent::__construct('element_visibility', array_filter([
             'element_id' => $elementId,
             'visibility_state' => $visibilityState,

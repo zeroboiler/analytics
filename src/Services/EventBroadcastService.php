@@ -62,7 +62,7 @@ final class EventBroadcastService
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly ?Broadcaster $broadcaster,
-    ): void {}
+    ){}
 
     /**
      * Check if event broadcasting is enabled.
@@ -147,7 +147,7 @@ final class EventBroadcastService
                     $payload,
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Broadcasting must never break the event pipeline
         }
     }
@@ -195,7 +195,7 @@ final class EventBroadcastService
                 'analytics.batch',
                 ['events' => $payloads, 'count' => count($payloads)],
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Broadcasting must never break the event pipeline
         }
     }

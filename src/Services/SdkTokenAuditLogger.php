@@ -91,8 +91,7 @@ final class SdkTokenAuditLogger
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $auditConfig = $config->get('zeroboiler.analytics.sdk_tokens.audit', []);

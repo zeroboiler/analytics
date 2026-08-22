@@ -87,7 +87,7 @@ final class TrafficSpikeShield
         float $throttleRatio = 0.1,
         array $eventOverrides = [],
         int $metricsTtl = 3600,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->normalThreshold = max($normalThreshold, 1);
         $this->spikeThreshold = max($spikeThreshold, $normalThreshold);

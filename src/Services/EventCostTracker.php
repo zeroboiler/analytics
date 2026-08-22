@@ -55,15 +55,15 @@ final class EventCostTracker
     /** @var array<string, float> Per-event cost weights per provider */
     private array $costWeights;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly float $budgetLimit;
+    private float $budgetLimit;
 
-    private readonly bool $enforceBudget;
+    private bool $enforceBudget;
 
     /** @var float Running cost accumulator for current request */
     private float $requestCost = 0.0;
@@ -78,7 +78,7 @@ final class EventCostTracker
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ): void {
+    ){
         $costConfig = $config->get('zeroboiler.analytics.cost_allocation', []);
         /** @var array{enabled?: bool, cache_prefix?: string, cache_ttl?: int, budget_limit?: float, enforce_budget?: bool, cost_weights?: array<string, float>} $costConfig */
 

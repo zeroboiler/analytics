@@ -41,7 +41,7 @@ final class StreamEvent
         public readonly ?string $sessionSequenceId,
         public readonly array $params,
         public readonly ?string $category,
-    ): void {}
+    ){}
 
     /**
      * Generate a stable ID from event components.

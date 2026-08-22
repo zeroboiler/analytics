@@ -80,7 +80,7 @@ final class CustomerProfileUnificationService
         ConfigRepository $config,
         UserPropertiesStore $propertiesStore,
         IdentityResolutionService $identityResolution,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->propertiesStore = $propertiesStore;
         $this->identityResolution = $identityResolution;

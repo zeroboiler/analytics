@@ -40,7 +40,7 @@ final class CampaignRoiService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $roiConfig = $config->get('zeroboiler.analytics.campaign_roi', []);
         /** @var array{enabled?: bool, cache_ttl?: int} $roiConfig */
 
@@ -344,7 +344,7 @@ final class CampaignRoiService
         try {
             $cached = $this->cache->get('zb_analytics_campaign_roi');
             $this->campaignSpend = is_array($cached) ? $cached : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->campaignSpend = [];
         }
     }
@@ -356,7 +356,7 @@ final class CampaignRoiService
     {
         try {
             $this->cache->put('zb_analytics_campaign_roi', $this->campaignSpend, $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable — data stays in-memory for this request
         }
     }

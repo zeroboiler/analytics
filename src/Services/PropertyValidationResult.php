@@ -32,7 +32,7 @@ final readonly class PropertyValidationResult
         public bool $valid,
         public array $violations = [],
         public array $warnings = [],
-    ): void {}
+    ){}
 
     /**
      * Check if validation passed with no violations.

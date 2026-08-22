@@ -25,7 +25,7 @@ final class GoogleAnalyticsService
 {
     public function __construct(
         protected GA4Tracker $tracker,
-    ): void {}
+    ){}
 
     /**
      * Track a page view.

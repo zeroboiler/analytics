@@ -41,17 +41,17 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  */
 final class GeospatialAnalyticsService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $topLocationsLimit;
+    private int $topLocationsLimit;
 
-    private readonly int $heatmapBucketSize;
+    private int $heatmapBucketSize;
 
-    private readonly bool $includeUnknown;
+    private bool $includeUnknown;
 
     /** @var array<string, array{lat: float, lng: float, code: string}> Country geodata lookup */
     private static array $countryGeo = [];
@@ -73,7 +73,7 @@ final class GeospatialAnalyticsService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $geoConfig = $config->get('zeroboiler.analytics.geospatial', []);
         /** @var array{enabled?: bool, cache_ttl?: int, top_locations_limit?: int, heatmap_bucket_size?: int, include_unknown?: bool} $geoConfig */
 

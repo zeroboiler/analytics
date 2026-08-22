@@ -49,8 +49,7 @@ final class SaaSFeatureFlagObserver
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
         $this->config = $config;
 

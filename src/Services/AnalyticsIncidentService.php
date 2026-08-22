@@ -97,7 +97,7 @@ final class AnalyticsIncidentService
         CacheRepository $cache,
         ConfigRepository $config,
         ?AnalyticsObservabilityService $observability = null,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->observability = $observability;
@@ -512,7 +512,7 @@ final class AnalyticsIncidentService
             $queueSize = \Illuminate\Support\Facades\Queue::size(
                 $this->config->get('zeroboiler.analytics.queue.queue', 'analytics'),
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
 
@@ -887,10 +887,10 @@ final class AnalyticsIncidentService
             try {
                 $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
                 $manager->trackEvent($event);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Don't let analytics failures break incident tracking
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail — incident tracking is critical path
         }
     }
@@ -918,10 +918,10 @@ final class AnalyticsIncidentService
             try {
                 $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
                 $manager->trackEvent($event);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Don't let analytics failures break incident tracking
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }

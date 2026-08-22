@@ -61,8 +61,7 @@ final class NotificationWebhookService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $notifConfig = $config->get('zeroboiler.analytics.notification_webhooks', []);

@@ -27,7 +27,7 @@ final readonly class ContentDownloadedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('content_downloaded', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

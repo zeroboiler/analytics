@@ -26,9 +26,9 @@ final class AnalyticsRateLimiter
      * @param  int  $decaySeconds  Decay window in seconds
      */
     public function __construct(
-        private readonly int $maxAttempts = 120,
-        private readonly int $decaySeconds = 60,
-    ): void {}
+        private int $maxAttempts = 120,
+        private int $decaySeconds = 60,
+    ){}
 
     /**
      * Attempt to process an event. Returns true if within rate limit.

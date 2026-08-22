@@ -30,7 +30,7 @@ final readonly class EmailClickedEvent extends AnalyticsEvent
         ?string $url = null,
         ?string $recipient = null,
         ?string $cta = null,
-    ): void {
+    ){
         parent::__construct('email_clicked', array_filter([
             'campaign' => $campaign,
             'url' => $url,

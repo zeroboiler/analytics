@@ -56,7 +56,7 @@ final class ReleaseChangelogGeneratorService
         CacheRepository $cache,
         EventCatalogVersioningEngine $versioningEngine,
         int $ttl = self::DEFAULT_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->versioningEngine = $versioningEngine;
         $this->ttl = $ttl;

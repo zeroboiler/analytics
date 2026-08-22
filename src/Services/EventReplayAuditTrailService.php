@@ -37,8 +37,7 @@ final class EventReplayAuditTrailService
     /**
      * @param  CacheRepository  $cache  Cache repository for audit trail storage
      */
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
         $this->maxEntries = 10000;
         $this->cacheTtl = 2592000; // 30 days

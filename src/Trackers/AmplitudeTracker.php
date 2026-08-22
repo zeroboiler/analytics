@@ -39,7 +39,7 @@ final class AmplitudeTracker implements TrackerInterface
         string $host = 'https://api2.amplitude.com',
         string $platform = 'Laravel/Server',
         bool $enabled = false,
-    ): void {
+    ){
         $this->apiKey = $apiKey;
         $this->host = rtrim($host, '/');
         $this->platform = $platform;
@@ -174,7 +174,7 @@ final class AmplitudeTracker implements TrackerInterface
                     'time' => time(),
                 ]],
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent fail — GDPR reset should not throw
         }
     }

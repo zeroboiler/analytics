@@ -66,8 +66,7 @@ final class AnalyticsDailyHealthReportService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 
@@ -477,7 +476,7 @@ final class AnalyticsDailyHealthReportService
         try {
             $coverage = EventCatalog::providerCoverageSummary();
             $details['provider_coverage'] = $coverage;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $details['provider_coverage'] = null;
         }
 

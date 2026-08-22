@@ -41,7 +41,7 @@ final class SubscriptionLifecycleService
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Track a trial started event.

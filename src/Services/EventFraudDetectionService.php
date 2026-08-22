@@ -71,7 +71,7 @@ final class EventFraudDetectionService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->config = $config->get('zeroboiler.analytics.fraud_detection', []);
         $this->cachePrefix = (string) ($this->config['cache_prefix'] ?? 'zb_fraud_');
         $this->metricsTtl = (int) ($this->config['metrics_ttl'] ?? 3600);

@@ -98,7 +98,7 @@ final class TrackingGuardRailsService
         CacheRepository $cache,
         ConfigRepository $config,
         AnalyticsManager $manager,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->manager = $manager;

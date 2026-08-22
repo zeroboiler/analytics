@@ -165,8 +165,7 @@ describe('v2.72.0 — Industry Standard SaaS Starter', function () {
             $all = EventCatalog::all();
 
             foreach ($all as $name => $entry) {
-                expect($entry['ga4'])->not->toBeEmpty(),
-                    "Event '{$name}' missing GA4 mapping";
+                expect($entry['ga4'])->not->toBeEmpty();
             }
         });
 
@@ -174,8 +173,7 @@ describe('v2.72.0 — Industry Standard SaaS Starter', function () {
             $all = EventCatalog::all();
 
             foreach ($all as $name => $entry) {
-                expect($entry['category'])->toBeIn(['ecommerce', 'saas', 'engagement']),
-                    "Event '{$name}' has invalid category '{$entry['category']}'";
+                expect($entry['category'])->toBeIn(['ecommerce', 'saas', 'engagement']);
             }
         });
 

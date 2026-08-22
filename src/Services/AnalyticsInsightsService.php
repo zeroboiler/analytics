@@ -44,7 +44,7 @@ final class AnalyticsInsightsService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         $insightsConfig = $config->get('zeroboiler.analytics.insights', []);
         /** @var InsightConfig $insightsConfig */
@@ -337,8 +337,8 @@ final class AnalyticsInsightsService
 
                     $insights[] = new AnalyticsInsight(
                         type: 'opportunity',
-                        title: "Funnel drop-off: {$steps[$i]} → {$steps[$i + 1]}",
-                        description: round($dropOffRate * 100, 1) . '% drop-off between '{$steps[$i]}' ({$fromCount}) and '{$steps[$i + 1]}' ({$toCount}). Est. +{$improvementPotential} conversions if improved by 10%.',
+                        title: 'Funnel drop-off: ' . $steps[$i] . ' → ' . $steps[$i + 1],
+                        description: round($dropOffRate * 100, 1) . '% drop-off between ' . $steps[$i] . ' (' . $fromCount . ') and ' . $steps[$i + 1] . ' (' . $toCount . '). Est. +' . $improvementPotential . ' conversions if improved by 10%.',
                         score: $score,
                         eventName: $steps[$i],
                         metadata: [
@@ -350,7 +350,7 @@ final class AnalyticsInsightsService
                             'improvement_potential' => $improvementPotential,
                             'funnel_steps' => $steps,
                         ],
-                        recommendation: "Investigate the '{$steps[$i]} → {$steps[$i + 1]}' transition. Consider UX improvements, reducing friction, or adding social proof.",
+                        recommendation: 'Investigate the \'{$steps[$i]} → ' . (steps[$i + 1]) . '\' transition. Consider UX improvements, reducing friction, or adding social proof.',
                     );
                 }
             }
@@ -402,7 +402,7 @@ final class AnalyticsInsightsService
     {
         try {
             Cache::forget(self::CACHE_PREFIX . 'generated');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }

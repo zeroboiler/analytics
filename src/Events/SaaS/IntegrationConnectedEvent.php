@@ -30,7 +30,7 @@ final readonly class IntegrationConnectedEvent extends AnalyticsEvent
         string $integrationName,
         ?string $userId = null,
         array $extra = [],
-    ): void {
+    ){
         $baseParams = array_filter([
             'integration_name' => $integrationName,
             'user_id' => $userId,

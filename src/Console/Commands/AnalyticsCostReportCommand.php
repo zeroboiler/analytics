@@ -45,8 +45,7 @@ final class AnalyticsCostReportCommand extends Command
 
     private EventCostTracker $costTracker;
 
-    public function __construct(EventCostTracker $costTracker): void
-    {
+    public function __construct(EventCostTracker $costTracker){
         parent::__construct();
         $this->costTracker = $costTracker;
     }

@@ -136,8 +136,7 @@ final class AnalyticsFake
     private MixpanelTracker $mixpanel;
     private AmplitudeTracker $amplitude;
 
-    public function __construct(): void
-    {
+    public function __construct(){
         $this->metrics = new AnalyticsMetrics;
         $this->interceptors = new EventInterceptorRegistry;
 

@@ -109,7 +109,7 @@ final class AnalyticsEventGateway
         EventDeduplicationService $dedup,
         ProviderCircuitBreaker $circuitBreaker,
         ProviderRateLimitService $rateLimiter,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->dispatcher = $dispatcher;

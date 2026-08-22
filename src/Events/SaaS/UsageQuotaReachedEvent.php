@@ -41,7 +41,7 @@ final readonly class UsageQuotaReachedEvent extends AnalyticsEvent
         ?float $usagePercentage = null,
         ?string $userId = null,
         ?string $clientId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'usage_quota_reached',
             params: array_filter([

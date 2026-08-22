@@ -39,7 +39,7 @@ final class EventValidationService
     /**
      * @param  array<string, mixed>  $config
      */
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         $validationConfig = $config->get('zeroboiler.analytics.validation', []);
         /** @var array{strict?: bool, whitelist?: list<string>, max_event_name_length?: int, max_param_key_length?: int, deduplication_window?: int, max_recent_events?: int} $validationConfig */

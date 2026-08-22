@@ -5,15 +5,15 @@
 
 declare(strict_types=1);
 
-use ZeroBoiler\\Analytics\\AnalyticsManager;
-use ZeroBoiler\\Analytics\\Events\\EventCatalog;
-use ZeroBoiler\\Analytics\\Events\\Ecommerce\\EcommerceEvents;
-use ZeroBoiler\\Analytics\\Events\\SaaS\\SaaSEvents;
-use ZeroBoiler\\Analytics\\Events\\Engagement\\EngagementEvents;
+use ZeroBoiler\Analytics\AnalyticsManager;
+use ZeroBoiler\Analytics\Events\EventCatalog;
+use ZeroBoiler\Analytics\Events\Ecommerce\EcommerceEvents;
+use ZeroBoiler\Analytics\Events\SaaS\SaaSEvents;
+use ZeroBoiler\Analytics\Events\Engagement\EngagementEvents;
 
 beforeEach(function (): void {
     $this->manager = new AnalyticsManager(
-        new Illuminate\\Config\\Repository([
+        new Illuminate\Config\Repository([
             'zeroboiler' => [
                 'analytics' => [
                     'ga4' => ['enabled' => false, 'measurement_id' => '', 'api_secret' => ''],

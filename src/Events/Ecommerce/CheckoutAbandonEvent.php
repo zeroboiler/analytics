@@ -36,7 +36,7 @@ final readonly class CheckoutAbandonEvent extends AnalyticsEvent
         ?int $cartItemCount = null,
         ?int $timeOnStep = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'checkout_abandon',
             params: array_filter(array_merge([

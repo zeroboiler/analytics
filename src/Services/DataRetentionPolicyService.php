@@ -71,7 +71,7 @@ final class DataRetentionPolicyService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $retentionConfig = $config->get('zeroboiler.analytics.retention', []);
         /** @var array{enabled?: bool, periods?: array<string, int>, auto_expire?: bool, cache_prefix?: string, pii_categories?: list<string>, log_actions?: bool} $retentionConfig */
 

@@ -45,8 +45,8 @@ final class CostForecastProjection
         public readonly int $confidenceInterval,
         public readonly float $lowerBound,
         public readonly float $upperBound,
-        public readonly array $breakdown = [],
-    ): void {}
+        public array $breakdown = [],
+    ){}
 
     /**
      * Calculate the cost change percentage vs current period.

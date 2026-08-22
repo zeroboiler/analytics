@@ -33,8 +33,7 @@ final class AnalyticsDeliveryCommand extends Command
 
     private EventDeliveryConfirmationService $service;
 
-    public function __construct(EventDeliveryConfirmationService $service): void
-    {
+    public function __construct(EventDeliveryConfirmationService $service){
         parent::__construct();
         $this->service = $service;
     }

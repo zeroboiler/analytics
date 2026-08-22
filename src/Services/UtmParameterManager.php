@@ -118,7 +118,7 @@ final class UtmParameterManager
     /**
      * Create a new UTM Parameter Manager.
      */
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         $utmConfig = $config->get('zeroboiler.analytics.utm_manager', []);
         /** @var array{enabled?: bool, max_value_length?: int, max_key_length?: int, lowercase_source_medium?: bool, trim_values?: bool, strip_html?: bool, aliases?: array<string, string>, required_for_completeness?: list<string>, internal_params?: list<string>} $utmConfig */

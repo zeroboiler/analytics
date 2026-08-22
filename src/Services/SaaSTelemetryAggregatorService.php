@@ -59,7 +59,7 @@ final class SaaSTelemetryAggregatorService
         CacheRepository $cache,
         ConfigRepository $config,
         private readonly AnalyticsManager $manager,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->cachePrefix = (string) ($config->get('zeroboiler.analytics.saas_telemetry.cache_prefix', 'zb_telemetry_'));
         $this->cacheTtl = (int) ($config->get('zeroboiler.analytics.saas_telemetry.cache_ttl', 60));

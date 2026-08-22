@@ -41,8 +41,7 @@ final class EventWindowAggregator
      * @param  CacheRepository  $cache  Application cache
      * @param  ConfigRepository  $config  Analytics config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $aggConfig = $config->get('zeroboiler.analytics.windowed_aggregation', []);

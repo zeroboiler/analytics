@@ -59,7 +59,7 @@ final class RevenueAttributionDashboardService
         AnalyticsMetrics $metrics,
         EventStoreManager $store,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->store = $store;

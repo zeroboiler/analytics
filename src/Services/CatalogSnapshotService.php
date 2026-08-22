@@ -49,7 +49,7 @@ final class CatalogSnapshotService
         CacheRepository $cache,
         bool $enabled = true,
         int $ttl = self::DEFAULT_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->enabled = $enabled;
         $this->ttl = $ttl;

@@ -31,20 +31,19 @@ use ZeroBoiler\Analytics\DTO\FunnelVelocityReport;
  */
 final class FunnelVelocityService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $percentileWindow;
+    private int $percentileWindow;
 
     /** @var array<string, list<string>> Built-in funnel definitions */
-    private readonly array $builtInFunnels;
+    private array $builtInFunnels;
 
     private const CACHE_PREFIX = 'zb_fv_';
 
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $fvConfig = $config->get('zeroboiler.analytics.funnel_velocity', []);
         /** @var array{enabled?: bool, percentile_window?: int} $fvConfig */
 

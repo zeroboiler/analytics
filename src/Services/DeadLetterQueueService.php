@@ -42,8 +42,7 @@ final class DeadLetterQueueService
     /** @var int Maximum events to buffer before auto-flush */
     private int $bufferSize;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $dlqConfig = $config->get('zeroboiler.analytics.dead_letter_queue', []);
         /** @var array{enabled?: bool, strategy?: string, storage_path?: string, max_size?: int, buffer_size?: int} $dlqConfig */
 

@@ -28,7 +28,7 @@ final readonly class ReferralLinkSharedEvent extends AnalyticsEvent
         ?string $channel = null,
         ?string $referrerCode = null,
         ?string $campaign = null,
-    ): void {
+    ){
         parent::__construct('referral_link_shared', array_filter([
             'channel' => $channel,
             'referrer_code' => $referrerCode,

@@ -27,7 +27,7 @@ final readonly class SmsClickedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('sms_clicked', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

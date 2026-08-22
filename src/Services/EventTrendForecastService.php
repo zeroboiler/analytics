@@ -92,7 +92,7 @@ final class EventTrendForecastService
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
 
@@ -701,7 +701,7 @@ final class EventTrendForecastService
             $recent = $streamService->getRecentEvents(5000);
 
             return $this->aggregateDailyCounts($recent, $eventName, $days);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -740,7 +740,7 @@ final class EventTrendForecastService
                 if (isset($dailyCounts[$dateStr])) {
                     $dailyCounts[$dateStr]++;
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 continue;
             }
         }

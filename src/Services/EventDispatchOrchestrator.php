@@ -73,21 +73,21 @@ final class EventDispatchOrchestrator
     public const ACTION_CONSENT_DENIED = 'consent_denied';
 
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $decisionTtl;
+    private int $decisionTtl;
 
-    private readonly int $maxDecisions;
+    private int $maxDecisions;
 
-    private readonly float $minReliabilityAuto;
+    private float $minReliabilityAuto;
 
-    private readonly float $minReliabilityCritical;
+    private float $minReliabilityCritical;
 
-    private readonly bool $logDecisions;
+    private bool $logDecisions;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /** @var int Decision counter for unique IDs */
     private int $decisionCounter = 0;
@@ -99,7 +99,7 @@ final class EventDispatchOrchestrator
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $orchConfig = $config->get('zeroboiler.analytics.dispatch_orchestrator', []);

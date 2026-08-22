@@ -65,9 +65,9 @@ final class AnalyticsCleanRoomService
     /** @var int Default audit trail retention (seconds, 90 days) */
     private const DEFAULT_AUDIT_RETENTION = 7776000;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     private bool $enabled;
 
@@ -96,8 +96,7 @@ final class AnalyticsCleanRoomService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

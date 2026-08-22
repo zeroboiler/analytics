@@ -57,8 +57,7 @@ final class FunnelLeakDetectionService
     /**
      * @param  array{enabled?: bool, cache_ttl?: int, leak_threshold?: float, critical_threshold?: float, custom_funnels?: array<string, array{steps: list<string>, leak_threshold?: float}>}  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []){
         $fullConfig = $configRepo->get('zeroboiler.analytics.funnel_leak_detection', []);
         $merged = array_merge($fullConfig, $config);
 

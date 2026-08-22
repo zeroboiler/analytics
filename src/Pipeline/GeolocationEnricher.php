@@ -59,7 +59,7 @@ final class GeolocationEnricher
         string $cityHeader = '',
         bool $enabled = true,
         ?DeviceContextService $deviceService = null,
-    ): void {
+    ){
         $this->strategy = $strategy;
         $this->countryHeader = $countryHeader;
         $this->regionHeader = $regionHeader;
@@ -270,7 +270,7 @@ final class GeolocationEnricher
                     'geo_timezone' => $record->location->timeZone,
                     'geo_continent' => $record->continent->code,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 return [];
             }
         }
@@ -289,7 +289,7 @@ final class GeolocationEnricher
                     'geo_region' => $record['region'] ?? null,
                     'geo_city' => $record['city'] ?? null,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 return [];
             }
         }

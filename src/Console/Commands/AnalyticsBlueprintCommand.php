@@ -36,8 +36,7 @@ final class AnalyticsBlueprintCommand extends Command
 
     private EventBlueprintRegistry $registry;
 
-    public function __construct(EventBlueprintBuilderService $builder, EventBlueprintRegistry $registry): void
-    {
+    public function __construct(EventBlueprintBuilderService $builder, EventBlueprintRegistry $registry){
         parent::__construct();
         $this->builder = $builder;
         $this->registry = $registry;

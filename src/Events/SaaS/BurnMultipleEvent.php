@@ -34,7 +34,7 @@ final class BurnMultipleEvent extends AnalyticsEvent
         float $netNewArr,
         ?string $period = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'burn_multiple' => $burnMultiple,
             'net_burn' => $netBurn,

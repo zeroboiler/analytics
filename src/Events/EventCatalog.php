@@ -246,7 +246,7 @@ final class EventCatalog
             MarketingEvents::ga4Names(),
             CustomerSuccessEvents::ga4Names(),
             WebhookEvents::ga4Names(),
-        ))));
+        )));
     }
 
     /**

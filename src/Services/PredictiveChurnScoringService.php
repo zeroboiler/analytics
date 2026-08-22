@@ -120,8 +120,7 @@ final class PredictiveChurnScoringService
      * @param  CacheRepository|null  $cache  Application cache
      * @param  ConfigRepository|null  $config  Analytics configuration
      */
-    public function __construct(?CacheRepository $cache = null, ?ConfigRepository $config = null): void
-    {
+    public function __construct(?CacheRepository $cache = null, ?ConfigRepository $config = null){
         $this->cache = $cache ?? app(CacheRepository::class);
         $configRepo = $config ?? app(ConfigRepository::class);
         $churnConfig = $configRepo->get('zeroboiler.analytics.churn_prediction', []);

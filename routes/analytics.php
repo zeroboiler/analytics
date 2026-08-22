@@ -781,7 +781,7 @@ Route::prefix('analytics')->group(function () {
     Route::get('correlation-analyzer/matrix', [AnalyticsEventController::class, 'correlationAnalyzerMatrix']);
 
     // Product-Market Fit Scoring (v61.0.0)
-    Route::post('pmf/score', [AnalyticsEventController::class, 'pmfScore']);
+    Route::post('pmf/score', [AnalyticsEventController::class, 'pmfScoreLegacy']);
     Route::get('pmf/summary', [AnalyticsEventController::class, 'pmfSummary']);
 
     // First-Value Detection (v61.0.0)

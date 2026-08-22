@@ -62,11 +62,11 @@ final class AnalyticsCompositeHealthIndex
     ];
 
     /** @var array<string, float> Configurable dimension weights (must sum to 1.0) */
-    private readonly array $dimensionWeights;
+    private array $dimensionWeights;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /**
      * @param  CacheRepository  $cache
@@ -77,7 +77,7 @@ final class AnalyticsCompositeHealthIndex
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $healthConfig = $config->get('zeroboiler.analytics.composite_health', []);
         /** @var array{enabled?: bool, cache_ttl?: int, weights?: array<string, float>} $healthConfig */
 
@@ -321,7 +321,7 @@ final class AnalyticsCompositeHealthIndex
             $details = sprintf('%d/%d recommended events tracked (%.1f%%)', $trackedCount, $totalRecommended, $score);
 
             return $this->buildDimension('Catalog Completeness', 0.15, $score, $details);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildDimension('Catalog Completeness', 0.15, 50.0, 'Unable to evaluate catalog completeness');
         }
     }
@@ -355,7 +355,7 @@ final class AnalyticsCompositeHealthIndex
             $details = sprintf('Average quality score: %.1f/100 (%d events sampled)', $avgScore, $count);
 
             return $this->buildDimension('Data Quality', 0.20, $avgScore, $details);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildDimension('Data Quality', 0.20, 50.0, 'Quality scoring unavailable');
         }
     }
@@ -395,7 +395,7 @@ final class AnalyticsCompositeHealthIndex
             );
 
             return $this->buildDimension('Dispatch Reliability', 0.20, $score, $details);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildDimension('Dispatch Reliability', 0.20, 50.0, 'Dispatch reliability unavailable');
         }
     }
@@ -443,7 +443,7 @@ final class AnalyticsCompositeHealthIndex
             $this->cache->put($baselineKey, $newBaseline, 3600);
 
             return $this->buildDimension('Event Volume Health', 0.10, $score, $details);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildDimension('Event Volume Health', 0.10, 50.0, 'Volume health unavailable');
         }
     }
@@ -504,7 +504,7 @@ final class AnalyticsCompositeHealthIndex
                 : implode('; ', $issues);
 
             return $this->buildDimension('Consent Compliance', 0.15, $score, $details);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildDimension('Consent Compliance', 0.15, 50.0, 'Consent evaluation unavailable');
         }
     }

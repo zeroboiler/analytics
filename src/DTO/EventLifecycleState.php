@@ -128,7 +128,7 @@ final readonly class EventLifecycleState
         public int $attemptCount = 0,
         public array $metadata = [],
         public array $history = [],
-    ): void {}
+    ){}
 
     /**
      * Check if the transition from current state to target is valid.

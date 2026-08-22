@@ -89,22 +89,22 @@ final class EventDeliveryWatermarkService
      * @phpstan-type ProviderStatus array{provider: string, confirmed_watermark: int, lag: int, global_hwm: int, status: 'current'|'lagging'|'behind'|'critical', last_event: string|null, gap_count: int}
      */
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $ttl;
+    private int $ttl;
 
-    private readonly int $logSize;
+    private int $logSize;
 
-    private readonly int $gapWindow;
+    private int $gapWindow;
 
-    private readonly int $lagWarningThreshold;
+    private int $lagWarningThreshold;
 
-    private readonly int $lagCriticalThreshold;
+    private int $lagCriticalThreshold;
 
     /** @var list<string> Known provider names */
-    private readonly array $providers;
+    private array $providers;
 
     /**
      * @param  CacheRepository  $cache  Cache repository
@@ -113,7 +113,7 @@ final class EventDeliveryWatermarkService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $wmConfig = $config->get('zeroboiler.analytics.watermark', []);

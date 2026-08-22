@@ -32,28 +32,28 @@ final class EventGovernanceService
 {
     private const CACHE_PREFIX = 'zb_governance_';
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly bool $enforceOnDispatch;
+    private bool $enforceOnDispatch;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, EventRegistration> Registered event governance records */
     private array $registrations = [];
 
     /** @var list<string> Reserved event name prefixes (e.g., '$' for PostHog reserved) */
-    private readonly array $reservedPrefixes;
+    private array $reservedPrefixes;
 
-    private readonly EventNamingConventionService $namingService;
+    private EventNamingConventionService $namingService;
 
-    private readonly EventDeprecationService $deprecationService;
+    private EventDeprecationService $deprecationService;
 
-    private readonly DataQualityScorer $qualityScorer;
+    private DataQualityScorer $qualityScorer;
 
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $governanceConfig = $config->get('zeroboiler.analytics.governance', []);
         /** @var array{enabled?: bool, enforce_on_dispatch?: bool, cache_ttl?: int, reserved_prefixes?: list<string>} $governanceConfig */
 
@@ -516,7 +516,7 @@ final class EventGovernanceService
 
                 return;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
 
@@ -534,7 +534,7 @@ final class EventGovernanceService
                 $this->registrations,
                 $this->cacheTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

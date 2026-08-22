@@ -24,8 +24,7 @@ final class EventSchemaRegistry implements \Countable
     /** @var array<string, EventSchema> */
     private array $schemas = [];
 
-    public function __construct(): void
-    {
+    public function __construct(){
         $this->registerEcommerceSchemas();
         $this->registerSaaSSchemas();
         $this->registerEngagementSchemas();

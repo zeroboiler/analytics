@@ -104,7 +104,7 @@ final class ConsentAwareFilter
         bool $enabled = true,
         ?array $customPurposeMap = null,
         ?ConsentLogService $consentLogService = null,
-    ): void {
+    ){
         $this->enabled = $enabled;
         $this->consentLogService = $consentLogService;
         $this->purposeMap = $customPurposeMap ?? self::DEFAULT_PURPOSE_MAP;

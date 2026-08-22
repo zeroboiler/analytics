@@ -47,23 +47,23 @@ final class CohortRevenueAttributionService
 
     private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly float $defaultMonthlyChurnRate;
+    private float $defaultMonthlyChurnRate;
 
-    private readonly float $defaultArpu;
+    private float $defaultArpu;
 
-    private readonly int $maxCohorts;
+    private int $maxCohorts;
 
-    private readonly int $projectionMonths;
+    private int $projectionMonths;
 
-    private readonly string $currency;
+    private string $currency;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
-    private readonly AnalyticsMetrics $metrics;
+    private AnalyticsMetrics $metrics;
 
     /**
      * Revenue event names that count towards cohort revenue attribution.
@@ -116,7 +116,7 @@ final class CohortRevenueAttributionService
         AnalyticsMetrics $metrics,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->cache = $cache;

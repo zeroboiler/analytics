@@ -45,8 +45,7 @@ final class EventOrchestrationService
     /** @var array<string, array{name: string, steps: list<array{name: string, event: string, required: bool, timeout_seconds: int}>, on_complete_event: string|null, on_timeout_event: string|null, on_failure_event: string|null, metadata: array<string, mixed>}> */
     private array $pipelines = [];
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
         $this->config = $config;
 
@@ -186,7 +185,7 @@ final class EventOrchestrationService
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
 
         // Check for existing active pipeline
-        $existing = $this->getPipelineState($key);
+        $existing = $this->loadPipelineStateFromStore($key);
         if ($existing !== null && ($existing['status'] ?? '') === 'active') {
             return $existing;
         }
@@ -245,12 +244,12 @@ final class EventOrchestrationService
     ): array {
         $this->ensurePipelineExists($pipelineName);
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
-        $state = $this->getPipelineState($key);
+        $state = $this->loadPipelineStateFromStore($key);
 
         if ($state === null) {
             // Auto-start if not exists
             $this->startPipeline($pipelineName, $clientId, $userId, $params);
-            $state = $this->getPipelineState($key);
+            $state = $this->loadPipelineStateFromStore($key);
         }
 
         $pipeline = $this->pipelines[$pipelineName];
@@ -310,7 +309,7 @@ final class EventOrchestrationService
             $state['last_step_at'] = $this->nowIso8601();
 
             // Check completion
-            $isComplete = $this->isPipelineComplete($pipeline, $state['completed_steps']);
+            $isComplete = $this->allRequiredStepsComplete($pipeline, $state['completed_steps']);
 
             if ($isComplete) {
                 $state['status'] = 'completed';
@@ -358,7 +357,7 @@ final class EventOrchestrationService
     ): array {
         $this->ensurePipelineExists($pipelineName);
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
-        $state = $this->getPipelineState($key);
+        $state = $this->loadPipelineStateFromStore($key);
 
         if ($state === null) {
             $state = $this->startPipeline($pipelineName, $clientId, $userId, $params);
@@ -406,7 +405,7 @@ final class EventOrchestrationService
     ): array {
         $this->ensurePipelineExists($pipelineName);
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
-        $state = $this->getPipelineState($key);
+        $state = $this->loadPipelineStateFromStore($key);
 
         if ($state === null) {
             return [
@@ -450,7 +449,7 @@ final class EventOrchestrationService
     {
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
 
-        return $this->getPipelineState($key);
+        return $this->loadPipelineStateFromStore($key);
     }
 
     /**
@@ -739,7 +738,7 @@ final class EventOrchestrationService
      * @param  array<string, mixed>  $pipeline
      * @param  list<string>  $completedSteps
      */
-    private function isPipelineComplete(array $pipeline, array $completedSteps): bool
+    private function allRequiredStepsComplete(array $pipeline, array $completedSteps): bool
     {
         foreach ($pipeline['steps'] as $step) {
             if ($step['required'] && ! in_array($step['name'], $completedSteps, true)) {
@@ -841,7 +840,7 @@ final class EventOrchestrationService
      *
      * @return array<string, mixed>|null
      */
-    private function getPipelineState(string $key): ?array
+    private function loadPipelineStateFromStore(string $key): ?array
     {
         /** @var array<string, mixed>|null $state */
         $state = Cache::get($key);

@@ -179,7 +179,7 @@ final class EventLifecycleHooks
         foreach ($this->errorHooks as $hook) {
             try {
                 $hook($event, $exception);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Error hooks should never throw
             }
         }
@@ -195,7 +195,7 @@ final class EventLifecycleHooks
         foreach ($this->finallyHooks as $hook) {
             try {
                 $hook($event);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Finally hooks should never throw
             }
         }

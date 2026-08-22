@@ -41,8 +41,7 @@ final class EventSessionContextService
      * @param  CacheRepository  $cache  Cache repository for device/geo lookups
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
         $this->settings = $config->get('zeroboiler.analytics.session_context', []);
@@ -341,7 +340,7 @@ final class EventSessionContextService
     /**
      * Check if session context service is globally enabled.
      */
-    public function isEnabled(): bool
+    public function isGloballyEnabled(): bool
     {
         return (bool) ($this->settings['enabled'] ?? false);
     }
@@ -370,7 +369,7 @@ final class EventSessionContextService
     public function getStats(): array
     {
         return [
-            'enabled' => $this->isEnabled(),
+            'enabled' => $this->isGloballyEnabled(),
             'features' => [
                 'device_parsing' => $this->isEnabled('device_parsing'),
                 'geolocation' => $this->isEnabled('geolocation'),

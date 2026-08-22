@@ -73,7 +73,7 @@ final class AnalyticsDataRetentionService
         CacheRepository $cache,
         EventArchiveService $archive,
         ConfigRepository $config,
-    ): void {
+    ){
         $retentionConfig = $config->get('zeroboiler.analytics.data_retention', []);
         /** @var array{enabled?: bool, default_days?: int, categories?: array<string, int>, cache_prefix?: string, cache_ttl?: int, gdpr_erase_enabled?: bool, purge_batch_size?: int, log_purge?: bool} $retentionConfig */
 

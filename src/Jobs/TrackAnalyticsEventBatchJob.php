@@ -28,7 +28,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  *
  * @since 1.0.0
  */
-final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
+final class TrackAnalyticsEventBatchJob implements ShouldQueue
 {
     use InteractsWithQueue;
     use Queueable;
@@ -53,7 +53,7 @@ final readonly class TrackAnalyticsEventBatchJob implements ShouldQueue
      */
     public function __construct(
         public array $events,
-    ): void {}
+    ){}
 
     /**
      * Execute the job — dispatch all events to all enabled trackers.

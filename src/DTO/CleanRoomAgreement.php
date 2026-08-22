@@ -47,7 +47,7 @@ final readonly class CleanRoomAgreement
         public string $status,
         public int $kAnonymity,
         public ?string $revokedAt = null,
-    ): void {}
+    ){}
 
     /**
      * Check if the agreement is active.

@@ -59,7 +59,7 @@ final class EventCorrelationAnalyzerService
         CacheRepository $cache,
         ConfigRepository $config,
         ?EventStoreManager $store = null,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->store = $store;
@@ -413,7 +413,7 @@ final class EventCorrelationAnalyzerService
 
             /** @var list<array{count: int}> $results */
             return array_map(static fn (array $r): ?float => $r['count'] ?? null, $results);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -442,7 +442,7 @@ final class EventCorrelationAnalyzerService
             return is_array($results) && isset($results[0]['count'])
                 ? (int) $results[0]['count']
                 : 0;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }
@@ -481,7 +481,7 @@ final class EventCorrelationAnalyzerService
 
             /** @var array{count: int} $results */
             return $results;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['count' => 0];
         }
     }

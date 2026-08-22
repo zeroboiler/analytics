@@ -85,7 +85,7 @@ final class EventTraceContextService
         bool $enabled = true,
         bool $strictMode = true,
         bool $autoEnrich = true,
-    ): void {
+    ) {
         $this->enabled = $enabled;
         $this->strictMode = $strictMode;
         $this->autoEnrich = $autoEnrich;

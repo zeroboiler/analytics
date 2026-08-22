@@ -59,8 +59,7 @@ final class AnalyticsAuditLogService
      * @param  CacheRepository  $cache
      * @param  array<string, mixed>  $config  zeroboiler.analytics.audit_log
      */
-    public function __construct(CacheRepository $cache, array $config): void
-    {
+    public function __construct(CacheRepository $cache, array $config){
         $this->cache = $cache;
         $this->enabled = (bool) ($config['enabled'] ?? false);
         $this->retentionDays = (int) ($config['retention_days'] ?? 90);

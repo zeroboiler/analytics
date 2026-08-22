@@ -28,7 +28,7 @@ final readonly class EmailOpenedEvent extends AnalyticsEvent
         ?string $campaign = null,
         ?string $recipient = null,
         ?string $template = null,
-    ): void {
+    ){
         parent::__construct('email_opened', array_filter([
             'campaign' => $campaign,
             'recipient' => $recipient,

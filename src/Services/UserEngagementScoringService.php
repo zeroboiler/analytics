@@ -42,7 +42,7 @@ final class UserEngagementScoringService
         private CacheRepository $cache,
         private AnalyticsMetrics $metrics,
         ConfigRepository $config,
-    ): void {
+    ){
         $scoringConfig = $config->get('zeroboiler.analytics.engagement_scoring', []);
         /** @var array{weights?: array<string, float>, cache_ttl?: int, recency_half_life?: int, max_events_window?: int} $scoringConfig */
         $this->config = [

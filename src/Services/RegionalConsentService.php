@@ -108,8 +108,7 @@ final class RegionalConsentService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $regionalConfig = $config->get('zeroboiler.analytics.regional_consent', []);
         /** @var array{enabled?: bool, additional_regions?: list<string>, excluded_regions?: list<string>, default_consent?: string, gdpr_default?: string, gdpr_region_default?: string} $regionalConfig */
 

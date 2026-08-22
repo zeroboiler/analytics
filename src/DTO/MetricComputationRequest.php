@@ -46,7 +46,7 @@ final readonly class MetricComputationRequest
         public ?int $limit = null,
         public int $offset = 0,
         public ?string $cacheKey = null,
-    ): void {}
+    ){}
 
     /**
      * Create a simple request for a named metric.

@@ -58,8 +58,7 @@ final class EventEnrichmentRegistry
      *
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $pluginConfig = $config->get('zeroboiler.analytics.enrichment_plugins', []);
         /** @var array{enabled?: bool, disabled?: list<string>, plugins?: list<class-string<EventEnrichmentPlugin>>, debug?: bool} $pluginConfig */
 
@@ -195,7 +194,7 @@ final class EventEnrichmentRegistry
     /**
      * Check if the enrichment plugin system is enabled.
      */
-    public function isEnabled(): bool
+    public function isPluginSystemEnabled(): bool
     {
         return $this->enabled;
     }

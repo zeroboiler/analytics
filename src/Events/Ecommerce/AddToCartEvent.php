@@ -36,7 +36,7 @@ final readonly class AddToCartEvent extends AnalyticsEvent
         string $currency = 'USD',
         ?string $itemCategory = null,
         ?string $itemVariant = null,
-    ): void {
+    ){
         parent::__construct('add_to_cart', array_filter([
             'currency' => $currency,
             'value' => ($price ?? 0) * $quantity,

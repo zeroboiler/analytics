@@ -17,8 +17,8 @@ use ZeroBoiler\Analytics\Enrichment\EventEnrichmentRegistry;
 final class TagEnrichmentPlugin implements EventEnrichmentPlugin
 {
     public function __construct(
-        private readonly string $tag = 'enriched',
-        private readonly int $priority = 0,
+        private string $tag = 'enriched',
+        private int $priority = 0,
     ) {}
 
     public function name(): string
@@ -54,7 +54,7 @@ final class TagEnrichmentPlugin implements EventEnrichmentPlugin
 final class DropFilterPlugin implements EventEnrichmentPlugin
 {
     public function __construct(
-        private readonly string $dropEventName = 'drop_me',
+        private string $dropEventName = 'drop_me',
     ) {}
 
     public function name(): string
@@ -154,7 +154,7 @@ describe('EventEnrichmentRegistry', function () {
         $registry = new EventEnrichmentRegistry($config);
 
         expect($registry->count())->toBe(0)
-            ->and($registry->isEnabled())->toBeTrue()
+            ->and($registry->isPluginSystemEnabled())->toBeTrue()
             ->and($registry->names())->toBe([])
             ->and($registry->all())->toBe([]);
     });

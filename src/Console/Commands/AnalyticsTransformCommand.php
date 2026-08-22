@@ -43,7 +43,7 @@ final class AnalyticsTransformCommand extends Command
         'mixpanel', 'amplitude', 'webhook', 'tiktok', 'linkedin',
     ];
 
-    private ?EventTransformationEngine $engine = null;
+    private $engine = null;
 
     #[Override]
     public function handle(): int

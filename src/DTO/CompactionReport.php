@@ -45,7 +45,7 @@ final readonly class CompactionReport
         public float $durationMs,
         public string $healthGrade,
         public array $recommendations,
-    ): void  {}
+    ){}
 
     /**
      * Build a compaction report from individual results.

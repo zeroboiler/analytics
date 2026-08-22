@@ -91,8 +91,7 @@ final class EventRecommendationService
     /** @var list<string> */
     private array $excludedEvents;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

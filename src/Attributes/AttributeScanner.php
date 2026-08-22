@@ -38,7 +38,7 @@ final class AttributeScanner
     {
         try {
             $reflection = new ReflectionClass($className);
-        } catch (\ReflectionException) {
+        } catch (\ReflectionException $e) {
             return null;
         }
 
@@ -65,7 +65,7 @@ final class AttributeScanner
 
         try {
             $reflection = new ReflectionClass($className);
-        } catch (\ReflectionException) {
+        } catch (\ReflectionException $e) {
             return $mappings;
         }
 

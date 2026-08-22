@@ -42,7 +42,7 @@ final readonly class MrrMovementEvent extends AnalyticsEvent
         ?string $billingCycle = null,
         ?string $reason = null,
         ?string $effectiveDate = null,
-    ): void {
+    ){
         parent::__construct(
             'mrr_movement',
             array_filter([

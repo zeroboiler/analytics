@@ -36,7 +36,7 @@ final readonly class UpcomingRenewalEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'upcoming_renewal',
             params: array_merge($params, [

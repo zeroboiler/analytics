@@ -31,11 +31,11 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  */
 final class ProviderEventCompatibilityMatrix
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     private CacheRepository $cache;
 
@@ -48,8 +48,7 @@ final class ProviderEventCompatibilityMatrix
      * @param  CacheRepository  $cache  Cache repository for computed results
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $matrixConfig = $config->get('zeroboiler.analytics.provider_matrix', []);
@@ -106,7 +105,7 @@ final class ProviderEventCompatibilityMatrix
             if ($cached !== null) {
                 return $cached;
             }
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Fall through to compute
         }
 
@@ -138,7 +137,7 @@ final class ProviderEventCompatibilityMatrix
 
         try {
             $this->cache->put($this->cachePrefix . 'provider_coverage', $coverage, $this->cacheTtl);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
 
@@ -403,7 +402,7 @@ final class ProviderEventCompatibilityMatrix
     {
         try {
             $this->cache->forget($this->cachePrefix . 'provider_coverage');
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }

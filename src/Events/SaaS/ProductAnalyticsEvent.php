@@ -42,7 +42,7 @@ final readonly class ProductAnalyticsEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'product_analytics',
             params: array_merge($params, [

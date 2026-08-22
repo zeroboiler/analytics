@@ -77,27 +77,27 @@ final class EventArchiveCompactionService
         self::STRATEGY_EXPIRE => ['consent_granted', 'consent_withdrawn', 'notification'],
     ];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var int Maximum age in days before events become compaction candidates */
-    private readonly int $maxAgeDays;
+    private int $maxAgeDays;
 
     /** @var float Sampling rate for sample strategy (0.0–1.0) */
-    private readonly float $sampleRate;
+    private float $sampleRate;
 
     /** @var int Average bytes per event estimate (for storage calculation) */
-    private readonly int $bytesPerEvent;
+    private int $bytesPerEvent;
 
     /** @var int Per-event TTL overrides in days (event_name => days) */
-    private readonly array $eventTtlOverrides;
+    private array $eventTtlOverrides;
 
     /** @var array<string, list<string>> Strategy → event names mapping */
-    private readonly array $strategyEvents;
+    private array $strategyEvents;
 
     /** @var int Aggregate bucket size in seconds (default: 3600 = hourly) */
-    private readonly int $aggregateBucketSeconds;
+    private int $aggregateBucketSeconds;
 
     /** @var list<CompactionResult> Compaction history for the current run */
     private array $runResults = [];
@@ -109,7 +109,7 @@ final class EventArchiveCompactionService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $compactionConfig = $config->get('zeroboiler.analytics.archive_compaction', []);
         /** @var array{enabled?: bool, cache_ttl?: int, max_age_days?: int, sample_rate?: float, bytes_per_event?: int, event_ttl_overrides?: array<string, int>, strategy_events?: array<string, list<string>>, aggregate_bucket_seconds?: int} $compactionConfig */
 

@@ -25,7 +25,7 @@ final class MetaPixelService
 {
     public function __construct(
         protected MetaPixelTracker $tracker,
-    ): void {}
+    ){}
 
     /**
      * Track a PageView event.

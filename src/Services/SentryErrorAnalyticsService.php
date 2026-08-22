@@ -45,17 +45,17 @@ final class SentryErrorAnalyticsService
     private const DEFAULT_MAX_ERRORS = 500;
     private const DEFAULT_MAX_COHORTS = 50;
 
-    private readonly bool $enabled;
-    private readonly string $environment;
-    private readonly int $maxErrors;
-    private readonly int $maxCohorts;
-    private readonly int $cacheTtl;
+    private bool $enabled;
+    private string $environment;
+    private int $maxErrors;
+    private int $maxCohorts;
+    private int $cacheTtl;
     /** @var list<string> */
-    private readonly array $criticalPaths;
-    private readonly int $impactWindowHours;
-    private readonly float $criticalPathWeight;
-    private readonly float $revenueImpactFactor;
-    private readonly float $conversionDropThreshold;
+    private array $criticalPaths;
+    private int $impactWindowHours;
+    private float $criticalPathWeight;
+    private float $revenueImpactFactor;
+    private float $conversionDropThreshold;
 
     private CacheRepository $cache;
 
@@ -63,8 +63,7 @@ final class SentryErrorAnalyticsService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $cfg = $config->get('zeroboiler.analytics.sentry_error_analytics', []);
         $this->enabled = (bool) ($cfg['enabled'] ?? true);

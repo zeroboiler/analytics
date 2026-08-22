@@ -39,7 +39,7 @@ final class PaymentMethodUpdatedEvent extends AnalyticsEvent
         string $changeType,
         ?string $processor = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'payment_method_updated',
             params: array_merge([

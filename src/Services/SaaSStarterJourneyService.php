@@ -50,8 +50,7 @@ final class SaaSStarterJourneyService
 
     private AnalyticsManager $manager;
 
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         $this->manager = $manager;
     }
 

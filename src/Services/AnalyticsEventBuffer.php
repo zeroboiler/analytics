@@ -47,7 +47,7 @@ final class AnalyticsEventBuffer
         int $maxCapacity = 100,
         int $ttlSeconds = 3600,
         int $dedupWindowSeconds = 10,
-    ): void {
+    ){
         $this->buffer = new Collection;
         $this->maxCapacity = $maxCapacity;
         $this->ttlSeconds = $ttlSeconds;

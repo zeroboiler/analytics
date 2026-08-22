@@ -55,8 +55,7 @@ final class AnalyticsRateLimiterService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $rateLimit = $config->get('zeroboiler.analytics.api.rate_limit', []);
         /** @var array{enabled?: bool, global_limit?: int, client_limit?: int, user_limit?: int, batch_global_limit?: int, batch_client_limit?: int, max_batch_size?: int, prefix?: string, decay_seconds?: int} $rateLimit */
 

@@ -77,8 +77,7 @@ final class ProviderCircuitBreaker
      * @param  ConfigRepository  $config  Application config
      * @param  CacheRepository|null  $cache  Cache driver (injected or from container)
      */
-    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null): void
-    {
+    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null){
         $cbConfig = $config->get('zeroboiler.analytics.circuit_breaker', []);
         /** @var array{enabled?: bool, failure_threshold?: int, success_threshold?: int, cooldown_seconds?: int, half_open_max_probes?: int} $cbConfig */
 

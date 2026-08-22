@@ -29,7 +29,7 @@ final class ScreenViewEvent extends AnalyticsEvent
         string $screenName,
         ?string $screenClass = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'screen_view',
             params: array_filter([

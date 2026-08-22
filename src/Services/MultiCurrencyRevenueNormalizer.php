@@ -98,7 +98,7 @@ final class MultiCurrencyRevenueNormalizer
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->enabled = (bool) $config->get('zeroboiler.analytics.multi_currency.enabled', false);
         $this->baseCurrency = (string) $config->get('zeroboiler.analytics.multi_currency.base_currency', 'USD');

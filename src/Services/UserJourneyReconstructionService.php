@@ -50,7 +50,7 @@ final class UserJourneyReconstructionService
         CacheRepository $cache,
         AnalyticsMetrics $metrics,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->metrics = $metrics;
 
@@ -99,7 +99,7 @@ final class UserJourneyReconstructionService
             }
 
             $this->cache->put($journeyKey, $journey, $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }
@@ -144,7 +144,7 @@ final class UserJourneyReconstructionService
             $this->cache->forget($journeyKey);
 
             return ['completed' => true, 'journey' => $journey];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['completed' => false, 'journey' => []];
         }
     }
@@ -168,7 +168,7 @@ final class UserJourneyReconstructionService
             $journey = $this->cache->get($this->cachePrefix . 'active_' . $identity);
 
             return is_array($journey) ? $journey : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -197,7 +197,7 @@ final class UserJourneyReconstructionService
             }
 
             return array_slice(array_values($journeys), -$limit);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -320,7 +320,7 @@ final class UserJourneyReconstructionService
                 $count += count($completed);
                 $this->cache->forget($completedKey);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
 
@@ -432,7 +432,7 @@ final class UserJourneyReconstructionService
 
         try {
             return max(0, now()->parse($end)->diffInSeconds(now()->parse($start)));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }
@@ -447,7 +447,7 @@ final class UserJourneyReconstructionService
     {
         try {
             return max(0, now()->diffInSeconds(now()->parse($timestamp)));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }

@@ -390,7 +390,7 @@ describe('V144 Facade Annotations', function () {
         ];
 
         foreach ($methods as $method) {
-            expect($content)->toContain("@method static void {$method}("), "Missing facade annotation for {$method}");
+            expect($content)->toContain("@method static void {$method}(");
         }
     });
 });

@@ -44,7 +44,7 @@ final class EventMaterializer
     public function __construct(
         MetricProjectionEngine $engine,
         ProjectionRegistry $registry,
-    ): void {
+    ) {
         $this->engine = $engine;
         $this->registry = $registry;
     }

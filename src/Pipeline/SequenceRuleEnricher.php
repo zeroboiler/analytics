@@ -24,7 +24,7 @@ final class SequenceRuleEnricher
 {
     private EventSequenceRuleEngine $engine;
 
-    public function __construct(EventSequenceRuleEngine $engine): void
+    public function __construct(EventSequenceRuleEngine $engine)
     {
         $this->engine = $engine;
     }

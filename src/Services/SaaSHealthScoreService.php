@@ -58,8 +58,7 @@ final class SaaSHealthScoreService
      * @param  ConfigRepository  $config
      * @param  SaasKpiTracker  $kpiTracker
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config, SaasKpiTracker $kpiTracker): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config, SaasKpiTracker $kpiTracker){
         $this->cache = $cache;
         $this->kpiTracker = $kpiTracker;
 

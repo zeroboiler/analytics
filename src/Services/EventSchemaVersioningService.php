@@ -30,15 +30,15 @@ use ZeroBoiler\Analytics\Schema\EventSchemaRegistry;
  */
 final class EventSchemaVersioningService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly string $paramName;
+    private string $paramName;
 
-    private readonly string $defaultVersion;
+    private string $defaultVersion;
 
-    private readonly bool $includeCatalogVersion;
+    private bool $includeCatalogVersion;
 
-    private readonly string $catalogVersion;
+    private string $catalogVersion;
 
     /** @var array<string, string> Event name → version mapping (in-memory cache) */
     private array $versionMap = [];
@@ -49,8 +49,8 @@ final class EventSchemaVersioningService
      */
     public function __construct(
         ConfigRepository $config,
-        private readonly ?EventSchemaRegistry $schemaRegistry = null,
-    ): void {
+        private ?EventSchemaRegistry $schemaRegistry = null,
+    ){
         $svConfig = $config->get('zeroboiler.analytics.schema_versioning', []);
         /** @var array{enabled?: bool, param_name?: string, default_version?: string, include_catalog_version?: bool, catalog_version?: string} $svConfig */
 
@@ -165,7 +165,7 @@ final class EventSchemaVersioningService
 
                     return $version;
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Fall through to default
             }
         }

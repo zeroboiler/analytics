@@ -53,7 +53,7 @@ final class EventThrottleService
     /** @var list<string> Events exempt from throttling */
     private array $exemptEvents;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * @param  CacheRepository  $cache  Cache repository for sliding window counters
@@ -62,7 +62,7 @@ final class EventThrottleService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $throttleConfig = $config->get('zeroboiler.analytics.event_throttle', []);
         /** @var array{enabled?: bool, global_limit?: int, per_event_limit?: int, burst_size?: int, overflow?: string, cache_ttl?: int, exempt_events?: list<string>} $throttleConfig */
         $this->enabled = (bool) ($throttleConfig['enabled'] ?? true);

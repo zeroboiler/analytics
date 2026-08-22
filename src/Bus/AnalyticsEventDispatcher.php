@@ -54,7 +54,7 @@ final class AnalyticsEventDispatcher
         AnalyticsManager $manager,
         QueuedAnalyticsDispatcher $queue,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->queue = $queue;
         $this->config = $config;

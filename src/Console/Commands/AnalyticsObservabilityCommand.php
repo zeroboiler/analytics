@@ -46,16 +46,15 @@ final class AnalyticsObservabilityCommand extends Command
 
     protected $description = 'Display real-time analytics pipeline observability dashboard';
 
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     /**
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         parent::__construct();
         $this->manager = $manager;
         $this->config = $config;
@@ -327,7 +326,7 @@ final class AnalyticsObservabilityCommand extends Command
                     'engagement' => EventCatalog::funnelCriticalPaths('engagement'),
                 ],
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'total_edges' => 0,
                 'total_nodes' => 0,

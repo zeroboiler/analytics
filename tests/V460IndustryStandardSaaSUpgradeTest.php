@@ -67,7 +67,8 @@ test('v268.0.0: no stale @version docblocks remain', function (): void {
 });
 
 test('v268.0.0: no stale VERSION constants remain', function (): void {
-    $output = shell_exec('grep -rn "VERSION = '"'"'[0-9]' . escapeshellarg(__DIR__ . '/../src') . ' --include="*.php" 2>/dev/null') ?: '';
+    $cmd = 'grep -rn ' . escapeshellarg("VERSION = '[0-9]") . ' ' . escapeshellarg(__DIR__ . '/../src') . ' --include=' . escapeshellarg('*.php') . ' 2>/dev/null';
+    $output = shell_exec($cmd) ?: '';
     $lines = array_filter(explode("\n", trim($output)));
 
     $stale = [];

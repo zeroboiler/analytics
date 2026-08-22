@@ -32,7 +32,7 @@ final class DataErasureCompletedEvent extends AnalyticsEvent
         array $categoriesErased = [],
         ?string $requestId = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'data_erasure_completed',
             params: array_merge([

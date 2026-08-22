@@ -31,7 +31,7 @@ final class FeatureAdoptedEvent extends AnalyticsEvent
         string $featureName,
         ?string $category = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'feature_name' => $featureName,
             'feature_category' => $category,

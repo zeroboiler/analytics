@@ -29,9 +29,9 @@ final class FieldDefinition
         public readonly string $type,
         public readonly bool $required,
         public readonly string $description,
-        public readonly array $allowedValues = [],
-        public readonly mixed $defaultValue = null,
-    ): void {}
+        public array $allowedValues = [],
+        public mixed $defaultValue = null,
+    ){}
 
     /**
      * Convert to array representation for serialization/documentation.

@@ -35,8 +35,7 @@ final class OnboardingWizardService
 
     private ConfigRepository $config;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -509,7 +508,7 @@ final class OnboardingWizardService
             if (is_array($cached) && isset($cached['grade']) && isset($cached['completion_percentage'])) {
                 return $cached;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache driver not available
         }
 

@@ -33,7 +33,7 @@ final readonly class SubscriptionPausedEvent extends \ZeroBoiler\Analytics\DTO\A
         ?string $userId = null,
         ?string $clientId = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'subscription_paused',
             params: array_filter([

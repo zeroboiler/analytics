@@ -43,7 +43,7 @@ final class AnalyticsEventReliabilityService
     public function __construct(
         CacheRepository $cache,
         array $config = [],
-    ): void {
+    ){
         $this->cache = $cache;
         $this->warningThreshold = (float) ($config['warning_threshold'] ?? 0.90);
         $this->criticalThreshold = (float) ($config['critical_threshold'] ?? 0.75);

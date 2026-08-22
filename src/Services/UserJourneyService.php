@@ -55,7 +55,7 @@ final class UserJourneyService
         bool $async = true,
         int $maxJourneys = 5000,
         int $maxStepsPerJourney = 200,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->queue = $queue;
         $this->async = $async;

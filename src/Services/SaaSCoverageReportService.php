@@ -63,7 +63,7 @@ final class SaaSCoverageReportService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Run the full SaaS analytics coverage audit.

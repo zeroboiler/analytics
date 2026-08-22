@@ -53,7 +53,7 @@ final class EventIdempotencyService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $idempotencyConfig = $config->get('zeroboiler.analytics.idempotency', []);
         /** @var array{enabled?: bool, ttl?: int, max_keys?: int, prefix?: string} $idempotencyConfig */
 

@@ -37,8 +37,7 @@ final class DataQualityScoringEngine
     /**
      * @param  int|null  $freshnessThreshold  Max event age in seconds (default 60s)
      */
-    public function __construct(?int $freshnessThreshold = null): void
-    {
+    public function __construct(?int $freshnessThreshold = null){
         $this->weights = [
             'completeness' => 0.30,
             'consistency' => 0.20,

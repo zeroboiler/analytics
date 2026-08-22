@@ -85,7 +85,7 @@ final class AnalyticsPipelineProfilerService
         AnalyticsManager $manager,
         CacheRepository $cache,
         array $config = [],
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
         $this->slowThresholdMs = (float) ($config['slow_threshold_ms'] ?? 500.0);

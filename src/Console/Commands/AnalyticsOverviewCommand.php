@@ -37,7 +37,7 @@ final class AnalyticsOverviewCommand extends Command
 
     private AnalyticsManager $manager;
 
-    public function __construct(AnalyticsManager $manager): void
+    public function __construct(AnalyticsManager $manager)
     {
         parent::__construct();
         $this->manager = $manager;
@@ -393,7 +393,7 @@ final class AnalyticsOverviewCommand extends Command
         $this->info('🔒 Consent State');
         foreach ($overview['consent'] as $signal => $state) {
             $icon = $state === 'granted' ? '✅' : '🚫';
-            $this->line("   {$icon} {$signal}: <{$state === 'granted' ? 'info' : 'comment'}>{$state}</>");
+            $this->line('   ' . $icon . ' ' . $signal . ': <' . ($state === 'granted' ? 'info' : 'comment') . '>' . $state . '</>');
         }
 
         // Lifecycle & Infrastructure summary
@@ -467,9 +467,9 @@ final class AnalyticsOverviewCommand extends Command
         // Try resolving from the starter set
         $resolved = SaaSStarterEvents::isStarterEvent($eventName)
             ? $eventName
-            : SaaSStarterEvents::isStarterEvent(EventCatalog::resolve($eventName) ?? '')
+            : (SaaSStarterEvents::isStarterEvent(EventCatalog::resolve($eventName) ?? '')
                 ? (EventCatalog::resolve($eventName) ?? '')
-                : null;
+                : null);
 
         if ($resolved === null) {
             $this->error("Event '{$eventName}' is not in the SaaS Starter Events set.");

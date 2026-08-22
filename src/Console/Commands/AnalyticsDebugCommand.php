@@ -45,8 +45,7 @@ final class AnalyticsDebugCommand extends Command
      * @param  EventInspectorService  $inspector
      * @param  WebVitalsAggregatorService  $rum
      */
-    public function __construct(EventInspectorService $inspector, WebVitalsAggregatorService $rum): void
-    {
+    public function __construct(EventInspectorService $inspector, WebVitalsAggregatorService $rum){
         parent::__construct();
         $this->inspector = $inspector;
         $this->rum = $rum;

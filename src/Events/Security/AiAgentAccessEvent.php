@@ -31,7 +31,7 @@ final class AiAgentAccessEvent extends AnalyticsEvent
         ?string $action = null,
         ?string $resource = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'ai_agent_access',
             params: array_filter(array_merge($params, [

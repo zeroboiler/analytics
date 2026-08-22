@@ -36,8 +36,7 @@ final class AnalyticsDecompositionCommand extends Command
 
     private EventTimeSeriesDecompositionService $service;
 
-    public function __construct(EventTimeSeriesDecompositionService $service): void
-    {
+    public function __construct(EventTimeSeriesDecompositionService $service){
         parent::__construct();
         $this->service = $service;
     }

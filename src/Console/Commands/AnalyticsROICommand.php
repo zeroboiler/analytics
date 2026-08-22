@@ -42,7 +42,7 @@ final class AnalyticsROICommand extends Command
 
     private SaaSAnalyticsROIService $service;
 
-    public function __construct(SaaSAnalyticsROIService $service): void
+    public function __construct(SaaSAnalyticsROIService $service)
     {
         parent::__construct();
         $this->service = $service;
@@ -102,7 +102,7 @@ final class AnalyticsROICommand extends Command
         $this->newLine();
         $this->line("  Overall ROI:  <fg=green;options=bold>{$report['overall_roi_percent']}%</>");
         $this->line("  Grade:        <fg=green;options=bold>{$report['grade']}</>");
-        $this->line("  Total Events: {$report['total_events']:,}");
+        $this->line('  Total Events: ' . ($report['total_events']));
         $this->line("  Total Cost:   \${$report['total_cost']}");
         $this->line("  Total Value:  \${$report['total_value']}");
         $this->line("  Insight Yield: {$report['insight_yield_per_1k']} per 1K events");

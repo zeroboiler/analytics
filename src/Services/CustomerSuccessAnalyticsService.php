@@ -37,8 +37,7 @@ final class CustomerSuccessAnalyticsService
     /**
      * @param  CacheRepository  $cache  Cache repository for aggregated metrics
      */
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
     }
 

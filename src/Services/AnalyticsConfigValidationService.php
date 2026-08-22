@@ -32,7 +32,7 @@ final class AnalyticsConfigValidationService
     /** @var list<array{level: 'error'|'warning'|'info', key: string, message: string, fix: string}> */
     private array $issues = [];
 
-    public function __construct(ConfigRepository $config): void
+    public function __construct(ConfigRepository $config)
     {
         $this->config = $config;
     }
@@ -275,7 +275,7 @@ final class AnalyticsConfigValidationService
             if ($rate <= 0.0 || $rate > 1.0) {
                 $this->addIssue('error', 'sampling.rate', "Sampling rate ({$rate}) must be between 0.0 and 1.0.", 'Set ANALYTICS_SAMPLING_RATE to a value between 0.0 and 1.0.');
             } elseif ($rate < 0.1) {
-                $this->addIssue('info', 'sampling.low_rate', "Sampling rate ({$rate}) is very low. Only {$rate * 100}% of events will be tracked.", 'Consider a higher rate for more accurate analytics.');
+                $this->addIssue('info', 'sampling.low_rate', 'Sampling rate ({$rate}) is very low. Only ' . (rate * 100) . '% of events will be tracked.', 'Consider a higher rate for more accurate analytics.');
             }
         }
 

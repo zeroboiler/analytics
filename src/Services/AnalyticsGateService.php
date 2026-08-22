@@ -177,7 +177,7 @@ final class AnalyticsGateService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $gateConfig = $config->get('zeroboiler.analytics.gate', []);
         /** @var array{enabled?: bool, default_plan?: string, plan_attribute?: string, features?: array<string, bool>, tenants?: array<string, array<string, bool>>, cache_prefix?: string, cache_ttl?: int} $gateConfig */
 
@@ -324,7 +324,7 @@ final class AnalyticsGateService
                 if ($model !== null && is_string($model) && class_exists($model)) {
                     $user = (new $model)->newQuery()->find($userId);
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 return $this->defaultPlan;
             }
         }

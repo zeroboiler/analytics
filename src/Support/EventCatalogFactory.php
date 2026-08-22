@@ -56,7 +56,7 @@ final class EventCatalogFactory
 
     private function __construct(
         private readonly string $eventName,
-    ): void {}
+    ){}
 
     /**
      * Create a factory for the given event name from the catalog.

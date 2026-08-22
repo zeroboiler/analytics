@@ -78,8 +78,7 @@ final class AnalyticsSdkTelemetryCollector
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $telemetryConfig = $config->get('zeroboiler.analytics.sdk_telemetry', []);

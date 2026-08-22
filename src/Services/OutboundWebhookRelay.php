@@ -45,18 +45,18 @@ final class OutboundWebhookRelay
     private const RATE_LIMIT_KEY = 'zb_outbound_rate_';
     private const MAX_DELIVERY_LOG = 1000;
 
-    private readonly bool $enabled;
-    private readonly int $timeout;
-    private readonly int $maxRetries;
-    private readonly int $retryDelayMs;
-    private readonly bool $signPayloads;
-    private readonly string $signingSecret;
-    private readonly int $batchSize;
-    private readonly int $batchIntervalMs;
-    private readonly int $rateLimitPerMinute;
+    private bool $enabled;
+    private int $timeout;
+    private int $maxRetries;
+    private int $retryDelayMs;
+    private bool $signPayloads;
+    private string $signingSecret;
+    private int $batchSize;
+    private int $batchIntervalMs;
+    private int $rateLimitPerMinute;
 
     /** @var array<string, array{url: string, secret?: string, headers?: array<string, string>, events?: list<string>, categories?: list<string>, priorities?: list<string>, enabled: bool}> */
-    private readonly array $destinations;
+    private array $destinations;
 
     private CacheRepository $cache;
 
@@ -65,8 +65,7 @@ final class OutboundWebhookRelay
 
     private ?int $batchTimerId = null;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $webhookConfig = $config->get('zeroboiler.analytics.outbound_webhooks', []);

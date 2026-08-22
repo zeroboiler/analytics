@@ -47,7 +47,7 @@ final class EventTags
      *
      * @var array<string, list<string>>
      */
-    private const TAG_MAP = [
+    private const DEFAULT_TAG_MAP = [
         // ── E-commerce ─────────────────────────────────────
         'view_item' => ['ecommerce', 'conversion', 'funnel', 'engagement'],
         'add_to_cart' => ['ecommerce', 'revenue', 'conversion', 'funnel', 'critical'],
@@ -197,6 +197,15 @@ final class EventTags
         'onboarding_call_completed' => ['onboarding', 'b2b', 'engagement'],
     ];
 
+    /** @var array<string, list<string>> */
+    private static array $tagMap = [];
+
+    /** Merged view: runtime overrides layered over the default map. @return array<string, list<string>> */
+    private static function mergedMap(): array
+    {
+        return self::$tagMap === [] ? self::DEFAULT_TAG_MAP : (self::$tagMap + self::DEFAULT_TAG_MAP);
+    }
+
     /**
      * Get all tags for a given event name.
      *
@@ -204,7 +213,7 @@ final class EventTags
      */
     public static function for(string $eventName): array
     {
-        return self::TAG_MAP[$eventName] ?? [];
+        return self::mergedMap()[$eventName] ?? [];
     }
 
     /**
@@ -212,7 +221,7 @@ final class EventTags
      */
     public static function has(string $eventName, string $tag): bool
     {
-        return in_array($tag, self::TAG_MAP[$eventName] ?? [], true);
+        return in_array($tag, self::mergedMap()[$eventName] ?? [], true);
     }
 
     /**
@@ -224,7 +233,7 @@ final class EventTags
     {
         $events = [];
 
-        foreach (self::TAG_MAP as $eventName => $tags) {
+        foreach (self::mergedMap() as $eventName => $tags) {
             if (in_array($tag, $tags, true)) {
                 $events[] = $eventName;
             }
@@ -242,7 +251,7 @@ final class EventTags
     {
         $tags = [];
 
-        foreach (self::TAG_MAP as $eventTags) {
+        foreach (self::mergedMap() as $eventTags) {
             foreach ($eventTags as $tag) {
                 $tags[$tag] = true;
             }
@@ -263,7 +272,7 @@ final class EventTags
     {
         $grouped = [];
 
-        foreach (self::TAG_MAP as $eventName => $tags) {
+        foreach (self::mergedMap() as $eventName => $tags) {
             foreach ($tags as $tag) {
                 $grouped[$tag][] = $eventName;
             }
@@ -284,7 +293,7 @@ final class EventTags
      */
     public static function map(): array
     {
-        return self::TAG_MAP;
+        return self::mergedMap();
     }
 
     /**
@@ -295,13 +304,15 @@ final class EventTags
      */
     public static function addTag(string $eventName, string $tag): void
     {
-        if (! isset(self::TAG_MAP[$eventName])) {
-            self::TAG_MAP[$eventName] = [];
+        $map = self::mergedMap();
+        if (! isset($map[$eventName])) {
+            $map[$eventName] = [];
         }
 
-        if (! in_array($tag, self::TAG_MAP[$eventName], true)) {
-            self::TAG_MAP[$eventName][] = $tag;
+        if (! in_array($tag, $map[$eventName], true)) {
+            $map[$eventName][] = $tag;
         }
+        self::$tagMap = $map;
     }
 
     /**
@@ -313,7 +324,7 @@ final class EventTags
     {
         $stats = [];
 
-        foreach (self::TAG_MAP as $tags) {
+        foreach (self::mergedMap() as $tags) {
             foreach ($tags as $tag) {
                 $stats[$tag] = ($stats[$tag] ?? 0) + 1;
             }
@@ -327,7 +338,7 @@ final class EventTags
      */
     public static function tagCount(string $eventName): int
     {
-        return count(self::TAG_MAP[$eventName] ?? []);
+        return count(self::mergedMap()[$eventName] ?? []);
     }
 
     /**
@@ -344,7 +355,7 @@ final class EventTags
 
         $results = [];
 
-        foreach (self::TAG_MAP as $eventName => $eventTags) {
+        foreach (self::mergedMap() as $eventName => $eventTags) {
             $matches = true;
             foreach ($tags as $tag) {
                 if (! in_array($tag, $eventTags, true)) {
@@ -375,7 +386,7 @@ final class EventTags
 
         $results = [];
 
-        foreach (self::TAG_MAP as $eventName => $eventTags) {
+        foreach (self::mergedMap() as $eventName => $eventTags) {
             foreach ($tags as $tag) {
                 if (in_array($tag, $eventTags, true)) {
                     $results[] = $eventName;

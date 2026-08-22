@@ -30,8 +30,7 @@ final class GA4Tracker implements TrackerInterface
 
     use TrackerHelpers;
 
-    public function __construct(string $measurementId, string $apiSecret, bool $enabled = false): void
-    {
+    public function __construct(string $measurementId, string $apiSecret, bool $enabled = false){
         $this->measurementId = $measurementId;
         $this->apiSecret = $apiSecret;
         $this->enabled = $enabled;
@@ -211,7 +210,7 @@ HTML;
         if (function_exists('app') && app()->environment() !== 'testing') {
             try {
                 Log::debug('GA4Tracker: user ID reset');
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Silently ignore if Log facade unavailable
             }
         }

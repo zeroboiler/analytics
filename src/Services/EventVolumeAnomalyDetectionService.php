@@ -64,8 +64,7 @@ final class EventVolumeAnomalyDetectionService
     /** @var int Minimum data points required before detection activates */
     private int $minDataPoints;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $anomalyConfig = $config->get('zeroboiler.analytics.anomaly_detection', []);
@@ -608,7 +607,7 @@ final readonly class AnomalyRecord
         public float $expected,
         public \DateTimeImmutable $timestamp,
         public string $message,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation.
@@ -658,7 +657,7 @@ final readonly class WindowSnapshot
         public int $max,
         public string $trend,
         public int $bucketCount,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation.

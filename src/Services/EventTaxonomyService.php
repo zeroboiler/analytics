@@ -53,7 +53,7 @@ final class EventTaxonomyService
         CacheRepository $cache,
         array $tagMap = [],
         int $ttl = self::DEFAULT_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->tagMap = $tagMap;
         $this->ttl = $ttl;

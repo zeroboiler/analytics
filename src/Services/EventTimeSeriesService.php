@@ -58,11 +58,11 @@ final class EventTimeSeriesService
         '30d' => 2592000,
     ];
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * @param  AnalyticsManager  $manager  Analytics manager for event queries
@@ -73,7 +73,7 @@ final class EventTimeSeriesService
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
 
@@ -313,7 +313,7 @@ final class EventTimeSeriesService
                 $recent,
                 fn (array $e): bool => ($e['timestamp'] ?? '') >= $cutoff,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -337,7 +337,7 @@ final class EventTimeSeriesService
                 $recent,
                 fn (array $e): bool => ($e['timestamp'] ?? '') >= $startCutoff && ($e['timestamp'] ?? '') < $endCutoff,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -468,7 +468,7 @@ final class EventTimeSeriesService
                 ));
 
                 $windowCounts[] = $count;
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $windowCounts[] = 0;
             }
         }

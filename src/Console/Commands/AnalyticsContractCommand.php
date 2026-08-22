@@ -37,8 +37,7 @@ final class AnalyticsContractCommand extends Command
 
     private EventContractTestService $service;
 
-    public function __construct(EventContractTestService $service): void
-    {
+    public function __construct(EventContractTestService $service){
         parent::__construct();
         $this->service = $service;
     }

@@ -48,7 +48,7 @@ final class AnalyticsWatermarkCommand extends Command
     public function __construct(
         private readonly EventDeliveryWatermarkService $watermarkService,
         private readonly DispatchDecisionReplayService $replayService,
-    ): void {
+    ){
         parent::__construct();
     }
 

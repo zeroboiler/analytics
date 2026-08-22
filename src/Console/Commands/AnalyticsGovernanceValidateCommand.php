@@ -147,7 +147,7 @@ final class AnalyticsGovernanceValidateCommand extends Command
 
         $diff = $service->diff($baseline, $current);
 
-        $this->info("📊 Catalog Diff: {$baselineLabel ?? 'live'} → {$currentLabel}");
+        $this->info('📊 Catalog Diff: ' . (baselineLabel ?? 'live') . ' → {$currentLabel}');
         $this->newLine();
 
         // Summary

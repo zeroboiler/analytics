@@ -48,7 +48,7 @@ final class AnalyticsInsightAggregator
         ?EventStreamService $streamService = null,
         ?EventAggregationService $aggregationService = null,
         ?array $config = null,
-    ): void {
+    ){
         $this->streamService = $streamService;
         $this->aggregationService = $aggregationService;
         $this->config = $config ?? [];
@@ -176,7 +176,7 @@ final class AnalyticsInsightAggregator
                     ];
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Graceful degradation
         }
 
@@ -246,7 +246,7 @@ final class AnalyticsInsightAggregator
                     ];
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Graceful degradation
         }
 
@@ -413,7 +413,7 @@ final class AnalyticsInsightAggregator
                         : 'Search is performing well. Consider expanding search coverage.',
                 ];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Graceful degradation
         }
 
@@ -517,7 +517,7 @@ final class AnalyticsInsightAggregator
                     ];
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Graceful degradation
         }
 
@@ -553,7 +553,7 @@ final class AnalyticsInsightAggregator
                         'count' => $count,
                     ];
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Graceful degradation
             }
         }

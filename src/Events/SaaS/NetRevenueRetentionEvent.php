@@ -37,7 +37,7 @@ final class NetRevenueRetentionEvent extends AnalyticsEvent
         ?float $contractionMrr = null,
         ?float $churnedMrr = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'nrr_percentage' => $nrr,
             'period' => $period,

@@ -27,17 +27,16 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 final class PostHogEventTracker
 {
     /** @var string PostHog API key / project API key */
-    private readonly string $apiKey;
+    private string $apiKey;
 
     /** @var string PostHog host (e.g. 'https://app.posthog.com') */
-    private readonly string $host;
+    private string $host;
 
     /**
      * @param  string  $apiKey  PostHog project API key
      * @param  string  $host  PostHog host URL (with trailing slash removed)
      */
-    public function __construct(string $apiKey, string $host): void
-    {
+    public function __construct(string $apiKey, string $host){
         $this->apiKey = $apiKey;
         $this->host = rtrim($host, '/');
     }

@@ -76,7 +76,7 @@ final class EventAnonymizationAggregationService
         CacheRepository $cache,
         ConfigRepository $config,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->metrics = $metrics;
 
@@ -247,7 +247,7 @@ final class EventAnonymizationAggregationService
             if ($timeCount === 0) {
                 $this->cache->put($timeKey, 1, $this->cacheTtl);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache operations may fail — fail silently for aggregation
         }
     }

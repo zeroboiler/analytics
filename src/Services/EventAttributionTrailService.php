@@ -41,8 +41,7 @@ final class EventAttributionTrailService
     private int $maxTouchHistory;
     private int $maxReferrerChain;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $attrConfig = $config->get('zeroboiler.analytics.attribution_trail', []);
         /** @var array{enabled?: bool, ttl?: int, max_touch_history?: int, max_referrer_chain?: int} $attrConfig */

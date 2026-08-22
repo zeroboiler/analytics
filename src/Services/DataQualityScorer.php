@@ -33,7 +33,7 @@ final class DataQualityScorer
 {
     private const CACHE_PREFIX = 'zb_quality_';
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, int> Event dispatch counts (in-memory, per request cycle) */
     private array $eventCounts = [];
@@ -48,14 +48,14 @@ final class DataQualityScorer
     private array $timingAnomalies = [];
 
     /** @var array<string, float> Configurable dimension weights */
-    private readonly array $weights;
+    private array $weights;
 
-    private readonly int $minSampleSize;
+    private int $minSampleSize;
 
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $qualityConfig = $config->get('zeroboiler.analytics.governance.quality', []);
         /** @var array{cache_ttl?: int, weights?: array<string, float>, min_sample_size?: int} $qualityConfig */
 
@@ -376,7 +376,7 @@ final class DataQualityScorer
                 $this->missingParamCounts = $cached['missing_params'] ?? [];
                 $this->timingAnomalies = $cached['timing_anomalies'] ?? [];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }
@@ -397,7 +397,7 @@ final class DataQualityScorer
                 ],
                 $this->cacheTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

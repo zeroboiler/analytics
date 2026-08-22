@@ -27,7 +27,7 @@ final readonly class PushNotificationOpenedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('push_notification_opened', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

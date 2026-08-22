@@ -27,8 +27,7 @@ final readonly class ConsentGateMiddleware implements AnalyticsMiddlewareInterfa
      * @param  bool  $analyticsGranted  Whether analytics_storage consent is granted
      * @param  bool  $adGranted  Whether ad_storage consent is granted
      */
-    public function __construct(bool $analyticsGranted, bool $adGranted = true): void
-    {
+    public function __construct(bool $analyticsGranted, bool $adGranted = true){
         $this->analyticsGranted = $analyticsGranted;
         $this->adGranted = $adGranted;
     }

@@ -113,7 +113,7 @@ final class FeatureFlagRolloutGuardrailService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $guardConfig = $config->get('zeroboiler.analytics.rollout_guardrails', []);

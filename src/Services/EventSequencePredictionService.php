@@ -47,29 +47,28 @@ final class EventSequencePredictionService
     /** @var float Default confidence threshold for returning predictions */
     private const DEFAULT_CONFIDENCE_THRESHOLD = 0.05;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $minObservations;
+    private int $minObservations;
 
-    private readonly int $topN;
+    private int $topN;
 
-    private readonly float $confidenceThreshold;
+    private float $confidenceThreshold;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly bool $useSecondOrder;
+    private bool $useSecondOrder;
 
     /** @var list<string> Events to exclude from prediction context */
-    private readonly array $excludedEvents;
+    private array $excludedEvents;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $predConfig = $config->get('zeroboiler.analytics.sequence_prediction', []);

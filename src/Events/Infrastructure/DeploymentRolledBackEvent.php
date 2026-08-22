@@ -32,7 +32,7 @@ final class DeploymentRolledBackEvent extends AnalyticsEvent
         ?string $reason = null,
         ?string $environment = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('deployment_rolled_back', array_merge($params, array_filter([
             'version' => $version,
             'rollback_to' => $rollbackTo,

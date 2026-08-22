@@ -98,8 +98,7 @@ final class EventBlueprintBuilderService
     /** @var list<string> Coercion log from last build */
     private array $coercionLog = [];
 
-    public function __construct(EventBlueprintRegistry $registry, ConfigRepository $config): void
-    {
+    public function __construct(EventBlueprintRegistry $registry, ConfigRepository $config){
         $this->registry = $registry;
         $this->config = $config;
 

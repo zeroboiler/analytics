@@ -35,8 +35,7 @@ final class AnalyticsDlqCommand extends Command
     /**
      * @param  DeadLetterQueueService  $dlq  Dead letter queue service
      */
-    public function __construct(DeadLetterQueueService $dlq): void
-    {
+    public function __construct(DeadLetterQueueService $dlq){
         parent::__construct();
         $this->dlq = $dlq;
     }

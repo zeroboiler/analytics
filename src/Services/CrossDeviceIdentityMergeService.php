@@ -42,16 +42,16 @@ final class CrossDeviceIdentityMergeService
     private const GRAPH_KEY = 'zb_identity_graph_';
     private const CONFIDENCE_KEY = 'zb_identity_confidence_';
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $linkTtl;
+    private int $linkTtl;
 
-    private readonly int $maxClientsPerUser;
+    private int $maxClientsPerUser;
 
-    private readonly int $maxGraphSize;
+    private int $maxGraphSize;
 
     /** @var float Minimum confidence (0-1) to auto-merge identities */
-    private readonly float $mergeConfidenceThreshold;
+    private float $mergeConfidenceThreshold;
 
     /**
      * @param  CacheRepository  $cache
@@ -60,7 +60,7 @@ final class CrossDeviceIdentityMergeService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $mergeConfig = $config->get('zeroboiler.analytics.cross_device_merge', []);
         /** @var array{enabled?: bool, link_ttl?: int, max_clients_per_user?: int, max_graph_size?: int, merge_confidence_threshold?: float} $mergeConfig */
         $this->enabled = (bool) ($mergeConfig['enabled'] ?? true);

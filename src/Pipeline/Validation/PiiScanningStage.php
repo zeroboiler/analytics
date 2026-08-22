@@ -49,8 +49,7 @@ final class PiiScanningStage implements ValidationStageInterface
     /**
      * @param  array{enabled?: bool, extra_disallowed_keys?: list<string>, skip_patterns?: list<string>}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->enabled = (bool) ($config['enabled'] ?? true);
         $this->extraDisallowedKeys = (array) ($config['extra_disallowed_keys'] ?? []);
         $this->skipPatterns = (array) ($config['skip_patterns'] ?? []);

@@ -44,13 +44,12 @@ final class AnalyticsEventHealthCommand extends Command
     /** @var string The console command description */
     protected $description = 'Monitor analytics event health scores (freshness, volume, schema, delivery, quality)';
 
-    private EventHealthScoringEngine $engine;
+    private $engine;
 
     /**
      * @param  EventHealthScoringEngine  $engine
      */
-    public function __construct(EventHealthScoringEngine $engine): void
-    {
+    public function __construct(EventHealthScoringEngine $engine){
         parent::__construct();
         $this->engine = $engine;
     }

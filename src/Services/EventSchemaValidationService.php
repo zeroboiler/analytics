@@ -55,8 +55,7 @@ final class EventSchemaValidationService
     /**
      * @param  ConfigRepository  $config  Application config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $schemaConfig = $config->get('zeroboiler.analytics.schema_validation', []);
         /** @var array{enabled?: bool, severity?: string, strip_unknown?: bool} $schemaConfig */
 

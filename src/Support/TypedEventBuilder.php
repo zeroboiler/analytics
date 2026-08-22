@@ -75,7 +75,7 @@ final class TypedEventBuilder
     public function __construct(
         private readonly string $eventName,
         bool $catalogStrict = false,
-    ): void {
+    ){
         $this->catalogStrict = $catalogStrict;
 
         // Auto-infer category from catalog

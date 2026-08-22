@@ -51,20 +51,20 @@ final class EventBudgetEnforcementService
         'linkedin' => 500_000,   // LinkedIn: varies
     ];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /** @var string One of: 'alert', 'throttle', 'block' */
-    private readonly string $defaultAction;
+    private string $defaultAction;
 
-    private readonly float $throttleRate;
+    private float $throttleRate;
 
     /** @var array<string, int> Provider → monthly event budget */
-    private readonly array $providerBudgets;
+    private array $providerBudgets;
 
     /** @var array<string, int> Event name → hourly budget (high-frequency events) */
-    private readonly array $eventBudgets;
+    private array $eventBudgets;
 
-    private readonly int $cooldownSeconds;
+    private int $cooldownSeconds;
 
     /** @var array<string, int> Runtime cache of throttled/blocked keys → timestamp */
     private array $enforcementCache = [];
@@ -76,7 +76,7 @@ final class EventBudgetEnforcementService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $budgetConfig = $config->get('zeroboiler.analytics.budget_enforcement', []);
         /** @var array{enabled?: bool, default_action?: string, throttle_rate?: float, cooldown?: int, provider_limits?: array<string, int>, event_limits?: array<string, int>} $budgetConfig */
         $this->enabled = (bool) ($budgetConfig['enabled'] ?? false);

@@ -46,7 +46,7 @@ final class LinkedInTracker implements TrackerInterface
         string $conversionId,
         string $accessToken,
         bool $enabled = false,
-    ): void {
+    ){
         $this->partnerId = $partnerId;
         $this->conversionId = $conversionId;
         $this->accessToken = $accessToken;

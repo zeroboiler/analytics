@@ -31,7 +31,7 @@ final class DataAccessAuditEvent extends AnalyticsEvent
         ?string $accessor = null,
         ?string $accessLevel = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'data_access_audit',
             params: array_filter(array_merge($params, [

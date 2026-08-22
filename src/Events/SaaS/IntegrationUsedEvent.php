@@ -36,7 +36,7 @@ final readonly class IntegrationUsedEvent extends AnalyticsEvent
         ?string $result = null,
         ?int $responseTimeMs = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct('integration_used', array_filter([
             'integration_name' => $integrationName,
             'action' => $action,

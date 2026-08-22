@@ -32,7 +32,7 @@ final class PipelineFailureEvent extends AnalyticsEvent
         ?string $errorType = null,
         ?string $errorMessage = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('pipeline_failure', array_merge($params, array_filter([
             'stage' => $stage,
             'provider' => $provider,

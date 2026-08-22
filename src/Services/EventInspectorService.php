@@ -57,7 +57,7 @@ final class EventInspectorService
         bool $enabled = false,
         int $maxTraces = self::DEFAULT_MAX_TRACES,
         int $ttl = self::DEFAULT_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->enabled = $enabled;
         $this->maxTraces = $maxTraces;

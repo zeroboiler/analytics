@@ -41,13 +41,12 @@ final class EventBlueprintRegistry
     /** @var array<string, EventBlueprint> Runtime-registered blueprints */
     private array $blueprints = [];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * @param  CacheRepository  $cache  Cache repository for blueprint caching
      */
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
     }
 

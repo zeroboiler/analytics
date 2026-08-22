@@ -40,8 +40,7 @@ final class EventContextBuilder
      * @param  Request|null  $request  Current HTTP request (null for CLI/queue context)
      * @param  string|null  $cookieName  Analytics client ID cookie name
      */
-    public function __construct(?Request $request = null, ?string $cookieName = null): void
-    {
+    public function __construct(?Request $request = null, ?string $cookieName = null){
         $this->request = $request;
         $this->cookieName = $cookieName ?? 'zb_analytics_id';
     }
@@ -443,7 +442,7 @@ final class EventContextBuilder
     {
         try {
             return Auth::user();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }

@@ -133,7 +133,7 @@ final class AnalyticsDashboardCommand extends Command
         try {
             $replay = app(\ZeroBoiler\Analytics\Queue\EventReplayQueue::class);
             $health['replay'] = $replay->summary();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $health['replay'] = ['status' => 'unavailable'];
         }
 

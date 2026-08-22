@@ -28,16 +28,16 @@ final class AnalyticsReadinessService
     /**
      * @var list<ReadinessCheck>
      */
-    private readonly array $requiredChecks;
+    private array $requiredChecks;
 
     /**
      * @var list<ReadinessCheck>
      */
-    private readonly array $recommendedChecks;
+    private array $recommendedChecks;
 
-    private readonly int $minimumScore;
+    private int $minimumScore;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /**
      * @param  CacheRepository  $cache
@@ -46,7 +46,7 @@ final class AnalyticsReadinessService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $readinessConfig = $config->get('zeroboiler.analytics.readiness', []);
         /** @var array{enabled?: bool, minimum_score?: int, cache_ttl?: int, required_checks?: list<string>, recommended_checks?: list<string>} $readinessConfig */
 
@@ -102,7 +102,7 @@ final class AnalyticsReadinessService
 
                 return $report;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fall through to fresh assessment
         }
 
@@ -110,7 +110,7 @@ final class AnalyticsReadinessService
 
         try {
             $this->cache->put('zb_readiness_report', serialize($report), $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
 
@@ -124,7 +124,7 @@ final class AnalyticsReadinessService
     {
         try {
             $this->cache->forget('zb_readiness_report');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }
@@ -599,7 +599,7 @@ final class ReadinessCheck
         public readonly string $name,
         public readonly string $label,
         public readonly mixed $evaluator,
-    ): void {}
+    ){}
 
     /**
      * Execute the readiness check.
@@ -633,7 +633,7 @@ final class CheckResult
     public function __construct(
         public readonly string $status,
         public readonly string $message,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation.
@@ -681,7 +681,7 @@ final class ReadinessReport
         public readonly int $requiredChecks,
         public readonly int $requiredFails,
         public readonly array $results,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation for API/JSON responses.

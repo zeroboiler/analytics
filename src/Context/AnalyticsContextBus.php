@@ -49,8 +49,7 @@ final class AnalyticsContextBus
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -406,7 +405,7 @@ final class AnalyticsContextBus
                     }
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Feature flag service not available
         }
 

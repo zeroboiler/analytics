@@ -40,21 +40,21 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
 final class EventIntelligenceCopilotService
 {
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $maxRecommendations;
+    private int $maxRecommendations;
 
-    private readonly int $minEventVolumeForInsights;
+    private int $minEventVolumeForInsights;
 
-    private readonly float $spikeDetectionThreshold;
+    private float $spikeDetectionThreshold;
 
-    private readonly float $anomalySensitivity;
+    private float $anomalySensitivity;
 
     /** @var list<array{category: string, events: int, provider_coverage: float}> */
     private array $categorySnapshot = [];
@@ -65,7 +65,7 @@ final class EventIntelligenceCopilotService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $copilotConfig = $config->get('zeroboiler.analytics.intelligence_copilot', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string, max_recommendations?: int, min_event_volume?: int, spike_threshold?: float, anomaly_sensitivity?: float} $copilotConfig */
 
@@ -95,7 +95,7 @@ final class EventIntelligenceCopilotService
             if (is_array($cached)) {
                 return $cached;
             }
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Cache miss — generate below
         }
 
@@ -135,7 +135,7 @@ final class EventIntelligenceCopilotService
 
         try {
             $this->cache->put($this->cachePrefix . 'summary', $summary, $this->cacheTtl);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache write failures
         }
 
@@ -408,7 +408,7 @@ final class EventIntelligenceCopilotService
             $this->cache->forget($this->cachePrefix . 'summary');
 
             return true;
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return false;
         }
     }

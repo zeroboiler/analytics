@@ -42,8 +42,7 @@ final class AnalyticsSLOCommand extends Command
 
     private SLOService $sloService;
 
-    public function __construct(SLOService $sloService): void
-    {
+    public function __construct(SLOService $sloService){
         parent::__construct();
         $this->sloService = $sloService;
     }

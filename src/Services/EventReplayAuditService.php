@@ -51,8 +51,7 @@ final class EventReplayAuditService
      * @param  CacheRepository  $cache  Cache repository instance
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $auditConfig = $config->get('zeroboiler.analytics.replay_audit', []);
         /** @var array{enabled?: bool, cache_prefix?: string, retention_ttl?: int, max_entries?: int, auto_record?: bool} $auditConfig */
 

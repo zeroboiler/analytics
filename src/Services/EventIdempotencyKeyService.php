@@ -49,8 +49,7 @@ final class EventIdempotencyKeyService
      * @param  CacheRepository  $cache  Cache repository for idempotency storage
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $idempotencyConfig = $config->get('zeroboiler.analytics.idempotency', []);

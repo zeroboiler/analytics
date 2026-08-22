@@ -62,7 +62,7 @@ final class EventBackpressureService
     /** @var int Events rejected by backpressure in this request */
     private int $rejectedCount = 0;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     public function __construct(CacheRepository $cache, ConfigRepository $config)
     {

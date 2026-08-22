@@ -64,7 +64,7 @@ final class SaaSLifecycleFlowTracker
         ?array $customFlows = null,
         string $cachePrefix = 'zb_flow_',
         int $cacheTtl = 604800,
-    ): void {
+    ){
         $this->flows = array_merge(self::BUILT_IN_FLOWS, $customFlows ?? []);
         $this->cachePrefix = $cachePrefix;
         $this->cacheTtl = $cacheTtl;

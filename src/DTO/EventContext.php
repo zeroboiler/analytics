@@ -60,7 +60,7 @@ final readonly class EventContext
         public ?string $country = null,
         public bool $consentGranted = true,
         public ?string $cookieDomain = null,
-    ): void {}
+    ){}
 
     /**
      * Create an EventContext from an Illuminate HTTP Request.

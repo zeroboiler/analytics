@@ -26,20 +26,20 @@ use Illuminate\Support\Facades\Cache;
  */
 final class ChurnPredictionService
 {
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
     /** @var array<string, float> Signal weights */
-    private readonly array $signalWeights;
+    private array $signalWeights;
 
-    private readonly int $highRiskThreshold;
+    private int $highRiskThreshold;
 
-    private readonly int $mediumRiskThreshold;
+    private int $mediumRiskThreshold;
 
-    private readonly int $criticalRiskThreshold;
+    private int $criticalRiskThreshold;
 
-    private readonly int $inactiveDaysThreshold;
+    private int $inactiveDaysThreshold;
 
     private const CACHE_PREFIX = 'zb_churn_';
 
@@ -67,8 +67,7 @@ final class ChurnPredictionService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $churnConfig = $config->get('zeroboiler.analytics.churn_prediction', []);
         /** @var array{cache_ttl?: int, cache_prefix?: string, signal_weights?: array<string, float>, high_risk_threshold?: int, medium_risk_threshold?: int, critical_risk_threshold?: int, inactive_days_threshold?: int} $churnConfig */
 
@@ -261,7 +260,7 @@ final class ChurnPredictionService
         try {
             Cache::forget($this->cachePrefix . 'batch_');
             Cache::forget($this->cachePrefix . 'cohort_');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail
         }
     }

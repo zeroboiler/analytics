@@ -44,8 +44,7 @@ final class EventPluginRegistry
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $pluginConfig = $config->get('zeroboiler.analytics.event_plugins', []);
         /** @var array{enabled?: bool, debug?: bool, plugins?: array<string, PluginManifest>} $pluginConfig */
         $this->debug = (bool) ($pluginConfig['debug'] ?? false);

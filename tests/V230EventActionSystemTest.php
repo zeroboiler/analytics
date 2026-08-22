@@ -32,7 +32,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'test_action',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         );
 
         expect($action->id)->toBe('test_action');
@@ -47,7 +47,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'full_action',
             on: 'saas.*',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             priority: 10,
             cooldownSeconds: 300,
             condition: 'param.value > 100',
@@ -66,7 +66,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'exact',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         );
 
         expect($action->matches('purchase'))->toBeTrue();
@@ -78,7 +78,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'glob',
             on: 'saas.*',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         );
 
         expect($action->matches('saas.sign_up'))->toBeTrue();
@@ -92,7 +92,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'category',
             on: 'category:ecommerce',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         );
 
         expect($action->matches('view_item'))->toBeTrue();
@@ -105,7 +105,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'conditional',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             condition: 'param.value > 100',
         );
 
@@ -122,7 +122,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'eq_check',
             on: 'subscription',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             condition: 'param.plan == "pro"',
         );
 
@@ -137,7 +137,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'and_check',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             condition: 'param.value > 50 && param.currency == "USD"',
         );
 
@@ -154,7 +154,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'unconditional',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         );
 
         $event = new AnalyticsEvent(name: 'purchase', params: ['value' => 0]);
@@ -165,7 +165,7 @@ describe('EventAction DTO', function (): void {
         $action = new EventAction(
             id: 'serializable',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             priority: 5,
             cooldownSeconds: 60,
             condition: 'param.value > 100',
@@ -192,7 +192,7 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'test_1',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         expect($this->registry->count())->toBe(1);
@@ -203,7 +203,7 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'removable',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         expect($this->registry->count())->toBe(1);
@@ -218,13 +218,13 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'purchase_action',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $this->registry->register(new EventAction(
             id: 'signup_action',
             on: 'sign_up',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $event = new AnalyticsEvent(name: 'purchase', params: []);
@@ -258,7 +258,7 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'high_value_only',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => fail('Should not execute'),
+            handler: fn (AnalyticsEvent $e) => fail('Should not execute'),
             condition: 'param.value > 100',
         ));
 
@@ -343,7 +343,7 @@ describe('EventActionRegistry', function (): void {
         $disabledRegistry->register(new EventAction(
             id: 'ignored',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => fail('Should not execute'),
+            handler: fn (AnalyticsEvent $e) => fail('Should not execute'),
         ));
 
         $event = new AnalyticsEvent(name: 'purchase', params: []);
@@ -356,19 +356,19 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'purchase_1',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $this->registry->register(new EventAction(
             id: 'purchase_2',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $this->registry->register(new EventAction(
             id: 'signup_1',
             on: 'sign_up',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $grouped = $this->registry->groupedByPattern();
@@ -383,14 +383,14 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'a1',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             priority: 10,
         ));
 
         $this->registry->register(new EventAction(
             id: 'a2',
             on: 'sign_up',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
             priority: 50,
         ));
 
@@ -407,7 +407,7 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'counter',
             on: 'page_view',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         expect($this->registry->executionCount('counter'))->toBe(0);
@@ -424,7 +424,7 @@ describe('EventActionRegistry', function (): void {
         $this->registry->register(new EventAction(
             id: 'to_flush',
             on: 'purchase',
-            handler: fn (AnalyticsEvent $e): void => null,
+            handler: fn (AnalyticsEvent $e) => null,
         ));
 
         $this->registry->dispatch(new AnalyticsEvent(name: 'purchase', params: []));

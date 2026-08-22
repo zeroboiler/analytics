@@ -99,12 +99,12 @@ final class EventComplianceScoringService
     private array $eventOverrides;
 
     /** @var list<string> Fields considered PII */
-    private readonly array $piiFields;
+    private array $piiFields;
 
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $csConfig = $config->get('zeroboiler.analytics.compliance_scoring', []);
         /** @var array{enabled?: bool, cache_ttl?: int, event_overrides?: array<string, array{pii_fields?: list<string>, retention_days?: int, legal_basis?: string, sensitive?: bool}>, pii_fields?: list<string>} $csConfig */
 

@@ -36,7 +36,7 @@ final readonly class ApiRateLimitedEvent extends AnalyticsEvent
         ?int $limit = null,
         ?string $window = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct('api_rate_limited', array_filter([
             'endpoint' => $endpoint,
             'method' => $method,

@@ -30,7 +30,7 @@ final readonly class ErrorEvent extends AnalyticsEvent
         string $message = '',
         string $pagePath = '',
         ?bool $fatal = null,
-    ): void {
+    ){
         parent::__construct('error', array_filter([
             'error_type' => $errorType,
             'message' => $message,

@@ -93,13 +93,13 @@ final class PLGScoringService
         'integration_connected',
     ];
 
-    private readonly array $weights;
+    private array $weights;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * @param  AnalyticsManager  $manager  Analytics manager for event queries
@@ -110,7 +110,7 @@ final class PLGScoringService
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
 
@@ -272,7 +272,7 @@ final class PLGScoringService
                     }
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Services not available
         }
 
@@ -316,7 +316,7 @@ final class PLGScoringService
                     $signalCount++;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
 
@@ -367,7 +367,7 @@ final class PLGScoringService
                 $weight = self::ENGAGEMENT_EVENT_WEIGHTS[$eventName];
                 $weightedScore += $weight * min($count, 5); // Cap at 5 per event
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
 
@@ -407,7 +407,7 @@ final class PLGScoringService
                     $identityRetentionEvents++;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
 
@@ -451,7 +451,7 @@ final class PLGScoringService
                     $uniqueFeatures++;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
 
@@ -524,7 +524,7 @@ final class PLGScoringService
                     $signals[] = "{$eventName} ({$category})";
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Services not available
         }
 

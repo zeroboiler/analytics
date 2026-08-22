@@ -37,8 +37,7 @@ final class AnalyticsEventSanitizer
     /**
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $raw = $config->get('zeroboiler.analytics.sanitization', []);
         /** @var array{enabled?: bool, max_param_count?: int, max_key_length?: int, max_value_length?: int, strict_naming?: bool, strip_html?: bool, strip_null_bytes?: bool, normalize_booleans?: bool, truncate_strings?: bool, disallowed_keys?: list<string>, max_event_name_length?: int, reserved_prefixes?: list<string>} $raw */
 

@@ -211,7 +211,7 @@ final class TrackEventRequest extends FormRequest
             $config = app(ConfigRepository::class);
 
             return (bool) $config->get('zeroboiler.analytics.validation.strict', false);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -229,7 +229,7 @@ final class TrackEventRequest extends FormRequest
             $whitelist = $config->get('zeroboiler.analytics.validation.whitelist', []);
 
             return is_array($whitelist) ? $whitelist : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -244,7 +244,7 @@ final class TrackEventRequest extends FormRequest
             $config = app(ConfigRepository::class);
 
             return (int) $config->get('zeroboiler.analytics.validation.max_event_name_length', 100);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 100;
         }
     }

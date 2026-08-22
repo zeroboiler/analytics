@@ -31,17 +31,17 @@ final class EventSparklineService
 {
     private const CACHE_PREFIX = 'zb_sparkline_';
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $defaultPoints;
+    private int $defaultPoints;
 
-    private readonly int $defaultPeriodHours;
+    private int $defaultPeriodHours;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly AnalyticsMetrics $metrics;
+    private AnalyticsMetrics $metrics;
 
     /**
      * @param  CacheRepository  $cache
@@ -50,7 +50,7 @@ final class EventSparklineService
     public function __construct(
         CacheRepository $cache,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $config = app(\Illuminate\Contracts\Config\Repository::class);
         $sparklineConfig = $config->get('zeroboiler.analytics.sparkline', []);
         /** @var array{enabled?: bool, cache_ttl?: int, default_points?: int, default_period_hours?: int} $sparklineConfig */
@@ -250,7 +250,7 @@ final class EventSparklineService
         // Clear sparkline cache by prefix (best-effort)
         try {
             $this->cache->forget(self::CACHE_PREFIX . '*');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache driver may not support wildcard deletion
         }
     }

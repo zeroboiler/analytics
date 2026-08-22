@@ -63,7 +63,7 @@ final class RollingWindowAnalyticsEngine
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Calculate Simple Moving Average.

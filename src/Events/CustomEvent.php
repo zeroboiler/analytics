@@ -28,7 +28,7 @@ final readonly class CustomEvent extends AnalyticsEvent
     public function __construct(
         string $name,
         array $params = [],
-    ): void {
+    ){
         parent::__construct($name, $params);
     }
 }

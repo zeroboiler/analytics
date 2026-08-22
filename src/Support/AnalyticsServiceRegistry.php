@@ -87,7 +87,7 @@ final class AnalyticsServiceRegistry
      */
     public function __construct(
         private readonly Container $container,
-    ): void {}
+    ){}
 
     /**
      * Resolve a service by key.

@@ -32,7 +32,7 @@ final readonly class CreditAppliedEvent extends AnalyticsEvent
         ?string $reason = null,
         ?string $source = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('credit_applied', array_filter([
             'amount' => $amount,
             'currency' => $currency,

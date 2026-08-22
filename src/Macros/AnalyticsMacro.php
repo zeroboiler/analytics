@@ -37,11 +37,11 @@ final class AnalyticsMacro
     public function __construct(
         private readonly string $name,
         private readonly string $eventName,
-        private readonly array $defaults = [],
-        private readonly array $requiredKeys = [],
-        private readonly array $tags = [],
+        private array $defaults = [],
+        private array $requiredKeys = [],
+        private array $tags = [],
         private readonly ?string $description = null,
-    ): void {}
+    ){}
 
     /**
      * Get the macro name.

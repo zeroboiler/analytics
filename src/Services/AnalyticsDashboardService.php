@@ -43,7 +43,7 @@ final class AnalyticsDashboardService
         CacheRepository $cache,
         ConfigRepository $config,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->metrics = $metrics;
@@ -383,7 +383,7 @@ final class AnalyticsDashboardService
         try {
             /** @var SaaSHealthScoreService|null */
             return app()->make(SaaSHealthScoreService::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -398,7 +398,7 @@ final class AnalyticsDashboardService
         try {
             /** @var ConsentLogService|null */
             return app()->make(ConsentLogService::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }

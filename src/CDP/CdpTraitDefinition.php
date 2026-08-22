@@ -46,7 +46,7 @@ final readonly class CdpTraitDefinition
         public int $recalculateIntervalSeconds = 0,
         public mixed $defaultValue = null,
         public ?string $description = null,
-    ): void {}
+    ){}
 
     /**
      * Create a static (manually set) trait definition.

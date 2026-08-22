@@ -33,7 +33,7 @@ final readonly class SelectItemEvent extends AnalyticsEvent
         ?string $itemListId = null,
         ?string $itemListName = null,
         string $currency = 'USD',
-    ): void {
+    ){
         parent::__construct('select_item', array_filter([
             'item_list_id' => $itemListId,
             'item_list_name' => $itemListName,

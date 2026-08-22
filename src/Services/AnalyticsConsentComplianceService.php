@@ -61,7 +61,7 @@ final class AnalyticsConsentComplianceService
         ConfigRepository $config,
         CacheRepository $cache,
         int $cacheTtl = 300,
-    ): void {
+    ){
         $this->config = $config;
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
@@ -530,7 +530,7 @@ final class AnalyticsConsentComplianceService
                     'message' => 'Consent version hash computable (' . substr($hash, 0, 12) . '...)',
                     'severity' => 'info',
                 ];
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // JSON encoding failed
             }
         }

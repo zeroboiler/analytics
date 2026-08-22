@@ -29,7 +29,7 @@ final readonly class EmailSentEvent extends AnalyticsEvent
         ?string $subject = null,
         ?string $recipient = null,
         ?string $template = null,
-    ): void {
+    ){
         parent::__construct('email_sent', array_filter([
             'campaign' => $campaign,
             'subject' => $subject,

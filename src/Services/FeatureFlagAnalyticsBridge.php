@@ -44,8 +44,7 @@ final class FeatureFlagAnalyticsBridge
     /**
      * @param  CacheRepository  $cache  Cache repository for dedup and persistence
      */
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
         $this->exposureDedupTtl = 86400; // 24 hours
         $this->maxFlagMappings = 1000;

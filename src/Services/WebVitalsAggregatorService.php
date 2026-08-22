@@ -95,7 +95,7 @@ final class WebVitalsAggregatorService
         string $window = self::DEFAULT_WINDOW,
         bool $enabled = true,
         bool $alertingEnabled = true,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->maxSamples = $maxSamples;
         $this->ttl = $ttl;

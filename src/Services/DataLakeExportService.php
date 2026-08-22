@@ -74,8 +74,7 @@ final class DataLakeExportService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $dlConfig = $config->get('zeroboiler.analytics.data_lake', []);

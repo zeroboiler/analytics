@@ -27,7 +27,7 @@ final readonly class NewsletterSubscribedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('newsletter_subscribed', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

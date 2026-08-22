@@ -30,7 +30,7 @@ final readonly class LeadCapturedEvent extends AnalyticsEvent
         ?string $campaign = null,
         ?string $formId = null,
         ?string $landingPage = null,
-    ): void {
+    ){
         parent::__construct('lead_captured', array_filter([
             'source' => $source,
             'campaign' => $campaign,

@@ -48,21 +48,21 @@ final class EventIngestionService
         'post_dispatch',
     ];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $maxEventNameLength;
+    private int $maxEventNameLength;
 
-    private readonly int $maxParamCount;
+    private int $maxParamCount;
 
-    private readonly int $maxPayloadSize;
+    private int $maxPayloadSize;
 
-    private readonly int $timeoutMs;
+    private int $timeoutMs;
 
-    private readonly bool $trackLatency;
+    private bool $trackLatency;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, int> Ingestion latency samples (event → ms) */
     private array $latencySamples = [];
@@ -88,10 +88,10 @@ final class EventIngestionService
         private readonly AnalyticsManager $manager,
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-        private readonly ?EventPipeline $pipeline = null,
-        private readonly ?EventValidationService $validation = null,
-        private readonly ?EventCostTracker $costTracker = null,
-    ): void {
+        private ?EventPipeline $pipeline = null,
+        private ?EventValidationService $validation = null,
+        private ?EventCostTracker $costTracker = null,
+    ){
         $ingestionConfig = $config->get('zeroboiler.analytics.ingestion', []);
         /** @var array{enabled?: bool, max_event_name_length?: int, max_param_count?: int, max_payload_size?: int, timeout_ms?: int, track_latency?: bool, cache_prefix?: string, cache_ttl?: int, stages?: list<string>} $ingestionConfig */
 
@@ -373,7 +373,7 @@ final class EventIngestionService
                 try {
                     $tracker = $this->manager->{$provider}();
                     $results[$provider] = $tracker->isEnabled();
-                } catch (\Throwable) {
+                } catch (\Throwable $e) {
                     $results[$provider] = false;
                 }
             }

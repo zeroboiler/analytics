@@ -33,8 +33,7 @@ final class SaaSFeatureUsageTrackerService
      * @param  CacheRepository  $cache  Cache repository instance
      * @param  int  $ttl  Cache TTL in seconds
      */
-    public function __construct(CacheRepository $cache, int $ttl = 86400): void
-    {
+    public function __construct(CacheRepository $cache, int $ttl = 86400){
         $this->cache = $cache;
         $this->ttl = $ttl;
     }

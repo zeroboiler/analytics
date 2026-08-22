@@ -24,7 +24,7 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 final class EventMetadataEnricher
 {
     /** @var array<string, mixed> Metadata to attach */
-    private readonly array $metadata;
+    private array $metadata;
 
     /**
      * @param  string|null  $sessionId  Current session ID
@@ -39,7 +39,7 @@ final class EventMetadataEnricher
         ?string $referrer = null,
         bool $includeTimestamp = true,
         array $extra = [],
-    ): void {
+    ){
         $this->metadata = array_merge(array_filter([
             '_session_id' => $sessionId,
             '_page_url' => $pageUrl,

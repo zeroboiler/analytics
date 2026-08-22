@@ -71,7 +71,7 @@ final class EventArchiveService
         CacheRepository $cache,
         AnalyticsManager $manager,
         ConfigRepository $config,
-    ): void {
+    ){
         $archiveConfig = $config->get('zeroboiler.analytics.archive', []);
         /** @var array{enabled?: bool, cache_prefix?: string, retention_ttl?: int, max_events?: int, always_archive?: list<string>, never_archive?: list<string>} $archiveConfig */
 

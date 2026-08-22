@@ -103,8 +103,7 @@ final class EventComplianceService
      * @param  ConfigRepository  $config  Application config
      * @param  CacheRepository|null  $cache  Cache driver (injected or from container)
      */
-    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null): void
-    {
+    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null){
         $complianceConfig = $config->get('zeroboiler.analytics.compliance', []);
         /** @var array{enabled?: bool, cache_ttl?: int} $complianceConfig */
 

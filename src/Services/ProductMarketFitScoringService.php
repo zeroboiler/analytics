@@ -33,8 +33,7 @@ final class ProductMarketFitScoringService
      * @param  CacheRepository  $cache
      * @param  array<string, mixed>|ConfigRepository  $config  Config array or repository
      */
-    public function __construct(CacheRepository $cache, array|ConfigRepository $config = []): void
-    {
+    public function __construct(CacheRepository $cache, array|ConfigRepository $config = []){
         $this->cache = $cache;
 
         // Support both direct array config and ConfigRepository (from service container)

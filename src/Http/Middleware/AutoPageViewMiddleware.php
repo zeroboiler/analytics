@@ -50,7 +50,7 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
     public function __construct(
         private readonly AnalyticsManager $manager,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Handle an incoming request and auto-dispatch a page_view event.
@@ -204,7 +204,7 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
 
         try {
             $this->manager->trackEvent('page_view', $params);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Auto page_view tracking must never break the request lifecycle
         }
     }

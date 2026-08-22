@@ -28,7 +28,7 @@ final readonly class WebinarRegisteredEvent extends AnalyticsEvent
         ?string $webinarName = null,
         ?string $campaign = null,
         ?string $source = null,
-    ): void {
+    ){
         parent::__construct('webinar_registered', array_filter([
             'webinar_name' => $webinarName,
             'campaign' => $campaign,

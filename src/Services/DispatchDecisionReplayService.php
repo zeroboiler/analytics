@@ -50,9 +50,9 @@ final class DispatchDecisionReplayService
      * @phpstan-type DecisionAnalysis array{total: int, by_action: array<string, int>, by_provider: array<string, int>, drop_rate: float, defer_rate: float, dispatch_rate: float, circuit_open_count: int, consent_denied_count: int, budget_exceeded_count: int, top_dropped_events: list<array{event: string, count: int}>, top_dropped_providers: list<array{provider: string, count: int}>}
      */
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /**
      * @param  CacheRepository  $cache  Cache repository
@@ -61,7 +61,7 @@ final class DispatchDecisionReplayService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $orchConfig = $config->get('zeroboiler.analytics.dispatch_orchestrator', []);

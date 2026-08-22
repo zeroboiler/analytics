@@ -35,7 +35,7 @@ final readonly class FeatureLimitReachedEvent extends AnalyticsEvent
         ?int $currentUsage = null,
         ?int $maxLimit = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('feature_limit_reached', array_filter([
             'feature_name' => $featureName,
             'limit_type' => $limitType,

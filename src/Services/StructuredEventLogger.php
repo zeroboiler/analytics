@@ -88,8 +88,7 @@ final class StructuredEventLogger
     /**
      * @param  ConfigRepository  $config  Analytics configuration
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
 
         $logConfig = $config->get('zeroboiler.analytics.structured_logging', []);

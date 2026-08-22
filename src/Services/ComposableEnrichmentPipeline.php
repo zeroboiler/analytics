@@ -48,8 +48,7 @@ final class ComposableEnrichmentPipeline
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $pipelineConfig = $config->get('zeroboiler.analytics.enrichment_pipeline', []);
         /** @var array{enabled?: bool, stages?: list<array{stage: string, enabled?: bool, priority?: int, config?: array<string, mixed>}>} $pipelineConfig */
 

@@ -38,8 +38,7 @@ final class EventInstrumentationAdvisor
     /** @var array<string, array{label: string, events: list<string>, priority: 'critical'|'high'|'medium', rationale: string, code_snippet: string}> */
     private array $saasStarterRecommendations;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
         $this->saasStarterRecommendations = $this->buildRecommendations();

@@ -38,8 +38,7 @@ final class AnalyticsFunnelLeakCommand extends Command
 
     private FunnelLeakDetectionService $service;
 
-    public function __construct(FunnelLeakDetectionService $service): void
-    {
+    public function __construct(FunnelLeakDetectionService $service){
         parent::__construct();
         $this->service = $service;
     }

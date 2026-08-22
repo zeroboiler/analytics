@@ -48,8 +48,7 @@ final class AnalyticsTestCommand extends Command
     /** @var list<array{provider: string, enabled: bool, dispatched: bool, error?: string, latency_ms?: float}> */
     private array $results = [];
 
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         parent::__construct();
         $this->manager = $manager;
     }

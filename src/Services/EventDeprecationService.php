@@ -40,17 +40,17 @@ final class EventDeprecationService
     /** @var array<string, array{since?: string, deprecated?: string, deprecated_in?: string, replaced_by?: string|null, stability?: string, message?: string}> */
     private array $registry = [];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly bool $blockDeprecated;
+    private bool $blockDeprecated;
 
-    private readonly bool $autoRedirect;
+    private bool $autoRedirect;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $warningTtl;
+    private int $warningTtl;
 
-    private readonly string $logChannel;
+    private string $logChannel;
 
     /**
      * @param  CacheRepository  $cache  Cache repository for deprecation warning deduplication
@@ -58,7 +58,7 @@ final class EventDeprecationService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $versioningConfig = $config->get('zeroboiler.analytics.event_versioning', []);
         /** @var array{enabled?: bool, block_deprecated?: bool, auto_redirect?: bool, cache_prefix?: string, warning_ttl?: int, log_channel?: string, registry?: array<string, mixed>} $versioningConfig */
 

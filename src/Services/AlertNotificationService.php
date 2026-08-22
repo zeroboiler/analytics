@@ -34,19 +34,19 @@ use Illuminate\Support\Facades\Log;
 final class AlertNotificationService
 {
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $rateLimitWindow;
+    private int $rateLimitWindow;
 
-    private readonly int $rateLimitMax;
+    private int $rateLimitMax;
 
-    private readonly int $maxRetries;
+    private int $maxRetries;
 
-    private readonly float $retryBaseDelay;
+    private float $retryBaseDelay;
 
     /** @var array<string, int> Channel → last sent timestamp (cooldown tracking) */
     private array $channelCooldowns = [];
@@ -58,7 +58,7 @@ final class AlertNotificationService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $notifConfig = $config->get('zeroboiler.analytics.alert_notifications', []);
@@ -314,7 +314,7 @@ final class AlertNotificationService
                             'status' => $response->status(),
                             'alert' => $alert['rule'] ?? null,
                         ]);
-                    } catch (\Throwable) {
+                    } catch (\Throwable $e) {
                         // Log may not be available
                     }
 
@@ -336,7 +336,7 @@ final class AlertNotificationService
                             'error' => $e->getMessage(),
                             'alert' => $alert['rule'] ?? null,
                         ]);
-                    } catch (\Throwable) {
+                    } catch (\Throwable $e) {
                         // Log may not be available
                     }
 
@@ -527,7 +527,7 @@ final class AlertNotificationService
             ]);
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
@@ -588,7 +588,7 @@ final class AlertNotificationService
             if (is_array($cached)) {
                 $this->channelCooldowns = $cached;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->channelCooldowns = [];
         }
     }
@@ -600,7 +600,7 @@ final class AlertNotificationService
     {
         try {
             $this->cache->put('zb_alert_notif_cooldowns', $this->channelCooldowns, 120);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache may not be available
         }
     }

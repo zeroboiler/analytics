@@ -47,7 +47,7 @@ final readonly class AnalyticsGoal
         public ?string $owner = null,
         public bool $active = true,
         public array $meta = [],
-    ): void {}
+    ) {}
 
     /**
      * Create from config array.

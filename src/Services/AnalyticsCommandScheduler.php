@@ -107,11 +107,11 @@ final class AnalyticsCommandScheduler
         ],
     ];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, array{command: string, frequency: string, description: string, enabled: bool, params: array<string, mixed>}> Registered tasks */
     private array $tasks = [];
@@ -126,7 +126,7 @@ final class AnalyticsCommandScheduler
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ): void {
+    ){
         $schedulerConfig = $config->get('zeroboiler.analytics.scheduler', []);
         /** @var array{enabled?: bool, cache_prefix?: string, cache_ttl?: int, tasks?: array<string, array{command: string, frequency: string, description: string, enabled?: bool, params?: array<string, mixed>}>, override_defaults?: bool} $schedulerConfig */
 
@@ -458,7 +458,7 @@ final class AnalyticsCommandScheduler
             $exitCode = \Illuminate\Support\Facades\Artisan::call($command);
 
             return is_int($exitCode) ? $exitCode : 1;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 1;
         }
     }

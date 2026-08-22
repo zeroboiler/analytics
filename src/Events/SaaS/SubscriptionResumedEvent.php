@@ -33,7 +33,7 @@ final class SubscriptionResumedEvent extends \ZeroBoiler\Analytics\DTO\Analytics
         ?string $userId = null,
         ?string $clientId = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'subscription_resumed',
             params: array_filter([

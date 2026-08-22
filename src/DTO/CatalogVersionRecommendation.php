@@ -40,7 +40,7 @@ final readonly class CatalogVersionRecommendation
         public string $rationale,
         public bool $hasBreaking,
         public ?string $releaseNotes = null,
-    ): void {}
+    ){}
 
     /**
      * Create a no-change recommendation.

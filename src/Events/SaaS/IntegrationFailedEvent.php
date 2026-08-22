@@ -35,7 +35,7 @@ final readonly class IntegrationFailedEvent extends AnalyticsEvent
         string $errorMessage,
         bool $isRetryable = false,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('integration_failed', [
             'integration_name' => $integrationName,
             'error_type' => $errorType,

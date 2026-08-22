@@ -79,7 +79,7 @@ final class EventBudgetService
         float $sampleRate = 0.1,
         int $cacheTtl = 3600,
         bool $useCache = true,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->clientLimit = $clientLimit;
         $this->userLimit = $userLimit;
@@ -351,7 +351,7 @@ final class EventBudgetService
                 $this->globalCounts = $cached['global'] ?? [];
                 $this->rejectedCount = $cached['rejected'] ?? 0;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable — start fresh
         }
     }
@@ -372,7 +372,7 @@ final class EventBudgetService
                 'global' => $this->globalCounts,
                 'rejected' => $this->rejectedCount,
             ], $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

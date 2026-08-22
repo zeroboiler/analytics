@@ -48,7 +48,7 @@ final class TenantAnalyticsContext
      * @param  CacheRepository  $cache  Cache repository
      * @param  int  $ttl  TTL for tenant data (seconds)
      */
-    public function __construct(CacheRepository $cache, int $ttl = 3600): void
+    public function __construct(CacheRepository $cache, int $ttl = 3600)
     {
         $this->cache = $cache;
         $this->ttl = $ttl;

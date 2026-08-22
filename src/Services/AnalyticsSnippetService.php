@@ -37,8 +37,7 @@ final class AnalyticsSnippetService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -397,7 +396,7 @@ HTML;
         return <<<HTML
 <!-- Mixpanel — ZeroBoiler Analytics v42.0.0 -->
 <script>
-  (function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;try{d=function(){try{var a={};if(b.navigator&&void 0!==b.navigator.userAgent){var c=b.navigator.userAgent;a.ch=a.userAgent=c}return a}catch(b){}}();d&&d.ch&&(f=d.ch+f)}catch(g){}m=f.match(/[^A-Za-z0-9_]/g);m&&(m=m.map(function(a){return"$"+a.charCodeAt(0).toString(16)}).join(""),f=m+"#"+f);var h=a.__SV=1.0}catch(g){}e=""+Math.random().toString(36).slice(2,8);a.fc=""+Math.random().toString(36).slice(2,8);try{j=JSON.parse(localStorage.getItem("__mpdef"))}catch(g){j=null}try{k=j||JSON.parse(localStorage.getItem("__mpa")||"[]")}catch(g){k=[]}try{k=k.filter(function(a){return a.rg.test(b.location.host)})}catch(g){k=[]}var l;k.length?(l=k[0].t,l!==e&&(localStorage.removeItem("__mpa"),localStorage.removeItem("__mpdef"),l=null)):l=null;var i={lib:"v2-ecommerce",i18n:{},};try{var n=JSON.parse(localStorage.getItem("__mpauth_"+l));n&&(i.userId=n.uid,i.deviceId=n.did)}catch(g){}c.init('{$token}',{debug:!1,track_links_timeout:300,persistence:"localStorage+cookie",cookie_name:"__mpa",ignore_dnt:!0},i);
+  (function(c,a){if(!a.__SV){var b=window;try{var d,m,j,k=b.location,f=k.hash;try{d=function(){try{var a={};if(b.navigator&&void 0!==b.navigator.userAgent){var c=b.navigator.userAgent;a.ch=a.userAgent=c}return a}catch(b $e) {}}();d&&d.ch&&(f=d.ch+f)}catch(g $e) {}m=f.match(/[^A-Za-z0-9_]/g);m&&(m=m.map(function(a){return"$"+a.charCodeAt(0).toString(16)}).join(""),f=m+"#"+f);var h=a.__SV=1.0}catch(g $e) {}e=""+Math.random().toString(36).slice(2,8);a.fc=""+Math.random().toString(36).slice(2,8);try{j=JSON.parse(localStorage.getItem("__mpdef"))}catch(g $e) {j=null}try{k=j||JSON.parse(localStorage.getItem("__mpa")||"[]")}catch(g $e) {k=[]}try{k=k.filter(function(a){return a.rg.test(b.location.host)})}catch(g $e) {k=[]}var l;k.length?(l=k[0].t,l!==e&&(localStorage.removeItem("__mpa"),localStorage.removeItem("__mpdef"),l=null)):l=null;var i={lib:"v2-ecommerce",i18n:{},};try{var n=JSON.parse(localStorage.getItem("__mpauth_"+l));n&&(i.userId=n.uid,i.deviceId=n.did)}catch(g $e) {}c.init('{$token}',{debug:!1,track_links_timeout:300,persistence:"localStorage+cookie",cookie_name:"__mpa",ignore_dnt:!0},i);
   })(document,window.mixpanel||[]);
 </script>
 HTML;

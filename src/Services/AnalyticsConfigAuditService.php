@@ -54,8 +54,7 @@ final class AnalyticsConfigAuditService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -200,7 +199,7 @@ final class AnalyticsConfigAuditService
                 'timestamp' => (new \DateTimeImmutable())->format('c'),
                 'key' => $key,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'saved' => false,
                 'label' => $label,
@@ -230,7 +229,7 @@ final class AnalyticsConfigAuditService
                 'label' => $label,
                 'snapshot' => is_array($snapshot) ? $snapshot : null,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'found' => false,
                 'label' => $label,

@@ -195,7 +195,7 @@ final class EventImpactScoreService
         ?EventPriorityCalculator $priorityCalculator = null,
         ?CacheRepository $cache = null,
         int $cacheTtl = 300,
-    ): void {
+    ) {
         $this->priorityCalculator = $priorityCalculator ?? new EventPriorityCalculator();
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
@@ -394,7 +394,7 @@ final class EventImpactScoreService
         } elseif ($delta > 0) {
             $recommendation = "'{$eventA}' has higher impact (+" . ($delta * 100) . '%) — prioritize instrumentation.';
         } else {
-            $recommendation = "'{$eventB}' has higher impact (+' . (abs($delta) * 100) . '%) — prioritize instrumentation.';
+            $recommendation = "'" . $eventB . "' has higher impact (+" . (abs($delta) * 100) . '%) — prioritize instrumentation.';
         }
 
         return [

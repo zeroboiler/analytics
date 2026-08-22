@@ -43,25 +43,24 @@ final class AnalyticsCostForecastService
     private const CACHE_PREFIX = 'zb_cost_forecast_';
     private const HISTORY_KEY = 'zb_cost_forecast_history';
 
-    private readonly bool $enabled;
-    private readonly string $currency;
-    private readonly int $historyMonths;
-    private readonly int $projectionMonths;
-    private readonly float $growthCap;
-    private readonly bool $alertOnExceedsBudget;
-    private readonly float $monthlyBudget;
-    private readonly int $cacheTtl;
+    private bool $enabled;
+    private string $currency;
+    private int $historyMonths;
+    private int $projectionMonths;
+    private float $growthCap;
+    private bool $alertOnExceedsBudget;
+    private float $monthlyBudget;
+    private int $cacheTtl;
 
     /** @var array<string, float> Per-provider cost rates (cost per 1000 events) */
-    private readonly array $providerRates;
+    private array $providerRates;
 
     /** @var list<string> Providers to forecast */
-    private readonly array $forecastProviders;
+    private array $forecastProviders;
 
     private CacheRepository $cache;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $forecastConfig = $config->get('zeroboiler.analytics.cost_forecast', []);

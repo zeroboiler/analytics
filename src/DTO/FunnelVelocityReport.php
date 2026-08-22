@@ -46,7 +46,7 @@ final readonly class FunnelVelocityReport
         public ?string $bottleneckStep = null,
         public ?string $slowestTransition = null,
         public array $metadata = [],
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation.

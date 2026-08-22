@@ -40,8 +40,7 @@ final class SaaSRetentionCohortService
      * @param  CacheRepository|null  $cache
      * @param  ConfigRepository|null  $config
      */
-    public function __construct(?CacheRepository $cache = null, ?ConfigRepository $config = null): void
-    {
+    public function __construct(?CacheRepository $cache = null, ?ConfigRepository $config = null){
         $this->cache = $cache ?? app(CacheRepository::class);
         $this->config = $config ?? app(ConfigRepository::class);
     }

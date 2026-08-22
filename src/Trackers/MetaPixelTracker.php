@@ -52,8 +52,7 @@ final class MetaPixelTracker implements TrackerInterface
         'Subscribe',
     ];
 
-    public function __construct(string $pixelId, string $accessToken, bool $enabled = false): void
-    {
+    public function __construct(string $pixelId, string $accessToken, bool $enabled = false){
         $this->pixelId = $pixelId;
         $this->accessToken = $accessToken;
         $this->enabled = $enabled;
@@ -80,7 +79,7 @@ final class MetaPixelTracker implements TrackerInterface
             $url = $request->fullUrl();
             $ip = $request->ip() ?? '127.0.0.1';
             $ua = $request->userAgent() ?? '';
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $url = '';
             $ip = '127.0.0.1';
             $ua = '';
@@ -226,7 +225,7 @@ HTML;
             $url = $request->fullUrl();
             $ip = $request->ip() ?? '127.0.0.1';
             $ua = $request->userAgent() ?? '';
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $url = '';
             $ip = '127.0.0.1';
             $ua = '';

@@ -47,7 +47,7 @@ final readonly class AnalyticsEvent
         public ?string $source = null,
         public ?string $category = null,
         public ?string $sessionId = null,
-    ): void {}
+    ){}
 
     /**
      * Create an AnalyticsEvent from an array.

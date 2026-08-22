@@ -89,7 +89,7 @@ final class SyntheticEventFactory
     public function __construct(
         ?array $categoryWeights = null,
         ?int $sessionDepth = null,
-    ): void {
+    ){
         $this->categoryWeights = $categoryWeights ?? [
             'ecommerce'  => 0.25,
             'saas'       => 0.35,

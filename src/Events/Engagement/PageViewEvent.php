@@ -28,7 +28,7 @@ final readonly class PageViewEvent extends AnalyticsEvent
         string $pageTitle = '',
         string $pageLocation = '',
         string $pageReferrer = '',
-    ): void {
+    ){
         parent::__construct('page_view', array_filter([
             'page_title' => $pageTitle,
             'page_location' => $pageLocation,

@@ -46,7 +46,7 @@ final readonly class CdpProfileSnapshot
         public ?int $lastEventAt = null,
         public int $totalEvents = 0,
         public int $totalSessions = 0,
-    ): void {}
+    ){}
 
     /**
      * Get a trait value with fallback to default.

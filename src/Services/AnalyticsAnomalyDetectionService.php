@@ -51,8 +51,8 @@ final class AnalyticsAnomalyDetectionService
      */
     public function __construct(
         private readonly CacheRepository $cache,
-        private readonly array $config = [],
-    ): void {
+        private array $config = [],
+    ){
     }
 
     /**
@@ -588,7 +588,7 @@ final class AnalyticsAnomalyDetectionService
                     if ((new Carbon($firedAt))->timestamp > $cutoff) {
                         $count++;
                     }
-                } catch (\RuntimeException) {
+                } catch (\RuntimeException $e) {
                     // Skip malformed timestamp
                 }
             }

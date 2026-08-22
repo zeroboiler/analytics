@@ -53,7 +53,7 @@ final class AnalyticsDataService
         AnalyticsMetrics $metrics,
         int $ttl = self::DEFAULT_TTL,
         int $dailyTtl = self::DAILY_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->metrics = $metrics;
         $this->ttl = $ttl;

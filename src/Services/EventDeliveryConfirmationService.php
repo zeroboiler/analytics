@@ -68,7 +68,7 @@ final class EventDeliveryConfirmationService
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
 

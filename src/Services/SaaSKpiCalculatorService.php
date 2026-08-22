@@ -58,8 +58,7 @@ final class SaaSKpiCalculatorService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $kpiConfig = $config->get('zeroboiler.analytics.saas_kpi_calc', []);

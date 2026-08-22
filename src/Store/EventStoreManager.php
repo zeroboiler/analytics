@@ -44,8 +44,7 @@ final class EventStoreManager implements AnalyticsEventStoreInterface
      *
      * @param  ConfigRepository  $config
      */
-    public function __construct(private readonly ConfigRepository $config): void
-    {
+    public function __construct(private readonly ConfigRepository $config){
         $storeConfig = $config->get('zeroboiler.analytics.event_store', []);
 
         $this->autoPersist = (bool) ($storeConfig['auto_persist'] ?? false);

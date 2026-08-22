@@ -60,7 +60,7 @@ final class TenantIsolationService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $tenantConfig = $config->get('zeroboiler.analytics.tenant', []);
         /** @var array{enabled?: bool, resolution_strategy?: string, tenant_header?: string, cache_prefix?: string, cache_ttl?: int, events_per_hour?: int|null, overrides?: array<string, array<string, mixed>>} $tenantConfig */
 

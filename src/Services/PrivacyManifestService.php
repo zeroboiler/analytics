@@ -106,7 +106,7 @@ final class PrivacyManifestService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $manifestConfig = $config->get('zeroboiler.analytics.privacy_manifest', []);
         /** @var array{enabled?: bool, cache_ttl?: int, controller_email?: string, dpo_email?: string|null, legal_basis_defaults?: array<string, string>, retention_defaults?: array<string, int>} $manifestConfig */
 

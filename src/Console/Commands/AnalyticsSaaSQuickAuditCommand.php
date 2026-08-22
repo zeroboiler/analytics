@@ -35,8 +35,7 @@ final class AnalyticsSaaSQuickAuditCommand extends Command
 
     private SaaSStarterQuickAuditService $auditService;
 
-    public function __construct(SaaSStarterQuickAuditService $auditService): void
-    {
+    public function __construct(SaaSStarterQuickAuditService $auditService){
         parent::__construct();
         $this->auditService = $auditService;
     }

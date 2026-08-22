@@ -33,7 +33,7 @@ final class MilestoneReachedEvent extends \ZeroBoiler\Analytics\DTO\AnalyticsEve
         ?string $userId = null,
         ?string $clientId = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'milestone_reached',
             params: array_filter([

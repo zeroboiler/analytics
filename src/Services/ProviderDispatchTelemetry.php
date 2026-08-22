@@ -47,8 +47,7 @@ final class ProviderDispatchTelemetry
      * @param  CacheRepository|null  $cache  Cache repository
      * @param  int|null  $ttl  Cache TTL in seconds
      */
-    public function __construct(?CacheRepository $cache = null, ?int $ttl = null): void
-    {
+    public function __construct(?CacheRepository $cache = null, ?int $ttl = null){
         $this->cache = $cache ?? Cache::getFacadeRoot();
         $this->ttl = $ttl ?? self::DEFAULT_TTL;
     }

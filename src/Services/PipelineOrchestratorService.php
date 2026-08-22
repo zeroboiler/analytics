@@ -55,7 +55,7 @@ final class PipelineOrchestratorService
      * @param  CacheRepository  $cache  Cache repository for pipeline state
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
+    public function __construct(CacheRepository $cache, ConfigRepository $config)
     {
         $this->cache = $cache;
         $cfg = $config->get('zeroboiler.analytics.pipeline_orchestrator', []);
@@ -509,15 +509,15 @@ final class PipelineStep
      * @param  int  $baseDelayMs  Base delay between retries in milliseconds
      */
     public function __construct(
-        public readonly callable $handler,
+        public readonly \Closure $handler,
         public readonly string $description = '',
         public readonly array $dependencies = [],
-        public readonly ?callable $bypass = null,
+        public readonly ?\Closure $bypass = null,
         public readonly bool $parallel = false,
         public readonly int $maxRetries = 3,
         public readonly int $baseDelayMs = 100,
         public readonly string $category = 'default',
-    ): void {}
+    ) {}
 }
 
 /**
@@ -542,7 +542,7 @@ final class PipelineResult
         public readonly int $totalSteps = 0,
         public readonly int $executedSteps = 0,
         public readonly int $skippedSteps = 0,
-    ): void {}
+    ) {}
 
     /**
      * Create a skipped result (orchestrator disabled or pipeline not found).

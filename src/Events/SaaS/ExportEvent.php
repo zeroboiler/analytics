@@ -34,7 +34,7 @@ final readonly class ExportEvent extends AnalyticsEvent
         ?string $resource = null,
         ?int $recordCount = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('export', array_filter([
             'format' => $format,
             'resource' => $resource,

@@ -172,8 +172,7 @@ final class EventContractTestService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Application config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

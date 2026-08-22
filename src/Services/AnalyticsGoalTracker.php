@@ -65,7 +65,7 @@ final class AnalyticsGoalTracker
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $this->loadGoalsFromConfig();
     }
 

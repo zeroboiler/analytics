@@ -53,7 +53,7 @@ final class CdpSegmentService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $cdpConfig = $config->get('zeroboiler.analytics.cdp', []);
         /** @var array{segment_cache_ttl?: int} $cdpConfig */
 

@@ -58,8 +58,7 @@ final class EventAffinityService
      * @param  AnalyticsMetrics  $metrics
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, AnalyticsMetrics $metrics, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, AnalyticsMetrics $metrics, ConfigRepository $config){
         $this->cache = $cache;
         $this->metrics = $metrics;
 

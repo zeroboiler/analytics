@@ -43,19 +43,19 @@ final class EventDataMartService
     /** @var list<string> Supported aggregation dimensions */
     private const DIMENSIONS = ['event_name', 'category', 'provider', 'client_id', 'user_id', 'source'];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $defaultGranularity;
+    private string $defaultGranularity;
 
-    private readonly int $maxDimensions;
+    private int $maxDimensions;
 
     /** @var list<string> Dimensions to pre-compute on ingest */
-    private readonly array $autoDimensions;
+    private array $autoDimensions;
 
     /** @var list<string> Event categories to track (empty = all) */
-    private readonly array $trackedCategories;
+    private array $trackedCategories;
 
     /**
      * @param  CacheRepository  $cache  Application cache driver
@@ -64,7 +64,7 @@ final class EventDataMartService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $martConfig = $config->get('zeroboiler.analytics.data_mart', []);
         /** @var array{enabled?: bool, cache_ttl?: int, default_granularity?: string, max_dimensions?: int, auto_dimensions?: list<string>, tracked_categories?: list<string>} $martConfig */
 

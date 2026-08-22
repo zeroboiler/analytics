@@ -36,7 +36,7 @@ final readonly class TrialExpiredEvent extends AnalyticsEvent
         ?int $trialLengthDays = null,
         ?int $featuresUsedCount = null,
         ?string $lastActivity = null,
-    ): void {
+    ){
         parent::__construct('trial_expired', array_filter([
             'plan' => $plan,
             'trial_length_days' => $trialLengthDays,

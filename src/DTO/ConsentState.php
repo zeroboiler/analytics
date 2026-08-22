@@ -26,8 +26,7 @@ final readonly class ConsentState
     /**
      * @param  array<string, string|null>  $signals  Signal name => 'granted'|'denied'|null
      */
-    public function __construct(array $signals = []): void
-    {
+    public function __construct(array $signals = []){
         $normalized = [];
         foreach ($signals as $key => $value) {
             if ($value === 'granted' || $value === 'denied') {

@@ -289,7 +289,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
             }
 
             return $deps;
-        } catch (\ReflectionException) {
+        } catch (\ReflectionException $e) {
             return [];
         }
     }
@@ -508,7 +508,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
 
         foreach (array_slice($report['top_dependents'], 0, 10) as $item) {
             $bar = str_repeat('█', min($item['count'], 50));
-            $this->line("  <fg=cyan>{$item['count']:>3}</>  {$bar}  <fg=white>" . $this->shortName($item['service']) . '</>');
+            $this->line('  <fg=cyan>' . ($item['count']) . '</>  {$bar}  <fg=white>' . $this->shortName($item['service']) . '</>');
         }
 
         // Heavy services
@@ -517,7 +517,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
 
         foreach (array_slice($report['heavy_services'], 0, 10) as $item) {
             $bar = str_repeat('▓', min($item['dependency_count'], 30));
-            $this->line("  <fg=yellow>{$item['dependency_count']:>2}</> deps  {$bar}  <fg=white>" . $this->shortName($item['service']) . '</>');
+            $this->line('  <fg=yellow>' . ($item['dependency_count']) . '</> deps  {$bar}  <fg=white>' . $this->shortName($item['service']) . '</>');
         }
 
         // Orphans
@@ -527,7 +527,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
 
             foreach ($this->orphans as $orphan) {
                 $deps = count($this->dependencyMap[$orphan] ?? []);
-                $this->line("  <fg=yellow>○</> {$this->shortName($orphan)}  <fg=gray>({$deps} deps)</>");
+                $this->line('  <fg=yellow>○</> ' . (this->shortName($orphan)) . '  <fg=gray>({$deps} deps)</>');
             }
         }
 
@@ -592,7 +592,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
 
         foreach ($this->orphans as $orphan) {
             $deps = count($this->dependencyMap[$orphan] ?? []);
-            $this->line("  ○ {$this->shortName($orphan)} ({$deps} deps)");
+            $this->line('  ○ ' . (this->shortName($orphan)) . ' ({$deps} deps)');
         }
 
         return self::SUCCESS;
@@ -630,7 +630,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
 
         foreach ($heavy as $item) {
             $bar = str_repeat('▓', min($item['dependency_count'], 30));
-            $this->line("  {$item['dependency_count']:>2} deps  {$bar}  {$item['short']}  (depended by: {$item['depended_by_count']})");
+            $this->line('  ' . ($item['dependency_count']) . ' deps  {$bar}  {$item[\'short\']}  (depended by: {$item[\'depended_by_count\']})');
         }
 
         return self::SUCCESS;
@@ -677,18 +677,18 @@ final class AnalyticsDependencyTopologyCommand extends Command
             return;
         }
 
-        $this->section("Service: {$this->shortName($resolved)}");
+        $this->section('Service: ' . (this->shortName($resolved)));
         $this->line("  FQCN:            <fg=gray>{$resolved}</>");
         $this->line("  Dependencies:    <fg=cyan>" . count($deps) . '</>');
         $this->line("  Depended By:     <fg=cyan>" . count($dependedBy) . '</>');
-        $this->line("  Is Leaf:         ' . (count($deps) === 0 ? '<fg=green>yes</>' : '<fg=yellow>no</>'));
-        $this->line("  Is Orphan:       ' . (count($dependedBy) === 0 ? '<fg=yellow>yes</>' : '<fg=green>no</>'));
+        $this->line("  Is Leaf:         " . (count($deps) === 0 ? '<fg=green>yes</>' : '<fg=yellow>no</>'));
+        $this->line("  Is Orphan:       " . (count($dependedBy) === 0 ? '<fg=yellow>yes</>' : '<fg=green>no</>'));
 
         if ($deps !== []) {
             $this->newLine();
             $this->line('  <fg=white>Depends On:</>');
             foreach ($deps as $dep) {
-                $this->line("    <fg=gray>→</> {$this->shortName($dep)}");
+                $this->line('    <fg=gray>→</> ' . (this->shortName($dep)));
             }
         }
 
@@ -696,7 +696,7 @@ final class AnalyticsDependencyTopologyCommand extends Command
             $this->newLine();
             $this->line('  <fg=white>Depended By:</>');
             foreach ($dependedBy as $dependent) {
-                $this->line("    <fg=gray>←</> {$this->shortName($dependent)}");
+                $this->line('    <fg=gray>←</> ' . (this->shortName($dependent)));
             }
         }
     }

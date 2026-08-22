@@ -27,7 +27,7 @@ final readonly class BlogViewEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('blog_view', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

@@ -32,7 +32,7 @@ final readonly class PaymentFailedEvent extends AnalyticsEvent
         ?string $currency = null,
         ?string $paymentMethod = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('payment_failed', array_filter([
             'reason' => $reason,
             'amount' => $amount,

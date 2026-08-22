@@ -90,7 +90,7 @@ final class BehavioralUserSegmentService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $segConfig = $config->get('zeroboiler.analytics.behavioral_segments', []);

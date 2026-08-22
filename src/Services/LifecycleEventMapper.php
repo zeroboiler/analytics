@@ -540,8 +540,7 @@ final class LifecycleEventMapper
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
 
         $lifecycleConfig = $config->get('zeroboiler.analytics.lifecycle', []);
@@ -625,7 +624,7 @@ final class LifecycleEventMapper
                         'target' => $target,
                         'error' => $e->getMessage(),
                     ]);
-                } catch (\Throwable) {
+                } catch (\Throwable $e) {
                     // Log facade unavailable
                 }
             }
@@ -680,7 +679,7 @@ final class LifecycleEventMapper
 
         try {
             return new $class(...$camelParams);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fallback: generic AnalyticsEvent
             $eventName = $this->extractEventName($class);
 
@@ -724,7 +723,7 @@ final class LifecycleEventMapper
             }
 
             return new $class(...$args);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return new AnalyticsEvent(
                 name: $this->extractEventName($class),
                 params: is_array($payload) ? $payload : ['raw' => true],

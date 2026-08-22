@@ -114,7 +114,7 @@ final class EventSequenceValueAttributionService
         ?ConfigRepository $config = null,
         int $cacheTtl = 600,
         ?array $weights = null,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->cacheTtl = $cacheTtl;

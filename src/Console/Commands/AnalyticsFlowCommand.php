@@ -43,17 +43,16 @@ final class AnalyticsFlowCommand extends Command
     /** @var string */
     protected $description = 'Analyze event flows, data quality, and provider coverage';
 
-    private readonly EventFlowAnalysisService $flowService;
+    private EventFlowAnalysisService $flowService;
 
-    private readonly AnalyticsDataQualityFirewall $qualityFirewall;
+    private AnalyticsDataQualityFirewall $qualityFirewall;
 
-    private readonly ProviderEventCompatibilityMatrix $compatibilityMatrix;
+    private ProviderEventCompatibilityMatrix $compatibilityMatrix;
 
     /**
      * Create a new AnalyticsFlowCommand.
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         parent::__construct();
 
         $cache = app('cache');

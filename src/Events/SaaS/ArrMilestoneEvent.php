@@ -33,7 +33,7 @@ final class ArrMilestoneEvent extends AnalyticsEvent
         ?float $previousArr = null,
         ?float $arrGrowthRate = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'arr' => $arr,
             'milestone' => $milestone,

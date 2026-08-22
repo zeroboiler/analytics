@@ -32,7 +32,7 @@ final readonly class ClickEvent extends AnalyticsEvent
         string $elementId = '',
         string $elementClass = '',
         string $targetUrl = '',
-    ): void {
+    ){
         parent::__construct('click', array_filter([
             'element_text' => $elementText,
             'element_type' => $elementType,

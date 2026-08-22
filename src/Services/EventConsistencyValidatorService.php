@@ -45,29 +45,28 @@ final class EventConsistencyValidatorService
     /** @var string Cache key for last validation results */
     private const RESULTS_CACHE_KEY = 'zb_consistency_results';
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var list<string> Enabled provider names */
-    private readonly array $enabledProviders;
+    private array $enabledProviders;
 
     /** @var list<string> Fields that are always required in all events */
-    private readonly array $requiredGlobalFields;
+    private array $requiredGlobalFields;
 
     /** @var bool Whether to cache validation results */
-    private readonly bool $cacheResults;
+    private bool $cacheResults;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

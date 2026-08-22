@@ -51,8 +51,7 @@ final class AnalyticsRequestTrackerMiddleware implements HttpMiddlewareContract
      * @param  AnalyticsManager|null  $manager
      * @param  array<string, mixed>|null  $config
      */
-    public function __construct(?AnalyticsManager $manager = null, ?array $config = null): void
-    {
+    public function __construct(?AnalyticsManager $manager = null, ?array $config = null){
         $this->manager = $manager ?? app(AnalyticsManager::class);
 
         $repo = app(\Illuminate\Contracts\Config\Repository::class);

@@ -87,7 +87,7 @@ final readonly class MetricDefinition
         public ?string $ratioDenominator = null,
         public ?float $percentileValue = null,
         public ?string $unit = null,
-    ): void {}
+    ) {}
 
     /**
      * Create a count metric definition.

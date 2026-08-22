@@ -70,7 +70,7 @@ final class EventTtlService
         bool $dropExpired = false,
         bool $trackMetrics = true,
         int $metricsTtl = 3600,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->defaultTtl = min(max($defaultTtl, 1), self::MAX_TTL);
         $this->ttlOverrides = $ttlOverrides;

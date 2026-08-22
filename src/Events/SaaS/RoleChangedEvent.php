@@ -25,8 +25,7 @@ final readonly class RoleChangedEvent extends AnalyticsEvent
      * @param  string|null  $changedBy  Who made the change ('self', 'admin', 'system')
      * @param  array<string, mixed>  $metadata  Additional context
      */
-    public function __construct(?string $fromRole = null, ?string $toRole = null, ?string $changedBy = null, array $metadata = []): void
-    {
+    public function __construct(?string $fromRole = null, ?string $toRole = null, ?string $changedBy = null, array $metadata = []){
         parent::__construct('role_changed', array_filter([
             'from_role' => $fromRole,
             'to_role' => $toRole,

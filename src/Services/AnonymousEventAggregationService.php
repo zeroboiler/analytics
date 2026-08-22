@@ -56,8 +56,7 @@ final class AnonymousEventAggregationService
     /**
      * @param  array{enabled?: bool, cache_ttl?: int, default_window?: string, max_unique_events?: int, strip_fields?: list<string>}  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []){
         $fullConfig = $configRepo->get('zeroboiler.analytics.anonymous_aggregation', []);
         $merged = array_merge($fullConfig, $config);
 
@@ -378,7 +377,7 @@ final class AnonymousEventAggregationService
         if ($this->pendingCounts !== []) {
             try {
                 $this->flush();
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Silent fail on destruction — logging not available
             }
         }

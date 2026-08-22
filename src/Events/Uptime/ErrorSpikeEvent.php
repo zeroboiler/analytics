@@ -30,7 +30,7 @@ final class ErrorSpikeEvent extends AnalyticsEvent
         float $currentRate = 0.0,
         float $baselineRate = 0.0,
         float $spikeMultiplier = 1.0,
-    ): void {
+    ){
         parent::__construct('error_spike', [
             'error_type' => $errorType,
             'current_rate' => $currentRate,

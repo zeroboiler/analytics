@@ -86,7 +86,7 @@ final class RealTimeEventStreamService
     public function __construct(
         private readonly ConfigRepository $config,
         ?CacheRepository $cache = null,
-    ): void {
+    ){
         $this->cache = $cache ?? app(CacheRepository::class);
 
         $streamConfig = $config->get('zeroboiler.analytics.realtime_stream', []);

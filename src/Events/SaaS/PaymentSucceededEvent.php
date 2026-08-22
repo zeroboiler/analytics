@@ -32,7 +32,7 @@ final readonly class PaymentSucceededEvent extends AnalyticsEvent
         ?string $paymentMethod = null,
         ?string $invoiceId = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('payment_succeeded', array_filter([
             'amount' => $amount,
             'currency' => $currency,

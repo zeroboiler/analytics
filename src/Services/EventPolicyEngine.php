@@ -52,22 +52,21 @@ final class EventPolicyEngine
     private const VIOLATION_LOG_KEY = 'zb_policy_violations';
     private const RATE_LIMIT_PREFIX = 'zb_policy_rate_';
 
-    private readonly bool $enabled;
-    private readonly string $defaultAction;
-    private readonly int $maxViolationHistory;
-    private readonly int $cacheTtl;
-    private readonly bool $logViolations;
+    private bool $enabled;
+    private string $defaultAction;
+    private int $maxViolationHistory;
+    private int $cacheTtl;
+    private bool $logViolations;
 
     /** @var array<string, array{type: string, action: string, config: array<string, mixed>, severity: string, description: string|null}> */
-    private readonly array $policies;
+    private array $policies;
 
     /** @var array<string, string> Parameter patterns for PII detection */
-    private readonly array $piiPatterns;
+    private array $piiPatterns;
 
     private CacheRepository $cache;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $policyConfig = $config->get('zeroboiler.analytics.governance_policies', []);

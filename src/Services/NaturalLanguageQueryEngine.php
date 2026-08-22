@@ -45,21 +45,21 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  */
 final class NaturalLanguageQueryEngine
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $defaultLimit;
+    private int $defaultLimit;
 
-    private readonly int $maxLimit;
+    private int $maxLimit;
 
-    private readonly bool $llmFallbackEnabled;
+    private bool $llmFallbackEnabled;
 
-    private readonly string $llmProvider;
+    private string $llmProvider;
 
-    private readonly string $llmModel;
+    private string $llmModel;
 
     /** @var array<string, callable(string, array<string, mixed>): ParsedQuery|null> */
     private array $customParsers = [];
@@ -71,7 +71,7 @@ final class NaturalLanguageQueryEngine
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $nlConfig = $config->get('zeroboiler.analytics.nl_query', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string, default_limit?: int, max_limit?: int, llm_fallback_enabled?: bool, llm_provider?: string, llm_model?: string} $nlConfig */
 

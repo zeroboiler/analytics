@@ -28,8 +28,7 @@ final readonly class UtmEnricher
     /**
      * @param  array<string, mixed>  $context  Typically from $request->query->all() or Inertia page props
      */
-    public function __construct(array $context = []): void
-    {
+    public function __construct(array $context = []){
         $this->context = $context;
     }
 

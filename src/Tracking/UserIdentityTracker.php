@@ -56,7 +56,7 @@ final class UserIdentityTracker
         int $maxLinksPerUser = 50,
         int $maxLinksPerClient = 10,
         bool $autoLink = true,
-    ): void {
+    ){
         $this->queue = $queue;
         $this->cache = $cache ?? app('cache')->store();
         $this->cookieName = $cookieName;

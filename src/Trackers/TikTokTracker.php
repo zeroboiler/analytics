@@ -48,7 +48,7 @@ final class TikTokTracker implements TrackerInterface
         string $accessToken,
         bool $enabled = false,
         string $apiVersion = 'v1.3',
-    ): void {
+    ){
         $this->pixelId = $pixelId;
         $this->accessToken = $accessToken;
         $this->enabled = $enabled;

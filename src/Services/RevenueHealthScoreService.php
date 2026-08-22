@@ -46,8 +46,7 @@ final class RevenueHealthScoreService
     /**
      * @param  CacheRepository  $cache  Laravel cache repository
      */
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
     }
 

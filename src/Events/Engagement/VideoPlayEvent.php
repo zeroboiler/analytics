@@ -33,7 +33,7 @@ final readonly class VideoPlayEvent extends AnalyticsEvent
         ?string $videoProvider = null,
         ?float $duration = null,
         array $extra = [],
-    ): void {
+    ){
         $baseParams = array_filter([
             'video_title' => $videoTitle,
             'video_provider' => $videoProvider,

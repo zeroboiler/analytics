@@ -44,7 +44,7 @@ final class V157SLOWebhookRelayTest extends TestCase
     {
         $constructor = new \ReflectionMethod(SLOService::class, '__construct');
 
-        $this->assertEmpty($constructor->getReturnType()?()->getName());
+        $this->assertEmpty($constructor->getReturnType()?->getName());
         $this->assertSame('void', (string) $constructor->getReturnType());
     }
 

@@ -31,8 +31,7 @@ final class AnalyticsHealthMonitorCommand extends Command
 
     private AnalyticsHealthMonitorService $monitor;
 
-    public function __construct(AnalyticsHealthMonitorService $monitor): void
-    {
+    public function __construct(AnalyticsHealthMonitorService $monitor){
         parent::__construct();
         $this->monitor = $monitor;
     }

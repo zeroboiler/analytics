@@ -93,8 +93,7 @@ final class FirstValueDetectorService
      * @param  CacheRepository  $cache
      * @param  array<string, mixed>  $config  From `zeroboiler.analytics.first_value`
      */
-    public function __construct(CacheRepository $cache, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, array $config = []){
         $this->cache = $cache;
         $this->enabled = (bool) ($config['enabled'] ?? true);
 

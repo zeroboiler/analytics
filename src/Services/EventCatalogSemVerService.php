@@ -52,8 +52,7 @@ final class EventCatalogSemVerService
      * @param  CacheRepository|null  $cache  Optional cache repository (auto-resolved)
      * @param  positive-int|null  $ttl  Cache TTL in seconds
      */
-    public function __construct(?CacheRepository $cache = null, ?int $ttl = null): void
-    {
+    public function __construct(?CacheRepository $cache = null, ?int $ttl = null){
         $this->cache = $cache ?? Cache::getStore();
         $this->ttl = $ttl ?? self::DEFAULT_TTL;
     }
@@ -128,7 +127,7 @@ final class EventCatalogSemVerService
         try {
             $pluginEvents = EventPluginRegistry::catalogEvents();
             $builtin = EventCatalog::allWithPlugins($pluginEvents);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Plugin registry not available
         }
 

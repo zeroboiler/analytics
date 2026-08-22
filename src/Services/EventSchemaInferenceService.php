@@ -32,8 +32,7 @@ final class EventSchemaInferenceService
     /** @var list<string> */
     private array $errors = [];
 
-    public function __construct(EventPropertySchema $schemaBuilder): void
-    {
+    public function __construct(EventPropertySchema $schemaBuilder){
         $this->schemaBuilder = $schemaBuilder;
     }
 
@@ -258,7 +257,7 @@ final class EventSchemaInferenceService
                 foreach ($reflection->getCases() as $case) {
                     $cases[] = strtolower($case->getName());
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 return null;
             }
 

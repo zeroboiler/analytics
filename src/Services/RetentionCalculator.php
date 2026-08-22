@@ -55,8 +55,7 @@ final class RetentionCalculator
     /** @var list<int> */
     private array $retentionDays;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

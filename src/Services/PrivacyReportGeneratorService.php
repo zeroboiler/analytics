@@ -80,7 +80,7 @@ final class PrivacyReportGeneratorService
         UserPropertiesStore $propertiesStore,
         IdentityResolutionService $identityResolution,
         CustomerProfileUnificationService $cdp,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->propertiesStore = $propertiesStore;

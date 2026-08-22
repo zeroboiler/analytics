@@ -32,7 +32,7 @@ final class IncidentStartedEvent extends AnalyticsEvent
         ?string $title = null,
         ?string $affectedService = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('incident_started', array_merge($params, array_filter([
             'incident_id' => $incidentId,
             'severity' => $severity,

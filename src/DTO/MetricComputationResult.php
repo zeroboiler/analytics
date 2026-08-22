@@ -49,7 +49,7 @@ final readonly class MetricComputationResult
         public ?string $granularity = null,
         public array $metadata = [],
         public array $timeSeries = [],
-    ): void {}
+    ){}
 
     /**
      * Create a result with zero value.

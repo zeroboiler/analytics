@@ -30,7 +30,7 @@ final readonly class EventParam
         public int|float|null $min = null,
         public int|float|null $max = null,
         public string $description = '',
-    ): void {}
+    ) {}
 
     /**
      * Validate the value matches the expected type.

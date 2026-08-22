@@ -24,8 +24,7 @@ final readonly class CancellationEvent extends AnalyticsEvent
      * @param  string|null  $reason  Cancellation reason (e.g. 'too_expensive', 'not_needed')
      * @param  bool|null  $isTrial  Whether cancellation was during trial
      */
-    public function __construct(?string $planName = null, ?string $reason = null, ?bool $isTrial = null): void
-    {
+    public function __construct(?string $planName = null, ?string $reason = null, ?bool $isTrial = null){
         parent::__construct('cancellation', array_filter([
             'plan_name' => $planName,
             'reason' => $reason,

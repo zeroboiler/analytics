@@ -52,10 +52,10 @@ final class CdpEventToProfileListener
         'avatar' => 'avatar',
     ];
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /** @var array<string, bool> Event types to process (null = all) */
-    private readonly array $processEvents;
+    private array $processEvents;
 
     /**
      * @param  CdpProfileService  $profileService
@@ -64,7 +64,7 @@ final class CdpEventToProfileListener
     public function __construct(
         private readonly CdpProfileService $profileService,
         ConfigRepository $config,
-    ): void {
+    ){
         $cdpConfig = $config->get('zeroboiler.analytics.cdp', []);
         /** @var array{enabled?: bool, auto_process_events?: bool, process_events?: list<string>} $cdpConfig */
 

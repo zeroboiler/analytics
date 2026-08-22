@@ -58,8 +58,7 @@ final class VerifySdkToken
      * @param  SdkScopeTokenService  $tokenService  SDK scope token service
      * @param  ConfigRepository  $config  Config repository
      */
-    public function __construct(SdkScopeTokenService $tokenService, ConfigRepository $config): void
-    {
+    public function __construct(SdkScopeTokenService $tokenService, ConfigRepository $config){
         $this->tokenService = $tokenService;
 
         $sdkAuthConfig = $config->get('zeroboiler.analytics.sdk_auth', []);

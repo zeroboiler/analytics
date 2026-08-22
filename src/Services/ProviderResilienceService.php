@@ -108,8 +108,7 @@ final class ProviderResilienceService
 
     private int $cacheTtl;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config, AnalyticsManager $manager): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config, AnalyticsManager $manager){
         $this->cache = $cache;
         $this->manager = $manager;
 
@@ -601,7 +600,7 @@ final readonly class CircuitBreakerState
         public int $totalFailures,
         public int $totalSuccesses,
         public ?\DateTimeImmutable $lastSuccessAt,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation.

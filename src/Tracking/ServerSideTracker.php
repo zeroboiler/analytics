@@ -91,8 +91,7 @@ final class ServerSideTracker
 
     private bool $enabled;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
 
         $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
@@ -135,7 +134,7 @@ final class ServerSideTracker
                 Log::warning('ServerSideTracker: no mapping for custom event', [
                     'event' => $eventName,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Log facade may not be available in tests
             }
 

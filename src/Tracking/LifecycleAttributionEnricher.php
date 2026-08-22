@@ -42,7 +42,7 @@ final class LifecycleAttributionEnricher
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Enrich an event's params with attribution context from the current request.
@@ -160,7 +160,7 @@ final class LifecycleAttributionEnricher
     {
         try {
             return request();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -221,7 +221,7 @@ final class LifecycleAttributionEnricher
             if (is_string($sessionId) && $sessionId !== '') {
                 $context['session_id'] = $sessionId;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Session may not be available
         }
 

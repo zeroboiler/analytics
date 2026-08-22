@@ -36,7 +36,7 @@ final readonly class ProviderEventMapping
         public array $staticOverrides = [],
         public array $allowOnly = [],
         public ?string $eventNameOverride = null,
-    ): void {}
+    ){}
 
     /**
      * Create from config array.

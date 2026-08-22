@@ -32,7 +32,7 @@ final class FeatureFlagEvaluatedEvent extends AnalyticsEvent
         ?string $variant = null,
         ?string $reason = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('feature_flag_evaluated', array_merge($params, array_filter([
             'flag_name' => $flagName,
             'enabled' => $enabled,

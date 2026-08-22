@@ -27,8 +27,7 @@ final class SchemaValidationStage implements ValidationStageInterface
     /**
      * @param  array{enabled?: bool, enforce_required?: bool, strict_types?: bool}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->config = $config;
         $this->enabled = (bool) ($config['enabled'] ?? false);
     }
@@ -159,7 +158,7 @@ final class SchemaValidationStage implements ValidationStageInterface
             }
 
             return $required;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }

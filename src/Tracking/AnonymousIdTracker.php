@@ -24,21 +24,20 @@ use Illuminate\Support\Str;
  */
 final class AnonymousIdTracker
 {
-    private readonly string $cookieName;
+    private string $cookieName;
 
-    private readonly int $cookieTtl;
+    private int $cookieTtl;
 
-    private readonly bool $cookieSecure;
+    private bool $cookieSecure;
 
-    private readonly string $cookieSameSite;
+    private string $cookieSameSite;
 
-    private readonly string $cookiePrefix;
+    private string $cookiePrefix;
 
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $identityConfig = $config->get('zeroboiler.analytics.identity', []);
         /** @var array{cookie_name?: string, cookie_ttl?: int, cookie_secure?: bool, cookie_samesite?: string, cookie_prefix?: string} $identityConfig */
         $this->cookieName = $identityConfig['cookie_name'] ?? 'zb_analytics_id';

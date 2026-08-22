@@ -32,7 +32,7 @@ final readonly class CohortAssignedEvent extends AnalyticsEvent
         string $userId,
         ?string $source = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('cohort_assigned', array_filter([
             'cohort_name' => $cohortName,
             'user_id' => $userId,

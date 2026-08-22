@@ -35,15 +35,14 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 final class AnalyticsComplianceReportService
 {
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
-    private readonly ConfigRepository $configRepo;
+    private ConfigRepository $configRepo;
 
     /**
      * @param  ConfigRepository  $configRepo
      */
-    public function __construct(ConfigRepository $configRepo): void
-    {
+    public function __construct(ConfigRepository $configRepo){
         $this->configRepo = $configRepo;
         $this->config = $configRepo->get('zeroboiler.analytics', []);
     }

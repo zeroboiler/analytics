@@ -33,21 +33,21 @@ final class EventStreamProcessorService
     /** @var non-empty-string */
     private string $cachePrefix;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $maxSequenceLength;
+    private int $maxSequenceLength;
 
-    private readonly int $maxPatternsPerClient;
+    private int $maxPatternsPerClient;
 
-    private readonly int $minPatternSupport;
+    private int $minPatternSupport;
 
-    private readonly float $anomalyDeviationThreshold;
+    private float $anomalyDeviationThreshold;
 
-    private readonly int $anomalyWindowSize;
+    private int $anomalyWindowSize;
 
-    private readonly int $maxStreamEventsPerClient;
+    private int $maxStreamEventsPerClient;
 
     private CacheRepository $cache;
 
@@ -55,8 +55,7 @@ final class EventStreamProcessorService
      * @param  CacheRepository  $cache
      * @param  array{enabled: bool, cache_ttl: int, max_sequence_length: int, max_patterns_per_client: int, min_pattern_support: int, anomaly_deviation: float, anomaly_window: int, max_stream_events: int, cache_prefix?: string}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, array $config = []){
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_stream_proc_';
         $this->enabled = $config['enabled'] ?? true;

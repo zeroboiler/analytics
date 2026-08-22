@@ -54,7 +54,7 @@ final class ReferralTrackingService
         int $codeLength = 8,
         int $attributionTtl = 2592000,
         int $metricsTtl = 3600,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->codeLength = $codeLength;
         $this->attributionTtl = $attributionTtl;

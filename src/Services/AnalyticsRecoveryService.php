@@ -53,7 +53,7 @@ final class AnalyticsRecoveryService
         ConfigRepository $config,
         ?DeadLetterQueueService $dlqService = null,
         ?CacheRepository $cache = null,
-    ): void {
+    ){
         $recoveryConfig = $config->get('zeroboiler.analytics.recovery', []);
         /** @var array{enabled?: bool, cache_ttl?: int, max_recoveries_per_hour?: int, batch_size?: int} $recoveryConfig */
 

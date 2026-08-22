@@ -57,8 +57,7 @@ final class SdkBridgeService
     /**
      * Initialize built-in event name mappings for all supported SDKs.
      */
-    public function __construct(): void
-    {
+    public function __construct(){
         $this->registerBuiltinMappings();
     }
 
@@ -411,7 +410,7 @@ final class SdkBridgeService
             if ($result !== []) {
                 return $result;
             }
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException $e) {
             // Not an engagement event — continue to passthrough
         }
 

@@ -35,7 +35,7 @@ final class TrackingPreferenceFilter
     public function __construct(
         TrackingPreferenceService $preferenceService,
         bool $checkClientSuppression = true,
-    ): void {
+    ){
         $this->preferenceService = $preferenceService;
         $this->checkClientSuppression = $checkClientSuppression;
     }

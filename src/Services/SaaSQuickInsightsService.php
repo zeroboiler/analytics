@@ -70,7 +70,7 @@ final class SaaSQuickInsightsService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Register a metric time series for analysis.

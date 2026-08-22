@@ -482,7 +482,6 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsWebhookRelayCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsWarmupCommand;
 use ZeroBoiler\Analytics\Services\AnalyticsProviderTagManager;
 use ZeroBoiler\Analytics\Services\CrossProviderCoverageAnalyzer;
-use ZeroBoiler\Analytics\Services\EcommerceFormatConverter;
 use ZeroBoiler\Analytics\Services\EventComplianceScoringService;
 use ZeroBoiler\Analytics\Services\IdentityLinkService;
 use ZeroBoiler\Analytics\Services\SaaSComplianceMatrixService;
@@ -4853,7 +4852,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
                 AnalyticsEventActionsCommand::class,
                 AnalyticsSaaSQuickAuditCommand::class,
                 AnalyticsIncidentsCommand::class,
-            ]));
+            ]);
         }
 
         $this->registerBladeDirectives();
@@ -4920,7 +4919,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
             $dispatcher = $this->app->make('events');
             $subscriber->register($dispatcher);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Fallback: register only the legacy tracker
             $tracker = $this->app->make(ServerSideTracker::class);
             /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
@@ -4953,7 +4952,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         try {
             $engine = $this->app->make(AutoInstrumentationEngine::class);
             $engine->boot();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Non-critical — auto-instrumentation is optional
         }
     }

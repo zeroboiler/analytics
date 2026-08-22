@@ -36,7 +36,7 @@ final readonly class FeatureFlagEvaluatedEvent extends AnalyticsEvent
         ?string $evaluationReason = null,
         ?string $experimentId = null,
         ?string $flagType = null,
-    ): void {
+    ){
         parent::__construct(
             'feature_flag_evaluated',
             array_filter([

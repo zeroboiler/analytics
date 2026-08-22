@@ -39,8 +39,7 @@ final class AnalyticsCommandCenterCommand extends Command
     /** @var array<string, mixed> */
     private array $config;
 
-    public function __construct(): void
-    {
+    public function __construct(){
         parent::__construct();
     }
 

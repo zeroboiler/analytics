@@ -58,7 +58,7 @@ final class AnalyticsEventRouter
      * @param  AnalyticsManager  $manager
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         $this->manager = $manager;
 
@@ -253,10 +253,10 @@ final class AnalyticsEventRouter
      * Convert a routing pattern to a regex.
      *
      * Patterns:
-     * - "purchase" → exact match: /^purchase$/
-     * - "add_to_*" → prefix match: /^add_to_.*/
-     * - "*_click" → suffix match: /.*_click$/
-     * - "*" → match all: /.*/
+     * - "purchase" → exact match: ^purchase$
+     * - "add_to_*" → prefix match: ^add_to_.*
+     * - "*_click" → suffix match: .*_click$
+     * - "*" → match all: match anything
      */
     private function patternToRegex(string $pattern): string
     {

@@ -53,7 +53,7 @@ final class AnalyticsProjectionsCommand extends Command
 
     private ?ProjectionRegistry $registry = null;
 
-    private ?MetricProjectionEngine $engine = null;
+    private $engine = null;
 
     private ?EventMaterializer $materializer = null;
 

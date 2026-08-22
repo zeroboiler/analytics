@@ -100,17 +100,16 @@ final class SaasBenchmarkCalibrationService
     ];
 
     /** @var CacheRepository */
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /** @var ConfigRepository */
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     /**
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
     }

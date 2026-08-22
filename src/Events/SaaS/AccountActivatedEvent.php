@@ -23,8 +23,7 @@ final readonly class AccountActivatedEvent extends AnalyticsEvent
      * @param  string|null  $method  Activation method ('email', 'admin', 'sso', 'auto')
      * @param  array<string, mixed>  $metadata  Additional context
      */
-    public function __construct(?string $method = null, array $metadata = []): void
-    {
+    public function __construct(?string $method = null, array $metadata = []){
         parent::__construct('account_activated', array_filter([
             'method' => $method,
             ...$metadata,

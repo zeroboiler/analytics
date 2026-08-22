@@ -30,7 +30,7 @@ final class ApiLatencyEvent extends AnalyticsEvent
         float $responseTimeMs = 0.0,
         float $thresholdMs = 1000.0,
         string $method = 'GET',
-    ): void {
+    ){
         parent::__construct('api_latency', [
             'endpoint' => $endpoint,
             'response_time_ms' => $responseTimeMs,

@@ -25,8 +25,7 @@ final readonly class TeamCreatedEvent extends AnalyticsEvent
      * @param  string|null  $plan  Subscription plan for the team
      * @param  array<string, mixed>  $metadata  Additional context
      */
-    public function __construct(?string $teamName = null, ?int $memberCount = null, ?string $plan = null, array $metadata = []): void
-    {
+    public function __construct(?string $teamName = null, ?int $memberCount = null, ?string $plan = null, array $metadata = []){
         parent::__construct('team_created', array_filter([
             'team_name' => $teamName,
             'member_count' => $memberCount,

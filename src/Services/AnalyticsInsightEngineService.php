@@ -33,17 +33,17 @@ final class AnalyticsInsightEngineService
 
     private const DEFAULT_TTL = 300; // 5 minutes
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $topMoversCount;
+    private int $topMoversCount;
 
-    private readonly float $driftThreshold;
+    private float $driftThreshold;
 
-    private readonly float $growthThreshold;
+    private float $growthThreshold;
 
-    private readonly float $declineThreshold;
+    private float $declineThreshold;
 
     /**
      * @param  CacheRepository  $cache  Application cache driver
@@ -52,7 +52,7 @@ final class AnalyticsInsightEngineService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $engineConfig = $config->get('zeroboiler.analytics.insight_engine', []);
         /** @var array{enabled?: bool, cache_ttl?: int, top_movers_count?: int, drift_threshold?: float, growth_threshold?: float, decline_threshold?: float} $engineConfig */
 
@@ -256,7 +256,7 @@ final class AnalyticsInsightEngineService
                     }
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Gracefully degrade if EventCatalog is not loadable
         }
     }
@@ -302,7 +302,7 @@ final class AnalyticsInsightEngineService
                     recommendation: 'Ensure purchase, refund, and subscription lifecycle events are tracked.',
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Gracefully degrade
         }
     }
@@ -368,7 +368,7 @@ final class AnalyticsInsightEngineService
                     );
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Gracefully degrade
         }
     }
@@ -399,7 +399,7 @@ final class AnalyticsInsightEngineService
                     value: (float) $totalCount,
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Gracefully degrade
         }
     }
@@ -428,7 +428,7 @@ final class AnalyticsInsightEngineService
                     recommendation: 'Ensure consent_granted, consent_withdrawn, data_subject_access_request, and data_erasure_completed are tracked.',
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Gracefully degrade
         }
     }

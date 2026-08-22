@@ -38,9 +38,9 @@ final class AnalyticsDataGovernanceCommand extends Command
 
     protected $description = 'Display data residency compliance and event consistency diagnostics';
 
-    private readonly AnalyticsDataResidencyService $residencyService;
+    private AnalyticsDataResidencyService $residencyService;
 
-    private readonly EventConsistencyValidatorService $consistencyService;
+    private EventConsistencyValidatorService $consistencyService;
 
     /**
      * @param  AnalyticsDataResidencyService  $residencyService
@@ -49,7 +49,7 @@ final class AnalyticsDataGovernanceCommand extends Command
     public function __construct(
         AnalyticsDataResidencyService $residencyService,
         EventConsistencyValidatorService $consistencyService,
-    ): void {
+    ){
         parent::__construct();
         $this->residencyService = $residencyService;
         $this->consistencyService = $consistencyService;

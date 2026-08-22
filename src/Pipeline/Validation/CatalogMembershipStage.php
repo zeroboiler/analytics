@@ -29,8 +29,7 @@ final class CatalogMembershipStage implements ValidationStageInterface
     /**
      * @param  array{enforce_membership?: bool, max_name_length?: int, enforce_snake_case?: bool}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->enforceMembership = (bool) ($config['enforce_membership'] ?? true);
         $this->maxNameLength = (int) ($config['max_name_length'] ?? 100);
         $this->enforceSnakeCase = (bool) ($config['enforce_snake_case'] ?? true);

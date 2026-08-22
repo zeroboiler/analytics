@@ -48,7 +48,7 @@ final class AnalyticsRevenueAttributionCommand extends Command
         private readonly AnalyticsManager $manager,
         private readonly AnalyticsMetrics $metrics,
         private readonly EventStoreManager $store,
-    ): void {
+    ){
         parent::__construct();
         $this->service = new RevenueAttributionDashboardService($manager, $metrics, $store, app('config'));
     }

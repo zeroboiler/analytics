@@ -689,7 +689,7 @@ final class V149ProductionReadinessAuditTest extends TestCase
                 return $this->rememberForever($key, $callback);
             }
 
-            public function tags(array|mixed $names): \Illuminate\Cache\TaggedCache
+            public function tags(mixed $names): \Illuminate\Cache\TaggedCache
             {
                 throw new \LogicException('Not implemented');
             }

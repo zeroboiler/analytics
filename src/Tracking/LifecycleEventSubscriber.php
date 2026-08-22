@@ -70,7 +70,7 @@ final class LifecycleEventSubscriber
         ServerSideTracker $tracker,
         QueuedAnalyticsDispatcher $queue,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->mapper = $mapper;
         $this->tracker = $tracker;
         $this->queue = $queue;
@@ -143,7 +143,7 @@ final class LifecycleEventSubscriber
             } else {
                 $this->manager->trackEvent($event);
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent — lifecycle tracking should never break the application
         }
     }

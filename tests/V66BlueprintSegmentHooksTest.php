@@ -644,9 +644,9 @@ test('Lifecycle hooks clear removes all hooks', function (): void {
     $hooks = new EventLifecycleHooks();
 
     $hooks->beforeDispatch(fn (AnalyticsEvent $e): AnalyticsEvent => $e);
-    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r): void => null);
-    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t): void => null);
-    $hooks->finally(fn (AnalyticsEvent $e): void => null);
+    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r) => null);
+    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t) => null);
+    $hooks->finally(fn (AnalyticsEvent $e) => null);
 
     expect($hooks->hasHooks())->toBeTrue();
 
@@ -667,9 +667,9 @@ test('Lifecycle hooks summary reports correct counts', function (): void {
 
     $hooks->beforeDispatch(fn (AnalyticsEvent $e): AnalyticsEvent => $e);
     $hooks->beforeDispatch(fn (AnalyticsEvent $e): AnalyticsEvent => $e);
-    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r): void => null);
-    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t): void => null);
-    $hooks->finally(fn (AnalyticsEvent $e): void => null);
+    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r) => null);
+    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t) => null);
+    $hooks->finally(fn (AnalyticsEvent $e) => null);
 
     $summary = $hooks->summary();
 
@@ -684,9 +684,9 @@ test('Lifecycle hooks clearBefore/clearAfter/clearErrors/clearFinally', function
     $hooks = new EventLifecycleHooks();
 
     $hooks->beforeDispatch(fn (AnalyticsEvent $e): AnalyticsEvent => $e);
-    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r): void => null);
-    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t): void => null);
-    $hooks->finally(fn (AnalyticsEvent $e): void => null);
+    $hooks->afterDispatch(fn (AnalyticsEvent $e, array $r) => null);
+    $hooks->onError(fn (AnalyticsEvent $e, \Throwable $t) => null);
+    $hooks->finally(fn (AnalyticsEvent $e) => null);
 
     $hooks->clearBefore();
 

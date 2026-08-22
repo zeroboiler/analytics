@@ -31,8 +31,7 @@ final class AnalyticsSchemaExportCommand extends Command
 
     private EventSchemaExportService $exportService;
 
-    public function __construct(EventSchemaExportService $exportService): void
-    {
+    public function __construct(EventSchemaExportService $exportService){
         parent::__construct();
         $this->exportService = $exportService;
     }

@@ -40,25 +40,25 @@ final class GeographicAnalyticsService
     /** @var string Cache key prefix */
     private const CACHE_PREFIX = 'zb_geo_analytics_';
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $topRegionsLimit;
+    private int $topRegionsLimit;
 
-    private readonly int $topEventsPerRegionLimit;
+    private int $topEventsPerRegionLimit;
 
-    private readonly int $anomalyThresholdMultiplier;
+    private int $anomalyThresholdMultiplier;
 
-    private readonly float $engagementWeightEvents;
+    private float $engagementWeightEvents;
 
-    private readonly float $engagementWeightUsers;
+    private float $engagementWeightUsers;
 
-    private readonly float $engagementWeightSessions;
+    private float $engagementWeightSessions;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly AnalyticsMetrics $metrics;
+    private AnalyticsMetrics $metrics;
 
     /**
      * @param  CacheRepository  $cache
@@ -69,7 +69,7 @@ final class GeographicAnalyticsService
         CacheRepository $cache,
         ConfigRepository $config,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $geoConfig = $config->get('zeroboiler.analytics.geographic_analytics', []);
@@ -621,7 +621,7 @@ final class GeographicAnalyticsService
         foreach ($keys as $key) {
             try {
                 $this->cache->forget(self::CACHE_PREFIX . $key);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Ignore cache errors
             }
         }
@@ -643,7 +643,7 @@ final class GeographicAnalyticsService
             $cached = $this->cache->get(self::CACHE_PREFIX . 'aggregates', []);
 
             return is_array($cached) ? $cached : $this->buildEmptyAggregates();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->buildEmptyAggregates();
         }
     }
@@ -659,7 +659,7 @@ final class GeographicAnalyticsService
             $cached = $this->cache->get(self::CACHE_PREFIX . 'baseline', []);
 
             return is_array($cached) ? $cached : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -858,7 +858,7 @@ final class GeographicAnalyticsService
                 $aggregates,
                 $this->cacheTtl * 2, // Aggregates live longer than computed reports
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail — geo analytics should never break event dispatch
         }
     }
@@ -889,7 +889,7 @@ final class GeographicAnalyticsService
                 $baseline,
                 86400, // Baseline lives for 24 hours
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Ignore
         }
     }

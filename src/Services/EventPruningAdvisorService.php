@@ -89,7 +89,7 @@ final class EventPruningAdvisorService
         private readonly EventSNRCalculatorService $snrCalculator,
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void  {}
+    ){}
 
     /**
      * Generate a full pruning report.

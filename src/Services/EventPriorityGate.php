@@ -98,7 +98,7 @@ final class EventPriorityGate
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $priorityConfig = $config->get('zeroboiler.analytics.priority', []);

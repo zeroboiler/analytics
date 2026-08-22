@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
 #[Group('production-readiness')]
 class Phase88ProductionReadinessTest extends TestCase
 {
-    private readonly string $srcDir;
+    private string $srcDir;
 
     public function __construct(string $name)
     {

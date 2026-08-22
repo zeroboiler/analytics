@@ -36,8 +36,7 @@ final class PriorityAwareFilter
     /** @var int|null Number of events dropped by this filter instance */
     private ?int $droppedCount = null;
 
-    public function __construct(EventPriorityGate $gate): void
-    {
+    public function __construct(EventPriorityGate $gate){
         $this->gate = $gate;
     }
 

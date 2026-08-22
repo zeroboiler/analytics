@@ -62,7 +62,7 @@ final class EventEnrichmentOrchestrator
         private readonly EventEnrichmentRegistry $registry,
         private readonly AnalyticsMetrics $metrics,
         bool $debug = false,
-    ): void {
+    ){
         $this->debug = $debug;
     }
 
@@ -79,7 +79,7 @@ final class EventEnrichmentOrchestrator
      */
     public function enrich(AnalyticsEvent $event): ?AnalyticsEvent
     {
-        if (! $this->registry->isEnabled()) {
+        if (! $this->registry->isPluginSystemEnabled()) {
             return $event;
         }
 

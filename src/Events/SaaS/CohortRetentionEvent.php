@@ -34,7 +34,7 @@ final readonly class CohortRetentionEvent extends AnalyticsEvent
         int $daysSinceStart,
         ?string $period = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('cohort_retention', array_filter([
             'cohort_name' => $cohortName,
             'user_id' => $userId,

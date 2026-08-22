@@ -48,8 +48,7 @@ final class UTMAttributionService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $attributionConfig = $config->get('zeroboiler.analytics.attribution', []);
         /** @var array{model?: string, session_window_days?: int, cache_ttl?: int, max_touchpoints?: int} $attributionConfig */

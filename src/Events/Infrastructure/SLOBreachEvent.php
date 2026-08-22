@@ -34,7 +34,7 @@ final class SLOBreachEvent extends AnalyticsEvent
         ?string $sliName = null,
         ?string $severity = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('slo_breach', array_merge($params, array_filter([
             'slo_name' => $sloName,
             'current_value' => $currentValue,

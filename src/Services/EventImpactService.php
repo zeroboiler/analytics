@@ -28,23 +28,22 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  */
 final class EventImpactService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $minSampleSize;
+    private int $minSampleSize;
 
     /** @var list<string> Events considered as conversion signals */
-    private readonly array $conversionEvents;
+    private array $conversionEvents;
 
     /** @var list<string> Events considered as retention signals */
-    private readonly array $retentionEvents;
+    private array $retentionEvents;
 
     private const CACHE_PREFIX = 'zb_impact_';
 
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $impactConfig = $config->get('zeroboiler.analytics.event_impact', []);
         /** @var array{enabled?: bool, min_sample_size?: int, conversion_events?: list<string>, retention_events?: list<string>} $impactConfig */
 

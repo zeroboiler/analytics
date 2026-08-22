@@ -27,7 +27,7 @@ final readonly class EmailBouncedEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('email_bounced', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

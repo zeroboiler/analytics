@@ -55,7 +55,7 @@ final class EventCorrelationEngineService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->config = $config->get('zeroboiler.analytics.correlation_engine', []);
         $this->cachePrefix = (string) ($this->config['cache_prefix'] ?? 'zb_corr_');
         $this->cacheTtl = (int) ($this->config['cache_ttl'] ?? 7200); // 2 hours

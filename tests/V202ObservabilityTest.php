@@ -76,7 +76,7 @@ final class V202ObservabilityTest extends TestCase
         $this->assertStringContainsString('use ZeroBoiler\\Analytics\\Events\\EventCatalog;', $contents);
 
         // Constructor is :void
-        $this->assertStringContainsString('public function __construct(AnalyticsManager $manager, ConfigRepository $config): void', $contents);
+        $this->assertStringContainsString('public function __construct(AnalyticsManager $manager, ConfigRepository $config)', $contents);
 
         // --json option
         $this->assertStringContainsString("'--json'", $contents);
@@ -112,7 +112,7 @@ final class V202ObservabilityTest extends TestCase
         $this->assertStringContainsString('namespace ZeroBoiler\\Analytics\\Services;', $contents);
 
         // Constructor is :void
-        $this->assertStringContainsString('public function __construct(CacheRepository $cache, ConfigRepository $config): void', $contents);
+        $this->assertStringContainsString('public function __construct(CacheRepository $cache, ConfigRepository $config)', $contents);
 
         // isEnabled() method
         $this->assertStringContainsString('public function isEnabled(): bool', $contents);

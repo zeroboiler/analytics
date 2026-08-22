@@ -58,7 +58,7 @@ final class EventDependencyGraphService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->enabled = (bool) $config->get('zeroboiler.analytics.dependency_graph.enabled', true);
         $this->cachePrefix = (string) $config->get('zeroboiler.analytics.dependency_graph.cache_prefix', 'zb_edg_');

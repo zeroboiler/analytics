@@ -36,7 +36,7 @@ final class MixpanelTracker implements TrackerInterface
         string $token,
         string $host = 'https://api.mixpanel.com',
         bool $enabled = false,
-    ): void {
+    ){
         $this->token = $token;
         $this->host = rtrim($host, '/');
         $this->enabled = $enabled;
@@ -180,7 +180,7 @@ final class MixpanelTracker implements TrackerInterface
                 '$token' => $this->token,
                 '$delete' => $this->token,
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent fail — GDPR reset should not throw
         }
     }

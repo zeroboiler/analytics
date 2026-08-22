@@ -52,8 +52,7 @@ final class RevenueChecksumService
      * @param  ConfigRepository  $config
      * @param  CacheRepository  $cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache): void
-    {
+    public function __construct(ConfigRepository $config, CacheRepository $cache){
         $checksumConfig = $config->get('zeroboiler.analytics.revenue_checksum', []);
         /** @var array{enabled?: bool, secret?: string, replay_ttl?: int, require_checksum?: bool} $checksumConfig */
 

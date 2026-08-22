@@ -48,31 +48,30 @@ final class AnalyticsDataResidencyService
     /** @var int Maximum audit entries before rotation */
     private const MAX_AUDIT_ENTRIES = 10000;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $auditTtl;
+    private int $auditTtl;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, array{label: string, allowed_providers: list<string>, blocked_fields: list<string>, requires_consent: bool}> */
-    private readonly array $zones;
+    private array $zones;
 
     /** @var string|null Default zone when none specified */
-    private readonly ?string $defaultZone;
+    private ?string $defaultZone;
 
     /** @var list<string> Event categories that require strict residency enforcement */
-    private readonly array $strictCategories;
+    private array $strictCategories;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

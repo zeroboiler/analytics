@@ -39,7 +39,7 @@ final readonly class SchemaDriftTrend
         public array $windowHistory,
         public array $topChangedFields,
         public array $recommendations,
-    ): void  {}
+    ){}
 
     /**
      * @return array<string, mixed>

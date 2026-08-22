@@ -41,12 +41,12 @@ final readonly class EventAction
     public function __construct(
         public string $id,
         public string $on,
-        public $handler,
+        public \Closure $handler,
         public int $priority = 100,
         public ?int $cooldownSeconds = null,
         public ?string $condition = null,
         public array $metadata = [],
-    ): void {}
+    ) {}
 
     /**
      * Check if this action matches a given event name.

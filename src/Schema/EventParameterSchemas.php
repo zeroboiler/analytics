@@ -1049,7 +1049,7 @@ final class EventParameterSchemas
                     'utm_content' => 'string',
                 ],
                 itemParams: false,
-            ],
+            ),
 
             // ── Cohort Events ─────────────────────────────────────────
             'cohort_assigned' => new EventParameterSchema(

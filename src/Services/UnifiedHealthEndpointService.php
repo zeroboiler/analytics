@@ -49,10 +49,10 @@ final class UnifiedHealthEndpointService
         private readonly AnalyticsHealthService $healthService,
         private readonly AnalyticsHealthCheckService $healthCheck,
         private readonly AnalyticsHealthMonitorService $healthMonitor,
-        private readonly ?AnalyticsDataQualityFirewall $qualityFirewall = null,
-        private readonly ?EventFraudDetectionService $fraudDetection = null,
-        private readonly ?ProductMarketFitScoringService $pmfScoring = null,
-    ): void {}
+        private ?AnalyticsDataQualityFirewall $qualityFirewall = null,
+        private ?EventFraudDetectionService $fraudDetection = null,
+        private ?ProductMarketFitScoringService $pmfScoring = null,
+    ){}
 
     /**
      * Run a full unified health check.
@@ -81,7 +81,7 @@ final class UnifiedHealthEndpointService
                 'score' => $this->extractScore($extendedHealth),
                 'details' => $extendedHealth,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $subsystems['extended'] = [
                 'status' => 'unknown',
                 'score' => 0,
@@ -98,7 +98,7 @@ final class UnifiedHealthEndpointService
                 'score' => $this->extractScore($monitorData),
                 'details' => $monitorData,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $subsystems['monitor'] = [
                 'status' => 'unknown',
                 'score' => 0,
@@ -116,7 +116,7 @@ final class UnifiedHealthEndpointService
                     'score' => (int) round(($qualityMetrics['pass_rate'] ?? 0) * 100),
                     'details' => $qualityMetrics,
                 ];
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $subsystems['quality_firewall'] = [
                     'status' => 'unknown',
                     'score' => 0,
@@ -139,7 +139,7 @@ final class UnifiedHealthEndpointService
                     'score' => (int) round((1.0 - $blockedRate) * 100),
                     'details' => $fraudMetrics,
                 ];
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $subsystems['fraud_detection'] = [
                     'status' => 'unknown',
                     'score' => 0,
@@ -157,7 +157,7 @@ final class UnifiedHealthEndpointService
                     'score' => $cachedScore !== null ? $cachedScore['score'] : 0,
                     'details' => $cachedScore ?? ['message' => 'No cached PMF score available'],
                 ];
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $subsystems['pmf_scoring'] = [
                     'status' => 'unknown',
                     'score' => 0,
@@ -213,7 +213,7 @@ final class UnifiedHealthEndpointService
         try {
             $report = $this->healthService->getHealthReport();
             $status = ($report['status'] ?? 'healthy') === 'healthy' ? 'healthy' : 'warning';
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $status = 'critical';
         }
 
@@ -244,7 +244,7 @@ final class UnifiedHealthEndpointService
             if ($coreStatus !== 'healthy') {
                 $allHealthy = false;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $subsystemStatuses['core'] = 'unhealthy';
             $allHealthy = false;
         }
@@ -257,7 +257,7 @@ final class UnifiedHealthEndpointService
             if ($extStatus !== 'healthy') {
                 $allHealthy = false;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $subsystemStatuses['extended'] = 'unhealthy';
             $allHealthy = false;
         }

@@ -83,8 +83,7 @@ final class SaaSStarterValidationService
     /**
      * @param  AnalyticsManager  $manager
      */
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         $this->manager = $manager;
 
         // Build implementation map from all catalogs

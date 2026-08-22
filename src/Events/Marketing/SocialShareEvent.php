@@ -29,7 +29,7 @@ final readonly class SocialShareEvent extends AnalyticsEvent
         ?string $platform = null,
         ?string $url = null,
         ?string $contentType = null,
-    ): void {
+    ){
         parent::__construct('social_share', array_filter([
             'platform' => $platform,
             'url' => $url,

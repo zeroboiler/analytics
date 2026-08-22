@@ -27,7 +27,7 @@ final readonly class SocialFollowEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('social_follow', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

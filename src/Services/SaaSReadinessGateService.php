@@ -87,7 +87,7 @@ final class SaaSReadinessGateService
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly Filesystem $files,
-    ): void {}
+    ){}
 
     /**
      * Run the full readiness gate check.

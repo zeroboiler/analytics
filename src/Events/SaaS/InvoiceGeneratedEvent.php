@@ -32,7 +32,7 @@ final readonly class InvoiceGeneratedEvent extends AnalyticsEvent
         ?string $currency = null,
         ?string $status = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('invoice_generated', array_filter([
             'invoice_id' => $invoiceId,
             'amount' => $amount,

@@ -40,8 +40,7 @@ final class EventSessionizer
      * @param  CacheRepository  $cache
      * @param  array{cache_prefix?: string, session_ttl?: int, max_sessions_per_client?: int}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, array $config = []){
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_session_';
         $this->sessionTtl = $config['session_ttl'] ?? 1800; // 30 minutes

@@ -50,7 +50,7 @@ final class EventAnnotationService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $annotationConfig = $config->get('zeroboiler.analytics.annotations', []);
         /** @var array{enabled?: bool, cache_ttl?: int, max_annotations_per_event?: int, auto_attach?: array<string, mixed>} $annotationConfig */
 

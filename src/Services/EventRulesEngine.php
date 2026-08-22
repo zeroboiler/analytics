@@ -59,7 +59,7 @@ final class EventRulesEngine
         AnalyticsManager $manager,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->cache = $cache;
         $this->config = $config;

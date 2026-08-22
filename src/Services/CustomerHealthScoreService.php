@@ -81,7 +81,7 @@ final class CustomerHealthScoreService
         ?CacheRepository $cache = null,
         ?int $ttl = null,
         ?array $weights = null,
-    ): void {
+    ){
         $this->cache = $cache ?? Cache::getStore();
         $this->ttl = $ttl ?? self::DEFAULT_TTL;
         $this->weights = $weights ?? self::DEFAULT_WEIGHTS;

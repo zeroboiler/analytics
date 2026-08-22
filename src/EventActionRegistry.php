@@ -59,8 +59,7 @@ final class EventActionRegistry
      * @param  ConfigRepository  $config
      * @param  CacheRepository|null  $cache  Optional cache for cooldown tracking
      */
-    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null): void
-    {
+    public function __construct(ConfigRepository $config, ?CacheRepository $cache = null){
         $this->config = $config;
         $this->cache = $cache;
 
@@ -393,7 +392,7 @@ final class EventActionRegistry
             }
 
             return null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }

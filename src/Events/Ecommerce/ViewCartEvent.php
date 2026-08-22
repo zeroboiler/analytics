@@ -30,7 +30,7 @@ final readonly class ViewCartEvent extends AnalyticsEvent
         float $value,
         string $currency = 'USD',
         ?int $itemCount = null,
-    ): void {
+    ){
         parent::__construct('view_cart', array_filter([
             'currency' => $currency,
             'value' => $value,

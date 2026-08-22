@@ -30,7 +30,7 @@ final class MaintenanceEndedEvent extends AnalyticsEvent
         ?string $status = null,
         ?int $durationMinutes = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('maintenance_ended', array_merge($params, array_filter([
             'maintenance_id' => $maintenanceId,
             'status' => $status,

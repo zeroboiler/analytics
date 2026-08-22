@@ -42,8 +42,7 @@ final class EventWarehouseExportService
     /**
      * @param  CacheRepository|null  $cache
      */
-    public function __construct(?CacheRepository $cache = null): void
-    {
+    public function __construct(?CacheRepository $cache = null){
         $this->cache = $cache ?? app(CacheRepository::class);
         $this->cacheTtl = self::DEFAULT_CACHE_TTL;
     }

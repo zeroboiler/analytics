@@ -34,7 +34,7 @@ final readonly class PropertyViolation
         public ?string $param = null,
         public ?string $expected = null,
         public ?string $actual = null,
-    ): void {}
+    ){}
 
     /**
      * Check if this violation is an error (not warning or info).

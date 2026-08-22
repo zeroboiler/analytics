@@ -212,7 +212,7 @@ final class AnalyticsGuardRailsCommand extends Command
         $naming = $report['naming'];
         $this->newLine();
         $this->line('  <options=bold>Naming Convention:</options>');
-        $this->line("    Compliance: {$naming['rate'] * 100}% ({$naming['compliant']}/{$naming['total']})");
+        $this->line('    Compliance: ' . (naming['rate'] * 100) . '% ({$naming[\'compliant\']}/{$naming[\'total\']})');
 
         if ($naming['violations'] !== []) {
             $display = array_slice($naming['violations'], 0, 10);

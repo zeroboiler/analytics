@@ -44,11 +44,11 @@ final class EventPruningRecommendation
         public readonly float $currentCost,
         public readonly float $estimatedSavings,
         public readonly float $snr,
-        public readonly ?string $mergeTarget = null,
-        public readonly ?int $suggestedSampleRate = null,
-        public readonly string $priority = 'medium',
+        public ?string $mergeTarget = null,
+        public ?int $suggestedSampleRate = null,
+        public string $priority = 'medium',
         public readonly array $alternatives = [],
-    ): void  {}
+    ){}
 
     /**
      * Convert to array for API/CLI output.

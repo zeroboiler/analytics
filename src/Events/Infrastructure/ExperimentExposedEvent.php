@@ -30,7 +30,7 @@ final class ExperimentExposedEvent extends AnalyticsEvent
         string $variation,
         ?string $source = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('experiment_exposed', array_merge($params, array_filter([
             'experiment_id' => $experimentId,
             'variation' => $variation,

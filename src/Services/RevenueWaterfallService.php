@@ -45,7 +45,7 @@ final class RevenueWaterfallService
         CacheRepository $cache,
         AnalyticsManager $manager,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->manager = $manager;
 

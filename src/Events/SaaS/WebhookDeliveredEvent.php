@@ -38,7 +38,7 @@ final readonly class WebhookDeliveredEvent extends AnalyticsEvent
         ?string $eventType = null,
         ?int $responseTimeMs = null,
         ?int $attemptNumber = null,
-    ): void {
+    ){
         parent::__construct('webhook_delivered', array_filter([
             'webhook_url' => $this->sanitizeUrl($webhookUrl),
             'status' => $status,

@@ -355,7 +355,7 @@ final class AnalyticsPipelineValidateCommand extends Command
             $config = app(\Illuminate\Contracts\Config\Repository::class);
 
             return $config->get('zeroboiler.analytics.validation_pipeline', []);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }

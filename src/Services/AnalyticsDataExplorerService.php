@@ -67,7 +67,7 @@ final class AnalyticsDataExplorerService
         CacheRepository $cache,
         ConfigRepository $config,
         ?EventStoreManager $store = null,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->config = $config;
         $this->store = $store;
@@ -527,7 +527,7 @@ final class AnalyticsDataExplorerService
 
         try {
             return $this->store->query($query);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -559,7 +559,7 @@ final class AnalyticsDataExplorerService
             $results = $this->store->query($query);
 
             return $results;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -591,7 +591,7 @@ final class AnalyticsDataExplorerService
             $results = $this->store->query($query);
 
             return $results;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -628,7 +628,7 @@ final class AnalyticsDataExplorerService
             $results = $this->store->query($query);
 
             return $results;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -657,7 +657,7 @@ final class AnalyticsDataExplorerService
             return is_array($results) && isset($results[0]['count'])
                 ? (int) $results[0]['count']
                 : 0;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }

@@ -28,7 +28,7 @@ final readonly class SearchEvent extends AnalyticsEvent
         string $searchTerm = '',
         ?int $resultsCount = null,
         ?string $category = null,
-    ): void {
+    ){
         parent::__construct('search', array_filter([
             'search_term' => $searchTerm,
             'results_count' => $resultsCount,

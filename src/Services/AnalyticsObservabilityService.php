@@ -68,8 +68,7 @@ final class AnalyticsObservabilityService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $obsConfig = $config->get('zeroboiler.analytics.observability', []);

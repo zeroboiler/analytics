@@ -41,5 +41,5 @@ final class AnalyticsEventOccurred
         public readonly AnalyticsEvent $analyticsEvent,
         public readonly array $dispatchedTo = [],
         public readonly array $context = [],
-    ): void {}
+    ){}
 }

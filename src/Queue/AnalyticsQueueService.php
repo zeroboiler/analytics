@@ -33,7 +33,7 @@ final class AnalyticsQueueService
     public function __construct(
         private AnalyticsManager $manager,
         ConfigRepository $config,
-    ): void {
+    ){
         $queueConfig = $config->get('zeroboiler.analytics.queue', []);
         /** @var array{enabled?: bool, max_batch_size?: int} $queueConfig */
         $this->queueEnabled = (bool) ($queueConfig['enabled'] ?? true);

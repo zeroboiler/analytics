@@ -34,7 +34,7 @@ final readonly class CohortChurnEvent extends AnalyticsEvent
         int $daysSinceStart,
         ?string $reason = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('cohort_churn', array_filter([
             'cohort_name' => $cohortName,
             'user_id' => $userId,

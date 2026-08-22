@@ -57,8 +57,7 @@ final class AnalyticsWireProtocol
     /**
      * @param  string|null  $sdkVersion  Override SDK version (defaults to AnalyticsEvent::VERSION)
      */
-    public function __construct(?string $sdkVersion = null): void
-    {
+    public function __construct(?string $sdkVersion = null){
         $this->sdkVersion = $sdkVersion ?? AnalyticsEvent::VERSION;
     }
 
@@ -312,7 +311,7 @@ final class AnalyticsWireProtocol
         if (isset($data['timestamp']) && is_string($data['timestamp'])) {
             try {
                 $timestamp = new \DateTimeImmutable($data['timestamp']);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Invalid timestamp — use default (null = now)
             }
         }

@@ -47,7 +47,7 @@ final class RealTimeAggregationService
         AnalyticsMetrics $metrics,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->metrics = $metrics;
         $this->cache = $cache;
 

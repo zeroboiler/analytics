@@ -28,7 +28,7 @@ final class SuspiciousActivityEvent extends AnalyticsEvent
         string $type = 'unusual_pattern',
         string $severity = 'medium',
         array $context = [],
-    ): void {
+    ){
         parent::__construct('suspicious_activity', array_filter([
             'type' => $type,
             'severity' => $severity,

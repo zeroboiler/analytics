@@ -38,7 +38,7 @@ final class UtmAggregationService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $utmConfig = $config->get('zeroboiler.analytics.utm_aggregation', []);

@@ -230,7 +230,7 @@ describe('EventInterceptorRegistry', function () {
     it('flush clears all interceptors', function () {
         $registry = new EventInterceptorRegistry;
         $registry->before(fn (): ?AnalyticsEvent => null);
-        $registry->after(fn (): void => null);
+        $registry->after(fn () => null);
 
         $registry->flush();
 

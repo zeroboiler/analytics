@@ -82,7 +82,7 @@ final class AnomalyDetectionService
         int $maxBaselineWindows = 60,
         int $maxRecentAnomalies = 100,
         bool $dispatchAlerts = true,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->queue = $queue;
@@ -443,7 +443,7 @@ final class AnomalyDetectionService
                     'error' => $e->getMessage(),
                     'anomaly' => $anomaly,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Log may not be available
             }
         }

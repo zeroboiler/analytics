@@ -56,7 +56,7 @@ final class EventBudgetOptimizerService
         int $ttl = 86400,
         array $costPerEvent = [],
         array $budgets = [],
-    ): void {
+    ){
         $this->cache = $cache;
         $this->ttl = $ttl;
 

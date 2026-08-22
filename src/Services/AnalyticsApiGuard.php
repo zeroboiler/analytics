@@ -57,8 +57,7 @@ final class AnalyticsApiGuard
      * @param  CacheRepository  $cache  Application cache store
      * @param  ConfigRepository  $config  Analytics config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $apiConfig = $config->get('zeroboiler.analytics.api', []);

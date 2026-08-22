@@ -49,9 +49,9 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
      * @param  positive-int  $ttl  Time-to-live in seconds
      */
     public function __construct(
-        private readonly ?string $store = null,
-        private readonly int $ttl = self::DEFAULT_TTL,
-    ): void {}
+        private ?string $store = null,
+        private int $ttl = self::DEFAULT_TTL,
+    ){}
 
     /**
      * {@inheritdoc}
@@ -267,7 +267,7 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
             Cache::store($this->store)->forget('zb_health_check');
 
             return $result === '1';
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

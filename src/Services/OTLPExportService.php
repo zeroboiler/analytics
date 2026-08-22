@@ -83,7 +83,7 @@ final class OTLPExportService
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly CacheRepository $cache,
-    ): void {
+    ) {
         $otelConfig = $config->get('zeroboiler.analytics.otel', []);
         /** @var array{enabled?: bool, endpoint?: string, headers?: string, timeout?: int, max_batch_size?: int, debug?: bool, resource_attributes?: array<string, string>} $otelConfig */
 
@@ -547,7 +547,7 @@ final class OTLPExportService
     /**
      * Sanitize an attribute key for OTLP compliance.
      *
-     * OTLP attribute keys must match the regex: [a-zA-Z][a-zA-Z0-9_.\-*/]*
+     * OTLP attribute keys must match the regex: [a-zA-Z][a-zA-Z0-9_.\-* /]*
      * Keys are lowercased, special characters replaced, and length limited.
      */
     private function sanitizeAttributeKey(string $key): string

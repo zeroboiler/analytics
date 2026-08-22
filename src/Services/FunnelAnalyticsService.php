@@ -46,7 +46,7 @@ final class FunnelAnalyticsService
         AnalyticsManager $manager,
         QueuedAnalyticsDispatcher $queue,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->queue = $queue;
 

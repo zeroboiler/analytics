@@ -56,10 +56,10 @@ final class PolicyViolation
         public readonly string $action,
         public readonly string $severity,
         public readonly string $reason,
-        public readonly array $eventSnapshot = [],
-        public readonly array $context = [],
-        public readonly ?string $resolvedBy = null,
-    ): void {}
+        public array $eventSnapshot = [],
+        public array $context = [],
+        public ?string $resolvedBy = null,
+    ){}
 
     /**
      * Check if this violation blocked the event from being dispatched.

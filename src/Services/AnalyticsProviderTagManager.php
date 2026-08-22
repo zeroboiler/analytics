@@ -70,7 +70,7 @@ final class AnalyticsProviderTagManager
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly AnalyticsManager $manager,
-    ): void {
+    ){
         $tmConfig = $config->get('zeroboiler.analytics.tag_manager', []);
         /** @var array{enabled?: bool, cache_ttl?: int, max_consecutive_failures?: int, failover_cooldown?: int} $tmConfig */
 

@@ -53,11 +53,11 @@ final class EventCostEstimator
     /** @var array<string, float> */
     private array $costPerEvent;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly float $budgetThreshold;
+    private float $budgetThreshold;
 
     /**
      * @param  ConfigRepository  $config  Application config
@@ -68,7 +68,7 @@ final class EventCostEstimator
         private readonly ConfigRepository $config,
         private readonly AnalyticsManager $manager,
         CacheRepository $cache,
-    ): void {
+    ){
         $costsConfig = $config->get('zeroboiler.analytics.event_costs', []);
         /** @var array<string, float> $costsConfig */
         $this->costPerEvent = array_merge(self::DEFAULT_COST_PER_EVENT, $costsConfig);

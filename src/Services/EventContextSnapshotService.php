@@ -45,8 +45,7 @@ final class EventContextSnapshotService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $snapshotConfig = $config->get('zeroboiler.analytics.context_snapshot', []);
@@ -107,7 +106,7 @@ final class EventContextSnapshotService
                 $snapshot,
                 $this->snapshotTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
 
@@ -126,7 +125,7 @@ final class EventContextSnapshotService
             $snapshot = $this->cache->get($this->cachePrefix . 'snapshot_' . $snapshotId);
 
             return is_array($snapshot) ? $snapshot : null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -155,7 +154,7 @@ final class EventContextSnapshotService
             }
 
             return $snapshots;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -230,7 +229,7 @@ final class EventContextSnapshotService
             $this->cache->forget($this->cachePrefix . 'client_' . $clientId);
 
             return count($snapshotIds);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0;
         }
     }
@@ -370,7 +369,7 @@ final class EventContextSnapshotService
                 $existing,
                 $this->snapshotTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

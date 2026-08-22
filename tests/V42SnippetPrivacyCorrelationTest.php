@@ -45,7 +45,7 @@ describe('AnalyticsSnippetService', function (): void {
                     'zeroboiler.analytics.linkedin.partner_id' => '',
                     'zeroboiler.analytics.webhook.enabled' => false,
                     'zeroboiler.analytics.webhook.url' => '',
-                };
+                ];
 
                 return $map[$key] ?? $default;
             },

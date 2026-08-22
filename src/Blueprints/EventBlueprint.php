@@ -59,7 +59,7 @@ final readonly class EventBlueprint
         public ?string $priority = null,
         public string $version = '1.0.0',
         public array $metadata = [],
-    ): void {}
+    ) {}
 
     /**
      * Create from array (for config-based registration).
@@ -224,7 +224,7 @@ final class EventBlueprintBuilder
     /** @var array<string, mixed> */
     private array $metadata = [];
 
-    public function __construct(string $name, string $label): void
+    public function __construct(string $name, string $label)
     {
         $this->name = $name;
         $this->label = $label !== '' ? $label : $name;
@@ -272,7 +272,7 @@ final class EventBlueprintBuilder
     {
         $this->paramTypes[$name] = $type;
 
-n        if ($required) {
+        if ($required) {
             $this->requiredParams[] = $name;
         } elseif ($default !== null) {
             $this->defaultParams[$name] = $default;

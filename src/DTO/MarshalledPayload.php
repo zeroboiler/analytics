@@ -40,7 +40,7 @@ final readonly class MarshalledPayload
         public string $eventName,
         public string $schemaVersion,
         public string $marshalledAt,
-    ): void  {}
+    ){}
 
     /**
      * Create a successful marshalled payload.

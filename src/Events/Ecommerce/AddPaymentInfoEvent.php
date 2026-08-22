@@ -30,7 +30,7 @@ final readonly class AddPaymentInfoEvent extends AnalyticsEvent
         string $currency = 'USD',
         ?float $value = null,
         ?string $coupon = null,
-    ): void {
+    ){
         parent::__construct('add_payment_info', array_filter([
             'currency' => $currency,
             'value' => $value,

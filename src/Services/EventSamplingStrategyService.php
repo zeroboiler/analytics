@@ -30,26 +30,26 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  */
 final class EventSamplingStrategyService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /** @var array<string, mixed> */
-    private readonly array $config;
+    private array $config;
 
     /** @var array<string, float> Event-name overrides */
-    private readonly array $eventOverrides;
+    private array $eventOverrides;
 
     /** @var array<string, float> Category-level overrides */
-    private readonly array $categoryOverrides;
+    private array $categoryOverrides;
 
-    private readonly float $globalRate;
+    private float $globalRate;
 
-    private readonly string $strategy;
+    private string $strategy;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $metricsTtl;
+    private int $metricsTtl;
 
-    private readonly int $adaptiveWindowSeconds;
+    private int $adaptiveWindowSeconds;
 
     private CacheRepository $cache;
 
@@ -62,8 +62,7 @@ final class EventSamplingStrategyService
      * @param  CacheRepository  $cache  Cache repository for metrics and adaptive counters
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $samplingConfig = $config->get('zeroboiler.analytics.sampling', []);
@@ -294,7 +293,7 @@ final class EventSamplingStrategyService
         foreach ($keys as $key) {
             try {
                 $this->cache->forget($this->cachePrefix . 'metrics_' . $key);
-            } catch (InvalidArgumentException) {
+            } catch (InvalidArgumentException $e) {
                 // Ignore cache errors
             }
         }
@@ -391,7 +390,7 @@ final class EventSamplingStrategyService
             $cacheKey = $this->cachePrefix . 'metrics_' . $key;
             $current = (int) ($this->cache->get($cacheKey, 0));
             $this->cache->put($cacheKey, $current + 1, $this->metricsTtl);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }
@@ -403,7 +402,7 @@ final class EventSamplingStrategyService
     {
         try {
             return (int) ($this->cache->get($this->cachePrefix . 'metrics_' . $key, 0));
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return 0;
         }
     }

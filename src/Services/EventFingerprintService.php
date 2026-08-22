@@ -51,8 +51,7 @@ final class EventFingerprintService
     /**
      * @param  array<string, mixed>  $config  zeroboiler.analytics.fingerprinting
      */
-    public function __construct(array $config): void
-    {
+    public function __construct(array $config){
         $this->timeBucketSeconds = (int) ($config['time_bucket_seconds'] ?? 60);
         $this->includeClientId = (bool) ($config['include_client_id'] ?? true);
         $this->includeUserId = (bool) ($config['include_user_id'] ?? true);

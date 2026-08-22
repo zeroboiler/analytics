@@ -68,8 +68,7 @@ final class BotDetectionService
      * @param  CacheRepository  $cache  Application cache
      * @param  ConfigRepository  $config  Analytics config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $botConfig = $config->get('zeroboiler.analytics.bot_detection', []);

@@ -34,7 +34,7 @@ final readonly class RemoveFromCartEvent extends AnalyticsEvent
         ?float $price = null,
         int $quantity = 1,
         ?string $itemCategory = null,
-    ): void {
+    ){
         parent::__construct('remove_from_cart', array_filter([
             'currency' => $currency,
             'value' => ($price ?? 0) * $quantity,

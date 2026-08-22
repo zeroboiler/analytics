@@ -46,7 +46,7 @@ final readonly class SchemaMigrationPlan
         public ?string $rollbackStrategy,
         public array $prerequisites,
         public \DateTimeImmutable $generatedAt,
-    ): void  {}
+    ){}
 
     /**
      * Check if this migration plan contains any breaking changes.

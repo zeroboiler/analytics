@@ -47,26 +47,25 @@ final class ProviderSLAMonitor
     private const CACHE_PREFIX = 'zb_sla_monitor_';
     private const BREACH_LOG_KEY = 'zb_sla_breaches';
 
-    private readonly bool $enabled;
-    private readonly int $windowSeconds;
-    private readonly int $retentionWindows;
-    private readonly float $defaultUptimeTarget;
-    private readonly float $defaultLatencyTarget;
-    private readonly float $defaultP99LatencyTarget;
-    private readonly int $defaultErrorBudget;
-    private readonly bool $alertOnBreach;
-    private readonly int $maxBreachHistory;
+    private bool $enabled;
+    private int $windowSeconds;
+    private int $retentionWindows;
+    private float $defaultUptimeTarget;
+    private float $defaultLatencyTarget;
+    private float $defaultP99LatencyTarget;
+    private int $defaultErrorBudget;
+    private bool $alertOnBreach;
+    private int $maxBreachHistory;
 
     /** @var array<string, array{uptime_target: float, latency_target: float, p99_latency_target: float, error_budget: int}> */
-    private readonly array $providerTargets;
+    private array $providerTargets;
 
     /** @var list<string> */
-    private readonly array $monitoredProviders;
+    private array $monitoredProviders;
 
     private CacheRepository $cache;
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $slaConfig = $config->get('zeroboiler.analytics.sla_monitor', []);

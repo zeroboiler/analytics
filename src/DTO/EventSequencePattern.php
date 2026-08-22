@@ -34,14 +34,14 @@ final readonly class EventSequencePattern
     public function __construct(
         public readonly string $id,
         public readonly array $sequence,
-        public readonly int $occurrences = 0,
-        public readonly int $uniqueUsers = 0,
-        public readonly float $averageDurationSeconds = 0.0,
+        public int $occurrences = 0,
+        public int $uniqueUsers = 0,
+        public float $averageDurationSeconds = 0.0,
         public readonly float $medianDurationSeconds = 0.0,
         public readonly float $conversionRate = 0.0,
         public readonly array $sampleClientIds = [],
         public readonly array $metadata = [],
-    ): void {}
+    ){}
 
     /**
      * Serialize the pattern to an array.

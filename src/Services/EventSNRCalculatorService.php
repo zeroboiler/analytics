@@ -230,7 +230,7 @@ final class EventSNRCalculatorService
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly AnalyticsMetrics $metrics,
-    ): void  {}
+    ){}
 
     /**
      * Calculate SNR for a single event.

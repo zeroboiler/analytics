@@ -63,7 +63,7 @@ final class AnalyticsQualityGateCommand extends Command
         ?EventSchemaRuntimeValidator $schemaValidator = null,
         ?EventSchemaRegistry $schemaRegistry = null,
         ?EventComplianceScoringService $complianceService = null,
-    ): void {
+    ){
         parent::__construct();
         $this->diffService = $diffService;
         $this->schemaValidator = $schemaValidator;

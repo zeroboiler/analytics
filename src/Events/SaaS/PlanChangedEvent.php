@@ -40,7 +40,7 @@ final readonly class PlanChangedEvent extends AnalyticsEvent
         ?string $reason = null,
         ?float $priceDifference = null,
         ?string $currency = null,
-    ): void {
+    ){
         parent::__construct('plan_changed', array_filter([
             'from_plan' => $fromPlan,
             'to_plan' => $toPlan,

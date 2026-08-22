@@ -282,7 +282,7 @@ final class AnalyticsEventController extends Controller
         ?EventBudgetService $budgetService = null,
         ?AnalyticsConfigAuditService $configAuditService = null,
         ?EventCatalogValidator $catalogValidator = null,
-    ): void {
+    ) {
         $this->manager = $manager;
         $this->config = $config;
         $cookieName = $config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
@@ -679,7 +679,7 @@ final class AnalyticsEventController extends Controller
                 'failures' => $metrics->totalFailed(),
                 'per_provider' => $metrics->summary(),
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Metrics not available
         }
 
@@ -688,7 +688,7 @@ final class AnalyticsEventController extends Controller
         try {
             $replay = app(\ZeroBoiler\Analytics\Queue\EventReplayQueue::class);
             $replaySummary = $replay->summary();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Replay queue not available
         }
 
@@ -905,7 +905,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             return app(EventExporterService::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -1650,7 +1650,7 @@ final class AnalyticsEventController extends Controller
                 'version' => AnalyticsEvent::VERSION,
                 'device' => $context,
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'ok',
                 'device' => null,
@@ -3193,7 +3193,7 @@ final class AnalyticsEventController extends Controller
         try {
             $consentLog = app(\ZeroBoiler\Analytics\Services\ConsentLogService::class);
             $consentFilter = app(\ZeroBoiler\Analytics\Pipeline\ConsentAwareFilter::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Consent services not available',
@@ -3219,7 +3219,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $envelopeService = app(\ZeroBoiler\Analytics\Services\EventEnvelopeService::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Envelope service not available',
@@ -3244,7 +3244,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $consentLog = app(\ZeroBoiler\Analytics\Services\ConsentLogService::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Consent service not available',
@@ -3291,7 +3291,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $registry = app(EventSchemaRegistry::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Schema registry not available',
@@ -3361,7 +3361,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $registry = app(EventSchemaRegistry::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Schema registry not available',
@@ -3427,7 +3427,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $registry = app(EventSchemaRegistry::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Schema registry not available',
@@ -3481,7 +3481,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $registry = app(EventSchemaRegistry::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Schema registry not available',
@@ -4021,7 +4021,7 @@ final class AnalyticsEventController extends Controller
         if ($from !== null && is_string($from)) {
             try {
                 $exportService->filterFrom(new \DateTimeImmutable($from));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Invalid date format — ignore
             }
         }
@@ -4029,7 +4029,7 @@ final class AnalyticsEventController extends Controller
         if ($to !== null && is_string($to)) {
             try {
                 $exportService->filterTo(new \DateTimeImmutable($to));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Invalid date format — ignore
             }
         }
@@ -8045,7 +8045,7 @@ final class AnalyticsEventController extends Controller
             $routerService = app(\ZeroBoiler\Analytics\Services\AnalyticsEventRouter::class);
 
             return response()->json($routerService->summary());
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'enabled' => false,
                 'rule_count' => 0,
@@ -8071,7 +8071,7 @@ final class AnalyticsEventController extends Controller
                 'rules' => $routerService->getRules(),
                 'count' => $routerService->ruleCount(),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json(['rules' => [], 'count' => 0]);
         }
     }
@@ -8143,7 +8143,7 @@ final class AnalyticsEventController extends Controller
                 'event_name' => $request->input('event_name'),
                 'matched_providers' => $routerService->matchProviders($request->input('event_name')),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'event_name' => $request->input('event_name'),
                 'matched_providers' => [],
@@ -8201,7 +8201,7 @@ final class AnalyticsEventController extends Controller
                 'status' => $monitor->getStatus(),
                 'summary' => $monitor->summary(),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'status' => [],
                 'summary' => [
@@ -8240,7 +8240,7 @@ final class AnalyticsEventController extends Controller
                 'failures' => 0,
                 'rate' => 100.0,
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'score' => 100,
                 'healthy' => true,
@@ -9184,7 +9184,7 @@ final class AnalyticsEventController extends Controller
             'users.*.events' => 'required|array',
             'target_cohort' => 'required|string',
             'threshold' => 'nullable|numeric|min:0|max:1',
-        ];
+        ]);
 
         $userEvents = [];
         foreach ($request->input('users', []) as $user) {
@@ -10221,7 +10221,7 @@ final class AnalyticsEventController extends Controller
                 (string) $request->input('user_id'),
                 (string) $request->input('group_id'),
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available
         }
 
@@ -10256,7 +10256,7 @@ final class AnalyticsEventController extends Controller
                 'members' => $members,
                 'count' => count($members),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json(['group_id' => $groupId, 'members' => [], 'count' => 0]);
         }
     }
@@ -10278,7 +10278,7 @@ final class AnalyticsEventController extends Controller
         try {
             $service = app(GroupAnalyticsService::class);
             $service->updateTraits($groupId, (array) $request->input('traits'));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available
         }
 
@@ -10295,7 +10295,7 @@ final class AnalyticsEventController extends Controller
         try {
             $service = app(GroupAnalyticsService::class);
             $service->forgetGroup($groupId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Service not available
         }
 
@@ -10801,7 +10801,7 @@ final class AnalyticsEventController extends Controller
             return $store instanceof \ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface
                 ? $store
                 : new \ZeroBoiler\Analytics\Store\NullEventStore;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return new \ZeroBoiler\Analytics\Store\NullEventStore;
         }
     }
@@ -12788,7 +12788,7 @@ final class AnalyticsEventController extends Controller
      * POST /api/analytics/pmf/score
      * Body: { activation_rate, retention_week2, feature_depth_score, organic_growth_rate, nps_proxy }
      */
-    public function pmfScore(Request $request): JsonResponse
+    public function pmfScoreLegacy(Request $request): JsonResponse
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\ProductMarketFitScoringService(
@@ -14323,7 +14323,7 @@ final class AnalyticsEventController extends Controller
     /**
      * Get comprehensive growth dashboard summary.
      */
-    public function growthDashboard(): JsonResponse
+    public function growthDashboardLegacy(): JsonResponse
     {
         try {
             /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
@@ -14341,7 +14341,7 @@ final class AnalyticsEventController extends Controller
     /**
      * Get activation rate.
      */
-    public function growthActivation(): JsonResponse
+    public function growthActivationLegacy(): JsonResponse
     {
         try {
             /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
@@ -14360,7 +14360,7 @@ final class AnalyticsEventController extends Controller
     /**
      * Get stickiness rate (DAU/MAU).
      */
-    public function growthStickiness(): JsonResponse
+    public function growthStickinessLegacy(): JsonResponse
     {
         try {
             /** @var \ZeroBoiler\Analytics\Services\SaaSGrowthMetricsService $service */
@@ -16539,7 +16539,7 @@ final class AnalyticsEventController extends Controller
      * Each definition includes ordered steps, expected conversion windows,
      * and AARRR pillar classification.
      */
-    public function funnelDefinitions(Request $request): JsonResponse
+    public function funnelDefinitionsLegacy(Request $request): JsonResponse
     {
         try {
             $funnels = \ZeroBoiler\Analytics\Services\SaaSFunnelDefinitions::all();
@@ -18791,7 +18791,7 @@ final class AnalyticsEventController extends Controller
      *
      * @see \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::getState()
      */
-    public function onboardingWizardState(): JsonResponse
+    public function onboardingWizardStateLegacy(): JsonResponse
     {
         try {
             /** @var \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService $service */
@@ -22897,7 +22897,6 @@ final class AnalyticsEventController extends Controller
             return response()->json(['status' => 'error', 'error' => $e->getMessage()], 500);
         }
     }
-}
 
     // ==================================================================
     // Event Blueprint Builder (v247.0.0)

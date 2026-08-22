@@ -50,7 +50,7 @@ final class AnalyticsTelemetryService
         private readonly AnalyticsManager $manager,
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $telemetryConfig = $config->get('zeroboiler.analytics.telemetry', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_prefix?: string} $telemetryConfig */
 
@@ -275,7 +275,7 @@ final class AnalyticsTelemetryService
             $cached = $this->cache->get($this->cachePrefix.':probes');
 
             return is_array($cached) ? $cached : [];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -294,7 +294,7 @@ final class AnalyticsTelemetryService
                 Log::warning('AnalyticsTelemetryService: failed to cache results', [
                     'error' => $e->getMessage(),
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Log facade unavailable
             }
         }

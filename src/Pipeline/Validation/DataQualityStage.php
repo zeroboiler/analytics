@@ -28,8 +28,7 @@ final class DataQualityStage implements ValidationStageInterface
     /**
      * @param  array{enabled?: bool, min_completeness?: float, max_empty_params?: int}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->enabled = (bool) ($config['enabled'] ?? true);
         $this->minCompleteness = (float) ($config['min_completeness'] ?? 0.3);
         $this->maxEmptyParams = (int) ($config['max_empty_params'] ?? 10);

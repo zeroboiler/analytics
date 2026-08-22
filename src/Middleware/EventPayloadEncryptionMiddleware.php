@@ -30,13 +30,12 @@ final class EventPayloadEncryptionMiddleware implements AnalyticsMiddlewareInter
 {
     private const PRIORITY = 45;
 
-    private readonly EventPayloadEncryptionService $encryptionService;
+    private EventPayloadEncryptionService $encryptionService;
 
     /**
      * @param  EventPayloadEncryptionService  $encryptionService  Field-level encryption service
      */
-    public function __construct(EventPayloadEncryptionService $encryptionService): void
-    {
+    public function __construct(EventPayloadEncryptionService $encryptionService){
         $this->encryptionService = $encryptionService;
     }
 

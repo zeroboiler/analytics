@@ -86,7 +86,7 @@ final class AnalyticsDeployGate
         ConfigRepository $config,
         CacheRepository $cache,
         EventHealthScoringEngine $healthEngine,
-    ): void {
+    ){
         $this->config = $config;
         $this->cache = $cache;
         $this->healthEngine = $healthEngine;

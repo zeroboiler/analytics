@@ -82,7 +82,7 @@ final class EventEnvelopeService
         ?AttributionService $attributionService = null,
         ?TrackingPreferenceService $trackingPreferenceService = null,
         ?ConsentLogService $consentLogService = null,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->deviceService = $deviceService;
         $this->geoEnricher = $geoEnricher;

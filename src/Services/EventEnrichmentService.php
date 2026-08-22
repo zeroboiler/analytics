@@ -36,7 +36,7 @@ final class EventEnrichmentService
      */
     public function __construct(
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Enrich event parameters with request context metadata.

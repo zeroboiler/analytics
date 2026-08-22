@@ -38,7 +38,7 @@ final readonly class SubscriptionCancelledEvent extends AnalyticsEvent
         ?string $flow = null,
         ?string $effectiveDate = null,
         ?bool $retentionOfferAccepted = null,
-    ): void {
+    ){
         parent::__construct('subscription_cancelled', array_filter([
             'plan' => $plan,
             'reason' => $reason,

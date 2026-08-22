@@ -45,8 +45,7 @@ final class AttributionService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $attributionConfig = $config->get('zeroboiler.analytics.attribution', []);

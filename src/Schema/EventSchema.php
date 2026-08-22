@@ -33,7 +33,7 @@ final readonly class EventSchema
         public array $optionalParams = [],
         public string $description = '',
         public array $providerMapping = [],
-    ): void {}
+    ) {}
 
     /**
      * Validate an event payload against this schema.

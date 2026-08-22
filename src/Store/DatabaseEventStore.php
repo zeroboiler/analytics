@@ -39,7 +39,7 @@ final class DatabaseEventStore implements AnalyticsEventStoreInterface
     public function __construct(
         private readonly string $connection = 'mysql',
         private readonly string $table = 'analytics_events',
-    ): void {}
+    ) {}
 
     /**
      * {@inheritdoc}

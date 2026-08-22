@@ -36,13 +36,13 @@ final class SaaSMetricsBenchmarkService
 
     private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $industry;
+    private string $industry;
 
-    private readonly int $companyStage;
+    private int $companyStage;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /**
      * Industry benchmark data keyed by metric name.
@@ -243,8 +243,7 @@ final class SaaSMetricsBenchmarkService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $benchConfig = $config->get('zeroboiler.analytics.benchmarks', []);
@@ -316,7 +315,7 @@ final class SaaSMetricsBenchmarkService
         foreach ($metrics as $metric => $value) {
             try {
                 $comparison = $this->compare((string) $metric, (float) $value);
-            } catch (\InvalidArgumentException) {
+            } catch (\InvalidArgumentException $e) {
                 continue;
             }
 

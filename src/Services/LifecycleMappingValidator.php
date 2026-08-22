@@ -83,7 +83,7 @@ final class LifecycleMappingValidator
     private array $sourceRegistry = [];
 
     /** @var list<string> All valid event names from the catalog */
-    private readonly array $catalogNames;
+    private array $catalogNames;
 
     /**
      * @param  ConfigRepository  $config

@@ -37,8 +37,7 @@ final class ComplianceValidationStage implements ValidationStageInterface
     /**
      * @param  array{enabled?: bool, require_consent_for_pii?: bool}  $config
      */
-    public function __construct(array $config = []): void
-    {
+    public function __construct(array $config = []){
         $this->enabled = (bool) ($config['enabled'] ?? true);
         $this->requireConsentForPii = (bool) ($config['require_consent_for_pii'] ?? true);
     }

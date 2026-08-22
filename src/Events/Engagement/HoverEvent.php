@@ -39,7 +39,7 @@ final readonly class HoverEvent extends AnalyticsEvent
         ?string $label = null,
         ?int $hoverDurationMs = null,
         ?string $pagePath = null,
-    ): void {
+    ){
         parent::__construct('hover', array_filter([
             'element_id' => $elementId,
             'element_class' => $elementClass,

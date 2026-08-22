@@ -57,7 +57,7 @@ final class ProviderHealthMonitor
         AnalyticsMetrics $metrics,
         ConfigRepository $config,
         ?ProviderCircuitBreaker $circuitBreaker = null,
-    ): void {
+    ){
         $this->metrics = $metrics;
         $this->circuitBreaker = $circuitBreaker;
 

@@ -37,7 +37,7 @@ final readonly class SubscriptionCreatedEvent extends AnalyticsEvent
         ?string $currency = null,
         ?string $billingCycle = null,
         ?string $source = null,
-    ): void {
+    ){
         parent::__construct('subscription_created', array_filter([
             'plan' => $plan,
             'value' => $value,

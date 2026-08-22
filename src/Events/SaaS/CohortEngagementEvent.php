@@ -35,7 +35,7 @@ final readonly class CohortEngagementEvent extends AnalyticsEvent
         int $totalUsers,
         ?string $period = null,
         array $params = [],
-    ): void {
+    ){
         $engagementRate = $totalUsers > 0
             ? round(($activeUsers / $totalUsers) * 100, 2)
             : 0.0;

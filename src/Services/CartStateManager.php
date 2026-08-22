@@ -62,8 +62,7 @@ final class CartStateManager
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, CacheRepository $cache, ConfigRepository $config){
         $this->manager = $manager;
         $this->cache = $cache;
 

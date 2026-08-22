@@ -66,7 +66,7 @@ final class ComputedTraitsService
         CacheRepository $cache,
         ConfigRepository $config,
         UserPropertiesStore $propertiesStore,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->propertiesStore = $propertiesStore;
 

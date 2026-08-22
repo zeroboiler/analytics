@@ -50,7 +50,7 @@ final class AnalyticsSegmentsCommand extends Command
      */
     public function __construct(
         private readonly BehavioralSegmentationService $service,
-    ): void {
+    ){
         parent::__construct();
     }
 

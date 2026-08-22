@@ -77,8 +77,7 @@ final class SaasFunnelService
      * @param  QueuedAnalyticsDispatcher  $queue
      * @param  ConfigRepository  $config
      */
-    public function __construct(AnalyticsManager $manager, QueuedAnalyticsDispatcher $queue, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, QueuedAnalyticsDispatcher $queue, ConfigRepository $config){
         $this->manager = $manager;
         $this->queue = $queue;
 

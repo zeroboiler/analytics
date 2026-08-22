@@ -28,7 +28,7 @@ final class InjectAnalyticsScripts implements HttpMiddlewareContract
 {
     public function __construct(
         protected AnalyticsManager $analytics,
-    ): void {}
+    ){}
 
     /**
      * Handle an incoming request.

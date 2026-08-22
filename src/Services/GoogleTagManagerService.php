@@ -24,7 +24,7 @@ final class GoogleTagManagerService
 {
     public function __construct(
         protected GTMTracker $tracker,
-    ): void {}
+    ){}
 
     /**
      * Push data to the dataLayer.

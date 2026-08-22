@@ -50,8 +50,7 @@ final class DataWarehouseExportService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $dwConfig = $config->get('zeroboiler.analytics.data_warehouse', []);
         /** @var array{format?: string, include_fields?: list<string>, output_path?: string, include_headers?: bool, null_value?: string} $dwConfig */
 
@@ -220,7 +219,7 @@ final class DataWarehouseExportService
                 Log::error('DataWarehouseExportService: failed to write export file', [
                     'path' => $fullPath,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Log facade unavailable
             }
 

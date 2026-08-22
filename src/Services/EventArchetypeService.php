@@ -48,8 +48,7 @@ final class EventArchetypeService
     /** @var array<string, array{name: string, description: string, steps: list<array{name: string, event: string, required: bool, weight: float, expected_window_seconds: int}>, completion_event: string|null, category: string}> */
     private array $customArchetypes = [];
 
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $archetypeConfig = $config->get('zeroboiler.analytics.archetypes', []);

@@ -27,7 +27,7 @@ final readonly class AdConversionEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('ad_conversion', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

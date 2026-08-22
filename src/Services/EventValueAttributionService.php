@@ -115,25 +115,25 @@ final class EventValueAttributionService
         'error' => -0.50,
     ];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly AnalyticsMetrics $metrics;
+    private AnalyticsMetrics $metrics;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /** @var array<string, array{path: list<string>, conversion_event: string, value_budget: float}> */
-    private readonly array $funnelPaths;
+    private array $funnelPaths;
 
     /** @var array<string, float> */
-    private readonly array $baseValues;
+    private array $baseValues;
 
     /** @var string Attribution model: 'position_decay' | 'linear' | 'equal' */
-    private readonly string $model;
+    private string $model;
 
     /** @var float Decay factor for position_decay model (higher = more weight on later events) */
-    private readonly float $decayFactor;
+    private float $decayFactor;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /**
      * @param  CacheRepository  $cache
@@ -144,7 +144,7 @@ final class EventValueAttributionService
         CacheRepository $cache,
         ConfigRepository $config,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->metrics = $metrics;
 

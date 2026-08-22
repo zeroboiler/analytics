@@ -25,27 +25,26 @@ use Illuminate\Support\Facades\Cache;
  */
 final class RevenueForecastService
 {
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly float $defaultMonthlyChurnRate;
+    private float $defaultMonthlyChurnRate;
 
-    private readonly float $defaultGrowthRate;
+    private float $defaultGrowthRate;
 
-    private readonly int $forecastHorizonDays;
+    private int $forecastHorizonDays;
 
-    private readonly int $historicalWindowDays;
+    private int $historicalWindowDays;
 
-    private readonly float $avgRevenuePerAccount;
+    private float $avgRevenuePerAccount;
 
     private const CACHE_PREFIX = 'zb_forecast_';
 
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $forecastConfig = $config->get('zeroboiler.analytics.forecasting', []);
         /** @var array{cache_ttl?: int, cache_prefix?: string, monthly_churn_rate?: float, growth_rate?: float, horizon_days?: int, historical_window_days?: int, avg_revenue_per_account?: float} $forecastConfig */
 
@@ -465,7 +464,7 @@ final class RevenueForecastService
                 // Use flush for tags or individual clear
                 Cache::forget($fullPrefix . 'full_');
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silently fail — cache will expire naturally
         }
     }

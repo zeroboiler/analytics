@@ -44,7 +44,7 @@ final class AnalyticsHealthService
         AnalyticsMetrics $metrics,
         EventReplayQueue $replayQueue,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->replayQueue = $replayQueue;

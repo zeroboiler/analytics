@@ -661,8 +661,7 @@ final class ProviderCapabilityMatrixService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Analytics configuration
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $capConfig = $config->get('zeroboiler.analytics.provider_capabilities', []);
         /** @var array{cache_ttl?: int} $capConfig */

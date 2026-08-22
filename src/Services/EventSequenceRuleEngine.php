@@ -115,8 +115,7 @@ final class EventSequenceRuleEngine
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $seqConfig = $config->get('zeroboiler.analytics.sequence_rules', []);
         /** @var array{enabled?: bool, history_ttl?: int, max_recent_violations?: int, rules?: list<array{name: string, type: string, from?: string, to?: string, event?: string, window_seconds?: int, max_per_session?: int, unless?: list<string>, steps?: list<array{event: string, min_seconds?: int, max_seconds?: int}>}>} $seqConfig */
 

@@ -46,7 +46,7 @@ final class EventNormalizationService
         array $enabledProviders = [],
         int $cacheTtl = 300,
         ?Request $request = null,
-    ): void {
+    ){
         $this->config = $config;
         $this->cache = $cache;
         $this->enabledProviders = $enabledProviders;

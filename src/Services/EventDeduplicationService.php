@@ -46,8 +46,7 @@ final class EventDeduplicationService
      * @param  ConfigRepository|null  $config  Optional config for testing
      * @param  CacheRepository|null  $cache  Optional cache for testing
      */
-    public function __construct(?ConfigRepository $config = null, ?CacheRepository $cache = null): void
-    {
+    public function __construct(?ConfigRepository $config = null, ?CacheRepository $cache = null){
         if ($config !== null) {
             $validationConfig = $config->get('zeroboiler.analytics.validation', []);
             /** @var array{deduplication_window?: int, max_recent_events?: int} $validationConfig */
@@ -155,7 +154,7 @@ final class EventDeduplicationService
             }
 
             $this->cache->put($recentKey, $recent, $this->deduplicationWindow * 2);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Non-critical — dedup fingerprint is already stored
         }
     }
@@ -205,7 +204,7 @@ final class EventDeduplicationService
             }
 
             $this->cache->forget(self::RECENT_CACHE_PREFIX . 'list');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent fail during cleanup
         }
     }

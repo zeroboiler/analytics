@@ -22,18 +22,18 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class EventTimelineService
 {
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $maxEntries;
+    private int $maxEntries;
 
-    private readonly int $sessionTimeout;
+    private int $sessionTimeout;
 
     /** @var array<string, int> */
-    private readonly array $gapThresholds;
+    private array $gapThresholds;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /**
      * @param  CacheRepository  $cache  Laravel cache repository
@@ -43,7 +43,7 @@ final class EventTimelineService
         private readonly CacheRepository $cache,
         private readonly IdentityResolutionService $identityService,
         array $config = [],
-    ): void {
+    ){
         $this->enabled = $config['enabled'] ?? true;
         $this->cacheTtl = $config['cache_ttl'] ?? 3600;
         $this->maxEntries = $config['max_entries'] ?? 500;

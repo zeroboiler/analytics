@@ -97,7 +97,7 @@ final class EventCatalogVersioningEngine
         CatalogSnapshotService $snapshotService,
         bool $enabled = true,
         int $ttl = self::DEFAULT_TTL,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->snapshotService = $snapshotService;
         $this->enabled = $enabled;

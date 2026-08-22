@@ -34,17 +34,17 @@ final class AnalyticsAIService
     /** @var array<string, float> Rolling event count buffer */
     private array $rollingBuffer = [];
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $anomalyWindow;
+    private int $anomalyWindow;
 
-    private readonly float $anomalyThreshold;
+    private float $anomalyThreshold;
 
-    private readonly int $rollingWindowSize;
+    private int $rollingWindowSize;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     private const CACHE_PREFIX = 'zb_ai_';
 
@@ -58,8 +58,7 @@ final class AnalyticsAIService
      * @param  ConfigRepository  $config  Analytics configuration
      * @param  CacheRepository  $cache  Application cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache): void
-    {
+    public function __construct(ConfigRepository $config, CacheRepository $cache){
         $aiConfig = $config->get('zeroboiler.analytics.ai', []);
         /** @var array{enabled?: bool, cache_ttl?: int, anomaly_threshold?: float, anomaly_window?: int, rolling_window?: int} $aiConfig */
 

@@ -38,8 +38,7 @@ final class WeeklyDigestService
 
     private ConfigRepository $config;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 
@@ -166,7 +165,7 @@ final class WeeklyDigestService
             // This would scan the cache for digest keys
             // For now, return the current period
             return [$this->currentIsoWeek()];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [];
         }
     }
@@ -238,7 +237,7 @@ final class WeeklyDigestService
             }
             arsort($eventCounts);
             $topEvents = array_slice($eventCounts, 0, 10, true);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Stream service not available
         }
 
@@ -320,7 +319,7 @@ final class WeeklyDigestService
                 $counts[$name] = $count;
                 $total += $count;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Stream service not available
         }
 
@@ -375,7 +374,7 @@ final class WeeklyDigestService
                 $counts[$name] = $count;
                 $total += $count;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Stream service not available
         }
 
@@ -413,7 +412,7 @@ final class WeeklyDigestService
                 $counts[$name] = $count;
                 $total += $count;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
 
@@ -490,7 +489,7 @@ final class WeeklyDigestService
             $grade = $wizard->getReadinessGrade();
             $scorePercent = (int) round(($grade['score'] ?? 0) * 100);
             $insights[] = "Onboarding readiness: {$grade['grade']} ({$scorePercent}% complete)";
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // OnboardingWizardService not available
         }
 
@@ -584,7 +583,7 @@ final class WeeklyDigestService
     {
         try {
             return cache()->get($key);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -596,7 +595,7 @@ final class WeeklyDigestService
     {
         try {
             cache()->put($key, $value, self::CACHE_TTL);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache driver not available
         }
     }

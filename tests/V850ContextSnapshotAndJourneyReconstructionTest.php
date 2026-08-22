@@ -51,7 +51,7 @@ afterEach(function (): void {
     // Clean up test cache keys
     try {
         // This is a no-op in array cache; Redis would need explicit cleanup
-    } catch (\Throwable) {
+    } catch (\Throwable $e) {
         // Ignore
     }
 });

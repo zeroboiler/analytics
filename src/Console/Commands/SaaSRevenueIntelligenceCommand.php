@@ -57,8 +57,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
 
     private ConfigRepository $config;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         parent::__construct();
         $this->manager = $manager;
         $this->config = $config;
@@ -183,7 +182,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $kpi = $calculator->calculate($period);
 
             return $kpi;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return $this->emptyKpiResponse($period);
         }
     }
@@ -200,7 +199,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $mrr = $service->mrrMovement($period);
 
             return $mrr;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['mrr' => 0, 'arr' => 0, 'new_mrr' => 0, 'expansion_mrr' => 0, 'contraction_mrr' => 0, 'churned_mrr' => 0, 'reactivation_mrr' => 0, 'net_mrr_change' => 0, 'nrr' => 0, 'currency' => $this->getCurrency()];
         }
     }
@@ -216,7 +215,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new RevenueWaterfallService($this->config);
 
             return $service->waterfall($period);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['movements' => [], 'period' => $period, 'currency' => $this->getCurrency()];
         }
     }
@@ -241,7 +240,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
                 'avg_revenue_churned' => $kpi['avg_revenue_churned'] ?? 0,
                 'churn_prediction_enabled' => $this->config->get('zeroboiler.analytics.churn_prediction.enabled', false),
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['gross_churn_rate' => 0, 'net_churn_rate' => 0, 'logo_churn_rate' => 0, 'churned_mrr' => 0, 'churned_customers' => 0, 'avg_revenue_churned' => 0, 'churn_prediction_enabled' => false];
         }
     }
@@ -257,7 +256,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new RetentionCalculator($this->config);
 
             return $service->retentionCurve($period);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['intervals' => [], 'period' => $period];
         }
     }
@@ -273,7 +272,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new RevenueForecastService($this->config);
 
             return $service->forecast($period, 3);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['projections' => [], 'current_mrr' => 0, 'growth_rate' => 0];
         }
     }
@@ -289,7 +288,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new SaaSRevenueFunnelService($this->config);
 
             return $service->metrics($period);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['stages' => [], 'conversion_rate' => 0, 'avg_time_to_convert' => 0];
         }
     }
@@ -305,7 +304,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new SaaSMomentumService($this->config);
 
             return $service->score($period);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['score' => 0, 'grade' => 'N/A', 'components' => []];
         }
     }
@@ -321,7 +320,7 @@ final class SaaSRevenueIntelligenceCommand extends Command
             $service = new \ZeroBoiler\Analytics\Services\SaasMetricsBenchmarkService($this->config);
 
             return $service->compare($period);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['benchmarks' => [], 'period' => $period];
         }
     }

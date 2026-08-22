@@ -34,17 +34,17 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class EventFlowAnalysisService
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $maxPathLength;
+    private int $maxPathLength;
 
-    private readonly int $pathTtl;
+    private int $pathTtl;
 
-    private readonly int $topPathsLimit;
+    private int $topPathsLimit;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $metricsTtl;
+    private int $metricsTtl;
 
     private CacheRepository $cache;
 
@@ -57,8 +57,7 @@ final class EventFlowAnalysisService
      * @param  CacheRepository  $cache  Cache repository for path storage
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $flowConfig = $config->get('zeroboiler.analytics.event_flow', []);
@@ -120,7 +119,7 @@ final class EventFlowAnalysisService
                 $currentCount = (int) $this->cache->get($transitionKey, 0);
                 $this->cache->put($transitionKey, $currentCount + 1, $this->metricsTtl);
             }
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }
@@ -140,7 +139,7 @@ final class EventFlowAnalysisService
             $path = $this->cache->get($cacheKey, null);
 
             return $path ?? [];
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return [];
         }
     }
@@ -156,7 +155,7 @@ final class EventFlowAnalysisService
 
         try {
             $this->cache->forget($cacheKey);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }
@@ -220,7 +219,7 @@ final class EventFlowAnalysisService
             }
 
             return [];
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return [];
         }
     }
@@ -297,7 +296,7 @@ final class EventFlowAnalysisService
                 'non_converters' => $nonConverters,
                 'key_difference' => $this->findKeyDifference($converters, $nonConverters),
             ];
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return ['converters' => [], 'non_converters' => [], 'key_difference' => null];
         }
     }
@@ -330,7 +329,7 @@ final class EventFlowAnalysisService
                 'max_seconds' => round($timing['max'], 2),
                 'sample_count' => $timing['count'],
             ];
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return ['avg_seconds' => 0.0, 'min_seconds' => 0.0, 'max_seconds' => 0.0, 'sample_count' => 0];
         }
     }
@@ -395,7 +394,7 @@ final class EventFlowAnalysisService
             $cacheKey = $this->cachePrefix . 'funnel_count_' . hash('xxh128', $pattern);
 
             return (int) $this->cache->get($cacheKey, 0);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return 0;
         }
     }
@@ -409,7 +408,7 @@ final class EventFlowAnalysisService
             $cacheKey = $this->cachePrefix . 'event_count_' . hash('xxh128', $eventName);
 
             return (int) $this->cache->get($cacheKey, 0);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return 0;
         }
     }
@@ -449,7 +448,7 @@ final class EventFlowAnalysisService
             $cacheKey = $this->cachePrefix . 'metrics_' . $key;
             $current = (int) $this->cache->get($cacheKey, 0);
             $this->cache->put($cacheKey, $current + 1, $this->metricsTtl);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }
@@ -461,7 +460,7 @@ final class EventFlowAnalysisService
     {
         try {
             return (int) $this->cache->get($this->cachePrefix . 'metrics_' . $key, 0);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return 0;
         }
     }

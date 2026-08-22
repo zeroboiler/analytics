@@ -44,7 +44,7 @@ final class AnalyticsRevenueWaterfallCommand extends Command
         private readonly RevenueWaterfallService $waterfall,
         private readonly SaaSGrowthMetricsService $growth,
         private readonly FeatureFlagAnalyticsService $flags,
-    ): void {
+    ){
         parent::__construct();
         $this->waterfallService = $waterfall;
         $this->growthService = $growth;

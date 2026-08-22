@@ -42,8 +42,8 @@ final class EventCorrelationMatrixService
      */
     public function __construct(
         CacheRepository $cache,
-        private readonly ?EventStreamService $streamService = null,
-    ): void {
+        private ?EventStreamService $streamService = null,
+    ){
         $this->cache = $cache;
         $this->defaultWindowSeconds = 604800; // 7 days
         $this->minSampleSize = 30;
@@ -284,7 +284,7 @@ final class EventCorrelationMatrixService
             try {
                 $events = $this->streamService->getRecentEvents(min($windowSeconds, 3600));
                 return $this->extractPairsFromEvents($events);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Fall through to empty result
             }
         }
@@ -420,7 +420,7 @@ final class EventCorrelationMatrixService
             try {
                 $events = $this->streamService->getRecentEvents(min($window, 3600));
                 return $this->analyzeCoOccurrence($eventA, $eventB, $events);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Fall through to defaults
             }
         }

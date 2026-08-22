@@ -32,7 +32,7 @@ final readonly class InviteSentEvent extends AnalyticsEvent
         ?string $role = null,
         ?string $userId = null,
         array $extra = [],
-    ): void {
+    ){
         $baseParams = array_filter([
             'invite_type' => $inviteType,
             'role' => $role,

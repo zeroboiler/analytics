@@ -51,10 +51,9 @@ final class EventBlueprintBuilder
 
     private bool $attachDevice = false;
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
-    private function __construct(string $name, ConfigRepository $config): void
-    {
+    private function __construct(string $name, ConfigRepository $config){
         $this->name = $name;
         $this->config = $config;
     }
@@ -346,7 +345,7 @@ final class EventBlueprintBuilder
                     $params[$key] = $value;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Request may not be available in CLI context
         }
 
@@ -375,7 +374,7 @@ final class EventBlueprintBuilder
             if (! isset($params['referrer'])) {
                 $params['referrer'] = $request->headers->get('referer');
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Request may not be available in CLI context
         }
 
@@ -404,7 +403,7 @@ final class EventBlueprintBuilder
             if (! isset($params['locale'])) {
                 $params['locale'] = $request->locale();
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Request may not be available in CLI context
         }
 

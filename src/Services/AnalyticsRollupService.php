@@ -70,8 +70,7 @@ final class AnalyticsRollupService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 
@@ -358,7 +357,7 @@ final class AnalyticsRollupService
                 try {
                     $this->cache->getStore()->flushPrefix($this->cachePrefix . $g . ':');
                     $cleared++;
-                } catch (\Throwable) {
+                } catch (\Throwable $e) {
                     // Fall back to nothing — can't clear without prefix support
                 }
             }

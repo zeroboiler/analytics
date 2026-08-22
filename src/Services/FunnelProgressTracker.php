@@ -45,7 +45,7 @@ final class FunnelProgressTracker
      *
      * @var list<string>
      */
-    private readonly array $knownFunnels;
+    private array $knownFunnels;
 
     /**
      * @param  AnalyticsManager  $manager  Analytics manager for event dispatch
@@ -56,7 +56,7 @@ final class FunnelProgressTracker
         private readonly AnalyticsManager $manager,
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $funnelConfig = $config->get('zeroboiler.analytics.funnel_progress', []);
         /** @var array{known_funnels?: list<string>, default_ttl?: int} $funnelConfig */
 

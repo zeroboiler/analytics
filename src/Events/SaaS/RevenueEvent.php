@@ -34,7 +34,7 @@ final readonly class RevenueEvent extends AnalyticsEvent
         string $revenueType = 'one_time',
         ?string $planName = null,
         array $extra = [],
-    ): void {
+    ){
         $baseParams = array_filter([
             'value' => $amount,
             'currency' => $currency,

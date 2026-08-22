@@ -28,7 +28,7 @@ final class EventTemplateEngine
     /** @var array<string, array{name: string, category: string, params: array<string, array{type: string, required: bool, default?: mixed, description?: string, enum?: list<string>}>}> */
     private array $templates = [];
 
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     /** @var array<string, list<string>> Runtime-registered templates (not persisted) */
     private array $registeredTemplates = [];
@@ -36,8 +36,7 @@ final class EventTemplateEngine
     /**
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
         $this->loadTemplatesFromConfig();
     }

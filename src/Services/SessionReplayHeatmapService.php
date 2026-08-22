@@ -73,7 +73,7 @@ final class SessionReplayHeatmapService
     public function __construct(
         private readonly ConfigRepository $config,
         ?CacheRepository $cache = null,
-    ): void {
+    ){
         $this->cache = $cache ?? app(CacheRepository::class);
 
         $heatmapConfig = $config->get('zeroboiler.analytics.heatmap', []);
@@ -201,7 +201,7 @@ final class SessionReplayHeatmapService
 
         // Normalize to heat scores (0–100)
         $heatScores = [];
-        $maxScore = max(...array_values($rawScores), 1.0);
+        $maxScore = max(1.0, ...array_values($rawScores));
 
         foreach ($zones as $zoneId => $data) {
             $zones[$zoneId]['heat_score'] = $totalInteractions > 0

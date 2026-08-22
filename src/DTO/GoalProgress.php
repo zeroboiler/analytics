@@ -44,7 +44,7 @@ final readonly class GoalProgress
         public ?float $previousActual = null,
         public ?float $changePercent = null,
         public array $meta = [],
-    ): void {}
+    ){}
 
     /**
      * Create from goal and actual value.

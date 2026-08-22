@@ -54,7 +54,7 @@ final class ProviderAnalyticsIntelligenceService
     public function __construct(
         ?CacheRepository $cache = null,
         int $cacheTtl = 300,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
     }

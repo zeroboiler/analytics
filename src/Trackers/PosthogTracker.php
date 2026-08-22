@@ -47,7 +47,7 @@ final class PosthogTracker implements TrackerInterface
         bool $enabled = false,
         bool $capiEnabled = true,
         string $capturePath = '/capture/',
-    ): void {
+    ){
         $this->apiKey = $apiKey;
         $this->host = rtrim($host, '/');
         $this->projectId = $projectId;
@@ -439,7 +439,7 @@ HTML;
                     '$lib' => 'zeroboiler-analytics-server',
                 ],
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Silent fail — GDPR reset should not throw
         }
     }

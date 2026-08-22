@@ -232,7 +232,7 @@ describe('EventParam', function () {
 });
 
 describe('EventSchemaRegistry', function () {
-    let($registry) {
+    beforeEach(function () use (&$registry) {
         $r = new EventSchemaRegistry;
         $r->register(new EventSchema(
             name: 'custom_event',
@@ -243,8 +243,8 @@ describe('EventSchemaRegistry', function () {
             ],
         ));
 
-        return $r;
-    }
+        $registry = $r;
+    });
 
     it('has built-in ecommerce schemas', function () {
         $r = new EventSchemaRegistry;

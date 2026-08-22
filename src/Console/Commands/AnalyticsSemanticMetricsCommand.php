@@ -42,7 +42,7 @@ final class AnalyticsSemanticMetricsCommand extends Command
 
     public function __construct(
         private readonly AnalyticsSemanticMetricsService $metricsService,
-    ): void {
+    ){
         parent::__construct();
     }
 

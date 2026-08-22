@@ -409,7 +409,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
 
             foreach ($requiredSections as $section) {
                 expect(array_key_exists($section, $analytics))
-                    ->toBeTrue(), "Missing config section: {$section}";
+                    ->toBeTrue();
             }
         });
 
@@ -436,7 +436,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
                 }
             }
 
-            expect($violations)->toBeEmpty(), implode(', ', $violations);
+            expect($violations)->toBeEmpty();
         });
 
         it('all PHP files have license header', function () {
@@ -450,7 +450,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
                 }
             }
 
-            expect($violations)->toBeEmpty(), implode(', ', $violations);
+            expect($violations)->toBeEmpty();
         });
 
         it('key classes are final', function () {
@@ -467,7 +467,7 @@ describe('v2.74.0 — Industry Standard SaaS Starter Upgrade', function () {
             foreach ($finalClasses as $class) {
                 $ref = new ReflectionClass($class);
                 expect($ref->isFinal())
-                    ->toBeTrue(), "Class {$class} should be final";
+                    ->toBeTrue();
             }
         });
 

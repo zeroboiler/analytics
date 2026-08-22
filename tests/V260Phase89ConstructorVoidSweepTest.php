@@ -48,7 +48,7 @@ final class V260Phase89ConstructorVoidSweepTest extends TestCase
             'public function __construct(
         private AnalyticsManager $manager,
         ConfigRepository $config,
-    ): void {',
+    ) {',
             $inertia,
             'InertiaAnalyticsMiddleware constructor must declare : void',
         );

@@ -40,13 +40,13 @@ final class EventSignalIntelligenceService
 {
     private const CACHE_PREFIX = 'zb_signal_intel_';
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $stalenessThresholdSeconds;
+    private int $stalenessThresholdSeconds;
 
-    private readonly int $anomalyWindowSeconds;
+    private int $anomalyWindowSeconds;
 
-    private readonly float $anomalyDeviationThreshold;
+    private float $anomalyDeviationThreshold;
 
     /** @var array<string, int> Baseline dispatch rates per provider (events/minute) */
     private array $baselineRates = [];
@@ -63,7 +63,7 @@ final class EventSignalIntelligenceService
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $signalConfig = $config->get('zeroboiler.analytics.signal_intelligence', []);
         /** @var array{cache_ttl?: int, staleness_threshold?: int, anomaly_window?: int, anomaly_deviation?: float} $signalConfig */
 
@@ -745,7 +745,7 @@ final class EventSignalIntelligenceService
                 $this->baselineRates = $cached['baseline_rates'] ?? [];
                 $this->dispatchTimeline = $cached['dispatch_timeline'] ?? [];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }
@@ -764,7 +764,7 @@ final class EventSignalIntelligenceService
                 ],
                 $this->cacheTtl,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

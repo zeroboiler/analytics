@@ -70,8 +70,7 @@ final class IdentityGraphService
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $graphConfig = $config->get('zeroboiler.analytics.identity_graph', []);

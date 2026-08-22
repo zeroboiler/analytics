@@ -32,7 +32,7 @@ final class ErrorBudgetBurnedEvent extends AnalyticsEvent
         float $remaining,
         ?string $window = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct('error_budget_burned', array_merge($params, array_filter([
             'slo_name' => $sloName,
             'burn_rate' => $burnRate,

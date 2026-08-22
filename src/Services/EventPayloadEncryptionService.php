@@ -58,7 +58,7 @@ final class EventPayloadEncryptionService
     /** @var array<string, list<string>> Per-event encryption rules */
     private array $eventRules;
 
-    private readonly Encrypter $encrypter;
+    private Encrypter $encrypter;
 
     /**
      * @param  Encrypter  $encrypter  Laravel's AES-256-CBC encrypter
@@ -66,7 +66,7 @@ final class EventPayloadEncryptionService
     public function __construct(
         Encrypter $encrypter,
         ConfigRepository $config,
-    ): void {
+    ){
         $encryptionConfig = $config->get('zeroboiler.analytics.encryption', []);
 
         $this->enabled = (bool) ($encryptionConfig['enabled'] ?? false);
@@ -348,7 +348,7 @@ final class EventPayloadEncryptionService
                 json_encode($value, JSON_THROW_ON_ERROR);
 
                 return true;
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 return false;
             }
         }

@@ -68,8 +68,7 @@ final class FirstPartyDataService
     /**
      * @param  array{enabled?: bool, cache_ttl?: int, max_preferences_per_user?: int, max_interests_per_user?: int, auto_cohort?: bool}  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $configRepo, array $config = []){
         $fullConfig = $configRepo->get('zeroboiler.analytics.first_party_data', []);
         $merged = array_merge($fullConfig, $config);
 

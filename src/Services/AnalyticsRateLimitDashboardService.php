@@ -67,7 +67,7 @@ final class AnalyticsRateLimitDashboardService
         bool $enabled = true,
         array $perEventLimits = [],
         array $perClientOverrides = [],
-    ): void {
+    ){
         $this->cache = $cache;
         $this->metrics = $metrics;
         $this->defaultLimit = $defaultLimit;

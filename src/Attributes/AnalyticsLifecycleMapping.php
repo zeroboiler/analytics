@@ -36,5 +36,5 @@ final readonly class AnalyticsLifecycleMapping
         public ?string $paramsExtractor = null,
         public int $priority = 80,
         public ?string $condition = null,
-    ): void {}
+    ){}
 }

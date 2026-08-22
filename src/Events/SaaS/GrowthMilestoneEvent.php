@@ -33,7 +33,7 @@ final readonly class GrowthMilestoneEvent extends AnalyticsEvent
         ?int $milestoneValue = null,
         ?int $daysSinceSignup = null,
         ?string $previousMilestone = null,
-    ): void {
+    ){
         parent::__construct(
             'growth_milestone',
             array_filter([

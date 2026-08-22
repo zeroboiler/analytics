@@ -49,8 +49,7 @@ final class WebhookEventSubscriptionService
     /**
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $subConfig = $config->get('zeroboiler.analytics.webhook_subscriptions', []);
         /** @var array{enabled?: bool, subscriptions?: list<array{url: string, secret?: string, events?: list<string>, headers?: array<string, string>, timeout?: int, retries?: int, format?: string, enabled?: bool}>, default_timeout?: int, default_retries?: int, rate_limit_per_minute?: int} $subConfig */
         $this->enabled = (bool) ($subConfig['enabled'] ?? false);

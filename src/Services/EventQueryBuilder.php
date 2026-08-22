@@ -75,7 +75,7 @@ final class EventQueryBuilder
 
     private bool $countOnly = false;
 
-    private function __construct(): void {}
+    private function __construct(){}
 
     /**
      * Create a new query builder instance.
@@ -420,7 +420,7 @@ final class EventQueryBuilder
                     return $store->query($this->toFilters(), $this->limit, $this->offset);
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Container not available (e.g., unit tests without Laravel)
         }
 

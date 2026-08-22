@@ -34,32 +34,32 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class AnalyticsDataQualityFirewall
 {
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly float $quarantineThreshold;
+    private float $quarantineThreshold;
 
-    private readonly float $dropThreshold;
+    private float $dropThreshold;
 
-    private readonly bool $enforceQuarantine;
+    private bool $enforceQuarantine;
 
-    private readonly bool $enforceDrop;
+    private bool $enforceDrop;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly int $metricsTtl;
+    private int $metricsTtl;
 
-    private readonly int $velocityWindow;
+    private int $velocityWindow;
 
-    private readonly int $maxEventsPerWindow;
+    private int $maxEventsPerWindow;
 
     /** @var list<string> Parameters required for all events */
-    private readonly array $requiredGlobalParams;
+    private array $requiredGlobalParams;
 
     /** @var array<string, list<string>> Event-specific required parameters */
-    private readonly array $eventRequiredParams;
+    private array $eventRequiredParams;
 
     /** @var list<string> Reserved parameter prefixes to check */
-    private readonly array $reservedPrefixes;
+    private array $reservedPrefixes;
 
     private CacheRepository $cache;
 
@@ -72,8 +72,7 @@ final class AnalyticsDataQualityFirewall
      * @param  CacheRepository  $cache  Cache repository for metrics and velocity tracking
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $fwConfig = $config->get('zeroboiler.analytics.quality_firewall', []);
@@ -431,7 +430,7 @@ final class AnalyticsDataQualityFirewall
             $cacheKey = $this->cachePrefix . 'metrics_' . $key;
             $current = (int) $this->cache->get($cacheKey, 0);
             $this->cache->put($cacheKey, $current + 1, $this->metricsTtl);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             // Ignore cache errors
         }
     }
@@ -443,7 +442,7 @@ final class AnalyticsDataQualityFirewall
     {
         try {
             return (int) $this->cache->get($this->cachePrefix . 'metrics_' . $key, 0);
-        } catch (InvalidArgumentException) {
+        } catch (InvalidArgumentException $e) {
             return 0;
         }
     }

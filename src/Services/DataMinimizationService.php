@@ -52,8 +52,7 @@ final class DataMinimizationService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $dmConfig = $config->get('zeroboiler.analytics.data_minimization', []);
         /** @var array{enabled?: bool, global_allowlist?: list<string>, event_allowlists?: array<string, list<string>>, category_allowlists?: array<string, list<string>>, strip_params?: list<string>, audit_log?: bool} $dmConfig */
 

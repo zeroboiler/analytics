@@ -23,11 +23,11 @@ use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
  */
 final class SamplingFilter
 {
-    private readonly float $sampleRate;
+    private float $sampleRate;
 
-    private readonly bool $deterministic;
+    private bool $deterministic;
 
-    private readonly ?string $salt;
+    private ?string $salt;
 
     /**
      * @param  float  $sampleRate  Sample rate between 0.0 and 1.0 (1.0 = no sampling, 0.1 = 10%)
@@ -38,7 +38,7 @@ final class SamplingFilter
         float $sampleRate = 1.0,
         bool $deterministic = true,
         ?string $salt = null,
-    ): void {
+    ){
         $this->sampleRate = max(0.0, min(1.0, $sampleRate));
         $this->deterministic = $deterministic;
         $this->salt = $salt;

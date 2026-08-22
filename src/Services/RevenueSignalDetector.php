@@ -130,7 +130,7 @@ final class RevenueSignalDetector
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Compute the churn risk score for a user.
@@ -573,7 +573,7 @@ final class RevenueSignalDetector
             $diff = $date->diff(new \DateTimeImmutable());
 
             return (float) ($diff->invert ? -$diff->days : $diff->days);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
     }

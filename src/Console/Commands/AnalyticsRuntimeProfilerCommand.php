@@ -57,7 +57,7 @@ final class AnalyticsRuntimeProfilerCommand extends Command
     /** @var list<array{iteration: int, stages: array<string, float>, total_ms: float}> */
     private array $runs = [];
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         parent::__construct();
         $this->manager = $manager;
@@ -291,7 +291,7 @@ final class AnalyticsRuntimeProfilerCommand extends Command
                 $maxVal = $report['max'][$stage] ?? 0;
                 $bar = str_repeat('█', (int) min($avg * 2, 40));
                 $label = $this->formatStageLabel($stage);
-                $this->line("  {$label}  <fg=cyan>{$avg:>8.3f}</> ms  <fg=gray>(min: {$minVal}, max: {$maxVal})</>  {$bar}");
+                $this->line('  ' . $label . '  <fg=cyan>' . number_format($avg, 1) . '</> ms  <fg=gray>(min: ' . $minVal . ', max: ' . $maxVal . ')</>  ' . $bar);
             }
 
             $totalAvg = array_sum($report['averages']);
@@ -300,8 +300,8 @@ final class AnalyticsRuntimeProfilerCommand extends Command
             $this->newLine();
 
             // Slowest / Fastest
-            $this->line("  <fg=red>Slowest Stage:</> <fg=white>{$this->formatStageLabel($report['slowest_stage'])} ({$report['averages'][$report['slowest_stage']]} ms)</>");
-            $this->line("  <fg=green>Fastest Stage:</> <fg=white>{$this->formatStageLabel($report['fastestStage'])} ({$report['averages'][$report['fastestStage']]} ms)</>");
+            $this->line('  <fg=red>Slowest Stage:</> <fg=white>' . (this->formatStageLabel($report['slowest_stage'])) . ' ({$report[\'averages\'][$report[\'slowest_stage\']]} ms)</>');
+            $this->line('  <fg=green>Fastest Stage:</> <fg=white>' . (this->formatStageLabel($report['fastestStage'])) . ' ({$report[\'averages\'][$report[\'fastestStage\']]} ms)</>');
         }
 
         // Config context
@@ -330,7 +330,7 @@ final class AnalyticsRuntimeProfilerCommand extends Command
             $pct = $total > 0 ? round(($ms / $total) * 100, 1) : 0;
             $bar = str_repeat('█', (int) min($ms * 2, 40));
             $label = $this->formatStageLabel($stage);
-            $this->line("  {$label}  <fg=cyan>{$ms:>8.3f}</> ms  <fg=gray>({$pct}%)</>  {$bar}");
+            $this->line('  ' . $label . '  <fg=cyan>' . number_format($ms, 1) . '</> ms  <fg=gray>(' . $pct . '%)</>  ' . $bar);
         }
     }
 

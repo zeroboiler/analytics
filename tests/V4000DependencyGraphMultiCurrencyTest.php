@@ -752,7 +752,7 @@ final class V4000DependencyGraphMultiCurrencyTest extends TestCase
         $this->assertSame(1.0, $rates['USD']);
     }
 
-    public function testStatisticsReturnsExpectedStructure(): void
+    public function testStatisticsReturnsExpectedStructureLegacy(): void
     {
         $cache = $this->createCacheRepository();
         $config = $this->createConfigRepository([
@@ -773,7 +773,7 @@ final class V4000DependencyGraphMultiCurrencyTest extends TestCase
         $this->assertGreaterThan(0, $stats['available_currencies']);
     }
 
-    public function testSummaryReturnsExpectedStructure(): void
+    public function testSummaryReturnsExpectedStructureLegacy(): void
     {
         $cache = $this->createCacheRepository();
         $config = $this->createConfigRepository([

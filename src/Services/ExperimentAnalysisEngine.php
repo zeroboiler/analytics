@@ -54,7 +54,7 @@ final class ExperimentAnalysisEngine
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $expConfig = $config->get('zeroboiler.analytics.experiment_analysis', []);
@@ -766,7 +766,7 @@ final class ExperimentAnalysisEngine
         $alphaSpent = match ($spendingFunction) {
             'pocock' => $this->defaultAlpha * $infoFraction,
             'linear' => $this->defaultAlpha * $infoFraction,
-            'obrien_fleming', default => 2.0 * (1.0 - $this->normalCdf(
+            default => 2.0 * (1.0 - $this->normalCdf(
                 $this->normalQuantile(1.0 - $this->defaultAlpha / 2.0) / sqrt(max($infoFraction, 0.001)),
             )),
         };
@@ -1225,8 +1225,8 @@ final class ExperimentAnalysisEngine
             'name' => 'sample_size',
             'status' => $totalExposures >= $this->minSampleSize ? 'pass' : 'fail',
             'message' => $totalExposures >= $this->minSampleSize
-                ? "Total sample size ({$totalExposures}) meets minimum ({$this->minSampleSize})"
-                : "Total sample size ({$totalExposures}) below minimum ({$this->minSampleSize})",
+                ? 'Total sample size ({$totalExposures}) meets minimum (' . (this->minSampleSize) . ')'
+                : 'Total sample size ({$totalExposures}) below minimum (' . (this->minSampleSize) . ')',
         ];
 
         // Conversion count check

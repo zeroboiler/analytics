@@ -27,7 +27,7 @@ final readonly class AffiliateSignupEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('affiliate_signup', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

@@ -23,7 +23,7 @@ final class PaymentMethodRemovedEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'payment_method_removed',
             params: $params,

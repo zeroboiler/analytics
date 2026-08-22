@@ -29,7 +29,7 @@ final readonly class EventCollection implements Countable, IteratorAggregate
      */
     public function __construct(
         public array $events = [],
-    ): void {}
+    ){}
 
     /**
      * Create from an array of raw event data.

@@ -48,7 +48,7 @@ final readonly class UtmAttribution
         public ?string $timestamp = null,
         public ?string $referrer = null,
         public ?string $landingPage = null,
-    ): void {}
+    ){}
 
     /**
      * Create UtmAttribution from a request parameter array.
@@ -142,7 +142,7 @@ final readonly class UtmAttribution
                 referrer: is_string($data['utm_referrer'] ?? null) ? $data['utm_referrer'] : null,
                 landingPage: is_string($data['utm_landing_page'] ?? null) ? $data['utm_landing_page'] : null,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return new self;
         }
     }

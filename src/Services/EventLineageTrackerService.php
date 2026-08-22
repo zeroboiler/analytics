@@ -67,8 +67,7 @@ final class EventLineageTrackerService
      * @param  CacheRepository  $cache  Cache repository instance
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $lineageConfig = $config->get('zeroboiler.analytics.event_lineage', []);
         /** @var array{enabled?: bool, cache_prefix?: string, retention_ttl?: int, max_entries?: int, auto_track?: bool, track_enrichment?: bool, track_providers?: bool, skip_stages?: list<string>} $lineageConfig */
 

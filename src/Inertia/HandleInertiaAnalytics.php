@@ -37,8 +37,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
 
     private ConfigRepository $config;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
-    {
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config){
         $this->manager = $manager;
         $this->config = $config;
     }
@@ -218,7 +217,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 'score' => $maturity['score'],
                 'grade' => $maturity['grade'],
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['maturity'] = ['score' => 0, 'grade' => 'N/A'];
         }
 
@@ -230,7 +229,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 'completion' => $checklist['summary']['completion'],
                 'gaps' => $checklist['summary']['gaps'],
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['onboarding'] = ['completion' => 0.0, 'gaps' => []];
         }
 
@@ -244,7 +243,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 'subscription' => round($funnelReadiness['subscription_funnel']['score'] ?? 0.0, 2),
                 'overall' => round($funnelReadiness['overall'] ?? 0.0, 2),
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['funnelReadiness'] = [
                 'signup' => 0.0,
                 'purchase' => 0.0,
@@ -269,7 +268,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 }
             }
             $analyticsProps['recommendedEvents'] = array_slice($untrackedEvents, 0, 10);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['recommendedEvents'] = [];
         }
 
@@ -324,7 +323,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 'user_role' => $this->getUserRole(),
                 'current_url' => $request->fullUrl(),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['sessionRecording'] = [
                 'enabled' => false,
                 'providers' => [],
@@ -344,7 +343,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             $hydrator = new CampaignContextHydratorService($this->config);
             $campaignContext = $hydrator->extractFromRequest($request);
             $analyticsProps['campaignContext'] = $hydrator->toClientSafeContext($campaignContext);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['campaignContext'] = [
                 'utm' => [],
                 'referrer' => null,
@@ -361,7 +360,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         // Full event list with priority ordering and gap analysis for client-side guidance
         try {
             $analyticsProps['starterEvents'] = \ZeroBoiler\Analytics\Events\SaaSStarterEvents::instrumentationPayload();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $analyticsProps['starterEvents'] = ['total' => 0, 'coverage' => 0.0, 'categories' => ['saas' => 0, 'ecommerce' => 0, 'engagement' => 0], 'events' => [], 'gaps' => [], 'gapCount' => 0, 'priorityOrder' => []];
         }
 
@@ -492,7 +491,7 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
                 'info' => $summary['info'],
                 'total_issues' => $summary['total_issues'],
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'valid' => true,
                 'errors' => 0,

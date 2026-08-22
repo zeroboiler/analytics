@@ -377,7 +377,7 @@ final class AnalyticsIntegrityCommand extends Command
 
         try {
             $registry = app(EventPluginRegistry::class);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->checkInfo('EventPluginRegistry not available (skipping)');
             $passed++;
 

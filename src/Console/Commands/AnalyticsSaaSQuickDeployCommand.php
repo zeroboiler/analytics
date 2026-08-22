@@ -421,7 +421,7 @@ final class AnalyticsSaaSQuickDeployCommand extends Command
         try {
             $semver = new EventCatalogSemVerService();
             $this->line('   Catalog SemVer: <info>' . $semver->currentVersion() . '</info>');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->line('   Catalog SemVer: <comment>unavailable</comment>');
         }
 

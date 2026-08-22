@@ -54,7 +54,7 @@ final class AnalyticsSemanticMetricsService
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
         private readonly DatabaseEventStore $eventStore,
-    ): void {
+    ){
         $metricsConfig = $config->get('zeroboiler.analytics.semantic_metrics', []);
         /** @var array{enabled?: bool, cache_ttl?: int, cache_enabled?: bool} $metricsConfig */
 

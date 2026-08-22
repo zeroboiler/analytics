@@ -30,10 +30,10 @@ final class AnalyticsEventNameRule implements Rule
      * @param  list<string>  $whitelist  Event name whitelist for strict mode
      */
     public function __construct(
-        private readonly bool $checkCatalog = false,
-        private readonly bool $strict = false,
-        private readonly array $whitelist = [],
-    ): void {}
+        private bool $checkCatalog = false,
+        private bool $strict = false,
+        private array $whitelist = [],
+    ){}
 
     /**
      * Determine if the validation rule passes.

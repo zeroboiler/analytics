@@ -47,8 +47,7 @@ final class EventFieldCoercer
      * @param  bool  $debug  Log coercion details for troubleshooting
      * @param  bool  $strict  If true, throw on coercion failure; if false, preserve original
      */
-    public function __construct(bool $debug = false, bool $strict = false): void
-    {
+    public function __construct(bool $debug = false, bool $strict = false){
         $this->debug = $debug;
         $this->strict = $strict;
     }
@@ -291,7 +290,7 @@ final class EventFieldCoercer
                     if (is_array($decoded)) {
                         return $decoded;
                     }
-                } catch (\JsonException) {
+                } catch (\JsonException $e) {
                     // Fall through to comma-split
                 }
             }

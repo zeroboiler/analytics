@@ -43,10 +43,9 @@ final class ProjectionRegistry
     /** @var list<string> Registration errors */
     private array $registrationErrors = [];
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    public function __construct(CacheRepository $cache): void
-    {
+    public function __construct(CacheRepository $cache){
         $this->cache = $cache;
         $this->registerBuiltinProjections();
     }

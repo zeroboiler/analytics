@@ -76,19 +76,18 @@ final class EventCatalogExplorerService
         'error' => ['error', 'js_error', 'client_error', 'api_rate_limited', 'suspicious_activity', 'payment_failed'],
     ];
 
-    private readonly bool $enabled;
-    private readonly int $cacheTtl;
-    private readonly int $maxResults;
-    private readonly int $fuzzySensitivity;
-    private readonly CacheRepository $cache;
-    private readonly ConfigRepository $config;
+    private bool $enabled;
+    private int $cacheTtl;
+    private int $maxResults;
+    private int $fuzzySensitivity;
+    private CacheRepository $cache;
+    private ConfigRepository $config;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

@@ -41,8 +41,7 @@ final class EventSchemaRuntimeValidator
      * @param  EventSchemaRegistry  $registry
      * @param  array<string, mixed>  $config  zeroboiler.analytics.schema_validation
      */
-    public function __construct(EventSchemaRegistry $registry, array $config): void
-    {
+    public function __construct(EventSchemaRegistry $registry, array $config){
         $this->registry = $registry;
         $this->enabled = (bool) ($config['enabled'] ?? false);
         $this->mode = (string) ($config['mode'] ?? 'warn');

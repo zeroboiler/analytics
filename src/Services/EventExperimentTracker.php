@@ -29,15 +29,15 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
  */
 final class EventExperimentTracker
 {
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly string $cachePrefix;
+    private string $cachePrefix;
 
-    private readonly float $significanceThreshold;
+    private float $significanceThreshold;
 
-    private readonly int $minSampleSize;
+    private int $minSampleSize;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     private const CACHE_PREFIX = 'zb_exp_';
 
@@ -51,8 +51,7 @@ final class EventExperimentTracker
      * @param  ConfigRepository  $config  Analytics configuration
      * @param  CacheRepository  $cache  Application cache
      */
-    public function __construct(ConfigRepository $config, CacheRepository $cache): void
-    {
+    public function __construct(ConfigRepository $config, CacheRepository $cache){
         $expConfig = $config->get('zeroboiler.analytics.experiment', []);
         /** @var array{enabled?: bool, cache_ttl?: int, significance_threshold?: float, min_sample_size?: int} $expConfig */
 

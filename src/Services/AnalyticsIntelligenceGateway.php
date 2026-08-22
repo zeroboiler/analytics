@@ -103,7 +103,7 @@ final class AnalyticsIntelligenceGateway
         ?RealTimeAggregationService $realtimeService = null,
         ?DeadLetterQueueService $dlqService = null,
         ?ProviderHealthMonitor $providerHealthMonitor = null,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->config = new AnalyticsConfig($config);
         $this->anomalyService = $anomalyService;
@@ -266,7 +266,7 @@ final class AnalyticsIntelligenceGateway
                     }
                     unset($provider);
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Gracefully degrade — mark all as configured
                 foreach ($providers as &$provider) {
                     $provider['healthy'] = $provider['configured'];
@@ -376,7 +376,7 @@ final class AnalyticsIntelligenceGateway
                 'last_checked' => now()->toIso8601String(),
                 'status' => $hasCritical ? 'alerting' : 'nominal',
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'enabled' => true,
                 'recent_anomalies' => 0,
@@ -417,7 +417,7 @@ final class AnalyticsIntelligenceGateway
                 'status' => ($rates['trial_to_paid'] ?? 0) >= 25 ? 'healthy' : 'attention',
                 'events_tracked' => $eventNames,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'signup_to_trial' => null,
                 'trial_to_paid' => null,
@@ -458,7 +458,7 @@ final class AnalyticsIntelligenceGateway
                 'retention_signals_count' => count($signalNames),
                 'status' => 'active',
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'enabled' => true,
                 'risk_level' => 'unknown',
@@ -598,7 +598,7 @@ final class AnalyticsIntelligenceGateway
                 'providers' => is_array($status) ? $status : [],
                 'status' => 'active',
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'enabled' => true,
                 'providers' => [],
@@ -632,7 +632,7 @@ final class AnalyticsIntelligenceGateway
                 'remaining_percent' => $summary['remaining_percent'] ?? null,
                 'status' => ($summary['utilization_percent'] ?? 0) >= 90 ? 'warning' : 'nominal',
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'enabled' => true,
                 'utilization_percent' => null,

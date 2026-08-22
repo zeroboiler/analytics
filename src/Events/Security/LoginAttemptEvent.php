@@ -30,7 +30,7 @@ final class LoginAttemptEvent extends AnalyticsEvent
         bool $successful = true,
         ?string $reason = null,
         array $metadata = [],
-    ): void {
+    ){
         parent::__construct('login_attempt', array_filter([
             'method' => $method,
             'successful' => $successful,

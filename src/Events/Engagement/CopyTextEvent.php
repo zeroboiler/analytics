@@ -35,7 +35,7 @@ final readonly class CopyTextEvent extends AnalyticsEvent
         ?string $elementId = null,
         ?string $selectionLength = null,
         ?string $pagePath = null,
-    ): void {
+    ){
         parent::__construct('copy_text', array_filter([
             'copied_text' => $copiedText !== null ? mb_substr($copiedText, 0, 200) : null,
             'element_type' => $elementType,

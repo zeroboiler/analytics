@@ -42,7 +42,7 @@ final readonly class ProviderCapabilityProfile
         public array $missingCapabilities,
         public array $limitations,
         public string $computedAt,
-    ): void  {}
+    ){}
 
     /**
      * Check if a specific capability is supported.

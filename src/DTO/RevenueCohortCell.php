@@ -42,7 +42,7 @@ final readonly class RevenueCohortCell
         public float $contractionMrr = 0.0,
         public float $churnMrr = 0.0,
         public float $netRetentionRate = 0.0,
-    ): void {}
+    ){}
 
     /**
      * Compute retention rate from active users and cohort size.

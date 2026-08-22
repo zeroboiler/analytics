@@ -69,7 +69,7 @@ final class EventAlertRulesService
         QueuedAnalyticsDispatcher $queue,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->metrics = $metrics;
         $this->queue = $queue;
@@ -443,7 +443,7 @@ final class EventAlertRulesService
                     'error' => $e->getMessage(),
                     'alert' => $alert,
                 ]);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Log may not be available
             }
         }
@@ -460,7 +460,7 @@ final class EventAlertRulesService
             if (is_array($cached)) {
                 $this->lastTriggered = $cached;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $this->lastTriggered = [];
         }
     }
@@ -476,7 +476,7 @@ final class EventAlertRulesService
                 $this->lastTriggered,
                 $this->defaultCooldownSeconds + 60,
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache may not be available
         }
     }

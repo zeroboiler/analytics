@@ -48,8 +48,7 @@ final class CrossDomainTrackingService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $crossDomain = $config->get('zeroboiler.analytics.cross_domain', []);
         /** @var array{enabled?: bool, domains?: list<string>, linker_param?: string, auto_linker?: bool, cache_prefix?: string, link_ttl?: int, excluded_domains?: list<string>} $crossDomain */
 

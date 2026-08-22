@@ -46,8 +46,7 @@ final class SessionFingerprintService
      * @param  CacheRepository  $cache
      * @param  array{cache_prefix?: string, fingerprint_ttl?: int, max_fingerprints_per_client?: int}  $config
      */
-    public function __construct(CacheRepository $cache, array $config = []): void
-    {
+    public function __construct(CacheRepository $cache, array $config = []){
         $this->cache = $cache;
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_fp_';
         $this->fingerprintTtl = $config['fingerprint_ttl'] ?? 3600; // 1 hour

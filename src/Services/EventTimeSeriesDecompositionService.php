@@ -97,7 +97,7 @@ final class EventTimeSeriesDecompositionService
     public function __construct(
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->cache = $cache;
 
         $decompositionConfig = $config->get('zeroboiler.analytics.decomposition', []);

@@ -51,8 +51,7 @@ final class FunnelDropoffIntelligenceService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Configuration repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $fiConfig = $config->get('zeroboiler.analytics.funnel_intelligence', []);

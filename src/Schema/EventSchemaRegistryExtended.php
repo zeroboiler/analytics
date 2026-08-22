@@ -53,17 +53,16 @@ final class EventSchemaRegistryExtended
     private array $schemas = [];
 
     /** @var CacheRepository Cache repository */
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /** @var int Cache TTL in seconds */
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
     /**
      * @param  CacheRepository  $cache  Cache repository
      * @param  int  $cacheTtl  Cache TTL in seconds
      */
-    public function __construct(CacheRepository $cache, int $cacheTtl = self::DEFAULT_TTL): void
-    {
+    public function __construct(CacheRepository $cache, int $cacheTtl = self::DEFAULT_TTL){
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
         $this->loadBuiltInSchemas();

@@ -62,8 +62,7 @@ final class AnalyticsWorkspaceService
      * @param  CacheRepository  $cache  Cache repository
      * @param  ConfigRepository  $config  Application config repository
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $workspaceConfig = $config->get('zeroboiler.analytics.workspace', []);
         /** @var array{enabled?: bool, cache_prefix?: string, cache_ttl?: int, max_events_per_summary?: int, engagement_events?: list<string>, funnels?: array<string, array{name: string, steps: list<string>, weights?: list<float>}>} $workspaceConfig */
 

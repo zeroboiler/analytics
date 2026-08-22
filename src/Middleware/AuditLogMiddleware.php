@@ -33,8 +33,7 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
      * @param  bool  $enabled  Whether audit logging is active
      * @param  int  $priority  Middleware execution priority (lower = earlier)
      */
-    public function __construct(bool $enabled = false, int $priority = 100): void
-    {
+    public function __construct(bool $enabled = false, int $priority = 100){
         $this->enabled = $enabled;
         $this->priority = $priority;
     }
@@ -86,7 +85,7 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
                 'params' => $event->params,
                 'timestamp' => now()->toIso8601String(),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Audit logging must never throw
         }
     }

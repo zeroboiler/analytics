@@ -67,7 +67,7 @@ final class DeclarativeFunnelService
         QueuedAnalyticsDispatcher $queue,
         CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->manager = $manager;
         $this->queue = $queue;
         $this->cache = $cache;

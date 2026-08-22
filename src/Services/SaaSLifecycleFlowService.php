@@ -85,8 +85,7 @@ final class SaaSLifecycleFlowService
     /**
      * @param  AnalyticsManager|null  $manager  Analytics manager (null for track-only mode)
      */
-    public function __construct(?AnalyticsManager $manager = null): void
-    {
+    public function __construct(?AnalyticsManager $manager = null){
         $this->manager = $manager;
     }
 

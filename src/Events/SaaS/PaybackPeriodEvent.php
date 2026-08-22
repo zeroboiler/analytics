@@ -35,7 +35,7 @@ final class PaybackPeriodEvent extends AnalyticsEvent
         ?float $grossMargin = null,
         ?string $cohort = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'payback_months' => $paybackMonths,
             'cac' => $cac,

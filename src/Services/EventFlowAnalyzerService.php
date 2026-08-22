@@ -33,18 +33,17 @@ final class EventFlowAnalyzerService
 {
     private const CACHE_PREFIX = 'zb_flow_analyzer:';
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $flowConfig = $config->get('zeroboiler.analytics.flow_analyzer', []);

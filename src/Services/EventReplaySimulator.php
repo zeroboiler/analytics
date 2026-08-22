@@ -71,7 +71,7 @@ final class EventReplaySimulator
         int $rateLimit = self::DEFAULT_RATE_LIMIT,
         bool $dryRun = false,
         int $resultsTtl = 3600,
-    ): void {
+    ){
         $this->cache = $cache;
         $this->eventMix = $this->normalizeMix($eventMix);
         $this->batchSize = min(max($batchSize, 1), self::MAX_EVENTS);

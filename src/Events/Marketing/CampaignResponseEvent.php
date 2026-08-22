@@ -27,7 +27,7 @@ final readonly class CampaignResponseEvent extends AnalyticsEvent
         ?string $source = null,
         ?string $medium = null,
         array $extra = [],
-    ): void {
+    ){
         parent::__construct('campaign_response', array_filter(array_merge([
             'campaign' => $campaign,
             'source' => $source,

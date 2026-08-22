@@ -36,7 +36,7 @@ final class GdprErasureService
         AnalyticsProfileService $profileService,
         AttributionService $attributionService,
         TrackingPreferenceService $preferenceService,
-    ): void {
+    ){
         $this->profileService = $profileService;
         $this->attributionService = $attributionService;
         $this->preferenceService = $preferenceService;
@@ -61,7 +61,7 @@ final class GdprErasureService
         try {
             $this->profileService->deleteProfile($userId);
             $result['profile_deleted'] = true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Continue with other deletions
         }
 
@@ -70,7 +70,7 @@ final class GdprErasureService
             try {
                 $this->attributionService->deleteAttribution($clientId);
                 $result['attribution_deleted'] = true;
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Continue
             }
         }
@@ -79,7 +79,7 @@ final class GdprErasureService
         try {
             $this->preferenceService->optOut($userId);
             $result['preferences_deleted'] = true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Continue
         }
 
@@ -111,7 +111,7 @@ final class GdprErasureService
         // Export analytics profile
         try {
             $export['profile'] = $this->profileService->getProfile($userId);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             $export['profile'] = null;
         }
 
@@ -119,7 +119,7 @@ final class GdprErasureService
         if ($clientId !== null && $clientId !== '') {
             try {
                 $export['attribution'] = $this->attributionService->getAttributionSummary($clientId);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 $export['attribution'] = null;
             }
         }
@@ -130,7 +130,7 @@ final class GdprErasureService
                 'status' => $this->preferenceService->isOptedOut($userId) ? 'opt_out' : 'opt_in',
                 'has_preference' => $this->preferenceService->hasPreference($userId),
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Keep default
         }
 
@@ -161,7 +161,7 @@ final class GdprErasureService
             $this->attributionService->deleteAttribution($clientId);
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
     }

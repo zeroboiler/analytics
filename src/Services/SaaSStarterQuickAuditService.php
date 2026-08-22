@@ -76,8 +76,7 @@ final class SaaSStarterQuickAuditService
 
     private ConfigRepository $config;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $this->config = $config;
     }
 

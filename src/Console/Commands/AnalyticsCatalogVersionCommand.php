@@ -54,7 +54,7 @@ final class AnalyticsCatalogVersionCommand extends Command
         EventCatalogVersioningEngine $versioningEngine,
         ReleaseChangelogGeneratorService $changelogGenerator,
         CatalogSnapshotService $snapshotService,
-    ): void {
+    ){
         parent::__construct();
         $this->versioningEngine = $versioningEngine;
         $this->changelogGenerator = $changelogGenerator;

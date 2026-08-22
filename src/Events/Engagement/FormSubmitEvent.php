@@ -32,7 +32,7 @@ final readonly class FormSubmitEvent extends AnalyticsEvent
         ?string $formDestination = null,
         ?float $value = null,
         ?string $currency = null,
-    ): void {
+    ){
         parent::__construct('form_submit', array_filter([
             'form_id' => $formId,
             'form_name' => $formName,

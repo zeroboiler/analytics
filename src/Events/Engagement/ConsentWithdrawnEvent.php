@@ -34,7 +34,7 @@ final class ConsentWithdrawnEvent extends AnalyticsEvent
         array $purposes = [],
         ?string $method = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'consent_withdrawn',
             params: array_merge([

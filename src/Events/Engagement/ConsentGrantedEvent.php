@@ -34,7 +34,7 @@ final class ConsentGrantedEvent extends AnalyticsEvent
         array $purposes = [],
         ?string $method = null,
         array $params = [],
-    ): void {
+    ){
         parent::__construct(
             name: 'consent_granted',
             params: array_merge([

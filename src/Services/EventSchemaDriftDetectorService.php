@@ -57,11 +57,11 @@ final class EventSchemaDriftDetectorService
     /** @var array<string, list<SchemaSnapshot>> Per-event observation history (max entries) */
     private array $history = [];
 
-    private readonly int $maxHistoryEntries;
+    private int $maxHistoryEntries;
 
-    private readonly int $minSampleSize;
+    private int $minSampleSize;
 
-    private readonly float $driftScoreThreshold;
+    private float $driftScoreThreshold;
 
     /** @var list<string> Provider names for impact assessment */
     private const PROVIDERS = ['ga4', 'gtm', 'meta', 'plausible', 'posthog', 'webhook', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
@@ -73,7 +73,7 @@ final class EventSchemaDriftDetectorService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {
+    ){
         $driftConfig = $config->get('zeroboiler.analytics.schema_drift', []);
         /** @var array{max_history_entries?: int, min_sample_size?: int, drift_score_threshold?: float} $driftConfig */
 

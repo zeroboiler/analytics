@@ -35,8 +35,7 @@ final class SaaSMetricsCommand extends Command
 
     private AnalyticsManager $manager;
 
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         parent::__construct();
         $this->manager = $manager;
     }
@@ -234,7 +233,7 @@ final class SaaSMetricsCommand extends Command
             $calculator = new EventPriorityCalculator;
             $benchmarks = $calculator->onboardingChecklist();
             $readiness = $calculator->funnelReadiness();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'available' => false,
                 'error' => 'EventPriorityCalculator not available',
@@ -265,7 +264,7 @@ final class SaaSMetricsCommand extends Command
             $calculator = new EventPriorityCalculator;
 
             return $calculator->maturityScore();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return ['score' => 0, 'grade' => 'N/A'];
         }
     }
@@ -280,7 +279,7 @@ final class SaaSMetricsCommand extends Command
             $checklist = $calculator->onboardingChecklist();
 
             return (float) ($checklist['summary']['completion'] ?? 0.0);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return 0.0;
         }
     }

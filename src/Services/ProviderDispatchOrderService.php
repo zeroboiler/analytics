@@ -69,21 +69,20 @@ final class ProviderDispatchOrderService
         'consent' => ['weight' => 0.05, 'description' => 'GDPR consent readiness for this provider'],
     ];
 
-    private readonly bool $enabled;
-    private readonly int $cacheTtl;
-    private readonly float $minScore;
-    private readonly array $providerWeights;
-    private readonly array $excludedProviders;
-    private readonly bool $respectRouting;
-    private readonly CacheRepository $cache;
-    private readonly ConfigRepository $config;
+    private bool $enabled;
+    private int $cacheTtl;
+    private float $minScore;
+    private array $providerWeights;
+    private array $excludedProviders;
+    private bool $respectRouting;
+    private CacheRepository $cache;
+    private ConfigRepository $config;
 
     /**
      * @param  CacheRepository  $cache
      * @param  ConfigRepository  $config
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
         $this->config = $config;
 

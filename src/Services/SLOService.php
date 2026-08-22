@@ -44,19 +44,19 @@ final class SLOService
     private const BURN_RATE_KEY = 'zb_slo_burn_rates';
     private const COMPLIANCE_KEY = 'zb_slo_compliance_history';
 
-    private readonly bool $enabled;
-    private readonly int $windowSeconds;
-    private readonly int $retentionWindows;
-    private readonly bool $alertOnBurnRate;
-    private readonly float $burnRateAlertThreshold;
-    private readonly float $burnRateCriticalThreshold;
-    private readonly int $maxComplianceHistory;
+    private bool $enabled;
+    private int $windowSeconds;
+    private int $retentionWindows;
+    private bool $alertOnBurnRate;
+    private float $burnRateAlertThreshold;
+    private float $burnRateCriticalThreshold;
+    private int $maxComplianceHistory;
 
     /** @var array<string, array{target: float, error_budget_minutes: int, window: string}> */
-    private readonly array $objectives;
+    private array $objectives;
 
     /** @var array<string, float> */
-    private readonly array $categoryDefaults;
+    private array $categoryDefaults;
 
     private CacheRepository $cache;
 
@@ -64,8 +64,7 @@ final class SLOService
      * @param  array<string, mixed>  $slaConfig
      * @param  array<string, mixed>  $sloConfig
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $sloConfig = $config->get('zeroboiler.analytics.slo', []);

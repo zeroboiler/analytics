@@ -54,7 +54,7 @@ final class AnomalyRootCauseAnalyzer
         private readonly CacheRepository $cache,
         private readonly EventCorrelationEngineService $correlationEngine,
         ConfigRepository $config,
-    ): void {
+    ){
         $this->config = $config->get('zeroboiler.analytics.root_cause_analyzer', []);
         $this->cachePrefix = (string) ($this->config['cache_prefix'] ?? 'zb_rca_');
         $this->cacheTtl = (int) ($this->config['cache_ttl'] ?? 1800); // 30 minutes

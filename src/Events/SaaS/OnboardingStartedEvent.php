@@ -23,7 +23,7 @@ final class OnboardingStartedEvent extends AnalyticsEvent
         array $params = [],
         ?string $clientId = null,
         ?string $userId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'onboarding_started',
             params: $params,

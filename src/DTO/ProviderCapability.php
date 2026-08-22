@@ -34,7 +34,7 @@ final readonly class ProviderCapability
         public bool $supported,
         public mixed $value = null,
         public string $description = '',
-    ): void  {}
+    )  {}
 
     /**
      * Serialize to array.

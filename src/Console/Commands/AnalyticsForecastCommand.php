@@ -70,7 +70,7 @@ final class AnalyticsForecastCommand extends Command
             if ($this->option('json')) {
                 $this->line(json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-                return;
+                return 0;
             }
 
             $this->displayResult($action, $result);
@@ -79,7 +79,7 @@ final class AnalyticsForecastCommand extends Command
 
             return 1;
         } catch (\Throwable $e) {
-            $this->error("Forecast error: {$e->getMessage()}");
+            $this->error('Forecast error: ' . ($e->getMessage()));
 
             return 1;
         }

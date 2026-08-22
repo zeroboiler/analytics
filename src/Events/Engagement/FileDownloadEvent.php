@@ -33,7 +33,7 @@ final readonly class FileDownloadEvent extends AnalyticsEvent
         ?string $fileType = null,
         ?int $fileSize = null,
         array $extra = [],
-    ): void {
+    ){
         $baseParams = array_filter([
             'file_name' => $fileName,
             'file_type' => $fileType,

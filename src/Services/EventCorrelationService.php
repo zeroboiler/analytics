@@ -68,7 +68,7 @@ final class EventCorrelationService
         int $maxPatternLength = 5,
         int $maxJourneysPerUser = 100,
         bool $useCache = true,
-    ): void {
+    ){
         $this->metrics = $metrics;
         $this->cache = $cache;
         $this->cacheTtl = $cacheTtl;
@@ -159,7 +159,7 @@ final class EventCorrelationService
                 if (is_array($cached)) {
                     return $cached;
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
                 // Cache miss
             }
         }
@@ -197,7 +197,7 @@ final class EventCorrelationService
 
         try {
             $this->cache->put($cacheKey, $results, $this->cacheTtl);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
 
@@ -461,7 +461,7 @@ final class EventCorrelationService
     {
         try {
             $this->cache->forget('zeroboiler.analytics.correlation.patterns');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache unavailable
         }
     }

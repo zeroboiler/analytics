@@ -40,7 +40,7 @@ final class ConversionPathDiscoveryService
     public function __construct(
         private readonly CacheRepository $cache,
         private readonly ConfigRepository $config,
-    ): void {}
+    ){}
 
     /**
      * Record a user's event step in a conversion path.

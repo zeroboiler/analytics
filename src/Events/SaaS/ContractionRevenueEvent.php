@@ -31,7 +31,7 @@ final class ContractionRevenueEvent extends AnalyticsEvent
         string $source,
         ?string $currency = null,
         array $params = [],
-    ): void {
+    ){
         $merged = array_merge($params, [
             'amount' => $amount,
             'currency' => $currency ?? 'USD',

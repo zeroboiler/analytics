@@ -41,8 +41,7 @@ final class AnalyticsWebhookRelayCommand extends Command
 
     private OutboundWebhookRelay $relay;
 
-    public function __construct(OutboundWebhookRelay $relay): void
-    {
+    public function __construct(OutboundWebhookRelay $relay){
         parent::__construct();
         $this->relay = $relay;
     }

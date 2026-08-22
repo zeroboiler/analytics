@@ -66,8 +66,7 @@ final class AnalyticsAnonymizationService
     /**
      * @param  ConfigRepository  $config
      */
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $anonConfig = $config->get('zeroboiler.analytics.anonymization', []);
         /** @var array{enabled?: bool, salt?: string, global_fields?: list<string>, event_rules?: array<string, list<string>>, category_rules?: array<string, list<string>>} $anonConfig */
         $this->enabled = (bool) ($anonConfig['enabled'] ?? false);

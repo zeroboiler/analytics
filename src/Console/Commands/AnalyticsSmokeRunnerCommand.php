@@ -55,8 +55,7 @@ final class AnalyticsSmokeRunnerCommand extends Command
 
     private int $failCount = 0;
 
-    public function __construct(AnalyticsManager $manager): void
-    {
+    public function __construct(AnalyticsManager $manager){
         parent::__construct();
         $this->manager = $manager;
     }

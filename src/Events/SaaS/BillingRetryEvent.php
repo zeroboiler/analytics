@@ -42,7 +42,7 @@ final readonly class BillingRetryEvent extends AnalyticsEvent
         ?string $failureReason = null,
         ?string $userId = null,
         ?string $clientId = null,
-    ): void {
+    ){
         parent::__construct(
             name: 'billing_retry',
             params: array_filter([

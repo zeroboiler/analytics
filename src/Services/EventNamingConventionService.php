@@ -27,26 +27,25 @@ use ZeroBoiler\Analytics\Events\EventCatalog;
  */
 final class EventNamingConventionService
 {
-    private readonly string $format;
+    private string $format;
 
-    private readonly int $maxLength;
+    private int $maxLength;
 
-    private readonly int $minLength;
+    private int $minLength;
 
     /** @var list<string> Disallowed patterns (regex) */
-    private readonly array $disallowedPatterns;
+    private array $disallowedPatterns;
 
     /** @var list<string> Required prefixes for custom (non-catalog) events */
-    private readonly array $customPrefixes;
+    private array $customPrefixes;
 
     /** @var list<string> Reserved prefixes that cannot be used */
-    private readonly array $reservedPrefixes;
+    private array $reservedPrefixes;
 
     /** @var string|null Custom regex pattern (overrides format) */
-    private readonly ?string $customPattern;
+    private ?string $customPattern;
 
-    public function __construct(ConfigRepository $config): void
-    {
+    public function __construct(ConfigRepository $config){
         $namingConfig = $config->get('zeroboiler.analytics.governance.naming', []);
         /** @var array{format?: string, max_length?: int, min_length?: int, disallowed_patterns?: list<string>, custom_prefixes?: list<string>, reserved_prefixes?: list<string>, custom_pattern?: string|null} $namingConfig */
 

@@ -42,32 +42,32 @@ final class MetricProjectionEngine
     private const DEFAULT_CACHE_TTL = 300;
 
     /** @var ConfigRepository */
-    private readonly ConfigRepository $config;
+    private ConfigRepository $config;
 
     /** @var CacheRepository */
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /** @var AnalyticsManager */
-    private readonly AnalyticsManager $manager;
+    private AnalyticsManager $manager;
 
     /** @var ProjectionRegistry */
-    private readonly ProjectionRegistry $registry;
+    private ProjectionRegistry $registry;
 
     /** @var array<string, MetricProjectionResult> In-memory result cache (request-scoped) */
     private array $localCache = [];
 
     /** @var bool Whether caching is enabled */
-    private readonly bool $cacheEnabled;
+    private bool $cacheEnabled;
 
     /** @var int Global default TTL override (0 = use per-projection TTL) */
-    private readonly int $globalCacheTtl;
+    private int $globalCacheTtl;
 
     public function __construct(
         ConfigRepository $config,
         CacheRepository $cache,
         AnalyticsManager $manager,
         ProjectionRegistry $registry,
-    ): void {
+    ){
         $this->config = $config;
         $this->cache = $cache;
         $this->manager = $manager;

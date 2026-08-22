@@ -45,9 +45,9 @@ final readonly class SequenceValueAttribution
     public function __construct(
         public readonly string $sequenceId,
         public readonly array $sequence,
-        public readonly int $occurrences = 0,
-        public readonly int $uniqueUsers = 0,
-        public readonly float $avgLtv = 0.0,
+        public int $occurrences = 0,
+        public int $uniqueUsers = 0,
+        public float $avgLtv = 0.0,
         public readonly float $totalRevenue = 0.0,
         public readonly float $conversionRate = 0.0,
         public readonly float $conversionLift = 0.0,
@@ -58,7 +58,7 @@ final readonly class SequenceValueAttribution
         public readonly string $valueGrade = 'C',
         public readonly float $compositeScore = 0.0,
         public readonly array $metadata = [],
-    ): void {}
+    ){}
 
     /**
      * Serialize the attribution to an array.

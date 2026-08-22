@@ -76,8 +76,7 @@ final class EventCardinalityLimiter
      * @param  CacheRepository  $cache  Cache repository for cardinality data
      * @param  ConfigRepository  $config  Analytics configuration
      */
-    public function __construct(CacheRepository $cache, ConfigRepository $config): void
-    {
+    public function __construct(CacheRepository $cache, ConfigRepository $config){
         $this->cache = $cache;
 
         $cardConfig = $config->get('zeroboiler.analytics.cardinality', []);

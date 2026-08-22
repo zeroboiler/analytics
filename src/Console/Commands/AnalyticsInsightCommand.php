@@ -58,7 +58,7 @@ final class AnalyticsInsightCommand extends Command
         private readonly NaturalLanguageQueryEngine $nlEngine,
         private readonly GeospatialAnalyticsService $geoService,
         private readonly AnalyticsAIService $aiService,
-    ): void {
+    ){
         parent::__construct();
     }
 

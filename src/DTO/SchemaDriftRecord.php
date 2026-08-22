@@ -52,7 +52,7 @@ final readonly class SchemaDriftRecord
         public int $sampleSizeBaseline = 0,
         public int $sampleSizeCurrent = 0,
         public array $affectedProviders = [],
-    ): void  {}
+    ){}
 
     /**
      * @return array<string, mixed>

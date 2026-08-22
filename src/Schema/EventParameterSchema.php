@@ -30,7 +30,7 @@ final readonly class EventParameterSchema
         public array $required,
         public array $optional,
         public bool $itemParams,
-    ): void {}
+    ){}
 
     /**
      * Convert to array representation for API responses.

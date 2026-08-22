@@ -762,7 +762,7 @@ final class InMemoryCache implements \Illuminate\Contracts\Cache\Repository
         return true;
     }
 
-    public function getMultiple(array|iterable $keys, mixed $default = null): iterable
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         $result = [];
         foreach ($keys as $key) {
@@ -772,7 +772,7 @@ final class InMemoryCache implements \Illuminate\Contracts\Cache\Repository
         return $result;
     }
 
-    public function putMultiple(array|iterable $values, \DateTimeInterface|\DateInterval|int|null $ttl = null): bool
+    public function putMultiple(iterable $values, \DateTimeInterface|\DateInterval|int|null $ttl = null): bool
     {
         foreach ($values as $key => $value) {
             $this->store[$key] = $value;
@@ -781,7 +781,7 @@ final class InMemoryCache implements \Illuminate\Contracts\Cache\Repository
         return true;
     }
 
-    public function deleteMultiple(array|iterable $keys): bool
+    public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
             unset($this->store[$key]);
@@ -803,7 +803,7 @@ final class InMemoryCache implements \Illuminate\Contracts\Cache\Repository
     public function getDefaultCacheTime(): int { return 3600; }
     public function setDefaultCacheTime(int $seconds): self { return $this; }
     public function store(string|null $name = null): \Illuminate\Contracts\Cache\Store { throw new \LogicException('Not implemented'); }
-    public function tags(array|iterable|string $names): \Illuminate\Cache\TaggedCache { throw new \LogicException('Not implemented'); }
+    public function tags(iterable|string $names): \Illuminate\Cache\TaggedCache { throw new \LogicException('Not implemented'); }
 }
 
 /**

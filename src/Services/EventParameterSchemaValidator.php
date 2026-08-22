@@ -155,7 +155,7 @@ final class EventParameterSchemaValidator
      * @param  EventSchemaRegistry|null  $schemaRegistry  Optional schema registry for extended validation
      * @param  bool  $strictMode  When true, unknown event names fail validation. When false, they pass with warnings.
      */
-    public function __construct(?EventSchemaRegistry $schemaRegistry = null, bool $strictMode = false): void
+    public function __construct(?EventSchemaRegistry $schemaRegistry = null, bool $strictMode = false)
     {
         $this->schemaRegistry = $schemaRegistry;
         $this->strictMode = $strictMode;

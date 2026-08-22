@@ -66,7 +66,7 @@ final class EventCacheService
     public function __construct(
         private readonly CacheRepository $cache,
         ConfigRepository $config,
-    ): void {
+    ){
         $cacheConfig = $config->get('zeroboiler.analytics.event_cache', []);
         /** @var array{enabled?: bool, memory_max_items?: int, memory_ttl?: int, cache_ttl?: int, prefix?: string} $cacheConfig */
 

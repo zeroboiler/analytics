@@ -35,15 +35,15 @@ final class EventCooccurrenceService
 {
     private const CACHE_PREFIX = 'zb_cooccurrence_';
 
-    private readonly bool $enabled;
+    private bool $enabled;
 
-    private readonly int $cacheTtl;
+    private int $cacheTtl;
 
-    private readonly int $windowSeconds;
+    private int $windowSeconds;
 
-    private readonly int $maxEvents;
+    private int $maxEvents;
 
-    private readonly CacheRepository $cache;
+    private CacheRepository $cache;
 
     /** @var array<string, list<string>> Session event logs */
     private array $sessionEvents = [];
@@ -51,7 +51,7 @@ final class EventCooccurrenceService
     /** @var CooccurrenceMatrix Accumulated co-occurrence counts */
     private array $matrix = [];
 
-    private readonly AnalyticsMetrics $metrics;
+    private AnalyticsMetrics $metrics;
 
     /**
      * @param  CacheRepository  $cache
@@ -60,7 +60,7 @@ final class EventCooccurrenceService
     public function __construct(
         CacheRepository $cache,
         AnalyticsMetrics $metrics,
-    ): void {
+    ){
         $config = app(\Illuminate\Contracts\Config\Repository::class);
         $coConfig = $config->get('zeroboiler.analytics.cooccurrence', []);
         /** @var array{enabled?: bool, cache_ttl?: int, window_seconds?: int, max_events?: int} $coConfig */
@@ -254,7 +254,7 @@ final class EventCooccurrenceService
 
         try {
             $this->cache->forget(self::CACHE_PREFIX . '*');
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Cache driver may not support wildcard deletion
         }
     }

@@ -41,7 +41,7 @@ final class QueuedAnalyticsDispatcher
     /** @var int Max events per batch job */
     private int $maxBatchSize;
 
-    public function __construct(AnalyticsManager $manager, ConfigRepository $config): void
+    public function __construct(AnalyticsManager $manager, ConfigRepository $config)
     {
         $this->manager = $manager;
 

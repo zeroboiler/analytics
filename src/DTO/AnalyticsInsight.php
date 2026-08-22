@@ -41,7 +41,7 @@ final readonly class AnalyticsInsight
         public array $metadata = [],
         public ?\DateTimeImmutable $observedAt = null,
         public ?string $recommendation = null,
-    ): void {}
+    ) {}
 
     /**
      * Create from array representation.
