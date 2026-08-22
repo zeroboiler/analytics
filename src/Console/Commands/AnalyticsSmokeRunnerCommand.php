@@ -190,7 +190,7 @@ final class AnalyticsSmokeRunnerCommand extends Command
             $this->runCheck('consent_compliance', 'GDPR Consent Compliance', function (): string {
                 try {
                     $config = app('config');
-                    $cache = app('cache');
+                    $cache = app(\Illuminate\Contracts\Cache\Repository::class);
                     /** @var \Illuminate\Contracts\Config\Repository $config */
                     /** @var \Illuminate\Contracts\Cache\Repository $cache */
                     $service = new AnalyticsConsentComplianceService($config, $cache);

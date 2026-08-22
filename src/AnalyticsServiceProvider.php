@@ -509,6 +509,11 @@ use ZeroBoiler\Analytics\Console\Commands\AnalyticsGlossaryCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsSaaSQuickDeployCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsDriftCommand;
 use ZeroBoiler\Analytics\Console\Commands\AnalyticsROICommand;
+use ZeroBoiler\Analytics\Services\GoogleAnalyticsService;
+use ZeroBoiler\Analytics\Services\FunnelVelocityAnalyzer;
+use ZeroBoiler\Analytics\Services\PrivacyAwareEventRouter;
+use ZeroBoiler\Analytics\Services\EventWindowAggregator;
+use ZeroBoiler\Analytics\Services\FeatureAdoptionTracker;
 use ZeroBoiler\Analytics\Services\SaaSAnalyticsGlossaryService;
 
 /**
@@ -1179,10 +1184,8 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventCorrelationMatrixService::class, function (Application $app): EventCorrelationMatrixService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
             $cache = $app->make(CacheRepository::class);
-            /** @var ConfigRepository $config */
-            $config = $app->make(ConfigRepository::class);
 
-            return new EventCorrelationMatrixService($cache, $config);
+            return new EventCorrelationMatrixService($cache, $app->make(EventStreamService::class));
         });
 
         // Data Lake Export Service (v20.0.0)
@@ -1251,7 +1254,10 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Provider Event Compatibility Matrix (v21.0.0)
         $this->app->singleton(ProviderEventCompatibilityMatrix::class, function (Application $app): ProviderEventCompatibilityMatrix {
-            return new ProviderEventCompatibilityMatrix;
+            return new ProviderEventCompatibilityMatrix(
+                $app->make(CacheRepository::class),
+                $app->make(ConfigRepository::class),
+            );
         });
 
         // Analytics Data Quality Scorer (v21.0.0)
@@ -1700,12 +1706,9 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Fingerprinting Service (v8.2.0) — content-addressed event identity
         $this->app->singleton(EventFingerprintService::class, function (Application $app): EventFingerprintService {
             $fpConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.fingerprint', []);
-            /** @var array{cache_prefix?: string, ttl?: int, time_bucket?: string, exclude_timestamp?: bool, exclude_params?: bool} $fpConfig */
+            /** @var array{enabled?: bool, cache_prefix?: string, ttl?: int, time_bucket?: string, time_bucket_seconds?: int, window_seconds?: int, include_client_id?: bool, include_user_id?: bool, ignore_internal_params?: bool, exclude_params?: bool, algorithm?: string, max_cache_size?: int} $fpConfig */
 
-            return new EventFingerprintService(
-                $app->make(CacheRepository::class),
-                $fpConfig,
-            );
+            return new EventFingerprintService($app->make(CacheRepository::class), $fpConfig);
         });
 
         // Dashboard Widget Service (v8.3.0) — cache-backed dashboard data widgets
@@ -2744,7 +2747,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new RevenueAttributionDashboardService(
                 $app->make('zeroboiler.analytics'),
                 $app->make(AnalyticsMetrics::class),
-                $app->make(EventStoreManager::class),
+                $app->make(\ZeroBoiler\Analytics\Contracts\AnalyticsEventStoreInterface::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3237,16 +3240,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         // Event Cost Tracker (v4.4.0) — per-provider cost estimation
         $this->app->singleton(EventCostTracker::class, function (Application $app): EventCostTracker {
-            /** @var AnalyticsManager $manager */
-            $manager = $app->make('zeroboiler.analytics');
-            /** @var AnalyticsMetrics $metrics */
-            $metrics = $manager->metrics();
             /** @var CacheRepository $cache */
             $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new EventCostTracker($manager, $metrics, $cache, $config);
+            return new EventCostTracker($config, $cache);
         });
 
         // Notification Webhook Service (v4.4.0) — alert notifications to Slack/Discord/webhook

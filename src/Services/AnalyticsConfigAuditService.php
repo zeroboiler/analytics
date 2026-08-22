@@ -190,7 +190,7 @@ final class AnalyticsConfigAuditService
 
         try {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = app('cache');
+            $cache = app(\Illuminate\Contracts\Cache\Repository::class);
             $cache->put($key, $current, 86400); // 24h TTL
 
             return [
@@ -221,7 +221,7 @@ final class AnalyticsConfigAuditService
 
         try {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = app('cache');
+            $cache = app(\Illuminate\Contracts\Cache\Repository::class);
             $snapshot = $cache->get($key);
 
             return [

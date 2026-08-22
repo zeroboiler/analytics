@@ -4117,7 +4117,7 @@ final class AnalyticsEventController extends Controller
         ]);
 
         $service = new \ZeroBoiler\Analytics\Services\HeatmapAggregationService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             enabled: true,
         );
 
@@ -4147,7 +4147,7 @@ final class AnalyticsEventController extends Controller
         ]);
 
         $service = new \ZeroBoiler\Analytics\Services\HeatmapAggregationService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             enabled: true,
         );
 
@@ -4176,7 +4176,7 @@ final class AnalyticsEventController extends Controller
     public function heatmapUrls(Request $request): JsonResponse
     {
         $service = new \ZeroBoiler\Analytics\Services\HeatmapAggregationService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             enabled: true,
         );
 
@@ -4200,7 +4200,7 @@ final class AnalyticsEventController extends Controller
         ]);
 
         $service = new \ZeroBoiler\Analytics\Services\HeatmapAggregationService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             enabled: true,
         );
 
@@ -4219,7 +4219,7 @@ final class AnalyticsEventController extends Controller
     public function rateLimitDashboard(Request $request): JsonResponse
     {
         $service = new \ZeroBoiler\Analytics\Services\AnalyticsRateLimitDashboardService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             metrics: $this->manager->metrics(),
         );
 
@@ -4238,7 +4238,7 @@ final class AnalyticsEventController extends Controller
     public function rateLimitClientStatus(Request $request, string $clientId): JsonResponse
     {
         $service = new \ZeroBoiler\Analytics\Services\AnalyticsRateLimitDashboardService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             metrics: $this->manager->metrics(),
         );
 
@@ -4257,7 +4257,7 @@ final class AnalyticsEventController extends Controller
     public function rateLimitResetClient(Request $request, string $clientId): JsonResponse
     {
         $service = new \ZeroBoiler\Analytics\Services\AnalyticsRateLimitDashboardService(
-            cache: app('cache'),
+            cache: app(\Illuminate\Contracts\Cache\Repository::class),
             metrics: $this->manager->metrics(),
         );
 
@@ -20819,7 +20819,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20843,7 +20843,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20862,7 +20862,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20884,7 +20884,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20906,7 +20906,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20924,7 +20924,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20948,7 +20948,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20970,7 +20970,7 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $service = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
@@ -20990,13 +20990,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
             $report = $advisor->report();
@@ -21019,13 +21019,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
             $recs = array_values($advisor->highPriorityRecommendations());
@@ -21046,13 +21046,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
 
@@ -21069,13 +21069,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
 
@@ -21094,13 +21094,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
             $rec = $advisor->recommendationFor($eventName);
@@ -21129,13 +21129,13 @@ final class AnalyticsEventController extends Controller
     {
         try {
             $snrService = new \ZeroBoiler\Analytics\Services\EventSNRCalculatorService(
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
                 app(\ZeroBoiler\Analytics\AnalyticsMetrics::class),
             );
             $advisor = new \ZeroBoiler\Analytics\Services\EventPruningAdvisorService(
                 $snrService,
-                app('cache'),
+                app(\Illuminate\Contracts\Cache\Repository::class),
                 app('config'),
             );
             $advisor->invalidateCache();

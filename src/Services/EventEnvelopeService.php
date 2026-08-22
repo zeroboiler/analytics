@@ -12,6 +12,7 @@ use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Http\Request;
 use ZeroBoiler\Analytics\DTO\AnalyticsEvent;
 use ZeroBoiler\Analytics\DTO\EventContextEvent;
+use ZeroBoiler\Analytics\Pipeline\GeolocationEnricher;
 /**
  * Builds fully-qualified event envelopes with rich context.
  *

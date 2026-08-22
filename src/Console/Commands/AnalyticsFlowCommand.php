@@ -55,7 +55,7 @@ final class AnalyticsFlowCommand extends Command
     public function __construct(ConfigRepository $config){
         parent::__construct();
 
-        $cache = app('cache');
+        $cache = app(\Illuminate\Contracts\Cache\Repository::class);
         $this->flowService = new EventFlowAnalysisService($cache, $config);
         $this->qualityFirewall = new AnalyticsDataQualityFirewall($cache, $config);
         $this->compatibilityMatrix = new ProviderEventCompatibilityMatrix($cache, $config);

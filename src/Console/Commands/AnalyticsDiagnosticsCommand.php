@@ -355,7 +355,7 @@ final class AnalyticsDiagnosticsCommand extends Command
     private function runCacheCheck(): void
     {
         try {
-            $cache = app('cache');
+            $cache = app(\Illuminate\Contracts\Cache\Repository::class);
             $testKey = 'zb_diag_test_' . time();
             $cache->put($testKey, 'ok', 10);
             $result = $cache->get($testKey);

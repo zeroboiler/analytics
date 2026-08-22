@@ -75,7 +75,8 @@ final class SaaSAnalyticsROIService
 
     private CacheRepository $cache;
 
-    private ROIConfig $config;
+    /** @var ROIConfig */
+    private array $config;
 
     /**
      * @param  CacheRepository|null  $cache  Optional cache repository for testing
