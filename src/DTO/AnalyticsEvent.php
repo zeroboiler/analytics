@@ -17,7 +17,7 @@ namespace ZeroBoiler\Analytics\DTO;
  *
  * @since 1.0.0
  */
-final readonly class AnalyticsEvent
+readonly class AnalyticsEvent
 {
     /**
      * Package version for schema versioning.
