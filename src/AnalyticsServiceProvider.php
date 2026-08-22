@@ -4910,6 +4910,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
     {
         // This bridges the config-driven LifecycleEventMapper with the
         // legacy ServerSideTracker and optional queued dispatch.
+        $tracker = $this->app->make(ServerSideTracker::class);
         try {
             $subscriber = $this->app->make(LifecycleEventSubscriber::class);
             /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
@@ -4917,7 +4918,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $subscriber->register($dispatcher);
         } catch (\Throwable $e) {
             // Fallback: register only the legacy tracker
-            $tracker = $this->app->make(ServerSideTracker::class);
             /** @var \Illuminate\Contracts\Events\Dispatcher $dispatcher */
             $dispatcher = $this->app->make('events');
             $tracker->register($dispatcher);
