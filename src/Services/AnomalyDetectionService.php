@@ -130,7 +130,6 @@ final class AnomalyDetectionService
         $detectedAnomalies = [];
 
         foreach ($this->eventTimeline as $eventName => $timestamps) {
-            // Count events in the current window
             $windowCount = 0;
             $remainingTimestamps = [];
 
@@ -141,7 +140,6 @@ final class AnomalyDetectionService
                 }
             }
 
-            // Store current window count as baseline
             $this->baselineWindows[$eventName][] = $windowCount;
 
             // Trim baseline to max size
@@ -155,20 +153,17 @@ final class AnomalyDetectionService
             // Keep only recent timestamps
             $this->eventTimeline[$eventName] = $remainingTimestamps;
 
-            // Check for anomaly
             if (count($this->baselineWindows[$eventName]) >= $this->minDataPoints) {
                 $anomaly = $this->detectAnomaly($eventName, $windowCount);
 
                 if ($anomaly !== null) {
                     $detectedAnomalies[] = $anomaly;
 
-                    // Store recent anomaly
                     $this->recentAnomalies[] = $anomaly;
                     if (count($this->recentAnomalies) > $this->maxRecentAnomalies) {
                         array_shift($this->recentAnomalies);
                     }
 
-                    // Dispatch alert event
                     if ($this->dispatchAlerts) {
                         $this->dispatchAlert($anomaly);
                     }

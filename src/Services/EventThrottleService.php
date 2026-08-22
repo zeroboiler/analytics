@@ -107,13 +107,11 @@ final class EventThrottleService
             return true;
         }
 
-        // Check per-client global limit
         if (! $this->checkClientGlobalLimit($clientId)) {
             $this->logThrottled($event, 'global_limit', $clientId);
             return $this->applyOverflow($event);
         }
 
-        // Check per-event per-client limit
         if (! $this->checkClientEventLimit($clientId, $event->name)) {
             $this->logThrottled($event, 'event_limit', $clientId);
             return $this->applyOverflow($event);
@@ -160,7 +158,6 @@ final class EventThrottleService
 
         $this->cache->forget($prefix);
 
-        // Clear known event counters
         $stats = $this->getEventCounts($clientId);
         foreach (array_keys($stats) as $eventName) {
             $this->cache->forget($eventPrefix . $eventName);
@@ -195,10 +192,8 @@ final class EventThrottleService
             return false;
         }
 
-        // Increment with atomic operation
         $this->cache->increment($key);
 
-        // Ensure TTL is set (only on first increment)
         if ($current === 0) {
             $this->cache->put($key, 1, $this->cacheTtl);
         }

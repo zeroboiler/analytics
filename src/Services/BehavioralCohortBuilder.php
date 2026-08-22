@@ -111,7 +111,6 @@ final class BehavioralCohortBuilder
 
         $today = gmdate('Y-m-d');
 
-        // Set first-seen if new
         $firstSeenKey = self::FIRST_SEEN_KEY . $identity;
         $existingFirstSeen = $this->cache->get($firstSeenKey);
 
@@ -140,7 +139,6 @@ final class BehavioralCohortBuilder
             return $this->emptyResult();
         }
 
-        // Check cache
         $cacheKey = self::COHORT_RESULT_KEY . 'all';
         $cached = $this->cache->get($cacheKey);
 
@@ -435,7 +433,6 @@ final class BehavioralCohortBuilder
      */
     private function isInactive(string $identity, int $inactiveDays, int $todayTs): bool
     {
-        // Check if active in last inactiveDays
         for ($i = 0; $i < $inactiveDays; $i++) {
             $date = gmdate('Y-m-d', $todayTs - ($i * 86400));
             $key = self::ACTIVITY_INDEX_KEY . $identity . '_' . $date;
@@ -491,7 +488,6 @@ final class BehavioralCohortBuilder
         $gapStart = strtotime($firstRecentDate) - ($dormantThreshold * 86400);
         $gapEnd = strtotime($firstRecentDate) - 86400;
 
-        // Check if there was activity in the gap, which would mean they weren't dormant
         $hadActivityInGap = false;
         $checkTs = $gapStart;
         while ($checkTs <= $gapEnd) {

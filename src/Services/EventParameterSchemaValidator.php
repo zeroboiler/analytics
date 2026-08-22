@@ -221,7 +221,6 @@ final class EventParameterSchemaValidator
         if ($schema !== null) {
             $paramRules = $schema['params'];
 
-            // Check required parameters
             foreach ($paramRules as $paramName => $rule) {
                 $isRequired = (bool) ($rule['required'] ?? false);
                 $value = $event->params[$paramName] ?? null;

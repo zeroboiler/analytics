@@ -86,7 +86,6 @@ final class UserPropertiesStore
             return;
         }
 
-        // Check for schema-defined aggregation
         $definition = $this->schema[$key] ?? null;
 
         if ($definition !== null && isset($definition['aggregation'])) {
@@ -259,19 +258,16 @@ final class UserPropertiesStore
             return;
         }
 
-        // Store link mapping
         $this->cache->put(
             self::LINK_KEY . $clientId,
             $userId,
             $this->defaultTtl,
         );
 
-        // Merge client properties into user properties
         $clientProps = $this->loadProperties($clientId);
         $userProps = $this->loadProperties($userId);
         $merged = array_merge($clientProps, $userProps);
 
-        // Mark identity link
         $merged['_linked_client_id'] = $clientId;
         $merged['_linked_at'] = time();
 
@@ -300,7 +296,6 @@ final class UserPropertiesStore
      */
     public function resolveIdentity(string $identity): string
     {
-        // Check if this is a client_id linked to a user_id
         $linkedUserId = $this->cache->get(self::LINK_KEY . $identity);
 
         if (is_string($linkedUserId) && $linkedUserId !== '') {

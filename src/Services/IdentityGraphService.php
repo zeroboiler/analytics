@@ -99,7 +99,6 @@ final class IdentityGraphService
     {
         $previousUserId = $this->resolveClientId($clientId);
 
-        // Store client → user node
         $this->cache->put(
             $this->clientNodeKey($clientId),
             [
@@ -112,7 +111,6 @@ final class IdentityGraphService
             $this->graphTtl,
         );
 
-        // Add edge: client → user
         $this->addEdge($clientId, $userId, 'client_user', self::DEFAULT_CONFIDENCE_EXPLICIT);
 
         // Link device if provided
@@ -120,7 +118,6 @@ final class IdentityGraphService
             $this->linkDevice($deviceId, $userId, $clientId, self::DEFAULT_CONFIDENCE_EXPLICIT);
         }
 
-        // Update user's graph node (aggregate)
         $this->updateUserNode($userId, $clientId, $deviceId);
 
         return [
@@ -149,7 +146,6 @@ final class IdentityGraphService
         $existingConfidence = $deviceNode['confidence'] ?? 0.0;
         $effectiveConfidence = max($existingConfidence, $confidence);
 
-        // Add client to device's client list
         $clients = $deviceNode['clients'] ?? [];
         if (! in_array($clientId, $clients, true)) {
             $clients[] = $clientId;
@@ -169,10 +165,8 @@ final class IdentityGraphService
             $this->graphTtl,
         );
 
-        // Add edge: device → user
         $this->addEdge($deviceId, $userId, 'device_user', $effectiveConfidence);
 
-        // Update user node
         $this->updateUserNode($userId, $clientId, $deviceId);
 
         return [
@@ -196,7 +190,6 @@ final class IdentityGraphService
      */
     public function inferIdentity(string $clientId, string $deviceId, ?string $ip = null, ?string $userAgent = null): array
     {
-        // Check if device is already linked to a user
         $deviceNode = $this->getDeviceNode($deviceId);
 
         if ($deviceNode['user_id'] !== null && $deviceNode['confidence'] >= $this->minConfidenceStitching) {
@@ -221,7 +214,6 @@ final class IdentityGraphService
             ];
         }
 
-        // Check if any client with same device is linked
         // (handles case where same device has multiple client IDs)
         $existingClients = $deviceNode['clients'] ?? [];
         foreach ($existingClients as $existingClientId) {
@@ -282,7 +274,6 @@ final class IdentityGraphService
             return $userId;
         }
 
-        // Try device resolution
         $deviceId = $clientNode['device_id'] ?? null;
         if ($deviceId !== null) {
             $deviceNode = $this->getDeviceNode($deviceId);
@@ -486,7 +477,6 @@ final class IdentityGraphService
             }
         }
 
-        // Update target user node
         $this->cache->put(
             $this->userNodeKey($targetUserId),
             [
@@ -501,7 +491,6 @@ final class IdentityGraphService
             $this->graphTtl,
         );
 
-        // Mark source as merged (don't delete — preserve history)
         $this->cache->put(
             $this->userNodeKey($sourceUserId),
             array_merge($sourceNode, [
@@ -531,7 +520,6 @@ final class IdentityGraphService
         $userNode = $this->getUserNode($userId);
         $removed = 0;
 
-        // Remove client nodes
         foreach ($userNode['clients'] ?? [] as $clientId) {
             $this->cache->forget($this->clientNodeKey($clientId));
             $removed++;
@@ -546,7 +534,6 @@ final class IdentityGraphService
             }
         }
 
-        // Remove user node
         $this->cache->forget($this->userNodeKey($userId));
 
         return $removed;
@@ -584,7 +571,6 @@ final class IdentityGraphService
         $userId = $event->userId;
         $params = $event->params;
 
-        // Resolve user ID from client if not set
         if ($userId === null && $clientId !== null) {
             $resolved = $this->resolveClientId($clientId);
             if ($resolved !== null) {
@@ -592,7 +578,6 @@ final class IdentityGraphService
             }
         }
 
-        // Get device context
         $clientNode = $clientId !== null ? $this->getClientNode($clientId) : null;
         $deviceId = $clientNode['device_id'] ?? null;
 
@@ -662,7 +647,6 @@ final class IdentityGraphService
     {
         $node = $this->getUserNode($userId);
 
-        // Add client
         $clients = $node['clients'] ?? [];
         if (! in_array($clientId, $clients, true)) {
             $clients[] = $clientId;
@@ -671,7 +655,6 @@ final class IdentityGraphService
             }
         }
 
-        // Add device
         $devices = $node['devices'] ?? [];
         if ($deviceId !== null && $deviceId !== '' && ! in_array($deviceId, $devices, true)) {
             $devices[] = $deviceId;

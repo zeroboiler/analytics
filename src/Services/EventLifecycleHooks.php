@@ -311,7 +311,6 @@ final class EventLifecycleHooks
             return $hook;
         }
 
-        // Store name metadata via closure binding
         return static function (...$args) use ($hook, $name): mixed {
             return $hook(...$args);
         };

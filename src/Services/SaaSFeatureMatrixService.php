@@ -534,12 +534,10 @@ final class SaaSFeatureMatrixService
             ];
         }
 
-        // Sort categories by coverage percentage ascending (gaps first)
         uksort($byCategory, function (string $a, string $b) use ($byCategory): int {
             return ($byCategory[$a]['pct'] ?? 0) <=> ($byCategory[$b]['pct'] ?? 0);
         });
 
-        // Collect gaps
         $gaps = [];
 
         foreach ($categories as $catKey => $catData) {

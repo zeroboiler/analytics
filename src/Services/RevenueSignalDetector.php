@@ -158,7 +158,6 @@ final class RevenueSignalDetector
             $detected = $this->detectChurnSignal($signalName, $eventCounts, $context);
             $signalScore = $detected ? $signalConfig['weight'] : 0.0;
 
-            // Apply time decay if detection timestamp is available
             $detectedAt = $context[$signalName . '_detected_at'] ?? null;
             if ($detectedAt !== null && is_string($detectedAt)) {
                 $daysAgo = $this->daysBetween($detectedAt);
@@ -224,7 +223,6 @@ final class RevenueSignalDetector
             $detected = $this->detectExpansionSignal($signalName, $eventCounts, $context);
             $signalScore = $detected ? $signalConfig['weight'] : 0.0;
 
-            // Apply time decay
             $detectedAt = $context[$signalName . '_detected_at'] ?? null;
             if ($detectedAt !== null && is_string($detectedAt)) {
                 $daysAgo = $this->daysBetween($detectedAt);

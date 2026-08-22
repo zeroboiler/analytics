@@ -375,7 +375,6 @@ final class EventSNRCalculatorService
             $groups[$result->verdict][] = $result;
         }
 
-        // Sort each group by SNR descending
         foreach ($groups as &$group) {
             usort($group, fn (EventSNRResult $a, EventSNRResult $b): int => $b->snr <=> $a->snr);
         }
@@ -480,10 +479,8 @@ final class EventSNRCalculatorService
         $catalogEntry = EventCatalog::get($eventName);
         $category = $catalogEntry !== null ? ($catalogEntry['category'] ?? 'custom') : 'custom';
 
-        // Use category weight to distribute estimated total volume
         $categoryWeight = self::CATEGORY_VOLUME_WEIGHTS[$category] ?? 0.01;
 
-        // Get actual metrics if available
         $totalEvents = $this->metrics->totalEvents() ?? 10000;
         $categoryCount = $this->categoryEventCount($category);
 

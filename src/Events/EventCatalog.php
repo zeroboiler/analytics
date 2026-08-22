@@ -608,14 +608,12 @@ final class EventCatalog
         $seenNames = [];
 
         foreach ($allEvents as $name => $entry) {
-            // Check required keys
             foreach ($required as $key) {
                 if (! array_key_exists($key, $entry)) {
                     $errors[] = "Event '{$name}' is missing required key '{$key}'";
                 }
             }
 
-            // Check class exists
             $className = $entry['class'] ?? null;
             if ($className !== null && ! class_exists($className)) {
                 $errors[] = "Event '{$name}' references non-existent class '{$className}'";
@@ -626,13 +624,11 @@ final class EventCatalog
                 }
             }
 
-            // Check for duplicates
             if (in_array($name, $seenNames, true)) {
                 $errors[] = "Duplicate event name detected: '{$name}'";
             }
             $seenNames[] = $name;
 
-            // Check name matches key
             if (($entry['name'] ?? null) !== $name) {
                 $warnings[] = "Event '{$name}' has mismatched name field: '{$entry['name']}'";
             }
@@ -2730,7 +2726,6 @@ final class EventCatalog
             }
         }
 
-        // Find events present in multiple funnels
         $eventFunnelMap = [];
         foreach ($funnelGroups as $funnelName => $events) {
             foreach ($events as $eventName) {
@@ -2795,7 +2790,6 @@ final class EventCatalog
             foreach ($funnelEvents as $item) {
                 $tags = EventTags::for($item['event']);
 
-                // Determine primary AARRR stage from tags
                 $aarrrStages = ['acquisition', 'activation', 'retention', 'revenue', 'referral'];
                 $stage = 'operational';
 
@@ -3279,7 +3273,6 @@ final class EventCatalog
             }
         }
 
-        // Sort by path length (shortest first)
         usort($paths, fn (array $a, array $b): int => count($a) <=> count($b));
 
         return $paths;
@@ -3395,7 +3388,6 @@ final class EventCatalog
 
         $paths = self::causalPaths($entryExit[0], $entryExit[1], 10);
 
-        // Find shortest path length
         $minLength = PHP_INT_MAX;
         foreach ($paths as $path) {
             if (count($path) < $minLength) {
@@ -3403,7 +3395,6 @@ final class EventCatalog
             }
         }
 
-        // Filter to only shortest paths
         $criticalPaths = array_filter(
             $paths,
             fn (array $path): bool => count($path) === $minLength
@@ -3435,7 +3426,6 @@ final class EventCatalog
      */
     public static function funnelBottleneckAnalysis(array $eventCounts, string $funnelType): array
     {
-        // Get funnel events
         $funnelEvents = match ($funnelType) {
             'saas' => self::saasFunnelEvents(),
             'ecommerce' => self::ecommerceFunnelEvents(),
@@ -3453,7 +3443,6 @@ final class EventCatalog
             ];
         }
 
-        // Build transitions
         $transitions = [];
         $rates = [];
 
@@ -3480,7 +3469,6 @@ final class EventCatalog
             ];
         }
 
-        // Compute mean and std dev of drop-off rates
         $n = count($rates);
         $mean = $n > 0 ? array_sum($rates) / $n : 0.0;
         $variance = 0.0;
@@ -3491,7 +3479,6 @@ final class EventCatalog
 
         $stdDev = $n > 1 ? sqrt($variance / ($n - 1)) : 0.0;
 
-        // Compute z-scores and severity
         $criticalCount = 0;
         $elevatedCount = 0;
 
@@ -3647,7 +3634,6 @@ final class EventCatalog
             }
         }
 
-        // Build per-provider summaries
         $summaries = [];
         $coverages = [];
 
@@ -3655,14 +3641,12 @@ final class EventCatalog
             $mappedCount = count($mapped);
             $coverage = $totalEvents > 0 ? round(($mappedCount / $totalEvents) * 100, 1) : 0.0;
 
-            // Count by category
             $categoryCounts = [];
             foreach ($mapped as $eventName) {
                 $cat = $catalog[$eventName]['category'] ?? 'unknown';
                 $categoryCounts[$cat] = ($categoryCounts[$cat] ?? 0) + 1;
             }
 
-            // Sort categories by count descending, take top 3
             arsort($categoryCounts);
             $topCategories = array_slice($categoryCounts, 0, 3);
 
@@ -3676,7 +3660,6 @@ final class EventCatalog
             $coverages[$provider] = $coverage;
         }
 
-        // Sort providers by coverage descending
         arsort($coverages);
         $bestCovered = array_keys(array_filter($coverages, fn (float $c): bool => $c >= 80.0));
         $leastCovered = array_keys(array_filter($coverages, fn (float $c): bool => $c < 30.0));

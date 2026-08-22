@@ -140,7 +140,6 @@ final class AnalyticsFake
         $this->metrics = new AnalyticsMetrics;
         $this->interceptors = new EventInterceptorRegistry;
 
-        // Create tracker stubs with disabled configs so they don't make HTTP calls
         $this->ga4 = new GA4Tracker('', '', false);
         $this->gtm = new GTMTracker('', false);
         $this->meta = new MetaPixelTracker('', '', false);
@@ -1636,7 +1635,6 @@ final class AnalyticsFake
         ];
 
         if (in_array($method, $shorthandMethods, true)) {
-            // Build params using the same logic as AnalyticsManager
             $params = $this->buildShorthandParams($method, $args);
             $eventName = $this->shorthandEventName($method);
             $this->track($eventName, $params);

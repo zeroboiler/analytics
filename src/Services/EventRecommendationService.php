@@ -120,15 +120,12 @@ final class EventRecommendationService
             return $cached;
         }
 
-        // Normalize tracked events to lowercase
         $tracked = array_map('strtolower', $trackedEvents);
         $trackedSet = array_flip($tracked);
 
-        // Get all catalog event names
         $catalogNames = EventCatalog::names();
         $catalogSet = array_flip($catalogNames);
 
-        // Determine which tracked events exist in the catalog
         $validTracked = array_intersect($tracked, $catalogNames);
 
         // Find gaps per priority tier
@@ -141,12 +138,10 @@ final class EventRecommendationService
 
         foreach (self::PRIORITY_TIERS as $tierName => $tier) {
             foreach ($tier['keys'] as $eventName) {
-                // Skip if already tracked or explicitly excluded
                 if (isset($trackedSet[$eventName]) || in_array($eventName, $this->excludedEvents, true)) {
                     continue;
                 }
 
-                // Skip if the event doesn't exist in the catalog
                 if (! isset($catalogSet[$eventName])) {
                     continue;
                 }
@@ -188,7 +183,6 @@ final class EventRecommendationService
         $gapCount = $totalCatalog - $trackedCount;
         $coveragePercent = $totalCatalog > 0 ? round(($trackedCount / $totalCatalog) * 100, 1) : 0.0;
 
-        // Compute a coverage score (0-100) weighted by priority
         $score = $this->computeCoverageScore($trackedSet);
 
         // Grade: A (90+), B (75-89), C (60-74), D (40-59), F (<40)

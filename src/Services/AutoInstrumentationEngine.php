@@ -269,7 +269,6 @@ final class AutoInstrumentationEngine
             $modelConfig,
         ): void {
             try {
-                // Check consent before dispatching
                 $consent = $this->manager->getConsent();
                 if (! $consent->isGranted('analytics')) {
                     return;
@@ -330,7 +329,6 @@ final class AutoInstrumentationEngine
         $attributes = $model->getAttributes();
 
         foreach ($attributes as $key => $value) {
-            // Skip excluded params
             if (in_array($key, $excludeParams, true)) {
                 continue;
             }
@@ -355,7 +353,6 @@ final class AutoInstrumentationEngine
             }
         }
 
-        // Merge extra params (highest priority)
         $params = array_merge($params, $extraParams);
 
         return $params;
@@ -382,7 +379,6 @@ final class AutoInstrumentationEngine
             }
         }
 
-        // Check for a user_id attribute on the model
         $userIdAttr = $model->getAttribute('user_id');
 
         if ($userIdAttr !== null && (is_int($userIdAttr) || is_string($userIdAttr))) {
@@ -408,13 +404,11 @@ final class AutoInstrumentationEngine
     {
         $request = request();
 
-        // Check header first
         $header = $request->header('X-Analytics-Client-Id');
         if (is_string($header) && $header !== '') {
             return $header;
         }
 
-        // Check cookie
         $cookieName = $this->config['cookie_name'] ?? 'zb_analytics_id';
         $cookie = $request->cookie($cookieName);
         if (is_string($cookie) && $cookie !== '') {

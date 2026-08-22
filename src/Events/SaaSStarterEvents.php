@@ -441,7 +441,6 @@ final class SaaSStarterEvents
             ];
         }
 
-        // Count fully covered events (all 8 providers)
         foreach ($coverage as $eventData) {
             if ($eventData['fully_covered']) {
                 $fullyCoveredCount++;

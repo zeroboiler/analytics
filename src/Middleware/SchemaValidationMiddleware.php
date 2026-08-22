@@ -44,7 +44,6 @@ final readonly class SchemaValidationMiddleware implements AnalyticsMiddlewareIn
             return null;
         }
 
-        // Return sanitized event
         if (! empty($result['sanitized']) && $result['sanitized'] !== $event->params) {
             return new AnalyticsEvent(
                 name: $event->name,

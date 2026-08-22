@@ -90,7 +90,6 @@ final class FeatureFlagAnalyticsBridge
         ?string $clientId = null,
         array $extraParams = [],
     ): ?AnalyticsEvent {
-        // Check dedup cache
         $identity = $userId ?? $clientId ?? 'anonymous';
         $dedupKey = $this->dedupKey($flagKey, $identity);
 
@@ -98,15 +97,12 @@ final class FeatureFlagAnalyticsBridge
             return null;
         }
 
-        // Mark as seen
         $this->markSeen($dedupKey);
 
-        // Resolve event name from mapping or use default
         $mapping = $this->flagMappings[$flagKey] ?? null;
         $eventName = $mapping['event_name'] ?? 'feature_impression';
         $defaultParams = $mapping['params'] ?? [];
 
-        // Build event parameters
         $params = array_merge($defaultParams, $extraParams, [
             'flag_key' => $flagKey,
             'variant' => $variant,

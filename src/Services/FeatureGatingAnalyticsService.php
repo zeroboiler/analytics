@@ -299,7 +299,6 @@ final class FeatureGatingAnalyticsService
      */
     private function computeAllowedEvents(string $plan): ?array
     {
-        // Check for explicit event rules for this plan
         if (isset($this->planEventRules[$plan])) {
             return $this->planEventRules[$plan];
         }
@@ -309,7 +308,6 @@ final class FeatureGatingAnalyticsService
             return null; // No gating configured
         }
 
-        // Build allowed list from all plans at or below this plan's tier
         $planIndex = array_search($plan, $this->planHierarchy, true);
 
         if ($planIndex === false) {

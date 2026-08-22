@@ -286,7 +286,6 @@ final class SegmentExportService
     {
         $traits = $event->params;
 
-        // Remove internal/tracking params that aren't user traits
         $internalKeys = [
             'user_id', 'client_id', 'session_id', 'tracking_id',
             'timestamp', 'priority', 'source', '_zb_category', '_zb_ga4', '_zb_meta',

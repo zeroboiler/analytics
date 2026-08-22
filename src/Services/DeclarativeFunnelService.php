@@ -226,7 +226,6 @@ final class DeclarativeFunnelService
         $state = $this->getFunnelState($funnelName, $identity);
         $now = microtime(true);
 
-        // Check abandonment timeout
         $abandonmentTimeout = $definition['abandonment_timeout'] ?? 0;
         if ($abandonmentTimeout > 0 && $state['last_step_at'] !== null && ! $state['completed']) {
             $elapsed = $now - $state['last_step_at'];
@@ -244,7 +243,6 @@ final class DeclarativeFunnelService
             }
         }
 
-        // Find matching step
         $matchedStepIndex = null;
         $matchedStepName = null;
 
@@ -260,18 +258,15 @@ final class DeclarativeFunnelService
             return;
         }
 
-        // Check if already completed this step
         if (in_array($matchedStepName, $state['completed_steps'], true)) {
             return;
         }
 
-        // Check if skipping steps (allow forward progression only)
         $currentStepIndex = $this->findStepIndex($steps, $state['current_step']);
         if ($currentStepIndex !== null && $matchedStepIndex <= $currentStepIndex) {
             return;
         }
 
-        // Start funnel if this is the first step
         if ($state['current_step'] === null) {
             $state['started_at'] = $now;
             $state['funnel'] = $funnelName;
@@ -300,7 +295,6 @@ final class DeclarativeFunnelService
         $state['current_step'] = $matchedStepName;
         $state['last_step_at'] = $now;
 
-        // Check if funnel is complete (last step reached)
         $isLastStep = $matchedStepIndex === count($steps) - 1;
 
         if ($isLastStep || ($definition['completion_event'] ?? '') === $event->name) {

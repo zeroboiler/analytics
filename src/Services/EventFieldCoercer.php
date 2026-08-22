@@ -279,7 +279,6 @@ final class EventFieldCoercer
         if (is_string($value)) {
             $trimmed = trim($value);
 
-            // Try JSON decode
             if (
                 ($trimmed[0] ?? '') === '['
                 || ($trimmed[0] ?? '') === '{'
@@ -326,7 +325,6 @@ final class EventFieldCoercer
         }
 
         if (is_string($value) && $value !== '' && is_numeric($value)) {
-            // Check for decimal point
             if (str_contains($value, '.') && ! str_ends_with($value, '.0')) {
                 return (float) $value;
             }

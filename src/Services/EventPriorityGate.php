@@ -146,7 +146,6 @@ final class EventPriorityGate
             return true;
         }
 
-        // Check per-priority rate limit
         if (! $this->checkRateLimit($priority)) {
             return false;
         }
@@ -236,7 +235,6 @@ final class EventPriorityGate
         $cacheKey = $this->cachePrefix . 'count_' . $priority->value;
         $this->cache->increment($cacheKey);
 
-        // Ensure TTL is set on first increment
         if ($this->cache->get($cacheKey) === 1) {
             $this->cache->put($cacheKey, 1, $this->cacheTtl);
         }
@@ -316,7 +314,6 @@ final class EventPriorityGate
             return false;
         }
 
-        // Increment counter for this dispatch
         $this->incrementCount($priority);
 
         return true;

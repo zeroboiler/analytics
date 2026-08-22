@@ -274,7 +274,6 @@ final class EventPredictiveScoringService
         $now = time();
         $decay = $this->config['decay_factor'];
 
-        // Group by event name with recency decay
         foreach ($events as $event) {
             $name = $event->name;
             $timestamp = $event->timestamp ?? $now;

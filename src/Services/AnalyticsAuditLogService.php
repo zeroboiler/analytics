@@ -82,12 +82,10 @@ final class AnalyticsAuditLogService
             return;
         }
 
-        // Check exclusions
         if ($this->shouldExclude($event, $metadata)) {
             return;
         }
 
-        // Determine if this should be logged based on success/failure settings
         $hasFailures = in_array(false, $metadata['providers'] ?? [], true);
         if ($hasFailures && ! $this->logFailures) {
             return;
@@ -121,7 +119,6 @@ final class AnalyticsAuditLogService
 
         $allEntries = $this->getAllEntries();
 
-        // Apply filters
         $filtered = $allEntries;
 
         if (isset($filters['event_name'])) {
@@ -329,7 +326,6 @@ final class AnalyticsAuditLogService
             return true;
         }
 
-        // Check category exclusion via EventCatalog
         if ($this->excludedCategories !== []) {
             $category = \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($event->name);
             if ($category !== null && in_array($category, $this->excludedCategories, true)) {

@@ -157,12 +157,10 @@ final readonly class EventContext
             $params['_country'] = $this->country;
         }
 
-        // Merge UTM params
         foreach ($this->utm as $key => $value) {
             $params[$key] = $value;
         }
 
-        // Merge device params with prefix
         foreach ($this->device as $key => $value) {
             $params["_device_{$key}"] = $value;
         }

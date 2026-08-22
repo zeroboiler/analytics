@@ -339,7 +339,6 @@ final class EventSequenceRuleEngine
         $windowSeconds = $rule['window_seconds'] ?? 3600;
         $cutoff = time() - $windowSeconds;
 
-        // Check if 'to' event exists in history within the window
         foreach ($history as $pastEvent) {
             if (
                 $pastEvent['event'] === $rule['to']
@@ -378,7 +377,6 @@ final class EventSequenceRuleEngine
         $cutoff = time() - $windowSeconds;
         $unlessEvents = $rule['unless'] ?? [];
 
-        // Find if 'from' event occurred in the window
         $fromFound = false;
         $fromTimestamp = 0;
 
@@ -476,7 +474,6 @@ final class EventSequenceRuleEngine
             return null;
         }
 
-        // Find which step this event corresponds to
         $stepIndex = null;
 
         foreach ($steps as $i => $step) {
@@ -504,7 +501,6 @@ final class EventSequenceRuleEngine
             return null; // Not all steps found — not a complete sequence
         }
 
-        // Validate timing constraints
         $violations = [];
 
         for ($i = 1; $i < count($steps); $i++) {
@@ -607,7 +603,6 @@ final class EventSequenceRuleEngine
             $history = array_slice($history, -self::MAX_HISTORY_PER_IDENTITY);
         }
 
-        // Update rate limit counters
         foreach ($this->rules as $rule) {
             if ($rule['type'] === self::TYPE_RATE_LIMIT && $rule['event'] === $event->name) {
                 $rateKey = self::RATE_LIMIT_PREFIX . $rule['name'] . '_' . $identity;

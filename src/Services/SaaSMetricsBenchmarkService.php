@@ -439,7 +439,6 @@ final class SaaSMetricsBenchmarkService
             ];
         }
 
-        // Sort by percentile ascending (worst first = highest priority)
         uasort($scoredMetrics, fn (array $a, array $b): int => $a['percentile'] <=> $b['percentile']);
 
         $priorities = array_keys(array_filter(

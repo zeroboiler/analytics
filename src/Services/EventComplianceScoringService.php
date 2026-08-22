@@ -226,7 +226,6 @@ final class EventComplianceScoringService
                 $attentionCount++;
             }
 
-            // Collect critical violations
             foreach ($score['violations'] as $violation) {
                 if (str_starts_with($violation, '[CRITICAL]')) {
                     $criticalViolations++;

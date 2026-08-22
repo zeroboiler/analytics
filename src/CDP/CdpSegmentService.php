@@ -118,7 +118,6 @@ final class CdpSegmentService
      */
     public function evaluateSegments(array $traits, string $userId): array
     {
-        // Check cache
         $cacheKey = self::CACHE_PREFIX . $userId;
         /** @var list<string>|null $cached */
         $cached = $this->cache->get($cacheKey);

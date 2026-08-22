@@ -100,7 +100,6 @@ final class AnalyticsEventBus
      */
     public function publish(AnalyticsEvent $event): void
     {
-        // Apply middleware
         $processedEvent = $this->applyMiddleware($event);
 
         if ($this->dispatching) {
@@ -217,12 +216,10 @@ final class AnalyticsEventBus
     {
         $processed = $event;
 
-        // Apply wildcard middleware first
         foreach ($this->middleware['*'] ?? [] as $middleware) {
             $processed = $middleware($processed);
         }
 
-        // Apply event-specific middleware
         foreach ($this->middleware[$event->name] ?? [] as $middleware) {
             $processed = $middleware($processed);
         }

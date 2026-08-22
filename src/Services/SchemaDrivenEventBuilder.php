@@ -79,7 +79,6 @@ final class SchemaDrivenEventBuilder
         // Coerce parameter types based on schema
         $coerced = $this->coerceParams($eventName, $params);
 
-        // Merge identity parameters
         if ($clientId !== null) {
             $coerced['client_id'] = $clientId;
         }
@@ -88,7 +87,6 @@ final class SchemaDrivenEventBuilder
             $coerced['user_id'] = $userId;
         }
 
-        // Validate against EventPropertySchema if available
         if ($this->propertySchema !== null && $this->propertySchema->hasSchema($eventName)) {
             $result = $this->propertySchema->validate(new AnalyticsEvent(
                 name: $eventName,
@@ -110,7 +108,6 @@ final class SchemaDrivenEventBuilder
             }
         }
 
-        // Validate against EventSchemaRegistry if available
         if ($this->schemaRegistry !== null && $this->schemaRegistry->has($eventName)) {
             $result = $this->schemaRegistry->validate($eventName, $coerced);
 
@@ -161,7 +158,6 @@ final class SchemaDrivenEventBuilder
             $event = $this->build($eventName, $params);
 
             if ($event === null) {
-                // Collect validation errors
                 $validationErrors = [];
 
                 if ($this->propertySchema !== null && $this->propertySchema->hasSchema($eventName)) {

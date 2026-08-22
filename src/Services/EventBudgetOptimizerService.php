@@ -273,7 +273,6 @@ final class EventBudgetOptimizerService
             ];
         }
 
-        // Sort by utilization descending
         usort($alerts, fn (array $a, array $b): int => $b['utilization'] <=> $a['utilization']);
 
         return $alerts;

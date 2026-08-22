@@ -220,7 +220,6 @@ final class EventSchemaExportService
         $allEvents = EventCatalog::all();
         $eventNames = array_keys($allEvents);
 
-        // POST /api/analytics/events — Track a single event
         $operations['post_/api/analytics/events'] = [
             'operationId' => 'trackAnalyticsEvent',
             'summary' => 'Track a single analytics event',
@@ -267,7 +266,6 @@ final class EventSchemaExportService
             ],
         ];
 
-        // POST /api/analytics/batch — Track multiple events
         $operations['post_/api/analytics/batch'] = [
             'operationId' => 'batchAnalyticsEvents',
             'summary' => 'Track multiple analytics events in a batch',
@@ -319,7 +317,6 @@ final class EventSchemaExportService
             ],
         ];
 
-        // GET /api/analytics/catalog — Event catalog
         $operations['get_/api/analytics/catalog'] = [
             'operationId' => 'getEventCatalog',
             'summary' => 'Get the full analytics event catalog',

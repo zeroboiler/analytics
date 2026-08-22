@@ -241,24 +241,20 @@ final class ProviderFailoverService
     {
         $fallbacks = $this->providerFallbacks[$failedProvider] ?? [];
 
-        // Count cascade depth (how many providers have already failed over)
         $cascadeCount = count($alreadySelected) - 1;
 
         $candidates = [];
 
         foreach ($fallbacks as $fallback) {
-            // Skip if already selected
             if (in_array($fallback, $alreadySelected, true)) {
                 continue;
             }
 
-            // Skip if circuit is open
             $state = $circuitStates[$fallback] ?? 'closed';
             if ($state === 'open') {
                 continue;
             }
 
-            // Skip if cascade depth exceeded
             if ($cascadeCount >= $this->maxCascadeDepth) {
                 Log::warning(
                     "ZeroBoiler Analytics: Max failover cascade depth ({$this->maxCascadeDepth}) exceeded",
@@ -300,7 +296,6 @@ final class ProviderFailoverService
             return 100;
         }
 
-        // Update cache with new percentage
         $this->cache->put($cacheKey, [
             'started_at' => $rampData['started_at'],
             'current_percent' => $newPercent,

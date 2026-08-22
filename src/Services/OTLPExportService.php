@@ -240,17 +240,14 @@ final class OTLPExportService
                 $attributes[] = ['key' => 'analytics.priority', 'value' => ['stringValue' => $event->priority]];
             }
 
-            // Convert event params to OTLP attributes
             foreach ($event->params as $key => $value) {
                 $attributes[] = $this->paramToAttribute($key, $value);
             }
 
-            // Compute timestamps in nanoseconds (OTLP requirement)
             $startTimeNs = $event->timestamp !== null
                 ? ($event->timestamp->getTimestamp() * 1_000_000_000 + (int) $event->timestamp->format('u') * 1000)
                 : (int) (microtime(true) * 1_000_000_000);
 
-            // Generate trace and span IDs from event identity
             $traceId = $this->generateTraceId($event->clientId, $event->userId);
             $spanId = $this->generateSpanId($event->name, $startTimeNs);
 
@@ -290,7 +287,6 @@ final class OTLPExportService
      */
     public function paramToAttribute(string $key, mixed $value): array
     {
-        // Sanitize key: lowercase, replace dots/spaces with underscores, limit length
         $sanitizedKey = $this->sanitizeAttributeKey($key);
 
         if (is_string($value)) {
@@ -328,7 +324,6 @@ final class OTLPExportService
      */
     public function buildPayload(array $spans): string
     {
-        // Merge user-defined resource attributes with defaults
         $resourceAttrs = array_merge([
             ['key' => 'service.name', 'value' => ['stringValue' => $this->resourceAttributes['service.name'] ?? 'zeroboiler-analytics']],
             ['key' => 'service.version', 'value' => ['stringValue' => self::VERSION]],
@@ -379,7 +374,6 @@ final class OTLPExportService
                 'Accept: application/json',
             ];
 
-            // Append custom headers if configured
             if ($this->headers !== '') {
                 $customHeaders = explode(',', $this->headers);
                 foreach ($customHeaders as $header) {
@@ -552,15 +546,11 @@ final class OTLPExportService
      */
     private function sanitizeAttributeKey(string $key): string
     {
-        // Replace spaces and dots with underscores
         $cleaned = str_replace([' ', '.'], '_', $key);
-        // Remove any non-OTLP-compliant characters
         $cleaned = preg_replace('/[^a-zA-Z0-9_\-*\/]/', '', $cleaned);
-        // Ensure starts with a letter or underscore
         if (! preg_match('/^[a-zA-Z_]/', $cleaned)) {
             $cleaned = 'attr_' . $cleaned;
         }
-        // Limit length to 256 characters
         return mb_substr($cleaned, 0, 256);
     }
 
@@ -603,7 +593,6 @@ final class OTLPExportService
         $result = [];
 
         foreach ($attributes as $key => $value) {
-            // Skip keys we've already set as defaults
             if (in_array($key, ['service.name', 'service.version', 'analytics.sdk'], true)) {
                 continue;
             }

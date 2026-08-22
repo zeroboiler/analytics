@@ -140,7 +140,6 @@ final class AnalyticsWarmupCommand extends Command
             }
         }
 
-        // Check enabled providers
         $providers = ['ga4', 'gtm', 'meta_pixel', 'plausible', 'posthog', 'amplitude', 'mixpanel', 'tiktok', 'linkedin'];
         $enabledCount = 0;
         foreach ($providers as $provider) {
@@ -237,7 +236,6 @@ final class AnalyticsWarmupCommand extends Command
                 continue;
             }
 
-            // Check required credentials
             $missingFields = [];
             foreach ($requiredFields as $field) {
                 $value = $providerConfig[$field] ?? '';
@@ -329,7 +327,6 @@ final class AnalyticsWarmupCommand extends Command
     {
         $this->check('  ✓ Cache store: ' . $cache::class, true);
 
-        // Check for cached analytics data
         $prefixes = ['zb_', 'analytics_'];
         $this->check('  ✓ Cache prefix(es): ' . implode(', ', $prefixes), true);
     }

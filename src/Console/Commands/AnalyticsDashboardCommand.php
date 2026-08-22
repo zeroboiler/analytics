@@ -95,7 +95,6 @@ final class AnalyticsDashboardCommand extends Command
         }
 
         if (! $this->option('include-catalog')) {
-            // Remove full event arrays, keep only counts
             $dashboard['catalog'] = [
                 'total' => EventCatalog::count(),
                 'by_category' => [
@@ -129,7 +128,6 @@ final class AnalyticsDashboardCommand extends Command
             }
         }
 
-        // Check replay queue
         try {
             $replay = app(\ZeroBoiler\Analytics\Queue\EventReplayQueue::class);
             $health['replay'] = $replay->summary();

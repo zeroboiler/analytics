@@ -247,7 +247,6 @@ final class EventSequenceValueAttributionService
             }
         }
 
-        // Sort by composite score descending
         usort($attributions, fn (SequenceValueAttribution $a, SequenceValueAttribution $b): int => $b->compositeScore <=> $a->compositeScore);
 
         $flatAttributions = array_map(
@@ -447,7 +446,6 @@ final class EventSequenceValueAttributionService
             return 0.1 * $conversionRate;
         }
 
-        // Normalize: 50+ revenue score → 1.0, scaled by conversion
         $normalizedRevenue = min(1.0, $revenueScore / 50.0);
 
         return $normalizedRevenue * (0.3 + 0.7 * $conversionRate);

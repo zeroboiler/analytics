@@ -101,7 +101,6 @@ final class EventSequencePredictionService
         $filtered = array_values(array_filter($sequence, fn (string $e): bool => !in_array($e, $this->excludedEvents, true)));
         $transitionsUpdated = 0;
 
-        // Update first-order transitions: X_n → X_{n+1}
         for ($i = 0; $i < count($filtered) - 1; $i++) {
             $from = $filtered[$i];
             $to = $filtered[$i + 1];
@@ -109,7 +108,6 @@ final class EventSequencePredictionService
             $transitionsUpdated++;
         }
 
-        // Update second-order transitions: (X_{n-1}, X_n) → X_{n+1}
         if ($this->useSecondOrder) {
             for ($i = 0; $i < count($filtered) - 2; $i++) {
                 $from1 = $filtered[$i];
@@ -151,7 +149,6 @@ final class EventSequencePredictionService
             return [];
         }
 
-        // Try second-order first (if enabled and we have 2+ events)
         if ($this->useSecondOrder && count($filtered) >= 2) {
             $n = count($filtered);
             $from1 = $filtered[$n - 2];
@@ -197,7 +194,6 @@ final class EventSequencePredictionService
             ];
         }
 
-        // Sort by probability descending
         uasort($transitions, fn (array $a, array $b): int => $b['probability'] <=> $a['probability']);
 
         return ['from' => $fromEvent, 'total_transitions' => $total, 'transitions' => $transitions];
@@ -362,7 +358,6 @@ final class EventSequencePredictionService
 
         $this->cache->set($cacheKey, $matrix, $this->cacheTtl);
 
-        // Update index
         $this->addToIndex('fo_index', $from);
     }
 
@@ -380,7 +375,6 @@ final class EventSequencePredictionService
 
         $this->cache->set($cacheKey, $matrix, $this->cacheTtl);
 
-        // Update index
         $this->addToIndex('so_index', $key);
     }
 

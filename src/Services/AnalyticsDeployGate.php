@@ -193,7 +193,6 @@ final class AnalyticsDeployGate
                 continue;
             }
 
-            // Check required fields
             if (empty($entry['name'])) {
                 $issues[] = "Event '{$eventName}' is missing 'name' field";
             }
@@ -206,7 +205,6 @@ final class AnalyticsDeployGate
                 $issues[] = "Event '{$eventName}' is missing 'ga4' mapping";
             }
 
-            // Check class exists
             if (! empty($entry['class']) && ! class_exists($entry['class'])) {
                 $issues[] = "Event '{$eventName}' references non-existent class: {$entry['class']}";
             }
@@ -245,7 +243,6 @@ final class AnalyticsDeployGate
                 continue;
             }
 
-            // Check if event has required parameters defined somewhere
             $className = $entry['class'] ?? null;
             if ($className === null) {
                 continue;
@@ -359,12 +356,10 @@ final class AnalyticsDeployGate
                 continue;
             }
 
-            // Check event class exists
             if ($event !== null && ! class_exists($event)) {
                 $issues[] = "Lifecycle mapping references non-existent class: {$event}";
             }
 
-            // Check event name exists in catalog
             if ($eventName !== null && ! EventCatalog::has($eventName)) {
                 $issues[] = "Lifecycle mapping references unknown event: {$eventName}";
             }
@@ -436,7 +431,6 @@ final class AnalyticsDeployGate
         $changes = [];
 
         if ($previousSnapshot !== null) {
-            // Check for removed events
             $removed = array_diff_key($previousSnapshot, $currentCatalog);
             foreach ($removed as $eventName => $entry) {
                 if (! in_array($eventName, $this->skipEvents, true)) {
@@ -444,13 +438,11 @@ final class AnalyticsDeployGate
                 }
             }
 
-            // Check for new events
             $added = array_diff_key($currentCatalog, $previousSnapshot);
             foreach ($added as $eventName => $entry) {
                 $changes[] = "ℹ️  ADDED: New event '{$eventName}' registered";
             }
 
-            // Check for changed provider mappings
             foreach ($currentCatalog as $eventName => $entry) {
                 if (isset($previousSnapshot[$eventName])) {
                     $prevEntry = $previousSnapshot[$eventName];
@@ -467,7 +459,6 @@ final class AnalyticsDeployGate
             }
         }
 
-        // Save current as new snapshot
         $this->cache->put($snapshotKey, $currentCatalog, 86400);
         $this->cache->put($snapshotHashKey, $currentHash, 86400);
 

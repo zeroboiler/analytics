@@ -95,7 +95,6 @@ final class MetricProjectionEngine
         ?string $windowOverride = null,
         array $filterOverrides = [],
     ): ?MetricProjectionResult {
-        // Check local cache
         $cacheKey = $this->localCacheKey($name, $windowOverride, $filterOverrides);
         if (isset($this->localCache[$cacheKey])) {
             return $this->localCache[$cacheKey];
@@ -109,7 +108,6 @@ final class MetricProjectionEngine
             return null;
         }
 
-        // Check persistent cache
         if ($this->cacheEnabled) {
             $persistedKey = $this->persistedCacheKey($name, $windowOverride, $filterOverrides);
             /** @var string|mixed $cached */
@@ -123,7 +121,6 @@ final class MetricProjectionEngine
             }
         }
 
-        // Compute the projection
         $result = $this->compute($definition, $windowOverride, $filterOverrides);
 
         // Cache the result
@@ -200,7 +197,6 @@ final class MetricProjectionEngine
         $ttl = $this->resolveTtl($definition);
         $staleAt = $computedAt->modify("+{$ttl} seconds");
 
-        // Merge filters
         $filters = array_merge($definition->filters, $filterOverrides);
 
         try {
@@ -269,7 +265,6 @@ final class MetricProjectionEngine
     {
         $timeRange = $this->parseTimeRange($window);
 
-        // Use the store if available, otherwise fall back to cache-based counting
         $storeKey = "count:{$definition->event}:" . md5(json_encode($filters + ['range' => $timeRange]));
 
         /** @var string|mixed $cached */
@@ -517,7 +512,6 @@ final class MetricProjectionEngine
     {
         unset($this->localCache[$name]);
 
-        // Clear persisted cache entries matching this projection prefix
         $prefix = self::CACHE_PREFIX . $name . ':';
         // Note: Laravel cache doesn't support prefix-based deletion easily,
         // so we clear by the most common keys

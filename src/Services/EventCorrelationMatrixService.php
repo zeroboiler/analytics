@@ -128,7 +128,6 @@ final class EventCorrelationMatrixService
                 }
                 $processed[$pairKey] = true;
 
-                // Filter to specific event if requested
                 if ($event !== null && $eventA !== $event && $eventB !== $event) {
                     continue;
                 }
@@ -143,7 +142,6 @@ final class EventCorrelationMatrixService
             }
         }
 
-        // Sort by absolute correlation (strongest first)
         usort($pairs, fn (array $a, array $b): int =>
             abs($b['correlation']) <=> abs($a['correlation'])
         );
@@ -175,7 +173,6 @@ final class EventCorrelationMatrixService
             return $cached;
         }
 
-        // Collect co-occurrence data
         $coOccurrence = $this->collectCoOccurrence($predictorEvent, $conversionEvent, $window);
 
         $totalPredictor = $coOccurrence['a_only'] + $coOccurrence['both'];
@@ -309,7 +306,6 @@ final class EventCorrelationMatrixService
         $unique = array_unique($eventNames);
         $unique = array_values($unique);
 
-        // Generate all unique pairs
         for ($i = 0; $i < count($unique); $i++) {
             for ($j = $i + 1; $j < count($unique); $j++) {
                 $pairs[] = [
@@ -440,7 +436,6 @@ final class EventCorrelationMatrixService
         $seenB = false;
         $stats = ['both' => 0, 'a_only' => 0, 'b_only' => 0, 'neither' => 0];
 
-        // Group events by session
         $sessions = [];
         foreach ($events as $event) {
             $sessionId = $event['session_id'] ?? $event['client_id'] ?? 'unknown';

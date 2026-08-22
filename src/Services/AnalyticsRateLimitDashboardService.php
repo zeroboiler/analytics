@@ -138,7 +138,6 @@ final class AnalyticsRateLimitDashboardService
             ];
         }
 
-        // Increment counter
         $counter['count'] = $count + 1;
         $remaining = $this->cacheTtl - ($now - $counter['window_start']);
         $this->cache->put($cacheKey, $counter, max($remaining, 1));
@@ -238,7 +237,6 @@ final class AnalyticsRateLimitDashboardService
      */
     public function resetClient(string $clientId): void
     {
-        // Reset all known event type counters for this client
         $eventTypes = array_merge(array_keys($this->perEventLimits), ['page_view', 'scroll_depth']);
 
         foreach ($eventTypes as $eventType) {

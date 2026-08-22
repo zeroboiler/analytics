@@ -99,7 +99,6 @@ final class SyntheticEventFactory
         $this->minEventInterval = 2;
         $this->maxEventInterval = 120;
 
-        // Build event pools from catalogs
         $this->ecommercePool  = EcommerceEvents::names();
         $this->saasPool       = SaaSEvents::names();
         $this->engagementPool = EngagementEvents::names();
@@ -113,9 +112,7 @@ final class SyntheticEventFactory
         $this->pools     = ['ecommerce', 'saas', 'engagement'];
     }
 
-    // ──────────────────────────────────────────────────────────────────
     //  Public API
-    // ──────────────────────────────────────────────────────────────────
 
     /**
      * Generate a single random synthetic event.
@@ -308,9 +305,7 @@ final class SyntheticEventFactory
         ];
     }
 
-    // ──────────────────────────────────────────────────────────────────
     //  Internal Helpers
-    // ──────────────────────────────────────────────────────────────────
 
     /**
      * Build a weighted event pool from all catalogs.

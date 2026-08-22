@@ -68,12 +68,10 @@ final class SessionReplayService
         $key = self::CACHE_PREFIX . $sessionId;
         $events = $this->getEvents($key);
 
-        // Add timestamp if not provided
         if (! isset($event['timestamp'])) {
             $event['timestamp'] = time();
         }
 
-        // Add sequence number
         $event['_seq'] = count($events);
 
         $events[] = $event;
@@ -113,7 +111,6 @@ final class SessionReplayService
             $summary[$name] = ($summary[$name] ?? 0) + 1;
         }
 
-        // Sort summary by count descending
         arsort($summary);
 
         return [
@@ -272,7 +269,6 @@ final class SessionReplayService
     public function activeSessionCount(): int
     {
         // Cache drivers don't support key enumeration efficiently.
-        // Return counter-based value if available.
         $count = $this->cache->get(self::CACHE_PREFIX . 'counter');
 
         return is_int($count) ? $count : 0;

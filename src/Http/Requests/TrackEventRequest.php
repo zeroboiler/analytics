@@ -71,7 +71,6 @@ final class TrackEventRequest extends FormRequest
                 return;
             }
 
-            // Check max length from config
             $maxLength = $this->getMaxEventNameLength();
             if (mb_strlen($name) > $maxLength) {
                 $validator->errors()->add(
@@ -80,7 +79,6 @@ final class TrackEventRequest extends FormRequest
                 );
             }
 
-            // Check whitelist (independent of strict mode)
             $whitelist = $this->getEventWhitelist();
             if (! empty($whitelist) && ! in_array($name, $whitelist, true)) {
                 $validator->errors()->add(
@@ -260,7 +258,6 @@ final class TrackEventRequest extends FormRequest
     {
         $catalogNames = EventCatalog::names();
 
-        // Extract words from the search name for fuzzy matching
         $searchParts = explode('_', strtolower($name));
         $scores = [];
 

@@ -166,7 +166,6 @@ final class EventForwardingService
                 continue;
             }
 
-            // Check required config
             $missing = $this->getMissingRequiredConfig($type, $forwarderConfig);
             if ($missing !== []) {
                 $results['skipped'][] = $name;
@@ -359,7 +358,6 @@ final class EventForwardingService
     {
         $headers = $typeConfig['headers'];
 
-        // Add authentication headers based on type
         if ($type === 'segment') {
             $writeKey = (string) ($forwarderConfig['write_key'] ?? '');
             $headers['Authorization'] = 'Basic ' . base64_encode($writeKey . ':');
@@ -368,7 +366,6 @@ final class EventForwardingService
             $headers['Authorization'] = 'Basic ' . base64_encode($apiKey . ':');
         }
 
-        // Merge custom headers from config
         $customHeaders = $forwarderConfig['headers'] ?? [];
         /** @var array<string, string> $customHeaders */
         foreach ($customHeaders as $key => $value) {

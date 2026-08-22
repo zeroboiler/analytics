@@ -187,7 +187,6 @@ final class SessionReplayHeatmapService
         $zones = $this->pageZones[$page];
         $totalInteractions = 0;
 
-        // Compute raw interaction scores
         $rawScores = [];
         foreach ($zones as $zoneId => $data) {
             $score = ($data['clicks'] * $this->clickWeight)
@@ -199,7 +198,6 @@ final class SessionReplayHeatmapService
             $totalInteractions += $score;
         }
 
-        // Normalize to heat scores (0–100)
         $heatScores = [];
         $maxScore = max(1.0, ...array_values($rawScores));
 
@@ -209,19 +207,16 @@ final class SessionReplayHeatmapService
                 : 0.0;
         }
 
-        // Sort zones by heat score descending
         uasort($zones, fn (array $a, array $b): int =>
             ($b['heat_score'] ?? 0.0) <=> ($a['heat_score'] ?? 0.0)
         );
 
-        // Find hottest and coldest zones
         $zoneList = array_values($zones);
         $hottestZone = ! empty($zoneList) ? $zoneList[0]['zone_id'] : null;
         $coldestZone = ! empty($zoneList)
             ? $zoneList[array_key_last($zoneList)]['zone_id']
             : null;
 
-        // Compute engagement depth (average viewport reach)
         $scrollZones = array_filter($zones, fn (array $z): bool =>
             ($z['scroll_reaches'] ?? 0) > 0 && str_starts_with($z['zone_id'], 'viewport-')
         );
@@ -435,7 +430,6 @@ final class SessionReplayHeatmapService
             $recommendations[] = 'High engagement detected. Focus on conversion optimization in hot zones.';
         }
 
-        // Check for cold spots (zones with 0 interactions)
         foreach ($this->pageZones as $page => $zones) {
             $coldZones = array_filter($zones, fn (array $z): bool =>
                 ($z['heat_score'] ?? 0.0) === 0.0 && ($z['impressions'] ?? 0) > 0

@@ -110,12 +110,10 @@ final class SaaSRevenueFunnelService
 
         $this->manager->trackEvent($event);
 
-        // Update stage entry counts in cache
         $cacheKey = self::CACHE_PREFIX . 'stage_' . $stage;
         $current = (int) $this->cache->get($cacheKey, 0);
         $this->cache->put($cacheKey, $current + 1, $this->cacheTtl);
 
-        // Update cohort counts
         $cohortKey = $this->getCohortKey();
         $cohortCacheKey = self::CACHE_PREFIX . 'cohort_' . $cohortKey . '_' . $stage;
         $cohortCurrent = (int) $this->cache->get($cohortCacheKey, 0);
@@ -259,7 +257,6 @@ final class SaaSRevenueFunnelService
             ];
         }
 
-        // Calculate conversion rates between consecutive stages
         $prevCount = null;
         foreach ($stages as $key => &$metrics) {
             if ($prevCount !== null && $prevCount > 0) {
@@ -295,12 +292,10 @@ final class SaaSRevenueFunnelService
      */
     public function clearCache(): void
     {
-        // Clear is not available on all cache drivers; use forget on known keys
         foreach ($this->stages as $stageKey => $_stage) {
             $this->cache->forget(self::CACHE_PREFIX . 'stage_' . $stageKey);
         }
 
-        // Clear timing keys
         $orderedStages = $this->getOrderedStages();
         foreach ($orderedStages as $stage) {
             $prevStages = $this->getOrderedPreviousStages($stage['key']);
@@ -352,7 +347,6 @@ final class SaaSRevenueFunnelService
                 'cohort_counts' => [],
             ];
 
-            // Add median time from previous stage
             if ($prevCount !== null) {
                 $prevStageKey = $this->getPreviousStageKey($stage['key']);
                 if ($prevStageKey !== null) {

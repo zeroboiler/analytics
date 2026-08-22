@@ -46,7 +46,6 @@ final readonly class EventSchema
         $errors = [];
         $sanitized = [];
 
-        // Check required params
         foreach ($this->requiredParams as $paramName => $paramSchema) {
             $value = $params[$paramName] ?? null;
 
@@ -63,7 +62,6 @@ final readonly class EventSchema
             $sanitized[$paramName] = $paramSchema->sanitize($value);
         }
 
-        // Sanitize optional params
         foreach ($this->optionalParams as $paramName => $paramSchema) {
             if (! array_key_exists($paramName, $params)) {
                 continue;

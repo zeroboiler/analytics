@@ -233,7 +233,6 @@ final class EventDeliveryWatermarkService
             return;
         }
 
-        // Update provider confirmed watermark (only move forward)
         $key = self::CACHE_PREFIX . 'confirmed_' . $provider;
         $current = (int) ($this->cache->get($key) ?? 0);
 
@@ -241,7 +240,6 @@ final class EventDeliveryWatermarkService
             $this->cache->put($key, $seq, $this->ttl * 2);
         }
 
-        // Update dispatch log entry
         $log = $this->getDispatchLog();
         foreach ($log as $i => $entry) {
             if ($entry['seq'] === $seq && $entry['provider'] === $provider) {
@@ -251,7 +249,6 @@ final class EventDeliveryWatermarkService
         }
         $this->cache->put(self::DISPATCH_LOG_KEY, $log, $this->ttl);
 
-        // Resolve any gap record for this seq+provider
         $this->resolveGap($seq, $provider);
     }
 
@@ -384,7 +381,6 @@ final class EventDeliveryWatermarkService
         $existingGaps = $this->getGaps();
         $existingResolvedKeys = [];
 
-        // Build lookup of existing gaps
         foreach ($existingGaps as $gap) {
             $key = $gap['seq'] . ':' . $gap['provider'];
             if ($gap['resolved']) {
@@ -392,7 +388,6 @@ final class EventDeliveryWatermarkService
             }
         }
 
-        // Find dispatched-but-not-confirmed entries
         $newGaps = [];
         foreach ($log as $entry) {
             if ($entry['status'] !== 'dispatched') {
@@ -401,12 +396,10 @@ final class EventDeliveryWatermarkService
 
             $key = $entry['seq'] . ':' . $entry['provider'];
 
-            // Skip if already tracked as a gap
             if (isset($existingResolvedKeys[$key])) {
                 continue;
             }
 
-            // Check if we already have an unresolved gap for this
             $alreadyTracked = false;
             foreach ($existingGaps as $gap) {
                 if ($gap['seq'] === $entry['seq'] && $gap['provider'] === $entry['provider'] && ! $gap['resolved']) {
@@ -427,7 +420,6 @@ final class EventDeliveryWatermarkService
             }
         }
 
-        // Merge new gaps with existing unresolved ones
         $allGaps = array_filter(
             $existingGaps,
             static fn (array $g): bool => ! $g['resolved'],
@@ -441,7 +433,6 @@ final class EventDeliveryWatermarkService
 
         $this->cache->put(self::GAPS_KEY, $allGaps, $this->ttl);
 
-        // Build by_provider summary
         $byProvider = [];
         foreach ($allGaps as $gap) {
             $byProvider[$gap['provider']] = ($byProvider[$gap['provider']] ?? 0) + 1;
@@ -575,7 +566,6 @@ final class EventDeliveryWatermarkService
             $status = 'critical';
         }
 
-        // Find most behind / most current
         $mostBehind = null;
         $mostCurrent = null;
         $highestLag = -1;

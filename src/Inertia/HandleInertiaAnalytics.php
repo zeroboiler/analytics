@@ -258,7 +258,6 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
             $untrackedEvents = [];
             foreach ($instrumentation['events'] as $entry) {
                 $name = $entry['name'];
-                // Check if this event appears in the onboarding gaps
                 if (in_array($name, $analyticsProps['onboarding']['gaps'], true)) {
                     $untrackedEvents[] = [
                         'name' => $name,
@@ -535,7 +534,6 @@ final class HandleInertiaAnalytics implements HttpMiddlewareContract
         $previousUserId = $request->session()->get($key);
         $currentUserId = $this->getUserId();
 
-        // Update the session for the next request comparison
         $request->session()->put($key, $currentUserId);
 
         return is_string($previousUserId) && $previousUserId !== '' ? $previousUserId : null;

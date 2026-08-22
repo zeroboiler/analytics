@@ -97,7 +97,6 @@ final class InboundWebhookService
             ];
         }
 
-        // Validate payload size
         if (strlen($payload) > $this->maxPayloadSize) {
             return [
                 'status' => 'error',
@@ -106,7 +105,6 @@ final class InboundWebhookService
             ];
         }
 
-        // Validate signature if required
         if ($this->requireSignature) {
             if ($signature === null || $signature === '') {
                 return [
@@ -125,7 +123,6 @@ final class InboundWebhookService
             }
         }
 
-        // Parse JSON payload
         $data = json_decode($payload, true);
 
         if (! is_array($data)) {
@@ -136,7 +133,6 @@ final class InboundWebhookService
             ];
         }
 
-        // Determine if single event or batch
         if (isset($data['events']) && is_array($data['events'])) {
             return $this->receiveBatch($data['events']);
         }
@@ -169,7 +165,6 @@ final class InboundWebhookService
             ? $data['client_id']
             : null;
 
-        // Mark event as inbound for tracing
         $params['_source'] = 'webhook_inbound';
 
         $event = new AnalyticsEvent(

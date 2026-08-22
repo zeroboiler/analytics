@@ -57,7 +57,6 @@ final class GdprErasureService
             'preferences_deleted' => false,
         ];
 
-        // Delete analytics profile
         try {
             $this->profileService->deleteProfile($userId);
             $result['profile_deleted'] = true;
@@ -65,7 +64,6 @@ final class GdprErasureService
             // Continue with other deletions
         }
 
-        // Delete attribution data (by client ID)
         if ($clientId !== null && $clientId !== '') {
             try {
                 $this->attributionService->deleteAttribution($clientId);
@@ -75,7 +73,6 @@ final class GdprErasureService
             }
         }
 
-        // Delete tracking preferences
         try {
             $this->preferenceService->optOut($userId);
             $result['preferences_deleted'] = true;

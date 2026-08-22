@@ -113,7 +113,6 @@ final class ProviderCircuitBreaker
         }
 
         if ($state === self::STATE_OPEN) {
-            // Check if cooldown has elapsed → transition to half-open
             $lastFailure = $this->getLastFailureTime($provider);
 
             if ($lastFailure !== null && (time() - $lastFailure) >= $this->cooldownSeconds) {
@@ -145,14 +144,12 @@ final class ProviderCircuitBreaker
 
         $state = $this->getState($provider);
 
-        // Reset failure count on any success in closed state
         if ($state === self::STATE_CLOSED) {
             $this->failureCount[$provider] = 0;
 
             return;
         }
 
-        // Count successes in half-open → potentially close circuit
         if ($state === self::STATE_HALF_OPEN) {
             $this->successCount[$provider] = ($this->successCount[$provider] ?? 0) + 1;
 
@@ -208,12 +205,10 @@ final class ProviderCircuitBreaker
      */
     public function getState(string $provider): string
     {
-        // Check in-memory first
         if (isset($this->state[$provider])) {
             return $this->state[$provider];
         }
 
-        // Load from cache
         $cached = $this->cache->get(self::CACHE_PREFIX . $provider);
 
         if ($cached !== null && is_string($cached)) {

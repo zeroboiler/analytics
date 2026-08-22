@@ -98,7 +98,6 @@ final class OnboardingCompletionService
 
         $this->saveProgress($userId, $progress);
 
-        // Dispatch individual step event
         $this->manager->track('onboarding_step', array_merge([
             'step' => $step,
             'step_index' => $this->getStepIndex($step),
@@ -107,7 +106,6 @@ final class OnboardingCompletionService
             'completion_pct' => $this->calculateCompletionPercent($progress['completed']),
         ], $meta));
 
-        // Check if all required steps are complete
         $requiredRemaining = $this->countRequiredRemaining($progress['completed']);
 
         if ($requiredRemaining === 0 && ! ($progress['fully_completed_at'] ?? null)) {

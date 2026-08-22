@@ -201,7 +201,6 @@ final class AdvancedPIIDetector
             }
         }
 
-        // Sort by offset
         usort($results, fn (array $a, array $b): int => $a['offset'] <=> $b['offset']);
 
         return $results;
@@ -263,14 +262,12 @@ final class AdvancedPIIDetector
         $totalDetections = 0;
 
         foreach ($params as $key => $value) {
-            // Check field name
             $fieldCheck = $this->isPIIField($key);
 
             if ($fieldCheck['is_pii']) {
                 $piiFields[] = $key;
             }
 
-            // Check field value (only scan string values)
             if (is_string($value) && $value !== '') {
                 $valueScan = $this->scan($value);
 

@@ -200,7 +200,6 @@ final class CartStateManager
 
         $mergedItems = $authCart['items'] ?? [];
 
-        // Merge items: combine quantities for duplicate item_ids
         foreach ($anonymousCart['items'] as $incomingItem) {
             $incomingId = (string) ($incomingItem['item_id'] ?? '');
             $found = false;

@@ -90,7 +90,6 @@ final class EventDispatchLatencyTracker
             return;
         }
 
-        // Apply sampling
         if ($this->samplingRate < 1.0 && (mt_rand() / mt_getrandmax()) > $this->samplingRate) {
             return;
         }

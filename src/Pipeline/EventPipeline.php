@@ -138,12 +138,10 @@ final class EventPipeline
             ->pipe(new UtmEnricher($context))
             ->pipe(new UserContextEnricher($context));
 
-        // Add tracking preference filter (drops events for opted-out users)
         if ($preferenceService !== null) {
             $pipeline->pipe(new TrackingPreferenceFilter($preferenceService));
         }
 
-        // Add deduplication filter (drops duplicate events within window)
         if ($deduplicationService !== null) {
             $pipeline->pipe(new EventDeduplicationFilter($deduplicationService));
         }

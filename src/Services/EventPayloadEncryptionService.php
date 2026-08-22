@@ -296,7 +296,6 @@ final class EventPayloadEncryptionService
 
         foreach ($params as $key => $value) {
             if ($this->isEncryptedValue($value)) {
-                // Decrypt with old key, re-encrypt with current key
                 $decrypted = $this->decryptValue($value);
 
                 if ($this->isEncryptedValue($decrypted)) {
@@ -343,7 +342,6 @@ final class EventPayloadEncryptionService
         }
 
         if (is_array($value)) {
-            // Check if the array is JSON-serializable (no resources, no closures)
             try {
                 json_encode($value, JSON_THROW_ON_ERROR);
 
@@ -368,7 +366,6 @@ final class EventPayloadEncryptionService
     {
         $fields = $this->globalFields;
 
-        // Merge event-specific fields
         if (isset($this->eventRules[$eventName]) && is_array($this->eventRules[$eventName])) {
             $eventFields = $this->eventRules[$eventName];
 

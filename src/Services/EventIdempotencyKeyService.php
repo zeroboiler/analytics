@@ -82,18 +82,15 @@ final class EventIdempotencyKeyService
         $keys = $this->resolveKeys($eventName, $params, $clientKey);
 
         foreach ($keys as $key) {
-            // Check request-level cache first (fast path)
             if (isset($this->requestCache[$key])) {
                 return false;
             }
 
-            // Check persistent cache
             if ($this->cache->has($this->cachePrefix . $key)) {
                 return false;
             }
         }
 
-        // Mark all keys as processed
         foreach ($keys as $key) {
             $this->requestCache[$key] = true;
             $this->cache->put($this->cachePrefix . $key, true, $this->ttl);

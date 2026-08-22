@@ -120,7 +120,6 @@ final class EventReplayValidationService
             $issues[] = $timestampIssue;
         }
 
-        // Build sanitized event if valid
         $sanitizedEvent = $this->valid($issues) ? $this->sanitizeEvent($event, $issues) : null;
 
         return [
@@ -335,7 +334,6 @@ final class EventReplayValidationService
             ];
         }
 
-        // Check for suspiciously large payloads (>10KB serialized)
         $payloadSize = strlen(json_encode($event->params));
         if ($payloadSize > 10240) {
             $issues[] = [
@@ -345,7 +343,6 @@ final class EventReplayValidationService
             ];
         }
 
-        // Check for null event name
         if (trim($event->name) === '') {
             $issues[] = [
                 'code' => 'INVALID_NAME',
@@ -423,7 +420,6 @@ final class EventReplayValidationService
     {
         $params = $event->params;
 
-        // Remove internal tracking fields that shouldn't be replayed
         unset(
             $params['_replay_id'],
             $params['_original_timestamp'],

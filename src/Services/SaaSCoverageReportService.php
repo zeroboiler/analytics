@@ -280,7 +280,6 @@ final class SaaSCoverageReportService
         $evidence = [];
         $recommendations = [];
 
-        // Check for key API endpoints
         $requiredEndpoints = [
             'POST /api/analytics/events' => 'track',
             'POST /api/analytics/batch' => 'batch',
@@ -298,7 +297,6 @@ final class SaaSCoverageReportService
             }
         }
 
-        // Check for form requests
         $formRequests = [
             \ZeroBoiler\Analytics\Http\Requests\TrackEventRequest::class,
             \ZeroBoiler\Analytics\Http\Requests\BatchEventRequest::class,

@@ -82,7 +82,6 @@ final class SaaSConversionService
         $this->cacheTtl = (int) ($conversionConfig['cache_ttl'] ?? 86400);
         $this->activationMilestones = $conversionConfig['activation_milestones'] ?? self::DEFAULT_ACTIVATION_MILESTONES;
 
-        // Build milestone weights map
         $this->milestoneWeights = [];
         foreach ($this->activationMilestones as $milestone => $config) {
             $this->milestoneWeights[$milestone] = (float) ($config['weight'] ?? 0.0);
@@ -176,7 +175,6 @@ final class SaaSConversionService
         $results = [];
         $totalConversions = $this->getMetric('trial_conversions_total', 0);
 
-        // Get all plan-specific keys from cache prefix scan
         $plans = $this->getKnownPlans();
 
         foreach ($plans as $plan) {
@@ -399,7 +397,6 @@ final class SaaSConversionService
             ? ($durations[$count / 2 - 1] + $durations[$count / 2]) / 2
             : $durations[(int) floor($count / 2)];
 
-        // Build distribution buckets
         $distribution = [
             '< 1 hour' => 0,
             '1-6 hours' => 0,

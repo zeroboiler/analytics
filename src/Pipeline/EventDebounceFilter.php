@@ -69,7 +69,6 @@ final class EventDebounceFilter
         $now = $this->testNow ?? (int) (microtime(true) * 1000);
         $name = $event->name;
 
-        // Store as the latest pending event for this name
         $this->pending[$name] = $event;
 
         $lastDispatch = $this->lastDispatch[$name] ?? null;

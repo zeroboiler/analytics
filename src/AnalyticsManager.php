@@ -1763,7 +1763,6 @@ final class AnalyticsManager
      */
     public function isTrackingAllowed(?string $userId = null, ?string $clientId = null): bool
     {
-        // Check tracking preferences if service is available
         try {
             $preferences = app(\ZeroBoiler\Analytics\Services\TrackingPreferenceService::class);
 
@@ -1774,7 +1773,6 @@ final class AnalyticsManager
             // TrackingPreferenceService not available — continue with consent check only
         }
 
-        // Check consent state
         $consent = $this->getConsent();
 
         return $consent->hasAnalyticsConsent();
@@ -2855,7 +2853,6 @@ final class AnalyticsManager
 
         $this->trackEvent($event);
 
-        // Set user properties on all providers that support it
         if (! empty($traits)) {
             $this->setUserProperties($traits, $userId);
         }
@@ -2962,7 +2959,6 @@ final class AnalyticsManager
         try {
             return $this->getContainer()->make(AnalyticsContextBus::class);
         } catch (\Throwable $e) {
-            // Return a fresh instance if container resolution fails
             return new AnalyticsContextBus($this->getContainer()->make(\Illuminate\Contracts\Config\Repository::class));
         }
     }

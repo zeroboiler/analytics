@@ -97,12 +97,10 @@ final class EventSchemaMigrationService
             return $event;
         }
 
-        // Apply migrations sequentially
         for ($v = $currentVersion; $v < $latestVersion; $v++) {
             $params = $this->applyMigration($eventName, $v, $v + 1, $params);
         }
 
-        // Update the event's schema version marker
         $params['_schema_version'] = $latestVersion;
 
         return new AnalyticsEvent(
@@ -140,7 +138,6 @@ final class EventSchemaMigrationService
             $isRequired = (bool) ($paramDef['required'] ?? false);
             $isDeprecated = (bool) ($paramDef['deprecated'] ?? false);
 
-            // Check required
             if ($isRequired && ! array_key_exists($paramName, $params)) {
                 $renamedFrom = $paramDef['renamed_from'] ?? null;
                 if ($renamedFrom !== null && array_key_exists($renamedFrom, $params)) {
@@ -150,7 +147,6 @@ final class EventSchemaMigrationService
                 }
             }
 
-            // Check deprecated
             if ($isDeprecated && array_key_exists($paramName, $params)) {
                 $renamedTo = $paramDef['renamed_to'] ?? null;
                 if ($renamedTo !== null) {
@@ -171,7 +167,6 @@ final class EventSchemaMigrationService
             }
         }
 
-        // Check for unknown parameters
         foreach (array_keys($params) as $key) {
             if (! isset($schema['params'][$key]) && ! str_starts_with($key, '_')) {
                 $warnings[] = "Unknown parameter: '{$key}'";
@@ -325,7 +320,6 @@ final class EventSchemaMigrationService
             return $params;
         });
 
-        // Sign up event: v1 → v2 migration (method field normalized)
         $this->registerMigration('sign_up', 1, 2, function (array $params): array {
             if (isset($params['auth_method'])) {
                 $params['method'] = $params['auth_method'];
@@ -335,7 +329,6 @@ final class EventSchemaMigrationService
             return $params;
         });
 
-        // Register built-in schemas
         $this->registerSchema('purchase', [
             'version' => 2,
             'params' => [

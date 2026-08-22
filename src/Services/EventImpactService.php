@@ -80,7 +80,6 @@ final class EventImpactService
             ];
         }
 
-        // Collect all unique events
         $allEvents = [];
         foreach ($userBehaviors as $user) {
             foreach ($user['events'] as $event) {
@@ -114,7 +113,6 @@ final class EventImpactService
                 + ($retentionCorrelation * 0.3)
                 + ($revenueCorrelation * 0.2);
 
-            // Determine category
             $category = in_array($eventName, $this->conversionEvents, true) ? 'conversion'
                 : (in_array($eventName, $this->retentionEvents, true) ? 'retention' : 'engagement');
 
@@ -143,10 +141,8 @@ final class EventImpactService
             ];
         }
 
-        // Sort by impact score descending
         usort($scores, fn (array $a, array $b): int => $b['impact_score'] <=> $a['impact_score']);
 
-        // Find top events for conversion and retention
         $topConversion = null;
         $topRetention = null;
 

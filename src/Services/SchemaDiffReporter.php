@@ -43,14 +43,12 @@ final class SchemaDiffReporter
     ): array {
         $catalogNames = EventCatalog::names();
 
-        // Get property schema event names
         $propertyNames = [];
         if ($propertySchema !== null) {
             $schemas = $propertySchema->getSchemas();
             $propertyNames = array_keys($schemas);
         }
 
-        // Get registry event names
         $registryNames = [];
         if ($schemaRegistry !== null) {
             $registryNames = $schemaRegistry->getEventNames();

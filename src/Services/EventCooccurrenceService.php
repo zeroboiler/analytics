@@ -96,7 +96,6 @@ final class EventCooccurrenceService
 
         $this->sessionEvents[$sessionId][] = $eventName;
 
-        // Build co-occurrence pairs within this session
         $events = $this->sessionEvents[$sessionId];
         $currentIdx = count($events) - 1;
 
@@ -121,7 +120,6 @@ final class EventCooccurrenceService
             return $cached;
         }
 
-        // Build from metrics dispatch data if no session data
         $this->buildFromMetrics();
         $this->cache->put($cacheKey, $this->matrix, $this->cacheTtl);
 
@@ -182,7 +180,6 @@ final class EventCooccurrenceService
             }
         }
 
-        // Merge row and column counts
         $allEvents = array_unique(array_merge(array_keys($row), array_keys($col)));
 
         foreach ($allEvents as $otherEvent) {
@@ -216,13 +213,11 @@ final class EventCooccurrenceService
         $matrix = $this->getMatrix();
         $topPairs = $this->topPairs(10);
 
-        // Calculate event degrees (number of unique co-occurring events)
         $degrees = [];
         foreach ($matrix as $event => $row) {
             $degrees[$event] = count(array_filter($row, fn (int $count): bool => $count > 0));
         }
 
-        // Sort by degree descending
         arsort($degrees);
 
         // Simple cluster detection: events that co-occur frequently form clusters
@@ -299,7 +294,6 @@ final class EventCooccurrenceService
             return;
         }
 
-        // Build synthetic co-occurrence based on event categories
         $events = array_keys($dispatched);
 
         foreach ($events as $i => $eventA) {
@@ -315,7 +309,6 @@ final class EventCooccurrenceService
                     $this->incrementPair($eventA, $eventB);
                     $this->incrementPair($eventB, $eventA);
 
-                    // Apply co-score as additional counts
                     if ($coScore > 1) {
                         for ($k = 1; $k < $coScore; $k++) {
                             $this->incrementPair($eventA, $eventB);
@@ -404,7 +397,6 @@ final class EventCooccurrenceService
         $expected = ($countA * $countB) / $totalPairs;
         $pmi = log(max($coCount / $expected, 0.001));
 
-        // Normalize to 0-1 range
         $maxPmi = log(max($totalPairs / max($expected, 1), 0.001));
 
         return $maxPmi > 0 ? min(1.0, max(0.0, $pmi / $maxPmi)) : 0.0;
@@ -425,7 +417,6 @@ final class EventCooccurrenceService
             return [];
         }
 
-        // Build adjacency list from top pairs
         $adjacency = [];
         foreach ($topPairs as $pair) {
             $a = $pair['event_a'];
@@ -456,7 +447,6 @@ final class EventCooccurrenceService
             $clusters[] = $cluster;
         }
 
-        // Sort clusters by size descending
         usort($clusters, fn (array $a, array $b): int => count($b) <=> count($a));
 
         return array_slice($clusters, 0, 5);

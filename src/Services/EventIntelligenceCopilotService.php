@@ -714,7 +714,6 @@ final class EventIntelligenceCopilotService
             ];
         }
 
-        // Sort by priority
         $priorityOrder = ['high' => 0, 'medium' => 1, 'low' => 2, 'info' => 3];
         usort($recommendations, function (array $a, array $b) use ($priorityOrder): int {
             return ($priorityOrder[$a['priority']] ?? 99) <=> ($priorityOrder[$b['priority']] ?? 99);

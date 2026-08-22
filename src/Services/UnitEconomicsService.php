@@ -268,7 +268,6 @@ final class UnitEconomicsService
         }
         unset($data);
 
-        // Sort by CAC ascending (most efficient first)
         uasort($results, fn (array $a, array $b): int => $a['cac'] <=> $b['cac']);
 
         return [

@@ -97,7 +97,6 @@ final class EventProviderCompatibilityMatrixService
                 }
             }
 
-            // Check expected provider coverage for this category
             $expected = self::EXPECTED_PROVIDERS[$category] ?? [];
 
             foreach ($expected as $provider) {
@@ -117,7 +116,6 @@ final class EventProviderCompatibilityMatrixService
             }
         }
 
-        // Compute coverage percentages
         $totalEvents = count($allEvents);
 
         foreach ($providerStats as $provider => &$stats) {
@@ -136,7 +134,6 @@ final class EventProviderCompatibilityMatrixService
         }
         unset($stats);
 
-        // Sort critical gaps first (required provider, ecommerce/saas)
         usort($gaps, function (array $a, array $b): int {
             $severityOrder = ['critical' => 0, 'high' => 1, 'medium' => 2, 'low' => 3];
             $aSeverity = $severityOrder[$a['severity']] ?? 4;
@@ -204,7 +201,6 @@ final class EventProviderCompatibilityMatrixService
                 $mappedCount++;
             }
 
-            // Check if this provider is expected for the category
             if (in_array($provider, $expected, true) && ! $hasMapping) {
                 $gaps[] = $provider;
             }

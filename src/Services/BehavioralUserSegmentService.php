@@ -100,10 +100,8 @@ final class BehavioralUserSegmentService
         $this->maxSegmentSize = (int) ($segConfig['max_segment_size'] ?? self::DEFAULT_MAX_SEGMENT_SIZE);
         $this->maxSnapshots = (int) ($segConfig['max_snapshots'] ?? self::DEFAULT_MAX_SNAPSHOTS);
 
-        // Load built-in segment definitions
         $this->segmentDefinitions = $this->builtInDefinitions();
 
-        // Merge config-defined segments
         $customDefs = $segConfig['definitions'] ?? [];
         /** @var array<string, array<string, mixed>> $customDefs */
         foreach ($customDefs as $name => $def) {
@@ -208,7 +206,6 @@ final class BehavioralUserSegmentService
             }
         }
 
-        // Apply size limit
         if (count($members) > $this->maxSegmentSize) {
             $members = array_slice($members, 0, $this->maxSegmentSize);
             $details = array_slice($details, 0, $this->maxSegmentSize);
@@ -713,7 +710,6 @@ final class BehavioralUserSegmentService
                         break;
                     }
 
-                    // Check time gap if max_gap is set and timestamps exist
                     if ($maxGap > 0 && $j > 0) {
                         $currentTs = $events[$i + $j]['timestamp'] ?? null;
                         $prevTs = $events[$i + $j - 1]['timestamp'] ?? null;
@@ -855,7 +851,6 @@ final class BehavioralUserSegmentService
         $matchedConditions = [];
         $score = 0.0;
 
-        // Filter events by type if specified
         $targetEvent = $conditions['event'] ?? null;
         $relevantEvents = $targetEvent !== null
             ? array_filter($events, fn (array $e): bool => ($e['event'] ?? '') === $targetEvent)
@@ -865,7 +860,6 @@ final class BehavioralUserSegmentService
             return ['matched' => false, 'conditions' => [], 'score' => 0.0];
         }
 
-        // Check property conditions
         $propertyConditions = $conditions['properties'] ?? [];
         /** @var array<string, mixed> $propertyConditions */
         foreach ($propertyConditions as $propName => $expectedValue) {

@@ -425,7 +425,6 @@ final class CustomerHealthScoreService
     {
         $score = 70.0; // Default: moderately healthy
 
-        // Open support tickets
         $openTickets = (int) ($signals['open_tickets_count'] ?? 0);
         if ($openTickets === 0) {
             $score = min(100, $score + 10);

@@ -150,7 +150,6 @@ final class SaaSJourneyService
 
         $this->cache->put($cacheKey, $progress, $this->cacheTtl);
 
-        // Dispatch a step event for this milestone
         $this->manager->trackEvent(new AnalyticsEvent(
             name: "journey_{$journeyName}_step",
             params: array_merge($params, [
@@ -165,7 +164,6 @@ final class SaaSJourneyService
             ]),
         ));
 
-        // Check if journey is now complete
         $completedMilestones = array_keys($progress['milestones']);
         $allMilestones = $journey['milestones'];
 
@@ -341,7 +339,6 @@ final class SaaSJourneyService
             $duration = $start !== false ? time() - $start : null;
         }
 
-        // Calculate step-level durations
         $stepTimings = [];
         $prevTimestamp = $startedAt !== null ? strtotime($startedAt) : null;
 

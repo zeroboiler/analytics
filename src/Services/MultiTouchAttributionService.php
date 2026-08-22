@@ -116,10 +116,8 @@ final class MultiTouchAttributionService
             return $this->emptyResult($conversionEvent->name, $model, $conversionEvent->userId);
         }
 
-        // Sort touchpoints chronologically
         usort($touchpoints, fn (array $a, array $b): int => strcmp($a['timestamp'], $b['timestamp']));
 
-        // Apply the attribution model
         $attribution = match ($model) {
             'first_touch' => $this->firstTouch($touchpoints),
             'last_touch' => $this->lastTouch($touchpoints),
@@ -205,7 +203,6 @@ final class MultiTouchAttributionService
             }
         }
 
-        // Compute averages and sort
         $channels = [];
         foreach ($channelData as $data) {
             $positions = $data['positions'];
@@ -412,7 +409,6 @@ final class MultiTouchAttributionService
         $halfLifeSeconds = self::TIME_DECAY_HALF_LIFE_HOURS * 3600;
         $attribution = [];
 
-        // Compute raw decay weights
         $weights = [];
         $totalWeight = 0.0;
 
@@ -430,7 +426,6 @@ final class MultiTouchAttributionService
             $totalWeight += $weight;
         }
 
-        // Normalize to sum to 1.0
         if ($totalWeight > 0) {
             foreach ($weights as $channel => $weight) {
                 $attribution[$channel] = round($weight / $totalWeight, 4);
@@ -468,7 +463,6 @@ final class MultiTouchAttributionService
 
         $attribution = [];
 
-        // Find lead creation touchpoint (first lead-related event, or middle)
         $leadIndex = $this->findLeadTouchpoint($touchpoints);
 
         $firstChannel = $this->touchpointChannel($touchpoints[0]);

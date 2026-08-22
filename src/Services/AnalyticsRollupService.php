@@ -132,18 +132,14 @@ final class AnalyticsRollupService
             $period = $this->getPeriodKey($granularity);
             $prefix = $this->cachePrefix . $granularity . ':' . $period;
 
-            // Increment total event count
             $this->cache->increment($prefix . ':total', 1);
 
-            // Increment per-event count
             $this->cache->increment($prefix . ':events:' . $eventName, 1);
 
-            // Increment per-category count
             if ($category !== null && $category !== '') {
                 $this->cache->increment($prefix . ':categories:' . $category, 1);
             }
 
-            // Increment per-provider count
             if ($provider !== null && $provider !== '') {
                 $this->cache->increment($prefix . ':providers:' . $provider, 1);
             }
@@ -179,7 +175,6 @@ final class AnalyticsRollupService
         $uniqueClients = $this->countUniqueKeys($prefix . ':clients:*');
         $total = (int) ($this->cache->get($prefix . ':total') ?? 0);
 
-        // Sort events by count descending for top events
         arsort($events);
         $topEvents = [];
         $count = 0;
@@ -352,7 +347,6 @@ final class AnalyticsRollupService
         foreach ($targets as $g) {
             $pattern = $this->cachePrefix . $g . ':*';
 
-            // Use cache store's flushPrefix if available (Redis/Memcached)
             if (method_exists($this->cache->getStore(), 'flushPrefix')) {
                 try {
                     $this->cache->getStore()->flushPrefix($this->cachePrefix . $g . ':');
@@ -440,7 +434,6 @@ final class AnalyticsRollupService
      */
     private function trackUnique(string $prefix, string $id): void
     {
-        // Check existing count to enforce limit
         $countKey = $prefix . ':_count';
         $currentCount = (int) ($this->cache->get($countKey) ?? 0);
 
@@ -487,7 +480,6 @@ final class AnalyticsRollupService
 
         try {
             if (method_exists($this->cache->getStore(), 'get')) {
-                // Try to use the cache store's search if available
                 $store = $this->cache->getStore();
 
                 if (method_exists($store, 'connection') && method_exists($store, 'connection')) {

@@ -144,12 +144,10 @@ final class AnalyticsReplayAuditor
     {
         $config = $this->getReplayConfig();
 
-        // Check if replay is globally enabled
         if (! ($config['enabled'] ?? true)) {
             return ['allowed' => false, 'reason' => 'Event replay is globally disabled.'];
         }
 
-        // Check max attempts
         $maxAttempts = $config['max_attempts'] ?? 3;
         $auditId = $this->generateAuditId($event->name, $provider);
 
@@ -160,7 +158,6 @@ final class AnalyticsReplayAuditor
             return ['allowed' => false, 'reason' => "Maximum replay attempts ({$maxAttempts}) exceeded for {$event->name} → {$provider}."];
         }
 
-        // Check replay TTL
         $replayTtl = $config['replay_ttl'] ?? 86400; // 24 hours default
         if (isset($event->timestamp) && $event->timestamp instanceof \DateTimeImmutable) {
             $age = (new \DateTimeImmutable())->getTimestamp() - $event->timestamp->getTimestamp();

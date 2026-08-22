@@ -162,7 +162,6 @@ final class PerformanceScoreService
             ];
         }
 
-        // Normalize: max possible = 3 * totalWeight, normalize to 0-100
         $normalizedScore = (int) round(($weightedSum / (3.0 * $totalWeight)) * 100);
 
         $overallRating = $this->scoreToRating($normalizedScore);

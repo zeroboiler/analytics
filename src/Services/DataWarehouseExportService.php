@@ -206,7 +206,6 @@ final class DataWarehouseExportService
         $fullPath = rtrim($this->outputPath, '/') . '/' . $filename;
         $content = $this->exportToString();
 
-        // Ensure directory exists
         $dir = dirname($fullPath);
         if (! is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -265,7 +264,6 @@ final class DataWarehouseExportService
             return '';
         }
 
-        // Collect all unique keys across all events for consistent columns
         $allKeys = $this->collectAllKeys();
         $lines = [];
 
@@ -306,12 +304,10 @@ final class DataWarehouseExportService
             'plausible_event' => $catalogEntry['plausible'] ?? null,
         ];
 
-        // Merge event params
         foreach ($event->params as $key => $value) {
             $row['param_' . $key] = $value;
         }
 
-        // Apply field selection if configured
         if (! empty($this->includeFields)) {
             $filtered = [];
             foreach ($this->includeFields as $field) {

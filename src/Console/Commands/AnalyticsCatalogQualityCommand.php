@@ -376,7 +376,6 @@ final class AnalyticsCatalogQualityCommand extends Command
         if ($showLint || $showAll) {
             $lintReport = $linter->lintReport();
             $report['lint'] = $lintReport;
-            // Remove full violations for JSON (too verbose)
             unset($report['lint']['violations']);
         }
 

@@ -81,13 +81,11 @@ final class DataRetentionPolicyService
         $this->piiCategories = $retentionConfig['pii_categories'] ?? ['pii'];
         $this->logActions = (bool) ($retentionConfig['log_actions'] ?? false);
 
-        // Merge custom periods with defaults
         $this->retentionPeriods = array_merge(
             self::DEFAULT_RETENTION,
             $retentionConfig['periods'] ?? [],
         );
 
-        // Validate and clamp retention periods
         foreach ($this->retentionPeriods as $category => $days) {
             $this->retentionPeriods[$category] = $this->clampRetention((int) $days);
         }

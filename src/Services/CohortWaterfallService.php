@@ -116,7 +116,6 @@ final class CohortWaterfallService
             $waterfall = $this->buildCohortWaterfall($period, $cohort, $stages);
             $report['cohorts'][$period] = $waterfall;
 
-            // Aggregate stage-level stats
             foreach ($stages as $stage) {
                 if (isset($waterfall['stages'][$stage])) {
                     $stageAggregates[$stage]['total_count'] += $waterfall['stages'][$stage]['count'] ?? 0;
@@ -126,7 +125,6 @@ final class CohortWaterfallService
             }
         }
 
-        // Compute stage averages
         foreach ($stages as $stage) {
             $agg = $stageAggregates[$stage];
             $report['stage_averages'][$stage] = [
@@ -198,7 +196,6 @@ final class CohortWaterfallService
                 : 0.0,
         ];
 
-        // Generate insights
         $report['insights'] = $this->generateInsights($report['summary'], $report['stage_averages']);
 
         return $report;

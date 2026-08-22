@@ -2869,7 +2869,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             );
         });
 
-        // Dispatch Decision Replay Service (v245.0.0)
         $this->app->singleton(DispatchDecisionReplayService::class, function (Application $app): DispatchDecisionReplayService {
             return new DispatchDecisionReplayService(
                 $app->make('cache'),
@@ -3385,14 +3384,12 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $analyticsConfig = $config->get('zeroboiler.analytics', []);
             /** @var array{providers?: array<string, array{enabled?: bool}>, queue?: array{enabled?: bool}, api?: array{enabled?: bool}, identity?: array{enabled?: bool}, lifecycle?: array{enabled?: bool}, auto_track?: array{enabled?: bool}, ecommerce?: array{enabled?: bool}, consent?: array{enabled?: bool}} $analyticsConfig */
 
-            // Derive enabled providers from config
             $enabledProviders = [];
             $providersConfig = $analyticsConfig['providers'] ?? [];
             foreach (['ga4', 'meta', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'] as $provider) {
                 $enabledProviders[$provider] = ($providersConfig[$provider]['enabled'] ?? false) === true;
             }
 
-            // Derive config flags
             $configFlags = [
                 'identity' => ($analyticsConfig['identity']['enabled'] ?? true) === true,
                 'queue' => ($analyticsConfig['queue']['enabled'] ?? false) === true,
@@ -4911,7 +4908,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
      */
     private function registerAutoTracking(): void
     {
-        // Register the unified lifecycle event subscriber (v79.0.0)
         // This bridges the config-driven LifecycleEventMapper with the
         // legacy ServerSideTracker and optional queued dispatch.
         try {
@@ -4927,7 +4923,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $tracker->register($dispatcher);
         }
 
-        // Register custom application events from config
         $config = $this->app->make(ConfigRepository::class);
         $autoTrack = $config->get('zeroboiler.analytics.auto_track', []);
         /** @var array{events?: array<string, bool>, models?: array<class-string, array<int, string>>} $autoTrack */
@@ -4941,7 +4936,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $tracker->listen($eventName, $dispatcher);
         }
 
-        // Register Eloquent model listeners
         /** @var array<class-string, array<int, string>> $modelEvents */
         $modelEvents = $autoTrack['models'] ?? [];
         if (! empty($modelEvents)) {

@@ -98,7 +98,6 @@ final class EventBroadcastService
         $broadcastConfig = $this->getBroadcastConfig();
         $categories = (array) ($broadcastConfig['categories'] ?? self::DEFAULT_CATEGORIES);
 
-        // Check category filter
         $category = $metadata['category'] ?? null;
         if ($category !== null && ! in_array($category, $categories, true)) {
             return;

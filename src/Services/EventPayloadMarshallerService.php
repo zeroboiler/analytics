@@ -114,16 +114,13 @@ final class EventPayloadMarshallerService
         $missingRequired = [];
         $unknownFields = [];
 
-        // Extract identity fields from context or raw payload
         $identityFields = $this->extractIdentityFields($rawPayload, $context);
 
         // Lookup schema
         $schema = $this->schemaRegistry->get($eventName);
 
-        // Start with the raw payload
         $payload = $rawPayload;
 
-        // Apply global defaults
         if ($this->populateDefaults && ! empty($this->globalDefaults)) {
             foreach ($this->globalDefaults as $field => $defaultValue) {
                 if (! array_key_exists($field, $payload)) {
@@ -149,7 +146,6 @@ final class EventPayloadMarshallerService
             ];
         }
 
-        // Merge identity fields back into payload if not already present
         foreach ($identityFields as $field => $value) {
             if ($value !== null && ! isset($payload[$field])) {
                 $payload[$field] = $value;
@@ -161,7 +157,6 @@ final class EventPayloadMarshallerService
             $this->detectPiiFields($payload, $messages);
         }
 
-        // Check if any error-level messages were generated
         $hasErrors = ! empty(
             array_filter($messages, static fn (array $m): bool => $m['severity'] === 'error')
         );
@@ -199,7 +194,6 @@ final class EventPayloadMarshallerService
             $properties = $eventData['properties'] ?? $eventData['params'] ?? $eventData;
             $context = $eventData['context'] ?? [];
 
-            // Remove meta fields from properties
             unset($properties['event'], $properties['name'], $properties['context']);
 
             $result = $this->marshal($eventName, $properties, $context);

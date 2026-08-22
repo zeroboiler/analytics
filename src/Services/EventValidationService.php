@@ -197,7 +197,6 @@ final class EventValidationService
      */
     private function sanitizeEventName(string $name): string
     {
-        // Remove spaces, special chars — keep only lowercase alphanumeric and underscores
         $sanitized = preg_replace('/[^a-z0-9_]/', '', strtolower($name));
 
         return $sanitized !== '' && $sanitized !== '0' ? $sanitized : $name;

@@ -237,7 +237,6 @@ final class AnalyticsSemanticMetricsService
             return MetricComputationResult::zero($request->metricName);
         }
 
-        // Check cache
         if ($this->cacheEnabled) {
             $cached = $this->cache->get($request->cacheKey());
             if (is_array($cached)) {
@@ -245,14 +244,12 @@ final class AnalyticsSemanticMetricsService
             }
         }
 
-        // Compute derived metrics recursively
         if ($definition->isDerived()) {
             $result = $this->computeDerived($definition, $request);
         } else {
             $result = $this->computeRaw($definition, $request);
         }
 
-        // Apply comparison if requested
         if ($request->includeComparison && $result->hasComparison() === false) {
             $previousResult = $this->computePreviousPeriod($definition, $request);
             $result = $result->withComparison($previousResult->value);

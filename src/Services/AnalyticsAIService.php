@@ -115,7 +115,6 @@ final class AnalyticsAIService
             return null;
         }
 
-        // Calculate rolling statistics
         $mean = array_sum($window) / $count;
         $variance = array_sum(array_map(
             fn (float $v): float => ($v - $mean) ** 2,
@@ -167,7 +166,6 @@ final class AnalyticsAIService
             }
         }
 
-        // Sort by severity (critical first)
         usort($anomalies, function (array $a, array $b): int {
             $severityOrder = ['critical' => 0, 'high' => 1, 'medium' => 2, 'low' => 3];
 
@@ -370,12 +368,10 @@ final class AnalyticsAIService
             }
         }
 
-        // Filter by focus if provided
         if ($focus !== null) {
             $missing = array_filter($missing, fn (array $e): bool => $e['category'] === $focus);
         }
 
-        // Sort by recommendation priority
         usort($missing, function (array $a, array $b): int {
             $priority = [
                 'saas' => 0,

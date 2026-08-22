@@ -81,7 +81,6 @@ final class SaaSBundleEventService
             'context' => $context,
         ];
 
-        // Fire a journey start event
         $this->trackEvent('journey_start', [
             'bundle_id' => $bundleId,
             'journey_name' => $journeyName,
@@ -153,7 +152,6 @@ final class SaaSBundleEventService
             return false;
         }
 
-        // Add the final event to the bundle
         $this->addToBundle($bundleId, $finalEvent, $params);
 
         $this->bundles[$bundleId]['completed'] = true;
@@ -161,7 +159,6 @@ final class SaaSBundleEventService
         $eventNames = array_map(fn (array $e): string => $e['event'], $bundle['events']);
         $duration = time() - $bundle['started_at'];
 
-        // Fire journey completed event
         $this->trackEvent('journey_completed', [
             'bundle_id' => $bundleId,
             'journey_name' => $bundle['name'],

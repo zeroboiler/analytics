@@ -1162,7 +1162,6 @@ final class EventParameterSchemas
 
         $errors = [];
 
-        // Check required parameters
         foreach ($schema->required as $param) {
             if (! array_key_exists($param, $params)) {
                 $errors[] = "Missing required parameter: '{$param}'";

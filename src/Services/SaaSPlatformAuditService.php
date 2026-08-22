@@ -262,7 +262,6 @@ final class SaaSPlatformAuditService
     {
         $checks = [];
 
-        // Check consent default configuration
         $consentDefault = $this->getConfig('zeroboiler.analytics.consent.default', 'granted');
         $checks[] = [
             'check' => 'GDPR consent default configured',
@@ -271,7 +270,6 @@ final class SaaSPlatformAuditService
             'detail' => "Consent default: {$consentDefault}",
         ];
 
-        // Check granular consent purposes
         $purposes = $this->getConfig('zeroboiler.analytics.consent.purposes', []);
         $hasNecessary = isset($purposes['necessary']) && ($purposes['necessary']['required'] ?? false) === true;
         $checks[] = [
@@ -281,7 +279,6 @@ final class SaaSPlatformAuditService
             'detail' => $hasNecessary ? count($purposes) . ' purposes defined' : 'No granular purposes or "necessary" not required',
         ];
 
-        // Check consent logging
         $consentLogEnabled = $this->getConfig('zeroboiler.analytics.consent.log_enabled', false);
         $checks[] = [
             'check' => 'Consent state logging enabled',
@@ -290,7 +287,6 @@ final class SaaSPlatformAuditService
             'detail' => $consentLogEnabled ? 'Consent changes are logged' : 'Enable consent logging for GDPR audit trail',
         ];
 
-        // Check consent TTL
         $consentTtl = $this->getConfig('zeroboiler.analytics.consent.log_ttl', 0);
         $checks[] = [
             'check' => 'Consent log retention ≥ 30 days',
@@ -299,7 +295,6 @@ final class SaaSPlatformAuditService
             'detail' => "Consent log TTL: " . round($consentTtl / 86400) . ' days',
         ];
 
-        // Check class existence for compliance features
         $checks[] = $this->classExistsCheck(
             'ConsentState DTO',
             \ZeroBoiler\Analytics\DTO\ConsentState::class,
@@ -843,7 +838,6 @@ final class SaaSPlatformAuditService
     {
         $checks = [];
 
-        // Count test files
         $testCount = $this->countTestFiles();
         $checks[] = [
             'check' => 'Test file count ≥ 100',

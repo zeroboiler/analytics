@@ -354,7 +354,6 @@ final class EventCacheService
             return false;
         }
 
-        // Check TTL
         if (isset($this->memoryTimestamps[$key])) {
             if ((time() - $this->memoryTimestamps[$key]) > $this->memoryTtl) {
                 unset($this->memoryCache[$key], $this->memoryTimestamps[$key]);

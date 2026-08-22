@@ -286,7 +286,6 @@ final class EventLineageTrackerService
         $results = [];
         $count = 0;
 
-        // Iterate from newest to oldest
         $reversed = array_reverse($index, true);
 
         foreach ($reversed as $lid => $_) {
@@ -299,7 +298,6 @@ final class EventLineageTrackerService
                 continue;
             }
 
-            // Apply filters
             if ($eventName !== null && ($entry['event_name'] ?? null) !== $eventName) {
                 continue;
             }
@@ -400,13 +398,11 @@ final class EventLineageTrackerService
                 continue;
             }
 
-            // Count by status
             $status = $entry['status'] ?? 'unknown';
             if (isset($stats[$status])) {
                 $stats[$status]++;
             }
 
-            // Count by source
             $source = $entry['source'] ?? 'unknown';
             $stats['by_source'][$source] = ($stats['by_source'][$source] ?? 0) + 1;
 
@@ -415,7 +411,6 @@ final class EventLineageTrackerService
                 $durations[] = (float) $entry['total_duration_ms'];
             }
 
-            // Count provider dispatches
             if (isset($entry['provider_dispatches']) && is_array($entry['provider_dispatches'])) {
                 foreach ($entry['provider_dispatches'] as $dispatch) {
                     $provider = $dispatch['provider'] ?? 'unknown';

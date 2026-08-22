@@ -145,7 +145,6 @@ final class SaaSConversionPredictorService
         $this->enabled = (bool) ($predictorConfig['enabled'] ?? true);
         $this->cacheTtl = (int) ($predictorConfig['cache_ttl'] ?? self::CACHE_TTL_DEFAULT);
 
-        // Load custom weight overrides from config
         $customWeights = $predictorConfig['custom_weights'] ?? [];
         /** @var array{positive?: array<string, float>, negative?: array<string, float>} $customWeights */
         $this->customPositiveWeights = $customWeights['positive'] ?? [];

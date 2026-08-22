@@ -74,7 +74,6 @@ final class ComplianceValidationStage implements ValidationStageInterface
         $checked = 0;
         $failed = 0;
 
-        // Check PII events have consent
         $checked++;
         if ($this->requireConsentForPii && in_array($event->name, self::PII_EVENTS, true)) {
             $hasConsent = ($event->params['_zb_consent_granted'] ?? null) === true

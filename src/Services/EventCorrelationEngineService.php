@@ -118,7 +118,6 @@ final class EventCorrelationEngineService
 
         $this->cache->put($cacheKey, $data, $this->cacheTtl);
 
-        // Increment individual event counters
         $this->incrementEventCount($eventA);
         $this->incrementEventCount($eventB);
 
@@ -193,10 +192,8 @@ final class EventCorrelationEngineService
 
         $npmi = ($pAB - $expected) / max($pAB, $expected);
 
-        // Apply temporal recency weighting
         $recencyWeight = $this->computeRecencyWeight($data['timestamps']);
 
-        // Combine NPMI with recency
         $rawScore = (max(0.0, $npmi) * 0.6) + ($recencyWeight * 0.4);
 
         return round(min(1.0, max(0.0, $rawScore)), 4);
@@ -247,7 +244,6 @@ final class EventCorrelationEngineService
             ];
         }
 
-        // Sort by score descending
         usort($correlations, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
 
         return array_slice($correlations, 0, $this->maxCorrelationsPerEvent);
@@ -444,7 +440,6 @@ final class EventCorrelationEngineService
             $cleared++;
         }
 
-        // Clear per-event counts and indices
         $eventsKey = $this->cachePrefix . 'events_list';
         /** @var list<string> $events */
         $events = $this->cache->get($eventsKey, []);
@@ -484,7 +479,6 @@ final class EventCorrelationEngineService
         $count = $this->cache->get($countKey, 0);
         $this->cache->put($countKey, $count + 1, $this->cacheTtl);
 
-        // Add to events list
         $eventsKey = $this->cachePrefix . 'events_list';
         /** @var list<string> $events */
         $events = $this->cache->get($eventsKey, []);
@@ -493,13 +487,11 @@ final class EventCorrelationEngineService
             $this->cache->put($eventsKey, array_slice($events, -500), $this->cacheTtl);
         }
 
-        // Update per-event correlation index
         $indexKey = $this->cachePrefix . 'index_' . $eventName;
         $pairKey = $this->normalizePairKey($eventName, '__placeholder__');
         /** @var list<string> $index */
         $index = $this->cache->get($indexKey, []);
 
-        // Add all pairs involving this event
         $globalCountKey = $this->cachePrefix . 'global_count';
         /** @var int $globalCount */
         $globalCount = $this->cache->get($globalCountKey, 0);

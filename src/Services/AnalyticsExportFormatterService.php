@@ -40,7 +40,6 @@ final class AnalyticsExportFormatterService
             return '';
         }
 
-        // Write header
         fputcsv($handle, $columns);
 
         foreach ($events as $event) {
@@ -311,7 +310,6 @@ final class AnalyticsExportFormatterService
         $provider = $event->provider ?? 'server';
         $integrations = ['All' => true];
 
-        // Mark specific provider as the active integration
         if ($provider !== 'server' && $provider !== 'all') {
             $integrations[$provider] = true;
         }

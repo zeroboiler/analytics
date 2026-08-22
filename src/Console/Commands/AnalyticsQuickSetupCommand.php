@@ -243,14 +243,12 @@ final class AnalyticsQuickSetupCommand extends Command
 
         $fixed = 0;
 
-        // Check if event validation whitelist is empty (strict mode requires it)
         $strict = (bool) config('zeroboiler.analytics.validation.strict', false);
         $whitelist = config('zeroboiler.analytics.validation.whitelist', []);
         if ($strict && empty($whitelist)) {
             $this->warn('  ⚠ Strict validation enabled but whitelist is empty. All events will be rejected.');
         }
 
-        // Check consent default
         $consentDefault = config('zeroboiler.analytics.consent.default', 'granted');
         if ($consentDefault !== 'granted' && $consentDefault !== 'denied') {
             $this->warn("  ⚠ Invalid consent default: '{$consentDefault}'. Should be 'granted' or 'denied'.");

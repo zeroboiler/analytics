@@ -100,7 +100,6 @@ final class HeatmapAggregationService
             ];
         }
 
-        // Increment grid cell count
         if (! isset($data['grid'][$gridKey])) {
             $data['grid'][$gridKey] = 0;
         }
@@ -143,7 +142,6 @@ final class HeatmapAggregationService
             return null;
         }
 
-        // Calculate heat intensity (0-1 normalized)
         $maxCount = max($data['grid']);
 
         $heatZones = [];
@@ -172,7 +170,6 @@ final class HeatmapAggregationService
             }
         }
 
-        // Sort heat zones by intensity descending
         usort($heatZones, fn (array $a, array $b): int => $b['intensity'] <=> $a['intensity']);
 
         return [
@@ -276,14 +273,12 @@ final class HeatmapAggregationService
      */
     private function normalizeElement(string $element): string
     {
-        // Extract tag name from CSS selector or tag
         if (str_starts_with($element, '<')) {
             preg_match('/<(\w+)/', $element, $matches);
 
             return $matches[1] ?? 'unknown';
         }
 
-        // Extract first part of CSS selector
         $parts = preg_split('/[\s>+~]/', $element, 2);
 
         return $parts[0] ?? 'unknown';

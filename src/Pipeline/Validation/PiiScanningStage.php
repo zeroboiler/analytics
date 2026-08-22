@@ -88,7 +88,6 @@ final class PiiScanningStage implements ValidationStageInterface
         $failed = 0;
         $allDisallowed = array_merge(self::DISALLOWED_KEYS, $this->extraDisallowedKeys);
 
-        // Check for disallowed keys
         $checked++;
         foreach (array_keys($event->params) as $key) {
             if (in_array(strtolower((string) $key), $allDisallowed, true)) {

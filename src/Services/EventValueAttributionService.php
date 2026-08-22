@@ -315,11 +315,9 @@ final class EventValueAttributionService
             }
         }
 
-        // Sort by value descending for top events
         usort($eventValues, fn (array $a, array $b): int => $b['value'] <=> $a['value']);
         $topEvents = array_slice($eventValues, 0, 20);
 
-        // Build category summaries
         $categorySummary = [];
         foreach ($byCategory as $cat => $data) {
             $categorySummary[$cat] = [
@@ -476,7 +474,6 @@ final class EventValueAttributionService
             $recommendations[] = count($negativeEvents) . ' event(s) have negative attributed value (e.g., error events). Investigate root causes to reduce revenue-impacting friction.';
         }
 
-        // Find category with highest avg value
         $maxAvg = 0.0;
         $maxCategory = '';
         foreach ($categorySummary as $cat => $data) {

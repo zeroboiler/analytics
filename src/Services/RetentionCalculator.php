@@ -82,7 +82,6 @@ final class RetentionCalculator
             return;
         }
 
-        // Use user_id if available, else client_id
         $identity = ($userId !== null && $userId !== '') ? $userId : $clientId;
 
         if ($identity === null || $identity === '') {
@@ -91,7 +90,6 @@ final class RetentionCalculator
 
         $today = $this->todayBucket();
 
-        // Set first-seen date if this is a new identity
         $firstSeenKey = self::FIRST_SEEN_KEY . $identity;
         $existingFirstSeen = $this->cache->get($firstSeenKey);
 
@@ -110,7 +108,6 @@ final class RetentionCalculator
         $activityKey = self::ACTIVITY_KEY . $identity . '_' . $today;
         $this->cache->put($activityKey, true, $this->ttl);
 
-        // Update daily active users set for stickiness calculation
         $dauKey = self::DAILY_ACTIVE_KEY . $today;
         $dauSet = $this->cache->get($dauKey);
         $dauSet = is_array($dauSet) ? $dauSet : [];
@@ -132,7 +129,6 @@ final class RetentionCalculator
             return $this->emptyRetentionResult($cohortDate);
         }
 
-        // Get users who first appeared on the cohort date (or all users)
         $users = $cohortDate !== null
             ? $this->getFirstSeenUsers($cohortDate)
             : $this->getAllFirstSeenUsers();
@@ -160,7 +156,6 @@ final class RetentionCalculator
                 continue;
             }
 
-            // Count users active on day N
             $activeCount = $this->countActiveOnDay($users, $targetDate);
             $retention[$day] = $totalUsers > 0 ? round(($activeCount / $totalUsers) * 100, 2) : 0.0;
         }
@@ -384,7 +379,6 @@ final class RetentionCalculator
             }
         }
 
-        // Calculate averages
         $averages = [];
         foreach ($sums as $day => $sum) {
             $averages[$day] = round($sum / $counts[$day], 2);
@@ -449,7 +443,6 @@ final class RetentionCalculator
      */
     private function getAllFirstSeenUsers(): array
     {
-        // Aggregate from recent cohorts (last 30 days)
         $today = strtotime($this->todayBucket());
         $allUsers = [];
 

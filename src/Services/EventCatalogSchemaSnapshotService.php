@@ -111,14 +111,12 @@ final class EventCatalogSchemaSnapshotService
 
         $snapshotHash = $this->computeHash($snapshot);
 
-        // Store snapshot
         $this->cache->put(
             self::CACHE_PREFIX . $label,
             ['snapshot' => $snapshot, 'hash' => $snapshotHash],
             self::CACHE_TTL,
         );
 
-        // Set baseline if this is the first snapshot
         $existingBaseline = $this->cache->get(self::BASELINE_KEY);
         if ($existingBaseline === null) {
             $this->cache->put(self::BASELINE_KEY, $label, self::CACHE_TTL);
@@ -166,7 +164,6 @@ final class EventCatalogSchemaSnapshotService
         $baseline = $cached['snapshot'];
         $baselineEvents = $baseline['events'] ?? [];
 
-        // Build current snapshot on-the-fly
         $currentEvents = [];
         $allEvents = EventCatalog::all();
         foreach ($allEvents as $name => $entry) {
@@ -426,7 +423,6 @@ final class EventCatalogSchemaSnapshotService
                 }
             }
 
-            // Count modified events
             if ($fromEntry !== $toEntry) {
                 $modified++;
             }
@@ -497,7 +493,6 @@ final class EventCatalogSchemaSnapshotService
      */
     private function computeHash(array $snapshot): string
     {
-        // Extract only the event data for hashing (exclude metadata)
         $eventData = $snapshot['events'] ?? [];
         ksort($eventData);
 

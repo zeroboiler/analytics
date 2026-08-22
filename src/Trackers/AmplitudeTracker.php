@@ -76,7 +76,6 @@ final class AmplitudeTracker implements TrackerInterface
             $eventPayload['device_id'] = $deviceId;
         }
 
-        // Extract user properties from params if present
         $userProperties = $event->params['user_properties'] ?? [];
         if (is_array($userProperties) && $userProperties !== []) {
             $eventPayload['user_properties'] = $this->sanitizeProperties($userProperties);
@@ -85,7 +84,6 @@ final class AmplitudeTracker implements TrackerInterface
         // Remove user_properties from event properties to avoid duplication
         unset($eventPayload['event_properties']['user_properties']);
 
-        // Add platform and library info
         $eventPayload['platform'] = $this->platform;
         $eventPayload['lib_version'] = AnalyticsEvent::VERSION;
 
@@ -193,7 +191,6 @@ final class AmplitudeTracker implements TrackerInterface
         $cleaned = [];
 
         foreach ($properties as $key => $value) {
-            // Skip nested arrays (Amplitude doesn't support them in event properties)
             if (is_array($value)) {
                 // Keep flat arrays (list of strings)
                 if (array_is_list($value)) {
@@ -210,7 +207,6 @@ final class AmplitudeTracker implements TrackerInterface
                 continue;
             }
 
-            // Skip null values
             if ($value === null) {
                 continue;
             }

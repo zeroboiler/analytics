@@ -83,7 +83,6 @@ final class AnalyticsSignalIntelligenceCommand extends Command
             $this->formatPercentage($report['signal_to_noise']),
         );
 
-        // Dispatch Balance
         $balanceColor = match (true) {
             $report['dispatch_balance'] >= 70 => 'green',
             $report['dispatch_balance'] >= 40 => 'yellow',

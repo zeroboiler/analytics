@@ -150,7 +150,6 @@ final readonly class EventAction
      */
     private function evaluateCondition(string $condition, array $params): bool
     {
-        // Split on && for AND conditions
         $parts = preg_split('/\s*&&\s*/', $condition) ?: [$condition];
 
         foreach ($parts as $part) {

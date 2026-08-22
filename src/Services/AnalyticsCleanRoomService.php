@@ -336,7 +336,6 @@ final class AnalyticsCleanRoomService
             }
         }
 
-        // Store validated sketch
         $validSketch = [];
         foreach ($acceptedDimensions as $dimension) {
             $validSketch[$dimension] = $sketch[$dimension];
@@ -390,7 +389,6 @@ final class AnalyticsCleanRoomService
             throw new \InvalidArgumentException("Query type '{$queryType}' is not allowed by this agreement.");
         }
 
-        // Collect sketches from all participants
         $sketches = [];
         foreach ($agreement['participants'] as $participantId) {
             $sketchKey = self::CACHE_PREFIX . "sketch:{$agreementId}:{$participantId}";
@@ -405,7 +403,6 @@ final class AnalyticsCleanRoomService
             throw new \RuntimeException('At least 2 participant sketches are required to execute a query.');
         }
 
-        // Compute aggregate result
         $result = $this->computeAggregate($queryType, $sketches, $query);
 
         // Enforce k-anonymity on results
@@ -501,7 +498,6 @@ final class AnalyticsCleanRoomService
     {
         $participantIds = array_keys($sketches);
 
-        // Extract cohort sets from sketches
         $cohortSets = [];
         foreach ($sketches as $participantId => $sketch) {
             $cohorts = $sketch['cohorts'] ?? [];
@@ -513,7 +509,6 @@ final class AnalyticsCleanRoomService
             }
         }
 
-        // Compute intersection sizes (using aggregate counts, not raw IDs)
         $overlaps = [];
         for ($i = 0; $i < count($participantIds); $i++) {
             for ($j = $i + 1; $j < count($participantIds); $j++) {
@@ -571,7 +566,6 @@ final class AnalyticsCleanRoomService
             }
         }
 
-        // Sort by frequency descending
         uasort($mergedFrequencies, fn (array $a, array $b): int => $b['total'] <=> $a['total']);
 
         return [
@@ -886,19 +880,16 @@ final class AnalyticsCleanRoomService
 
         $applied = false;
 
-        // Apply noise to total counts
         if (isset($result['total']) && is_numeric($result['total'])) {
             $result['total'] = $result['total'] + $this->laplaceNoise(1.0 / $epsilon);
             $applied = true;
         }
 
-        // Apply noise to overall_avg
         if (isset($result['overall_avg']) && is_numeric($result['overall_avg'])) {
             $result['overall_avg'] = $result['overall_avg'] + $this->laplaceNoise(1.0 / $epsilon);
             $applied = true;
         }
 
-        // Apply noise to overall_conversion
         if (isset($result['overall_conversion']) && is_numeric($result['overall_conversion'])) {
             $result['overall_conversion'] = $result['overall_conversion'] + $this->laplaceNoise(1.0 / $epsilon);
             $applied = true;

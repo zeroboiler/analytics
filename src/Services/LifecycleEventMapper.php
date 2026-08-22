@@ -549,7 +549,6 @@ final class LifecycleEventMapper
         $this->enabled = (bool) ($lifecycleConfig['enabled'] ?? true);
         $this->enabledToggles = $lifecycleConfig['events'] ?? [];
 
-        // Build active mappings: defaults + custom
         $overrideDefaults = (bool) ($lifecycleConfig['override_defaults'] ?? false);
 
         if ($overrideDefaults) {
@@ -557,14 +556,12 @@ final class LifecycleEventMapper
         } else {
             $this->activeMappings = self::DEFAULT_MAPPINGS;
 
-            // Merge custom mappings (can override defaults by key)
             $customMappings = $lifecycleConfig['custom_mappings'] ?? [];
             foreach ($customMappings as $key => $mapping) {
                 $this->activeMappings[$key] = $mapping;
             }
         }
 
-        // Sort by priority (highest first)
         uasort($this->activeMappings, function (array $a, array $b): int {
             return ($b['priority'] ?? 0) <=> ($a['priority'] ?? 0);
         });
@@ -607,7 +604,6 @@ final class LifecycleEventMapper
         $manager = $this->manager;
 
         $dispatcher->listen($source, function (mixed $payload) use ($manager, $target, $extractor, $condition, $eventKey): void {
-            // Check conditional filter
             if ($condition !== null && is_string($condition) && method_exists($this, $condition)) {
                 if (! $this->{$condition}($payload)) {
                     return;
@@ -640,7 +636,6 @@ final class LifecycleEventMapper
      */
     private function buildEvent(string $targetClass, mixed $payload, ?string $extractor): AnalyticsEvent
     {
-        // Use named extractor method if available
         if ($extractor !== null && method_exists($this, $extractor)) {
             return $this->{$extractor}($targetClass, $payload);
         }
@@ -650,12 +645,10 @@ final class LifecycleEventMapper
             return $payload;
         }
 
-        // Try to construct with payload as named params
         if (is_array($payload)) {
             return $this->constructWithParams($targetClass, $payload);
         }
 
-        // Try reflection-based construction
         return $this->constructWithReflection($targetClass, $payload);
     }
 
@@ -671,7 +664,6 @@ final class LifecycleEventMapper
             return new AnalyticsEvent(name: 'unknown_lifecycle', params: $params);
         }
 
-        // Convert snake_case keys to camelCase for constructor matching
         $camelParams = [];
         foreach ($params as $key => $value) {
             $camelParams[str_replace('_', '', ucwords($key, '_'))] = $value;
@@ -738,7 +730,6 @@ final class LifecycleEventMapper
     {
         $short = (new \ReflectionClass($class))->getShortName();
 
-        // Convert PascalCase to snake_case
         return strtolower(preg_replace('/(?<!^)([A-Z])/', '_$1', $short) ?? $short);
     }
 
@@ -1006,7 +997,6 @@ final class LifecycleEventMapper
         $params = $this->payloadToArray($payload);
         $userId = (string) ($params['user_id'] ?? $params['userId'] ?? '');
 
-        // Use constructWithReflection which gracefully handles mismatched params
         return $this->constructWithReflection($class, array_merge($params, [
             'metadata' => array_filter(array_merge($params['metadata'] ?? [], [
                 'user_id' => $userId,

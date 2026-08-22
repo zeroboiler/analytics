@@ -287,7 +287,6 @@ final class EventRouterService
         $warnings = [];
         $validProviders = array_flip(self::ALL_PROVIDERS);
 
-        // Check category routes reference valid providers
         foreach ($this->categoryRoutes as $category => $providers) {
             foreach ($providers as $provider) {
                 if (! isset($validProviders[$provider])) {
@@ -296,7 +295,6 @@ final class EventRouterService
             }
         }
 
-        // Check pattern rules reference valid providers
         foreach ($this->patternRules as $index => $rule) {
             $type = $rule['type'] ?? 'glob';
             if (! in_array($type, ['glob', 'regex'], true)) {
@@ -309,7 +307,6 @@ final class EventRouterService
                 }
             }
 
-            // Validate regex patterns compile
             if ($type === 'regex') {
                 $pattern = $rule['pattern'];
                 $test = @preg_match($pattern, '');
@@ -319,7 +316,6 @@ final class EventRouterService
             }
         }
 
-        // Check priority routes reference valid priorities
         $validPriorities = ['critical', 'normal', 'low', 'background'];
         foreach ($this->priorityRoutes as $priority => $providers) {
             if (! in_array($priority, $validPriorities, true)) {
@@ -332,12 +328,10 @@ final class EventRouterService
             }
         }
 
-        // Check for overly restrictive rules (empty provider intersections)
         if ($this->defaultProviders !== null && $this->defaultProviders === []) {
             $errors[] = 'Default providers list is empty — all events will be dropped';
         }
 
-        // Check deny list + allow list conflicts
         foreach ($this->denyList as $event => $deniedProviders) {
             if (isset($this->allowList[$event])) {
                 $intersection = array_intersect($deniedProviders, $this->allowList[$event]);
@@ -383,7 +377,6 @@ final class EventRouterService
      */
     public function clearCache(): void
     {
-        // Clear all router cache keys (best-effort)
         try {
             $this->cache->forget('zb_router_*');
         } catch (\Throwable $e) {

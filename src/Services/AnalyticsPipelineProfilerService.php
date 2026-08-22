@@ -173,7 +173,6 @@ final class AnalyticsPipelineProfilerService
             return $this->computeProfile(array_merge($samples, $local));
         }
 
-        // Aggregate across all providers
         $profiles = [];
         foreach ($this->getKnownProviders() as $p) {
             $profiles[$p] = $this->providerProfile($p);
@@ -279,7 +278,6 @@ final class AnalyticsPipelineProfilerService
         $this->requestDispatchCount = 0;
         $this->requestTotalLatency = 0.0;
 
-        // Clear known cache keys
         foreach ($this->getKnownProviders() as $provider) {
             $this->cache->forget(self::CACHE_PREFIX . "provider:{$provider}");
         }

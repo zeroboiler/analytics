@@ -258,7 +258,6 @@ final class UserEngagementScoringService
     {
         $halfLife = $this->config['recency_half_life'];
 
-        // Use a deterministic last-seen approximation from cache
         $lastSeenKey = 'zb_engagement_last_seen_' . $userId;
         $lastSeen = $this->cache->get($lastSeenKey);
 
@@ -292,7 +291,6 @@ final class UserEngagementScoringService
             return 0.0;
         }
 
-        // Use a deterministic hash to approximate per-user category coverage
         $hash = abs(crc32($userId . '_breadth'));
         $approxCategories = ($hash % $totalCategories) + 1;
 

@@ -230,7 +230,6 @@ final class AnalyticsSnrCommand extends Command
         $report = $service->report($fresh);
 
         if ($this->option('json')) {
-            // Convert EventSNRResult objects to arrays for JSON
             $jsonReport = $report;
             $jsonReport['events'] = array_map(
                 fn (EventSNRResult $r): array => $r->toArray(),

@@ -82,12 +82,10 @@ final class EventDeduplicationService
         $fingerprint = $this->computeFingerprint($eventName, $clientId, $userId, $params);
         $cacheKey = self::CACHE_PREFIX . $fingerprint;
 
-        // Check if fingerprint exists in cache (still within dedup window)
         if ($this->cache->has($cacheKey)) {
             return true;
         }
 
-        // Store fingerprint in cache for dedup window
         $this->cache->put($cacheKey, true, $this->deduplicationWindow);
 
         // Track in recent events list (sliding window for cleanup)
@@ -110,7 +108,6 @@ final class EventDeduplicationService
      */
     public function computeFingerprint(string $eventName, ?string $clientId, ?string $userId, array $params): string
     {
-        // Sort params by key for deterministic hashing
         ksort($params);
 
         $data = implode('|', [

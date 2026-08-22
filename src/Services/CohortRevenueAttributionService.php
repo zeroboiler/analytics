@@ -295,7 +295,6 @@ final class CohortRevenueAttributionService
             }
         }
 
-        // Sort by period descending
         usort($cohorts, fn (array $a, array $b): int => strcmp($b['period'], $a['period']));
 
         $avgLtv = $totalUsers > 0
@@ -394,7 +393,6 @@ final class CohortRevenueAttributionService
         $aggregates = $this->cache->get($cacheKey, []);
         /** @var array<string, array{type: string, users: int, revenue: float, events: array<string, int>, user_ids: array<string, bool>}> $aggregates */
 
-        // Determine target cohort(s)
         $targets = [];
         if ($cohortId !== null && isset($aggregates[$cohortId])) {
             $targets[$cohortId] = $aggregates[$cohortId];
@@ -402,7 +400,6 @@ final class CohortRevenueAttributionService
             $targets = $aggregates;
         }
 
-        // Aggregate across targets
         $totalUsers = 0;
         $totalMonthlyRevenue = 0.0;
 
@@ -551,7 +548,6 @@ final class CohortRevenueAttributionService
         $matrix = $this->matrix();
         $cohorts = $matrix['cohorts'];
 
-        // Sort by revenue descending
         usort($cohorts, fn (array $a, array $b): int => $b['revenue'] <=> $a['revenue']);
 
         $result = [];
@@ -731,7 +727,6 @@ final class CohortRevenueAttributionService
      */
     private function estimateRetention(string $cohortId): float
     {
-        // Try to parse cohort age
         $now = time();
         $cohortTime = $this->parseCohortTimestamp($cohortId);
 

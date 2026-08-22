@@ -82,7 +82,6 @@ final class EventDebounceService
         $ttlSeconds = $this->getTtlSeconds($eventName);
         $cacheKey = $this->buildKey($eventName, $identity, $dedupeKey);
 
-        // Check if key already exists (event already dispatched within window)
         if ($this->cache->has($cacheKey)) {
             return false;
         }

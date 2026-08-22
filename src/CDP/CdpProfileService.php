@@ -139,7 +139,6 @@ final class CdpProfileService
             return $this->createProfile($userId);
         }
 
-        // Merge computed traits if requested
         if ($includeComputed) {
             $computed = $this->traitComputer->computeAllTraits($userId);
             $profile['traits'] = array_merge($computed, $profile['traits']);
@@ -171,7 +170,6 @@ final class CdpProfileService
 
         $profile = $this->getRawProfile($userId) ?? $this->createProfile($userId)->toArray();
 
-        // Merge traits (new values override existing)
         $profile['traits'] = array_merge(
             $profile['traits'] ?? [],
             $this->filterTraits($traits),
@@ -182,7 +180,6 @@ final class CdpProfileService
             $profile['traits'] = array_slice($profile['traits'], -$this->maxTraitsPerProfile, null, true);
         }
 
-        // Update email if provided
         if ($email !== null) {
             $profile['traits']['email'] = $email;
         }
@@ -287,13 +284,11 @@ final class CdpProfileService
             return ['updated_traits' => [], 'segments' => [], 'profile_updated' => false];
         }
 
-        // Ensure profile exists
         $profile = $this->getRawProfile($userId);
         if ($profile === null) {
             $profile = $this->createProfile($userId)->toArray();
         }
 
-        // Update profile metadata
         $profile['last_event_at'] = time();
         $profile['total_events'] = ($profile['total_events'] ?? 0) + 1;
         $profile['updated_at'] = time();
@@ -304,7 +299,6 @@ final class CdpProfileService
 
         $this->cache->put($this->profileKey($userId), $profile, $this->profileTtl);
 
-        // Process event for computed traits
         $updatedTraits = $this->traitComputer->processEvent($event, $userId);
 
         // Invalidate segment cache if traits changed
@@ -312,7 +306,6 @@ final class CdpProfileService
             $this->segmentService->invalidateCache($userId);
         }
 
-        // Get updated segments
         $allTraits = array_merge(
             $this->traitComputer->computeAllTraits($userId),
             $profile['traits'] ?? [],
@@ -394,12 +387,10 @@ final class CdpProfileService
 
         $removed = 0;
 
-        // Remove profile
         if ($this->cache->forget($this->profileKey($userId))) {
             $removed++;
         }
 
-        // Remove from index
         $index = $this->getIndex();
         $index = array_values(array_filter($index, fn (string $id): bool => $id !== $userId));
         $this->cache->put(self::PROFILE_INDEX_KEY, $index, $this->indexTtl);
@@ -407,7 +398,6 @@ final class CdpProfileService
         // Invalidate segment cache
         $this->segmentService->invalidateCache($userId);
 
-        // Clear computed trait caches
         foreach ($this->traitComputer->getTraitDefinitions() as $name => $_) {
             $this->cache->forget('zb_cdp_traits_' . $userId . '_trait_' . $name);
             $this->cache->forget('zb_cdp_accum_' . $userId . '_' . $name);
@@ -447,7 +437,6 @@ final class CdpProfileService
                 continue;
             }
 
-            // Skip non-serializable values
             if (is_resource($value)) {
                 continue;
             }

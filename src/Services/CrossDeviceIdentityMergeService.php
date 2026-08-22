@@ -99,7 +99,6 @@ final class CrossDeviceIdentityMergeService
             return false;
         }
 
-        // Store client_id → user_id mapping
         $clientNode = $this->getClientNode($clientId);
         $clientNode['user_id'] = $userId;
         $clientNode['anonymous_id'] = $anonymousId;
@@ -110,7 +109,6 @@ final class CrossDeviceIdentityMergeService
 
         $this->putClientNode($clientId, $clientNode);
 
-        // Store user_id → client_ids mapping
         $userNode = $this->getUserNode($userId);
         if (! in_array($clientId, $userNode['client_ids'], true)) {
             $userNode['client_ids'][] = $clientId;
@@ -130,7 +128,6 @@ final class CrossDeviceIdentityMergeService
         ));
         $this->putUserNode($userId, $userNode);
 
-        // Store anonymous_id → client_id mapping if present
         if ($anonymousId !== null && $anonymousId !== '') {
             $anonNode = $this->getAnonymousNode($anonymousId);
             if (! in_array($clientId, $anonNode['client_ids'], true)) {
@@ -144,7 +141,6 @@ final class CrossDeviceIdentityMergeService
             $this->putAnonymousNode($anonymousId, $anonNode);
         }
 
-        // Update confidence score
         $this->updateConfidence($clientId, $userId);
 
         return true;
@@ -213,7 +209,6 @@ final class CrossDeviceIdentityMergeService
             ];
         }
 
-        // Sort by confidence descending
         usort($results, fn (array $a, array $b): int => $b['confidence'] <=> $a['confidence']);
 
         return $results;
@@ -238,7 +233,6 @@ final class CrossDeviceIdentityMergeService
         $clientIds = $node['client_ids'] ?? [];
         $anonymousIds = $node['anonymous_ids'] ?? [];
 
-        // Calculate average confidence across all client associations
         $totalConfidence = 0.0;
         $confidenceCount = 0;
 
@@ -316,19 +310,16 @@ final class CrossDeviceIdentityMergeService
         $removed = 0;
         $clientIds = $this->resolveUserToClients($userId);
 
-        // Remove client → user mappings
         foreach ($clientIds as $clientId) {
             $node = $this->getClientNode($clientId);
             if (($node['user_id'] ?? '') === $userId) {
                 $node['user_id'] = null;
                 $this->putClientNode($clientId, $node);
             }
-            // Remove confidence scores
             $this->cache->forget(self::CONFIDENCE_KEY . md5($clientId . ':' . $userId));
             $removed++;
         }
 
-        // Remove user node
         $this->cache->forget(self::GRAPH_KEY . 'user_' . $userId);
         $removed++;
 
@@ -356,12 +347,10 @@ final class CrossDeviceIdentityMergeService
         $node = $this->getClientNode($clientId);
         $userId = $node['user_id'] ?? null;
 
-        // Remove client → user confidence
         if ($userId !== null) {
             $this->cache->forget(self::CONFIDENCE_KEY . md5($clientId . ':' . $userId));
             $removed++;
 
-            // Remove from user's client list
             $userNode = $this->getUserNode($userId);
             $userNode['client_ids'] = array_values(array_filter(
                 $userNode['client_ids'] ?? [],
@@ -370,7 +359,6 @@ final class CrossDeviceIdentityMergeService
             $this->putUserNode($userId, $userNode);
         }
 
-        // Remove client node
         $this->cache->forget(self::GRAPH_KEY . 'client_' . $clientId);
         $removed++;
 

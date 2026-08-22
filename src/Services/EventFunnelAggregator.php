@@ -72,7 +72,6 @@ final class EventFunnelAggregator
         $this->cachePrefix = $config['cache_prefix'] ?? 'zb_funnel_';
         $this->cacheTtl = $config['cache_ttl'] ?? 3600; // 1 hour
 
-        // Merge custom funnels with built-ins
         $this->funnels = self::BUILTIN_FUNNELS;
         $customFunnels = $config['funnels'] ?? [];
 
@@ -256,13 +255,11 @@ final class EventFunnelAggregator
             'step_stats' => [],
         ];
 
-        // Count as entered if first step is done
         if (in_array(0, $tracker['steps_completed'], true) && ! isset($tracker['counted_entered'])) {
             $report['total_entered']++;
             $tracker['counted_entered'] = true;
         }
 
-        // Update step stats
         foreach ($tracker['steps_completed'] as $stepIndex) {
             if (! isset($report['step_stats'][$stepIndex])) {
                 $report['step_stats'][$stepIndex] = ['entrants' => 0, 'conversions' => 0];
@@ -271,7 +268,6 @@ final class EventFunnelAggregator
             $report['step_stats'][$stepIndex]['conversions']++;
         }
 
-        // Count as completed
         if (isset($tracker['completed_at']) && ! isset($tracker['counted_completed'])) {
             $report['total_completed']++;
             $tracker['counted_completed'] = true;

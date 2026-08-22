@@ -126,7 +126,6 @@ final class AnalyticsConsistencyService
             $warnings[] = $warning;
         }
 
-        // Check for name/class mismatches
         foreach (EventCatalog::all() as $name => $entry) {
             $className = $entry['class'] ?? null;
             if ($className !== null) {
@@ -200,7 +199,6 @@ final class AnalyticsConsistencyService
             }
         }
 
-        // Check for events that have Meta mapping but no GA4 (unusual)
         foreach ($allEvents as $name => $entry) {
             if (($entry['meta'] ?? null) !== null && ! isset($entry['ga4'])) {
                 $warnings[] = "Event '{$name}' has Meta mapping but no GA4 mapping";
@@ -246,7 +244,6 @@ final class AnalyticsConsistencyService
             $warnings[] = 'Identity auto-linking is disabled; client_id ↔ user_id stitching will not occur on auth';
         }
 
-        // Check cache prefix
         $cachePrefix = $identityConfig['cache_prefix'] ?? null;
         if (! is_string($cachePrefix) || $cachePrefix === '') {
             $warnings[] = 'Identity cache prefix is not configured; link cache may conflict with other keys';

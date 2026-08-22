@@ -51,7 +51,6 @@ final class EventStoreManager implements AnalyticsEventStoreInterface
 
         $driver = $storeConfig['driver'] ?? 'cache';
 
-        // Initialize primary store
         $this->primary = $this->resolveDriver($driver, $storeConfig);
 
         // Initialize fallback if configured

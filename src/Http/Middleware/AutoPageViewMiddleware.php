@@ -92,19 +92,16 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
             return false;
         }
 
-        // Check HTTP method exclusions
         $excludeMethods = $config['exclude_methods'] ?? ['OPTIONS', 'HEAD'];
         if (in_array($request->method(), $excludeMethods, true)) {
             return false;
         }
 
-        // Check status code
         $trackStatusCodes = $config['track_status_codes'] ?? [200, 301, 302, 303, 307, 308, 404];
         if (! in_array($response->getStatusCode(), $trackStatusCodes, true)) {
             return false;
         }
 
-        // Check path exclusions (fnmatch patterns)
         $excludePaths = $config['exclude_paths'] ?? [
             '*/_ignition*',
             '*/telescope*',
@@ -187,7 +184,6 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
             'is_bot' => $this->isBot($request),
         ];
 
-        // Add authenticated user context
         $user = $request->user();
         if ($user !== null) {
             $key = method_exists($user, 'getKeyName') ? $user->getKeyName() : 'id';
@@ -196,7 +192,6 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
                 : (string) $user->getKey();
         }
 
-        // Add tenant context if available
         $tenantId = $this->resolveTenantId($request);
         if ($tenantId !== null) {
             $params['tenant_id'] = $tenantId;
@@ -294,7 +289,6 @@ final class AutoPageViewMiddleware implements HttpMiddlewareContract
             return $tenantId;
         }
 
-        // Check for common tenant resolution patterns
         $user = $request->user();
         if ($user !== null && method_exists($user, 'getAttribute')) {
             $tid = $user->getAttribute('tenant_id');

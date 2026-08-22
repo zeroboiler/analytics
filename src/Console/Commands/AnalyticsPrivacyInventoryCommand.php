@@ -377,7 +377,6 @@ final class AnalyticsPrivacyInventoryCommand extends Command
     {
         $recommendations = [];
 
-        // Check consent default
         $consentDefault = ($analyticsConfig['consent']['default'] ?? 'granted');
         if ($consentDefault === 'granted') {
             $recommendations[] = [
@@ -387,7 +386,6 @@ final class AnalyticsPrivacyInventoryCommand extends Command
             ];
         }
 
-        // Check consent logging
         if (! ($analyticsConfig['consent']['log_enabled'] ?? false)) {
             $recommendations[] = [
                 'severity' => 'medium',
@@ -396,7 +394,6 @@ final class AnalyticsPrivacyInventoryCommand extends Command
             ];
         }
 
-        // Check IP anonymization
         if (! (($analyticsConfig['gdpr']['anonymize_ip'] ?? true))) {
             $recommendations[] = [
                 'severity' => 'high',
@@ -405,7 +402,6 @@ final class AnalyticsPrivacyInventoryCommand extends Command
             ];
         }
 
-        // Check retention policies
         if (! isset($analyticsConfig['data_retention']['enabled'])) {
             $recommendations[] = [
                 'severity' => 'medium',

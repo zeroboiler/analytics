@@ -749,7 +749,6 @@ final class SaaSFunnelDefinitions
         $warnings = [];
 
         foreach (self::all() as $key => $definition) {
-            // Check required fields
             if (empty($definition['name'])) {
                 $errors[] = "Funnel '{$key}' is missing 'name'";
             }
@@ -763,7 +762,6 @@ final class SaaSFunnelDefinitions
                 $warnings[] = "Funnel '{$key}' has fewer than 2 steps — not a meaningful funnel";
             }
 
-            // Validate steps
             $seenEvents = [];
             foreach ($definition['steps'] as $i => $step) {
                 if (empty($step['event_name'])) {
@@ -774,13 +772,11 @@ final class SaaSFunnelDefinitions
                     $warnings[] = "Funnel '{$key}' step {$i} is missing 'label'";
                 }
 
-                // Check event exists in catalog
                 $eventName = $step['event_name'] ?? '';
                 if ($eventName !== '' && ! \ZeroBoiler\Analytics\Events\EventCatalog::has($eventName)) {
                     $warnings[] = "Funnel '{$key}' step '{$step['name']}' references unknown event '{$eventName}'";
                 }
 
-                // Check for duplicate events in same funnel
                 if (in_array($eventName, $seenEvents, true)) {
                     $warnings[] = "Funnel '{$key}' has duplicate event '{$eventName}'";
                 }

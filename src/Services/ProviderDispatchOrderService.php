@@ -119,13 +119,11 @@ final class ProviderDispatchOrderService
         $totalSelected = 0;
 
         foreach (self::ALL_PROVIDERS as $provider) {
-            // Skip globally excluded providers
             if (in_array($provider, $this->excludedProviders, true)) {
                 $providers[] = $this->excludedEntry($provider, ['Globally excluded via config']);
                 continue;
             }
 
-            // Skip disabled providers
             if (! $this->isProviderEnabled($provider)) {
                 $providers[] = $this->excludedEntry($provider, ['Provider is disabled']);
                 continue;
@@ -150,7 +148,6 @@ final class ProviderDispatchOrderService
             ];
         }
 
-        // Sort by score descending (excluded items go to bottom)
         usort($providers, function (array $a, array $b): int {
             if ($a['excluded'] !== $b['excluded']) {
                 return $a['excluded'] ? 1 : -1;
@@ -357,7 +354,6 @@ final class ProviderDispatchOrderService
             $composite += ($score * $weight);
         }
 
-        // Apply provider-specific weight multiplier if configured
         $override = $this->providerWeights[$provider] ?? null;
         if ($override !== null && $override > 0) {
             $composite *= $override;
@@ -524,7 +520,6 @@ final class ProviderDispatchOrderService
             return 100.0;
         }
 
-        // Check cache for actual consent state
         $cacheKey = self::CACHE_PREFIX . 'consent_' . $provider;
         $consented = $this->cache->get($cacheKey);
 

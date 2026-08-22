@@ -287,7 +287,6 @@ final class GrowthMetricsService
                 ? min($dailyActive / $monthlyActive, 1.0)
                 : 0.0;
 
-            // Calculate per-feature stickiness
             $featureEvents = ['feature_used', 'search', 'form_submit', 'share', 'content_engagement'];
             foreach ($featureEvents as $feature) {
                 $count = $streamService->getEventCount($feature);

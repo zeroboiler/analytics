@@ -97,7 +97,6 @@ final class AnalyticsQualityGateCommand extends Command
             'fail_level' => $failLevel,
         ];
 
-        // Compute overall pass/fail
         $results['passed'] = $this->evaluatePassFail($results, $failLevel, $minCoverage, $minCompliance);
 
         if ($outputJson) {

@@ -121,7 +121,6 @@ final class EventStreamProcessorService
         $meta['last_timestamp'] = $timestamp;
         $meta['unique_events'][$eventName] = true;
 
-        // Append to stream
         $streamEntry = [
             'event_name' => $eventName,
             'timestamp' => $timestamp,
@@ -135,18 +134,15 @@ final class EventStreamProcessorService
             $stream = array_slice($stream, -$this->maxStreamEventsPerClient);
         }
 
-        // Update sequence buffer for pattern extraction
         $meta['sequence_buffer'][] = $eventName;
         if (count($meta['sequence_buffer']) > $this->maxSequenceLength) {
             $meta['sequence_buffer'] = array_slice($meta['sequence_buffer'], -$this->maxSequenceLength);
         }
 
-        // Extract patterns when buffer reaches a meaningful length
         if (count($meta['sequence_buffer']) >= 3) {
             $this->extractAndCachePatterns($clientId, $meta['sequence_buffer'], $timestamp);
         }
 
-        // Store updated state
         $this->cache->put($streamKey, $stream, $this->cacheTtl);
         $this->cache->put($metaKey, $meta, $this->cacheTtl);
 
@@ -202,7 +198,6 @@ final class EventStreamProcessorService
             );
         }
 
-        // Sort by occurrences descending
         usort($patterns, static fn (EventSequencePattern $a, EventSequencePattern $b): int => $b->occurrences <=> $a->occurrences);
 
         return array_slice($patterns, 0, $limit);
@@ -239,7 +234,6 @@ final class EventStreamProcessorService
                 continue;
             }
 
-            // Compute per-step completion rates from global pattern data
             $globalKey = $this->cachePrefix . 'global_patterns';
             /** @var array<string, array{sequence: list<string>, occurrences: int, step_counts: array<int, int>}>|null $globalPatterns */
             $globalPatterns = $this->cache->get($globalKey);
@@ -275,7 +269,6 @@ final class EventStreamProcessorService
             ];
         }
 
-        // Sort by total_sequences descending
         usort($funnels, static fn (array $a, array $b): int => $b['total_sequences'] <=> $a['total_sequences']);
 
         return array_slice($funnels, 0, 10);
@@ -409,7 +402,6 @@ final class EventStreamProcessorService
             $eventCounts[] = $entry['event_name'];
         }
 
-        // Compute baseline stats
         $meanDelta = count($timeDeltas) > 0 ? array_sum($timeDeltas) / count($timeDeltas) : 0;
         $stdDelta = $this->standardDeviation($timeDeltas);
         $threshold = $meanDelta + ($stdDelta * $this->anomalyDeviationThreshold);
@@ -554,7 +546,6 @@ final class EventStreamProcessorService
      */
     public function clearAllStreams(): void
     {
-        // Clear global patterns
         $this->cache->forget($this->cachePrefix . 'global_patterns');
     }
 
@@ -596,13 +587,11 @@ final class EventStreamProcessorService
         /** @var array<string, array{sequence: list<string>, occurrences: int, unique_users: int, durations: list<float>, conversion_rate: float, sample_clients: list<string>, step_counts: array<int, int>}> $globalPatterns */
         $globalPatterns = $this->cache->get($globalKey, []);
 
-        // Generate subsequences of length 3 to maxSequenceLength
         $len = count($sequenceBuffer);
         for ($subLen = 3; $subLen <= min($len, $this->maxSequenceLength); $subLen++) {
             $subsequence = array_slice($sequenceBuffer, -$subLen);
             $patternId = $this->computePatternId($subsequence);
 
-            // Update client-level pattern
             if (! isset($clientPatterns[$patternId])) {
                 $clientPatterns[$patternId] = [
                     'id' => $patternId,
@@ -615,7 +604,6 @@ final class EventStreamProcessorService
             $clientPatterns[$patternId]['occurrences']++;
             $clientPatterns[$patternId]['last_seen'] = $timestamp;
 
-            // Update global pattern
             if (! isset($globalPatterns[$patternId])) {
                 $globalPatterns[$patternId] = [
                     'sequence' => $subsequence,
@@ -693,7 +681,6 @@ final class EventStreamProcessorService
             return 0;
         }
 
-        // Find the maximum unique_users across all patterns (approximate)
         $maxUsers = 0;
         foreach ($globalPatterns as $data) {
             $maxUsers = max($maxUsers, $data['unique_users'] ?? 0);

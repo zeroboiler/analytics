@@ -352,7 +352,6 @@ final class AnalyticsContextBus
 
         $context = [];
 
-        // Extract tenant attributes from user model
         $tenantIdField = $tenantContext['tenant_id_field'] ?? 'tenant_id';
         $tenantNameField = $tenantContext['tenant_name_field'] ?? 'tenant_name';
 

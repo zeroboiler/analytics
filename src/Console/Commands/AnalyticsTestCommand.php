@@ -73,7 +73,6 @@ final class AnalyticsTestCommand extends Command
             $this->newLine();
         }
 
-        // Build test event with diagnostic context
         $event = new AnalyticsEvent(
             name: $eventName,
             params: [
@@ -252,7 +251,6 @@ final class AnalyticsTestCommand extends Command
             return self::FAILURE;
         }
 
-        // Get all registered mappings via reflection
         $ref = new \ReflectionClass($mapper);
         $defaultMappings = $ref->getConstant('DEFAULT_MAPPINGS');
 
@@ -271,13 +269,11 @@ final class AnalyticsTestCommand extends Command
             $valid = true;
             $issues = [];
 
-            // Validate source class exists (Laravel framework classes may not be available)
             if ($sourceClass !== '' && ! class_exists($sourceClass) && ! interface_exists($sourceClass)) {
                 $valid = false;
                 $issues[] = "source class '{$sourceClass}' does not exist";
             }
 
-            // Validate target class exists
             if ($targetClass !== '' && ! class_exists($targetClass)) {
                 $valid = false;
                 $issues[] = "target class '{$targetClass}' does not exist";

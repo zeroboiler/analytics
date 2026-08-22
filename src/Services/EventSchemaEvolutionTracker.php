@@ -44,9 +44,7 @@ final class EventSchemaEvolutionTracker
         $this->currentVersion    = '';
     }
 
-    // ──────────────────────────────────────────────────────────────────
     //  Snapshot Management
-    // ──────────────────────────────────────────────────────────────────
 
     /**
      * Register a catalog snapshot for a given version.
@@ -119,9 +117,7 @@ final class EventSchemaEvolutionTracker
         return $this->snapshots[$this->currentVersion];
     }
 
-    // ──────────────────────────────────────────────────────────────────
     //  Evolution Analysis
-    // ──────────────────────────────────────────────────────────────────
 
     /**
      * Compare two versions and produce a list of changes.
@@ -267,9 +263,7 @@ final class EventSchemaEvolutionTracker
         return $this->changes;
     }
 
-    // ──────────────────────────────────────────────────────────────────
     //  Internal
-    // ──────────────────────────────────────────────────────────────────
 
     /**
      * Default breaking-change policies.

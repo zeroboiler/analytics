@@ -247,7 +247,6 @@ final class RevenueWaterfallService
             };
         }
 
-        // Merge persisted movements for historical periods
         foreach ($movements as $movement) {
             $type = $movement['type'] ?? '';
             $amount = (float) ($movement['amount'] ?? 0);
@@ -262,7 +261,6 @@ final class RevenueWaterfallService
             };
         }
 
-        // Calculate ending MRR from stored starting value + movements
         $startingCacheKey = self::CACHE_PREFIX . 'starting_mrr_' . $period;
         $startingMrr = $this->cache->get($startingCacheKey, 0.0);
 

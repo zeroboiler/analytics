@@ -283,7 +283,6 @@ final class EventImpactScoreService
             $sorted[$name] = $result['score'];
         }
 
-        // Sort descending by score
         arsort($sorted);
 
         $topEvents = array_keys(array_slice($sorted, 0, 10, true));
@@ -437,7 +436,6 @@ final class EventImpactScoreService
             $categoryScores[$category] = ($categoryScores[$category] ?? 0.0) + $data['score'];
         }
 
-        // Compute category averages
         $categoryCounts = [];
         foreach ($all['events'] as $name => $data) {
             $cat = $data['category'];

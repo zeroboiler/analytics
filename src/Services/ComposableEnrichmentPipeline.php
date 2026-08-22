@@ -64,7 +64,6 @@ final class ComposableEnrichmentPipeline
             ];
         }
 
-        // Sort by priority (higher priority = runs first)
         usort($this->stages, fn (array $a, array $b): int => $b['priority'] <=> $a['priority']);
     }
 
@@ -159,7 +158,6 @@ final class ComposableEnrichmentPipeline
      */
     private function processStage(AnalyticsEvent $event, string $stageName, array $config): AnalyticsEvent
     {
-        // Check for custom handler first
         if (isset($this->customHandlers[$stageName])) {
             return ($this->customHandlers[$stageName])($event, $config);
         }
@@ -303,7 +301,6 @@ final class ComposableEnrichmentPipeline
             $prefix . 'id' => $session->getId(),
         ];
 
-        // Count pages viewed in this session
         $pageCount = (int) ($session->get('_zb_page_count', 0)) + 1;
         $session->put('_zb_page_count', $pageCount);
         $sessionParams[$prefix . 'page_count'] = $pageCount;

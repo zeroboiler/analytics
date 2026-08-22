@@ -86,14 +86,12 @@ final class EventFieldRegistry
         $schema = self::forEvent($eventName);
         $errors = [];
 
-        // Check required fields
         foreach ($schema as $fieldName => $definition) {
             if ($definition->required && ! array_key_exists($fieldName, $payload)) {
                 $errors[] = "Missing required field: '{$fieldName}'";
             }
         }
 
-        // Check types for provided fields
         foreach ($payload as $fieldName => $value) {
             $definition = $schema[$fieldName] ?? null;
 
@@ -104,7 +102,6 @@ final class EventFieldRegistry
                     $errors[] = $typeError;
                 }
 
-                // Check allowed values
                 if ($definition->allowedValues !== [] && ! in_array($value, $definition->allowedValues, true)) {
                     $errors[] = "Field '{$fieldName}' has invalid value: " . json_encode($value) .
                         ', expected one of: ' . implode(', ', array_map('json_encode', $definition->allowedValues));

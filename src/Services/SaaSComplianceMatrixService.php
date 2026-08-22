@@ -295,7 +295,6 @@ final class SaaSComplianceMatrixService
             }
         }
 
-        // Sort: critical first, then recommended
         usort($recommendations, function (array $a, array $b): int {
             $priorityOrder = ['critical' => 0, 'recommended' => 1];
             $aOrder = $priorityOrder[$a['priority']] ?? 99;

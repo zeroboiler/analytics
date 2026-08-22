@@ -101,7 +101,6 @@ final class TypedEventBuilder
      */
     public function param(string $key, mixed $value): self
     {
-        // Skip empty strings — they add noise to analytics payloads
         if (is_string($value) && $value === '') {
             return $this;
         }

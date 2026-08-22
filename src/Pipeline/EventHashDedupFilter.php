@@ -63,12 +63,10 @@ final class EventHashDedupFilter
     {
         $hash = $this->computeHash($event);
 
-        // Check in-memory seen-set (per-request dedup)
         if (isset($this->seenHashes[$hash])) {
             return null;
         }
 
-        // Check cross-request cache (if enabled)
         if ($this->crossRequestDedup) {
             $cacheKey = $this->cachePrefix . $hash;
 

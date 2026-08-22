@@ -126,13 +126,11 @@ final class FeatureFlagIntegrationService
             return true; // When disabled, all flags are considered "on"
         }
 
-        // Check in-memory cache first
         $cacheKey = "{$flagKey}:{$contextId}";
         if (array_key_exists($cacheKey, $this->evaluationCache)) {
             return $this->evaluationCache[$cacheKey];
         }
 
-        // Check persistent cache
         $persistentKey = self::CACHE_PREFIX . md5($cacheKey);
         $cached = $this->cache->get($persistentKey);
         if ($cached !== null) {
@@ -186,12 +184,10 @@ final class FeatureFlagIntegrationService
             return $defaultValue;
         }
 
-        // Check if flag is enabled globally
         if (($flag['enabled'] ?? true) === false) {
             return false;
         }
 
-        // Check allow list
         $allowList = $flag['allow'] ?? [];
         $denyList = $flag['deny'] ?? [];
 
@@ -253,7 +249,6 @@ final class FeatureFlagIntegrationService
 
         $gates = $this->manager->config('feature_flags.gates', []);
 
-        // Check if this event has a gate
         $gateFlag = $gates[$eventName] ?? null;
 
         if ($gateFlag === null) {

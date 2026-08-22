@@ -417,7 +417,6 @@ final class SaaSAnalyticsROIService
             $recommendations[] = 'Insight yield is low (< 1.0 per 1K events). Add more behavioral events (scroll_depth, feature_used, form_start) to improve pattern detection.';
         }
 
-        // Find underperforming providers
         foreach ($providerStats as $p) {
             if ($p['roi_percent'] < 100 && $p['efficiency_score'] < 1.0) {
                 $recommendations[] = sprintf(

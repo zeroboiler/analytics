@@ -117,7 +117,6 @@ final class CustomerProfileUnificationService
             return $this->emptyProfile($identity);
         }
 
-        // Check cache first
         $cacheKey = $this->cachePrefix . $identity;
         $cached = $this->cache->get($cacheKey);
 
@@ -125,11 +124,9 @@ final class CustomerProfileUnificationService
             return $cached;
         }
 
-        // Resolve canonical identity
         $userId = $this->resolveUserId($identity);
         $canonicalId = $userId ?? $identity;
 
-        // Build profile from multiple sources
         $profile = $this->buildProfile($canonicalId, $identity, $userId);
 
         // Run registered enrichers
@@ -173,18 +170,14 @@ final class CustomerProfileUnificationService
         $userId = $this->resolveUserId($identity);
         $canonicalId = $userId ?? $identity;
 
-        // Increment event count
         $this->propertiesStore->increment($canonicalId, '_total_events', 1);
 
-        // Update category count
         if ($category !== null) {
             $this->propertiesStore->increment($canonicalId, "_events_{$category}", 1);
         }
 
-        // Update last active timestamp
         $this->propertiesStore->set($canonicalId, '_last_active', date('c'));
 
-        // Update revenue if present
         if (isset($params['value']) && is_numeric($params['value'])) {
             $this->propertiesStore->aggregate($canonicalId, '_total_revenue', (float) $params['value'], 'sum');
         }
@@ -195,7 +188,6 @@ final class CustomerProfileUnificationService
             $this->propertiesStore->aggregate($canonicalId, $revenueKey, (float) $params['value'], 'sum');
         }
 
-        // Add to recent events list
         $recentEvents = $this->propertiesStore->get($canonicalId, '_recent_events', []);
         if (! is_array($recentEvents)) {
             $recentEvents = [];
@@ -260,7 +252,6 @@ final class CustomerProfileUnificationService
             }
         }
 
-        // Merge event counts
         $clientTotalEvents = (int) ($clientProfile['_total_events'] ?? 0);
         $userTotalEvents = (int) ($userProfile['_total_events'] ?? 0);
         if ($clientTotalEvents > 0) {
@@ -268,7 +259,6 @@ final class CustomerProfileUnificationService
             $eventsTransferred = $clientTotalEvents;
         }
 
-        // Merge category counts
         foreach ($clientProfile as $key => $value) {
             if (str_starts_with($key, '_events_') && is_int($value)) {
                 $existing = (int) ($userProfile[$key] ?? 0);
@@ -276,32 +266,27 @@ final class CustomerProfileUnificationService
             }
         }
 
-        // Merge revenue
         $clientRevenue = (float) ($clientProfile['_total_revenue'] ?? 0);
         if ($clientRevenue > 0) {
             $userRevenue = (float) ($userProfile['_total_revenue'] ?? 0);
             $this->propertiesStore->set($userId, '_total_revenue', $userRevenue + $clientRevenue);
         }
 
-        // Merge recent events (chronological, deduplicated)
         $clientEvents = is_array($clientProfile['_recent_events'] ?? null) ? $clientProfile['_recent_events'] : [];
         $userEvents = is_array($userProfile['_recent_events'] ?? null) ? $userProfile['_recent_events'] : [];
         $mergedEvents = array_merge($clientEvents, $userEvents);
 
-        // Sort by timestamp descending, keep most recent
         usort($mergedEvents, fn (array $a, array $b): int => strcmp($b['timestamp'] ?? '', $a['timestamp'] ?? ''));
         $mergedEvents = array_slice($mergedEvents, 0, $this->maxRecentEvents);
 
         $this->propertiesStore->set($userId, '_recent_events', $mergedEvents);
 
-        // Set first-seen from client if earlier
         $clientFirstSeen = $clientProfile['_first_seen'] ?? null;
         $userFirstSeen = $userProfile['_first_seen'] ?? null;
         if ($clientFirstSeen !== null && ($userFirstSeen === null || $clientFirstSeen < $userFirstSeen)) {
             $this->propertiesStore->set($userId, '_first_seen', $clientFirstSeen);
         }
 
-        // Store the link timestamp
         $this->propertiesStore->set($userId, '_cdp_merged_at', date('c'));
         $this->propertiesStore->set($userId, '_cdp_merged_client', $clientId);
 
@@ -389,7 +374,6 @@ final class CustomerProfileUnificationService
         $canonicalId = $this->resolveUserId($identity) ?? $identity;
         $all = $this->propertiesStore->all($canonicalId);
 
-        // Filter out internal CDP keys
         return array_filter(
             $all,
             fn (string $key): bool => ! str_starts_with($key, '_'),
@@ -490,19 +474,15 @@ final class CustomerProfileUnificationService
     {
         $canonicalId = $this->resolveUserId($identity) ?? $identity;
 
-        // Delete cached profile
         $this->cache->forget($this->cachePrefix . $canonicalId);
 
-        // Delete properties
         $this->propertiesStore->delete($canonicalId);
 
-        // Delete external IDs
         $externalIdsKey = self::EXTERNAL_IDS_KEY . $canonicalId;
         /** @var array<string, string>|null $externalIds */
         $externalIds = $this->cache->get($externalIdsKey);
         $this->cache->forget($externalIdsKey);
 
-        // Delete segments
         $this->cache->forget(self::SEGMENTS_KEY . $canonicalId);
 
         $externalIdCount = is_array($externalIds) ? count($externalIds) : 0;
@@ -572,14 +552,12 @@ final class CustomerProfileUnificationService
             ? $this->identityResolution->getClientIdsForUser($userId)
             : [];
 
-        // Extract public traits (filter internal keys)
         $publicTraits = array_filter(
             $traits,
             fn (string $key): bool => ! str_starts_with($key, '_'),
             ARRAY_FILTER_USE_KEY,
         );
 
-        // Extract lifetime metrics
         $firstSeen = $traits['_first_seen'] ?? null;
         $lastActive = $traits['_last_active'] ?? null;
         $sessionCount = (int) ($traits['_session_count'] ?? 0);
@@ -594,7 +572,6 @@ final class CustomerProfileUnificationService
             }
         }
 
-        // Extract category event counts
         $byCategory = [];
         foreach ($traits as $key => $value) {
             if (str_starts_with($key, '_events_') && is_int($value)) {
@@ -603,7 +580,6 @@ final class CustomerProfileUnificationService
             }
         }
 
-        // Extract recent events
         $recentEvents = is_array($traits['_recent_events'] ?? null) ? $traits['_recent_events'] : [];
         $recentEventsFormatted = array_map(
             fn (array $event): array => [

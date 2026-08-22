@@ -424,7 +424,6 @@ final class ChurnPredictionService
      */
     private function generateRecommendation(string $riskLevel, array $signals): string
     {
-        // Find top contributing signal
         $topSignal = array_reduce(
             $signals,
             fn (?array $carry, array $signal): ?array => $carry === null || $signal['score'] > $carry['score'] ? $signal : $carry,

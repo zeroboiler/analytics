@@ -44,7 +44,6 @@ final class AnalyticsEventNameRule implements Rule
             return false;
         }
 
-        // Check naming format
         if (preg_match(self::PATTERN, $value) !== 1) {
             return false;
         }

@@ -70,7 +70,6 @@ final class EventPluginRegistry
             return;
         }
 
-        // Validate event structure
         $validEvents = [];
         foreach ($events as $event) {
             if (! is_array($event)) {

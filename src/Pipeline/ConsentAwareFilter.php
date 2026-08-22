@@ -135,7 +135,6 @@ final class ConsentAwareFilter
             return $event;
         }
 
-        // Check per-user granular consent first (if available)
         if ($identifier !== null && $this->consentLogService !== null) {
             foreach ($requiredPurposes as $purpose) {
                 if ($purpose === 'necessary') {

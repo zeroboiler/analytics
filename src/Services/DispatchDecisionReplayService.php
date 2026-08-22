@@ -189,7 +189,6 @@ final class DispatchDecisionReplayService
             }
         }
 
-        // Sort dropped events/providers by count desc
         arsort($droppedEvents);
         arsort($droppedProviders);
 

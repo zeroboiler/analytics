@@ -124,7 +124,6 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
         $events = [];
 
         foreach ($index as $id => $meta) {
-            // Apply filters against metadata stored in index
             if (!$this->matchesFilters($meta, $filters)) {
                 continue;
             }
@@ -136,7 +135,6 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
             }
         }
 
-        // Sort by timestamp descending
         usort($events, function (AnalyticsEvent $a, AnalyticsEvent $b) {
             $aTime = $a->timestamp?->getTimestamp() ?? 0;
             $bTime = $b->timestamp?->getTimestamp() ?? 0;
@@ -144,7 +142,6 @@ final class CacheEventStore implements AnalyticsEventStoreInterface
             return $bTime <=> $aTime;
         });
 
-        // Apply limit/offset
         $limit = $filters['limit'] ?? 100;
         $offset = $filters['offset'] ?? 0;
 

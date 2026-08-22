@@ -98,7 +98,6 @@ final class EventDataMartService
             return;
         }
 
-        // Filter by tracked categories if configured
         if (! empty($this->trackedCategories)) {
             $category = $event['category'] ?? 'unknown';
             if (! in_array($category, $this->trackedCategories, true)) {
@@ -112,7 +111,6 @@ final class EventDataMartService
         foreach ($this->autoDimensions as $dimension) {
             $key = $event[$dimension] ?? 'unknown';
 
-            // Limit dimension cardinality
             if (is_string($key) && strlen($key) > 100) {
                 $key = substr($key, 0, 100);
             }
@@ -175,7 +173,6 @@ final class EventDataMartService
             $total += $cell['count'];
         }
 
-        // Sort by count descending
         usort($results, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         if ($limit !== null) {
@@ -403,7 +400,6 @@ final class EventDataMartService
             }
         }
 
-        // Clear the all-events counter
         foreach (self::GRANULARITIES as $granularity) {
             $this->cache->forget($this->cacheKey('_all', $granularity));
         }
@@ -426,7 +422,6 @@ final class EventDataMartService
         $slices = $this->cache->get($cacheKey, []);
 
         if (! isset($slices[$key])) {
-            // Check dimension cardinality limit
             if (count($slices) >= $this->maxDimensions && ! isset($slices[$key])) {
                 return; // Drop new keys if at capacity
             }

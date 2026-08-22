@@ -66,7 +66,6 @@ final class SchemaValidationStage implements ValidationStageInterface
         $enforceRequired = (bool) ($this->config['enforce_required'] ?? true);
         $strictTypes = (bool) ($this->config['strict_types'] ?? false);
 
-        // Check required parameters
         if ($enforceRequired) {
             $checked++;
             $requiredParams = $this->getRequiredParams($event->name);
@@ -81,7 +80,6 @@ final class SchemaValidationStage implements ValidationStageInterface
             }
         }
 
-        // Check parameter count
         $checked++;
         $maxParams = (int) ($this->config['max_param_count'] ?? 100);
         if (count($event->params) > $maxParams) {
@@ -93,7 +91,6 @@ final class SchemaValidationStage implements ValidationStageInterface
             ];
         }
 
-        // Check parameter key length
         $checked++;
         $maxKeyLength = (int) ($this->config['max_key_length'] ?? 100);
         foreach ($event->params as $key => $value) {

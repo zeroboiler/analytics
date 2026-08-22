@@ -86,14 +86,12 @@ final class EventPropertySchema
         $schema = $this->schemas[$eventName] ?? [];
         $allRules = array_merge($this->globalRules, $schema);
 
-        // Check required fields
         foreach ($allRules as $prop => $rules) {
             if (($rules['required'] ?? false) && ! array_key_exists($prop, $params)) {
                 $errors[] = "Property '{$prop}' is required for event '{$eventName}'";
             }
         }
 
-        // Validate present properties
         foreach ($params as $prop => $value) {
             $rules = $allRules[$prop] ?? null;
 
@@ -118,7 +116,6 @@ final class EventPropertySchema
                 }
             }
 
-            // Format validation (string patterns)
             if (isset($rules['format']) && is_string($value)) {
                 $formatError = $this->validateFormat($prop, $value, $rules['format']);
                 if ($formatError !== null) {

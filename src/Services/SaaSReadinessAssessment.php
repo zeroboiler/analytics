@@ -84,7 +84,6 @@ final class SaaSReadinessAssessment
             'configuration_quality' => $this->assessConfigurationQuality(),
         ];
 
-        // Calculate weighted overall score
         $weights = [
             'event_coverage' => 0.25,
             'provider_coverage' => 0.15,
@@ -167,7 +166,6 @@ final class SaaSReadinessAssessment
             }
         }
 
-        // Sort by impact priority
         usort($recommendations, function (array $a, array $b): int {
             $priority = ['high' => 0, 'medium' => 1, 'low' => 2];
             return ($priority[$a['impact']] ?? 2) - ($priority[$b['impact']] ?? 2);
@@ -193,7 +191,6 @@ final class SaaSReadinessAssessment
         $findings = [];
         $recommendations = [];
 
-        // Check critical events
         $criticalCovered = 0;
         $criticalTotal = count($industry['critical']);
         foreach ($industry['critical'] as $entry) {
@@ -202,7 +199,6 @@ final class SaaSReadinessAssessment
             }
         }
 
-        // Check high-priority events
         $highCovered = 0;
         $highTotal = count($industry['high']);
         foreach ($industry['high'] as $entry) {
@@ -211,7 +207,6 @@ final class SaaSReadinessAssessment
             }
         }
 
-        // Check medium-priority events
         $mediumCovered = 0;
         $mediumTotal = count($industry['medium']);
         foreach ($industry['medium'] as $entry) {
@@ -220,7 +215,6 @@ final class SaaSReadinessAssessment
             }
         }
 
-        // Find missing critical events
         $missingCritical = [];
         foreach ($industry['critical'] as $entry) {
             if (! isset($trackedSet[$entry['name']])) {
@@ -233,7 +227,6 @@ final class SaaSReadinessAssessment
             $recommendations[] = 'Track critical events first: ' . implode(', ', array_slice($missingCritical, 0, 5));
         }
 
-        // Find missing high-priority events
         $missingHigh = [];
         foreach ($industry['high'] as $entry) {
             if (! isset($trackedSet[$entry['name']])) {
@@ -255,7 +248,6 @@ final class SaaSReadinessAssessment
             $recommendations[] = 'Consider adding medium-priority events for deeper insights';
         }
 
-        // Calculate weighted score
         $totalImportant = $criticalTotal + $highTotal + ($mediumTotal * 0.5);
         $coveredImportant = $criticalCovered + $highCovered + ($mediumCovered * 0.5);
         $score = $totalImportant > 0 ? round(($coveredImportant / $totalImportant) * 100, 1) : 0.0;
@@ -312,7 +304,6 @@ final class SaaSReadinessAssessment
             }
         }
 
-        // Find events with poor provider coverage
         $poorCoverageEvents = [];
         foreach ($this->trackedEvents as $eventName) {
             $entry = $allCatalog[$eventName] ?? null;

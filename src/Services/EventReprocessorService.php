@@ -407,7 +407,6 @@ final class EventReprocessorService
             ];
         }
 
-        // Build the event DTO
         $event = new AnalyticsEvent(
             name: $eventName,
             params: $params,
@@ -459,7 +458,6 @@ final class EventReprocessorService
      */
     private function applyMigration(string $eventName, array $params): array
     {
-        // Check if a migration exists for this event in the schema migration service.
         // The migration service is accessed through config to avoid hard coupling.
         $migrationConfig = $this->config->get('zeroboiler.analytics.schema_migration', []);
         /** @var array{migrations?: array<string, array{rename?: array<string, string>, defaults?: array<string, mixed>, remove?: list<string>}>} $migrationConfig */
@@ -477,7 +475,6 @@ final class EventReprocessorService
 
         $transformed = $params;
 
-        // Apply field renames
         $renames = $eventRules['rename'] ?? [];
         foreach ($renames as $oldKey => $newKey) {
             if (array_key_exists($oldKey, $transformed)) {
@@ -486,7 +483,6 @@ final class EventReprocessorService
             }
         }
 
-        // Apply default values for missing fields
         $defaults = $eventRules['defaults'] ?? [];
         foreach ($defaults as $field => $defaultValue) {
             if (! array_key_exists($field, $transformed)) {
@@ -494,7 +490,6 @@ final class EventReprocessorService
             }
         }
 
-        // Remove deprecated fields
         $removals = $eventRules['remove'] ?? [];
         foreach ($removals as $field) {
             unset($transformed[$field]);
@@ -517,26 +512,22 @@ final class EventReprocessorService
     {
         $issues = [];
 
-        // Check event name format
         if ($eventName === '') {
             $issues[] = 'Event name cannot be empty';
 
             return ['valid' => false, 'issues' => $issues, 'missing_schema' => false];
         }
 
-        // Check event name format (snake_case)
         if (! preg_match('/^[a-z][a-z0-9_]*$/', $eventName)) {
             $issues[] = 'Event name must be snake_case';
         }
 
-        // Check catalog membership
         if (! EventCatalog::has($eventName)) {
             $issues[] = 'Event not found in catalog';
 
             return ['valid' => false, 'issues' => $issues, 'missing_schema' => true];
         }
 
-        // Check required parameters based on event type
         $requiredParams = $this->getRequiredParams($eventName);
         foreach ($requiredParams as $param) {
             if (! array_key_exists($param, $params)) {
@@ -614,7 +605,6 @@ final class EventReprocessorService
             $name = $event['name'] ?? '';
             $eventCategory = $event['category'] ?? null;
 
-            // Apply filters
             if (! empty($eventNames) && ! in_array($name, $eventNames, true)) {
                 continue;
             }

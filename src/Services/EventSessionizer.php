@@ -94,7 +94,6 @@ final class EventSessionizer
         $durationEstimate = $this->calculateDuration($session);
         $engagementScore = $this->calculateEngagement($session, $durationEstimate);
 
-        // Store back in cache
         $this->cache->put($cacheKey, $session, $this->sessionTtl);
 
         // Prune old sessions for this client (keep max N)
@@ -153,7 +152,6 @@ final class EventSessionizer
     {
         // Note: Full scan requires Redis or similar driver with key scanning.
         // For cache drivers without key scanning, this returns an empty array.
-        // Use the track method to maintain a session index.
         $indexKey = $this->cachePrefix . 'index:' . $clientId;
 
         /** @var list<string>|null $sessionIds */
@@ -226,7 +224,6 @@ final class EventSessionizer
             }
         }
 
-        // Sort by frequency descending
         arsort($eventFrequency);
 
         return [
@@ -260,7 +257,6 @@ final class EventSessionizer
         $this->cache->put($completedKey, $completedSession, $this->sessionTtl * 2);
         $this->cache->forget($this->cachePrefix . $clientId . ':' . $sessionId);
 
-        // Remove from index
         $this->removeSessionFromIndex($clientId, $sessionId);
 
         return $completedSession;
@@ -339,7 +335,6 @@ final class EventSessionizer
             'conversion_events' => [],
         ];
 
-        // Add to client session index
         $this->addSessionToIndex(
             $event->param('client_id') ?? $event->param('clientId') ?? 'anonymous',
             $sessionId
@@ -404,7 +399,6 @@ final class EventSessionizer
         $trimmed = array_slice($sessionIds, -$this->maxSessionsPerClient);
         $this->cache->put($indexKey, $trimmed, $this->sessionTtl);
 
-        // Clean up evicted sessions
         $evicted = array_slice($sessionIds, 0, -$this->maxSessionsPerClient);
         foreach ($evicted as $sessionId) {
             $this->cache->forget($this->cachePrefix . $clientId . ':' . $sessionId);

@@ -52,7 +52,6 @@ final class WeeklyDigestService
     {
         $period = $period ?? $this->currentIsoWeek();
 
-        // Check cache
         $cacheKey = self::CACHE_PREFIX . $period;
         $cached = $this->readCache($cacheKey);
         if ($cached !== null) {
@@ -201,7 +200,6 @@ final class WeeklyDigestService
         // Section 6: Growth Insights
         $sections[] = $this->buildGrowthInsightsSection();
 
-        // Build summary
         $summary = $this->buildSummary($sections);
 
         return [
@@ -228,7 +226,6 @@ final class WeeklyDigestService
             $streamService = app(EventStreamService::class);
             $totalEvents = $streamService->getTotalCount();
 
-            // Get event counts from stream
             $allEvents = $streamService->getRecentEvents(100);
             $eventCounts = [];
             foreach ($allEvents as $event) {
@@ -272,7 +269,6 @@ final class WeeklyDigestService
             $activeProviders += (int) $enabled;
         }
 
-        // Check for issues
         $issues = [];
         if ($activeProviders === 0) {
             $issues[] = 'No analytics providers are enabled';
@@ -449,7 +445,6 @@ final class WeeklyDigestService
         $insights = [];
         $alerts = [];
 
-        // Check provider coverage
         $providers = ['ga4', 'gtm', 'meta_pixel', 'plausible', 'posthog'];
         $enabledCount = count(array_filter($providers, fn (string $p): bool => (bool) $this->config->get("zeroboiler.analytics.{$p}.enabled")));
 
@@ -459,31 +454,26 @@ final class WeeklyDigestService
             $insights[] = 'Single provider — consider adding a backup for resilience';
         }
 
-        // Check queue status
         $queueEnabled = (bool) $this->config->get('zeroboiler.analytics.queue.enabled');
         if (! $queueEnabled) {
             $alerts[] = 'Queue dispatch is disabled — analytics events block HTTP responses';
         }
 
-        // Check consent
         $consentDefault = $this->config->get('zeroboiler.analytics.consent.default', 'granted');
         if ($consentDefault === 'granted') {
             $insights[] = 'Consent defaults to "granted" — consider GDPR review if targeting EU users';
         }
 
-        // Check catalog size
         $catalogSize = EventCatalog::count();
         if ($catalogSize >= 90) {
             $insights[] = "Comprehensive catalog ({$catalogSize} events) — well-instrumented for production";
         }
 
-        // Check lifecycle tracking
         $lifecycleEnabled = (bool) $this->config->get('zeroboiler.analytics.lifecycle.enabled');
         if ($lifecycleEnabled) {
             $insights[] = 'Lifecycle auto-tracking enabled — server events are captured automatically';
         }
 
-        // Check onboarding wizard grade
         try {
             $wizard = app(OnboardingWizardService::class);
             $grade = $wizard->getReadinessGrade();
@@ -540,7 +530,6 @@ final class WeeklyDigestService
             }
         }
 
-        // Add metric-based highlights
         if ($totalEvents > 0) {
             $highlights[] = "Tracked {$totalEvents} events this week";
         }
@@ -549,7 +538,6 @@ final class WeeklyDigestService
             $highlights[] = "{$activeProviders} analytics providers active";
         }
 
-        // Calculate overall grade from section grades
         $overallGrade = 'N/A';
         if (! empty($sectionGrades)) {
             $gradeValues = array_map(fn (string $g): int => match ($g) {

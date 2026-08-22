@@ -379,7 +379,6 @@ final class AnalyticsGoalTracker
     {
         // Consumers should override this via the RollingWindowAnalyticsEngine
         // or wire it to their own event store queries.
-        // Returns 0.0 as a safe default when no data source is connected.
         return 0.0;
     }
 

@@ -185,7 +185,6 @@ final class AnalyticsDiagnosticCommand extends Command
             $this->warnCount++;
         }
 
-        // Check category coverage
         $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure', 'marketing'];
         foreach ($categories as $category) {
             $events = EventCatalog::category($category);
@@ -196,7 +195,6 @@ final class AnalyticsDiagnosticCommand extends Command
             }
         }
 
-        // Check for critical events
         $critical = ['page_view', 'sign_up', 'login', 'purchase', 'start_trial'];
         $missing = [];
         foreach ($critical as $name) {

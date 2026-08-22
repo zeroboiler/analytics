@@ -106,12 +106,10 @@ final class SaaSFeatureAdoptionTracker
 
         $this->manager->trackEvent($event);
 
-        // Update per-feature event count
         $eventCountKey = self::CACHE_PREFIX . 'events_' . $featureName;
         $currentCount = (int) $this->cache->get($eventCountKey, 0);
         $this->cache->put($eventCountKey, $currentCount + 1, $this->cacheTtl);
 
-        // Update unique adopter set
         $adoptersKey = self::CACHE_PREFIX . 'adopters_' . $featureName;
         $adopters = (array) $this->cache->get($adoptersKey, []);
         if (! in_array($userId, $adopters, true)) {
@@ -138,7 +136,6 @@ final class SaaSFeatureAdoptionTracker
             $recentKey = self::CACHE_PREFIX . "recent_{$days}d_" . $featureName;
             $recent = (array) $this->cache->get($recentKey, []);
             $recent[$userId] = $now;
-            // Remove entries outside the window
             $cutoff = $now - ($days * 86400);
             $recent = array_filter($recent, fn (int $ts): bool => $ts >= $cutoff);
             if (count($recent) > 50000) {
@@ -344,7 +341,6 @@ final class SaaSFeatureAdoptionTracker
      */
     private function getGlobalUserCount(): int
     {
-        // Use the adopters from the most popular feature as proxy for total users,
         // or use a dedicated counter if available.
         $totalKey = self::CACHE_PREFIX . 'total_users';
         $total = (int) $this->cache->get($totalKey, 0);

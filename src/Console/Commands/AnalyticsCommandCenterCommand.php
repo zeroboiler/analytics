@@ -92,7 +92,6 @@ final class AnalyticsCommandCenterCommand extends Command
     {
         $issues = [];
 
-        // Check required sections exist
         $requiredSections = ['providers', 'consent', 'ga4', 'gtm', 'meta'];
         foreach ($requiredSections as $section) {
             if (!isset($this->config[$section])) {
@@ -104,7 +103,6 @@ final class AnalyticsCommandCenterCommand extends Command
             }
         }
 
-        // Check consent mode
         $consentMode = $this->config['consent']['mode'] ?? null;
         if ($consentMode !== 'v2') {
             $issues[] = [
@@ -114,7 +112,6 @@ final class AnalyticsCommandCenterCommand extends Command
             ];
         }
 
-        // Check consent logging
         if (!($this->config['consent']['log_enabled'] ?? false)) {
             $issues[] = [
                 'severity' => 'warning',
@@ -123,7 +120,6 @@ final class AnalyticsCommandCenterCommand extends Command
             ];
         }
 
-        // Check data retention
         $retentionDays = $this->config['data_retention']['default_retention_days'] ?? null;
         if ($retentionDays === null) {
             $issues[] = [
@@ -133,7 +129,6 @@ final class AnalyticsCommandCenterCommand extends Command
             ];
         }
 
-        // Check at least one provider is enabled
         $providers = $this->config['providers'] ?? [];
         $anyEnabled = false;
         foreach ($providers as $name => $providerConfig) {
@@ -150,7 +145,6 @@ final class AnalyticsCommandCenterCommand extends Command
             ];
         }
 
-        // Check GA4 measurement ID
         $ga4Enabled = $this->config['ga4']['enabled'] ?? false;
         if ($ga4Enabled && empty($this->config['ga4']['measurement_id'])) {
             $issues[] = [
@@ -160,7 +154,6 @@ final class AnalyticsCommandCenterCommand extends Command
             ];
         }
 
-        // Check SDK auth
         $sdkAuth = $this->config['sdk_auth']['enabled'] ?? true;
         if (!$sdkAuth) {
             $issues[] = [

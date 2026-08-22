@@ -79,7 +79,6 @@ final class EcommerceFormatConverter
             $ga4Params['coupon'] = (string) $params['coupon'];
         }
 
-        // Convert items array to GA4 format
         if (isset($params['items']) && is_array($params['items'])) {
             $ga4Params['items'] = $this->convertItemsToGa4($params['items']);
         }
@@ -130,7 +129,6 @@ final class EcommerceFormatConverter
             $customData['currency'] = (string) $params['currency'];
         }
 
-        // Convert items to Meta contents format
         if (isset($params['items']) && is_array($params['items'])) {
             $metaItems = [];
             $contentIds = [];
@@ -179,7 +177,6 @@ final class EcommerceFormatConverter
             $customData['content_name'] = (string) $params['transaction_id'];
         }
 
-        // Merge remaining non-standard params
         foreach ($params as $key => $value) {
             if (! isset($customData[$key]) && ! in_array($key, ['items', 'user_data', 'item_id', 'transaction_id'], true)) {
                 $customData[$key] = $value;
@@ -236,7 +233,6 @@ final class EcommerceFormatConverter
             $properties['shipping'] = (float) $params['shipping'];
         }
 
-        // Convert items to PostHog format
         if (isset($params['items']) && is_array($params['items'])) {
             $properties = array_merge($properties, SupportConverter::ga4ToPosthogProperties($params['items']));
         }
@@ -290,7 +286,6 @@ final class EcommerceFormatConverter
             $properties['shipping'] = (float) $params['shipping'];
         }
 
-        // Convert items to Mixpanel format via Support converter
         if (isset($params['items']) && is_array($params['items'])) {
             $properties = array_merge($properties, SupportConverter::ga4ToMixpanelProperties($params['items']));
         }
@@ -338,7 +333,6 @@ final class EcommerceFormatConverter
             $eventProperties['coupon'] = (string) $params['coupon'];
         }
 
-        // Convert items to Amplitude format via Support converter
         if (isset($params['items']) && is_array($params['items'])) {
             $properties = SupportConverter::ga4ToAmplitudeProperties($params['items']);
             $eventProperties['items'] = $properties['items'] ?? [];
@@ -447,7 +441,6 @@ final class EcommerceFormatConverter
             $properties['coupon'] = (string) $params['coupon'];
         }
 
-        // Convert items to TikTok format via Support converter
         if (isset($params['items']) && is_array($params['items']) && $params['items'] !== []) {
             $tiktokProps = SupportConverter::ga4ToTiktokProperties($params['items']);
             $properties['contents'] = $tiktokProps['contents'] ?? [];

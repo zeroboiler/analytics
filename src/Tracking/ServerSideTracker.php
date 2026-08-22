@@ -99,7 +99,6 @@ final class ServerSideTracker
         $this->enabled = (bool) ($autoTrack['enabled'] ?? true);
         $this->eventToggles = $autoTrack['events'] ?? [];
 
-        // Load additional event → class mappings from config
         $this->configEventMap = $autoTrack['event_map'] ?? [];
     }
 

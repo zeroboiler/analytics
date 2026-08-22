@@ -183,7 +183,6 @@ final class PLGScoringService
             $results[$identity] = $this->score($identity);
         }
 
-        // Sort by score descending
         uasort($results, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
 
         return $results;
@@ -255,7 +254,6 @@ final class PLGScoringService
 
         // This is a best-effort scan — not all cache drivers support prefix scanning
         try {
-            // Use the event stream as a proxy for identity lookup
             $streamService = app(EventStreamService::class);
             $recent = $streamService->getRecentEvents(500);
 

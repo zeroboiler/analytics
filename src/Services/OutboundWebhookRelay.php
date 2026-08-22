@@ -329,12 +329,10 @@ final class OutboundWebhookRelay
     {
         $request = Http::timeout($this->timeout);
 
-        // Add custom headers
         foreach ($destination['headers'] ?? [] as $key => $value) {
             $request = $request->withHeader($key, $value);
         }
 
-        // Add HMAC signature
         if ($this->signPayloads && $this->signingSecret !== '') {
             $secret = $destination['secret'] ?? $this->signingSecret;
             $signature = hash_hmac('sha256', json_encode($payload, JSON_THROW_ON_ERROR), $secret);
@@ -352,17 +350,14 @@ final class OutboundWebhookRelay
      */
     private function matchesFilters(AnalyticsEvent $event, array $destination): bool
     {
-        // Filter by event name
         if (! empty($destination['events']) && ! in_array($event->name, $destination['events'], true)) {
             return false;
         }
 
-        // Filter by category
         if (! empty($destination['categories']) && $event->category !== null && ! in_array($event->category, $destination['categories'], true)) {
             return false;
         }
 
-        // Filter by priority
         if (! empty($destination['priorities']) && $event->priority !== null && ! in_array($event->priority, $destination['priorities'], true)) {
             return false;
         }
@@ -421,7 +416,6 @@ final class OutboundWebhookRelay
 
         $this->cache->put($key, $log, 86400); // 24 hour TTL
 
-        // Update destination stats
         $statsKey = self::CACHE_PREFIX . 'stats_' . $destination;
 
         /** @var array{total_sent: int, total_failed: int, last_sent: string|null} $stats */

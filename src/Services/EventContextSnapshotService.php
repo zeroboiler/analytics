@@ -358,7 +358,6 @@ final class EventContextSnapshotService
             }
 
             if (count($existing) >= $this->maxSnapshotsPerClient) {
-                // Remove oldest entries (FIFO)
                 $existing = array_slice($existing, -(int) floor($this->maxSnapshotsPerClient * 0.8));
             }
 

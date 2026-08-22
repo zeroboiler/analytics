@@ -57,10 +57,8 @@ final class TenantAnalyticsDashboardService
     {
         $today = $this->currentDate();
 
-        // Increment tenant event counter
         $this->incrementCounter($this->eventCountKey($tenantId, $today));
 
-        // Increment per-event counter for tenant
         $this->incrementCounter($this->tenantEventKey($tenantId, $eventName, $today));
 
         // Track unique users per tenant per day
@@ -399,7 +397,6 @@ final class TenantAnalyticsDashboardService
         $this->cache->put($key, $current + 1, $this->ttl);
 
         // Track this tenant as known
-        // Extract tenant ID from key
         $parts = explode(':', $key);
         if (count($parts) >= 3 && str_starts_with($key, $this->prefix . 'events:')) {
             $tenantId = $parts[2];

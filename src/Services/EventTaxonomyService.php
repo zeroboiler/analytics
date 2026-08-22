@@ -211,7 +211,6 @@ final class EventTaxonomyService
             ];
         }
 
-        // Sort by count descending
         uasort($summary, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return $summary;

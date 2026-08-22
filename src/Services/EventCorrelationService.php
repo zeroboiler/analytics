@@ -88,7 +88,6 @@ final class EventCorrelationService
     {
         $name = $event->name;
 
-        // Count event occurrences
         $this->eventCounts[$name] = ($this->eventCounts[$name] ?? 0) + 1;
 
         // Track user journey
@@ -170,7 +169,6 @@ final class EventCorrelationService
             $this->extractPatterns($journey, $minLength, $patternCounts);
         }
 
-        // Sort by count descending
         arsort($patternCounts);
 
         $totalSequences = array_sum($patternCounts) ?: 1;
@@ -227,7 +225,6 @@ final class EventCorrelationService
             }
         }
 
-        // Sort by count descending
         usort($flatTransitions, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return array_slice($flatTransitions, 0, $limit);
@@ -360,7 +357,6 @@ final class EventCorrelationService
             ];
         }
 
-        // Sort by step count descending (longer journeys first)
         usort($journeys, fn (array $a, array $b): int => $b['step_count'] <=> $a['step_count']);
 
         return array_slice($journeys, 0, $limit);
@@ -410,7 +406,6 @@ final class EventCorrelationService
             $totalTransitions += array_sum($targets);
         }
 
-        // Calculate average journey length
         $totalJourneySteps = 0;
         $totalJourneys = count($this->userJourneys);
         foreach ($this->userJourneys as $journey) {

@@ -78,12 +78,10 @@ final class LifecycleEventTracker
   $this->queueEvents = (bool) ($lifecycleConfig['queue_events'] ?? false);
   $this->enrichAttribution = (bool) ($lifecycleConfig['enrich_attribution'] ?? true);
 
-  // Build event toggles from auto_track config
   $autoTrackConfig = $config->get('zeroboiler.analytics.auto_track', []);
   /** @var array{enabled?: bool, events?: array<string, bool>, event_map?: array<string, string>} $autoTrackConfig */
   $this->eventToggles = $autoTrackConfig['events'] ?? [];
 
-  // Merge built-in + custom mappings
   $customMappings = (array) ($lifecycleConfig['custom_mappings'] ?? []);
   $eventMapOverrides = (array) ($autoTrackConfig['event_map'] ?? []);
 
@@ -102,7 +100,6 @@ final class LifecycleEventTracker
   }
 
   foreach ($this->mapping as $laravelEvent => $analyticsEvent) {
-   // Skip if explicitly disabled in event toggles
    if (($this->eventToggles[$laravelEvent] ?? true) === false) {
     continue;
    }
@@ -166,7 +163,6 @@ final class LifecycleEventTracker
   if (is_object($payload)) {
    $params = [];
    foreach (get_object_vars($payload) as $key => $value) {
-    // Skip closures and resources
     if ($value instanceof \Closure || is_resource($value)) {
      continue;
     }

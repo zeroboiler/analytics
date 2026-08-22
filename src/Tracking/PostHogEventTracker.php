@@ -124,11 +124,9 @@ final class PostHogEventTracker
             'distinct_id' => (string) $distinctId,
         ];
 
-        // Add server-side timestamp if not present
         $payload['timestamp'] = $event->timestamp?->toIso8601String()
             ?? now()->toIso8601String();
 
-        // Set client IP and user agent if available in params
         if (isset($event->params['$ip'])) {
             $payload['send_instantly'] = true;
         }

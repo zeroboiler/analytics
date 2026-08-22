@@ -93,11 +93,9 @@ final class EventCorrelationHeatmapService
         $cooccurrence = $this->loadCooccurrenceData();
         $eventTotals = $this->computeEventTotals($cooccurrence);
 
-        // Filter: exclude specified events and limit to top N by frequency
         $filteredEvents = $this->filterAndSortEvents($eventTotals);
         $eventList = array_slice($filteredEvents, 0, $this->maxEvents);
 
-        // Compute Jaccard similarity matrix
         $matrix = [];
         foreach ($eventList as $eventA) {
             $matrix[$eventA] = [];
@@ -290,7 +288,6 @@ final class EventCorrelationHeatmapService
      */
     public function recordCoOccurrence(string $clientId, string $sessionId, string $eventA, string $eventB): void
     {
-        // Sort pair alphabetically for consistent keying
         $pairKey = $this->pairKey($eventA, $eventB);
         $sessionKey = $this->cachePrefix . 'session_pair:' . $clientId . ':' . $sessionId . ':' . $pairKey;
 
@@ -301,12 +298,10 @@ final class EventCorrelationHeatmapService
         }
         $this->cache->put($sessionKey, true, 1800); // 30 min session
 
-        // Increment global co-occurrence counter
         $counterKey = $this->cachePrefix . 'cooccurrence:' . $pairKey;
         $this->cache->increment($counterKey);
         $this->cache->put($counterKey, (int) $this->cache->get($counterKey, 0), 86400); // 24h TTL
 
-        // Increment per-event totals
         foreach ([$eventA, $eventB] as $event) {
             $eventKey = $this->cachePrefix . 'event_total:' . $event;
             $this->cache->increment($eventKey);
@@ -404,12 +399,10 @@ final class EventCorrelationHeatmapService
      */
     private function scanCacheKeys(string $prefix, array &$data): void
     {
-        // Use event_totals keys as a proxy for co-occurrence lookup
         $totalsPrefix = $this->cachePrefix . 'event_total:';
         $events = [];
 
         if (method_exists($this->cache, 'get')) {
-            // Load known event totals from dedicated counters
             $totalKey = $this->cachePrefix . 'known_events';
             $knownEvents = $this->cache->get($totalKey, []);
             /** @var list<string> $knownEvents */
@@ -422,7 +415,6 @@ final class EventCorrelationHeatmapService
             }
         }
 
-        // Build co-occurrence from known events
         $eventNames = array_keys($events);
         for ($i = 0; $i < count($eventNames); $i++) {
             for ($j = $i + 1; $j < count($eventNames); $j++) {

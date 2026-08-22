@@ -164,7 +164,6 @@ final class SessionAnalyticsService
             }
         }
 
-        // Sort by frequency descending
         arsort($eventFrequency);
 
         return [
@@ -226,7 +225,6 @@ final class SessionAnalyticsService
             );
         }
 
-        // Remove from memory
         unset($this->sessions[$sessionId]);
     }
 

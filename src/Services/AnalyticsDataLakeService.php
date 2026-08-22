@@ -436,7 +436,6 @@ final class AnalyticsDataLakeService
     {
         $str = is_string($value) ? $value : (is_scalar($value) ? (string) $value : '');
 
-        // Escape double quotes and wrap if contains comma, quote, or newline
         if (str_contains($str, ',') || str_contains($str, '"') || str_contains($str, "\n")) {
             return '"' . str_replace('"', '""', $str) . '"';
         }

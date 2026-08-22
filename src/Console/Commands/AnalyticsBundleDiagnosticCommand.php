@@ -110,7 +110,6 @@ final class AnalyticsBundleDiagnosticCommand extends Command
             $this->runSubsystemCheck($s);
         }
 
-        // Calculate totals
         foreach ($this->results as $result) {
             $this->totalPassed += $result['passed'];
             $this->totalWarnings += $result['warnings'];
@@ -513,7 +512,6 @@ final class AnalyticsBundleDiagnosticCommand extends Command
         $passed++;
         $details[] = "Expected JS version: {$expectedVersion}";
 
-        // Check if JS file exists
         $jsPath = base_path('vendor/zeroboiler/analytics/resources/js/analytics.js');
 
         if (file_exists($jsPath)) {

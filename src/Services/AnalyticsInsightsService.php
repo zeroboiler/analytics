@@ -100,7 +100,6 @@ final class AnalyticsInsightsService
             $insights[] = $insight;
         }
 
-        // Sort by score descending
         usort($insights, fn (AnalyticsInsight $a, AnalyticsInsight $b): int => $b->score <=> $a->score);
 
         return array_slice($insights, 0, $this->maxInsights);
@@ -233,7 +232,6 @@ final class AnalyticsInsightsService
     {
         $insights = [];
 
-        // Calculate mean and std dev from combined data
         $allValues = [];
         foreach ($previous as $count) {
             $allValues[] = $count;
@@ -317,7 +315,6 @@ final class AnalyticsInsightsService
                 $stepCounts[$step] = $current[$step] ?? 0;
             }
 
-            // Check for significant drop-off between consecutive steps
             for ($i = 0; $i < count($steps) - 1; $i++) {
                 $fromCount = $stepCounts[$steps[$i]];
                 $toCount = $stepCounts[$steps[$i + 1]];

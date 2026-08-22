@@ -196,7 +196,6 @@ final class EventReportingService
                     : 0.0;
             }
 
-            // Calculate growth percentage
             $growth = $previousRate > 0
                 ? (($currentRate - $previousRate) / $previousRate) * 100
                 : ($currentRate > 0 ? 100.0 : 0.0);
@@ -211,7 +210,6 @@ final class EventReportingService
             }
         }
 
-        // Sort by growth descending
         usort($trending, fn (array $a, array $b): int => $b['growth'] <=> $a['growth']);
 
         return array_slice($trending, 0, $limit);
@@ -274,7 +272,6 @@ final class EventReportingService
         $periods = ['hourly', 'daily', 'weekly', 'monthly'];
 
         foreach ($periods as $period) {
-            // Clear for multiple hours/days to ensure full invalidation
             for ($i = 0; $i < 48; $i++) {
                 $this->cache->forget("zeroboiler:analytics:report:{$period}:" . now()->subHours($i)->format('Y-m-d-H'));
             }

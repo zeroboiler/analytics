@@ -93,7 +93,6 @@ final class LifecycleEventSubscriber
      */
     public function register(EventDispatcher $dispatcher): void
     {
-        // Register config-driven lifecycle mappings
         try {
             $this->mapper->register($dispatcher);
             $this->registeredMappings = $this->mapper->getRegisteredMappings();

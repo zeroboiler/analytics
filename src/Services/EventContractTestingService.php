@@ -113,14 +113,12 @@ final class EventContractTestingService
             ];
         }
 
-        // Check required fields
         foreach ($contract['required'] as $field) {
             if (! array_key_exists($field, $event->params)) {
                 $errors[] = "Required field '{$field}' is missing for provider '{$provider}'";
             }
         }
 
-        // Check field types
         foreach ($contract['type_rules'] as $field => $expectedType) {
             if (array_key_exists($field, $event->params)) {
                 $actualType = gettype($event->params[$field]);
@@ -130,7 +128,6 @@ final class EventContractTestingService
             }
         }
 
-        // Check max params size if defined
         if (isset($contract['max_params'])) {
             $paramCount = count($event->params);
             if ($paramCount > $contract['max_params']) {
@@ -138,7 +135,6 @@ final class EventContractTestingService
             }
         }
 
-        // Calculate field coverage
         $requiredCount = count($contract['required']);
         $presentCount = 0;
         foreach ($contract['required'] as $field) {
@@ -420,7 +416,6 @@ final class EventContractTestingService
             'type_rules' => ['search_term' => 'string'],
         ];
 
-        // Merge custom contracts from config (override built-ins)
         foreach ($customContracts as $eventName => $providerContracts) {
             if (! is_array($providerContracts)) {
                 continue;

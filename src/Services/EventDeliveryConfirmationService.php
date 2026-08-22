@@ -150,7 +150,6 @@ final class EventDeliveryConfirmationService
             'status' => $statusCode,
         ]);
 
-        // Check for potential provider outage
         $consecutive = $this->getCounter($provider, 'consecutive_failures');
         if ($consecutive >= $this->outageThreshold) {
             Log::error('ZeroBoiler Analytics: provider outage detected', [
@@ -401,7 +400,6 @@ final class EventDeliveryConfirmationService
             $responseTimes = $this->getResponseTimeStats($provider);
             $recentDeliveries = $this->getRecentDeliveries($provider, 100);
 
-            // Count recent failures (last 100 deliveries)
             $recentFailures = 0;
             foreach ($recentDeliveries as $delivery) {
                 if (! $delivery['success']) {
@@ -567,7 +565,6 @@ final class EventDeliveryConfirmationService
 
         $this->cache->put($key, $times, $this->cacheTtl);
 
-        // Reset consecutive failures on success
         $this->resetConsecutiveFailures($provider);
     }
 

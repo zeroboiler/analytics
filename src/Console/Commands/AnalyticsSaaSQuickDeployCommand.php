@@ -442,7 +442,6 @@ final class AnalyticsSaaSQuickDeployCommand extends Command
 
         $this->newLine();
 
-        // Check results table
         $rows = [];
         foreach ($checks as $name => $check) {
             $icon = $check['pass'] ? '✅' : ($check['critical'] ? '❌' : '⚠️');

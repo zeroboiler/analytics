@@ -44,7 +44,6 @@ final class AnalyticsDeliveryCommand extends Command
     #[Override]
     public function handle(): int
     {
-        // Handle --clear
         if ($this->option('clear')) {
             $this->service->clearStats($this->option('provider') ?? null);
             $provider = $this->option('provider') ?? 'all';
@@ -53,7 +52,6 @@ final class AnalyticsDeliveryCommand extends Command
             return self::SUCCESS;
         }
 
-        // Handle --receipt
         $receiptId = $this->option('receipt');
         if ($receiptId !== null && is_string($receiptId) && $receiptId !== '') {
             return $this->showReceipt($receiptId);

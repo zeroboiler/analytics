@@ -113,19 +113,16 @@ final class EventBudgetEnforcementService
             return $this->allowResult();
         }
 
-        // Check per-provider monthly budget
         $providerStatus = $this->checkProviderBudget($provider);
         if ($providerStatus['action'] !== 'allow') {
             return $providerStatus;
         }
 
-        // Check per-event hourly budget
         $eventStatus = $this->checkEventBudget($event->name);
         if ($eventStatus['action'] !== 'allow') {
             return $eventStatus;
         }
 
-        // Increment counters
         $this->incrementProviderCount($provider);
         $this->incrementEventCount($event->name);
 
@@ -388,7 +385,6 @@ final class EventBudgetEnforcementService
     {
         $key = $this->providerCountKey($provider);
         $this->cache->increment($key);
-        // Ensure TTL is set (increment doesn't reset TTL)
         $this->cache->put($key, (int) $this->cache->get($key, 0), 2592000); // 30 days
     }
 

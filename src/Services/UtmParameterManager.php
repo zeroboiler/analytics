@@ -237,7 +237,6 @@ final class UtmParameterManager
         $warnings = [];
 
         foreach ($params as $key => $value) {
-            // Resolve alias
             $normalizedKey = $this->resolveAlias(strtolower($key));
 
             // Key length
@@ -265,13 +264,11 @@ final class UtmParameterManager
                 $errors[] = "UTM param '{$normalizedKey}' value exceeds max length ({$this->maxValueLength})";
             }
 
-            // Check for suspicious characters
             if (preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', $value)) {
                 $warnings[] = "UTM param '{$normalizedKey}' contains control characters";
             }
         }
 
-        // Check required fields are present
         foreach ($this->requiredForCompleteness as $required) {
             $found = false;
             foreach ($params as $key => $value) {
@@ -381,10 +378,8 @@ final class UtmParameterManager
             parse_str($parsed['query'], $existing);
         }
 
-        // Merge UTM params (new values override existing)
         $merged = array_merge($existing, $utmParams);
 
-        // Build URL components
         $scheme = $parsed['scheme'] ?? 'https';
         $host = $parsed['host'] ?? '';
         $port = isset($parsed['port']) ? ":{$parsed['port']}" : '';

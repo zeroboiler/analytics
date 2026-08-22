@@ -273,7 +273,6 @@ final class EventEnrichmentRegistry
             }
         }
 
-        // Clear pending after resolution
         $this->pendingClasses = [];
     }
 }

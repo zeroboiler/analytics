@@ -413,10 +413,8 @@ final class AnalyticsEventController extends Controller
             userId: is_int($userId) || is_string($userId) ? (string) $userId : null,
         );
 
-        // Validate and sanitize event if validator is available
         $event = $this->validateEvent($event);
 
-        // Process through event pipeline (UTM enrichment, etc.)
         $pipeline = $this->buildPipeline($request);
         $processed = $pipeline->process($event);
 
@@ -464,7 +462,6 @@ final class AnalyticsEventController extends Controller
 
         $events = $request->events();
 
-        // Build pipeline once for all events in the batch
         $pipeline = $this->buildPipeline($request);
         $dispatchedCount = 0;
 
@@ -476,10 +473,8 @@ final class AnalyticsEventController extends Controller
                 userId: $userIdStr,
             );
 
-            // Validate and sanitize each event
             $event = $this->validateEvent($event);
 
-            // Process through pipeline
             $processed = $pipeline->process($event);
 
             if ($processed === null) {
@@ -520,7 +515,6 @@ final class AnalyticsEventController extends Controller
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        // Send identify event to all providers
         $event = new AnalyticsEvent(
             name: 'identify',
             params: array_merge([
@@ -733,7 +727,6 @@ final class AnalyticsEventController extends Controller
 
             $report = $service->generate($forceRefresh);
 
-            // Apply domain filter if requested
             if ($domainFilter !== null) {
                 $requestedDomains = explode(',', (string) $domainFilter);
                 $filteredDomains = [];
@@ -881,7 +874,6 @@ final class AnalyticsEventController extends Controller
      */
     private function extractClientId(Request $request): ?string
     {
-        // Check X-Analytics-Client-Id header first
         $header = $request->header('X-Analytics-Client-Id');
 
         if (is_string($header) && $header !== '') {
@@ -1121,7 +1113,6 @@ final class AnalyticsEventController extends Controller
             ];
         }
 
-        // Reset identity on all providers
         $this->manager->resetIdentity();
 
         return response()->json([
@@ -1218,7 +1209,6 @@ final class AnalyticsEventController extends Controller
 
         $payload = $request->getContent();
 
-        // Extract signature from headers
         $signature = $request->header('X-ZB-Signature')
             ?? $request->header('X-Hub-Signature-256');
 
@@ -4009,7 +3999,6 @@ final class AnalyticsEventController extends Controller
             $exportService = $exportService; // format set via config override
         }
 
-        // Apply filters
         if ($category !== null && is_string($category)) {
             $exportService->filterByCategory($category);
         }
@@ -5119,7 +5108,6 @@ final class AnalyticsEventController extends Controller
             ], 400);
         }
 
-        // Cast all values to float
         $castMetrics = array_map(
             fn (mixed $v): float => (float) $v,
             $metrics,
@@ -12444,7 +12432,6 @@ final class AnalyticsEventController extends Controller
             $columns = $request->input('columns');
             $includeMetadata = $this->config->get('zeroboiler.analytics.export.include_metadata', true);
 
-            // Build query from event model
             $query = \ZeroBoiler\Analytics\Models\AnalyticsEventModel::query()
                 ->orderBy('created_at', 'desc')
                 ->limit(100);
@@ -17292,9 +17279,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────
     // Customer Success Analytics (v135.0.0)
-    // ────────────────────────────────────────────────────────────────────
 
     /**
      * Get the customer success event catalog.
@@ -17382,9 +17367,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────
     // Feature Gating (v135.0.0)
-    // ────────────────────────────────────────────────────────────────────
 
     /**
      * Get feature gating eligibility summary for a plan.
@@ -17707,9 +17690,7 @@ final class AnalyticsEventController extends Controller
         ]);
     }
 
-    // ────────────────────────────────────────────────────────────────────
     // SLO Dashboard & Error Budget (v157.0.0)
-    // ────────────────────────────────────────────────────────────────────
 
     /**
      * SLO dashboard — all objectives, budgets, burn rates.
@@ -17854,9 +17835,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────
     // Outbound Webhook Relay (v157.0.0)
-    // ────────────────────────────────────────────────────────────────────
 
     /**
      * Webhook relay statistics — delivery stats for all destinations.
@@ -19915,11 +19894,9 @@ final class AnalyticsEventController extends Controller
             /** @var \ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService $service */
             $service = app(\ZeroBoiler\Analytics\Services\EventSequenceValueAttributionService::class);
 
-            // Parse optional sequences from request
             $sequences = $request->query('sequences');
             $patterns = $this->resolvePatterns($sequences);
 
-            // Parse optional baselines
             $baselinesRaw = $request->query('baselines');
             $baselines = $baselinesRaw !== null ? json_decode($baselinesRaw, true) : null;
 
@@ -20848,7 +20825,6 @@ final class AnalyticsEventController extends Controller
             );
             $report = $service->report();
 
-            // Convert DTOs to arrays for JSON
             $report['events'] = array_map(
                 fn (\ZeroBoiler\Analytics\DTO\EventSNRResult $r): array => $r->toArray(),
                 $report['events'],
@@ -21025,7 +21001,6 @@ final class AnalyticsEventController extends Controller
             );
             $report = $advisor->report();
 
-            // Convert DTOs to arrays for JSON
             $report['recommendations'] = array_map(
                 fn (\ZeroBoiler\Analytics\DTO\EventPruningRecommendation $r): array => $r->toArray(),
                 $report['recommendations'],
@@ -22898,9 +22873,7 @@ final class AnalyticsEventController extends Controller
         }
     }
 
-    // ==================================================================
     // Event Blueprint Builder (v247.0.0)
-    // ==================================================================
 
     /**
      * GET /api/analytics/blueprints

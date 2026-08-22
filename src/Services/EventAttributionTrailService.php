@@ -99,7 +99,6 @@ final class EventAttributionTrailService
         $trail['last_touch'] = $touchpoint;
         $trail['last_touch_id'] = (string) $now;
 
-        // Add to multi-touch history
         $trail['touch_history'][] = $touchpoint;
 
         // Enforce max touch history
@@ -107,7 +106,6 @@ final class EventAttributionTrailService
             $trail['touch_history'] = array_slice($trail['touch_history'], -$this->maxTouchHistory);
         }
 
-        // Add to referrer chain
         if (($utm['referrer'] ?? null) !== null || ($utm['landing_page'] ?? null) !== null) {
             $trail['referrer_chain'][] = array_filter([
                 'timestamp' => $now,
@@ -138,7 +136,6 @@ final class EventAttributionTrailService
             $this->ttl,
         );
 
-        // Update index
         $this->addToIndex($clientId);
     }
 

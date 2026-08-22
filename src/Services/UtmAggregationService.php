@@ -79,7 +79,6 @@ final class UtmAggregationService
 
         $this->cache->put($key, $agg, $this->cacheTtl);
 
-        // Update source-level aggregation
         $source = $utmParams['utm_source'] ?? null;
         if (is_string($source) && $source !== '') {
             $this->aggregateBySource($source, $eventName);
@@ -129,7 +128,6 @@ final class UtmAggregationService
         $sources = $this->cache->get($sourcesKey, []);
         /** @var array<string, array{total: int, events: array<string, int>}> $sources */
 
-        // Sort by total descending
         uasort($sources, fn (array $a, array $b): int => $b['total'] <=> $a['total']);
 
         $result = [];

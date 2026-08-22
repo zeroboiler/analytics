@@ -464,7 +464,6 @@ final class AnalyticsOverviewCommand extends Command
      */
     private function showSnippets(string $eventName, bool $asJson): void
     {
-        // Try resolving from the starter set
         $resolved = SaaSStarterEvents::isStarterEvent($eventName)
             ? $eventName
             : (SaaSStarterEvents::isStarterEvent(EventCatalog::resolve($eventName) ?? '')

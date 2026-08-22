@@ -108,7 +108,6 @@ final class AnalyticsOnCallRouter
         $timeOpen = time() - $incident['created_at'];
         $escalationLevel = $this->computeEscalationLevel($severity, $timeOpen);
 
-        // Check if we already notified at this level
         $cacheKey = self::ESCALATION_KEY . $incident['id'] . '_' . $escalationLevel;
         $alreadyNotified = $this->cache->get($cacheKey);
 
@@ -116,7 +115,6 @@ final class AnalyticsOnCallRouter
             return ['routed' => true, 'escalation_level' => $escalationLevel, 'channels' => [], 'notified' => []];
         }
 
-        // Get channels for this severity
         $channels = $this->routingRules[$severity] ?? ['log'];
         $notified = [];
 
@@ -127,7 +125,6 @@ final class AnalyticsOnCallRouter
             }
         }
 
-        // Mark this escalation level as notified
         $ttl = max(3600, $timeOpen + 3600);
         $this->cache->put($cacheKey, true, $ttl);
 

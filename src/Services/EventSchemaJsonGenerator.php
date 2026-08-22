@@ -345,7 +345,6 @@ final class EventSchemaJsonGenerator
             default => [],
         };
 
-        // Add common params based on category
         if ($category === 'saas' && ! isset($params['user_id'])) {
             $params['user_id'] = ['type' => 'string', 'description' => 'User ID (when available from server)'];
         }

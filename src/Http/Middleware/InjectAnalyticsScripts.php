@@ -113,7 +113,6 @@ final class InjectAnalyticsScripts implements HttpMiddlewareContract
             return $content;
         }
 
-        // Find the closing > of the body tag
         $tagEnd = strpos($content, '>', $position);
 
         if ($tagEnd === false) {

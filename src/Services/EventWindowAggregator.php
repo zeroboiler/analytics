@@ -226,7 +226,6 @@ final class EventWindowAggregator
             default => $prefix = self::PREFIX . 'min:' . date('YmdHi', $now) . ':',
         };
 
-        // Collect all matching keys via cache tag or prefix scan
         $total = 0;
         $events = [];
 

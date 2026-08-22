@@ -85,25 +85,21 @@ final class CdpEventToProfileListener
             return null;
         }
 
-        // Extract user ID from event
         $userId = $this->extractUserId($event);
 
         if ($userId === null || $userId === '') {
             return null;
         }
 
-        // Check if this event type should be processed
         if ($this->processEvents !== [] && ! in_array($event->name, $this->processEvents, true)) {
             return null;
         }
 
-        // Extract identity traits from event properties
         $identityTraits = $this->extractIdentityTraits($event);
         if ($identityTraits !== []) {
             $this->profileService->identify($userId, $identityTraits);
         }
 
-        // Process event for computed traits
         $result = $this->profileService->processEvent($event, $userId);
 
         return [
@@ -122,14 +118,12 @@ final class CdpEventToProfileListener
      */
     private function extractUserId(AnalyticsEvent $event): ?string
     {
-        // Check context first (set by pipeline enrichers)
         $userId = $event->context['user_id'] ?? null;
 
         if ($userId !== null && $userId !== '') {
             return (string) $userId;
         }
 
-        // Check properties
         $userId = $event->properties['user_id'] ?? null;
 
         if ($userId !== null && $userId !== '') {

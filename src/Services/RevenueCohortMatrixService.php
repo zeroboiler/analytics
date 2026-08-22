@@ -168,11 +168,9 @@ final class RevenueCohortMatrixService
      */
     public function buildMatrix(): array
     {
-        // Merge persisted cohort data
         $persisted = $this->loadPersistedData();
         $merged = $this->mergeCohortData($persisted);
 
-        // Compute metrics for each cohort
         $cohortRows = [];
         $totalUsers = 0;
         $totalMrr = 0.0;
@@ -211,7 +209,6 @@ final class RevenueCohortMatrixService
             ];
         }
 
-        // Sort cohorts chronologically (newest first)
         usort($cohortRows, fn (array $a, array $b): int => strcmp($b['cohort'], $a['cohort']));
 
         // Summary metrics
@@ -559,7 +556,6 @@ final class RevenueCohortMatrixService
             return 'insufficient_data';
         }
 
-        // Sort chronologically (oldest first)
         $sorted = $cohortRows;
         usort($sorted, fn (array $a, array $b): int => strcmp($a['cohort'], $b['cohort']));
 
@@ -631,7 +627,6 @@ final class RevenueCohortMatrixService
             if (! isset($merged[$cohort])) {
                 $merged[$cohort] = $data;
             } else {
-                // Aggregate numeric fields
                 foreach ($data as $key => $value) {
                     if (is_float($value) || is_int($value)) {
                         $merged[$cohort][$key] = ($merged[$cohort][$key] ?? 0) + $value;

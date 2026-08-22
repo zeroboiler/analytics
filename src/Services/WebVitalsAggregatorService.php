@@ -161,7 +161,6 @@ final class WebVitalsAggregatorService
 
         $this->cache->put($cacheKey, $samples, $this->ttl);
 
-        // Check for threshold alert
         $alert = false;
         $alertReason = null;
 
@@ -297,7 +296,6 @@ final class WebVitalsAggregatorService
             }
         }
 
-        // Compute overall score as weighted average of good percentages
         $overallScore = count($goodScores) > 0
             ? round(array_sum($goodScores) / count($goodScores), 2)
             : 0.0;

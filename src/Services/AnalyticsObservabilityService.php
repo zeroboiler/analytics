@@ -262,13 +262,11 @@ final class AnalyticsObservabilityService
         $pattern = self::CACHE_PREFIX . "{$provider}_event_";
         $prefixLength = strlen($pattern);
 
-        // Get all keys matching the pattern
         $successKeys = $this->findKeys("{$provider}_event_");
         $eventMetrics = [];
 
         foreach ($successKeys as $key) {
             $suffix = substr($key, $prefixLength);
-            // Parse "event_name_success" or "event_name_failure"
             if (str_ends_with($suffix, '_success')) {
                 $eventName = substr($suffix, 0, -8);
                 if (! isset($eventMetrics[$eventName])) {

@@ -87,7 +87,6 @@ final class AnalyticsJourneyOrchestrator
         $previousStage = $currentState['current_stage'] ?? null;
         $enteredAt = $currentState['entered_at'] ?? null;
 
-        // Update state
         $now = now()->toIso8601String();
         $newState = [
             'current_stage' => $targetStage,

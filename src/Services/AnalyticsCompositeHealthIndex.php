@@ -427,7 +427,6 @@ final class AnalyticsCompositeHealthIndex
                 return $this->buildDimension('Event Volume Health', 0.10, 90.0, 'Baseline established — next evaluation will compare');
             }
 
-            // Compute deviation from baseline
             $deviation = abs($currentVolume - $baseline) / max(1, $baseline);
             $score = max(0.0, min(100.0, round(100.0 - ($deviation * 50.0), 2)));
 
@@ -438,7 +437,6 @@ final class AnalyticsCompositeHealthIndex
                 $deviation * 100.0
             );
 
-            // Update baseline slowly (exponential moving average)
             $newBaseline = (int) round($baseline * 0.8 + $currentVolume * 0.2);
             $this->cache->put($baselineKey, $newBaseline, 3600);
 
@@ -464,14 +462,12 @@ final class AnalyticsCompositeHealthIndex
             $score = 100.0;
             $issues = [];
 
-            // Check if consent purposes are defined
             $purposes = $consentConfig['purposes'] ?? [];
             if (empty($purposes)) {
                 $score -= 30.0;
                 $issues[] = 'No consent purposes defined';
             }
 
-            // Check if consent logging is enabled
             $logEnabled = $consentConfig['log_enabled'] ?? false;
             if (! $logEnabled) {
                 $score -= 20.0;
@@ -485,7 +481,6 @@ final class AnalyticsCompositeHealthIndex
                 $issues[] = 'Default consent is "granted" (GDPR risk for EU users)';
             }
 
-            // Check if necessary purpose is required
             $hasNecessary = false;
             foreach ($purposes as $key => $purpose) {
                 if (($purpose['required'] ?? false) === true) {
@@ -554,7 +549,6 @@ final class AnalyticsCompositeHealthIndex
             $recommendations[] = '[Data Quality] Enrich events with required parameters (transaction_id, value, currency) to improve quality scores.';
         }
 
-        // Dispatch reliability
         $dr = $dimensions['dispatch_reliability'] ?? null;
         if ($dr !== null && $dr['score'] < 90.0) {
             $recommendations[] = '[Reliability] Some events are failing to dispatch. Check provider rate limits and API quotas.';

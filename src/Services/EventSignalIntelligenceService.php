@@ -221,7 +221,6 @@ final class EventSignalIntelligenceService
 
         $catalogNames = EventCatalog::names();
 
-        // Count events tracked by category to estimate signal
         $signalEstimate = count($catalogNames) > 0
             ? min(1.0, count($catalogNames) / max($totalDispatched * 0.1, 1))
             : 0.0;
@@ -466,7 +465,6 @@ final class EventSignalIntelligenceService
             }
         }
 
-        // Sort anomalies by severity
         usort($anomalies, function (array $a, array $b): int {
             $severityOrder = ['critical' => 0, 'warning' => 1, 'info' => 2];
             $aOrder = $severityOrder[$a['severity']] ?? 3;
@@ -504,7 +502,6 @@ final class EventSignalIntelligenceService
             $recommendations[] = 'Low signal-to-noise ratio — consider validating events against the catalog before dispatch';
         }
 
-        // Dispatch balance recommendation
         if ($dispatchBalance < 30.0) {
             $recommendations[] = 'Event dispatch is heavily concentrated on few providers — verify multi-provider routing';
         }
@@ -648,7 +645,6 @@ final class EventSignalIntelligenceService
 
         $overallFailureRate = $totalFailed / $totalDispatched;
 
-        // Check recent failures (last anomaly window)
         $recentTimestamps = array_filter(
             $this->dispatchTimeline[$provider] ?? [],
             fn (int $timestamp): bool => (time() - $timestamp) < $this->anomalyWindowSeconds,
@@ -658,7 +654,6 @@ final class EventSignalIntelligenceService
             return 0.0;
         }
 
-        // Use overall failure rate as decay indicator (simplified)
         // Real implementation would compare recent vs. historical
         return round(min(1.0, $overallFailureRate), 4);
     }

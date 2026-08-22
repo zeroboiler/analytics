@@ -150,7 +150,6 @@ final class AnalyticsEventObserver
             return;
         }
 
-        // Check optional condition
         $condition = $mapping['condition'] ?? null;
         if ($condition !== null && is_callable($condition) && ! $condition($model)) {
             return;
@@ -195,7 +194,6 @@ final class AnalyticsEventObserver
         $params['model_id'] = (string) $model->getAttribute($keyName);
         $params['model_type'] = $model::class;
 
-        // Extract specific attribute keys
         foreach ($paramKeys as $key) {
             $value = $model->getAttribute($key);
             if ($value !== null) {

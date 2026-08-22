@@ -134,7 +134,6 @@ final class RegionalConsentService
 
         $upperCode = strtoupper($countryCode);
 
-        // Check exclusion list first
         if (in_array($upperCode, $this->excludedRegions, true)) {
             return $this->defaultConsent;
         }
@@ -163,7 +162,6 @@ final class RegionalConsentService
             return $this->defaultConsent;
         }
 
-        // Check common geo headers in priority order
         $geoHeaders = [
             'cf-ipcountry', // Cloudflare
             'x-geoip-country', // MaxMind
@@ -195,7 +193,6 @@ final class RegionalConsentService
             return true;
         }
 
-        // Check additional regions
         return in_array($countryCode, $this->additionalRegions, true);
     }
 

@@ -157,7 +157,6 @@ final class EventTransportService
     public function getCircuitState(string $provider): string
     {
         if (isset($this->circuitState[$provider])) {
-            // Check if an open circuit should transition to half-open
             if ($this->circuitState[$provider] === self::STATE_OPEN) {
                 $cachedState = $this->cache->get(self::CACHE_PREFIX . 'circuit_' . $provider);
                 $lastOpenTime = is_int($cachedState) ? $cachedState : 0;

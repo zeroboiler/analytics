@@ -253,7 +253,6 @@ final class AttributionModelService
             ];
         }
 
-        // Sort by revenue descending
         uasort($channels, fn (array $a, array $b): int => $b['revenue'] <=> $a['revenue']);
 
         return [
@@ -437,7 +436,6 @@ final class AttributionModelService
             return [];
         }
 
-        // Compute raw decay weights
         $weights = [];
         $weightSum = 0.0;
 
@@ -448,7 +446,6 @@ final class AttributionModelService
             $weightSum += $weight;
         }
 
-        // Normalize to revenue
         $credits = [];
 
         for ($i = 0; $i < $count; $i++) {

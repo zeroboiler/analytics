@@ -70,7 +70,6 @@ final class PlausibleTracker implements TrackerInterface
             'props' => $event->params,
         ];
 
-        // Clean up props — remove internal fields
         unset(
             $payload['props']['page_location'],
             $payload['props']['page_referrer'],
@@ -78,7 +77,6 @@ final class PlausibleTracker implements TrackerInterface
             $payload['props']['referrer'],
         );
 
-        // Remove null/empty values
         $payload = array_filter($payload, fn (mixed $v): bool => $v !== null && $v !== '');
 
         try {

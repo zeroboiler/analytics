@@ -231,7 +231,6 @@ final class EventCardinalityLimiter
             return (int) $this->paramLimits[$explicitKey];
         }
 
-        // Limit for any event with this param
         if (isset($this->paramLimits[$paramKey])) {
             return (int) $this->paramLimits[$paramKey];
         }

@@ -155,7 +155,6 @@ final class AnalyticsHealthService
         // Catalog
         $catalogSummary = $this->manager->eventCatalogSummary();
 
-        // Determine overall status
         $status = 'healthy';
         if (count($warnings) > 0) {
             $status = 'warning';

@@ -231,10 +231,8 @@ final class EventContractTestService
     {
         $violations = [];
 
-        // Get the provider-specific event name
         $providerEventName = $this->getProviderEventName($event->name, $provider);
 
-        // Validate event name length
         if (mb_strlen($providerEventName) > self::MAX_EVENT_NAME_LENGTH) {
             $violations[] = [
                 'rule' => 'event_name_length',
@@ -252,7 +250,6 @@ final class EventContractTestService
             ];
         }
 
-        // Validate params against provider-specific contracts
         $contract = $this->getContract($event->name, $provider);
         if ($contract !== null) {
             $violations = [...$violations, ...$this->validateParams($event->params, $contract, $provider)];
@@ -307,7 +304,6 @@ final class EventContractTestService
             }
         }
 
-        // Calculate per-provider coverage
         $providerCoverage = [];
         foreach (self::PROVIDERS as $provider) {
             $total = $providerStats[$provider]['passed'] + $providerStats[$provider]['failed'];
@@ -316,7 +312,6 @@ final class EventContractTestService
                 : 100.0;
         }
 
-        // Calculate overall coverage
         $overallCoverage = $totalContracts > 0
             ? round((($totalContracts - $totalViolations) / $totalContracts) * 100, 2)
             : 100.0;
@@ -481,7 +476,6 @@ final class EventContractTestService
     {
         $violations = [];
 
-        // Check required parameters
         if (isset($contract['required'])) {
             /** @var list<string> $required */
             $required = $contract['required'];
@@ -496,7 +490,6 @@ final class EventContractTestService
             }
         }
 
-        // Check max items (for GA4 items array)
         if (isset($contract['max_items']) && isset($params['items']) && is_array($params['items'])) {
             $maxItems = $contract['max_items'];
             $itemCount = count($params['items']);
@@ -509,7 +502,6 @@ final class EventContractTestService
             }
         }
 
-        // Check max content IDs (for Meta Pixel)
         if (isset($contract['max_content_ids']) && isset($params['content_ids']) && is_array($params['content_ids'])) {
             $maxIds = $contract['max_content_ids'];
             $idCount = count($params['content_ids']);
@@ -522,7 +514,6 @@ final class EventContractTestService
             }
         }
 
-        // Check enum constraints
         if (isset($contract['enums'])) {
             /** @var array<string, list<string>> $enums */
             $enums = $contract['enums'];
@@ -537,7 +528,6 @@ final class EventContractTestService
             }
         }
 
-        // Check max properties (PostHog)
         if (isset($contract['max_properties'])) {
             $propCount = count($params);
             $maxProps = $contract['max_properties'];

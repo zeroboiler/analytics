@@ -75,20 +75,17 @@ final class ReferralTrackingService
     {
         $key = self::CACHE_PREFIX . 'code_' . $userId;
 
-        // Return existing code if already assigned
         $existing = $this->cache->get($key);
         if (is_string($existing) && $existing !== '') {
             return $existing;
         }
 
-        // Use preferred code if provided and available
         if ($preferredCode !== null && $preferredCode !== '' && $this->isCodeAvailable($preferredCode)) {
             $this->storeCodeMapping($userId, $preferredCode);
 
             return $preferredCode;
         }
 
-        // Generate random code
         $code = $this->generateUniqueCode();
         $this->storeCodeMapping($userId, $code);
 
@@ -134,7 +131,6 @@ final class ReferralTrackingService
             'converted' => false,
         ];
 
-        // Store click for attribution window
         $this->cache->put(
             self::ATTRIBUTION_KEY . $clickId,
             $clickData,
@@ -197,7 +193,6 @@ final class ReferralTrackingService
             ];
         }
 
-        // Mark click as converted
         $clickData['converted'] = true;
         $clickData['converted_user_id'] = $referredUserId;
         $clickData['converted_at'] = time();
@@ -241,7 +236,6 @@ final class ReferralTrackingService
     {
         $globalConversions = (int) $this->cache->get(self::CACHE_PREFIX . 'global_conversions', 0);
 
-        // Count users who have sent at least 1 invite (have a referral code)
         $referrersKey = self::CACHE_PREFIX . 'active_referrers';
         $totalReferrers = (int) $this->cache->get($referrersKey, 0);
 
@@ -267,7 +261,6 @@ final class ReferralTrackingService
         $totalConversions = (int) $this->cache->get(self::CACHE_PREFIX . 'global_conversions', 0);
         $totalReferrers = (int) $this->cache->get(self::CACHE_PREFIX . 'active_referrers', 0);
 
-        // Count total clicks across all referral codes
         $globalClicks = $this->countGlobalClicks();
 
         $clickRate = $totalReferrers > 0

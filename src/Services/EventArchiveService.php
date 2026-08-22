@@ -132,7 +132,6 @@ final class EventArchiveService
             }
         }
 
-        // Update per-event-name counter
         $this->incrementNameCount($event->name);
     }
 
@@ -191,10 +190,8 @@ final class EventArchiveService
             }
         }
 
-        // Calculate total matching events (approximate by counting all matches)
         $total = count($results);
 
-        // Apply offset
         $events = array_slice($results, $offset, $limit);
 
         // Events are in reverse chronological order; restore chronological order
@@ -504,7 +501,6 @@ final class EventArchiveService
         $sanitized = [];
 
         foreach ($params as $key => $value) {
-            // Skip internal trace/metadata params (prefixed with _)
             if (str_starts_with((string) $key, '_trace_')) {
                 continue;
             }

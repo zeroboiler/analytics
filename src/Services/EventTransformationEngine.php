@@ -223,18 +223,15 @@ final class EventTransformationEngine
             $seenSources = [];
 
             foreach ($mapping->rules as $i => $rule) {
-                // Validate cast type
                 if ($rule->castTo !== null && ! in_array($rule->castTo, $validCastTypes, true)) {
                     $errors[] = "Mapping '{$key}': rule #{$i} has invalid cast_to '{$rule->castTo}'";
                 }
 
-                // Check for duplicate source fields
                 if (in_array($rule->sourceField, $seenSources, true)) {
                     $warnings[] = "Mapping '{$key}': duplicate source field '{$rule->sourceField}'";
                 }
                 $seenSources[] = $rule->sourceField;
 
-                // Check for conflicting rename targets
                 if ($rule->targetField !== null) {
                     if (isset($renameTargets[$rule->targetField])) {
                         $errors[] = "Mapping '{$key}': rules #{$i} and #{$renameTargets[$rule->targetField]} both rename to '{$rule->targetField}'";
@@ -248,7 +245,6 @@ final class EventTransformationEngine
                 }
             }
 
-            // Check allow_only doesn't conflict with rules that produce fields
             if ($mapping->allowOnly !== []) {
                 $ruleTargets = array_filter(
                     array_map(fn (EventTransformationRule $r): ?string => $r->targetField ?? $r->sourceField, $mapping->rules),
@@ -310,11 +306,9 @@ final class EventTransformationEngine
                 continue;
             }
 
-            // Check if source field exists
             $hasField = array_key_exists($rule->sourceField, $params);
 
             if (! $hasField) {
-                // Apply default value or mark as missing
                 if ($rule->defaultValue !== null) {
                     $params[$rule->sourceField] = $rule->defaultValue;
                     $applied[] = [
@@ -349,7 +343,6 @@ final class EventTransformationEngine
                 }
             }
 
-            // Apply type cast
             if ($rule->castTo !== null) {
                 $original = $params[$rule->sourceField];
                 $params[$rule->sourceField] = $this->castValue($original, $rule->castTo);
@@ -360,7 +353,6 @@ final class EventTransformationEngine
                 ];
             }
 
-            // Apply rename
             if ($rule->targetField !== null) {
                 $value = $params[$rule->sourceField];
                 unset($params[$rule->sourceField]);
@@ -373,7 +365,6 @@ final class EventTransformationEngine
             }
         }
 
-        // Handle missing required fields
         if ($missingRequired !== []) {
             if ($this->configStrict()) {
                 return TransformedPayload::dropped(
@@ -388,7 +379,6 @@ final class EventTransformationEngine
             }
         }
 
-        // Apply allow-only whitelist
         if ($mapping->allowOnly !== []) {
             $params = array_intersect_key($params, array_flip($mapping->allowOnly));
             $applied[] = [
@@ -398,7 +388,6 @@ final class EventTransformationEngine
             ];
         }
 
-        // Apply static overrides
         if ($mapping->staticOverrides !== []) {
             $params = array_merge($params, $mapping->staticOverrides);
             $applied[] = [
@@ -408,7 +397,6 @@ final class EventTransformationEngine
             ];
         }
 
-        // Resolve event name
         $resolvedName = $mapping->eventNameOverride ?? $event->name;
 
         return new TransformedPayload(
@@ -451,7 +439,6 @@ final class EventTransformationEngine
      */
     private function loadMappings(ConfigRepository $config): void
     {
-        // Try cache first
         $cached = $this->cache->get('zb_transformation_mappings');
 
         if (is_array($cached) && $cached !== []) {
@@ -460,7 +447,6 @@ final class EventTransformationEngine
             return;
         }
 
-        // Load from config
         $configMappings = $config->get('zeroboiler.analytics.transformation.mappings', []);
 
         if (is_array($configMappings) && $configMappings !== []) {

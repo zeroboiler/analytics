@@ -132,10 +132,8 @@ final class AnalyticsDataQualityFirewall
 
         $score = max(0.0, min(1.0, $totalScore));
 
-        // Determine disposition
         $disposition = $this->resolveDisposition($score);
 
-        // Update metrics
         match ($disposition) {
             'pass' => $this->incrementMetric('passed'),
             'quarantine' => $this->incrementMetric('quarantined'),
@@ -178,7 +176,6 @@ final class AnalyticsDataQualityFirewall
         $violations = [];
         $penalty = 0.0;
 
-        // Check global required params
         foreach ($this->requiredGlobalParams as $param) {
             if (! array_key_exists($param, $event->params)) {
                 $violations[] = [
@@ -190,7 +187,6 @@ final class AnalyticsDataQualityFirewall
             }
         }
 
-        // Check event-specific required params
         $eventSpecific = $this->eventRequiredParams[$event->name] ?? [];
         foreach ($eventSpecific as $param) {
             if (! array_key_exists($param, $event->params)) {
@@ -216,7 +212,6 @@ final class AnalyticsDataQualityFirewall
         $violations = [];
         $penalty = 0.0;
 
-        // Check event name format
         if (! preg_match('/^[a-z][a-z0-9_]*$/', $event->name)) {
             $violations[] = [
                 'rule' => 'format',
@@ -226,7 +221,6 @@ final class AnalyticsDataQualityFirewall
             $penalty += 0.2;
         }
 
-        // Check event name length
         if (mb_strlen($event->name) > 100) {
             $violations[] = [
                 'rule' => 'format',
@@ -236,7 +230,6 @@ final class AnalyticsDataQualityFirewall
             $penalty += 0.1;
         }
 
-        // Check parameter key naming
         foreach (array_keys($event->params) as $key) {
             if (! is_string($key)) {
                 $violations[] = [
@@ -259,7 +252,6 @@ final class AnalyticsDataQualityFirewall
             }
         }
 
-        // Check for reserved prefixes in params
         foreach ($this->reservedPrefixes as $prefix) {
             foreach (array_keys($event->params) as $key) {
                 if (is_string($key) && str_starts_with($key, $prefix)) {
@@ -311,7 +303,6 @@ final class AnalyticsDataQualityFirewall
         $violations = [];
         $penalty = 0.0;
 
-        // Check for empty/whitespace-only string values
         foreach ($event->params as $key => $value) {
             if (is_string($value) && trim($value) === '') {
                 $violations[] = [
@@ -322,7 +313,6 @@ final class AnalyticsDataQualityFirewall
                 $penalty += 0.02;
             }
 
-            // Check for null bytes
             if (is_string($value) && str_contains($value, "\0")) {
                 $violations[] = [
                     'rule' => 'consistency',
@@ -332,7 +322,6 @@ final class AnalyticsDataQualityFirewall
                 $penalty += 0.1;
             }
 
-            // Check for excessively long string values
             if (is_string($value) && mb_strlen($value) > 500) {
                 $violations[] = [
                     'rule' => 'consistency',
@@ -343,7 +332,6 @@ final class AnalyticsDataQualityFirewall
             }
         }
 
-        // Check param count is reasonable
         $paramCount = count($event->params);
         if ($paramCount > 100) {
             $violations[] = [

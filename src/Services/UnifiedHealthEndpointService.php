@@ -166,7 +166,6 @@ final class UnifiedHealthEndpointService
             }
         }
 
-        // Compute overall status
         $scores = array_column($subsystems, 'score');
         $averageScore = count($scores) > 0 ? (int) round(array_sum($scores) / count($scores)) : 0;
 
@@ -175,14 +174,12 @@ final class UnifiedHealthEndpointService
 
         $overallStatus = $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'healthy');
 
-        // Collect warnings from core health
         if (isset($coreHealth['warnings']) && is_array($coreHealth['warnings'])) {
             foreach ($coreHealth['warnings'] as $w) {
                 $warnings[] = (string) $w;
             }
         }
 
-        // Collect recommendations from core health
         if (isset($coreHealth['recommendations']) && is_array($coreHealth['recommendations'])) {
             foreach ($coreHealth['recommendations'] as $r) {
                 $recommendations[] = (string) $r;
@@ -277,7 +274,6 @@ final class UnifiedHealthEndpointService
      */
     private function extractScore(array $report): int
     {
-        // Try common score keys
         if (isset($report['overall_score']) && is_int($report['overall_score'])) {
             return $report['overall_score'];
         }
@@ -286,7 +282,6 @@ final class UnifiedHealthEndpointService
             return $report['score'];
         }
 
-        // Derive from status
         $status = $report['status'] ?? 'unknown';
 
         return match ($status) {

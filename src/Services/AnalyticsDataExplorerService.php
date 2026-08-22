@@ -100,10 +100,8 @@ final class AnalyticsDataExplorerService
             return $cached;
         }
 
-        // Normalize filters
         $normalizedFilters = $this->normalizeFilters($filters);
 
-        // Build base query parameters
         $query = array_merge([
             'from' => $timeRange['from'],
             'to' => $timeRange['to'],
@@ -163,7 +161,6 @@ final class AnalyticsDataExplorerService
 
         $results = $this->executeTopQuery($filters, $timeRange, $limit);
 
-        // Compute trend direction for each event
         $previousRange = $this->getPreviousPeriodRange($timeRange);
         $topEvents = [];
         foreach ($results as $event) {
@@ -220,13 +217,10 @@ final class AnalyticsDataExplorerService
         $filters['event_name'] = $eventName;
         $normalizedFilters = $this->normalizeFilters($filters);
 
-        // Get parameter statistics
         $parameterStats = $this->getParameterStats($eventName, $normalizedFilters, $timeRange);
 
-        // Get time distribution
         $timeDistribution = $this->getTimeDistribution($eventName, $normalizedFilters, $timeRange, 'hour');
 
-        // Get total count
         $totalCount = $this->getEventCountInPeriod($eventName, $timeRange);
 
         $response = [
@@ -286,7 +280,6 @@ final class AnalyticsDataExplorerService
             ];
         }
 
-        // Sort by absolute change descending
         uasort($comparison, function (array $a, array $b): int {
             return abs($b['change']) <=> abs($a['change']);
         });

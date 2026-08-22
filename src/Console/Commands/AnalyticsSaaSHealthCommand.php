@@ -54,7 +54,6 @@ final class AnalyticsSaaSHealthCommand extends Command
 
         $this->displayDashboard($health);
 
-        // Check threshold
         $minScore = $this->option('min-score');
         if ($minScore !== null && (float) $health['score'] < (float) $minScore) {
             $this->error("Health score {$health['score']} is below minimum threshold {$minScore}");
@@ -121,7 +120,6 @@ final class AnalyticsSaaSHealthCommand extends Command
             }
         };
 
-        // Get weak dimensions from the score
         $weak = [];
         foreach ($health['dimensions'] as $name => $dim) {
             if ($dim['status'] === 'critical') {

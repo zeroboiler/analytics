@@ -364,7 +364,6 @@ final class PrivacyManifestService
             ];
         }
 
-        // Sort by category, then name
         usort($activities, fn (array $a, array $b): int =>
             [$a['category'], $a['event_name']] <=> [$b['category'], $b['event_name']]
         );

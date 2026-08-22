@@ -274,7 +274,6 @@ final class MultiCurrencyRevenueNormalizer
             return 1.0;
         }
 
-        // Check cache for dynamic rate
         $cacheKey = $this->cachePrefix . 'rate_' . $currency;
         /** @var float|mixed $cachedRate */
         $cachedRate = $this->cache->get($cacheKey);
@@ -298,7 +297,6 @@ final class MultiCurrencyRevenueNormalizer
         $currency = strtoupper($currency);
         $cacheKey = $this->cachePrefix . 'rate_' . $currency;
 
-        // Validate rate is positive
         if ($rate <= 0) {
             return false;
         }
@@ -352,7 +350,6 @@ final class MultiCurrencyRevenueNormalizer
         $prefixLen = strlen($this->cachePrefix . 'rate_');
         $keys = [];
 
-        // Try to get rate keys from well-known currencies
         foreach (array_keys($this->staticRates) as $currency) {
             $cacheKey = $this->cachePrefix . 'rate_' . $currency;
             /** @var float|mixed $cachedRate */
@@ -362,7 +359,6 @@ final class MultiCurrencyRevenueNormalizer
             }
         }
 
-        // Sort alphabetically
         ksort($rates);
 
         return $rates;

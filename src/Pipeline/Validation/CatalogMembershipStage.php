@@ -59,7 +59,6 @@ final class CatalogMembershipStage implements ValidationStageInterface
         $checked = 0;
         $failed = 0;
 
-        // Check catalog membership
         $checked++;
         if ($this->enforceMembership && ! EventCatalog::has($event->name)) {
             $failed++;
@@ -71,7 +70,6 @@ final class CatalogMembershipStage implements ValidationStageInterface
             ];
         }
 
-        // Check name length
         $checked++;
         if (mb_strlen($event->name) > $this->maxNameLength) {
             $failed++;
@@ -83,7 +81,6 @@ final class CatalogMembershipStage implements ValidationStageInterface
             ];
         }
 
-        // Check snake_case convention
         $checked++;
         if ($this->enforceSnakeCase && ! preg_match('/^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/', $event->name)) {
             $errors[] = [

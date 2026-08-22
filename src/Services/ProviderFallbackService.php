@@ -253,7 +253,6 @@ final class ProviderFallbackService
                 }
             }
 
-            // Check for circular chains (A → B → A)
             foreach ($chain as $fallback) {
                 $fallbackChain = $this->fallbackChains[$fallback] ?? [];
                 if (in_array($provider, $fallbackChain, true)) {

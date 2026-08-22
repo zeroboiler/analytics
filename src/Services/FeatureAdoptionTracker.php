@@ -89,7 +89,6 @@ final class FeatureAdoptionTracker
             $profile['features'][$featureName]['last_used'] = $now;
             $profile['features'][$featureName]['use_count'] = ($profile['features'][$featureName]['use_count'] ?? 0) + 1;
 
-            // Update streak if not already recorded today
             $streaks = $profile['streaks'][$featureName] ?? [];
             if (! in_array($today, $streaks, true)) {
                 $streaks[] = $today;
@@ -159,7 +158,6 @@ final class FeatureAdoptionTracker
             return 0;
         }
 
-        // Sort descending and count consecutive days from today
         rsort($days);
         $streak = 0;
         $checkDate = new \DateTimeImmutable('today');
@@ -260,7 +258,6 @@ final class FeatureAdoptionTracker
         $profile = $this->getProfile($userId);
         $features = $profile['features'] ?? [];
 
-        // Sort by last_used descending
         uasort($features, function (array $a, array $b): int {
             return strcmp($b['last_used'], $a['last_used']);
         });

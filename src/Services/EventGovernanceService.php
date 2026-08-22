@@ -91,31 +91,26 @@ final class EventGovernanceService
         $errors = [];
         $warnings = [];
 
-        // Validate naming convention
         $namingResult = $this->namingService->validate($name);
         if (! $namingResult['valid']) {
             $errors = array_merge($errors, $namingResult['errors']);
         }
 
-        // Check for reserved prefixes
         foreach ($this->reservedPrefixes as $prefix) {
             if (str_starts_with($name, $prefix)) {
                 $errors[] = "Event name '{$name}' uses reserved prefix '{$prefix}'";
             }
         }
 
-        // Check for duplicate registration
         if (isset($this->registrations[$name])) {
             $errors[] = "Event '{$name}' is already registered";
         }
 
-        // Validate category
         $validCategories = ['ecommerce', 'saas', 'engagement', 'custom'];
         if (! in_array($category, $validCategories, true)) {
             $errors[] = "Invalid category '{$category}'. Must be one of: " . implode(', ', $validCategories);
         }
 
-        // Check if event exists in catalog (informational)
         if (! EventCatalog::has($name)) {
             $warnings[] = "Event '{$name}' is not in the standard catalog — it will be tracked as custom";
         }
@@ -129,7 +124,6 @@ final class EventGovernanceService
             ];
         }
 
-        // Create registration
         $registration = [
             'name' => $name,
             'category' => $category,
@@ -255,13 +249,11 @@ final class EventGovernanceService
         $warnings = [];
         $status = null;
 
-        // Check naming convention
         $namingResult = $this->namingService->validate($name);
         if (! $namingResult['valid']) {
             $errors = array_merge($errors, $namingResult['errors']);
         }
 
-        // Check if event is in governance registry
         if (isset($this->registrations[$name])) {
             $registration = $this->registrations[$name];
             $status = $registration['status'];
@@ -286,7 +278,6 @@ final class EventGovernanceService
                 $warnings[] = "Event '{$name}' is still in draft status";
             }
 
-            // Check required parameters
             foreach ($registration['required_params'] as $param) {
                 if (! array_key_exists($param, $params)) {
                     $errors[] = "Missing required parameter '{$param}' for event '{$name}'";

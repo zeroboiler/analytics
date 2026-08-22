@@ -129,7 +129,6 @@ final class AnalyticsReplayAuditCommand extends Command
      */
     private function validateConfig(bool $outputJson): int
     {
-        // Use the auditor to check basic replay validation
         $summary = $this->auditor->summary();
 
         $issues = [];

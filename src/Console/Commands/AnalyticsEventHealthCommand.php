@@ -64,27 +64,22 @@ final class AnalyticsEventHealthCommand extends Command
     {
         $this->outputTitle();
 
-        // Handle clear
         if ($this->option('clear')) {
             return $this->handleClear();
         }
 
-        // Handle alerts
         if ($this->option('alerts')) {
             return $this->handleAlerts();
         }
 
-        // Handle system
         if ($this->option('system')) {
             return $this->handleSystem();
         }
 
-        // Handle specific event
         if ($this->option('event')) {
             return $this->handleSingleEvent((string) $this->option('event'));
         }
 
-        // Handle degrading
         if ($this->option('degrading')) {
             return $this->handleDegrading((int) $this->option('threshold'));
         }
@@ -319,7 +314,6 @@ final class AnalyticsEventHealthCommand extends Command
         $this->line('  │ Event                │ Score │ Grade │ Last Seen                 │');
         $this->line('  ├──────────────────────┼───────┼───────┼──────────────────────────┤');
 
-        // Sort by score ascending (worst first)
         uasort($allScores, function (array $a, array $b): int {
             return $a['score'] <=> $b['score'];
         });

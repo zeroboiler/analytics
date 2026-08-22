@@ -145,7 +145,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
             return;
         }
 
-        // Extract FQCNs from singleton() and bind() calls
         // Matches patterns like: $this->app->singleton(SomeClass::class, ...) or $this->app->singleton('alias', SomeClass::class)
         $pattern = '/(?:singleton|bind)\s*\(\s*(?:[\'"](?:[\w\\\/.]+)[\'"]\s*,\s*)?(?:function\s*\([^)]*\)\s*:\s*([A-Z][\w\\]*)|([A-Z][\w\\\\]*))::class/';
 
@@ -160,7 +159,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
                 continue;
             }
 
-            // Resolve short class names to FQCN using imports
             $fqcn = $this->resolveClassName($className, $content);
 
             if ($fqcn !== '' && ! isset($seen[$fqcn])) {
@@ -193,7 +191,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
      */
     private function resolveClassName(string $shortName, string $fileContent): string
     {
-        // Try matching against use statements
         $usePattern = '/use\s+([A-Z][\w\\\\]*)\s*(?:as\s+(\w+))?\s*;/';
 
         preg_match_all($usePattern, $fileContent, $useMatches, PREG_SET_ORDER);
@@ -275,7 +272,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
                     continue;
                 }
 
-                // Resolve to FQCN if it's a short name
                 $resolved = $typeName;
 
                 if (! str_contains($typeName, '\\')) {
@@ -304,7 +300,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
         }
 
         if ($type instanceof ReflectionUnionType) {
-            // Return the first non-built-in type
             foreach ($type->getTypes() as $unionType) {
                 if ($unionType instanceof ReflectionNamedType && ! $unionType->isBuiltin()) {
                     return $unionType->getName();
@@ -357,7 +352,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
                     $chain = array_slice($path, $cycleStart);
                     $chain[] = $dep; // Close the cycle
 
-                    // Normalize: start from the alphabetically smallest node
                     $minIndex = 0;
 
                     for ($i = 1; $i < count($chain) - 1; $i++) {
@@ -641,7 +635,6 @@ final class AnalyticsDependencyTopologyCommand extends Command
      */
     private function outputServiceDetail(string $serviceFqcn, bool $json): void
     {
-        // Try to resolve short name
         $resolved = $serviceFqcn;
 
         if (! str_contains($serviceFqcn, '\\')) {

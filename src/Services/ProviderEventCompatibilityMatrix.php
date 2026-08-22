@@ -258,7 +258,6 @@ final class ProviderEventCompatibilityMatrix
             ];
         }
 
-        // Find best provider
         $bestProvider = 'ga4';
         $bestScore = 0;
         foreach ($scores as $p => $data) {
@@ -302,7 +301,6 @@ final class ProviderEventCompatibilityMatrix
             ];
         }
 
-        // Sort by provider count descending
         usort($ranked, fn (array $a, array $b): int => $b['provider_count'] <=> $a['provider_count']);
 
         return array_slice($ranked, 0, $limit);
@@ -340,7 +338,6 @@ final class ProviderEventCompatibilityMatrix
                 $category = $entry['category'] ?? 'unknown';
                 $weight = $categoryWeights[$category] ?? 1;
 
-                // Count how many providers are missing this event
                 $missingProviders = [];
                 foreach (self::PROVIDERS as $p) {
                     $pMapped = $entry[$p] ?? null;
@@ -359,10 +356,8 @@ final class ProviderEventCompatibilityMatrix
             }
         }
 
-        // Sort by weight descending
         usort($gaps, fn (array $a, array $b): int => $b['_weight'] <=> $a['_weight']);
 
-        // Remove internal weight field
         $result = [];
         foreach (array_slice($gaps, 0, $limit) as $gap) {
             unset($gap['_weight']);

@@ -56,7 +56,6 @@ final class EventArchetypeService
         $this->enabled = (bool) ($archetypeConfig['enabled'] ?? true);
         $this->cacheTtl = (int) ($archetypeConfig['cache_ttl'] ?? 3600);
 
-        // Load custom archetypes from config
         $customDefs = $archetypeConfig['custom'] ?? [];
         foreach ($customDefs as $key => $def) {
             $this->customArchetypes[$key] = [

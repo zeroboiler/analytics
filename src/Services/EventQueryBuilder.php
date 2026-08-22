@@ -411,7 +411,6 @@ final class EventQueryBuilder
      */
     private function executeQuery(): array
     {
-        // Try to resolve a DatabaseEventStore from the container
         try {
             if (class_exists(DatabaseEventStore::class) && function_exists('app')) {
                 /** @var DatabaseEventStore|null $store */

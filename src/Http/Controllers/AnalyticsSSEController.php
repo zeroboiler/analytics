@@ -62,7 +62,6 @@ final class AnalyticsSSEController extends Controller
         $provider = is_string($provider) ? $provider : null;
 
         $response = new StreamedResponse(function () use ($cursor, $filter, $category, $provider, $heartbeatInterval): void {
-            // Set SSE headers
             if (! headers_sent()) {
                 header('Content-Type: text/event-stream');
                 header('Cache-Control: no-cache');
@@ -75,17 +74,14 @@ final class AnalyticsSSEController extends Controller
             $maxRuntime = 300; // 5 minutes max connection lifetime
             $startTime = time();
 
-            // Send initial cursor for resume support
             $this->sendSSE('cursor', ['cursor' => $lastCursor]);
 
             while (true) {
-                // Check max runtime
                 if ((time() - $startTime) > $maxRuntime) {
                     $this->sendSSE('close', ['reason' => 'max_runtime', 'cursor' => $lastCursor]);
                     break;
                 }
 
-                // Check connection aborted
                 if (connection_aborted()) {
                     break;
                 }
@@ -94,7 +90,6 @@ final class AnalyticsSSEController extends Controller
                 $events = $this->streamService->getEventsSince($lastCursor);
 
                 foreach ($events as $eventData) {
-                    // Apply filters
                     if ($filter !== null && !$this->matchesFilter($eventData['event'] ?? '', $filter)) {
                         $lastCursor = $eventData['id'] ?? $lastCursor;
                         continue;
@@ -115,7 +110,6 @@ final class AnalyticsSSEController extends Controller
                     $lastCursor = $eventData['id'] ?? $lastCursor;
                 }
 
-                // Send heartbeat to keep connection alive
                 $now = time();
                 if (($now - $lastHeartbeat) >= $heartbeatInterval) {
                     $this->sendSSE('heartbeat', [

@@ -125,7 +125,6 @@ final class AnalyticsDecompositionCommand extends Command
         }
 
         if ($asJson) {
-            // Generate sample data for demonstration
             $data = $this->generateSampleData($eventName);
 
             if ($data === []) {
@@ -276,7 +275,6 @@ final class AnalyticsDecompositionCommand extends Command
      */
     private function generateSampleData(string $eventName): array
     {
-        // Generate 28 days of sample data with a clear trend + weekly seasonality
         mt_srand(crc32($eventName));
         $data = [];
 

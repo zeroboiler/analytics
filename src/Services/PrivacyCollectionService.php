@@ -156,7 +156,6 @@ final class PrivacyCollectionService
 
         $fingerprint = $this->generateFingerprint($ip, $userAgent, $additionalSignals);
 
-        // Store fingerprint in cache for session continuity
         $this->cacheFingerprint($fingerprint);
 
         $event = new AnalyticsEvent(
@@ -246,7 +245,6 @@ final class PrivacyCollectionService
             'seen_at' => time(),
         ], $this->cacheTtl);
 
-        // Increment unique counter
         $counterKey = $this->cachePrefix . 'unique_count';
         $this->cache->increment($counterKey);
     }

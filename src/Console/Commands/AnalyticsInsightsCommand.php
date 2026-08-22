@@ -117,7 +117,6 @@ final class AnalyticsInsightsCommand extends Command
         $format = $this->option('format');
         $severity = $this->option('severity');
 
-        // Filter by severity if requested
         $insights = $report['insights'];
         if ($severity !== null) {
             $insights = array_values(array_filter(

@@ -344,13 +344,11 @@ final class EventReplaySimulator
             return $this->getDefaultMix();
         }
 
-        // Validate and clamp weights
         $normalized = [];
         foreach ($mix as $event => $weight) {
             $normalized[$event] = min(max((float) $weight, 0.0), 1.0);
         }
 
-        // Normalize to sum to 1.0
         $total = array_sum($normalized);
         if ($total > 0) {
             foreach ($normalized as $event => $weight) {

@@ -230,7 +230,6 @@ final class EventNamingConventionLinter
     {
         $suggestions = [];
 
-        // Convert camelCase to snake_case
         $snakeCased = strtolower(
             preg_replace('/([a-z])([A-Z])/', '$1_$2', $eventName) ?? $eventName,
         );
@@ -242,7 +241,6 @@ final class EventNamingConventionLinter
             ];
         }
 
-        // Convert kebab-case to snake_case
         $kebabConverted = str_replace('-', '_', $eventName);
 
         if ($kebabConverted !== $eventName && ! str_contains($eventName, '_')) {
@@ -252,7 +250,6 @@ final class EventNamingConventionLinter
             ];
         }
 
-        // Remove leading/trailing underscores
         $trimmed = trim($eventName, '_');
 
         if ($trimmed !== $eventName) {
@@ -262,7 +259,6 @@ final class EventNamingConventionLinter
             ];
         }
 
-        // Remove numeric suffixes
         if (preg_match('/^(.+?)_?\d+$/', $eventName, $matches)) {
             $baseName = $matches[1];
 
@@ -274,7 +270,6 @@ final class EventNamingConventionLinter
             }
         }
 
-        // Remove consecutive underscores
         $cleaned = preg_replace('/_+/', '_', $eventName) ?? $eventName;
 
         if ($cleaned !== $eventName) {
@@ -284,7 +279,6 @@ final class EventNamingConventionLinter
             ];
         }
 
-        // Check if it should be an alias of a catalog event
         $classifier = new EventSemanticClassifierService($this->cache, $this->config);
         $alias = $classifier->resolveAlias($eventName);
 
@@ -521,7 +515,6 @@ final class EventNamingConventionLinter
 
         $normalized = strtolower($eventName);
 
-        // Check against all catalog event names (case-insensitive)
         foreach (EventCatalog::names() as $catalogName) {
             if (strtolower($catalogName) === $normalized && $catalogName !== $eventName) {
                 $violations[] = [

@@ -110,7 +110,6 @@ final class RealTimeEventCorrelationEngine
             return $this->emptyReport();
         }
 
-        // Filter out noise events
         $filtered = array_filter($events, fn (AnalyticsEvent $e): bool => ! in_array($e->name, self::EXCLUDED_EVENTS, true));
         $events = array_values($filtered);
 
@@ -118,13 +117,10 @@ final class RealTimeEventCorrelationEngine
             return $this->emptyReport();
         }
 
-        // Group events by session
         $sessions = $this->groupBySession($events);
 
-        // Compute co-occurrence matrix
         $pairs = $this->computeCoOccurrences($sessions);
 
-        // Compute sequential transitions
         $transitions = $this->computeTransitions($sessions);
 
         // Identify accelerators and drop-off signals
@@ -327,7 +323,6 @@ final class RealTimeEventCorrelationEngine
             return [];
         }
 
-        // Count per-session event sets
         $sessionEventSets = [];
         $eventCounts = [];
 
@@ -344,7 +339,6 @@ final class RealTimeEventCorrelationEngine
         $totalSessions = count($sessions);
         $pairs = [];
 
-        // Compute co-occurrence for each pair
         $pairCounts = [];
 
         foreach ($sessionEventSets as $sessionId => $eventNames) {
@@ -361,14 +355,12 @@ final class RealTimeEventCorrelationEngine
             }
         }
 
-        // Compute statistics for each pair
         foreach ($pairCounts as $pairKey => $coCount) {
             [$a, $b] = explode('|', $pairKey, 2);
 
             $countA = $eventCounts[$a] ?? 0;
             $countB = $eventCounts[$b] ?? 0;
 
-            // Skip pairs with insufficient data
             if ($countA < $this->minEventCount || $countB < $this->minEventCount) {
                 continue;
             }
@@ -405,7 +397,6 @@ final class RealTimeEventCorrelationEngine
             ];
         }
 
-        // Sort by absolute coefficient and limit
         usort($pairs, fn (array $a, array $b): int => abs($b['coefficient']) <=> abs($a['coefficient']));
 
         return array_slice($pairs, 0, $this->maxResults);
@@ -452,7 +443,6 @@ final class RealTimeEventCorrelationEngine
 
             $probability = round($count / $totalFrom, 4);
 
-            // Compute lift: compare against random transition probability
             $totalTransitions = array_sum($transitionCounts);
             $randomProbability = $totalTransitions > 0
                 ? (array_sum(array_filter($transitionCounts, fn (int $_, string $k): bool => str_starts_with($k, $to . '|'))) + $count) / $totalTransitions
@@ -544,7 +534,6 @@ final class RealTimeEventCorrelationEngine
         $clusters = [];
         $eventFrequency = [];
 
-        // Count event frequency across sessions
         foreach ($sessions as $sessionEvents) {
             $uniqueNames = array_unique(array_map(fn (AnalyticsEvent $e): string => $e->name, $sessionEvents));
             foreach ($uniqueNames as $name) {

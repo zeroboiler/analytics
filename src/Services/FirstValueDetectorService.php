@@ -127,7 +127,6 @@ final class FirstValueDetectorService
 
         $eventName = $event->name;
 
-        // Find matching milestone
         $milestone = null;
         $milestoneKey = null;
 
@@ -144,17 +143,14 @@ final class FirstValueDetectorService
             return null;
         }
 
-        // Check if already detected
         $cacheKey = self::CACHE_PREFIX . md5($userId . ':' . $milestoneKey);
 
         if ($this->cache->has($cacheKey)) {
             return null;
         }
 
-        // Mark as detected
         $this->cache->put($cacheKey, true, self::CACHE_TTL);
 
-        // Fire first_value event
         return new AnalyticsEvent(
             name: 'first_value',
             params: [

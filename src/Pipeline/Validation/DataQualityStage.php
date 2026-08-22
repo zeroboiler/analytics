@@ -67,7 +67,6 @@ final class DataQualityStage implements ValidationStageInterface
         $failed = 0;
         $params = $event->params;
 
-        // Check for excessive empty/null values
         $checked++;
         $emptyCount = 0;
         foreach ($params as $key => $value) {
@@ -84,7 +83,6 @@ final class DataQualityStage implements ValidationStageInterface
             ];
         }
 
-        // Check data completeness
         $checked++;
         $totalParams = count($params);
         if ($totalParams > 0) {
@@ -103,7 +101,6 @@ final class DataQualityStage implements ValidationStageInterface
             }
         }
 
-        // Check for HTML content in string values
         $checked++;
         foreach ($params as $key => $value) {
             if (is_string($value) && preg_match('/<\s*[a-zA-Z][^>]*>/', $value)) {

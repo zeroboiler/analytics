@@ -97,7 +97,6 @@ final class SaaSOnboardingFunnelService
             'user_id' => $userId,
         ], $params));
 
-        // Update progress cache
         $this->updateProgress($userId, $stageKey);
     }
 

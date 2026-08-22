@@ -131,16 +131,13 @@ final class ConsentReceiptRegistry
         $id = 'cr_' . Str::uuid()->toString();
         $timestamp = date('c');
 
-        // Validate action
         $validActions = ['grant', 'withdraw', 'update', 'renew'];
         if (! in_array($action, $validActions, true)) {
             $action = 'update';
         }
 
-        // Get previous hash for chain integrity
         $previousHash = $this->includeHashChain ? $this->getChainHead($clientId) : null;
 
-        // Build receipt
         $receipt = [
             'id' => $id,
             'version' => self::RECEIPT_VERSION,
@@ -177,10 +174,8 @@ final class ConsentReceiptRegistry
             $this->updateChainHead($clientId, $receipt['receipt_hash']);
         }
 
-        // Store the receipt
         $this->storeReceipt($clientId, $id, $receipt);
 
-        // Update index
         $this->addToIndex($clientId, $id, $timestamp);
 
         return $receipt;
@@ -283,7 +278,6 @@ final class ConsentReceiptRegistry
                 break;
             }
 
-            // Check chain linkage (current receipt's previous_hash should match next receipt's hash)
             if ($i < $total - 1) {
                 $nextReceipt = $history[$i + 1];
                 $nextHash = $nextReceipt['receipt_hash'] ?? null;
@@ -374,7 +368,6 @@ final class ConsentReceiptRegistry
             }
         }
 
-        // Calculate consent rates
         foreach ($byPurpose as $purpose => &$data) {
             $total = $data['granted'] + $data['denied'];
             $data['rate'] = $total > 0 ? round($data['granted'] / $total * 100, 1) : 0.0;
@@ -575,7 +568,6 @@ final class ConsentReceiptRegistry
         // Enforce max receipts per client
         $receipts = $allIndices[$clientId];
         if (count($receipts) >= $this->maxReceiptsPerClient) {
-            // Remove oldest receipts
             $oldestIds = array_slice(array_keys($receipts), 0, count($receipts) - $this->maxReceiptsPerClient + 1);
             foreach ($oldestIds as $oldId) {
                 $this->cache->forget(self::CACHE_PREFIX . $oldId);

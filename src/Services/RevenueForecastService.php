@@ -111,7 +111,6 @@ final class RevenueForecastService
             // Confidence level based on data completeness
             $confidence = $this->calculateConfidence($currentData);
 
-            // Generate daily forecast
             $daily = [];
             $projectedMrr = $currentMrr;
 
@@ -423,7 +422,6 @@ final class RevenueForecastService
      */
     public function clearCache(): void
     {
-        // Clear all forecast-related cache entries
         $this->clearCacheByPrefix($this->cachePrefix);
     }
 
@@ -453,7 +451,6 @@ final class RevenueForecastService
     private function clearCacheByPrefix(string $prefix): void
     {
         try {
-            // Try cache store-specific prefix clearing
             $store = Cache::getStore();
 
             if (method_exists($store, 'getPrefix')) {
@@ -461,7 +458,6 @@ final class RevenueForecastService
                     ? $store->getPrefix() . $prefix
                     : $prefix;
 
-                // Use flush for tags or individual clear
                 Cache::forget($fullPrefix . 'full_');
             }
         } catch (\Throwable $e) {

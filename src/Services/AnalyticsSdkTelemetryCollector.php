@@ -120,13 +120,10 @@ final class AnalyticsSdkTelemetryCollector
         $clientId = $validated['client_id'] ?? 'unknown';
         $sdkVersion = $validated['sdk_version'] ?? 'unknown';
 
-        // Store per-client telemetry entry
         $this->storeClientEntry($clientId, $validated);
 
-        // Update per-version aggregation
         $this->updateVersionAggregation($sdkVersion, $validated);
 
-        // Update global summary
         $this->updateSummary($validated);
 
         // Buffer for in-request aggregation
@@ -249,7 +246,6 @@ final class AnalyticsSdkTelemetryCollector
             return $cached;
         }
 
-        // Build fresh from individual version keys
         $versions = [];
         $latestVersion = null;
 
@@ -307,7 +303,6 @@ final class AnalyticsSdkTelemetryCollector
         $issues = [];
         $summary = $this->summary();
 
-        // Check slow page loads
         if (isset($summary['health']['slow_load_percentage']) && $summary['health']['slow_load_percentage'] > 20.0) {
             $issues[] = [
                 'severity' => $summary['health']['slow_load_percentage'] > 50.0 ? 'critical' : 'warning',
@@ -321,7 +316,6 @@ final class AnalyticsSdkTelemetryCollector
             ];
         }
 
-        // Check high error rates
         if (($summary['health']['high_error_rate_clients'] ?? 0) > 5) {
             $issues[] = [
                 'severity' => 'warning',
@@ -335,7 +329,6 @@ final class AnalyticsSdkTelemetryCollector
             ];
         }
 
-        // Check for many outdated SDK versions
         $versionDist = $this->versionDistribution();
 
         if (($versionDist['outdated_clients'] ?? 0) > 10) {
@@ -364,17 +357,14 @@ final class AnalyticsSdkTelemetryCollector
     {
         $cleared = 0;
 
-        // Clear summary
         if ($this->cache->forget(self::CACHE_SUMMARY_KEY)) {
             $cleared++;
         }
 
-        // Clear version distribution cache
         if ($this->cache->forget(self::CACHE_PREFIX . 'version_dist')) {
             $cleared++;
         }
 
-        // Clear individual version keys
         for ($i = 0; $i < self::MAX_VERSIONS_TRACKED; $i++) {
             if ($this->cache->forget(self::CACHE_PREFIX . 'version_' . $i)) {
                 $cleared++;

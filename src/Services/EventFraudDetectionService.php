@@ -118,7 +118,6 @@ final class EventFraudDetectionService
             + ($signals['injection']['score'] * 0.15)
             + ($signals['spoofed_identity']['score'] * 0.10);
 
-        // Use weighted score but elevate if any single signal is critical
         $compositeScore = max($weightedScore, $maxScore * 0.8);
 
         $action = 'pass';

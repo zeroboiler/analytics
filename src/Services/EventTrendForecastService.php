@@ -192,7 +192,6 @@ final class EventTrendForecastService
             }
         }
 
-        // Sort: strongest upward trends first
         usort($reports, fn (array $a, array $b): int => $b['slope'] <=> $a['slope']);
 
         return [
@@ -300,7 +299,6 @@ final class EventTrendForecastService
             $fullSlope = $fullRegression['slope'];
             $currentSlope = $recentRegression['slope'];
 
-            // Compute acceleration as percent change in slope
             $changePct = $fullSlope !== 0.0
                 ? round((($currentSlope - $fullSlope) / abs($fullSlope)) * 100, 2)
                 : ($currentSlope > 0 ? 100.0 : ($currentSlope < 0 ? -100.0 : 0.0));
@@ -324,7 +322,6 @@ final class EventTrendForecastService
             ];
         }
 
-        // Sort by absolute change percentage descending
         usort($changes, fn (array $a, array $b): int => abs($b['change_pct']) <=> abs($a['change_pct']));
 
         return $changes;
@@ -410,7 +407,6 @@ final class EventTrendForecastService
         $slope = (($n * $sumXY) - ($sumX * $sumY)) / $denominator;
         $intercept = ($sumY - ($slope * $sumX)) / $n;
 
-        // Compute R² (coefficient of determination)
         $ssTotal = 0.0;
         $ssResidual = 0.0;
 
@@ -745,7 +741,6 @@ final class EventTrendForecastService
             }
         }
 
-        // Return values in chronological order
         ksort($dailyCounts);
 
         return array_values($dailyCounts);

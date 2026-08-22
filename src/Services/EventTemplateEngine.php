@@ -409,7 +409,6 @@ final class EventTemplateEngine
      */
     public function validateEventName(string $eventName): array
     {
-        // Check if it's a known template
         $templateMatch = null;
         foreach ($this->templates as $key => $template) {
             if ($template['name'] === $eventName) {
@@ -418,7 +417,6 @@ final class EventTemplateEngine
             }
         }
 
-        // Check unified catalog
         $catalogMatch = null;
         $category = null;
 

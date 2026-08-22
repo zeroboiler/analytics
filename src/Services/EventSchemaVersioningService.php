@@ -89,7 +89,6 @@ final class EventSchemaVersioningService
 
         $params = $event->params;
 
-        // Get version for this event name
         $version = $this->getEventVersion($event->name);
 
         // Inject schema version param (only if not already set)
@@ -150,12 +149,10 @@ final class EventSchemaVersioningService
      */
     public function getEventVersion(string $eventName): string
     {
-        // Check in-memory cache
         if (isset($this->versionMap[$eventName])) {
             return $this->versionMap[$eventName];
         }
 
-        // Check EventSchemaRegistry
         if ($this->schemaRegistry !== null) {
             try {
                 $schema = $this->schemaRegistry->get($eventName);
@@ -170,7 +167,6 @@ final class EventSchemaVersioningService
             }
         }
 
-        // Check if event exists in catalog
         if (EventCatalog::has($eventName)) {
             // Events in the catalog use the catalog version
             $this->versionMap[$eventName] = $this->catalogVersion;

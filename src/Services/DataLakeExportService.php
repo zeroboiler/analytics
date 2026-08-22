@@ -305,7 +305,6 @@ final class DataLakeExportService
             return '';
         }
 
-        // Flatten nested arrays for CSV compatibility
         $headers = [];
         $rows = [];
 
@@ -321,7 +320,6 @@ final class DataLakeExportService
             $rows[] = $flat;
         }
 
-        // Build CSV
         $lines = [];
         $lines[] = $this->csvEscape($headers);
 

@@ -53,7 +53,6 @@ final class ReferrerTrackingService
         } elseif (is_string($referrerUrl) && $referrerUrl !== '' && $referrerUrl !== '-') {
             $referrerDomain = $this->extractDomain($referrerUrl);
 
-            // Check if the referrer is the same domain (internal)
             $currentDomain = $this->extractDomain($request->fullUrl());
 
             if ($referrerDomain !== null && $currentDomain !== null && strtolower($referrerDomain) === strtolower($currentDomain)) {
@@ -214,7 +213,6 @@ final class ReferrerTrackingService
             return null;
         }
 
-        // Remove 'www.' prefix
         if (str_starts_with($host, 'www.')) {
             $host = substr($host, 4);
         }
@@ -307,7 +305,6 @@ final class ReferrerTrackingService
             return null;
         }
 
-        // Ensure scheme is present
         if (! str_starts_with($url, 'http://') && ! str_starts_with($url, 'https://')) {
             $url = 'https://' . $url;
         }

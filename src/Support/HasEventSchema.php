@@ -68,7 +68,6 @@ trait HasEventSchema
     {
         $errors = [];
 
-        // Check required params
         foreach ($this->requiredParams() as $key) {
             if (! array_key_exists($key, $params)) {
                 $errors[] = "Missing required parameter: '{$key}'";
@@ -77,7 +76,6 @@ trait HasEventSchema
             }
         }
 
-        // Check param count
         if (count($params) > $this->maxParams()) {
             $errors[] = "Too many parameters: " . count($params) . " exceeds maximum of {$this->maxParams()}";
         }

@@ -521,7 +521,6 @@ final class AnalyticsDataService
      */
     private function getTopCounters(string $prefix, int $limit): array
     {
-        // Use metrics data if available
         $report = $this->metrics->report();
 
         $eventCounts = $report['event_counts'] ?? [];

@@ -61,7 +61,6 @@ final class ProviderEventValidator
         $warnings = [];
         $params = $event->params;
 
-        // Validate items array
         $items = $params['items'] ?? [];
 
         if (! is_array($items)) {
@@ -80,37 +79,31 @@ final class ProviderEventValidator
                 continue;
             }
 
-            // Check required fields
             foreach (self::GA4_REQUIRED_ITEM_FIELDS as $field) {
                 if (! array_key_exists($field, $item)) {
                     $errors[] = "Item at index {$index} is missing required field '{$field}'";
                 }
             }
 
-            // Validate price is numeric
             if (isset($item['price']) && ! is_numeric($item['price'])) {
                 $errors[] = "Item at index {$index} has non-numeric 'price': " . var_export($item['price'], true);
             }
 
-            // Validate quantity is integer-ish
             if (isset($item['quantity']) && ! is_int($item['quantity']) && ! is_numeric($item['quantity'])) {
                 $errors[] = "Item at index {$index} has non-numeric 'quantity': " . var_export($item['quantity'], true);
             }
 
-            // Validate item_name length
             if (isset($item['item_name']) && is_string($item['item_name']) && mb_strlen($item['item_name']) > 100) {
                 $warnings[] = "Item at index {$index} has 'item_name' exceeding 100 characters";
             }
         }
 
-        // Validate currency if present
         if (isset($params['currency']) && is_string($params['currency'])) {
             if (! preg_match('/^[A-Z]{3}$/', $params['currency'])) {
                 $errors[] = "Invalid ISO 4217 currency code: '{$params['currency']}'";
             }
         }
 
-        // Validate value is numeric if present
         if (isset($params['value']) && ! is_numeric($params['value'])) {
             $errors[] = "'value' parameter must be numeric, got " . gettype($params['value']);
         }
@@ -141,19 +134,16 @@ final class ProviderEventValidator
         $warnings = [];
         $params = $event->params;
 
-        // Validate currency
         if (isset($params['currency']) && is_string($params['currency'])) {
             if (! preg_match('/^[A-Z]{3}$/', $params['currency'])) {
                 $errors[] = "Invalid ISO 4217 currency code: '{$params['currency']}'";
             }
         }
 
-        // Validate value is numeric
         if (isset($params['value']) && ! is_numeric($params['value'])) {
             $errors[] = "'value' parameter must be numeric, got " . gettype($params['value']);
         }
 
-        // Validate content_ids if present
         if (isset($params['content_ids'])) {
             if (! is_array($params['content_ids'])) {
                 $errors[] = "'content_ids' must be an array, got " . gettype($params['content_ids']);
@@ -166,7 +156,6 @@ final class ProviderEventValidator
             }
         }
 
-        // Validate num_items consistency
         if (isset($params['contents']) && is_array($params['contents'])) {
             $contentCount = count($params['contents']);
             if (isset($params['num_items']) && (int) $params['num_items'] !== $contentCount) {
@@ -201,14 +190,12 @@ final class ProviderEventValidator
         $warnings = [];
         $params = $event->params;
 
-        // Check for reserved $properties in user params
         foreach ($params as $key => $value) {
             if (str_starts_with($key, '$') && in_array($key, self::POSTHOG_RESERVED_PROPERTIES, true)) {
                 $errors[] = "Parameter '{$key}' is a reserved PostHog property and cannot be set manually";
             }
         }
 
-        // Validate currency is in $currency format
         if (isset($params['currency']) && is_string($params['currency']) && ! str_starts_with($params['currency'], '$')) {
             $warnings[] = "PostHog expects currency as '\$currency', not 'currency'";
         }

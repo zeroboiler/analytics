@@ -105,21 +105,18 @@ final class EventDependencyGraphService
         $missingExpected = [];
         $exclusiveViolations = [];
 
-        // Check required prerequisites
         foreach ($prerequisites as $prereq) {
             if (! $this->hasClientEvent($clientId, $prereq)) {
                 $missingRequired[] = $prereq;
             }
         }
 
-        // Check expected (soft) prerequisites
         foreach ($expected as $exp) {
             if (! $this->hasClientEvent($clientId, $exp)) {
                 $missingExpected[] = $exp;
             }
         }
 
-        // Check exclusive events (should NOT have occurred)
         foreach ($exclusive as $excl) {
             if ($this->hasClientEvent($clientId, $excl)) {
                 $exclusiveViolations[] = $excl;
@@ -335,12 +332,10 @@ final class EventDependencyGraphService
             $successors = $this->getSuccessors($from);
             $prerequisites = $this->getPrerequisites($to);
 
-            // Check if the path follows a known dependency
             $isSuccessor = in_array($to, $successors, true);
             $isPrerequisite = in_array($from, $prerequisites, true);
 
             if (! $isSuccessor && ! $isPrerequisite) {
-                // Check if they're connected at all
                 $allEvents = array_keys($this->getGraph());
                 if (in_array($from, $allEvents, true) && in_array($to, $allEvents, true)) {
                     $violations[] = [
@@ -487,7 +482,6 @@ final class EventDependencyGraphService
         $sorted = $this->topologicalSort();
         $graph = $this->getGraph();
 
-        // Find events with no prerequisites (root nodes)
         $roots = array_filter($graph, fn (array $node): bool => count($node['prerequisites']) === 0);
         $rootNames = array_keys($roots);
 
@@ -578,7 +572,6 @@ final class EventDependencyGraphService
         /** @var array<string, array{prerequisites?: list<string>, successors?: list<string>, category?: string}> $custom */
         $custom = $this->cache->get($this->cachePrefix . 'custom_nodes', []);
 
-        // Add category information from EventCatalog
         $result = [];
         foreach ($custom as $name => $data) {
             $result[$name] = [

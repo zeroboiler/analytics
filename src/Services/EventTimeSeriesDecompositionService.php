@@ -449,7 +449,6 @@ final class EventTimeSeriesDecompositionService
      */
     private function extractSeasonal(array $detrended, int $period, int $totalLength): array
     {
-        // Collect values at each seasonal position
         $positionSums = array_fill(0, $period, 0.0);
         $positionCounts = array_fill(0, $period, 0);
 
@@ -467,7 +466,6 @@ final class EventTimeSeriesDecompositionService
                 : 0.0;
         }
 
-        // Remove mean of seasonal pattern to center it around zero
         $seasonalMean = array_sum($seasonalPattern) / count($seasonalPattern);
         $seasonalPattern = array_map(fn (float $v): float => $v - $seasonalMean, $seasonalPattern);
 

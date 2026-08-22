@@ -308,7 +308,6 @@ final class SaaSLifecycleFlowTracker
         // Advance to next step
         $state['current_step'] = $stepIndex + 1;
 
-        // Check if flow is complete
         if ($state['current_step'] >= count($steps)) {
             $state['completed'] = true;
             $state['completed_at'] = $now;
@@ -412,7 +411,6 @@ final class SaaSLifecycleFlowTracker
             }
         }
 
-        // Update the reverse index (remove completed flows)
         $this->cache->put($indexKey, $stillActive, $this->cacheTtl);
 
         // Also register new flow IDs in the reverse index during start()

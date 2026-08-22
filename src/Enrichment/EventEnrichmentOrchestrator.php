@@ -100,7 +100,6 @@ final class EventEnrichmentOrchestrator
         foreach ($plugins as $plugin) {
             $name = $plugin->name();
 
-            // Skip plugins that don't want to process this event
             if (! $plugin->shouldEnrich($current)) {
                 continue;
             }
@@ -185,7 +184,6 @@ final class EventEnrichmentOrchestrator
             ];
         }
 
-        // Sort by count descending
         usort($pluginMetrics, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return [

@@ -89,17 +89,14 @@ final class EventAuditTrailService
             'metadata' => $metadata,
         ];
 
-        // Store the entry
         $this->cache->put(
             self::CACHE_PREFIX . $auditId,
             $entry,
             $this->ttl,
         );
 
-        // Add to index (ring buffer — bounded by maxEntries)
         $this->addToIndex($auditId, $entry);
 
-        // Update stats
         $this->incrementStats($entry);
 
         return $auditId;
@@ -134,7 +131,6 @@ final class EventAuditTrailService
         $limit = (int) ($filters['limit'] ?? 50);
         $offset = (int) ($filters['offset'] ?? 0);
 
-        // Filter in reverse chronological order
         $filtered = [];
         $indexReversed = array_reverse($index, true);
 
@@ -159,7 +155,6 @@ final class EventAuditTrailService
             $filtered[] = $id;
         }
 
-        // Apply offset and limit
         $sliced = array_slice($filtered, $offset, $limit);
 
         foreach ($sliced as $id) {

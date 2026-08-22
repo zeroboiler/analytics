@@ -205,7 +205,6 @@ final class EventAliasRegistry
             $groups[$canonical][] = $alias;
         }
 
-        // Sort by alias count descending
         uksort($groups, fn (string $a, string $b): int => count($groups[$b]) <=> count($groups[$a]));
 
         return $groups;

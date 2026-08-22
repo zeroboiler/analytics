@@ -43,7 +43,6 @@ final class PlausibleEventTracker
     {
         $plausibleName = EventCatalog::plausibleNameFor($event->name);
 
-        // Skip events without a Plausible mapping
         if ($plausibleName === null) {
             return false;
         }
@@ -87,14 +86,12 @@ final class PlausibleEventTracker
             'name' => $plausibleName,
         ];
 
-        // Add URL from params or use current
         if (isset($event->params['page_url'])) {
             $payload['url'] = (string) $event->params['page_url'];
         } elseif (isset($event->params['url'])) {
             $payload['url'] = (string) $event->params['url'];
         }
 
-        // Add referrer
         if (isset($event->params['referrer'])) {
             $payload['referrer'] = (string) $event->params['referrer'];
         }

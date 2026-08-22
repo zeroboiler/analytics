@@ -124,7 +124,6 @@ final class EventFlowAnalyzerService
 
         $maxPossibleEdges = $nodeCount * ($nodeCount - 1);
 
-        // Compute degree distributions
         $outDegrees = [];
         $inDegrees = [];
         $totalOut = 0;
@@ -217,7 +216,6 @@ final class EventFlowAnalyzerService
             }
         }
 
-        // Sort by bottleneck score descending
         usort($bottlenecks, fn (array $a, array $b): int => $b['bottleneck_score'] <=> $a['bottleneck_score']);
 
         return $bottlenecks;
@@ -245,7 +243,6 @@ final class EventFlowAnalyzerService
             if (count($predecessors) === 1) {
                 $predecessor = $predecessors[0];
 
-                // Check if the predecessor has other successors
                 $forward = $graph['forward'][$predecessor] ?? [];
                 if (count($forward) > 1) {
                     // This predecessor has multiple successors, but $node
@@ -276,7 +273,6 @@ final class EventFlowAnalyzerService
         $reverse = $graph['reverse'];
         $nodes = $graph['nodes'];
 
-        // Build undirected adjacency list
         /** @var array<string, list<string>> $adjacent */
         $adjacent = [];
         foreach ($nodes as $node) {
@@ -321,7 +317,6 @@ final class EventFlowAnalyzerService
             }
         }
 
-        // Sort clusters by size descending
         usort($clusters, fn (array $a, array $b): int => count($b) <=> count($a));
 
         return $clusters;

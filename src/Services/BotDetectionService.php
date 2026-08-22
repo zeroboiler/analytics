@@ -146,7 +146,6 @@ final class BotDetectionService
             }
         }
 
-        // Check for extremely short UAs (typically bots)
         if (strlen($ua) < 20) {
             return 50;
         }
@@ -173,7 +172,6 @@ final class BotDetectionService
         /** @var list<string> $knownIds */
         $knownIds = $this->cache->get($key, []);
 
-        // Add current client ID
         if (! in_array($clientId, $knownIds, true)) {
             $knownIds[] = $clientId;
             $this->cache->put($key, $knownIds, 3600); // 1 hour window
@@ -213,7 +211,6 @@ final class BotDetectionService
         $windowStart = (int) $this->cache->get($windowKey, 0);
         $now = time();
 
-        // Reset window if expired
         if ($now - $windowStart >= $this->velocityWindow) {
             $count = 0;
             $this->cache->put($windowKey, $now, $this->velocityWindow + 10);
@@ -247,7 +244,6 @@ final class BotDetectionService
     {
         $score = 0;
 
-        // Check for expected browser headers
         if (! $request->headers->has('Accept')) {
             $score += 15;
         }
@@ -262,7 +258,6 @@ final class BotDetectionService
             $score += 5;
         }
 
-        // Check for automation-specific headers
         if ($request->headers->has('X-Requested-With') && strtolower($request->headers->get('X-Requested-With', '')) === 'xmlhttprequest') {
             // AJAX calls are normal for analytics API
         }

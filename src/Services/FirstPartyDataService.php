@@ -141,7 +141,6 @@ final class FirstPartyDataService
         /** @var list<array{type: string, value: string, metadata: array<string, mixed>, captured_at: string}> $interests */
 
         if (count($interests) >= $this->maxInterestsPerUser) {
-            // Remove oldest interest to make room
             array_shift($interests);
         }
 

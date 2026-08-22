@@ -162,7 +162,6 @@ final class EventTimelineService
             $merged = array_merge($merged, $entries);
         }
 
-        // Sort by timestamp ascending (oldest first for chronological reading)
         usort($merged, fn (array $a, array $b): int => ($a['timestamp'] ?? 0) <=> ($b['timestamp'] ?? 0));
 
         if ($limit > 0) {
@@ -191,7 +190,6 @@ final class EventTimelineService
             return $gaps;
         }
 
-        // Build event name → timestamp lookup
         $byName = [];
         foreach ($timeline as $entry) {
             $name = $entry['event_name'] ?? '';
@@ -200,7 +198,6 @@ final class EventTimelineService
         }
 
         foreach ($this->gapThresholds as $gapType => $thresholdSeconds) {
-            // Parse "trial_start_to_login" → from_event="trial_start"/"start_trial", to_event="login"
             $parts = $this->parseGapType($gapType);
             $fromEvents = $parts['from'];
             $toEvent = $parts['to'];
@@ -214,7 +211,6 @@ final class EventTimelineService
             }
 
             foreach ($fromTimestamps as $fromTs) {
-                // Check if "to" event exists after "from" event
                 $toTimestamps = $byName[$toEvent] ?? [];
 
                 $matched = false;
@@ -241,7 +237,6 @@ final class EventTimelineService
             }
         }
 
-        // Sort by severity (largest gap first)
         usort($gaps, fn (array $a, array $b): int => $b['elapsed_seconds'] <=> $a['elapsed_seconds']);
 
         return $gaps;

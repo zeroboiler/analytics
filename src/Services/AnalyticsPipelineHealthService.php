@@ -416,7 +416,6 @@ final class AnalyticsPipelineHealthService
                 $enabledCount++;
                 $totalProviders++;
 
-                // Check if provider has required config
                 $hasRequiredConfig = false;
 
                 if ($provider === 'ga4') {

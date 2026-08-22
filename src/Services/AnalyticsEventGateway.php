@@ -447,12 +447,10 @@ final class AnalyticsEventGateway
         $availableProviders = [];
 
         foreach ($providers as $provider) {
-            // Skip provider if circuit breaker is open
             if ($this->circuitBreaker->isOpen($provider)) {
                 continue;
             }
 
-            // Skip provider if rate limited
             if (! $this->rateLimiter->check($provider)) {
                 continue;
             }

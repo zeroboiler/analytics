@@ -125,7 +125,6 @@ final class EventContextBuilder
         }
 
         if ($this->request !== null) {
-            // Check header first
             $header = $this->request->header('X-Analytics-Client-Id');
             if (is_string($header) && $header !== '') {
                 $this->context['client_id'] = $header;
@@ -236,7 +235,6 @@ final class EventContextBuilder
             $this->context['locale'] = $this->request->getLocale();
             $this->context['method'] = $this->request->method();
 
-            // Parse device context from User-Agent (v9.5.0)
             if ($userAgent !== '') {
                 $deviceContext = \ZeroBoiler\Analytics\Support\DeviceContextParser::parse($userAgent);
                 $this->context['device_type'] = $deviceContext['device_type'];

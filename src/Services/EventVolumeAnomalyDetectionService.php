@@ -135,13 +135,11 @@ final class EventVolumeAnomalyDetectionService
 
         $anomalies = [];
 
-        // Check global volume
         $globalResult = $this->analyzeWindow($this->globalKey(), 'global');
         if ($globalResult !== null) {
             $anomalies[] = $globalResult;
         }
 
-        // Check top categories
         $categories = ['ecommerce', 'saas', 'engagement', 'security', 'uptime', 'infrastructure', 'marketing', 'customer_success'];
         foreach ($categories as $category) {
             $catResult = $this->analyzeWindow($this->categoryKey($category), "category:{$category}");
@@ -350,7 +348,6 @@ final class EventVolumeAnomalyDetectionService
         $mean = $stats['mean'];
         $stdDev = $stats['std_dev'];
 
-        // Skip if no variance (flat line)
         if ($stdDev < 0.001) {
             // Flat line — only anomaly if the latest is non-zero and mean was zero
             if ($mean < 0.001 && $latestValue > 0) {

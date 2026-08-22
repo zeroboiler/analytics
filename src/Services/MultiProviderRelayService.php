@@ -63,12 +63,10 @@ final class MultiProviderRelayService
         $rules = $this->getRelayRules();
         $exclusions = $this->getExclusions();
 
-        // Check if event should be excluded from relay
         if ($this->isExcluded($event->name, $exclusions)) {
             return [];
         }
 
-        // Determine target providers
         $targets = $this->resolveTargets($event->name, $rules);
         if ($targets === []) {
             return [];
@@ -106,7 +104,6 @@ final class MultiProviderRelayService
         $exclusions = $this->getExclusions();
         $results = [];
 
-        // Group events by their target providers
         $providerEvents = [];
         foreach ($events as $event) {
             if ($this->isExcluded($event->name, $exclusions)) {
@@ -122,7 +119,6 @@ final class MultiProviderRelayService
             }
         }
 
-        // Dispatch to each provider
         foreach ($providerEvents as $provider => $providerEventList) {
             $relayConfig = $this->relayConfigurations[$provider];
             $count = $this->dispatchBatchToProvider($providerEventList, $provider, $relayConfig);
@@ -266,7 +262,6 @@ final class MultiProviderRelayService
     {
         $targets = [];
 
-        // Check for global wildcard rule
         if (isset($rules['*'])) {
             $targets = array_merge($targets, $rules['*']);
         }
@@ -278,7 +273,6 @@ final class MultiProviderRelayService
             $targets = array_merge($targets, $rules[$categoryKey]);
         }
 
-        // Check for specific event rules
         if (isset($rules[$eventName])) {
             $targets = array_merge($targets, $rules[$eventName]);
         }

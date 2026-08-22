@@ -156,7 +156,6 @@ final class EventIntentDetectionService
         $now = time();
         $lookbackCutoff = $now - $this->lookbackWindow;
 
-        // Filter to lookback window
         $recentEvents = array_filter($events, function (array $event) use ($lookbackCutoff): bool {
             return ($event['timestamp'] ?? 0) >= $lookbackCutoff;
         });
@@ -275,7 +274,6 @@ final class EventIntentDetectionService
         $eventNames = array_column($events, 'name');
         $pageUrls = array_filter(array_column($events, 'page_url'));
 
-        // Count signal pattern matches
         $signalCounts = [];
         foreach (self::SIGNAL_PATTERNS as $signalName => $patterns) {
             $count = 0;
@@ -295,7 +293,6 @@ final class EventIntentDetectionService
             $signalCounts[$signalName] = $count;
         }
 
-        // Compute normalized signal strengths
         foreach ($signalCounts as $signalName => $count) {
             if ($count === 0) {
                 continue;
@@ -312,7 +309,6 @@ final class EventIntentDetectionService
             ];
         }
 
-        // Add computed signals
         $diversity = count(array_unique($eventNames)) / max(1, $totalEvents);
         $signals[] = [
             'type' => 'engagement_breadth',
@@ -537,7 +533,6 @@ final class EventIntentDetectionService
             return 0.0;
         }
 
-        // Count events in 1-minute windows
         $maxPerMinute = 0;
         $currentMinute = 0;
         $countInMinute = 0;

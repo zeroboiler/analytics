@@ -272,7 +272,6 @@ final class AnalyticsInsightCommand extends Command
         $catalogCount = EventCatalog::count();
         $categorySummary = EventCatalog::categorySummary();
 
-        // Generate insights based on catalog analysis
         $insights = $this->generateCatalogInsights($catalogCount, $categorySummary);
 
         if ($json) {

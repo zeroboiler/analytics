@@ -196,7 +196,6 @@ final class FunnelSimulationService
             $stageResults[$stage] = $this->simulateStage($stage);
         }
 
-        // Compute end-to-end conversion by multiplying per-stage samples
         $endToEndSamples = $this->computeEndToEndSamples($stages);
 
         $overallResult = $this->computeSimulationResult(
@@ -271,7 +270,6 @@ final class FunnelSimulationService
         // Baseline simulation
         $baseline = $this->runSimulation($stages);
 
-        // Apply improvement
         $originalRate = $this->observedRates[$improvedStage] ?? 0.0;
         $this->observedRates[$improvedStage] = min(1.0, $originalRate * $improvementFactor);
 
@@ -645,7 +643,6 @@ final class FunnelSimulationService
     {
         $baselineP95 = $baseline['overall_conversion']['ci_95']['upper'] ?? 0.0;
 
-        // Count improved simulations that exceed baseline P95
         // Since we don't store raw samples in the snapshot, use mean comparison
         $baselineMean = $baseline['overall_conversion']['mean'] ?? 0.0;
         $improvedMean = $improved['overall_conversion']['mean'] ?? 0.0;

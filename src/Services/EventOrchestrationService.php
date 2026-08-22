@@ -184,7 +184,6 @@ final class EventOrchestrationService
         $this->ensurePipelineExists($pipelineName);
         $key = $this->cacheKey($pipelineName, $clientId, $userId);
 
-        // Check for existing active pipeline
         $existing = $this->loadPipelineStateFromStore($key);
         if ($existing !== null && ($existing['status'] ?? '') === 'active') {
             return $existing;
@@ -210,7 +209,6 @@ final class EventOrchestrationService
         $ttl = (int) $this->config->get('zeroboiler.analytics.orchestration.cache_ttl', self::DEFAULT_TTL);
         Cache::put($key, $state, $ttl);
 
-        // Fire pipeline_started event
         $this->dispatchEvent(
             "pipeline_{$pipelineName}_started",
             array_merge($params, [
@@ -267,7 +265,6 @@ final class EventOrchestrationService
             ];
         }
 
-        // Check for timeout
         if ($step['timeout_seconds'] > 0 && $state !== null) {
             $startedAt = strtotime($state['started_at']);
             $elapsed = time() - $startedAt;
@@ -287,7 +284,6 @@ final class EventOrchestrationService
             }
         }
 
-        // Dispatch the analytics event associated with this step
         $this->dispatchEvent(
             $step['event'],
             array_merge($params, [
@@ -300,7 +296,6 @@ final class EventOrchestrationService
             $userId,
         );
 
-        // Update state
         if ($state !== null) {
             if (! in_array($stepName, $state['completed_steps'], true)) {
                 $state['completed_steps'][] = $stepName;
@@ -308,7 +303,6 @@ final class EventOrchestrationService
 
             $state['last_step_at'] = $this->nowIso8601();
 
-            // Check completion
             $isComplete = $this->allRequiredStepsComplete($pipeline, $state['completed_steps']);
 
             if ($isComplete) {
@@ -370,7 +364,6 @@ final class EventOrchestrationService
         $ttl = (int) $this->config->get('zeroboiler.analytics.orchestration.cache_ttl', self::DEFAULT_TTL);
         Cache::put($key, $state, $ttl);
 
-        // Fire completion event if pipeline has one
         if ($pipeline['on_complete_event'] !== null) {
             $this->dispatchEvent(
                 $pipeline['on_complete_event'],

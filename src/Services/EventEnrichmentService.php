@@ -244,12 +244,10 @@ final class EventEnrichmentService
      */
     private function expandIpv6(string $ip): string
     {
-        // Handle IPv4-mapped IPv6
         if (str_contains($ip, '.')) {
             $ip = '::ffff:' . $ip;
         }
 
-        // Split by ::
         $parts = explode('::', $ip);
 
         if (count($parts) === 2) {
@@ -282,7 +280,6 @@ final class EventEnrichmentService
             $groups[] = hexdec(substr($hex, $i, 4));
         }
 
-        // Find longest run of zeros
         $maxRun = 0;
         $maxStart = 0;
         $currentRun = 0;

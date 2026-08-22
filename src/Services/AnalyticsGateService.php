@@ -207,7 +207,6 @@ final class AnalyticsGateService
             return true; // Gate disabled = all features available
         }
 
-        // Check if feature exists
         if (! isset(self::FEATURES[$feature])) {
             return false;
         }
@@ -221,7 +220,6 @@ final class AnalyticsGateService
         if ($userId !== null) {
             $userOverride = $this->getUserOverrides($userId);
             if (isset($userOverride[$feature])) {
-                // Check dependencies even with override
                 if ($userOverride[$feature] && ! $this->checkDependencies($feature)) {
                     return false;
                 }
@@ -279,7 +277,6 @@ final class AnalyticsGateService
             default => 'events',
         };
 
-        // Check category-specific features
         $category = \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($event->name);
 
         if ($category === 'ecommerce') {
@@ -318,7 +315,6 @@ final class AnalyticsGateService
             $user = request()->user();
         } else {
             $user = null;
-            // Try to find user by ID
             try {
                 $model = $this->config->get('auth.providers.users.model');
                 if ($model !== null && is_string($model) && class_exists($model)) {
@@ -333,7 +329,6 @@ final class AnalyticsGateService
             return $this->defaultPlan;
         }
 
-        // Try to get plan from user attribute
         foreach ([$this->planAttribute, 'subscription_plan', 'billing_plan', 'role'] as $attr) {
             if (method_exists($user, 'getAttribute')) {
                 $value = $user->getAttribute($attr);

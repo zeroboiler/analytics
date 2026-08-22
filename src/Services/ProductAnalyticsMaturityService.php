@@ -147,7 +147,6 @@ final class ProductAnalyticsMaturityService
     {
         $dimensions = $this->assessDimensions($capabilities);
 
-        // Calculate weighted total score
         $totalScore = 0;
         $totalMax = 0;
 
@@ -159,7 +158,6 @@ final class ProductAnalyticsMaturityService
         $percentage = $totalMax > 0 ? ($totalScore / $totalMax) * 100 : 0;
         $normalizedScore = (int) round($percentage);
 
-        // Determine maturity level
         $level = match (true) {
             $normalizedScore >= 85 => self::LEVEL_LEADING,
             $normalizedScore >= 65 => self::LEVEL_ADVANCED,
@@ -200,7 +198,6 @@ final class ProductAnalyticsMaturityService
             }
         }
 
-        // Generate roadmap
         $roadmap = $this->generateRoadmap($level, $dimensions);
 
         return [
@@ -779,7 +776,6 @@ final class ProductAnalyticsMaturityService
             $roadmap[] = 'P4: Build custom dashboards and alerting';
         }
 
-        // Add dimension-specific recommendations
         foreach ($dimensions as $dim) {
             foreach ($dim['recommendations'] as $rec) {
                 $roadmap[] = "→ {$rec}";

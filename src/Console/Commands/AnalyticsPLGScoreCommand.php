@@ -165,7 +165,6 @@ final class AnalyticsPLGScoreCommand extends Command
     private function showDistribution(PLGScoringService $service, bool $asJson): int
     {
         try {
-            // Get aggregate stats as a proxy for distribution
             $stats = $service->aggregateStats();
         } catch (\Throwable $e) {
             $this->error("Distribution computation failed: {$e->getMessage()}");

@@ -185,17 +185,14 @@ final class NaturalLanguageQueryEngine
     {
         $event = $parsed['event'] ?? null;
 
-        // Try semantic metrics for known metric names
         if ($event !== null && $this->isSemanticMetric($event)) {
             return $this->querySemanticMetric($parsed);
         }
 
-        // Try event store for known catalog events
         if ($event !== null && EventCatalog::has($event)) {
             return $this->queryEventStore($parsed);
         }
 
-        // Try category-level query
         if ($parsed['category'] !== null) {
             return $this->queryCategory($parsed);
         }
@@ -365,7 +362,6 @@ final class NaturalLanguageQueryEngine
      */
     private function extractEventName(string $input): ?string
     {
-        // Try direct catalog resolution (handles aliases like ViewItem → view_item)
         $resolved = EventCatalog::resolve($input);
 
         if ($resolved !== null) {
@@ -612,7 +608,6 @@ final class NaturalLanguageQueryEngine
             }
         }
 
-        // Check if a non-default time range was extracted
         if ($timeRange['label'] !== 'last 7 days') {
             $score += 0.15;
         }

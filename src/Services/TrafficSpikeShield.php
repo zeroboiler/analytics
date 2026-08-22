@@ -278,12 +278,10 @@ final class TrafficSpikeShield
      */
     private function recordEvent(string $eventName, bool $allowed): void
     {
-        // Increment window counter
         $windowKey = self::CACHE_PREFIX . 'window_' . $eventName;
         $count = (int) $this->cache->get($windowKey, 0);
         $this->cache->put($windowKey, $count + 1, $this->windowSize);
 
-        // Increment total window counter
         $totalKey = self::CACHE_PREFIX . 'window_total';
         $totalCount = (int) $this->cache->get($totalKey, 0);
         $this->cache->put($totalKey, $totalCount + 1, $this->windowSize);

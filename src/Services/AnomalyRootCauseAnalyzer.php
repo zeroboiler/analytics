@@ -80,7 +80,6 @@ final class AnomalyRootCauseAnalyzer
         $analysisId = 'rca_' . md5($anomalousEvent . ':' . $anomalyType . ':' . time());
         $cacheKey = $this->cachePrefix . $analysisId;
 
-        // Check for cached analysis
         /** @var array<string, mixed>|null $cached */
         $cached = $this->cache->get($cacheKey);
         if ($cached !== null) {
@@ -136,7 +135,6 @@ final class AnomalyRootCauseAnalyzer
 
         $this->cache->put($cacheKey, $result, $this->cacheTtl);
 
-        // Store in analysis history
         $this->recordAnalysis($result);
 
         return $result;
@@ -284,7 +282,6 @@ final class AnomalyRootCauseAnalyzer
             return 'data_quality';
         }
 
-        // Check prefix patterns
         if (str_starts_with($eventName, 'session_') || str_starts_with($eventName, 'page_')) {
             return 'behavioral';
         }
@@ -324,7 +321,6 @@ final class AnomalyRootCauseAnalyzer
         // Frequency bonus (more co-occurrences = higher confidence)
         $frequencyBonus = min(0.1, $correlation['cooccurrences'] * 0.005);
 
-        // Combine scores
         $confidence = $baseConfidence + $directionBoost + $categoryRelevance + $frequencyBonus;
 
         return round(min(1.0, max(0.0, $confidence)), 4);

@@ -52,7 +52,6 @@ final class DeadLetterQueueService
         $this->maxSize = (int) ($dlqConfig['max_size'] ?? 10000);
         $this->bufferSize = (int) ($dlqConfig['buffer_size'] ?? 50);
 
-        // Ensure directory exists
         $dir = dirname($this->storagePath);
         if (! is_dir($dir)) {
             @mkdir($dir, 0755, true);
@@ -71,7 +70,6 @@ final class DeadLetterQueueService
             return;
         }
 
-        // Check size limit
         if ($this->count() >= $this->maxSize) {
             Log::warning('ZeroBoiler Analytics: DLQ is full, dropping event', [
                 'event' => $event->name,
@@ -229,7 +227,6 @@ final class DeadLetterQueueService
             userId: $entry['event']['userId'],
         );
 
-        // Remove the replayed event
         $this->remove($offset);
 
         return $event;
@@ -257,7 +254,6 @@ final class DeadLetterQueueService
             );
         }
 
-        // Clear after replay
         $this->clear();
 
         return $events;

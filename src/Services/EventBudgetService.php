@@ -111,7 +111,6 @@ final class EventBudgetService
         $userRemaining = $this->userLimit;
         $globalRemaining = $this->globalLimit;
 
-        // Check client budget
         if ($clientId !== null && $clientId !== '') {
             $clientCount = $this->clientCounts[$clientId] ?? 0;
             $clientRemaining = max(0, $this->clientLimit - $clientCount);
@@ -121,7 +120,6 @@ final class EventBudgetService
             }
         }
 
-        // Check user budget
         if ($userId !== null && $userId !== '') {
             $userCount = $this->userCounts[$userId] ?? 0;
             $userRemaining = max(0, $this->userLimit - $userCount);
@@ -131,7 +129,6 @@ final class EventBudgetService
             }
         }
 
-        // Check global budget
         $globalCount = array_sum($this->globalCounts) ?: 0;
         $globalRemaining = max(0, $this->globalLimit - $globalCount);
 

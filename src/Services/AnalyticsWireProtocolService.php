@@ -207,18 +207,15 @@ final class AnalyticsWireProtocol
             ];
         }
 
-        // Check protocol
         if (! isset($data['protocol']) || $data['protocol'] !== self::PROTOCOL) {
             $warnings[] = "Unexpected protocol: " . ($data['protocol'] ?? 'missing') .
                 " (expected: " . self::PROTOCOL . ')';
         }
 
-        // Check version
         if (! isset($data['version'])) {
             $warnings[] = 'Missing SDK version';
         }
 
-        // Check event data
         if (isset($data['event'])) {
             $eventCount = 1;
             $eventErrors = $this->validateEventData($data['event']);

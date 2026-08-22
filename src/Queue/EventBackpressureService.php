@@ -100,21 +100,18 @@ final class EventBackpressureService
             return true;
         }
 
-        // Check circuit breaker
         if ($this->isCircuitBreakerOpen()) {
             $this->rejectedCount++;
 
             return false;
         }
 
-        // Check global throughput
         if (! $this->checkGlobalThroughput()) {
             $this->rejectedCount++;
 
             return false;
         }
 
-        // Check per-client rate limit
         $clientId = $event->clientId ?? 'anonymous';
         if (! $this->checkClientRateLimit((string) $clientId)) {
             $this->rejectedCount++;

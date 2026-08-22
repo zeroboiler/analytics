@@ -251,7 +251,6 @@ final class SessionRecordingBridge
         $path = parse_url($url, PHP_URL_PATH) ?? '';
 
         foreach ($this->excludedPatterns as $pattern) {
-            // Convert glob-style pattern to regex
             $regex = '#^' . str_replace(['*', '/'], ['.*', '\/'], $pattern) . '$#';
 
             if (preg_match($regex, $path)) {

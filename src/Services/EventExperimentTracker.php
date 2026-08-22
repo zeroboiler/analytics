@@ -173,7 +173,6 @@ final class EventExperimentTracker
         for ($i = 1; $i < count($variants); $i++) {
             $treatment = $variants[$i];
 
-            // Check minimum sample size
             if ($control['events'] < $this->minSampleSize || $treatment['events'] < $this->minSampleSize) {
                 $bestResult['recommendation'] = sprintf(
                     'Insufficient sample size. Need at least %d events per variant (control: %d, %s: %d).',

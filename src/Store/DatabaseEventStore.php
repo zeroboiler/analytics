@@ -292,7 +292,6 @@ final class DatabaseEventStore implements AnalyticsEventStoreInterface
             default => 1,
         };
 
-        // Extract metadata from params that enrichers may have added
         // These are commonly injected by pipeline enrichers
         $category = is_string($params['_category'] ?? null) ? $params['_category'] : null;
         $sessionId = is_string($params['_session_id'] ?? null) ? $params['_session_id'] : null;

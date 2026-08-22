@@ -142,7 +142,6 @@ final class EventComplianceService
             'recommendations' => [],
         ];
 
-        // Calculate overall compliance score (0-100)
         $score = 0;
         $score += $report['pii_exposure']['score'] * 0.25;
         $score += $report['consent_coverage']['score'] * 0.25;
@@ -151,7 +150,6 @@ final class EventComplianceService
         $score += $report['processing_transparency']['score'] * 0.15;
         $report['overall_score'] = (int) round($score);
 
-        // Generate recommendations
         $report['recommendations'] = $this->generateRecommendations($report);
 
         $this->cache->put($cacheKey, $report, $this->cacheTtl);

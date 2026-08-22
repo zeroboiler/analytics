@@ -58,7 +58,6 @@ final class AnalyticsSequenceValueCommand extends Command
             return $this->compareSequences($service);
         }
 
-        // Load patterns from demo data (in production, from cache/event store)
         $patterns = $this->loadPatterns();
 
         if ($this->option('negative')) {
@@ -290,7 +289,6 @@ final class AnalyticsSequenceValueCommand extends Command
             ];
         }
 
-        // Sort by absolute multiplier descending
         usort($rows, fn (array $a, array $b): int => abs((float) $b[1]) <=> abs((float) $a[1]));
 
         $this->table($headers, $rows);
@@ -306,7 +304,6 @@ final class AnalyticsSequenceValueCommand extends Command
     private function loadPatterns(): array
     {
         if (! $this->option('demo')) {
-            // Return empty — in production, load from cache/event store
             return [];
         }
 

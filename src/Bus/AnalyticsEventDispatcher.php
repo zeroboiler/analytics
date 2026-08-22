@@ -174,7 +174,6 @@ final class AnalyticsEventDispatcher
         $filtered = 0;
 
         foreach ($collection as $event) {
-            // Apply consent check
             if ($this->consentAware) {
                 $consent = $this->manager->getConsent();
                 if (! $this->isConsentGranted($consent, $event->name)) {
@@ -183,7 +182,6 @@ final class AnalyticsEventDispatcher
                 }
             }
 
-            // Apply sampling check
             if ($this->samplingRate < 1.0 && ! $this->passesSampling()) {
                 $filtered++;
                 continue;
@@ -288,7 +286,6 @@ final class AnalyticsEventDispatcher
     private function buildFingerprint(AnalyticsEvent $event): string
     {
         $params = $event->params;
-        // Remove volatile params for fingerprinting
         unset($params['timestamp'], $params['_priority'], $params['session_id']);
 
         return md5($event->name . ':' . ($event->clientId ?? 'anon') . ':' . json_encode($params, JSON_THROW_ON_ERROR));

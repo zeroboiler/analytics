@@ -174,7 +174,6 @@ final class CohortBehaviorProfilerService
             }
         }
 
-        // Normalize best score to 0-1 confidence
         $totalScore = array_sum($scores);
         $confidence = $totalScore > 0 ? $bestScore / $totalScore : 0.0;
 
@@ -256,7 +255,6 @@ final class CohortBehaviorProfilerService
             }
         }
 
-        // Sort by count descending
         uasort($cohorts, fn (array $a, array $b): int => $b['count'] <=> $a['count']);
 
         return [
@@ -279,7 +277,6 @@ final class CohortBehaviorProfilerService
         $definitions = $this->getCohortDefinitions();
         $cohortNames = array_keys($definitions);
 
-        // Initialize matrix
         foreach ($cohortNames as $from) {
             foreach ($cohortNames as $to) {
                 $matrix[$from][$to] = 0;
@@ -306,14 +303,12 @@ final class CohortBehaviorProfilerService
             $totalByCohort[$from] = ($totalByCohort[$from] ?? 0) + 1;
         }
 
-        // Compute retention rates
         $retentionRates = [];
         foreach ($totalByCohort as $cohort => $total) {
             $retained = $retentionCounts[$cohort] ?? 0;
             $retentionRates[$cohort] = $total > 0 ? round(($retained / $total) * 100, 2) : 0.0;
         }
 
-        // Compute net movements
         $netMovements = [];
         foreach ($cohortNames as $cohort) {
             $gained = 0;
@@ -366,12 +361,10 @@ final class CohortBehaviorProfilerService
             $profile = $this->profile($identity, $events);
             $currentCohort = $profile['cohort'];
 
-            // Skip users already in the target cohort
             if ($currentCohort === $targetCohort) {
                 continue;
             }
 
-            // Check if the user's score for the target cohort exceeds the threshold
             $targetScore = $profile['all_scores'][$targetCohort] ?? 0.0;
             $totalScore = array_sum($profile['all_scores']);
             $probability = $totalScore > 0 ? $targetScore / $totalScore : 0.0;
@@ -385,7 +378,6 @@ final class CohortBehaviorProfilerService
             }
         }
 
-        // Sort by probability descending
         uasort($candidates, fn (array $a, array $b): int => $b['probability'] <=> $a['probability']);
 
         return [
@@ -428,7 +420,6 @@ final class CohortBehaviorProfilerService
             }
         }
 
-        // Sort event counts descending
         arsort($eventCounts);
         $topEvents = array_slice($eventCounts, 0, 10, true);
 
@@ -462,7 +453,6 @@ final class CohortBehaviorProfilerService
             return self::DEFAULT_COHORT_DEFINITIONS;
         }
 
-        // Merge custom definitions with built-in (custom overrides built-in on name collision)
         return array_merge(self::DEFAULT_COHORT_DEFINITIONS, $custom);
     }
 
@@ -479,7 +469,6 @@ final class CohortBehaviorProfilerService
         $uniqueEvents = array_unique($eventNames);
         $signalCounts = array_count_values($eventNames);
 
-        // Compute time-based metrics
         $timestamps = array_filter(
             array_map(fn (AnalyticsEvent $e): ?int => $e->timestamp ?? null, $events),
         );
@@ -626,7 +615,6 @@ final class CohortBehaviorProfilerService
         $olderCount = count($olderHalf);
         $recentCount = count($recentHalf);
 
-        // Normalize by length difference
         $normalizedRecent = $olderCount > 0 ? ($recentCount / $olderCount) : 0.0;
 
         return max(0.0, 1.0 - $normalizedRecent);
@@ -644,7 +632,6 @@ final class CohortBehaviorProfilerService
             return [];
         }
 
-        // Aggregate common params across all events
         $paramCounts = [];
 
         foreach ($members as $events) {

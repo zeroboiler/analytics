@@ -83,7 +83,6 @@ final class AttributionService
             return;
         }
 
-        // Store first-touch if not already set
         $firstTouchKey = self::FIRST_TOUCH_KEY . $clientId;
         $existing = $this->cache->get($firstTouchKey);
 
@@ -92,7 +91,6 @@ final class AttributionService
             $this->cache->put($firstTouchKey, $firstTouch->toArray(), $this->firstTouchTtl);
         }
 
-        // Append to touch history
         $historyKey = self::TOUCH_HISTORY_KEY . $clientId;
         /** @var list<array<string, mixed>>|null $history */
         $history = $this->cache->get($historyKey) ?? [];

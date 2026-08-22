@@ -109,11 +109,9 @@ final class RealTimeAggregationService
         /** @var array<string, int> $users */
         /** @var array<string, int> $providers */
 
-        // Remove internal counter keys
         $total = $events['__total__'] ?? 0;
         unset($events['__total__']);
 
-        // Sort by count descending
         arsort($events);
 
         return [

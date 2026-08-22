@@ -99,7 +99,6 @@ final class UserJourneyService
             ];
         }
 
-        // Update identity if now known
         if ($userId !== null) {
             $this->journeys[$journeyId]['user_id'] = $userId;
         }
@@ -368,7 +367,6 @@ final class UserJourneyService
                 }
             }
 
-            // Check step presence (after first step)
             if ($hasEntrance) {
                 $foundSteps = [];
                 foreach ($funnelSteps as $step) {
@@ -451,7 +449,6 @@ final class UserJourneyService
             $this->manager->trackEvent($event);
         }
 
-        // Remove from memory
         unset($this->journeys[$journeyId]);
     }
 

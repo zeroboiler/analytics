@@ -86,7 +86,6 @@ final class SaaSHealthScoreAggregator
      */
     public function compute(): array
     {
-        // Check cache first
         $cacheKey = self::CACHE_PREFIX . 'composite';
         $cached = $this->cache->get($cacheKey);
 

@@ -195,7 +195,6 @@ final class ProviderDispatchTelemetry
         $key = self::CACHE_PREFIX . "{$provider}_{$type}";
         $this->cache->increment($key);
 
-        // Ensure key exists with TTL
         if ($this->cache->get($key) === null) {
             $this->cache->put($key, 1, $this->ttl);
         }

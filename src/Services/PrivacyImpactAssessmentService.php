@@ -233,10 +233,8 @@ final class PrivacyImpactAssessmentService
         $triggersDpia = $overallScore >= self::DEFAULT_RISK_THRESHOLDS['high']
             || $this->categoryTriggersDpia($category);
 
-        // Generate recommendations
         $recommendations = $this->generateRecommendations($overallScore, $category, $eventName);
 
-        // Generate mitigations
         $mitigations = $this->generateMitigations($overallScore, $sensitivitySection, $operationsSection, $transferSection);
 
         // Review due date
@@ -508,7 +506,6 @@ final class PrivacyImpactAssessmentService
         $defaultOps = ['collect', 'store', 'process'];
         $operations = $defaultOps;
 
-        // Add contextual operations
         if (str_contains($eventName, 'export') || str_contains($eventName, 'report')) {
             $operations[] = 'export';
         }
@@ -518,7 +515,6 @@ final class PrivacyImpactAssessmentService
             $operations[] = 'automated_decision';
         }
 
-        // Merge custom operations
         foreach ($customOperations as $op) {
             if (is_string($op) && $op !== '' && ! in_array($op, $operations, true)) {
                 $operations[] = $op;

@@ -838,7 +838,6 @@ final class EventBuilder
             ]);
         }
 
-        // Merge items into params if present
         $params = $this->params;
         if ($this->items !== []) {
             $params['items'] = $this->items;

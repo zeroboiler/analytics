@@ -208,7 +208,6 @@ final class CatalogSnapshotService
         $nonBreaking = count($added) + count($providerAdded);
         $breaking = count($removed) + $breakingCount;
 
-        // Compute a stability score (1.0 = no changes, 0.0 = massive changes)
         $baselineTotal = max(1, count($baselineNames));
         $score = max(0.0, 1.0 - ($totalChanges / $baselineTotal));
 

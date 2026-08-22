@@ -52,11 +52,9 @@ final class AnalyticsReferrerMiddleware
         $referrer = $this->referrerService->extractReferrer($request);
         $utm = $this->referrerService->extractUtm($request);
 
-        // Store referrer context on the request for use by other middleware/services
         $request->attributes->set('_zb_referrer', $referrer);
         $request->attributes->set('_zb_utm', $utm);
 
-        // Register an interceptor to tag all events with referrer context
         $this->manager->interceptBefore(function (\ZeroBoiler\Analytics\DTO\AnalyticsEvent $event) use ($referrer, $utm): \ZeroBoiler\Analytics\DTO\AnalyticsEvent {
             $params = $event->params;
 
@@ -68,7 +66,6 @@ final class AnalyticsReferrerMiddleware
                 $params['_referrer_campaign'] = $referrer['campaign'];
             }
 
-            // Merge UTM params if not already present
             foreach ($utm as $key => $value) {
                 if (! isset($params[$key])) {
                     $params[$key] = $value;

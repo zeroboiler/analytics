@@ -215,7 +215,6 @@ final class AnalyticsSchemaCommand extends Command
             return self::SUCCESS;
         }
 
-        // Validate all schemas
         $coverage = $registry->catalogCoverage();
         $summary = $registry->summary();
 

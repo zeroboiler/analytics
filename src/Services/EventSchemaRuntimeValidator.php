@@ -62,7 +62,6 @@ final class EventSchemaRuntimeValidator
         $errors = [];
         $warnings = [];
 
-        // Check catalog membership
         if ($this->enforceCatalogMembership && ! EventCatalog::has($event->name)) {
             if ($this->mode === 'strict') {
                 $errors[] = "Event '{$event->name}' is not registered in the event catalog";
@@ -71,7 +70,6 @@ final class EventSchemaRuntimeValidator
             }
         }
 
-        // Check against parameter schema
         $schema = $this->registry->get($event->name);
         if ($schema !== null) {
             $this->validateAgainstSchema($event, $schema, $errors, $warnings);
@@ -151,7 +149,6 @@ final class EventSchemaRuntimeValidator
     ): void {
         $params = $event->params;
 
-        // Check required parameters
         foreach ($schema->requiredParams as $paramName => $paramDef) {
             if (! array_key_exists($paramName, $params)) {
                 $errors[] = "Required parameter '{$paramName}' is missing for event '{$event->name}'";
@@ -166,7 +163,6 @@ final class EventSchemaRuntimeValidator
             }
         }
 
-        // Validate optional parameter types if present
         foreach ($schema->optionalParams as $paramName => $paramDef) {
             if (! array_key_exists($paramName, $params)) {
                 continue;
@@ -201,12 +197,10 @@ final class EventSchemaRuntimeValidator
      */
     private function validateEventQuality(AnalyticsEvent $event, array &$errors, array &$warnings): void
     {
-        // Check event name format
         if (! preg_match('/^[a-z][a-z0-9_]*$/', $event->name)) {
             $errors[] = "Event name '{$event->name}' contains invalid characters";
         }
 
-        // Check for excessively large parameter payloads
         $jsonSize = strlen(json_encode($event->params));
         if ($jsonSize > 64000) {
             $errors[] = 'Event payload exceeds 64KB limit';
@@ -214,7 +208,6 @@ final class EventSchemaRuntimeValidator
             $warnings[] = 'Event payload is large (' . $jsonSize . ' bytes), consider reducing parameter count';
         }
 
-        // Check parameter count
         $paramCount = count($event->params);
         if ($paramCount > 50) {
             $warnings[] = "Event has {$paramCount} parameters, consider reducing complexity";

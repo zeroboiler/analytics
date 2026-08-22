@@ -101,7 +101,6 @@ final class EventAnnotationService
             return false;
         }
 
-        // Update existing annotation if key matches
         $updated = false;
         foreach ($annotations as $i => $annotation) {
             if ($annotation['key'] === $key && $annotation['type'] === $type) {

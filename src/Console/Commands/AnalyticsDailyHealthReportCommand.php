@@ -36,7 +36,6 @@ final class AnalyticsDailyHealthReportCommand extends Command
     #[Override]
     public function handle(AnalyticsDailyHealthReportService $service): int
     {
-        // Handle cache clear
         if ($this->option('clear-cache')) {
             $service->clearCache();
             $this->info('✓ Health report cache cleared.');
@@ -44,7 +43,6 @@ final class AnalyticsDailyHealthReportCommand extends Command
             return self::SUCCESS;
         }
 
-        // Generate report
         $forceRefresh = (bool) $this->option('force');
         $report = $service->generate($forceRefresh);
 

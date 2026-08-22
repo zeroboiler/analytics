@@ -79,7 +79,6 @@ final class AnonymousEventAggregationService
             return;
         }
 
-        // Normalize event name
         $eventName = strtolower(trim($eventName));
 
         if ($eventName === '') {
@@ -142,7 +141,6 @@ final class AnonymousEventAggregationService
         /** @var array<string, int> $aggregates */
         $aggregates = $this->cache->get($bucket, []);
 
-        // Sort by count descending
         arsort($aggregates);
 
         return $aggregates;
@@ -217,7 +215,6 @@ final class AnonymousEventAggregationService
             $categories[$category]['events']++;
         }
 
-        // Add percentage
         foreach ($categories as &$cat) {
             $cat['percentage'] = $total > 0
                 ? round(($cat['count'] / $total) * 100, 2)

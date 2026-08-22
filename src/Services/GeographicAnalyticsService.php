@@ -106,10 +106,8 @@ final class GeographicAnalyticsService
 
             $totalEvents = array_sum(array_column($countries, 'events'));
 
-            // Sort by event count descending
             uasort($countries, fn (array $a, array $b): int => $b['events'] <=> $a['events']);
 
-            // Take top N and compute percentages
             $result = [];
             $count = 0;
 
@@ -319,7 +317,6 @@ final class GeographicAnalyticsService
                 ];
             }
 
-            // Find maxima for normalization
             $maxEvents = max(array_column($countries, 'events'));
             $maxUsers = max(array_column($countries, 'users'));
             $maxSessions = max(array_column($countries, 'sessions'));
@@ -352,7 +349,6 @@ final class GeographicAnalyticsService
                 $totalScore += $score;
             }
 
-            // Sort by score descending
             usort($scores, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
 
             return [
@@ -407,7 +403,6 @@ final class GeographicAnalyticsService
                 ];
             }
 
-            // Sort by conversion rate descending
             usort($results, fn (array $a, array $b): int => $b['rate'] <=> $a['rate']);
 
             $globalRate = $globalEntry > 0
@@ -516,7 +511,6 @@ final class GeographicAnalyticsService
                 }
             }
 
-            // Sort by deviation magnitude
             usort($anomalies, fn (array $a, array $b): int => abs($b['deviation']) <=> abs($a['deviation']));
 
             return [

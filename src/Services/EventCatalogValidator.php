@@ -232,7 +232,6 @@ final class EventCatalogValidator
             return $errors;
         }
 
-        // Use HasEventSchema trait if available
         if (method_exists($className, 'requiredParams')) {
             $required = $className::requiredParams();
 

@@ -257,11 +257,9 @@ final class AnalyticsSyntheticCommand extends Command
 
         $tracker = new EventSchemaEvolutionTracker;
 
-        // Register "from" snapshot from known catalog state
         $fromEvents = $this->buildCatalogSnapshotForVersion($fromVersion, $config);
         $tracker->registerSnapshot($fromVersion, $fromEvents);
 
-        // Register "to" snapshot from current catalogs
         $tracker->snapshotFromCatalogs($toVersion);
 
         $report = $tracker->analyze($fromVersion, $toVersion);

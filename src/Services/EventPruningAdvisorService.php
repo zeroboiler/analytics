@@ -271,12 +271,10 @@ final class EventPruningAdvisorService
     {
         $recommendations = [];
 
-        // Sort by SNR ascending (worst first)
         $sorted = $snrResults;
         uasort($sorted, fn (EventSNRResult $a, EventSNRResult $b): int => $a->snr <=> $b->snr);
 
         foreach ($sorted as $result) {
-            // Skip protected events
             if ($this->isProtected($result->eventName)) {
                 continue;
             }
@@ -292,7 +290,6 @@ final class EventPruningAdvisorService
             }
         }
 
-        // Sort recommendations by priority then estimated savings
         usort($recommendations, function (EventPruningRecommendation $a, EventPruningRecommendation $b): int {
             $priorityOrder = ['high' => 0, 'medium' => 1, 'low' => 2];
             $pa = $priorityOrder[$a->priority] ?? 1;
@@ -323,12 +320,10 @@ final class EventPruningAdvisorService
         }
 
         if ($result->isNoiseCandidate()) {
-            // Check for merge opportunity
             if (isset(self::MERGE_SUGGESTIONS[$eventName])) {
                 return $this->createMergeRecommendation($result, self::MERGE_SUGGESTIONS[$eventName]);
             }
 
-            // Check if high-volume event could benefit from sampling
             if ($result->dispatchCount > 1000) {
                 return $this->createSamplingRecommendation($result);
             }
@@ -464,7 +459,6 @@ final class EventPruningAdvisorService
     {
         $alternatives = [];
 
-        // Get events from the same category
         $categoryEvents = match ($category) {
             'ecommerce' => EcommerceEvents::names(),
             'saas' => SaaSEvents::names(),
@@ -482,7 +476,6 @@ final class EventPruningAdvisorService
                 $alternatives[] = $candidateName;
             }
 
-            // Limit to 3 alternatives
             if (count($alternatives) >= 3) {
                 break;
             }

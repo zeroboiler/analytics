@@ -184,7 +184,6 @@ final class SaasKpiTracker
             return;
         }
 
-        // Update subscription MRR
         $key = self::CACHE_PREFIX . 'subscriptions';
         $subscriptions = $this->cache->get($key, []);
         /** @var array<string, array{plan: string, mrr: float, subscribed_at: int, active: bool}> $subscriptions */
@@ -251,7 +250,6 @@ final class SaasKpiTracker
             return 0.0;
         }
 
-        // Normalize to monthly churn rate
         $periodRatio = $days / 30.0;
 
         return round($churnCount / (($activeCount + $churnCount) * $periodRatio), 4);

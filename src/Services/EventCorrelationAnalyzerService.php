@@ -96,7 +96,6 @@ final class EventCorrelationAnalyzerService
             return $cached;
         }
 
-        // Get time series for both events
         $seriesA = $this->getEventTimeSeries($eventA, $timeRange, 'hour');
         $seriesB = $this->getEventTimeSeries($eventB, $timeRange, 'hour');
 
@@ -178,7 +177,6 @@ final class EventCorrelationAnalyzerService
         $totalB = $this->getEventCountInPeriod($eventB, $timeRange);
         $baselineRate = $totalA > 0 ? $totalB / max($totalA, 1) : 0.0;
 
-        // Get A→B transitions within window
         $transitions = $this->getTransitions($eventA, $eventB, $timeRange, $windowHours, $limit);
         $aThenB = $transitions['count'] ?? 0;
         $conversionRate = $totalA > 0 ? round(($aThenB / $totalA) * 100, 2) : 0.0;
@@ -230,13 +228,11 @@ final class EventCorrelationAnalyzerService
             return $cached;
         }
 
-        // Get time series for all events
         $seriesMap = [];
         foreach ($events as $event) {
             $seriesMap[$event] = $this->getEventTimeSeries($event, $timeRange, 'hour');
         }
 
-        // Build correlation matrix
         $matrix = [];
         foreach ($events as $eventA) {
             $matrix[$eventA] = [];
@@ -299,7 +295,6 @@ final class EventCorrelationAnalyzerService
         $x = array_slice($x, 0, $n);
         $y = array_slice($y, 0, $n);
 
-        // Filter out null values
         $pairs = [];
         for ($i = 0; $i < $n; $i++) {
             if ($x[$i] !== null && $y[$i] !== null) {

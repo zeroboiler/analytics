@@ -217,7 +217,6 @@ final class AnalyticsInsightEngineService
             $catalogCategories = EventCatalog::byCategory();
             $catalogEventCounts = array_map(fn (array $cat): int => count($cat), $catalogCategories);
 
-            // Check for category imbalance (any category with 0 events registered)
             foreach ($catalogEventCounts as $category => $count) {
                 if ($count === 0) {
                     $insights[] = $this->makeInsight(
@@ -286,7 +285,6 @@ final class AnalyticsInsightEngineService
                 );
             }
 
-            // Check for revenue event coverage
             $revenueEvents = EventCatalog::revenueEvents();
             if (count($revenueEvents) < 5) {
                 $insights[] = $this->makeInsight(
@@ -440,7 +438,6 @@ final class AnalyticsInsightEngineService
      */
     private function analyzeMartFreshness(array &$insights): void
     {
-        // Check if data mart has any data
         $cacheKey = EventDataMartService::class . '_freshness_check';
 
         $freshness = $this->cache->get($cacheKey);

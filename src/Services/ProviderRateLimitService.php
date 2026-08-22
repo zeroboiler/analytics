@@ -98,7 +98,6 @@ final class ProviderRateLimitService
             return false;
         }
 
-        // Check if this provider has rate limiting configured
         $enabled = $this->providerEnabled[$provider] ?? false;
         if (! $enabled) {
             return false;

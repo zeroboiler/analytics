@@ -659,7 +659,6 @@ final class AnalyticsHealthCheckService
             }
         }
 
-        // Check identity issues specifically
         $identityIssues = $subsystems['identity']['details']['issues'] ?? [];
         foreach ($identityIssues as $issue) {
             $recommendations[] = [
@@ -669,7 +668,6 @@ final class AnalyticsHealthCheckService
             ];
         }
 
-        // Check consent issues
         $consentIssues = $subsystems['consent']['details']['issues'] ?? [];
         foreach ($consentIssues as $issue) {
             $recommendations[] = [

@@ -416,9 +416,7 @@ final class EcommerceEvents
     }
 
     // ── Typed Shorthand Factory Methods (v152.0.0) ──────────────────
-    //
     // One-line typed event builders for each catalog entry.
-    // Returns a ready-to-dispatch AnalyticsEvent DTO with correct category.
 
     /**
      * Build a typed view_item event.

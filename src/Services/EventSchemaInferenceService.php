@@ -130,7 +130,6 @@ final class EventSchemaInferenceService
                 }
             }
 
-            // Add common params that all events should have
             $commonParams = $this->commonParams();
             $mergedParams = array_merge($commonParams, $params);
 
@@ -264,7 +263,6 @@ final class EventSchemaInferenceService
             return count($cases) > 0 ? $cases : null;
         }
 
-        // Check docblock for @param enum hints
         $doc = $param->getDeclaringFunction()->getDocComment();
 
         if ($doc === false) {

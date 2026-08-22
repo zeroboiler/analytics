@@ -265,10 +265,8 @@ final class EventBlueprintRegistry
             }
         }
 
-        // Merge defaults with overrides
         $mergedParams = array_merge($blueprint->defaultParams, $params);
 
-        // Validate required params
         $errors = $blueprint->validateParams($mergedParams);
 
         if ($errors !== []) {
@@ -280,7 +278,6 @@ final class EventBlueprintRegistry
         // Use blueprint's base event or fallback to blueprint name
         $eventName = $blueprint->baseEvent !== '' ? $blueprint->baseEvent : $blueprint->name;
 
-        // Validate against catalog if base event exists
         if ($blueprint->baseEvent !== '' && ! EventCatalog::has($blueprint->baseEvent)) {
             throw new InvalidAnalyticsArgumentException(
                 "Blueprint '{$blueprintName}' references unknown catalog event '{$blueprint->baseEvent}'.",

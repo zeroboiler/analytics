@@ -173,7 +173,6 @@ final class EventHealthScoringEngine
 
         $this->cache->put($cacheKey, $stats, self::CACHE_TTL);
 
-        // Check for health degradation
         $this->checkForAlerts($eventName, $stats);
     }
 

@@ -123,7 +123,6 @@ final class RealTimeEventStreamService
         // Expire old buckets
         $this->expireBuckets($now);
 
-        // Find or create the current bucket
         $bucketKey = $this->bucketKey($now);
         $bucketIndex = $this->findBucketIndex($bucketKey);
 
@@ -137,14 +136,12 @@ final class RealTimeEventStreamService
             $bucketIndex = array_key_last($this->buckets);
         }
 
-        // Update bucket
         $this->buckets[$bucketIndex]['events']++;
         $this->buckets[$bucketIndex]['categories'][$category] =
             ($this->buckets[$bucketIndex]['categories'][$category] ?? 0) + 1;
         $this->buckets[$bucketIndex]['event_names'][$eventName] =
             ($this->buckets[$bucketIndex]['event_names'][$eventName] ?? 0) + 1;
 
-        // Update running totals
         $this->eventTotals[$eventName] = ($this->eventTotals[$eventName] ?? 0) + 1;
         $this->categoryTotals[$category] = ($this->categoryTotals[$category] ?? 0) + 1;
         $this->grandTotal++;
@@ -190,7 +187,6 @@ final class RealTimeEventStreamService
         // Compute EPS (events per second)
         $eps = $this->computeEps($now);
 
-        // Compute burst detection
         $burstDetected = false;
         $burstRatio = 0.0;
         if ($eps > 0) {

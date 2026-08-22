@@ -93,10 +93,8 @@ final class RevenueAttributionDashboardService
         // Revenue concentration (Herfindahl index)
         $concentration = $this->calculateRevenueConcentration($enrichedChannels, $totalRevenue);
 
-        // Find top channel
         $topChannel = $this->findTopChannel($enrichedChannels);
 
-        // Generate recommendations
         $recommendations = $this->generateRecommendations($enrichedChannels, $totalRevenue, $concentration);
 
         return [
@@ -129,7 +127,6 @@ final class RevenueAttributionDashboardService
             'referral', 'email', 'affiliate',
         ];
 
-        // Initialize channels
         foreach ($configuredChannels as $channel) {
             $channels[$channel] = [
                 'revenue' => 0.0,
@@ -138,7 +135,6 @@ final class RevenueAttributionDashboardService
             ];
         }
 
-        // Aggregate from metrics (in-memory, production uses event store)
         $metricsData = $this->metrics->all();
         $revenueEvents = array_filter(
             $metricsData['events'] ?? [],

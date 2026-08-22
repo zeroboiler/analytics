@@ -125,7 +125,6 @@ final class SentryErrorAnalyticsService
         $context = (array) ($issue['context'] ?? []);
         $culprit = (string) ($issue['culprit'] ?? '');
 
-        // Build fingerprint from title + culprit
         $fingerprint = $this->buildFingerprint($title, $culprit, $tags);
 
         // Detect if error is on a critical path
@@ -310,7 +309,6 @@ final class SentryErrorAnalyticsService
             }
         }
 
-        // Compute averages and sort by impact
         $topErrors = [];
         foreach ($cohorts as $cohort) {
             $topErrors[] = [
@@ -412,7 +410,6 @@ final class SentryErrorAnalyticsService
             $stage = $path !== null ? ($pathToStage[$path] ?? null) : null;
 
             if ($stage === null) {
-                // Assign to a default stage based on tags or title
                 $stage = $this->inferFunnelStage($error);
             }
 
@@ -425,7 +422,6 @@ final class SentryErrorAnalyticsService
             }
         }
 
-        // Compute averages
         $resultStages = [];
         $highestImpact = null;
         $highestImpactScore = 0.0;

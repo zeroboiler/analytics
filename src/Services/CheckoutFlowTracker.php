@@ -162,7 +162,6 @@ final class CheckoutFlowTracker
             $this->cacheTtl,
         );
 
-        // Fire begin_checkout event with GA4 params
         $params = [
             'currency' => $checkoutCurrency,
             'value' => $totalValue,
@@ -216,7 +215,6 @@ final class CheckoutFlowTracker
             return null;
         }
 
-        // Validate step is in the sequence and comes after current
         $currentStep = $state['step'];
         $currentIdx = array_search($currentStep, self::STEPS, true);
         $targetIdx = array_search($step, self::STEPS, true);
@@ -228,7 +226,6 @@ final class CheckoutFlowTracker
         $previousStep = $currentStep;
         $timeOnPrevious = time() - ($state['steps'][array_key_last($state['steps'])]['timestamp'] ?? $state['started_at']);
 
-        // Update state
         $state['step'] = $step;
         $state['step_index'] = $targetIdx + 1;
         $state['steps'][] = [
@@ -242,7 +239,6 @@ final class CheckoutFlowTracker
             $this->cacheTtl,
         );
 
-        // Fire checkout_step event
         $stepIndex = self::STEP_INDEX_MAP[$step] ?? ($targetIdx + 1);
         $params = [
             'checkout_step' => $stepIndex,
@@ -252,7 +248,6 @@ final class CheckoutFlowTracker
             'value' => $state['value'] ?? 0,
         ];
 
-        // Merge additional options (shipping_method, payment_type, etc.)
         foreach ($options as $key => $value) {
             $params[$key] = $value;
         }
@@ -307,7 +302,6 @@ final class CheckoutFlowTracker
         $totalSteps = count($state['steps'] ?? []);
         $totalTime = time() - ($state['started_at'] ?? time());
 
-        // Mark as completed
         $state['completed'] = true;
         $state['completed_at'] = time();
         $state['transaction_id'] = $transactionId;
@@ -319,7 +313,6 @@ final class CheckoutFlowTracker
             $this->cacheTtl,
         );
 
-        // Fire purchase event with GA4 format
         $purchaseParams = EcommerceFormatConverter::buildGa4Purchase(
             transactionId: $transactionId,
             value: $value,
@@ -371,10 +364,8 @@ final class CheckoutFlowTracker
 
         $totalTime = time() - ($state['started_at'] ?? time());
 
-        // Clear checkout state
         $this->cache->forget(self::CACHE_PREFIX . $clientId);
 
-        // Fire checkout abandon event
         $params = [
             'checkout_step' => $state['step_index'] ?? 0,
             'checkout_option' => $state['step'] ?? 'unknown',

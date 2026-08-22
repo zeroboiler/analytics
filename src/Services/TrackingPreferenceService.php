@@ -178,12 +178,10 @@ final class TrackingPreferenceService
      */
     public function shouldTrack(?string $userId, ?string $clientId): bool
     {
-        // Check user preference first (takes priority)
         if ($userId !== null && $userId !== '' && $this->isOptedOut($userId)) {
             return false;
         }
 
-        // Check client suppression for anonymous users
         if ($clientId !== null && $clientId !== '' && $this->isClientSuppressed($clientId)) {
             return false;
         }

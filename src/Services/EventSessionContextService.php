@@ -101,7 +101,6 @@ final class EventSessionContextService
     {
         $contextArray = $context->toArray();
 
-        // Filter out null values to keep params lean
         $filtered = array_filter($contextArray, static fn (mixed $v): bool => $v !== null && $v !== []);
 
         return new AnalyticsEvent(
@@ -239,7 +238,6 @@ final class EventSessionContextService
             if (str_contains($ua, $pattern)) {
                 $version = '';
 
-                // Extract version number
                 $pos = strpos($ua, $pattern);
                 if ($pos !== false) {
                     $afterPattern = substr($ua, $pos + strlen($pattern));

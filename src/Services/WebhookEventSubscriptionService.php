@@ -425,7 +425,6 @@ final class WebhookEventSubscriptionService
     {
         $now = time();
 
-        // Reset window if expired
         if ($now - $this->rateWindowStart >= 60) {
             $this->rateCounter = [];
             $this->rateWindowStart = $now;
@@ -437,7 +436,6 @@ final class WebhookEventSubscriptionService
             return false;
         }
 
-        // Increment counter for this second
         $secondKey = (string) $now;
         $this->rateCounter[$secondKey] = ($this->rateCounter[$secondKey] ?? 0) + 1;
 

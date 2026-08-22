@@ -164,7 +164,6 @@ final class EventPropertyTypeValidator
                 continue;
             }
 
-            // Check if param exists in schema
             $requiredDef = $schema->requiredParams[$key] ?? null;
             $optionalDef = $schema->optionalParams[$key] ?? null;
             $paramDef = $requiredDef ?? $optionalDef;
@@ -445,7 +444,6 @@ final class EventPropertyTypeValidator
                 $warnings[] = "Array parameter uses non-integer keys ({$firstKeyType}). Expect sequential array.";
             }
 
-            // Check value type consistency
             $types = array_unique(array_map(get_debug_type(...), $value));
             if (count($types) > 3) {
                 $warnings[] = "Array has " . count($types) . " different value types. Consider normalizing.";

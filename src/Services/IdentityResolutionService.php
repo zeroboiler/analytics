@@ -73,20 +73,17 @@ final class IdentityResolutionService
     {
         $previousUserId = $this->getUserIdForClient($clientId);
 
-        // Store client → user mapping
         $this->cache->put(
             $this->clientKey($clientId),
             $userId,
             $this->linkTtl,
         );
 
-        // Store user → client mapping (append to set)
         $clientLinks = $this->getUserClientLinks($userId);
 
         if (! in_array($clientId, $clientLinks, true)) {
             // Enforce max links per user
             if (count($clientLinks) >= $this->maxLinksPerUser) {
-                // Remove oldest entry (FIFO)
                 array_shift($clientLinks);
             }
 
@@ -98,7 +95,6 @@ final class IdentityResolutionService
             );
         }
 
-        // Store client → user history (append to set for multi-user devices)
         $userLinks = $this->getClientUserLinks($clientId);
 
         if (! in_array($userId, $userLinks, true)) {
@@ -191,13 +187,10 @@ final class IdentityResolutionService
             return false;
         }
 
-        // Remove client → user mapping
         $this->cache->forget($this->clientKey($clientId));
 
-        // Remove client from user's link list
         $this->removeClientFromUser($clientId, $userId);
 
-        // Remove client history
         $this->cache->forget($this->clientHistoryKey($clientId));
 
         return true;
@@ -217,14 +210,11 @@ final class IdentityResolutionService
         $clientIds = $this->getUserClientLinks($userId);
 
         foreach ($clientIds as $clientId) {
-            // Remove client → user mapping for each linked client
             $this->cache->forget($this->clientKey($clientId));
 
-            // Remove client history entries that reference this user
             $this->removeUserFromClientHistory($clientId, $userId);
         }
 
-        // Remove user → clients mapping
         $this->cache->forget($this->userKey($userId));
 
         return count($clientIds);

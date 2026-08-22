@@ -420,7 +420,6 @@ final class AnalyticsDataRetentionService
             return 'engagement';
         }
 
-        // Try EventCatalog if available
         if (class_exists(\ZeroBoiler\Analytics\Events\EventCatalog::class)) {
             $category = \ZeroBoiler\Analytics\Events\EventCatalog::getCategory($eventName);
 

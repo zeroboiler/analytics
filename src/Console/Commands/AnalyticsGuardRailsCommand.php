@@ -65,7 +65,6 @@ final class AnalyticsGuardRailsCommand extends Command
             return self::SUCCESS;
         }
 
-        // Gather metrics from the event stream service
         $metrics = $this->gatherMetrics($streamService, $config);
 
         // Run the check

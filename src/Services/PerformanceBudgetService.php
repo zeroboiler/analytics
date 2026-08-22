@@ -85,7 +85,6 @@ final class PerformanceBudgetService
         $payloadSize = strlen(json_encode($event->params));
         $paramsCount = count($event->params);
 
-        // Check payload size
         if ($payloadSize > $this->maxPayloadBytes) {
             $violations[] = [
                 'rule' => 'max_payload_bytes',
@@ -94,7 +93,6 @@ final class PerformanceBudgetService
             ];
         }
 
-        // Check params count
         if ($paramsCount > $this->maxParamsCount) {
             $violations[] = [
                 'rule' => 'max_params_count',
@@ -103,7 +101,6 @@ final class PerformanceBudgetService
             ];
         }
 
-        // Check individual param value lengths
         $oversizedParams = $this->getOversizedParamValues($event->params);
         if ($oversizedParams !== []) {
             foreach ($oversizedParams as $key => $length) {
@@ -146,7 +143,6 @@ final class PerformanceBudgetService
             $params = array_slice($params, 0, $this->maxParamsCount, true);
         }
 
-        // Check payload size — drop params until within budget
         $maxIterations = $this->maxParamsCount;
         while (strlen(json_encode($params)) > $this->maxPayloadBytes && $maxIterations-- > 0) {
             array_pop($params);

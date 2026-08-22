@@ -86,7 +86,6 @@ final class SaaSLifecycleObserver
 
         $signals = $this->getSignals($identity);
 
-        // Update trial activation score
         if (array_key_exists($event, self::TRIAL_WEIGHTS)) {
             $signals = $this->updateActivationScore($signals, $event, $identity);
         }
@@ -210,7 +209,6 @@ final class SaaSLifecycleObserver
             return $cachedSummary;
         }
 
-        // Return default empty metrics if no cached data
         return [
             'total_tracked' => 0,
             'avg_activation' => 0.0,
@@ -315,7 +313,6 @@ final class SaaSLifecycleObserver
         $stepMap = self::trialStepMap();
         $stepName = $stepMap[$event] ?? $event;
 
-        // Take the highest weight seen for this step
         $currentScore = (int) ($signals['activation_score'] ?? 0);
         $steps = (array) ($signals['activation_steps'] ?? []);
         $stepScores = (array) ($signals['activation_step_scores'] ?? []);
@@ -353,12 +350,10 @@ final class SaaSLifecycleObserver
         $indicators = (array) ($signals['churn_indicators'] ?? []);
         $indicatorCounts = (array) ($signals['churn_indicator_counts'] ?? []);
 
-        // Add indicator if new
         if (! in_array($event, $indicators, true)) {
             $indicators[] = $event;
         }
 
-        // Count occurrences (decay over time in a real implementation)
         $indicatorCounts[$event] = ($indicatorCounts[$event] ?? 0) + 1;
 
         // Compute churn risk: weighted sum of unique indicators, decayed by time
@@ -476,10 +471,8 @@ final class SaaSLifecycleObserver
             'feature_used', 'subscription', 'plan_upgrade',
         ];
 
-        // Update funnel position
         $position = array_search($event, $signupFunnel, true);
         if ($position !== false) {
-            // Mark all steps up to this position as seen
             for ($i = 0; $i <= $position; $i++) {
                 $step = $signupFunnel[$i];
                 if (! in_array($step, $funnelSteps, true)) {

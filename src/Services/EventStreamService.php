@@ -361,7 +361,6 @@ final class EventStreamService
         $recent = array_slice($this->buffer, -$limit);
         $recent = array_reverse($recent);
 
-        // Add 'name' key as alias for 'event' for downstream compatibility
         return array_map(
             fn (array $entry): array => array_merge($entry, ['name' => $entry['event']]),
             $recent,
@@ -384,7 +383,6 @@ final class EventStreamService
         $sanitized = [];
 
         foreach ($params as $key => $value) {
-            // Skip sensitive keys
             if (in_array(strtolower($key), $sensitiveKeys, true)) {
                 $sanitized[$key] = '[REDACTED]';
 

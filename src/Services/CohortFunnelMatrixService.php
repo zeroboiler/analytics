@@ -505,7 +505,6 @@ final class CohortFunnelMatrixService
             $stepRates[$stepName] = ['avg_rate' => $avgRate, 'std_dev' => round($stdDev, 2)];
         }
 
-        // Sort by average rate
         usort($stepAggregates, fn (array $a, array $b): int => $b['avg_rate'] <=> $a['avg_rate']);
         $stepRatesSorted = $stepRates;
 
@@ -514,7 +513,6 @@ final class CohortFunnelMatrixService
         $bestStep = $stepAggregates[0] ?? ['step' => '', 'avg_rate' => 0.0];
         $worstStep = $stepAggregates[count($stepAggregates) - 1] ?? ['step' => '', 'avg_rate' => 0.0];
 
-        // Find most variable by std dev
         $mostVariableStep = ['step' => '', 'std_dev' => 0.0];
         foreach ($stepRatesSorted as $stepName => $data) {
             if ($data['std_dev'] > $mostVariableStep['std_dev']) {
@@ -575,7 +573,6 @@ final class CohortFunnelMatrixService
             ];
         }
 
-        // Sort by severity (highest drop-off first)
         usort($ranking, fn (array $a, array $b): int => $b['avg_dropoff_rate'] <=> $a['avg_dropoff_rate']);
 
         return $ranking;
@@ -611,7 +608,6 @@ final class CohortFunnelMatrixService
     {
         $cleared = false;
 
-        // Clear known cache keys via prefix deletion
         $this->cache->forget(self::CACHE_PREFIX . 'onboarding');
         $this->cache->forget(self::CACHE_PREFIX . 'purchase');
         $this->cache->forget(self::CACHE_PREFIX . 'saas_conversion');
@@ -661,7 +657,6 @@ final class CohortFunnelMatrixService
     {
         $lastStep = $funnelSteps[count($funnelSteps) - 1] ?? '';
 
-        // Compute overall conversion rate for each cohort
         $cohortConversionRates = [];
 
         foreach ($cohortLabels as $cohortLabel) {

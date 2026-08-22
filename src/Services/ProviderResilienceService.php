@@ -203,12 +203,10 @@ final class ProviderResilienceService
         $state = $this->getState($provider);
         $now = new \DateTimeImmutable();
 
-        // Count recent failures within the sliding window
         $recentFailures = $this->countRecentFailures($state);
 
         $newFailureCount = $recentFailures + 1;
 
-        // Check if threshold is reached
         if ($newFailureCount >= $this->failureThreshold && $state->status !== 'open') {
             $cooldownLevel = $state->cooldownLevel + 1;
             $cooldownSeconds = (int) min(
@@ -304,7 +302,6 @@ final class ProviderResilienceService
             return true; // Allow one test event through
         }
 
-        // Open: check if cooldown has elapsed
         if ($state->cooldownEnd !== null && time() >= $state->cooldownEnd) {
             // Transition to half-open
             $this->saveState($provider, new CircuitBreakerState(

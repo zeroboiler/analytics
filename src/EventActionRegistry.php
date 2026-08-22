@@ -115,17 +115,14 @@ final class EventActionRegistry
         $skipped = [];
         $errors = [];
 
-        // Sort by priority (ascending)
         usort($matching, fn (EventAction $a, EventAction $b): int => $a->priority <=> $b->priority);
 
         foreach ($matching as $action) {
-            // Check condition
             if (! $action->conditionSatisfied($event)) {
                 $skipped[] = $action->id;
                 continue;
             }
 
-            // Check cooldown
             if ($action->cooldownSeconds !== null && $this->isOnCooldown($action)) {
                 $skipped[] = $action->id;
                 continue;
@@ -341,7 +338,6 @@ final class EventActionRegistry
             $handler = $actionConfig['handler'] ?? null;
 
             if ($handler !== null && is_string($handler)) {
-                // Resolve handler from container
                 $handler = $this->resolveHandler($handler);
             }
 

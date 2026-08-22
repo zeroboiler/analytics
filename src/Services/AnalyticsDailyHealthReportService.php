@@ -237,7 +237,6 @@ final class AnalyticsDailyHealthReportService
         $details = [];
         $issues = [];
 
-        // Check enabled providers
         $providers = ['ga4', 'gtm', 'meta', 'plausible', 'posthog', 'mixpanel', 'amplitude', 'tiktok', 'linkedin'];
         $enabledCount = 0;
 
@@ -270,7 +269,6 @@ final class AnalyticsDailyHealthReportService
             ];
         }
 
-        // Check GA4 configuration completeness
         $ga4Enabled = $this->config->get('zeroboiler.analytics.ga4.enabled', false);
         if ($ga4Enabled) {
             $measurementId = $this->config->get('zeroboiler.analytics.ga4.measurement_id', '');
@@ -294,7 +292,6 @@ final class AnalyticsDailyHealthReportService
             }
         }
 
-        // Check Meta Pixel configuration completeness
         $metaEnabled = $this->config->get('zeroboiler.analytics.meta_pixel.enabled', false);
         if ($metaEnabled) {
             $pixelId = $this->config->get('zeroboiler.analytics.meta_pixel.id', '');
@@ -308,7 +305,6 @@ final class AnalyticsDailyHealthReportService
             }
         }
 
-        // Check optional provider availability
         $optionalProviders = ['plausible', 'posthog'];
         foreach ($optionalProviders as $provider) {
             $key = $this->getProviderConfigKey($provider);
@@ -707,7 +703,6 @@ final class AnalyticsDailyHealthReportService
         $featureFlagsEnabled = $this->config->get('zeroboiler.analytics.feature_flags.enabled', true);
         $details['feature_flags_enabled'] = $featureFlagsEnabled;
 
-        // Count enabled services
         $featureCount = 0;
         if ($onboardingEnabled) $featureCount++;
         if ($kpiEnabled) $featureCount++;
@@ -803,7 +798,6 @@ final class AnalyticsDailyHealthReportService
             }
         }
 
-        // Sort: critical first by domain score (worst first)
         usort($critical, fn (array $a, array $b): int => ($domains[$a['domain']]['score'] ?? 0) <=> ($domains[$b['domain']]['score'] ?? 0));
         usort($warnings, fn (array $a, array $b): int => ($domains[$a['domain']]['score'] ?? 0) <=> ($domains[$b['domain']]['score'] ?? 0));
 
@@ -820,7 +814,6 @@ final class AnalyticsDailyHealthReportService
     {
         $recommendations = [];
 
-        // Find the weakest domain
         $weakestDomain = null;
         $weakestScore = 100;
 

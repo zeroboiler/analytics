@@ -111,7 +111,6 @@ final class PrivacyAwareEventRouter
         $resolvedZone = $zone ?? $this->defaultZone;
         $zoneConfig = self::ZONE_CONFIG[$resolvedZone] ?? self::ZONE_CONFIG['none'];
 
-        // Check consent requirement
         if ($zoneConfig['require_consent']) {
             $consentState = $this->extractConsentState($event);
             if ($consentState === 'denied') {
@@ -151,10 +150,8 @@ final class PrivacyAwareEventRouter
             }
         }
 
-        // Determine allowed providers
         $allowedProviders = $this->providerAllowlists[$resolvedZone] ?? [];
 
-        // Create sanitized event
         $sanitizedEvent = new AnalyticsEvent(
             name: $event->name,
             params: $sanitizedParams,

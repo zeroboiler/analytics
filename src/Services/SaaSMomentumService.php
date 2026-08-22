@@ -201,7 +201,6 @@ final class SaaSMomentumService
             ];
         }
 
-        // Calculate month-over-month rate of change
         $changes = [];
         for ($i = 1; $i < count($values); $i++) {
             $prev = $values[$i - 1];
@@ -210,7 +209,6 @@ final class SaaSMomentumService
             if ($prev > 0.0001) {
                 $changes[] = (($current - $prev) / $prev) * 100;
             } elseif ($prev < -0.0001) {
-                // Handle negative metrics (like churn)
                 $changes[] = (($current - $prev) / abs($prev)) * 100;
             }
         }
@@ -230,7 +228,6 @@ final class SaaSMomentumService
         $smoothedChanges = $this->smoothChanges($changes);
         $latestChange = $smoothedChanges[array_key_last($smoothedChanges)] ?? 0.0;
 
-        // Convert rate of change to -100..+100 momentum score
         $score = $this->rateToScore($latestChange, $definition['thresholds'], $definition['positive_is_good']);
 
         $direction = $this->scoreToDirection($score);

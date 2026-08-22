@@ -111,7 +111,6 @@ final class SaaSQuickInsightsService
             array_push($insights, ...$metricInsights);
         }
 
-        // Sort by severity priority
         $severityOrder = ['critical' => 0, 'warning' => 1, 'success' => 2, 'info' => 3];
         usort($insights, function (array $a, array $b) use ($severityOrder): int {
             $orderA = $severityOrder[$a['severity']] ?? 99;
@@ -120,7 +119,6 @@ final class SaaSQuickInsightsService
             return $orderA <=> $orderB;
         });
 
-        // Limit to max insights
         $maxInsights = $config['max_insights'];
         $insights = array_slice($insights, 0, $maxInsights);
 

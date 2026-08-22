@@ -136,21 +136,18 @@ final class NotificationWebhookService
                 continue;
             }
 
-            // Check severity threshold
             if (! $this->meetsSeverityThreshold($alert['severity'] ?? 'info', $webhook['min_severity'])) {
                 $skipped++;
                 $results[$name] = ['status' => 'severity_filtered'];
                 continue;
             }
 
-            // Check event filter
             if (! $this->matchesEventFilter($alert['event'] ?? '', $webhook['events'])) {
                 $skipped++;
                 $results[$name] = ['status' => 'event_filtered'];
                 continue;
             }
 
-            // Check rate limit
             if (! $this->canSend($name)) {
                 $skipped++;
                 $results[$name] = ['status' => 'rate_limited'];

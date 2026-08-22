@@ -212,10 +212,8 @@ final class EventSchemaRegistryExtended
         $errors = [];
         $warnings = [];
 
-        // Check required properties
         foreach ($schema->requiredProperties() as $requiredProp) {
             if (! array_key_exists($requiredProp, $params)) {
-                // Check if there's a default
                 $def = $schema->properties[$requiredProp] ?? null;
                 if ($def === null || ! $def->hasDefault) {
                     $errors[] = "Required property '{$requiredProp}' is missing.";
@@ -223,7 +221,6 @@ final class EventSchemaRegistryExtended
             }
         }
 
-        // Validate types and constraints
         foreach ($params as $key => $value) {
             $def = $schema->properties[$key] ?? null;
 

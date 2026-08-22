@@ -225,7 +225,6 @@ final class GeospatialAnalyticsService
                 ];
             }
 
-            // Sort by intensity descending
             usort($points, fn (array $a, array $b): int => $b['intensity'] <=> $a['intensity']);
 
             return $points;
@@ -293,14 +292,12 @@ final class GeospatialAnalyticsService
         $cacheKey = $this->cachePrefix . 'funnel_' . hash('xxh128', json_encode($stages) . $groupByDimension);
 
         return $this->cache->remember($cacheKey, $this->cacheTtl, function () use ($stages, $groupByDimension): array {
-            // Aggregate each stage by dimension
             $stageAggregations = [];
 
             foreach ($stages as $stage) {
                 $stageAggregations[$stage] = $this->aggregateByDimension($groupByDimension, $stage);
             }
 
-            // Get all unique locations across all stages
             $allLocations = [];
             foreach ($stageAggregations as $aggregation) {
                 foreach (array_keys($aggregation) as $location) {
@@ -335,7 +332,6 @@ final class GeospatialAnalyticsService
                 $locationFunnel[] = $steps;
             }
 
-            // Calculate overall conversion
             $totalFirst = array_sum($stageAggregations[$firstStage] ?? []);
             $totalLast = array_sum($stageAggregations[$lastStage] ?? []);
             $overallConversion = $totalFirst > 0 ? round($totalLast / $totalFirst, 4) : 0.0;
@@ -456,7 +452,6 @@ final class GeospatialAnalyticsService
         $cityCount = count($cityAgg['values']);
         $tzCount = count($tzAgg['values']);
 
-        // Count how many countries have known coordinates
         $withCoords = 0;
         foreach (array_keys($countryAgg['values']) as $country) {
             if ($this->getCountryGeo($country) !== null) {
@@ -551,7 +546,6 @@ final class GeospatialAnalyticsService
     {
         $total = array_sum($counts);
 
-        // Sort by count descending
         arsort($counts);
 
         // Filter out "Unknown" unless configured to include
@@ -559,7 +553,6 @@ final class GeospatialAnalyticsService
             unset($counts['Unknown']);
         }
 
-        // Build top-N list
         $topN = [];
         $limit = $this->topLocationsLimit;
         $i = 0;

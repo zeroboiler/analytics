@@ -73,7 +73,6 @@ final class EventDedupCacheService
         $this->maxKeys = (int) ($dedupConfig['max_keys'] ?? 100_000);
         $this->cache = $cache;
 
-        // Merge user-configured windows with defaults
         $customWindows = $dedupConfig['windows'] ?? [];
         $this->windows = array_merge(self::DEFAULT_WINDOWS, $customWindows);
     }
@@ -104,14 +103,12 @@ final class EventDedupCacheService
         $cacheKey = $this->buildCacheKey($eventName, $clientId, $userId, $params, $strategy);
         $ttl = $this->getWindow($category);
 
-        // Check if already seen (atomic check-and-set via cache)
         $alreadySeen = $this->cache->get($cacheKey);
 
         if ($alreadySeen !== null) {
             return true; // Duplicate
         }
 
-        // Mark as seen
         $this->cache->put($cacheKey, true, $ttl);
 
         return false;
@@ -193,21 +190,17 @@ final class EventDedupCacheService
      */
     private function hashParams(array $params): string
     {
-        // Remove internal and volatile parameters
         $clean = [];
         foreach ($params as $key => $value) {
-            // Skip internal params (prefixed with _)
             if (str_starts_with($key, '_')) {
                 continue;
             }
-            // Skip timestamp-related volatile fields
             if (in_array($key, ['timestamp', 'session_id', 'page_url', 'referrer'], true)) {
                 continue;
             }
             $clean[$key] = $value;
         }
 
-        // Sort by key for deterministic hashing
         ksort($clean);
 
         return substr(md5(json_encode($clean, JSON_THROW_ON_ERROR)), 0, 12);

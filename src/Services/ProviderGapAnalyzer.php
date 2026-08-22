@@ -71,7 +71,6 @@ final class ProviderGapAnalyzer
             return $cached;
         }
 
-        // Normalize to lowercase
         $tracked = array_map('strtolower', $trackedEvents);
         $trackedSet = array_flip($tracked);
 
@@ -85,7 +84,6 @@ final class ProviderGapAnalyzer
         $providers = [];
         $eventProviderCount = [];
 
-        // Initialize per-event provider count
         foreach ($tracked as $eventName) {
             $eventProviderCount[$eventName] = 0;
         }
@@ -126,7 +124,6 @@ final class ProviderGapAnalyzer
             ];
         }
 
-        // Find cross-provider gaps (events missing from ALL providers)
         $crossProviderGaps = [];
         foreach ($tracked as $eventName) {
             if (($eventProviderCount[$eventName] ?? 0) === 0) {
@@ -134,7 +131,6 @@ final class ProviderGapAnalyzer
             }
         }
 
-        // Count fully covered (all providers), partial (some), and no coverage
         $fullyCovered = 0;
         $partialCoverage = 0;
         $noCoverage = 0;

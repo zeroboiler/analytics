@@ -152,7 +152,6 @@ final class AnalyticsIntelligenceGateway
             'transformation_status' => $this->getTransformationStatus(),
         ];
 
-        // Filter sections based on include/exclude options
         if (is_array($include) && $include !== []) {
             $filtered = [];
             foreach ($include as $key) {
@@ -167,7 +166,6 @@ final class AnalyticsIntelligenceGateway
             }
         }
 
-        // Compute overall health score and grade
         $scoreResult = $this->computeOverallScore($dashboard);
         $dashboard['overall_score'] = $scoreResult['score'];
         $dashboard['overall_grade'] = $scoreResult['grade'];
@@ -250,7 +248,6 @@ final class AnalyticsIntelligenceGateway
             ],
         ];
 
-        // Merge provider health monitor data if available
         if ($this->providerHealthMonitor !== null) {
             try {
                 $healthData = $this->providerHealthMonitor->health();
@@ -813,7 +810,6 @@ final class AnalyticsIntelligenceGateway
         $qualityScore = $quality['quality_score'] ?? 0;
         $score += (int) round(($qualityScore / 100) * 15);
 
-        // Normalize to 0-100
         $normalizedScore = $maxScore > 0 ? (int) round(($score / $maxScore) * 100) : 0;
 
         return [

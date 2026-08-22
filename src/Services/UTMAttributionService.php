@@ -69,7 +69,6 @@ final class UTMAttributionService
      */
     public function recordTouchpoint(string $identifier, array $utmParams, array $context = []): void
     {
-        // Skip if no UTM parameters present
         if (empty($utmParams['utm_source']) && empty($utmParams['utm_medium'])) {
             return;
         }
@@ -81,7 +80,6 @@ final class UTMAttributionService
             'timestamp' => time(),
         ];
 
-        // Update last touch
         $this->cache->put(
             self::LAST_TOUCH_KEY . $identifier,
             $touchpoint,
@@ -98,7 +96,6 @@ final class UTMAttributionService
             );
         }
 
-        // Append to multi-touch history
         $touchpoints = $this->getTouchpoints($identifier);
         $touchpoints[] = $touchpoint;
 

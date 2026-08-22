@@ -127,7 +127,6 @@ final class AnalyticsEventBuffer
         $this->buffer = new Collection;
         $this->flushCount++;
 
-        // Clean up expired dedup fingerprints
         $this->cleanExpiredFingerprints();
 
         return $events;

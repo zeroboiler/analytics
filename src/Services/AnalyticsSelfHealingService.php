@@ -86,7 +86,6 @@ final class AnalyticsSelfHealingService
         $startTime = microtime(true);
         $timestamp = time();
 
-        // Check cooldown
         if ($this->isOnCooldown($action)) {
             return [
                 'action' => $action,
@@ -277,7 +276,6 @@ final class AnalyticsSelfHealingService
             return (time() - $this->lastHealTimestamps[$action]) < $this->healingCooldownSeconds;
         }
 
-        // Check persisted cooldown
         $cooldownKey = $this->cachePrefix . 'cooldown_' . $action;
         /** @var int|null $lastRun */
         $lastRun = $this->cache->get($cooldownKey);
@@ -366,7 +364,6 @@ final class AnalyticsSelfHealingService
             $resetCount++;
         }
 
-        // Reset circuit breaker states
         $cbKey = 'zb_circuit_breaker_';
         $this->cache->forget($cbKey . 'ga4');
         $this->cache->forget($cbKey . 'meta');
@@ -394,7 +391,6 @@ final class AnalyticsSelfHealingService
         }
 
         try {
-            // Clear the DLQ cache (safe operation)
             $dlqCacheKey = 'zb_dlq_events';
             $this->cache->forget($dlqCacheKey);
 
@@ -421,7 +417,6 @@ final class AnalyticsSelfHealingService
     {
         $keysCleared = 0;
 
-        // Clear pipeline metrics
         $pipelineKeys = [
             'zb_pipeline_metrics', 'zb_pipeline_throughput',
             'zb_debounce_state', 'zb_dedup_state',
@@ -449,7 +444,6 @@ final class AnalyticsSelfHealingService
     {
         $cleaned = 0;
 
-        // Clear stale metrics that may have expired TTL but still occupy memory
         $staleKeys = [
             'zb_sampling_metrics', 'zb_event_stats_snapshot',
             'zb_realtime_state', 'zb_funnel_cache',
@@ -538,7 +532,6 @@ final class AnalyticsSelfHealingService
     private function clearCorrelations(): array
     {
         $corrKey = 'zb_corr_';
-        // Clear known correlation cache entries
         $this->cache->forget($corrKey . 'top_pairs');
         $this->cache->forget($corrKey . 'events_list');
         $this->cache->forget($corrKey . 'global_count');

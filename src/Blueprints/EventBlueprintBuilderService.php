@@ -284,7 +284,6 @@ final class EventBlueprintBuilderService
             );
         }
 
-        // Merge blueprint defaults → user params
         $merged = array_merge($blueprint->defaultParams, $this->params);
 
         // Auto-coerce parameter types
@@ -295,7 +294,6 @@ final class EventBlueprintBuilderService
         // Evaluate computed params
         $merged = $this->evaluateComputedParams($merged);
 
-        // Validate required params
         $errors = $blueprint->validateParams($merged);
 
         if ($blueprint->isDeprecated()) {
@@ -359,7 +357,6 @@ final class EventBlueprintBuilderService
             $this->lastWarnings[] = $blueprint->deprecationNotice() ?? "Deprecated: {$blueprint->name}";
         }
 
-        // Merge & coerce
         $merged = array_merge($blueprint->defaultParams, $this->params);
 
         if ($this->autoCoerce) {
@@ -630,7 +627,6 @@ final class EventBlueprintBuilderService
     {
         $expr = trim($expression);
 
-        // count(array_param) function
         if (preg_match('/^count\((\w+)\)$/', $expr, $matches)) {
             $arrayVal = $params[$matches[1]] ?? null;
 

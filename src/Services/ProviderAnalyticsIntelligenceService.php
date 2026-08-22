@@ -116,7 +116,6 @@ final class ProviderAnalyticsIntelligenceService
                     : 0.0;
             }
 
-            // Generate provider-specific recommendations
             $recommendations = $this->generateRecommendations($provider, $coverage, $categoryCoverage, $gaps);
 
             if ($coverage > $bestCoverage) {
@@ -215,7 +214,6 @@ final class ProviderAnalyticsIntelligenceService
         $coverage = $total > 0 ? round($mapped / $total, 4) : 0.0;
         $qualityScore = $mapped > 0 ? round($meaningful / $mapped, 4) : 0.0;
 
-        // Compute per-category coverage
         foreach ($categoryBreakdown as $cat => &$data) {
             $data['coverage'] = $data['total'] > 0
                 ? round($data['mapped'] / $data['total'], 4)
@@ -255,7 +253,6 @@ final class ProviderAnalyticsIntelligenceService
                 continue;
             }
 
-            // Count how many other providers map this event
             $otherCount = 0;
             foreach (self::PROVIDERS as $p) {
                 if ($p === $provider) {
@@ -267,7 +264,6 @@ final class ProviderAnalyticsIntelligenceService
                 }
             }
 
-            // Skip if no other provider maps this event either
             if ($otherCount === 0) {
                 continue;
             }
@@ -283,7 +279,6 @@ final class ProviderAnalyticsIntelligenceService
             ];
         }
 
-        // Sort by other provider count descending
         usort($opportunities, fn (array $a, array $b): int => $b['other_provider_count'] <=> $a['other_provider_count']);
 
         return array_slice($opportunities, 0, $limit);
@@ -343,7 +338,6 @@ final class ProviderAnalyticsIntelligenceService
             'engagement' => [],
         ];
 
-        // Find events with minimal provider coverage (1 or fewer providers)
         foreach (EventCatalog::all() as $name => $entry) {
             $providerCount = 0;
             foreach (self::PROVIDERS as $p) {
@@ -456,7 +450,6 @@ final class ProviderAnalyticsIntelligenceService
      */
     private function suggestProviderName(string $name, array $entry, string $targetProvider): ?string
     {
-        // Try to find a consistent mapping pattern from other providers
         $mappings = [];
 
         foreach (self::PROVIDERS as $p) {
@@ -469,7 +462,6 @@ final class ProviderAnalyticsIntelligenceService
             }
         }
 
-        // Return the first non-identity mapping as a suggestion
         return $mappings[0] ?? null;
     }
 

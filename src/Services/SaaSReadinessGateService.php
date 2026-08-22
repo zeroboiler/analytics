@@ -375,7 +375,6 @@ final class SaaSReadinessGateService
                     : 'AnalyticsEventController class not found',
             ];
         } else {
-            // Add missing checks
             foreach (self::REQUIRED_API_ROUTES as $route) {
                 $checks[] = [
                     'check' => "route_{$route}",
@@ -433,7 +432,6 @@ final class SaaSReadinessGateService
                 ];
             }
 
-            // Check version is set
             $hasVersion = str_contains($jsContent, "getVersion()");
             $checks[] = [
                 'check' => 'js_version_function',
@@ -735,7 +733,6 @@ final class SaaSReadinessGateService
             ];
         }
 
-        // Count total commands
         $commandDir = dirname(__DIR__) . '/Console/Commands';
         $commandCount = 0;
         if ($this->files->isDirectory($commandDir)) {
@@ -866,7 +863,6 @@ final class SaaSReadinessGateService
         $testsDir = dirname(__DIR__, 2) . '/tests';
         $readmePath = dirname(__DIR__, 2) . '/README.md';
 
-        // Count test files
         $testFiles = 0;
         if ($this->files->isDirectory($testsDir)) {
             $testFiles = count(glob($testsDir . '/*Test.php')) + count(glob($testsDir . '/**/*Test.php'));

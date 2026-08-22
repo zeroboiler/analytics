@@ -100,14 +100,12 @@ final class EventSchemaValidationService
         $params = $event->params;
         $coerced = false;
 
-        // Check required parameters
         foreach ($schema->required as $paramName) {
             if (! array_key_exists($paramName, $params)) {
                 $errors[] = "Missing required parameter: '{$paramName}'";
             }
         }
 
-        // Validate and coerce all provided parameters
         $validatedParams = [];
         foreach ($params as $key => $value) {
             $result = $this->validateParameter($key, $value, $schema);
@@ -137,7 +135,6 @@ final class EventSchemaValidationService
             }
         }
 
-        // Build result based on severity
         $hasErrors = count($errors) > 0;
 
         if ($this->severity === self::SEVERITY_REJECT && $hasErrors) {

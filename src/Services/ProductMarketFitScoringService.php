@@ -72,21 +72,18 @@ final class ProductMarketFitScoringService
     {
         $weights = $this->config['weights'];
 
-        // Extract signals with defaults
         $activationRate = (float) ($signals['activation_rate'] ?? 0.0);
         $retentionWeek2 = (float) ($signals['retention_week2'] ?? 0.0);
         $featureDepth = (float) ($signals['feature_depth_score'] ?? 0.0);
         $organicGrowth = (float) ($signals['organic_growth_rate'] ?? 0.0);
         $npsProxy = (float) ($signals['nps_proxy'] ?? 0.0);
 
-        // Normalize signals to 0-100 scale
         $normalizedActivation = $this->normalizeSignal($activationRate, 100);
         $normalizedRetention = $this->normalizeSignal($retentionWeek2, 80);
         $normalizedFeatureDepth = $this->normalizeSignal($featureDepth, 100);
         $normalizedOrganic = $this->normalizeSignal($organicGrowth, 50);
         $normalizedNps = $this->normalizeSignal($npsProxy, 100);
 
-        // Calculate weighted score
         $score = (
             $normalizedActivation * $weights['activation_rate'] +
             $normalizedRetention * $weights['retention_week2'] +
@@ -203,7 +200,6 @@ final class ProductMarketFitScoringService
         $signalCount = count($result['signals_received']);
         $coverage = $maxSignals > 0 ? round(($signalCount / $maxSignals) * 100, 1) : 0.0;
 
-        // Find strongest and weakest signals
         $topSignal = null;
         $weakestSignal = null;
         $topValue = -1.0;
@@ -290,7 +286,6 @@ final class ProductMarketFitScoringService
     {
         $recommendations = [];
 
-        // Check for missing signals
         $allSignals = ['activation_rate', 'retention_week2', 'feature_depth_score', 'organic_growth_rate', 'nps_proxy'];
         $missing = array_values(array_diff($allSignals, $received));
 
@@ -305,7 +300,6 @@ final class ProductMarketFitScoringService
             };
         }
 
-        // Check for weak signals (below 15% contribution)
         foreach ($breakdown as $signal => $contribution) {
             if ($contribution < 15.0 && in_array($signal, $received, true)) {
                 $recommendations[] = match ($signal) {

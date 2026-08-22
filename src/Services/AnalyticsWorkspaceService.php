@@ -170,7 +170,6 @@ final class AnalyticsWorkspaceService
             return $cached;
         }
 
-        // Count unique user IDs from the workspace user set
         $userSetKey = "{$this->cachePrefix}{$workspaceId}:user_set";
         $userSet = $this->cache->get($userSetKey);
 
@@ -178,7 +177,6 @@ final class AnalyticsWorkspaceService
             return 0;
         }
 
-        // Filter by recency (user entries are timestamps)
         $cutoff = time() - ($days * 86400);
         $activeCount = 0;
 
@@ -218,7 +216,6 @@ final class AnalyticsWorkspaceService
             return [];
         }
 
-        // Sort by count descending
         uasort($events, fn (int $a, int $b): int => $b <=> $a);
 
         $result = [];
@@ -277,7 +274,6 @@ final class AnalyticsWorkspaceService
             ];
         }
 
-        // Sort by engagement score descending
         usort($results, fn (array $a, array $b): int => $b['engagement_score'] <=> $a['engagement_score']);
 
         return $results;
@@ -437,7 +433,6 @@ final class AnalyticsWorkspaceService
 
             $funnelData[$identity][$eventName] = true;
 
-            // Limit entries
             if (count($funnelData) > $this->maxEventsPerSummary) {
                 $funnelData = array_slice($funnelData, -$this->maxEventsPerSummary, null, true);
             }
@@ -463,7 +458,6 @@ final class AnalyticsWorkspaceService
         $totalEvents = $this->getTotalEventCount($workspaceId);
         $eventsPerUser = $totalEvents / $dau;
 
-        // Normalize: 0 events/user = 0, 50+ events/user = 100
         return min(100.0, ($eventsPerUser / 50.0) * 100.0);
     }
 
@@ -500,7 +494,6 @@ final class AnalyticsWorkspaceService
                 continue;
             }
 
-            // Count users who completed each step
             $stepCounts = [];
             foreach ($steps as $step) {
                 $count = 0;

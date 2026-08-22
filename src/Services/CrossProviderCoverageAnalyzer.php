@@ -176,7 +176,6 @@ final class CrossProviderCoverageAnalyzer
         $analysis = $this->analyze();
         $providers = $analysis['provider_summary'];
 
-        // Sort by coverage_pct descending
         $sorted = [];
         foreach ($providers as $name => $data) {
             $sorted[] = ['provider' => $name, 'coverage_pct' => $data['coverage_pct']];

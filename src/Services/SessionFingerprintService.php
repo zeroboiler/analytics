@@ -102,14 +102,12 @@ final class SessionFingerprintService
         $cacheKey = $this->cachePrefix . $fingerprint;
         $clientKey = $this->cachePrefix . 'client_' . $clientId;
 
-        // Check if this fingerprint was seen before (uniqueness scoring)
         $existing = $this->cache->get($cacheKey);
         $clientFingerprints = $this->cache->get($clientKey, []);
 
         $isFirstSeen = $existing === null;
         $fingerprintCount = is_array($clientFingerprints) ? count($clientFingerprints) : 0;
 
-        // Store fingerprint
         $this->cache->put($cacheKey, [
             'client_id' => $clientId,
             'first_seen' => now()->toIso8601String(),
@@ -212,13 +210,11 @@ final class SessionFingerprintService
 
         $merged = array_merge($defaults, $signals);
 
-        // Normalize string values
         $merged['user_agent'] = strtolower(trim((string) $merged['user_agent']));
         $merged['timezone'] = strtolower(trim((string) $merged['timezone']));
         $merged['language'] = strtolower(trim((string) $merged['language']));
         $merged['platform'] = strtolower(trim((string) $merged['platform']));
 
-        // Ensure numeric types
         $merged['screen_width'] = (int) $merged['screen_width'];
         $merged['screen_height'] = (int) $merged['screen_height'];
         $merged['color_depth'] = (int) $merged['color_depth'];

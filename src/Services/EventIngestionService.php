@@ -161,7 +161,6 @@ final class EventIngestionService
         // Dispatch
         $providerResults = $this->dispatch($event);
 
-        // Post-dispatch metrics
         $this->recordMetrics($event, $source, true, $startTime);
 
         if ($this->costTracker !== null) {
@@ -365,7 +364,6 @@ final class EventIngestionService
         try {
             $this->manager->track($event);
 
-            // Build provider results from enabled trackers
             $results = [];
             $providers = ['ga4', 'gtm', 'meta', 'plausible', 'posthog', 'mixpanel', 'amplitude', 'webhook', 'tiktok', 'linkedin'];
 

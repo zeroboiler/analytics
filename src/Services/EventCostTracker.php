@@ -105,7 +105,6 @@ final class EventCostTracker
         $total = 0.0;
 
         foreach ($this->costWeights as $provider => $weight) {
-            // Use event priority multiplier: critical=2x, normal=1x, low=0.5x, background=0.25x
             $priorityMultiplier = match ($event->priority) {
                 'critical' => 2.0,
                 'low' => 0.5,

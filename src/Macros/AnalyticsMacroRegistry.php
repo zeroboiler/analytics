@@ -216,29 +216,24 @@ final class AnalyticsMacroRegistry
         $warnings = [];
 
         foreach (self::$macros as $name => $macro) {
-            // Check event name is not empty
             if ($macro->eventName() === '') {
                 $errors[] = "Macro '{$name}' has an empty event name.";
             }
 
-            // Check name follows snake_case convention
             if (! preg_match('/^[a-z][a-z0-9_]*$/', $name)) {
                 $warnings[] = "Macro '{$name}' does not follow snake_case naming convention.";
             }
 
-            // Check required keys don't have defaults (redundant)
             foreach ($macro->requiredKeys() as $key) {
                 if (array_key_exists($key, $macro->defaults()) && $macro->defaults()[$key] !== null) {
                     $warnings[] = "Macro '{$name}': required key '{$key}' has a default value — required is redundant.";
                 }
             }
 
-            // Check for description
             if ($macro->description() === null) {
                 $warnings[] = "Macro '{$name}' has no description.";
             }
 
-            // Check for tags
             if ($macro->tags() === []) {
                 $warnings[] = "Macro '{$name}' has no tags for discoverability.";
             }

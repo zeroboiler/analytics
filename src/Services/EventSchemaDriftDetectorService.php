@@ -110,7 +110,6 @@ final class EventSchemaDriftDetectorService
             ];
         }
 
-        // Merge field signatures from this observation
         $updated = $this->mergeFieldSignatures($existing['fields'], $params);
 
         $existing['fields'] = $updated;
@@ -168,7 +167,6 @@ final class EventSchemaDriftDetectorService
             return null;
         }
 
-        // Compute field-level diffs
         $changes = $this->computeFieldDiffs($baseline['fields'], $current['fields']);
 
         if ($changes === []) {
@@ -178,14 +176,12 @@ final class EventSchemaDriftDetectorService
         // Classify severity
         $severity = $this->classifyDriftSeverity($changes);
 
-        // Compute drift score
         $driftScore = $this->computeDriftScore(
             $baseline['fields'],
             $current['fields'],
             $changes,
         );
 
-        // Determine affected providers based on event catalog
         $affectedProviders = $this->getAffectedProviders($eventName);
 
         return new SchemaDriftRecord(
@@ -253,7 +249,6 @@ final class EventSchemaDriftDetectorService
             }
         }
 
-        // Sort steps by urgency (critical first)
         usort($steps, static fn (array $a, array $b): int => match (true) {
             $a['urgency'] === 'critical' && $b['urgency'] !== 'critical' => -1,
             $b['urgency'] === 'critical' && $a['urgency'] !== 'critical' => 1,
@@ -265,7 +260,6 @@ final class EventSchemaDriftDetectorService
         // Determine overall risk
         $riskLevel = $this->computeRiskLevel($criticalCount, $highCount, count($steps));
 
-        // Generate rollback strategy
         $rollbackStrategy = $this->generateRollbackStrategy($drift);
 
         // Prerequisites
@@ -398,7 +392,6 @@ final class EventSchemaDriftDetectorService
             ? array_sum(array_map(static fn (SchemaDriftRecord $d): float => $d->driftScore, $drifts)) / count($drifts)
             : 0.0;
 
-        // Sort by drift score descending
         usort($drifts, static fn (SchemaDriftRecord $a, SchemaDriftRecord $b): int => $b->driftScore <=> $a->driftScore);
 
         $mostDrifted = array_slice(
@@ -476,10 +469,8 @@ final class EventSchemaDriftDetectorService
      */
     private function computeSchemaHash(array $fields): string
     {
-        // Sort by field name for deterministic ordering
         ksort($fields);
 
-        // Extract type-only signatures for hashing
         $signatures = [];
         foreach ($fields as $name => $sig) {
             $signatures[] = $name . ':' . $sig['type'] . ':' . ($sig['nullable'] ? '1' : '0');
@@ -867,7 +858,6 @@ final class EventSchemaDriftDetectorService
             return $index;
         }
 
-        // Build index from event catalog
         $catalog = EventCatalog::all();
         $names = array_keys($catalog);
         $this->cache->put($indexKey, $names, self::CACHE_TTL);

@@ -225,7 +225,6 @@ final class SaaSAnalyticsGlossaryService
             }
         }
 
-        // Sort metric lists for consistent output
         foreach ($map as $event => $metrics) {
             sort($metrics);
             $map[$event] = array_values($metrics);

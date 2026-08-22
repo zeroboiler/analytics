@@ -243,7 +243,6 @@ final class EventReplayAuditTrailService
         $count = count($entries);
         $pruned = 0;
 
-        // Remove entries beyond max retention
         if ($count > $this->maxEntries) {
             $toRemove = $count - $this->maxEntries;
             for ($i = $count - 1; $i >= $count - $toRemove; $i--) {
@@ -288,7 +287,6 @@ final class EventReplayAuditTrailService
     {
         $this->cache->put($this->cachePrefix . $entryId, $entry, $this->cacheTtl);
 
-        // Update the index
         $index = $this->getOrCreateIndex();
         array_unshift($index, $entryId);
 

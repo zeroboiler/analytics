@@ -144,7 +144,6 @@ final class EventCompactSerializer
             throw new \InvalidArgumentException('Payload too short to be a valid compact batch.');
         }
 
-        // Parse header
         $version = \ord($binary[0]);
 
         if ($version !== self::FORMAT_VERSION) {
@@ -172,7 +171,6 @@ final class EventCompactSerializer
             );
         }
 
-        // Parse events
         $events = [];
         $offset = 3; // Skip version + count
 

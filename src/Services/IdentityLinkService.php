@@ -68,7 +68,6 @@ final class IdentityLinkService
         if (! in_array($clientId, $existingClients, true)) {
             // Enforce per-user limit
             if (count($existingClients) >= $maxPerUser) {
-                // Remove the oldest client ID
                 array_shift($existingClients);
             }
             $existingClients[] = $clientId;
@@ -123,17 +122,14 @@ final class IdentityLinkService
     {
         $prefix = $this->config->identityCachePrefix();
 
-        // Find the associated user
         $userId = $this->getUserId($clientId);
 
         if ($userId === null) {
             return;
         }
 
-        // Remove client → user mapping
         $this->cache->forget("{$prefix}client:{$clientId}");
 
-        // Remove client from user's client set
         $userKey = "{$prefix}user:{$userId}:clients";
         $clients = $this->cache->get($userKey, []);
         /** @var list<string> $clients */

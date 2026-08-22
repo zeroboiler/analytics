@@ -213,12 +213,10 @@ final class TrackingGuardRailsService
             $issues[] = 'Event name must use snake_case (e.g., user_signed_up)';
         }
 
-        // Check for reserved prefixes
         if (str_starts_with($eventName, 'zb_') || str_starts_with($eventName, '_')) {
             $issues[] = 'Event name must not use reserved prefixes (zb_, _)';
         }
 
-        // Check length
         if (strlen($eventName) > 50) {
             $issues[] = 'Event name exceeds 50 character limit';
         }
@@ -227,7 +225,6 @@ final class TrackingGuardRailsService
             $issues[] = 'Event name must be at least 2 characters';
         }
 
-        // Generate suggestion from issues
         $suggestion = null;
         if ($issues !== []) {
             $suggestion = $this->suggestEventName($eventName);
@@ -367,7 +364,6 @@ final class TrackingGuardRailsService
         $allViolations = array_merge($allViolations, $consentResult['violations']);
         $allRecommendations = array_merge($allRecommendations, $consentResult['recommendations']);
 
-        // Compute composite score
         $compositeScore = 0;
         $totalWeight = 0;
         foreach ($dimensions as $dim) {
@@ -382,11 +378,9 @@ final class TrackingGuardRailsService
         // Deduplicate recommendations
         $uniqueRecommendations = array_values(array_unique($allRecommendations));
 
-        // Build coverage summary
         $trackedNames = $metrics['tracked_event_names'] ?? [];
         $coreCoverage = $this->coreEventCoverage($trackedNames);
 
-        // Build naming summary
         $namingSummary = $namingResult['details'];
 
         return [
@@ -448,7 +442,6 @@ final class TrackingGuardRailsService
             ];
         }
 
-        // Calculate: how many tracked events exist in the catalog
         $catalogMatched = 0;
         foreach ($trackedNames as $name) {
             if (EventCatalog::has((string) $name)) {
@@ -574,7 +567,6 @@ final class TrackingGuardRailsService
         $coreCoverage = $this->coreEventCoverage($trackedNames);
         $completeness = $coreCoverage['completeness'] / 100.0;
 
-        // Check if we have enough data to assess
         if ($totalEvents < $this->minimumEvents && $totalEvents > 0) {
             return [
                 'score' => 50, // Neutral score during ramp-up
@@ -611,7 +603,6 @@ final class TrackingGuardRailsService
             ];
         }
 
-        // Check for critical missing events
         $criticalMissing = array_values(array_diff(self::CRITICAL_EVENTS, $trackedNames));
         if ($criticalMissing !== []) {
             $violations[] = [
@@ -707,7 +698,6 @@ final class TrackingGuardRailsService
         $linkedCount = (int) ($metrics['identity_linked_count'] ?? 0);
         $totalClients = (int) ($metrics['total_clients'] ?? 0);
 
-        // Check config-based identity linking
         $linkOnAuth = $this->config->get('zeroboiler.analytics.identity.link_on_auth', true);
 
         if (! $linkOnAuth) {
@@ -851,16 +841,12 @@ final class TrackingGuardRailsService
      */
     private function suggestEventName(string $name): string
     {
-        // Convert camelCase to snake_case
         $suggested = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $name) ?? $name);
 
-        // Replace spaces and hyphens with underscores
         $suggested = str_replace([' ', '-'], '_', $suggested);
 
-        // Remove double underscores
         $suggested = preg_replace('/_+/', '_', $suggested) ?? $suggested;
 
-        // Remove leading/trailing underscores and reserved prefixes
         $suggested = trim($suggested, '_');
         $suggested = ltrim($suggested, 'zb_');
 

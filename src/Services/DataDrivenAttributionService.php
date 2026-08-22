@@ -99,7 +99,6 @@ final class DataDrivenAttributionService
             return $this->emptyResult();
         }
 
-        // Extract unique channels
         $channels = $this->extractChannels($conversionPaths);
         $channelCount = count($channels);
 
@@ -127,13 +126,10 @@ final class DataDrivenAttributionService
             ];
         }
 
-        // Build channel coalition value table
         $coalitionValues = $this->buildCoalitionValues($conversionPaths, $channels);
 
-        // Compute Shapley values for each channel
         $shapleyValues = $this->computeShapleyValues($channels, $coalitionValues);
 
-        // Normalize to percentages
         $totalShapley = array_sum($shapleyValues);
         $totalValue = array_sum(array_column($conversionPaths, 'value'));
 
@@ -150,7 +146,6 @@ final class DataDrivenAttributionService
             ];
         }
 
-        // Calculate model confidence based on data sufficiency
         $pathCount = count($conversionPaths);
         $confidence = min(1.0, $pathCount / ($this->minConversions * 3));
 
@@ -231,7 +226,6 @@ final class DataDrivenAttributionService
             $loss = $data['credit'];
             $lossPct = $totalValue > 0 ? ($loss / $totalValue) * 100.0 : 0.0;
 
-            // Count conversions where this channel appears in the path
             $affectedConversions = 0;
             foreach ($conversionPaths as $path) {
                 if (in_array($channel, $path['path'], true)) {
@@ -253,7 +247,6 @@ final class DataDrivenAttributionService
             ];
         }
 
-        // Sort by estimated_loss descending
         uasort($impact, fn (array $a, array $b): int => $b['estimated_loss'] <=> $a['estimated_loss']);
 
         return $impact;
@@ -337,7 +330,6 @@ final class DataDrivenAttributionService
         $channelNames = array_keys($channels);
         $coalitions = [];
 
-        // Generate all possible coalitions (2^n subsets)
         $count = count($channelNames);
         for ($mask = 0; $mask < (1 << $count); $mask++) {
             $coalition = [];
@@ -348,7 +340,6 @@ final class DataDrivenAttributionService
             }
             $key = $this->coalitionKey($coalition);
 
-            // Compute value: sum of conversion values for paths containing
             // at least one channel from this coalition
             $value = 0.0;
             foreach ($conversionPaths as $entry) {
@@ -393,7 +384,6 @@ final class DataDrivenAttributionService
             return $this->approximateShapley($channelNames, $coalitionValues, $n);
         }
 
-        // Iterate over all possible permutations via bitmask approach
         for ($mask = 0; $mask < (1 << $n); $mask++) {
             $coalitionSize = $this->popcount($mask);
 
@@ -420,7 +410,6 @@ final class DataDrivenAttributionService
             }
         }
 
-        // Ensure non-negative values (numerical precision)
         foreach ($shapley as $channel => $value) {
             $shapley[$channel] = max(0.0, $value);
         }

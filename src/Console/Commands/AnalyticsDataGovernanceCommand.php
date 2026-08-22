@@ -58,7 +58,6 @@ final class AnalyticsDataGovernanceCommand extends Command
     #[Override]
     public function handle(): int
     {
-        // Handle cache clearing
         if ($this->option('clear-cache')) {
             $this->consistencyService->clearCache();
             $this->info('Event consistency cache cleared.');

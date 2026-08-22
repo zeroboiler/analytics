@@ -53,7 +53,6 @@ final class FirstTouchUTMMiddleware
         $cookieName = $this->cookieName();
         $firstTouch = $this->resolveFirstTouch($request, $cookieName);
 
-        // Store on request attributes for downstream consumption
         $request->attributes->set('_zb_first_touch', $firstTouch);
 
         // Persist first-touch if this is a new UTM-bearing visit
@@ -86,7 +85,6 @@ final class FirstTouchUTMMiddleware
      */
     private function resolveFirstTouch(Request $request, string $cookieName): array
     {
-        // Check existing cookie
         $existing = $request->cookie($cookieName);
 
         if (is_string($existing) && $existing !== '') {

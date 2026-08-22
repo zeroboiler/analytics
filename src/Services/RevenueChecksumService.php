@@ -137,17 +137,14 @@ final class RevenueChecksumService
             return ['valid' => ! $this->requireChecksum, 'reason' => 'empty_checksum', 'replay' => false];
         }
 
-        // Check replay (already seen this checksum)
         $cacheKey = self::CACHE_PREFIX . $checksum;
         if ($this->cache->has($cacheKey)) {
             return ['valid' => false, 'reason' => 'replay_detected', 'replay' => true];
         }
 
-        // Generate expected checksum for the current minute and adjacent minutes (clock drift tolerance)
         $ts = $timestamp ?? time();
         $validForAnyMinute = false;
 
-        // Check current minute and ±1 minute for clock drift
         for ($offset = -1; $offset <= 1; $offset++) {
             $adjustedTs = $ts + ($offset * 60);
             $expected = $this->generate($transactionId, $value, $currency, $eventType, $adjustedTs);
@@ -161,7 +158,6 @@ final class RevenueChecksumService
             return ['valid' => false, 'reason' => 'checksum_mismatch', 'replay' => false];
         }
 
-        // Mark as seen (replay prevention)
         $this->cache->put($cacheKey, true, $this->replayTtl);
 
         return ['valid' => true, 'reason' => 'valid', 'replay' => false];

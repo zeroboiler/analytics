@@ -136,7 +136,6 @@ final class ExperimentAnalysisEngine
             $multiVariantCorrection = $this->multiVariantCorrection($variantIds, $frequentist);
         }
 
-        // Determine winner and recommendation
         $winner = $this->determineWinner($frequentist, $bayesian, $controlId);
         $recommendation = $this->generateRecommendation(
             $frequentist,
@@ -193,7 +192,6 @@ final class ExperimentAnalysisEngine
 
         $control = $variants[$controlId];
 
-        // Find best performing variant
         $bestId = $controlId;
         $bestRate = $this->getVariantRate($control, $metricType);
 
@@ -303,7 +301,6 @@ final class ExperimentAnalysisEngine
         $var1 = ($mean1 > 0 && $cCount > 1) ? ($mean1 * (1 - min($mean1 / max($cSum / max($cCount, 1), 0.001), 1))) / $cCount : 0;
         $var2 = ($mean2 > 0 && $tCount > 1) ? ($mean2 * (1 - min($mean2 / max($tSum / max($tCount, 1), 0.001), 1))) / $tCount : 0;
 
-        // Use pooled standard error (simplified Welch's t-test approximation)
         $se = sqrt($var1 / max($cCount, 1) + $var2 / max($tCount, 1));
 
         if ($se === 0.0) {
@@ -365,7 +362,6 @@ final class ExperimentAnalysisEngine
         $variantIds = array_keys($variants);
         $simulations = 20000;
 
-        // Generate posterior samples for each variant
         /** @var array<string, list<float>> $samples */
         $samples = [];
         foreach ($variants as $id => $data) {
@@ -759,7 +755,6 @@ final class ExperimentAnalysisEngine
             ];
         }
 
-        // Compute information fraction
         $infoFraction = $peek / $maxPeeks;
 
         // O'Brien-Fleming alpha spending function: α*(t) = 2 - 2Φ(z_{α/2} / √t)
@@ -986,7 +981,6 @@ final class ExperimentAnalysisEngine
             return "SHIP_IT: Variant {$winner} is the likely winner with {$upliftPct}% relative uplift. Consider shipping to 100% of traffic.";
         }
 
-        // Check if control is winning
         if ($bayesian !== null) {
             $controlProb = $bayesian['prob_best'][$controlId] ?? 0.0;
             if ($controlProb >= 0.90) {
@@ -994,7 +988,6 @@ final class ExperimentAnalysisEngine
             }
         }
 
-        // Check expected loss — if all variants have low expected loss, it doesn't matter
         if ($bayesian !== null) {
             $maxLoss = 0.0;
             foreach ($bayesian['expected_loss'] as $id => $loss) {

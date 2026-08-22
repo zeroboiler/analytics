@@ -158,7 +158,6 @@ final class EventCatalogExplorerService
                 }
             }
 
-            // Compute similarity
             $similarity = $this->computeSimilarity($name, $query);
             $matchType = $this->matchType($name, $query, $similarity);
 
@@ -181,7 +180,6 @@ final class EventCatalogExplorerService
             ];
         }
 
-        // Sort by similarity descending
         usort($results, fn (array $a, array $b): int => $b['similarity'] <=> $a['similarity']);
 
         return [
@@ -244,7 +242,6 @@ final class EventCatalogExplorerService
             }
         }
 
-        // Build result list
         $events = [];
         foreach ($allEventScores as $name => $score) {
             $entry = EventCatalog::get($name);
@@ -266,7 +263,6 @@ final class EventCatalogExplorerService
             ];
         }
 
-        // Sort by score descending, then by priority
         usort($events, function (array $a, array $b): int {
             if ($a['score'] !== $b['score']) {
                 return $b['score'] <=> $a['score'];
@@ -317,7 +313,6 @@ final class EventCatalogExplorerService
             $otherCategory = $otherEntry['category'] ?? 'unknown';
             $otherTags = EventTags::for($name);
 
-            // Compute similarity score
             $score = 0.0;
             $relationship = '';
 

@@ -108,7 +108,6 @@ final class EventRulesEngine
             }
         }
 
-        // Update last-seen timestamp for absence detection
         $this->updateLastSeen($event);
 
         return $triggered;
@@ -294,7 +293,6 @@ final class EventRulesEngine
      */
     private function evaluateEventTrigger(array $rule, AnalyticsEvent $source): ?AnalyticsEvent
     {
-        // Check optional condition against event params
         if (isset($rule['condition'])) {
             $paramKey = $rule['condition'];
             $paramValue = $source->params[$paramKey] ?? null;
@@ -304,7 +302,6 @@ final class EventRulesEngine
             }
         }
 
-        // Build enriched params from source event
         $enrichedParams = $source->params;
 
         if (isset($rule['enrich']) && is_array($rule['enrich'])) {

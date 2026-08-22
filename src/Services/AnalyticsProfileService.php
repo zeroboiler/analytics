@@ -69,11 +69,9 @@ final class AnalyticsProfileService
         $profile = $this->getProfile($userId);
         $now = date('c');
 
-        // Update event counts
         $profile['event_counts'][$event->name] = ($profile['event_counts'][$event->name] ?? 0) + 1;
         $profile['total_events']++;
 
-        // Update timestamps
         if ($profile['first_seen'] === null) {
             $profile['first_seen'] = $now;
         }
@@ -92,7 +90,6 @@ final class AnalyticsProfileService
             $profile['funnel_steps']["{$funnel}:{$step}"] = true;
         }
 
-        // Update plan from subscription/plan events
         $plan = $event->params['plan_name'] ?? $event->params['to_plan'] ?? null;
         if (is_string($plan) && $plan !== '' && in_array($event->name, [
             'subscription', 'plan_upgrade', 'plan_downgrade',
@@ -100,7 +97,6 @@ final class AnalyticsProfileService
             $profile['plan'] = $plan;
         }
 
-        // Merge user traits from identify events
         if ($event->name === 'identify' && ! empty($event->params)) {
             foreach ($event->params as $key => $val) {
                 if (is_scalar($val) && ! in_array($key, ['user_id', 'client_id'], true)) {

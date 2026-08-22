@@ -98,7 +98,6 @@ final class AnalyticsRequestTrackerMiddleware implements HttpMiddlewareContract
             'is_slow' => $isSlow,
         ];
 
-        // Add query params (truncated for privacy)
         $query = $request->query();
         if ($query !== []) {
             $params['query_params_count'] = count($query);
@@ -142,13 +141,11 @@ final class AnalyticsRequestTrackerMiddleware implements HttpMiddlewareContract
             return false;
         }
 
-        // Check excluded paths
         $excludePaths = $this->config['exclude_paths'] ?? [];
         if (in_array($request->path(), $excludePaths, true)) {
             return false;
         }
 
-        // Check excluded methods
         $excludeMethods = $this->config['exclude_methods'] ?? ['OPTIONS', 'HEAD'];
         if (in_array($request->method(), $excludeMethods, true)) {
             return false;

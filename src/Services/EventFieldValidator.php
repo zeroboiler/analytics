@@ -94,7 +94,6 @@ final class EventFieldValidator
         $eventRules = $this->getMergedRules($eventName);
         $params = $event->params;
 
-        // Apply defaults for missing fields
         $params = $this->applyDefaults($params, $eventRules);
 
         // Coerce field types
@@ -133,7 +132,6 @@ final class EventFieldValidator
 
         $eventRules = $this->getMergedRules($eventName);
 
-        // Apply defaults
         $params = $this->applyDefaults($params, $eventRules);
 
         // Coerce
@@ -207,7 +205,6 @@ final class EventFieldValidator
                 continue;
             }
 
-            // Skip further checks if field is absent and not required
             if (! array_key_exists($field, $params)) {
                 continue;
             }
@@ -252,7 +249,6 @@ final class EventFieldValidator
                 }
             }
 
-            // Format check
             if (isset($rule['format']) && $value !== null) {
                 $formatError = $this->checkFormat($field, $value, $rule['format'], $customMessage);
                 if ($formatError !== null) {
@@ -510,7 +506,6 @@ final class EventFieldValidator
             }
         }
 
-        // Merge global rules (lowest priority)
         foreach ($this->globalRules as $field => $rule) {
             if (! isset($eventRules[$field])) {
                 $eventRules[$field] = $rule;

@@ -61,7 +61,6 @@ final class ProviderDispatchDedupService
             return true;
         }
 
-        // Skip dedup for critical-priority events
         if ($event->priority === 'critical') {
             return true;
         }

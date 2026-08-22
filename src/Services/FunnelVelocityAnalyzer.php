@@ -193,7 +193,6 @@ final class FunnelVelocityAnalyzer
             }
         }
 
-        // Compute completion rate from cached completions
         $completionRate = $this->completionRate($funnelName);
 
         return [
@@ -331,7 +330,6 @@ final class FunnelVelocityAnalyzer
      */
     public function clearAll(): void
     {
-        // Clear completions cache
         $this->cache->forget(self::CACHE_PREFIX . '_completions');
     }
 
@@ -353,7 +351,6 @@ final class FunnelVelocityAnalyzer
         if (is_array($completions)) {
             foreach ($completions as $c) {
                 if (isset($c['timestamp']) && $c['timestamp'] >= $cutoff) {
-                    // Use total_elapsed as a proxy for per-step timing
                     // when granular step data isn't available in the completion record
                 }
             }

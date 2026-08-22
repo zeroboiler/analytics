@@ -55,11 +55,9 @@ final class AnalyticsReadinessService
 
         $analytics = $config->get('zeroboiler.analytics', []);
 
-        // Build required checks
         $requiredNames = $readinessConfig['required_checks'] ?? $this->defaultRequiredChecks();
         $this->requiredChecks = $this->buildChecks($requiredNames, $analytics);
 
-        // Build recommended checks
         $recommendedNames = $readinessConfig['recommended_checks'] ?? $this->defaultRecommendedChecks();
         $this->recommendedChecks = $this->buildChecks($recommendedNames, $analytics);
     }
@@ -299,7 +297,6 @@ final class AnalyticsReadinessService
                 default => null,
             };
 
-            // Count required check failures
             foreach ($this->requiredChecks as $check) {
                 if ($check->name === $name && $result->status === 'fail') {
                     $requiredFails++;

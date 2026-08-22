@@ -86,19 +86,16 @@ final class AnalyticsEventSanitizer
         $name = $params['name'] ?? '';
         $eventParams = $params['params'] ?? [];
 
-        // Validate event name
         $sanitizedName = $this->sanitizeEventName((string) $name);
         if ($sanitizedName !== $name) {
             $this->errors[] = "Event name sanitized: '{$name}' → '{$sanitizedName}'";
         }
 
-        // Validate param count
         if (count($eventParams) > $this->config['max_param_count']) {
             $this->errors[] = "Parameter count exceeded ({$this->config['max_param_count']}): " . count($eventParams);
             $eventParams = array_slice($eventParams, 0, $this->config['max_param_count'], true);
         }
 
-        // Process each parameter
         $cleaned = [];
         foreach ($eventParams as $key => $value) {
             $result = $this->sanitizeParam((string) $key, $value);
@@ -165,7 +162,6 @@ final class AnalyticsEventSanitizer
      */
     public function sanitizeParam(string $key, mixed $value): array
     {
-        // Check disallowed keys
         $normalisedKey = strtolower($key);
         foreach ($this->config['disallowed_keys'] as $disallowed) {
             if (str_contains($normalisedKey, strtolower($disallowed))) {
@@ -173,10 +169,8 @@ final class AnalyticsEventSanitizer
             }
         }
 
-        // Sanitize key
         $sanitizedKey = $this->sanitizeKey($key);
 
-        // Sanitize value recursively
         $sanitizedValue = $this->sanitizeValue($value);
 
         return ['allowed' => true, 'key' => $sanitizedKey, 'value' => $sanitizedValue];
@@ -262,7 +256,6 @@ final class AnalyticsEventSanitizer
             return null;
         }
 
-        // Convert unknown types to string
         return (string) $value;
     }
 
@@ -282,7 +275,6 @@ final class AnalyticsEventSanitizer
         $name = (string) ($data['name'] ?? '');
         $params = (array) ($data['params'] ?? []);
 
-        // Check event name
         if ($name === '') {
             $errors[] = 'Event name is empty';
         } elseif ($this->config['strict_naming'] && $name !== $this->toSnakeCase($name)) {
@@ -291,12 +283,10 @@ final class AnalyticsEventSanitizer
             $errors[] = "Event name exceeds max length ({$this->config['max_event_name_length']})";
         }
 
-        // Check param count
         if (count($params) > $this->config['max_param_count']) {
             $warnings[] = "Parameter count (" . count($params) . ") exceeds max ({$this->config['max_param_count']})";
         }
 
-        // Check each param
         foreach ($params as $key => $value) {
             $keyStr = (string) $key;
             $normalisedKey = strtolower($keyStr);
@@ -367,11 +357,9 @@ final class AnalyticsEventSanitizer
      */
     private function toSnakeCase(string $input): string
     {
-        // Replace spaces, hyphens, dots with underscores
         $result = preg_replace('/[\s\-\.]+/', '_', $input);
         // Lowercase
         $result = strtolower((string) ($result ?? $input));
-        // Remove double underscores
         $result = preg_replace('/_+/', '_', $result);
 
         return trim((string) ($result ?? $input), '_');

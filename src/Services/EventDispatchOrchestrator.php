@@ -133,24 +133,20 @@ final class EventDispatchOrchestrator
             return $this->makeDecision(self::ACTION_DISPATCH, $provider, $event, 'Orchestrator disabled — auto-dispatch', $context);
         }
 
-        // Check consent
         if (($context['consent_granted'] ?? true) === false) {
             return $this->makeDecision(self::ACTION_CONSENT_DENIED, $provider, $event, 'Consent denied for provider', $context);
         }
 
-        // Check circuit breaker
         $circuitState = $context['circuit_state'] ?? 'closed';
         if ($circuitState === 'open') {
             return $this->makeDecision(self::ACTION_CIRCUIT_OPEN, $provider, $event, 'Circuit breaker open — provider unavailable', $context);
         }
 
-        // Check budget
         $budgetRemaining = $context['budget_remaining'] ?? null;
         if ($budgetRemaining !== null && $budgetRemaining <= 0) {
             return $this->makeDecision(self::ACTION_BUDGET_EXCEEDED, $provider, $event, 'Event budget exceeded for provider', $context);
         }
 
-        // Check reliability threshold
         $reliability = $context['reliability_score'] ?? 100.0;
         $isCritical = $event->priority === 'critical';
         $minReliability = $isCritical ? $this->minReliabilityCritical : $this->minReliabilityAuto;
@@ -199,7 +195,6 @@ final class EventDispatchOrchestrator
             $decisions[] = $this->evaluate($provider, $event, $context);
         }
 
-        // Sort by action priority (dispatch first, drop last)
         usort($decisions, function (array $a, array $b): int {
             return $this->actionPriority($a['action']) <=> $this->actionPriority($b['action']);
         });
@@ -336,7 +331,6 @@ final class EventDispatchOrchestrator
         $this->cache->forget(self::CACHE_PREFIX . 'decision_keys');
         $this->cache->forget(self::CACHE_PREFIX . 'index');
 
-        // Clear outcome caches
         $providers = ['ga4', 'gtm', 'meta_pixel', 'posthog', 'plausible', 'mixpanel', 'amplitude', 'tiktok', 'linkedin', 'webhook'];
         foreach ($providers as $provider) {
             $this->cache->forget(self::CACHE_PREFIX . 'outcomes_' . $provider);

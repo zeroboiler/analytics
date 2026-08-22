@@ -303,7 +303,6 @@ final class EventClassificationService
         if (EventCatalog::has($event->name)) {
             $tags[] = 'catalog:registered';
 
-            // Determine catalog source
             if (EcommerceEvents::has($event->name)) {
                 $tags[] = 'catalog:ecommerce';
             }
@@ -333,7 +332,6 @@ final class EventClassificationService
         $matchSource = 'none';
         $confidence = 0.0;
 
-        // Check name patterns
         foreach ($patterns as $pattern) {
             if (preg_match($pattern, $event->name)) {
                 $matchedPatterns[] = "name:{$pattern}";
@@ -342,7 +340,6 @@ final class EventClassificationService
             }
         }
 
-        // Check parameter indicators
         foreach ($indicators as $indicator) {
             if (array_key_exists($indicator, $event->params)) {
                 $matchedPatterns[] = "param:{$indicator}";
@@ -353,7 +350,6 @@ final class EventClassificationService
             }
         }
 
-        // Check catalog category
         if (EventCatalog::has($event->name)) {
             $entry = EventCatalog::get($event->name);
             $entryCategory = $entry['category'] ?? null;

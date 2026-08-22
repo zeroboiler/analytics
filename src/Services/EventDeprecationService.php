@@ -256,7 +256,6 @@ final class EventDeprecationService
             }
         }
 
-        // Sort by deprecated_in descending (most recent first)
         usort($deprecated, fn (array $a, array $b): int => strcmp($b['deprecated_in'], $a['deprecated_in']));
 
         return [

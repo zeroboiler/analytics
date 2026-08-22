@@ -187,13 +187,11 @@ final class FunnelLeakDetectionService
                 ];
             }
 
-            // Generate recommendations for leaks
             if ($isLeak) {
                 $recommendations[] = $this->generateRecommendation($funnelName, $prevStep, $stepName, $dropOff, $severity ?? 'warning');
             }
         }
 
-        // Sort recommendations by severity
         usort($recommendations, fn (array $a, array $b): int => $a['priority'] === 'critical' ? -1 : 1);
 
         // Overall conversion (first step → last step)

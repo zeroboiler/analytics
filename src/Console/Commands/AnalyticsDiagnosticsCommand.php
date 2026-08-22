@@ -153,7 +153,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->failCount++;
         }
 
-        // Check enabled providers
         $enabledProviders = 0;
         $providerKeys = ['ga4', 'gtm', 'meta_pixel', 'plausible', 'posthog', 'webhook'];
 
@@ -171,7 +170,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->warnCount++;
         }
 
-        // Check API config
         $apiEnabled = $config['api']['enabled'] ?? false;
         if ($apiEnabled) {
             $this->addResult('api_enabled', 'pass', 'API endpoints enabled at ' . ($config['api']['base_url'] ?? '/api/analytics'));
@@ -315,7 +313,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->failCount++;
         }
 
-        // Check required core events
         $requiredEvents = ['page_view', 'sign_up', 'login', 'purchase', 'error'];
         $missingCore = [];
 
@@ -333,7 +330,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->warnCount++;
         }
 
-        // Check provider coverage
         $all = EventCatalog::all();
         $ga4Coverage = 0;
         $metaCoverage = 0;
@@ -395,7 +391,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->warnCount++;
         }
 
-        // Check replay queue
         $replay = config('zeroboiler.analytics.replay', []);
         if (! empty($replay['enabled'])) {
             $maxAttempts = $replay['max_attempts'] ?? 3;
@@ -512,7 +507,6 @@ final class AnalyticsDiagnosticsCommand extends Command
             $this->warnCount++;
         }
 
-        // Check API throttling
         $throttle = config('zeroboiler.analytics.api.throttle', 60);
         $this->addResult('api_throttle', 'pass', "API throttling: {$throttle} requests/minute");
         $this->passCount++;

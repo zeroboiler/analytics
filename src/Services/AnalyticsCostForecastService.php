@@ -243,7 +243,6 @@ final class AnalyticsCostForecastService
             }
         }
 
-        // Sort by estimated savings descending
         usort($recommendations, fn (array $a, array $b): int => $b['estimated_savings'] <=> $a['estimated_savings']);
 
         return $recommendations;
@@ -282,7 +281,6 @@ final class AnalyticsCostForecastService
         $history = $this->cache->get($cacheKey);
 
         if ($history === null) {
-            // Generate synthetic history for initial state
             $history = $this->generateSyntheticHistory($provider);
             $this->cache->put($cacheKey, $history, $this->cacheTtl);
         }
@@ -468,7 +466,6 @@ final class AnalyticsCostForecastService
         $history = [];
 
         for ($i = 0; $i < $this->historyMonths; $i++) {
-            // Add slight random growth (5-15%)
             $growth = 1 + (0.05 + (mt_rand(0, 100) / 1000));
             $base = (int) ($base * $growth);
             $history[] = $base;

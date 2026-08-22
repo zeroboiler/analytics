@@ -201,13 +201,11 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $catalogCount = EventCatalog::count();
 
-        // Check 1: At least 150 events in catalog
         $checks[] = [
             'pass'        => $catalogCount >= 150,
             'description' => "Event catalog has {$catalogCount} events (expected >= 150)",
         ];
 
-        // Check 2: Three core catalogs exist
         $ecomCount = EcommerceEvents::count();
         $saasCount = SaaSEvents::count();
         $engCount = EngagementEvents::count();
@@ -216,14 +214,12 @@ final class SaaSStarterQuickAuditService
             'description' => "Three catalogs: Ecommerce({$ecomCount}), SaaS({$saasCount}), Engagement({$engCount})",
         ];
 
-        // Check 3: All 20 starter events in catalog
         $starterCoverage = SaaSStarterEvents::coveragePercent();
         $checks[] = [
             'pass'        => $starterCoverage >= 100.0,
             'description' => "SaaS Starter coverage: {$starterCoverage}%",
         ];
 
-        // Check 4: Multi-provider mappings (GA4, Meta, PostHog)
         $hasGa4 = EcommerceEvents::ga4Names() !== [];
         $hasMeta = EcommerceEvents::metaNames() !== [];
         $checks[] = [
@@ -231,7 +227,6 @@ final class SaaSStarterQuickAuditService
             'description' => 'Multi-provider mappings: GA4 + Meta',
         ];
 
-        // Check 5: Typed factory methods exist
         $checks[] = [
             'pass'        => method_exists(EcommerceEvents::class, 'purchase') && method_exists(SaaSEvents::class, 'signUp'),
             'description' => 'Typed factory methods on catalogs',
@@ -249,19 +244,16 @@ final class SaaSStarterQuickAuditService
         $lifecycle = $this->config->get('zeroboiler.analytics.lifecycle', []);
         $autoTrack = $this->config->get('zeroboiler.analytics.auto_track', []);
 
-        // Check 1: Lifecycle config enabled
         $checks[] = [
             'pass'        => (bool) ($lifecycle['enabled'] ?? false),
             'description' => 'Lifecycle tracking config enabled',
         ];
 
-        // Check 2: Auto-track enabled
         $checks[] = [
             'pass'        => (bool) ($autoTrack['enabled'] ?? false),
             'description' => 'Auto-track config enabled',
         ];
 
-        // Check 3: At least 5 auto-track events configured
         $eventToggles = $autoTrack['events'] ?? [];
         $enabledCount = count(array_filter($eventToggles));
         $checks[] = [
@@ -269,13 +261,11 @@ final class SaaSStarterQuickAuditService
             'description' => "{$enabledCount} auto-track events configured (expected >= 5)",
         ];
 
-        // Check 4: Config-driven event map key exists
         $checks[] = [
             'pass'        => array_key_exists('event_map', $autoTrack),
             'description' => 'Config-driven event_map key present',
         ];
 
-        // Check 5: Custom mappings key exists in lifecycle config
         $checks[] = [
             'pass'        => array_key_exists('custom_mappings', $lifecycle),
             'description' => 'Lifecycle custom_mappings key present',
@@ -294,32 +284,27 @@ final class SaaSStarterQuickAuditService
         $consent = $this->config->get('zeroboiler.analytics.consent', []);
         $clientAuto = $this->config->get('zeroboiler.analytics.client_auto_track', []);
 
-        // Check 1: Identity cookie name configured
         $checks[] = [
             'pass'        => ! empty($identity['cookie_name']),
             'description' => 'Client ID cookie name configured: ' . ($identity['cookie_name'] ?? 'missing'),
         ];
 
-        // Check 2: Identity cookie TTL set
         $checks[] = [
             'pass'        => ($identity['cookie_ttl'] ?? 0) > 0,
             'description' => 'Client ID cookie TTL set',
         ];
 
-        // Check 3: Consent purposes defined
         $purposes = $consent['purposes'] ?? [];
         $checks[] = [
             'pass'        => count($purposes) >= 3,
             'description' => count($purposes) . ' consent purposes defined',
         ];
 
-        // Check 4: Client auto-track has page_views
         $checks[] = [
             'pass'        => (bool) ($clientAuto['page_views'] ?? false),
             'description' => 'Client auto-track.pageViews enabled',
         ];
 
-        // Check 5: Client auto-track has scroll_depth
         $checks[] = [
             'pass'        => (bool) ($clientAuto['scroll_depth'] ?? false),
             'description' => 'Client auto-track.scrollDepth enabled',
@@ -336,31 +321,26 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $api = $this->config->get('zeroboiler.analytics.api', []);
 
-        // Check 1: API enabled
         $checks[] = [
             'pass'        => (bool) ($api['enabled'] ?? false),
             'description' => 'API endpoint enabled',
         ];
 
-        // Check 2: Rate limit configured
         $checks[] = [
             'pass'        => ($api['rate_limit'] ?? 0) > 0,
             'description' => 'API rate limit configured: ' . ($api['rate_limit'] ?? 0),
         ];
 
-        // Check 3: Batch max size set
         $checks[] = [
             'pass'        => ($api['batch_max_size'] ?? 0) > 0,
             'description' => 'API batch max size configured',
         ];
 
-        // Check 4: Auth required toggle present
         $checks[] = [
             'pass'        => array_key_exists('require_auth', $api),
             'description' => 'API require_auth toggle present',
         ];
 
-        // Check 5: Routes file exists
         $routesFile = file_exists(__DIR__ . '/../../routes/analytics.php');
         $checks[] = [
             'pass'        => $routesFile,
@@ -380,7 +360,6 @@ final class SaaSStarterQuickAuditService
         $svelteFiles = glob(__DIR__ . '/../../resources/js/use*.svelte.js');
         $tsPath = __DIR__ . '/../../resources/js/analytics.d.ts';
 
-        // Check 1: Main JS client exists and is substantial (>1000 lines)
         $jsExists = file_exists($jsPath);
         $jsLines = $jsExists ? count(file($jsPath)) : 0;
         $checks[] = [
@@ -388,20 +367,17 @@ final class SaaSStarterQuickAuditService
             'description' => "JS client library: {$jsLines} LOC (expected > 1,000)",
         ];
 
-        // Check 2: TypeScript definitions exist
         $checks[] = [
             'pass'        => file_exists($tsPath),
             'description' => 'TypeScript definitions (analytics.d.ts) exist',
         ];
 
-        // Check 3: At least 10 Svelte composables
         $composableCount = is_array($svelteFiles) ? count($svelteFiles) : 0;
         $checks[] = [
             'pass'        => $composableCount >= 10,
             'description' => "{$composableCount} Svelte composables (expected >= 10)",
         ];
 
-        // Check 4: JS exports key functions
         $jsContent = $jsExists ? file_get_contents($jsPath) : '';
         $hasTrackEvent = str_contains($jsContent, 'export function trackEvent');
         $hasTrackPageView = str_contains($jsContent, 'export function trackPageView');
@@ -410,7 +386,6 @@ final class SaaSStarterQuickAuditService
             'description' => 'JS exports: trackEvent + trackPageView',
         ];
 
-        // Check 5: Consent mode support in JS
         $hasConsent = str_contains($jsContent, 'consent') || str_contains($jsContent, 'Consent');
         $checks[] = [
             'pass'        => $hasConsent,
@@ -428,32 +403,27 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $queue = $this->config->get('zeroboiler.analytics.queue', []);
 
-        // Check 1: Queue enabled
         $checks[] = [
             'pass'        => (bool) ($queue['enabled'] ?? false),
             'description' => 'Queue dispatch enabled',
         ];
 
-        // Check 2: Queue name configured
         $checks[] = [
             'pass'        => ! empty($queue['queue']),
             'description' => 'Queue name configured: ' . ($queue['queue'] ?? 'missing'),
         ];
 
-        // Check 3: Max batch size set
         $checks[] = [
             'pass'        => ($queue['max_batch_size'] ?? 0) > 0,
             'description' => 'Queue max batch size configured',
         ];
 
-        // Check 4: QueuedAnalyticsDispatcher job class exists
         $dispatcherExists = class_exists(\ZeroBoiler\Analytics\Bus\QueuedAnalyticsDispatcher::class);
         $checks[] = [
             'pass'        => $dispatcherExists,
             'description' => 'QueuedAnalyticsDispatcher class exists',
         ];
 
-        // Check 5: Queue job exists
         $jobExists = class_exists(\ZeroBoiler\Analytics\Jobs\TrackAnalyticsEventJob::class);
         $checks[] = [
             'pass'        => $jobExists,
@@ -471,31 +441,26 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $identity = $this->config->get('zeroboiler.analytics.identity', []);
 
-        // Check 1: Cookie name configured
         $checks[] = [
             'pass'        => ! empty($identity['cookie_name']),
             'description' => 'Identity cookie name configured',
         ];
 
-        // Check 2: Link-on-auth enabled
         $checks[] = [
             'pass'        => (bool) ($identity['link_on_auth'] ?? false),
             'description' => 'Identity link_on_auth enabled',
         ];
 
-        // Check 3: Auto-link enabled
         $checks[] = [
             'pass'        => (bool) ($identity['auto_link'] ?? false),
             'description' => 'Identity auto_link enabled',
         ];
 
-        // Check 4: Cache prefix configured
         $checks[] = [
             'pass'        => ! empty($identity['cache_prefix']),
             'description' => 'Identity cache prefix configured',
         ];
 
-        // Check 5: Link TTL set
         $checks[] = [
             'pass'        => ($identity['link_ttl'] ?? 0) > 0,
             'description' => 'Identity link TTL configured',
@@ -512,33 +477,28 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $ecommerce = $this->config->get('zeroboiler.analytics.ecommerce', []);
 
-        // Check 1: Currency configured
         $checks[] = [
             'pass'        => ! empty($ecommerce['currency']),
             'description' => 'E-commerce currency configured: ' . ($ecommerce['currency'] ?? 'missing'),
         ];
 
-        // Check 2: Tax behavior configured
         $checks[] = [
             'pass'        => ! empty($ecommerce['tax_behavior']),
             'description' => 'E-commerce tax behavior configured',
         ];
 
-        // Check 3: EcommerceAnalyticsService exists
         $serviceExists = class_exists(\ZeroBoiler\Analytics\Services\EcommerceAnalyticsService::class);
         $checks[] = [
             'pass'        => $serviceExists,
             'description' => 'EcommerceAnalyticsService class exists',
         ];
 
-        // Check 4: EcommerceFormatConverter exists
         $converterExists = class_exists(\ZeroBoiler\Analytics\Services\EcommerceFormatConverter::class);
         $checks[] = [
             'pass'        => $converterExists,
             'description' => 'EcommerceFormatConverter class exists (8-provider parity)',
         ];
 
-        // Check 5: Checkout tracking config exists
         $checkout = $this->config->get('zeroboiler.analytics.checkout_tracking', []);
         $checks[] = [
             'pass'        => array_key_exists('enabled', $checkout),
@@ -555,31 +515,26 @@ final class SaaSStarterQuickAuditService
     {
         $checks = [];
 
-        // Check 1: AnalyticsOverviewCommand exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsOverviewCommand::class),
             'description' => 'AnalyticsOverviewCommand exists',
         ];
 
-        // Check 2: AnalyticsTestCommand exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsTestCommand::class),
             'description' => 'AnalyticsTestCommand exists',
         ];
 
-        // Check 3: Quick setup command exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsQuickSetupCommand::class),
             'description' => 'AnalyticsQuickSetupCommand exists',
         ];
 
-        // Check 4: Health command exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsHealthCommand::class),
             'description' => 'AnalyticsHealthCommand exists',
         ];
 
-        // Check 5: Integrity command exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Console\Commands\AnalyticsIntegrityCommand::class),
             'description' => 'AnalyticsIntegrityCommand exists',
@@ -603,7 +558,6 @@ final class SaaSStarterQuickAuditService
             'revenue', 'client_auto_track',
         ];
 
-        // Check 1: At least 12 config sections present
         $presentCount = 0;
         foreach ($requiredSections as $section) {
             if (array_key_exists($section, $analytics)) {
@@ -615,27 +569,23 @@ final class SaaSStarterQuickAuditService
             'description' => "{$presentCount}/13 required config sections present",
         ];
 
-        // Check 2: Queue config has connection option
         $queue = $analytics['queue'] ?? [];
         $checks[] = [
             'pass'        => array_key_exists('connection', $queue),
             'description' => 'Queue connection option configurable',
         ];
 
-        // Check 3: API config has SDK token
         $api = $analytics['api'] ?? [];
         $checks[] = [
             'pass'        => array_key_exists('sdk_token', $api),
             'description' => 'API SDK token option present',
         ];
 
-        // Check 4: Dedup cache config exists
         $checks[] = [
             'pass'        => array_key_exists('dedup_cache', $analytics),
             'description' => 'Deduplication cache config section present',
         ];
 
-        // Check 5: Revenue config exists
         $checks[] = [
             'pass'        => array_key_exists('revenue', $analytics),
             'description' => 'Revenue config section present',
@@ -652,31 +602,26 @@ final class SaaSStarterQuickAuditService
         $checks = [];
         $analytics = $this->config->get('zeroboiler.analytics', []);
 
-        // Check 1: Plausible config section
         $checks[] = [
             'pass'        => array_key_exists('plausible', $analytics),
             'description' => 'Plausible config section present',
         ];
 
-        // Check 2: PostHog config section
         $checks[] = [
             'pass'        => array_key_exists('posthog', $analytics),
             'description' => 'PostHog config section present',
         ];
 
-        // Check 3: PlausibleTracker class exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Trackers\PlausibleTracker::class),
             'description' => 'PlausibleTracker class exists',
         ];
 
-        // Check 4: PosthogTracker class exists
         $checks[] = [
             'pass'        => class_exists(\ZeroBoiler\Analytics\Trackers\PosthogTracker::class),
             'description' => 'PosthogTracker class exists',
         ];
 
-        // Check 5: At least one optional provider is enabled
         $plausibleEnabled = (bool) ($analytics['plausible']['enabled'] ?? false);
         $posthogEnabled = (bool) ($analytics['posthog']['enabled'] ?? false);
         $checks[] = [
@@ -697,7 +642,6 @@ final class SaaSStarterQuickAuditService
         $readmePath = __DIR__ . '/../../README.md';
         $changelogPath = __DIR__ . '/../../CHANGELOG.md';
 
-        // Check 1: Tests directory exists and has files
         $testFiles = is_dir($testsDir) ? glob($testsDir . '*Test.php') : [];
         $testCount = is_array($testFiles) ? count($testFiles) : 0;
         $checks[] = [
@@ -705,7 +649,6 @@ final class SaaSStarterQuickAuditService
             'description' => "{$testCount} test files (expected >= 100)",
         ];
 
-        // Check 2: README exists and is substantial
         $readmeExists = file_exists($readmePath);
         $readmeLines = $readmeExists ? count(file($readmePath)) : 0;
         $checks[] = [
@@ -713,19 +656,16 @@ final class SaaSStarterQuickAuditService
             'description' => "README: {$readmeLines} lines (expected > 200)",
         ];
 
-        // Check 3: CHANGELOG exists
         $checks[] = [
             'pass'        => file_exists($changelogPath),
             'description' => 'CHANGELOG.md exists',
         ];
 
-        // Check 4: phpstan.neon.dist exists
         $checks[] = [
             'pass'        => file_exists(__DIR__ . '/../../phpstan.neon.dist'),
             'description' => 'phpstan.neon.dist exists',
         ];
 
-        // Check 5: CI workflow exists
         $checks[] = [
             'pass'        => file_exists(__DIR__ . '/../../.github/workflows/ci.yml'),
             'description' => 'GitHub Actions CI workflow exists',

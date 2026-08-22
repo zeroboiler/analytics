@@ -78,7 +78,6 @@ final class EventNamingConventionService
             $errors[] = "Event name must not exceed {$this->maxLength} characters, got {$length}";
         }
 
-        // Format check
         if ($this->customPattern !== null) {
             if (! preg_match($this->customPattern, $name)) {
                 $errors[] = "Event name does not match the custom naming pattern";
@@ -259,7 +258,6 @@ final class EventNamingConventionService
      */
     private function toSnakeCase(string $name): string
     {
-        // Handle camelCase / PascalCase
         $result = preg_replace('/([a-z])([A-Z])/', '$1_$2', $name);
         $result = preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1_$2', $result);
 
@@ -271,7 +269,6 @@ final class EventNamingConventionService
      */
     private function toCamelCase(string $name): string
     {
-        // Handle snake_case
         $parts = explode('_', $name);
         $result = $parts[0];
 

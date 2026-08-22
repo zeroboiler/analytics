@@ -78,14 +78,12 @@ final class FunnelVelocityService
         $stepMetrics = $this->calculateStepMetrics($steps, $userJourneys);
         $transitions = $this->calculateTransitions($steps, $userJourneys);
 
-        // Calculate total funnel times for completed journeys
         $completedTimes = [];
         foreach ($userJourneys as $journey) {
             if ($this->journeyCompleted($journey, $steps)) {
                 $firstStep = $journey['steps'][0];
                 $lastStep = $journey['steps'][count($journey['steps']) - 1];
 
-                // Find the timestamps for first and last funnel steps
                 $firstTs = null;
                 $lastTs = null;
 
@@ -219,7 +217,6 @@ final class FunnelVelocityService
             foreach ($journeys as $journey) {
                 $userId = $journey['user_id'];
 
-                // Find if this user reached this step
                 $stepTimestamp = null;
                 $nextStepTimestamp = null;
 
@@ -228,7 +225,6 @@ final class FunnelVelocityService
                         $stepTimestamp = $s['timestamp'];
                         $reachedCount++;
 
-                        // Check if they reached the next step
                         if (isset($steps[$stepIndex + 1])) {
                             foreach ($journey['steps'] as $ns) {
                                 if ($ns['step'] === $steps[$stepIndex + 1] && $ns['timestamp'] > $stepTimestamp) {

@@ -90,7 +90,6 @@ final class TenantIsolationService
             return null;
         }
 
-        // Return cached resolution for this request
         if ($this->currentTenantId !== null) {
             return $this->currentTenantId;
         }
@@ -124,12 +123,10 @@ final class TenantIsolationService
             return $event;
         }
 
-        // Check rate limit
         if (! $this->checkRateLimit($tenantId)) {
             return $event;
         }
 
-        // Create enriched event with tenant context
         return new AnalyticsEvent(
             name: $event->name,
             params: array_merge($event->params, [
@@ -156,18 +153,15 @@ final class TenantIsolationService
 
         $tenantConfig = $this->getTenantConfig($tenantId);
 
-        // Check if this specific event is disabled for the tenant
         $disabledEvents = $tenantConfig['disabled_events'] ?? [];
         if (is_array($disabledEvents) && in_array($event->name, $disabledEvents, true)) {
             return false;
         }
 
-        // Check if all analytics are disabled for the tenant
         if (isset($tenantConfig['analytics_enabled']) && $tenantConfig['analytics_enabled'] === false) {
             return false;
         }
 
-        // Check rate limit
         return $this->checkRateLimit($tenantId);
     }
 
@@ -179,12 +173,10 @@ final class TenantIsolationService
      */
     public function getTenantConfig(string $tenantId): array
     {
-        // Check in-memory cache first
         if (isset($this->tenantConfigs[$tenantId])) {
             return $this->tenantConfigs[$tenantId];
         }
 
-        // Check cache store
         $cacheKey = $this->cachePrefix . $tenantId;
         $cached = $this->cache->get($cacheKey);
 
@@ -299,12 +291,10 @@ final class TenantIsolationService
     {
         $host = request()->host();
 
-        // Extract first subdomain part
         $parts = explode('.', $host);
         if (count($parts) >= 3) {
             $subdomain = $parts[0];
 
-            // Skip common subdomains
             if (! in_array($subdomain, ['www', 'app', 'api', 'admin'], true)) {
                 return $subdomain;
             }
@@ -323,7 +313,6 @@ final class TenantIsolationService
             return null;
         }
 
-        // Try common tenant attribute names
         foreach (['tenant_id', 'team_id', 'organization_id', 'workspace_id', 'account_id'] as $attr) {
             if (method_exists($user, 'getAttribute')) {
                 $value = $user->getAttribute($attr);
@@ -365,7 +354,6 @@ final class TenantIsolationService
         }
 
         if (! isset($this->tenantCounters[$tenantId])) {
-            // Check persistent counter in cache
             $cacheKey = $this->cachePrefix . 'rate_' . $tenantId;
             $cachedCount = $this->cache->get($cacheKey);
 

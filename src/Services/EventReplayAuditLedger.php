@@ -149,7 +149,6 @@ final class EventReplayAuditLedger
             'recorded_at' => microtime(true),
         ];
 
-        // Update counters
         match ($result) {
             'dispatched' => $operation['stats']['dispatched']++,
             'succeeded' => $operation['stats']['succeeded']++,
@@ -327,7 +326,6 @@ final class EventReplayAuditLedger
             }
         }
 
-        // Sort by frequency descending
         arsort($reasons);
 
         return $reasons;

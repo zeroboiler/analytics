@@ -124,7 +124,6 @@ final class EventPolicyEngine
             }
         }
 
-        // Apply sanitized params if changed (readonly DTO — create new instance)
         $finalEvent = $sanitizedParams !== $params
             ? new AnalyticsEvent(
                 name: $event->name,
@@ -490,7 +489,6 @@ final class EventPolicyEngine
             );
         }
 
-        // Increment counter
         $this->cache->put($cacheKey, $current + 1, $windowSeconds + 1);
 
         return null;

@@ -293,7 +293,6 @@ final class EventSemanticClassifierService
     {
         $suggestions = [];
 
-        // Check each category's patterns
         foreach ($this->patterns as $category => $regexList) {
             foreach ($regexList as $pattern) {
                 if (preg_match($pattern, $eventName)) {
@@ -313,7 +312,6 @@ final class EventSemanticClassifierService
             }
         }
 
-        // Check payload hints
         foreach ($this->payloadHints as $category => $hintKeys) {
             $matchedKeys = array_intersect($hintKeys, array_keys($params));
 
@@ -342,7 +340,6 @@ final class EventSemanticClassifierService
             }
         }
 
-        // Sort by confidence descending
         usort($suggestions, static fn (array $a, array $b): int => $b['confidence'] <=> $a['confidence']);
 
         return $suggestions;
@@ -381,7 +378,6 @@ final class EventSemanticClassifierService
             return $this->buildResult($eventName, 'engagement', 1.0, 'exact', true, false);
         }
 
-        // Check broader EventCatalog
         $catalogEntry = EventCatalog::get($eventName);
 
         if ($catalogEntry !== null) {
@@ -418,7 +414,6 @@ final class EventSemanticClassifierService
             return null;
         }
 
-        // Sort by confidence
         usort($competing, static fn (array $a, array $b): int => $b['confidence'] <=> $a['confidence']);
 
         $best = $competing[0];
@@ -491,7 +486,6 @@ final class EventSemanticClassifierService
      */
     private function classifyByHeuristic(string $eventName): array
     {
-        // Check event name structure heuristics
         $parts = explode('_', $eventName);
         $firstPart = $parts[0] ?? '';
 
@@ -712,7 +706,6 @@ final class EventSemanticClassifierService
             ],
         ];
 
-        // Merge custom patterns
         foreach ($defaults as $category => $patterns) {
             $custom = $customPatterns[$category] ?? [];
             $defaults[$category] = array_merge($patterns, $custom);
@@ -752,7 +745,6 @@ final class EventSemanticClassifierService
             ],
         ];
 
-        // Merge custom hints
         foreach ($defaults as $category => $hints) {
             $custom = $customHints[$category] ?? [];
             $defaults[$category] = array_values(array_unique(array_merge($hints, $custom)));

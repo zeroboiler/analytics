@@ -140,7 +140,6 @@ final class EventGovernanceRuntimeValidator
             $warnings[] = 'Empty event name — event will be dropped by most providers';
         }
 
-        // Build result
         $valid = $warnings === [] && $providerGaps === [];
 
         // Log the validation result
@@ -309,7 +308,6 @@ final class EventGovernanceRuntimeValidator
         foreach ($catalog as $name => $entry) {
             $eventIssues = [];
 
-            // Check required fields
             if (empty($entry['name'])) {
                 $eventIssues[] = 'missing name';
             }

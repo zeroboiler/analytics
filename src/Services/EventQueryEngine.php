@@ -108,7 +108,6 @@ final class EventQueryEngine
         $peakHour = null;
         $peakCount = 0;
 
-        // Use metrics hourly data if available
         $report = $this->metrics->report();
         $hourlyData = $report['hourly_distribution'] ?? [];
 

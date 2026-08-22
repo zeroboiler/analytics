@@ -317,7 +317,6 @@ final class AnalyticsPipelineValidateCommand extends Command
             return null;
         }
 
-        // Build minimal test params based on category
         $params = match (EventCatalog::getCategory($name)) {
             'ecommerce' => [
                 'item_id' => 'test-001',

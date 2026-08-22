@@ -76,7 +76,6 @@ final class SaaSTelemetryAggregatorService
         $provider = $dataPoint['provider'];
         $event = $dataPoint['event'];
 
-        // Update provider stats
         if (! isset($this->providerStats[$provider])) {
             $this->providerStats[$provider] = [
                 'total' => 0,
@@ -94,21 +93,17 @@ final class SaaSTelemetryAggregatorService
         }
         $this->providerStats[$provider]['last_dispatch'] = $event->timestamp?->format('c') ?? now()->toIso8601String();
 
-        // Update category stats
         $category = $event->category ?? 'unknown';
         $this->categoryStats[$category] = ($this->categoryStats[$category] ?? 0) + 1;
 
-        // Update event name stats
         $this->eventNameStats[$event->name] = ($this->eventNameStats[$event->name] ?? 0) + 1;
 
-        // Update latency samples (keep last 100)
         $this->latencySamples[$provider] ??= [];
         $this->latencySamples[$provider][] = $dataPoint['latency_ms'];
         if (count($this->latencySamples[$provider]) > 100) {
             array_shift($this->latencySamples[$provider]);
         }
 
-        // Update rolling window counters
         foreach ($this->windowCounters as &$count) {
             $count++;
         }
@@ -150,7 +145,6 @@ final class SaaSTelemetryAggregatorService
             $uptime[$health]++;
         }
 
-        // Sort events by count descending, take top 20
         arsort($this->eventNameStats);
         $topEvents = array_slice($this->eventNameStats, 0, 20, true);
 
@@ -233,7 +227,6 @@ final class SaaSTelemetryAggregatorService
             return $anomalies;
         }
 
-        // Check per-provider rate anomalies
         foreach ($this->providerStats as $name => $stats) {
             $baselineRate = $baseline['provider_rates'][$name] ?? 0;
             if ($baselineRate > 0) {

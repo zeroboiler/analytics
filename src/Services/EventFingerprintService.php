@@ -80,7 +80,6 @@ final class EventFingerprintService
 
         $parts = [$event->name];
 
-        // Add sorted parameters
         $params = $event->params;
         if ($this->ignoreInternalParams) {
             $params = array_filter(
@@ -93,7 +92,6 @@ final class EventFingerprintService
         ksort($params);
         $parts[] = json_encode($params, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        // Add identity fields
         if ($this->includeClientId && $event->clientId !== null) {
             $parts[] = 'cid:' . $event->clientId;
         }
@@ -102,7 +100,6 @@ final class EventFingerprintService
             $parts[] = 'uid:' . $event->userId;
         }
 
-        // Add time bucket
         if ($this->timeBucketSeconds > 0) {
             $timestamp = $event->timestamp ?? new \DateTimeImmutable();
             $bucket = (int) ($timestamp->getTimestamp() / $this->timeBucketSeconds);

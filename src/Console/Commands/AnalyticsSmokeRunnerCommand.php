@@ -82,7 +82,6 @@ final class AnalyticsSmokeRunnerCommand extends Command
         $this->runCheck('version_integrity', 'Version Integrity', function (): string {
             $version = AnalyticsEvent::VERSION;
 
-            // Validate version format (semver)
             if (! preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 return "FAIL: Version '{$version}' is not valid semver format";
             }
@@ -450,7 +449,6 @@ final class AnalyticsSmokeRunnerCommand extends Command
 
         $duration = round((microtime(true) - $start) * 1000, 2);
 
-        // Parse status from message
         $status = 'fail';
         if (str_starts_with($message, 'PASS')) {
             $status = 'pass';

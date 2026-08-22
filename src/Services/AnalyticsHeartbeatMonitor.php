@@ -87,10 +87,8 @@ final class AnalyticsHeartbeatMonitor
         $ttl = (int) $this->config->get('zeroboiler.analytics.heartbeat.ttl', self::DEFAULT_TTL);
         $this->cache->put(self::CACHE_PREFIX . 'current', $heartbeat, $ttl);
 
-        // Append to history ring buffer
         $this->appendToHistory($heartbeat);
 
-        // Reset per-pulse counters
         $this->eventsProcessedSincePulse = 0;
         $this->eventsFailedSincePulse = 0;
 

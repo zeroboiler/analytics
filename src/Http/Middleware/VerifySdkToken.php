@@ -97,12 +97,10 @@ final class VerifySdkToken
             return $this->unauthorized('Missing SDK token', $request);
         }
 
-        // Check if token is valid (exists and not expired)
         if (! $this->tokenService->isValid($token)) {
             return $this->unauthorized('Invalid or expired SDK token', $request);
         }
 
-        // Check required permission when specified
         if ($this->requiredPermission !== '') {
             if (! $this->tokenService->hasPermission($token, $this->requiredPermission)) {
                 return $this->forbidden(
@@ -112,7 +110,6 @@ final class VerifySdkToken
             }
         }
 
-        // Check rate limit
         if ($this->enforceRateLimit) {
             $rateCheck = $this->tokenService->checkRateLimit($token);
 
@@ -122,7 +119,6 @@ final class VerifySdkToken
                 return $this->rateLimited($request, $rateCheck['reset_at'] ?? 0);
             }
 
-            // Increment rate counter after check
             $this->tokenService->incrementRateLimit($token);
 
             // Attach rate limit info to response headers via request attribute

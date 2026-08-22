@@ -78,7 +78,6 @@ final class FunnelDropoffIntelligenceService
         $stepCounts = $data['step_counts'] ?? [];
         $stepTimes = $data['step_times'] ?? [];
 
-        // Ensure all steps have entries (default 0)
         foreach ($steps as $step) {
             if (! isset($stepCounts[$step])) {
                 $stepCounts[$step] = 0;

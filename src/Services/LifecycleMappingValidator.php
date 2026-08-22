@@ -98,7 +98,6 @@ final class LifecycleMappingValidator
         $customMappings = (array) ($lifecycleConfig['custom_mappings'] ?? []);
         $overrideDefaults = (bool) ($lifecycleConfig['override_defaults'] ?? false);
 
-        // Register default source events via the public getDefaultMapping() API
         $this->registerDefaultSources();
 
         if ($overrideDefaults) {
@@ -216,7 +215,6 @@ final class LifecycleMappingValidator
             return;
         }
 
-        // Check for duplicate source events
         if (isset($this->sourceRegistry[$source]) && $this->sourceRegistry[$source] !== $key) {
             $this->addIssue(
                 'warning',
@@ -226,10 +224,8 @@ final class LifecycleMappingValidator
             );
         }
 
-        // Register this source
         $this->sourceRegistry[$source] = $key;
 
-        // Check if source class exists (only for FQCN sources)
         if (str_contains($source, '\\') && ! class_exists($source)) {
             $this->addIssue(
                 'warning',

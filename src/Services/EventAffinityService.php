@@ -94,7 +94,6 @@ final class EventAffinityService
             return;
         }
 
-        // Normalize pair order for consistent keying
         $pairKey = $this->pairKey($eventA, $eventB);
 
         $pairCounts = $this->cache->get(self::CACHE_PREFIX . 'pairs', []);
@@ -109,7 +108,6 @@ final class EventAffinityService
 
         $this->cache->put(self::CACHE_PREFIX . 'pairs', $pairCounts, $this->cacheTtl);
 
-        // Update individual event frequencies
         $eventCounts = $this->cache->get(self::CACHE_PREFIX . 'events', []);
         /** @var array<string, int> $eventCounts */
         $eventCounts[$eventA] = ($eventCounts[$eventA] ?? 0) + 1;
@@ -231,7 +229,6 @@ final class EventAffinityService
             }
         }
 
-        // Sort by lift descending
         usort($pairs, fn (array $a, array $b): int => $b['lift'] <=> $a['lift']);
 
         return $pairs;
@@ -278,7 +275,6 @@ final class EventAffinityService
             ];
         }
 
-        // Sort by conditional probability descending
         usort($results, fn (array $a, array $b): int => $b['conditional'] <=> $a['conditional']);
 
         return array_slice($results, 0, $limit);

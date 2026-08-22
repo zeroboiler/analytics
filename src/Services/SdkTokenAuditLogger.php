@@ -162,7 +162,6 @@ final class SdkTokenAuditLogger
 
         $this->cache->put(self::CACHE_KEY, $log, $this->ttl);
 
-        // Update counters
         $this->incrementCounter($operation, $outcome);
     }
 
@@ -183,7 +182,6 @@ final class SdkTokenAuditLogger
             return [];
         }
 
-        // Filter by operation
         if ($operation !== null) {
             $log = array_values(array_filter(
                 $log,
@@ -191,7 +189,6 @@ final class SdkTokenAuditLogger
             ));
         }
 
-        // Filter by scope
         if ($scope !== null) {
             $log = array_values(array_filter(
                 $log,
@@ -199,7 +196,6 @@ final class SdkTokenAuditLogger
             ));
         }
 
-        // Return most recent first
         $log = array_reverse($log);
 
         if ($limit > 0) {

@@ -94,7 +94,6 @@ final class SaaSOnboardingWizardService
             static fn (array $step): bool => ! $step['completed']
         );
 
-        // Sort by priority weight
         $priorityWeight = ['critical' => 0, 'high' => 1, 'medium' => 2, 'low' => 3];
         uasort($incomplete, static function (array $a, array $b) use ($priorityWeight): int {
             return ($priorityWeight[$a['priority']] ?? 99) - ($priorityWeight[$b['priority']] ?? 99);

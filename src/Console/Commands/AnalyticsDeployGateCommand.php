@@ -69,14 +69,12 @@ final class AnalyticsDeployGateCommand extends Command
     {
         $this->outputTitle();
 
-        // Handle clear-health action
         if ($this->option('clear-health')) {
             $this->healthEngine->clearAllStats();
             $this->info('✅ All cached health data cleared.');
             return 0;
         }
 
-        // Build options
         $options = [
             'include_health' => (bool) $this->option('include-health'),
             'event_names' => $this->option('events'),

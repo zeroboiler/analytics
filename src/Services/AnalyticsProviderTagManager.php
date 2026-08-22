@@ -166,15 +166,12 @@ final class AnalyticsProviderTagManager
      */
     public function isProviderActive(string $provider): bool
     {
-        // Check for expired overrides first
         $this->expireOverrides($provider);
 
-        // Check override
         if (isset($this->overrides[$provider]['enabled'])) {
             return $this->overrides[$provider]['enabled'] === true;
         }
 
-        // Check health-based auto-failover
         $health = $this->healthStatus[$provider] ?? null;
         if ($health !== null && $health['failover_active']) {
             return false;
@@ -314,7 +311,6 @@ final class AnalyticsProviderTagManager
 
         $health['consecutive_failures'] = 0;
 
-        // Clear failover if provider is healthy again
         if ($health['failover_active']) {
             $health['failover_active'] = false;
             $health['status'] = 'healthy';

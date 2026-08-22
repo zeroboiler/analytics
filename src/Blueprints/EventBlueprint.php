@@ -117,14 +117,12 @@ final readonly class EventBlueprint
     {
         $errors = [];
 
-        // Check required params
         foreach ($this->requiredParams as $key) {
             if (! array_key_exists($key, $params)) {
                 $errors[] = "Missing required parameter: '{$key}'";
             }
         }
 
-        // Check param types
         foreach ($this->paramTypes as $key => $expectedType) {
             if (! array_key_exists($key, $params)) {
                 continue;

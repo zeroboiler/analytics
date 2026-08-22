@@ -118,7 +118,6 @@ final class EventCostLedgerService
             'failed_events' => 0,
         ];
 
-        // Update per-event counters
         if (!isset($ledger['events'][$eventName])) {
             $ledger['events'][$eventName] = [
                 'count' => 0,
@@ -130,7 +129,6 @@ final class EventCostLedgerService
         $ledger['events'][$eventName]['cost'] += $eventCost;
         $ledger['events'][$eventName]['providers'][$provider] = ($ledger['events'][$eventName]['providers'][$provider] ?? 0) + 1;
 
-        // Update per-provider counters
         if (!isset($ledger['providers'][$provider])) {
             $ledger['providers'][$provider] = [
                 'count' => 0,
@@ -295,7 +293,6 @@ final class EventCostLedgerService
             }
         }
 
-        // Check for providers with high failure rates
         foreach ($summary['provider_breakdown'] as $provider => $data) {
             $failureRate = $data['count'] > 0 ? $data['failed'] / $data['count'] : 0.0;
             if ($failureRate > 0.05 && $data['count'] > 100) {

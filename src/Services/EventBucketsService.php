@@ -91,7 +91,6 @@ final class EventBucketsService
         $seriesData = $this->getSeries($series);
         $now = time();
 
-        // Generate bucket keys for all configured granularities
         foreach (self::BUCKET_DURATIONS as $granularity => $duration) {
             $bucketKey = $this->bucketKey($now, $granularity, $duration);
 
@@ -208,7 +207,6 @@ final class EventBucketsService
             $allEvents = array_merge($allEvents, $bucket['events']);
         }
 
-        // Aggregate top events
         $topEvents = [];
         foreach ($allEvents as $eventName => $count) {
             $topEvents[$eventName] = ($topEvents[$eventName] ?? 0) + $count;
@@ -243,7 +241,6 @@ final class EventBucketsService
         $bucketsA = $this->getBuckets($seriesA, $granularity, $limit);
         $bucketsB = $this->getBuckets($seriesB, $granularity, $limit);
 
-        // Build lookup map for series B keyed by start time
         $bMap = [];
         foreach ($bucketsB as $bucket) {
             $bMap[$bucket['start']] = $bucket['count'];
@@ -364,12 +361,10 @@ final class EventBucketsService
         $data = $this->cache->get($this->seriesCacheKey($series), []);
         /** @var array<string, array<string, array{count: int, value: float, users: list<string>, clients: list<string>, events: array<string, int>, start: int, end: int}>> $data */
 
-        // Register series in index
         $index = $this->cache->get(self::CACHE_PREFIX . '_index', []);
         /** @var list<string> $index */
         if (! in_array($series, $index, true)) {
             $index[] = $series;
-            // Limit series count
             $index = array_slice($index, -$this->maxSeries);
             $this->cache->put(self::CACHE_PREFIX . '_index', $index, $this->cacheTtl * 2);
         }

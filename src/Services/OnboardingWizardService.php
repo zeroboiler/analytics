@@ -53,13 +53,11 @@ final class OnboardingWizardService
         $cacheKey = $this->cacheKey($appId);
         $cached = $this->config->get('cache.default');
 
-        // Try to read from cache
         $cachedState = $this->readCache($cacheKey);
         if ($cachedState !== null) {
             return $cachedState;
         }
 
-        // Build initial state from catalog
         return $this->buildInitialState();
     }
 
@@ -354,7 +352,6 @@ final class OnboardingWizardService
             default => 'F',
         };
 
-        // Generate next steps
         $nextSteps = [];
         $steps = $this->getSteps();
         $catalogEvents = EventCatalog::names();

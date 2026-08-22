@@ -301,12 +301,10 @@ final class AnalyticsAnonymizationService
     {
         $fields = $this->globalFields;
 
-        // Add category-level fields
         if ($category !== null && isset($this->categoryRules[$category])) {
             $fields = array_merge($fields, $this->categoryRules[$category]);
         }
 
-        // Add event-level fields
         if (isset($this->eventRules[$eventName])) {
             $fields = array_merge($fields, $this->eventRules[$eventName]);
         }

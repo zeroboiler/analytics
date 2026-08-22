@@ -321,7 +321,6 @@ final class AnalyticsHealthMonitorService
             $totalWeight += $provider['weight'];
             $score = $configured ? 100 : 40;
 
-            // Check provider health cache (from telemetry)
             $healthCacheKey = 'zb_analytics_telemetry_' . $key . '_health';
             $healthData = $this->cache->get($healthCacheKey);
             if (is_array($healthData)) {
@@ -381,7 +380,6 @@ final class AnalyticsHealthMonitorService
             $details['note'] = 'Synchronous dispatch (queue disabled)';
         }
 
-        // Check DLQ health
         $dlqConfig = $this->config->get('zeroboiler.analytics.dead_letter_queue', []);
         /** @var array{enabled?: bool, strategy?: string} $dlqConfig */
         $dlqEnabled = (bool) ($dlqConfig['enabled'] ?? true);
@@ -390,7 +388,6 @@ final class AnalyticsHealthMonitorService
             $score = (int) ($score * 0.9);
         }
 
-        // Check replay enabled
         $replayConfig = $this->config->get('zeroboiler.analytics.replay', []);
         /** @var array{enabled?: bool} $replayConfig */
         $replayEnabled = (bool) ($replayConfig['enabled'] ?? true);
@@ -412,36 +409,30 @@ final class AnalyticsHealthMonitorService
         $details = [];
         $score = 100;
 
-        // Check consent default is set explicitly
         $consentDefault = $this->config->get('zeroboiler.analytics.consent.default', 'granted');
         $details['consent_default'] = $consentDefault;
         if ($consentDefault === 'granted') {
             $score = (int) ($score * 0.95); // Slight penalty for non-explicit consent
         }
 
-        // Check identity cookie configured
         $cookieName = $this->config->get('zeroboiler.analytics.identity.cookie_name', 'zb_analytics_id');
         $details['identity_cookie'] = $cookieName;
 
-        // Check debug mode OFF
         $debugEnabled = (bool) $this->config->get('zeroboiler.analytics.debug.enabled', false);
         $details['debug_mode'] = $debugEnabled;
         if ($debugEnabled) {
             $score = (int) ($score * 0.7);
         }
 
-        // Check validation active
         $strict = (bool) $this->config->get('zeroboiler.analytics.validation.strict', false);
         $details['strict_validation'] = $strict;
 
-        // Check dedup active
         $dedupEnabled = (bool) $this->config->get('zeroboiler.analytics.dedup.enabled', true);
         $details['dedup_enabled'] = $dedupEnabled;
         if (! $dedupEnabled) {
             $score = (int) ($score * 0.9);
         }
 
-        // Check PII sanitization
         $piiEnabled = (bool) $this->config->get('zeroboiler.analytics.pii_sanitization.enabled', false);
         $details['pii_sanitization'] = $piiEnabled;
 
@@ -473,7 +464,6 @@ final class AnalyticsHealthMonitorService
 
         $score = 100;
 
-        // Check dedup pipeline
         $dedupConfig = $this->config->get('zeroboiler.analytics.dedup', []);
         /** @var array{enabled?: bool} $dedupConfig */
         $dedupEnabled = (bool) ($dedupConfig['enabled'] ?? true);
@@ -482,7 +472,6 @@ final class AnalyticsHealthMonitorService
             $score = (int) ($score * 0.9);
         }
 
-        // Check debounce
         $debounceConfig = $this->config->get('zeroboiler.analytics.debounce', []);
         /** @var array{enabled?: bool} $debounceConfig */
         $debounceEnabled = (bool) ($debounceConfig['enabled'] ?? true);
@@ -559,7 +548,6 @@ final class AnalyticsHealthMonitorService
             $score = (int) ($score * 0.8);
         }
 
-        // Check provider rate limits
         $providerRateConfig = $this->config->get('zeroboiler.analytics.provider_rate_limits', []);
         /** @var array{enabled?: bool} $providerRateConfig */
         $details['provider_rate_limits'] = (bool) ($providerRateConfig['enabled'] ?? false);

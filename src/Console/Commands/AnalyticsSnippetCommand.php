@@ -115,7 +115,6 @@ final class AnalyticsSnippetCommand extends Command
             return self::SUCCESS;
         }
 
-        // Init only
         if ($this->option('init')) {
             $init = $this->snippetService->clientInitSnippet(
                 includeConsentListener: $this->option('consent'),

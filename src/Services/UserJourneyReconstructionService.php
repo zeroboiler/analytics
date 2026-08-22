@@ -132,15 +132,12 @@ final class UserJourneyReconstructionService
                 return ['completed' => false, 'journey' => []];
             }
 
-            // Mark journey as completed
             $journey['ended_at'] = now()->toIso8601String();
             $journey['status'] = 'completed';
             $journey['duration_seconds'] = $this->calculateDuration($journey);
 
-            // Store in completed journeys
             $this->storeCompletedJourney($identity, $journey);
 
-            // Clear active journey
             $this->cache->forget($journeyKey);
 
             return ['completed' => true, 'journey' => $journey];
@@ -303,7 +300,6 @@ final class UserJourneyReconstructionService
         $count = 0;
 
         try {
-            // Remove active journey
             $activeKey = $this->cachePrefix . 'active_' . $userId;
             $active = $this->cache->get($activeKey);
 
@@ -312,7 +308,6 @@ final class UserJourneyReconstructionService
                 $count++;
             }
 
-            // Remove completed journeys
             $completedKey = $this->cachePrefix . 'completed_' . $userId;
             $completed = $this->cache->get($completedKey);
 

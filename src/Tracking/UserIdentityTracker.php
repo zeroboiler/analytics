@@ -106,7 +106,6 @@ final class UserIdentityTracker
             return false;
         }
 
-        // Store bidirectional mapping
         if (! in_array($clientId, $userLinks, true)) {
             $userLinks[] = $clientId;
         }
@@ -289,7 +288,6 @@ final class UserIdentityTracker
      */
     private function extractClientId(Request $request): ?string
     {
-        // Check X-Analytics-Client-Id header first
         $header = $request->header('X-Analytics-Client-Id');
 
         if (is_string($header) && $header !== '') {

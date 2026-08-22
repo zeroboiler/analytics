@@ -107,7 +107,6 @@ final class EventFlowAnalysisService
             $this->cache->put($cacheKey, $path, $this->pathTtl);
             $this->requestPaths[$key] = $path;
 
-            // Increment path metrics
             $this->incrementMetric('steps_recorded');
 
             // Record the step transition
@@ -185,7 +184,6 @@ final class EventFlowAnalysisService
                 return array_slice($cached, 0, $limit);
             }
 
-            // Aggregate from stored paths
             $patternCounts = [];
             $totalPaths = 0;
 
@@ -386,7 +384,6 @@ final class EventFlowAnalysisService
             return $this->countEventOccurrences($stepName);
         }
 
-        // Count users who have all steps up to targetIndex
         $requiredPrefix = array_slice($funnelSteps, 0, $targetIndex + 1);
         $pattern = implode('>', $requiredPrefix);
 
@@ -426,7 +423,6 @@ final class EventFlowAnalysisService
             return null;
         }
 
-        // Find events in converters but not in non-converters
         $converterSet = array_flip($converters);
         $nonConverterSet = array_flip($nonConverters);
 

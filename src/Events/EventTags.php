@@ -278,7 +278,6 @@ final class EventTags
             }
         }
 
-        // Sort each group alphabetically
         foreach ($grouped as $tag => $events) {
             sort($grouped[$tag]);
         }

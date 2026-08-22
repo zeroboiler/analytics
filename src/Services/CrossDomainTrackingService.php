@@ -92,7 +92,6 @@ final class CrossDomainTrackingService
      */
     public function isTrackedDomain(string $domain): bool
     {
-        // Normalize: remove protocol and port
         $normalized = strtolower(preg_replace('#^https?://([^/]+).*$#', '$1', $domain) ?? $domain);
 
         return in_array($normalized, $this->excludedDomains, true)
@@ -184,7 +183,6 @@ final class CrossDomainTrackingService
             return $clientId;
         }
 
-        // Return the first linked ID (assumed to be the original)
         return $linked[0];
     }
 
@@ -237,7 +235,6 @@ final class CrossDomainTrackingService
 
         Cache::forget($this->cachePrefix . $clientId);
 
-        // Clear reverse references
         foreach ($linked as $linkedId) {
             $reverseKey = $this->cachePrefix . $linkedId;
             $reverseLinks = Cache::get($reverseKey);

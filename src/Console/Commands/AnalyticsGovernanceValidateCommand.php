@@ -141,7 +141,6 @@ final class AnalyticsGovernanceValidateCommand extends Command
                 return self::FAILURE;
             }
         } else {
-            // Use current live catalog as baseline
             $baseline = $service->capture('live_baseline_' . time());
         }
 

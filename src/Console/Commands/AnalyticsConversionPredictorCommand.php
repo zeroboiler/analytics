@@ -239,7 +239,6 @@ final class AnalyticsConversionPredictorCommand extends Command
             ],
         ];
 
-        // Convert event summaries to signal maps
         $userSignals = [];
         foreach ($demoUsers as $id => $summary) {
             $userSignals[$id] = $predictor->buildSignalMap($summary);

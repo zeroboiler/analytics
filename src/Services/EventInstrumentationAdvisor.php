@@ -176,7 +176,6 @@ final class EventInstrumentationAdvisor
             $priorityMatrix[$rec['priority']][] = $rec['event'];
         }
 
-        // Determine next events to implement
         $nextEvents = array_slice($quickWins, 0, 5);
         if (count($nextEvents) < 5) {
             foreach ($recommendations as $rec) {

@@ -109,7 +109,6 @@ final class ConversionPathDiscoveryService
             $path,
         );
 
-        // Append conversion event
         $steps[] = $conversionEvent;
 
         $patternKey = $this->patternKey($funnelName);
@@ -136,7 +135,6 @@ final class ConversionPathDiscoveryService
         $ttl = (int) ($this->config->get('zeroboiler.analytics.conversion_paths.cache_ttl', self::DEFAULT_TTL));
         $this->cache->put($patternKey, $patterns, $ttl);
 
-        // Clear the individual user path
         $this->cache->forget($pathKey);
     }
 
@@ -189,7 +187,6 @@ final class ConversionPathDiscoveryService
         $ttl = (int) ($this->config->get('zeroboiler.analytics.conversion_paths.cache_ttl', self::DEFAULT_TTL));
         $this->cache->put($dropOffKey, $dropOffs, $ttl);
 
-        // Clear the individual user path
         $this->cache->forget($pathKey);
     }
 
@@ -214,13 +211,11 @@ final class ConversionPathDiscoveryService
 
         $minSamples = (int) ($this->config->get('zeroboiler.analytics.conversion_paths.min_samples', self::DEFAULT_MIN_SAMPLES));
 
-        // Filter by minimum sample threshold
         $filtered = array_filter(
             $patterns,
             static fn (array $p): bool => $p['count'] >= $minSamples,
         );
 
-        // Sort by count descending
         usort($filtered, function (array $a, array $b): int {
             return $b['count'] <=> $a['count'];
         });
@@ -299,7 +294,6 @@ final class ConversionPathDiscoveryService
         $patterns = is_array($patterns) ? $patterns : [];
         $dropOffs = is_array($dropOffs) ? $dropOffs : [];
 
-        // Aggregate step-level counts from conversion patterns
         $stepEntries = [];
         $stepConversions = [];
 
@@ -321,7 +315,6 @@ final class ConversionPathDiscoveryService
             }
         }
 
-        // Aggregate drop-off counts
         foreach ($dropOffs as $dropOff) {
             $steps = $dropOff['steps'] ?? [];
             $count = $dropOff['count'] ?? 1;
@@ -389,7 +382,6 @@ final class ConversionPathDiscoveryService
         $uniqueA = array_values(array_diff($patternsA, $patternsB));
         $uniqueB = array_values(array_diff($patternsB, $patternsA));
 
-        // Compute overall conversion rate for each
         $patternA = $this->cache->get($this->patternKey($funnelA), []);
         $patternB = $this->cache->get($this->patternKey($funnelB), []);
         $dropOffA = $this->cache->get($this->dropOffKey($funnelA), []);

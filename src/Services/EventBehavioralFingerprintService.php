@@ -189,7 +189,6 @@ final class EventBehavioralFingerprintService
             abs(($current['features']['recency_score'] ?? 0.0) - ($baseline['features']['recency_score'] ?? 0.0)),
         ];
 
-        // Normalize: frequency drift is already 0-1, others need scaling
         $normalizedDrift = [];
         foreach ($driftComponents as $i => $drift) {
             if ($i === 0) {
@@ -507,7 +506,6 @@ final class EventBehavioralFingerprintService
         // High events per session (> 50 normalized)
         $indicators[] = $features['avg_events_per_session'] > 0.8 ? 0.2 : 0.0;
 
-        // Check for exact timestamp intervals (sign of scripting)
         if (count($events) > 20) {
             $timestamps = array_column($events, 'timestamp');
             sort($timestamps);
@@ -577,7 +575,6 @@ final class EventBehavioralFingerprintService
             $intervals,
         )) / count($intervals);
 
-        // Normalize: divide by mean^2 to get coefficient of variation squared
         $cvSquared = $mean > 0 ? $variance / ($mean * $mean) : 0.0;
 
         return min(1.0, $cvSquared / 10);

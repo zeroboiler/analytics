@@ -282,7 +282,6 @@ final class EventCostProjectionService
                 : 0.0;
         }
 
-        // Find least efficient provider
         $leastEfficient = null;
         $lowestScore = PHP_FLOAT_MAX;
 
@@ -420,7 +419,6 @@ final class EventCostProjectionService
      */
     private function getDailyVolume(string $provider): int
     {
-        // Try telemetry cache
         $telemetryKey = 'zb_telemetry_dispatch_' . $provider . '_total';
         /** @var int|string|null $cached */
         $cached = $this->cache->get($telemetryKey);

@@ -87,7 +87,6 @@ final class AnalyticsDriftCommand extends Command
             return self::SUCCESS;
         }
 
-        // Sort by drift score descending
         usort($drifts, static fn (SchemaDriftRecord $a, SchemaDriftRecord $b): int => $b->driftScore <=> $a->driftScore);
 
         if ($jsonOutput) {

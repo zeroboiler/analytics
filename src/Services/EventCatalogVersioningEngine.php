@@ -116,7 +116,6 @@ final class EventCatalogVersioningEngine
     {
         $currentVersion = $currentVersion ?? AnalyticsEvent::VERSION;
 
-        // Compute the raw diff from CatalogSnapshotService
         $diff = $this->snapshotService->diff($baselineSnapshot, $currentSnapshot);
 
         // If no changes, return no-change recommendation
@@ -128,7 +127,6 @@ final class EventCatalogVersioningEngine
         // Classify each change into impacts
         $impacts = $this->classifyChanges($baselineSnapshot, $currentSnapshot, $diff);
 
-        // Compute recommendation
         return $this->computeRecommendation($impacts, $currentVersion);
     }
 
@@ -253,16 +251,13 @@ final class EventCatalogVersioningEngine
             }
         }
 
-        // Determine recommended version bump
         $recommended = $this->determineBump($summary);
 
-        // Compute next version
         $nextVersion = $this->bumpVersion($currentVersion, $recommended);
 
         // Build rationale
         $rationale = $this->buildRationale($summary, $hasBreaking);
 
-        // Generate release notes
         $releaseNotes = $this->generateReleaseNotes(
             $currentVersion,
             $nextVersion,
@@ -490,7 +485,6 @@ final class EventCatalogVersioningEngine
     public function getHistory(int $limit = 10): array
     {
         // Since we can't scan cache keys across all drivers,
-        // return the latest recommendation as the only history entry
         $latest = $this->getLatestRecommendation();
 
         if ($latest === null) {

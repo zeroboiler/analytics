@@ -276,7 +276,6 @@ final class AARRRFrameworkService
 
                 $totalWeightedScore += $score * $pillar['weight'];
 
-                // Generate recommendations for weak pillars
                 if ($score < 50) {
                     $missing = [];
                     foreach ($pillar['events'] as $eventName) {

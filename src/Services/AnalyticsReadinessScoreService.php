@@ -174,7 +174,6 @@ final class AnalyticsReadinessScoreService
             $totalScore += $result['score'];
             $totalMax += $result['max'];
 
-            // Collect recommendations for gaps
             foreach ($result['gaps'] as $gap) {
                 $recommendations[] = [
                     'dimension' => $dimension['label'],
@@ -184,12 +183,10 @@ final class AnalyticsReadinessScoreService
             }
         }
 
-        // Normalize to 0-100 scale
         $normalizedScore = $totalMax > 0
             ? (int) round(($totalScore / $totalMax) * self::TOTAL_MAX)
             : 0;
 
-        // Sort recommendations by priority
         usort($recommendations, function (array $a, array $b): int {
             $priorityOrder = ['critical' => 0, 'high' => 1, 'medium' => 2, 'low' => 3];
             $aPriority = $priorityOrder[$a['priority']] ?? 3;

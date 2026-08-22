@@ -145,31 +145,26 @@ final class AnalyticsAnomalyDetectionService
 
         $sensitivity = $this->config['sensitivity'] ?? self::DEFAULT_SENSITIVITY;
 
-        // Check for rate anomaly (volume spike/drop)
         $rateAnomaly = $this->checkRateAnomaly($current, $baseline, $sensitivity);
         if ($rateAnomaly !== null) {
             $anomalies[] = $rateAnomaly;
         }
 
-        // Check for provider imbalance
         $providerAnomaly = $this->checkProviderAnomaly($current, $baseline, $sensitivity);
         if ($providerAnomaly !== null) {
             $anomalies[] = $providerAnomaly;
         }
 
-        // Check for composition drift (new events appearing that aren't in baseline)
         $compositionAnomaly = $this->checkCompositionDrift($current, $baseline);
         if ($compositionAnomaly !== null) {
             $anomalies[] = $compositionAnomaly;
         }
 
-        // Check for unique client spike (possible bot/attack)
         $clientAnomaly = $this->checkClientAnomaly($current, $baseline, $sensitivity);
         if ($clientAnomaly !== null) {
             $anomalies[] = $clientAnomaly;
         }
 
-        // Fire alerts for detected anomalies
         foreach ($anomalies as $anomaly) {
             $this->fireAlert($anomaly);
         }
@@ -326,7 +321,6 @@ final class AnalyticsAnomalyDetectionService
         $clientCounts = [];
         $eventFrequencies = [];
 
-        // Collect data from previous N windows (excluding current)
         for ($i = 1; $i <= $baselineCount; $i++) {
             $key = (string) ($currentKey - $i);
             $window = $this->getWindowData($key);
@@ -358,7 +352,6 @@ final class AnalyticsAnomalyDetectionService
             ];
         }
 
-        // Normalize event frequencies
         $totalEventCount = array_sum($eventFrequencies);
         $normalizedFrequencies = [];
         foreach ($eventFrequencies as $event => $count) {
@@ -419,7 +412,6 @@ final class AnalyticsAnomalyDetectionService
      */
     private function checkProviderAnomaly(array $current, array $baseline, float $sensitivity): ?array
     {
-        // Check if a provider that should have events has none (possible provider failure)
         $failedProviders = [];
         foreach ($baseline['avg_providers'] as $provider => $avgCount) {
             if ($avgCount > 1.0) { // Only check providers with meaningful baseline
@@ -456,7 +448,6 @@ final class AnalyticsAnomalyDetectionService
             return null;
         }
 
-        // Check for events that appear in current but not in baseline
         $newEvents = array_diff(
             array_keys($current['events']),
             array_keys($baseline['event_frequencies']),
@@ -534,7 +525,6 @@ final class AnalyticsAnomalyDetectionService
 
         $this->cache->put($alertKey, now()->timestamp, $cooldown);
 
-        // Store in recent alerts
         $recent = $this->cache->get(self::CACHE_PREFIX . 'recent_alerts', []);
         array_unshift($recent, [
             ...$anomaly,
@@ -549,7 +539,6 @@ final class AnalyticsAnomalyDetectionService
             Log::warning("ZeroBoiler Analytics Anomaly [{$anomaly['severity']}]: {$anomaly['message']}", $anomaly);
         }
 
-        // Fire custom callbacks
         foreach ($this->alertCallbacks as $callback) {
             try {
                 $callback($anomaly['type'], $anomaly);
@@ -589,7 +578,6 @@ final class AnalyticsAnomalyDetectionService
                         $count++;
                     }
                 } catch (\RuntimeException $e) {
-                    // Skip malformed timestamp
                 }
             }
         }

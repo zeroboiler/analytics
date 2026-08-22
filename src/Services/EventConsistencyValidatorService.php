@@ -129,7 +129,6 @@ final class EventConsistencyValidatorService
             }
         }
 
-        // Check for meta Pixel null (common for non-ecommerce events)
         if (isset($catalogEntry['meta']) && $catalogEntry['meta'] === null) {
             if (in_array('meta_pixel', $this->enabledProviders, true)) {
                 // Meta null is expected for many event types — informational only
@@ -282,7 +281,6 @@ final class EventConsistencyValidatorService
         $fieldErrors = [];
         $typeWarnings = [];
 
-        // Check required global fields
         foreach ($this->requiredGlobalFields as $field) {
             if (! array_key_exists($field, $params)) {
                 foreach ($providers as $provider) {
@@ -291,7 +289,6 @@ final class EventConsistencyValidatorService
             }
         }
 
-        // Check event-specific required fields from catalog
         $catalogEntry = EventCatalog::get($eventName);
 
         if ($catalogEntry !== null) {
@@ -370,7 +367,6 @@ final class EventConsistencyValidatorService
         $gapRatio = $maxPossibleGaps > 0 ? $actualGaps / $maxPossibleGaps : 0;
         $score = round((1 - $gapRatio) * 100, 1);
 
-        // Find weakest provider
         $weakestProvider = 'none';
         $weakestCoverage = 100.0;
 
@@ -439,7 +435,6 @@ final class EventConsistencyValidatorService
             }
         }
 
-        // Sort by priority
         $priorityOrder = ['critical' => 0, 'high' => 1, 'medium' => 2, 'low' => 3];
         usort($gaps, fn (array $a, array $b): int =>
             ($priorityOrder[$a['priority']] ?? 99) <=> ($priorityOrder[$b['priority']] ?? 99)
@@ -465,7 +460,6 @@ final class EventConsistencyValidatorService
      */
     private function getProviderMapping(array $catalogEntry, string $provider): ?string
     {
-        // Normalize provider name to catalog field name
         $fieldMap = [
             'ga4' => 'ga4',
             'meta_pixel' => 'meta',

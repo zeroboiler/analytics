@@ -114,14 +114,12 @@ final class EventDebugCaptureService
             'capture_version' => '30.0.0',
         ];
 
-        // Store the capture
         $this->cache->put(
             $this->cachePrefix . $captureId,
             $capture,
             $this->captureTtl,
         );
 
-        // Add to index
         $this->addToIndex($captureId);
 
         // Notify observers
@@ -177,7 +175,6 @@ final class EventDebugCaptureService
         $events = [];
         $filteredIndex = [];
 
-        // Filter index
         foreach ($index as $captureId) {
             $capture = $this->cache->get($this->cachePrefix . $captureId);
             if (! is_array($capture)) {

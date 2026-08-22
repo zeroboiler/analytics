@@ -155,7 +155,6 @@ final class IpAnonymizationService
     {
         $groups = explode(':', $ip);
 
-        // Find the longest run of consecutive '0000' groups
         $bestStart = -1;
         $bestLen = 0;
         $currentStart = -1;
@@ -188,7 +187,6 @@ final class IpAnonymizationService
         $left = array_slice($groups, 0, $bestStart);
         $right = array_slice($groups, $bestStart + $bestLen);
 
-        // Remove leading zeros in remaining groups
         $left = array_map(fn (string $g): string => ltrim($g, '0') ?: '0', $left);
         $right = array_map(fn (string $g): string => ltrim($g, '0') ?: '0', $right);
 

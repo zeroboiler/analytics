@@ -223,7 +223,6 @@ final class EventCatalogDiffService
         // Heuristic rename detection
         $renamed = $this->detectRenames($removed, $added);
 
-        // Remove renamed events from added/removed lists
         $renamedFrom = array_column($renamed, 'from');
         $renamedTo = array_column($renamed, 'to');
         $added = array_values(array_diff($added, $renamedTo));

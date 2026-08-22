@@ -89,7 +89,6 @@ final class AlertNotificationService
             return ['dispatched' => [], 'failed' => [], 'skipped' => [], 'total_channels' => 0];
         }
 
-        // Check global rate limit
         if (! $this->checkRateLimit()) {
             return ['dispatched' => [], 'failed' => [], 'skipped' => ['rate_limited'], 'total_channels' => 0];
         }

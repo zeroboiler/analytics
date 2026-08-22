@@ -165,7 +165,6 @@ final class DeviceFingerprintService
             return null;
         }
 
-        // Normalize: remove specific version numbers
         $normalized = preg_replace(
             '/\/\d+(\.\d+)*/',
             '/X',

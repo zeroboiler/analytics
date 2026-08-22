@@ -194,7 +194,6 @@ final class ABTestAnalyticsService
             $totalConversions += $data['conversions'];
         }
 
-        // Compute statistical significance if we have 2+ variants
         $winner = null;
         $confidence = null;
         $significant = false;
@@ -269,7 +268,6 @@ final class ABTestAnalyticsService
     {
         $variantIds = array_keys($variants);
 
-        // Find the control (first variant) and best performer
         $controlId = $variantIds[0];
         $control = $variants[$controlId];
         $bestId = $controlId;
@@ -311,7 +309,6 @@ final class ABTestAnalyticsService
 
         $z = abs($p2 - $p1) / $se;
 
-        // Convert z-score to confidence level (approximate using normal CDF)
         $confidence = $this->normalCdf($z);
 
         return [$bestId, round($confidence, 4)];

@@ -134,12 +134,10 @@ final class AnalyticsCommandScheduler
         $this->cachePrefix = (string) ($schedulerConfig['cache_prefix'] ?? 'zb_scheduler_');
         $this->cacheTtl = (int) ($schedulerConfig['cache_ttl'] ?? 2592000);
 
-        // Register built-in tasks
         foreach (self::BUILTIN_TASKS as $name => $task) {
             $this->tasks[$name] = $task;
         }
 
-        // Register custom tasks from config
         $customTasks = $schedulerConfig['tasks'] ?? [];
         foreach ($customTasks as $name => $task) {
             $this->tasks[$name] = [
@@ -166,7 +164,6 @@ final class AnalyticsCommandScheduler
             }
         }
 
-        // Load execution log from cache
         $this->loadExecutionLog();
     }
 
@@ -293,7 +290,6 @@ final class AnalyticsCommandScheduler
             $command = $task['command'];
             $params = $task['params'];
 
-            // Build Artisan command string
             $parts = [$command];
             foreach ($params as $key => $value) {
                 if (is_int($key)) {

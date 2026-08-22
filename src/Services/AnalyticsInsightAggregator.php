@@ -466,7 +466,6 @@ final class AnalyticsInsightAggregator
                 }
             }
 
-            // Add-to-cart to purchase ratio
             $addToCart = $allEvents['add_to_cart'] ?? 0;
             $purchaseCount = $allEvents['purchase'] ?? 0;
 

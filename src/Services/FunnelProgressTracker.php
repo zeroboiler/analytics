@@ -127,7 +127,6 @@ final class FunnelProgressTracker
             'identity' => $identity,
         ], $this->getDefaultTtl());
 
-        // Dispatch funnel step event
         $this->manager->track('funnel_step', array_filter([
             'funnel_name' => $funnelName,
             'step_name' => $stepName,

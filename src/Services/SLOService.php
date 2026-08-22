@@ -108,7 +108,6 @@ final class SLOService
             'window' => $window,
         ]);
 
-        // Reset on new window
         if ($data['window'] !== $window) {
             $data = ['total' => 0, 'errors' => 0, 'window' => $window];
         }

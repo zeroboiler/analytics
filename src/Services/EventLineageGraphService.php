@@ -135,7 +135,6 @@ final class EventLineageGraphService
                 $nodeIndex[$nodeId] = array_key_last($nodes);
             }
 
-            // Create edge from previous node
             if ($prevId !== null && $prevId !== $nodeId) {
                 if (count($edges) < $this->maxEdges) {
                     $edgeKey = $prevId . '→' . $nodeId;
@@ -240,7 +239,6 @@ final class EventLineageGraphService
                 $latency = isset($entry['latency_ms']) ? (float) $entry['latency_ms'] : null;
                 $nodeId = $this->normalizeNodeId($stage, $type);
 
-                // Aggregate node stats
                 if (! isset($nodeStats[$nodeId])) {
                     $nodeStats[$nodeId] = [
                         'id' => $nodeId,
@@ -256,7 +254,6 @@ final class EventLineageGraphService
                     $eventLatency += $latency;
                 }
 
-                // Aggregate edge stats
                 if ($prevId !== null && $prevId !== $nodeId) {
                     $edgeKey = $prevId . '→' . $nodeId;
                     if (! isset($edgeStats[$edgeKey])) {
@@ -279,7 +276,6 @@ final class EventLineageGraphService
             $totalEventLatencies[] = $eventLatency;
         }
 
-        // Build final nodes with aggregated stats
         $nodes = [];
         foreach ($nodeStats as $stat) {
             $lats = $stat['latencies'];
@@ -294,7 +290,6 @@ final class EventLineageGraphService
             ];
         }
 
-        // Build final edges with aggregated stats
         $edges = [];
         foreach ($edgeStats as $stat) {
             $lats = $stat['latencies'];
@@ -506,7 +501,6 @@ final class EventLineageGraphService
      */
     public function clearCache(): void
     {
-        // Clear known event-level graph caches
         $this->cache->flush();
     }
 
@@ -675,14 +669,12 @@ final class EventLineageGraphService
             $prev[$node['id']] = null;
         }
 
-        // Build adjacency with latencies
         $adjacency = [];
         foreach ($edges as $edge) {
             $lat = $edge['latency_ms'] ?? 0.0;
             $adjacency[$edge['from']][$edge['to']] = $lat;
         }
 
-        // Process in topological order
         $topoOrder = $this->topologicalSort($nodes, $edges);
 
         foreach ($topoOrder as $u) {
@@ -695,7 +687,6 @@ final class EventLineageGraphService
             }
         }
 
-        // Find the node with maximum distance
         $maxDist = 0.0;
         $endNode = null;
 

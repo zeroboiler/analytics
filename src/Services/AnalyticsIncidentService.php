@@ -693,7 +693,6 @@ final class AnalyticsIncidentService
             $this->recordMtbf();
             $this->addToHistory($incident);
 
-            // Remove from active
             unset($incidents[$index]);
         }
 
@@ -883,7 +882,6 @@ final class AnalyticsIncidentService
                 category: 'infrastructure',
             );
 
-            // Dispatch through the manager if available
             try {
                 $manager = app(\ZeroBoiler\Analytics\AnalyticsManager::class);
                 $manager->trackEvent($event);

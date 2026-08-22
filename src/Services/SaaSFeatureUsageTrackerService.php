@@ -53,16 +53,13 @@ final class SaaSFeatureUsageTrackerService
         $today = $this->currentDate();
         $key = $this->usageKey($userId, $featureName, $today);
 
-        // Increment daily usage count
         $count = $this->cache->get($key, 0);
         $this->cache->put($key, $count + 1, $this->ttl);
 
-        // Update DAU/WAU/MAU sets
         $this->addToActiveSet('dau', $today, $userId, $featureName);
         $this->addToActiveSet('wau', $this->weekKey($today), $userId, $featureName);
         $this->addToActiveSet('mau', $this->monthKey($today), $userId, $featureName);
 
-        // Update user streak
         $this->updateStreak($userId, $featureName, $today);
 
         // Track global feature adoption count
@@ -91,7 +88,6 @@ final class SaaSFeatureUsageTrackerService
             return count($this->cache->get($setKey, []));
         }
 
-        // Aggregate DAU across all features for the date
         $prefix = $this->prefix . 'dau:' . $date . ':';
         $total = 0;
         $seen = [];
@@ -241,7 +237,6 @@ final class SaaSFeatureUsageTrackerService
             return $result;
         }
 
-        // Get all users who adopted this feature
         $adoptionKey = $this->prefix . 'adoption:' . $featureName;
         $users = $this->cache->get($adoptionKey, []);
 
@@ -258,7 +253,6 @@ final class SaaSFeatureUsageTrackerService
             }
         }
 
-        // Sort by current streak descending
         usort($result, fn (array $a, array $b): int => $b['streak'] <=> $a['streak']);
 
         return $result;
@@ -290,7 +284,6 @@ final class SaaSFeatureUsageTrackerService
             ];
         }
 
-        // Sort by DAU descending
         usort($result, fn (array $a, array $b): int => $b['dau'] <=> $a['dau']);
 
         return ['features' => $result];
@@ -491,7 +484,6 @@ final class SaaSFeatureUsageTrackerService
                 $currentStreak++;
                 $this->cache->put($streakKey, $currentStreak, $this->ttl * 7);
 
-                // Update longest streak if needed
                 $longestKey = $this->prefix . 'longest_streak:' . $userId . ':' . $featureName;
                 $longestStreak = (int) $this->cache->get($longestKey, 0);
                 if ($currentStreak > $longestStreak) {

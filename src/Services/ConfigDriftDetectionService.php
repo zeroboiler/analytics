@@ -427,7 +427,6 @@ final class ConfigDriftDetectionService
             }
         }
 
-        // Check for new keys not in baseline
         foreach ($current as $key => $currentValue) {
             if (! array_key_exists($key, $baseline) && ! $this->isIgnoredKey((string) $key)) {
                 $changes[] = [
@@ -474,14 +473,12 @@ final class ConfigDriftDetectionService
      */
     private function classifySeverity(string $key, mixed $baseline, mixed $current): string
     {
-        // Check if it's a critical section key
         foreach (self::CRITICAL_SECTIONS as $criticalKey) {
             if ($key === $criticalKey || str_starts_with($key, $criticalKey . '.')) {
                 return self::SEVERITY_CRITICAL;
             }
         }
 
-        // Check if a provider was enabled/disabled
         if (str_ends_with($key, '.enabled') && $this->isToggleChange($baseline, $current)) {
             return self::SEVERITY_CRITICAL;
         }

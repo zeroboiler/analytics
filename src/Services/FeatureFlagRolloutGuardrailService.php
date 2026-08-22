@@ -331,7 +331,6 @@ final class FeatureFlagRolloutGuardrailService
         $jump = abs($newPercentage - $previousPercentage);
 
         if ($maxJump === null) {
-            // Determine safe jump based on current phase
             $phase = $this->determinePhase($previousPercentage);
             $maxJump = match ($phase) {
                 'canary' => 5.0,
@@ -469,7 +468,6 @@ final class FeatureFlagRolloutGuardrailService
     {
         $defaults = self::DEFAULT_THRESHOLDS[$metricName] ?? ['warning' => -10.0, 'critical' => -20.0, 'label' => $metricName];
 
-        // Check for custom overrides
         if (isset($this->customThresholds[$metricName])) {
             $custom = $this->customThresholds[$metricName];
             if (is_array($custom)) {
@@ -507,7 +505,6 @@ final class FeatureFlagRolloutGuardrailService
         $warningThresh = (float) $thresholds['warning'];
         $criticalThresh = (float) $thresholds['critical'];
 
-        // Determine if the metric is "higher is worse" (positive thresholds)
         $higherIsWorse = $warningThresh > 0;
 
         if ($higherIsWorse) {

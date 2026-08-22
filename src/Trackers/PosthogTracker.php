@@ -78,7 +78,6 @@ final class PosthogTracker implements TrackerInterface
             ], $event->params),
         ];
 
-        // Set PostHog project if configured
         if ($this->projectId !== '') {
             $payload['project_id'] = $this->projectId;
         }

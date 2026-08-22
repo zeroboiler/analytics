@@ -125,21 +125,18 @@ final class SdkScopeTokenService
         array $categories = [self::CATEGORY_ECOMMERCE, self::CATEGORY_SAAS, self::CATEGORY_ENGAGEMENT, self::CATEGORY_CUSTOM],
         array $options = [],
     ): array {
-        // Validate permissions
         foreach ($permissions as $perm) {
             if (! in_array($perm, self::ALL_PERMISSIONS, true)) {
                 throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException("Invalid permission: {$perm}");
             }
         }
 
-        // Validate categories
         foreach ($categories as $cat) {
             if (! in_array($cat, self::ALL_CATEGORIES, true)) {
                 throw new \ZeroBoiler\Analytics\Exceptions\InvalidAnalyticsArgumentException("Invalid event category: {$cat}");
             }
         }
 
-        // Check token limit
         $scopeKey = self::CACHE_PREFIX . 'scope_' . md5($scopeName);
         $existingTokens = $this->cache->get($scopeKey, []);
 
@@ -147,7 +144,6 @@ final class SdkScopeTokenService
             throw new \ZeroBoiler\Analytics\Exceptions\AnalyticsRuntimeException("Maximum tokens per scope reached: {$this->maxTokensPerScope}");
         }
 
-        // Generate token
         $rawToken = $this->generateRawToken();
         $tokenHash = $this->hashToken($rawToken);
         $rateLimit = (int) ($options['rate_limit'] ?? $this->defaultRateLimit);
@@ -156,7 +152,6 @@ final class SdkScopeTokenService
         $metadata = (array) ($options['metadata'] ?? []);
         $expiresAt = time() + $this->tokenTtl;
 
-        // Store token data
         $tokenData = [
             'token_hash' => $tokenHash,
             'scope' => $scopeName,
@@ -331,7 +326,6 @@ final class SdkScopeTokenService
             return null;
         }
 
-        // Check expiration
         if (time() > ($data['expires_at'] ?? 0)) {
             $this->cache->forget($cacheKey);
 

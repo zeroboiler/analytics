@@ -99,7 +99,6 @@ final class AnalyticsConsentComplianceService
         $maxScore = 0;
         $score = 0;
 
-        // Check 1: Consent Mode v2 signal coverage
         $maxScore++;
         $signalResult = $this->checkConsentModeV2Signals();
         $checks[] = $signalResult;
@@ -132,7 +131,6 @@ final class AnalyticsConsentComplianceService
             $recommendations[] = 'Set ANALYTICS_CONSENT_DEFAULT=denied for GDPR-safe defaults (explicit opt-in)';
         }
 
-        // Check 4: Consent log enabled for audit trail
         $maxScore++;
         $logResult = $this->checkConsentLogging();
         $checks[] = $logResult;
@@ -142,7 +140,6 @@ final class AnalyticsConsentComplianceService
             $recommendations[] = 'Enable ANALYTICS_CONSENT_LOG_ENABLED=true for GDPR audit trail (Article 7 proof-of-consent)';
         }
 
-        // Check 5: Consent TTL configuration (should be 90+ days)
         $maxScore++;
         $ttlResult = $this->checkConsentTtl();
         $checks[] = $ttlResult;
@@ -152,7 +149,6 @@ final class AnalyticsConsentComplianceService
             $recommendations[] = 'Set ANALYTICS_CONSENT_LOG_TTL to at least 7776000 (90 days) for GDPR retention';
         }
 
-        // Check 6: Regional consent detection
         $maxScore++;
         $regionalResult = $this->checkRegionalConsent();
         $checks[] = $regionalResult;
@@ -162,7 +158,6 @@ final class AnalyticsConsentComplianceService
             $recommendations[] = 'Enable regional consent detection via ANALYTICS_REGIONAL_CONSENT_ENABLED=true';
         }
 
-        // Check 7: Provider consent gating
         $maxScore++;
         $providerResult = $this->checkProviderConsentGating();
         $checks[] = $providerResult;
@@ -172,7 +167,6 @@ final class AnalyticsConsentComplianceService
             $violations[] = $providerResult['message'];
         }
 
-        // Check 8: Consent version hash integrity
         $maxScore++;
         $versionResult = $this->checkConsentVersionHash();
         $checks[] = $versionResult;
@@ -180,7 +174,6 @@ final class AnalyticsConsentComplianceService
             $score++;
         }
 
-        // Check 9: Cookie consent integration
         $maxScore++;
         $cookieResult = $this->checkCookieConsentIntegration();
         $checks[] = $cookieResult;
@@ -330,7 +323,6 @@ final class AnalyticsConsentComplianceService
             }
         }
 
-        // Check that 'necessary' is marked as required
         if (isset($purposes['necessary']) && ! ($purposes['necessary']['required'] ?? false)) {
             return [
                 'check' => 'gdpr_purposes',

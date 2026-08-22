@@ -86,7 +86,6 @@ final class SaaSStarterValidationService
     public function __construct(AnalyticsManager $manager){
         $this->manager = $manager;
 
-        // Build implementation map from all catalogs
         $this->buildImplementationMap();
     }
 
@@ -182,7 +181,6 @@ final class SaaSStarterValidationService
         $current = $validation['tier'];
         $target = $validation['target_tier'];
 
-        // Determine which tiers' events need to be added
         $tiers = [self::TIER_STARTER, self::TIER_GROWTH, self::TIER_ADVANCED, self::TIER_ENTERPRISE];
         $currentIdx = array_search($current, $tiers, true);
         $targetIdx = array_search($target, $tiers, true);

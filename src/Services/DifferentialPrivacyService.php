@@ -178,7 +178,6 @@ final class DifferentialPrivacyService
             return $count;
         }
 
-        // Apply k-anonymity: suppress small groups
         if ($count < $k) {
             return null;
         }
@@ -233,7 +232,6 @@ final class DifferentialPrivacyService
             return $ranked;
         }
 
-        // Add noise to all values before ranking
         $noisy = [];
         foreach ($items as $label => $value) {
             $noisy[$label] = max(0.0, $this->addNoise($value));

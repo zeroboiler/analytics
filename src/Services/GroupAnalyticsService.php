@@ -110,7 +110,6 @@ final class GroupAnalyticsService
             return;
         }
 
-        // Add to group's member list
         $membersKey = self::MEMBERSHIP_PREFIX . 'group_' . $groupId;
         $members = $this->cache->get($membersKey, []);
         /** @var array<string, array{role: string|null, traits: array<string, mixed>, joined_at: string}> $members */
@@ -127,7 +126,6 @@ final class GroupAnalyticsService
             ];
             $this->cache->put($membersKey, $members, $this->ttl);
 
-            // Increment member count
             $groupKey = self::CACHE_PREFIX . $groupId;
             $group = $this->cache->get($groupKey);
             if ($group !== null) {
@@ -136,7 +134,6 @@ final class GroupAnalyticsService
             }
         }
 
-        // Add to user's group list
         $userGroupsKey = self::MEMBERSHIP_PREFIX . 'user_' . $userId;
         $userGroups = $this->cache->get($userGroupsKey, []);
         /** @var array<string, array{role: string|null, traits: array<string, mixed>, joined_at: string}> $userGroups */
@@ -156,7 +153,6 @@ final class GroupAnalyticsService
      */
     public function removeMember(string $userId, string $groupId): void
     {
-        // Remove from group's member list
         $membersKey = self::MEMBERSHIP_PREFIX . 'group_' . $groupId;
         $members = $this->cache->get($membersKey, []);
         /** @var array<string, mixed> $members */
@@ -171,7 +167,6 @@ final class GroupAnalyticsService
             $this->cache->put($groupKey, $group, $this->ttl);
         }
 
-        // Remove from user's group list
         $userGroupsKey = self::MEMBERSHIP_PREFIX . 'user_' . $userId;
         $userGroups = $this->cache->get($userGroupsKey, []);
         /** @var array<string, mixed> $userGroups */
@@ -245,7 +240,6 @@ final class GroupAnalyticsService
             return null;
         }
 
-        // Return the first group (oldest membership)
         return array_key_first($groups);
     }
 
@@ -309,7 +303,6 @@ final class GroupAnalyticsService
     {
         $this->cache->forget(self::CACHE_PREFIX . $groupId);
 
-        // Remove all member references
         $members = $this->getGroupMembers($groupId);
         foreach (array_keys($members) as $userId) {
             $this->removeMember($userId, $groupId);

@@ -104,7 +104,6 @@ final class PipelineOrchestratorService
             return;
         }
 
-        // Validate all steps reference correct dependencies
         $allStepNames = array_keys($steps);
         foreach ($steps as $stepName => $step) {
             $missing = array_diff($step->dependencies, $allStepNames);
@@ -158,13 +157,11 @@ final class PipelineOrchestratorService
         foreach ($sorted as $stepName) {
             $step = $steps[$stepName];
 
-            // Check bypass predicate
             if ($step->bypass !== null && ($step->bypass)($event, $context)) {
                 $skipped[$stepName] = 'bypassed';
                 continue;
             }
 
-            // Check if all dependencies succeeded
             $depFailed = false;
             foreach ($step->dependencies as $dep) {
                 if (isset($errors[$dep])) {
@@ -252,7 +249,6 @@ final class PipelineOrchestratorService
             ];
         }
 
-        // Check for orphan steps (no dependencies, no dependents)
         $referenced = [];
         foreach ($steps as $name => $step) {
             foreach ($step->dependencies as $dep) {

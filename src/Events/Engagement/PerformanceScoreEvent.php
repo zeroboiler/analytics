@@ -48,7 +48,6 @@ final class PerformanceScoreEvent extends AnalyticsEvent
             'session_id' => $sessionId,
         ]);
 
-        // Flatten metric ratings into params
         foreach ($metrics as $metricName => $metricData) {
             $params["metric_{$metricName}_value"] = $metricData['value'] ?? null;
             $params["metric_{$metricName}_rating"] = $metricData['rating'] ?? null;

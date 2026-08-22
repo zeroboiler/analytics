@@ -225,7 +225,6 @@ final class EventValidationPipeline
             }
         }
 
-        // Compute overall score (0.0 - 1.0)
         $score = $this->computeScore($passedCount, $failedCount, $skippedCount, $totalErrors, $totalWarnings);
 
         return [

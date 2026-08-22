@@ -318,7 +318,6 @@ final class SdkBridgeService
             return $this->inboundMaps[$sdk][$sdkEventName];
         }
 
-        // Try ZeroBoiler catalog alias resolution
         $resolved = EventCatalog::resolve($sdkEventName);
         if ($resolved !== null) {
             return $resolved;
@@ -360,7 +359,6 @@ final class SdkBridgeService
      */
     private function transformInboundParams(string $sdk, string $zbName, string $sdkName, array $params): array
     {
-        // Apply SDK-specific inbound transformer if registered
         if (isset($this->inboundParamTransformers[$sdk])) {
             $params = ($this->inboundParamTransformers[$sdk])($sdkName, $params);
         }
@@ -376,12 +374,10 @@ final class SdkBridgeService
      */
     private function transformOutboundParams(string $sdk, string $zbName, string $sdkName, array $params): array
     {
-        // Apply SDK-specific outbound transformer if registered
         if (isset($this->outboundParamTransformers[$sdk])) {
             $params = ($this->outboundParamTransformers[$sdk])($zbName, $params);
         }
 
-        // Use format converters for known event categories
         $params = $this->applyFormatConverter($sdk, $zbName, $params);
 
         return $params;

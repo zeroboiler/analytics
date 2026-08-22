@@ -143,7 +143,6 @@ final class AnalyticsApiGuard
             ];
         }
 
-        // Validate each event name
         foreach ($events as $index => $event) {
             $name = $event['name'] ?? '';
             if (! is_string($name) || $name === '') {
@@ -183,7 +182,6 @@ final class AnalyticsApiGuard
         $windowStart = (int) $this->cache->get($windowKey, 0);
         $now = time();
 
-        // Reset window if expired
         if ($now - $windowStart >= $this->rateWindow) {
             $current = 0;
             $this->cache->put($windowKey, $now, $this->rateWindow + 10);
@@ -199,7 +197,6 @@ final class AnalyticsApiGuard
             ];
         }
 
-        // Increment counter
         $this->cache->increment($key);
         $this->cache->put($key, $current + 1, $this->rateWindow + 10);
 

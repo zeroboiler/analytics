@@ -91,7 +91,6 @@ final class GeolocationEnricher
             return $event;
         }
 
-        // Merge geolocation data into event params
         $enrichedParams = array_merge($event->params, $geo);
 
         return new AnalyticsEvent(
@@ -251,7 +250,6 @@ final class GeolocationEnricher
      */
     private function resolveMaxMind(string $ip): array
     {
-        // Try geoip2-php library if available
         if (class_exists(\GeoIp2\Database\Reader::class)) {
             try {
                 $dbPath = '/usr/share/GeoIP/GeoLite2-City.mmdb';
@@ -275,7 +273,6 @@ final class GeolocationEnricher
             }
         }
 
-        // Try PHP built-in geoip extension
         if (function_exists('geoip_record_by_name')) {
             try {
                 $record = @geoip_record_by_name($ip);

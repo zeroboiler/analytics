@@ -122,7 +122,6 @@ final class CdpTraitComputer
                 continue;
             }
 
-            // Check recalculation interval
             $cacheKey = self::ACCUMULATOR_PREFIX . $userId . '_' . $name;
             $accumulator = $this->getAccumulator($userId, $name);
 
@@ -166,7 +165,6 @@ final class CdpTraitComputer
             return null;
         }
 
-        // Try cache first
         $cacheKey = self::CACHE_PREFIX . $userId . '_trait_' . $traitName;
         /** @var mixed $cached */
         $cached = $this->cache->get($cacheKey);
@@ -265,7 +263,6 @@ final class CdpTraitComputer
         $field = $definition->sourceField;
         $properties = $event->properties;
 
-        // Get the value to aggregate
         $value = null;
         if ($field !== null && isset($properties[$field])) {
             $value = is_numeric($properties[$field]) ? (float) $properties[$field] : $properties[$field];

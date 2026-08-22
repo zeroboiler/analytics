@@ -121,7 +121,6 @@ final class EventArchiveCompactionService
         $this->eventTtlOverrides = (array) ($compactionConfig['event_ttl_overrides'] ?? []);
         $this->aggregateBucketSeconds = (int) ($compactionConfig['aggregate_bucket_seconds'] ?? 3600);
 
-        // Merge default strategy events with config overrides
         $configStrategyEvents = (array) ($compactionConfig['strategy_events'] ?? []);
         $this->strategyEvents = [];
         foreach (self::DEFAULT_STRATEGY_EVENTS as $strategy => $events) {
@@ -130,7 +129,6 @@ final class EventArchiveCompactionService
                 $configStrategyEvents[$strategy] ?? [],
             )));
         }
-        // Add any additional strategies from config
         foreach ($configStrategyEvents as $strategy => $events) {
             if (! isset($this->strategyEvents[$strategy])) {
                 $this->strategyEvents[$strategy] = $events;
@@ -328,12 +326,10 @@ final class EventArchiveCompactionService
      */
     public function detectStrategy(string $eventName): string
     {
-        // Check explicit TTL override → expire strategy
         if (isset($this->eventTtlOverrides[$eventName])) {
             return self::STRATEGY_EXPIRE;
         }
 
-        // Check strategy event lists
         foreach ($this->strategyEvents as $strategy => $events) {
             if (in_array($eventName, $events, true)) {
                 return $strategy;

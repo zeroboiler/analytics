@@ -129,10 +129,8 @@ final class EventSparklineService
      */
     public function topEventSparklines(int $limit = 5, int $points = 0): array
     {
-        // Get dispatched counts from provider metrics
         $dispatched = $this->metrics->dispatchedByProvider();
 
-        // Flatten provider counts into total event counts
         $eventCounts = [];
         foreach ($dispatched as $provider => $count) {
             $eventCounts[$provider] = $count;
@@ -194,7 +192,6 @@ final class EventSparklineService
         $points = $points > 0 ? $points : $this->defaultPoints;
         $categorySparklines = $this->categorySparklines($points);
 
-        // Aggregate total
         $totalData = array_fill(0, $points, 0);
         foreach ($categorySparklines as $sparkline) {
             foreach ($sparkline['data'] as $i => $value) {
@@ -247,7 +244,6 @@ final class EventSparklineService
      */
     public function clearCache(): void
     {
-        // Clear sparkline cache by prefix (best-effort)
         try {
             $this->cache->forget(self::CACHE_PREFIX . '*');
         } catch (\Throwable $e) {
@@ -265,7 +261,6 @@ final class EventSparklineService
      */
     private function computeSparkline(string $eventName, int $points, int $periodHours): array
     {
-        // Check cache for real event count data
         $countCacheKey = self::CACHE_PREFIX . 'count:' . $eventName;
         $count = $this->cache->get($countCacheKey);
 
@@ -274,7 +269,6 @@ final class EventSparklineService
             return $this->emptySparkline($eventName, $points);
         }
 
-        // Generate synthetic time-series data based on total count
         $data = $this->generateTimeSeries((int) $count, $points);
 
         return $this->buildSparkline($eventName, $data);
@@ -410,7 +404,6 @@ final class EventSparklineService
             ];
         }
 
-        // Sort by absolute change descending
         usort($movers, fn (array $a, array $b): int => abs($b['change']) <=> abs($a['change']));
 
         return array_slice($movers, 0, 10);
