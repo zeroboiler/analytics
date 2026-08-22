@@ -726,7 +726,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{enabled?: bool, ttl?: int} $snapshotConfig */
 
             return new CatalogSnapshotService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 enabled: (bool) ($snapshotConfig['enabled'] ?? false),
                 ttl: (int) ($snapshotConfig['ttl'] ?? 86400),
             );
@@ -820,7 +820,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $logTtl = (int) $config->get('zeroboiler.analytics.consent.log_ttl', 7776000);
 
             return new ConsentLogService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 ttl: $logTtl,
             );
         });
@@ -842,7 +842,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -883,7 +883,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -905,7 +905,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Pre-computed analytics rollup engine (v52.0.0)
         $this->app->singleton(AnalyticsRollupService::class, function (Application $app): AnalyticsRollupService {
             return new AnalyticsRollupService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -947,7 +947,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var QueuedAnalyticsDispatcher $queue */
             $queue = $app->make(QueuedAnalyticsDispatcher::class);
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -961,7 +961,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var QueuedAnalyticsDispatcher $queue */
             $queue = $app->make(QueuedAnalyticsDispatcher::class);
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -973,7 +973,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -985,7 +985,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -995,7 +995,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Data Explorer (v60.0.0) — ad-hoc querying, drill-down, funnel, comparison
         $this->app->singleton(AnalyticsDataExplorerService::class, function (Application $app): AnalyticsDataExplorerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1005,7 +1005,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Correlation Analyzer (v60.0.0) — time-lagged Pearson correlation, CCF, transitions
         $this->app->singleton(EventCorrelationAnalyzerService::class, function (Application $app): EventCorrelationAnalyzerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1083,7 +1083,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event budget service (v17.0.0) — config-driven singleton
         $this->app->singleton(EventBudgetService::class, function (Application $app): EventBudgetService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $budgetConfig = $config->get('zeroboiler.analytics.budget', []);
@@ -1105,7 +1105,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics API guard (v17.0.0) — config-driven singleton
         $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1115,7 +1115,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics observability service (v18.0.0) — dispatch-level monitoring
         $this->app->singleton(AnalyticsObservabilityService::class, function (Application $app): AnalyticsObservabilityService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1125,7 +1125,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Incident response service (v263.0.0)
         $this->app->singleton(AnalyticsIncidentService::class, function (Application $app): AnalyticsIncidentService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $observability = $app->bound(AnalyticsObservabilityService::class)
@@ -1138,7 +1138,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // On-call router (v263.0.0)
         $this->app->singleton(AnalyticsOnCallRouter::class, function (Application $app): AnalyticsOnCallRouter {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1158,7 +1158,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1168,7 +1168,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Transport Service (v20.0.0)
         $this->app->singleton(EventTransportService::class, function (Application $app): EventTransportService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1178,7 +1178,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Correlation Matrix Service (v20.0.0)
         $this->app->singleton(EventCorrelationMatrixService::class, function (Application $app): EventCorrelationMatrixService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1188,7 +1188,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Data Lake Export Service (v20.0.0)
         $this->app->singleton(DataLakeExportService::class, function (Application $app): DataLakeExportService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1198,7 +1198,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SDK Scope Token Service (v20.0.0)
         $this->app->singleton(SdkScopeTokenService::class, function (Application $app): SdkScopeTokenService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1208,7 +1208,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SDK Token Audit Logger (v156.0.0)
         $this->app->singleton(SdkTokenAuditLogger::class, function (Application $app): SdkTokenAuditLogger {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1239,7 +1239,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Audit Log Service (v21.0.0)
         $this->app->singleton(AnalyticsAuditLogService::class, function (Application $app): AnalyticsAuditLogService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1314,7 +1314,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsFeatureFlagService(
                 $manager,
                 $config,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -1326,7 +1326,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new FeatureFlagAnalyticsService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager,
                 $config,
             );
@@ -1340,7 +1340,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new RevenueWaterfallService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager,
                 $config,
             );
@@ -1349,7 +1349,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Health Scoring Engine (v80.0.0) — per-event health monitoring
         $this->app->singleton(EventHealthScoringEngine::class, function (Application $app): EventHealthScoringEngine {
             return new EventHealthScoringEngine(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1358,7 +1358,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(AnalyticsDeployGate::class, function (Application $app): AnalyticsDeployGate {
             return new AnalyticsDeployGate(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(EventHealthScoringEngine::class),
             );
         });
@@ -1380,7 +1380,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Funnel Velocity Analyzer (v83.0.0) — real-time funnel step timing analytics
         $this->app->singleton(FunnelVelocityAnalyzer::class, function (Application $app): FunnelVelocityAnalyzer {
             return new FunnelVelocityAnalyzer(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1396,7 +1396,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Revenue Signal Detector (v83.0.0) — churn/expansion signal detection
         $this->app->singleton(RevenueSignalDetector::class, function (Application $app): RevenueSignalDetector {
             return new RevenueSignalDetector(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1404,7 +1404,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Conversion Path Discovery Service (v83.0.0) — multi-step conversion path analysis
         $this->app->singleton(ConversionPathDiscoveryService::class, function (Application $app): ConversionPathDiscoveryService {
             return new ConversionPathDiscoveryService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1417,7 +1417,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new SaaSGrowthMetricsService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager,
                 $config,
             );
@@ -1433,7 +1433,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new AnalyticsJourneyOrchestrator(
                 $manager,
                 $config,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -1445,7 +1445,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $metrics = $app->make('zeroboiler.analytics')->metrics();
 
             return new AnalyticsDashboardService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $config,
                 $metrics,
             );
@@ -1457,7 +1457,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
 
             return new EventIdempotencyKeyService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $config,
             );
         });
@@ -1475,7 +1475,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new PerformanceScoreService($app->make('cache'), $config);
+            return new PerformanceScoreService($app->make(CacheRepository::class), $config);
         });
 
         // v24.0.0 — Cookie Consent Banner Service
@@ -1494,14 +1494,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v28.0.0 — Event Schema Migration Service
         $this->app->singleton(EventSchemaMigrationService::class, function (Application $app): EventSchemaMigrationService {
             return new EventSchemaMigrationService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
             );
         });
 
         // v29.0.0 — Customer Profile Unification Service (CDP)
         $this->app->singleton(CustomerProfileUnificationService::class, function (Application $app): CustomerProfileUnificationService {
             return new CustomerProfileUnificationService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 config: $app->make(ConfigRepository::class),
                 propertiesStore: $app->make(UserPropertiesStore::class),
                 identityResolution: $app->make(IdentityResolutionService::class),
@@ -1511,7 +1511,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v29.0.0 — Computed Traits Engine
         $this->app->singleton(ComputedTraitsService::class, function (Application $app): ComputedTraitsService {
             return new ComputedTraitsService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 config: $app->make(ConfigRepository::class),
                 propertiesStore: $app->make(UserPropertiesStore::class),
             );
@@ -1520,7 +1520,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v29.0.0 — Privacy Report Generator
         $this->app->singleton(PrivacyReportGeneratorService::class, function (Application $app): PrivacyReportGeneratorService {
             return new PrivacyReportGeneratorService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 config: $app->make(ConfigRepository::class),
                 propertiesStore: $app->make(UserPropertiesStore::class),
                 identityResolution: $app->make(IdentityResolutionService::class),
@@ -1531,7 +1531,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v29.0.0 — Event Debug Capture Service
         $this->app->singleton(EventDebugCaptureService::class, function (Application $app): EventDebugCaptureService {
             return new EventDebugCaptureService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 config: $app->make(ConfigRepository::class),
             );
         });
@@ -1562,7 +1562,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $lcConfig = $config->get('zeroboiler.analytics.event_lifecycle', []);
 
             return new EventLifecycleTracker(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 enabled: (bool) ($lcConfig['enabled'] ?? false),
                 ttl: (int) ($lcConfig['ttl'] ?? 3600),
                 statsTtl: (int) ($lcConfig['stats_ttl'] ?? 300),
@@ -1573,7 +1573,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v233.0.0 — Analytics Semantic Metrics Layer
         $this->app->singleton(AnalyticsSemanticMetricsService::class, function (Application $app): AnalyticsSemanticMetricsService {
             return new AnalyticsSemanticMetricsService(
-                cache: $app->make('cache'),
+                cache: $app->make(CacheRepository::class),
                 config: $app->make(ConfigRepository::class),
                 eventStore: $app->make(DatabaseEventStore::class),
             );
@@ -1638,7 +1638,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsMetrics $metrics */
             $metrics = $manager->metrics();
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1656,7 +1656,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Insight Engine (v7.0.0) — automated insight generation
         $this->app->singleton(AnalyticsInsightEngineService::class, function (Application $app): AnalyticsInsightEngineService {
             return new AnalyticsInsightEngineService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1664,7 +1664,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Recommendation Engine (v7.1.0) — gap analysis & instrumentation guidance
         $this->app->singleton(EventRecommendationService::class, function (Application $app): EventRecommendationService {
             return new EventRecommendationService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1675,7 +1675,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new ProviderGapAnalyzer(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $manager,
             );
@@ -1684,7 +1684,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Sparkline Service (v7.2.0) — dashboard mini-chart data
         $this->app->singleton(EventSparklineService::class, function (Application $app): EventSparklineService {
             return new EventSparklineService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(AnalyticsMetrics::class),
             );
         });
@@ -1692,7 +1692,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Co-occurrence Matrix Service (v7.2.0) — event correlation analysis
         $this->app->singleton(EventCooccurrenceService::class, function (Application $app): EventCooccurrenceService {
             return new EventCooccurrenceService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(AnalyticsMetrics::class),
             );
         });
@@ -1703,7 +1703,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{cache_prefix?: string, ttl?: int, time_bucket?: string, exclude_timestamp?: bool, exclude_params?: bool} $fpConfig */
 
             return new EventFingerprintService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $fpConfig,
             );
         });
@@ -1716,7 +1716,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $streamService = $app->make(EventStreamService::class);
 
             return new DashboardWidgetService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(AnalyticsMetrics::class),
                 $widgetConfig,
                 $streamService,
@@ -1726,7 +1726,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Alert Notification Dispatcher (v7.3.0) — external channel notifications
         $this->app->singleton(AlertNotificationService::class, function (Application $app): AlertNotificationService {
             return new AlertNotificationService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -1814,7 +1814,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Tracking preference service for per-user GDPR opt-out
         $this->app->singleton(TrackingPreferenceService::class, function (Application $app): TrackingPreferenceService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $trackingConfig = $app->make(ConfigRepository::class)->get('zeroboiler.analytics.tracking_preference', []);
             /** @var array{ttl?: int} $trackingConfig */
@@ -1830,7 +1830,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new EventDeduplicationService($config, $cache);
         });
@@ -1863,7 +1863,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $profileConfig = $config->get('zeroboiler.analytics.profile', []);
@@ -1879,7 +1879,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Attribution tracking service (first-touch / multi-touch UTM)
         $this->app->singleton(AttributionService::class, function (Application $app): AttributionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1927,7 +1927,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1978,7 +1978,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1988,7 +1988,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // User properties store for identity enrichment (v3.1.0)
         $this->app->singleton(UserPropertiesStore::class, function (Application $app): UserPropertiesStore {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -1998,7 +1998,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // N-Day retention & stickiness calculator (v3.1.0)
         $this->app->singleton(RetentionCalculator::class, function (Application $app): RetentionCalculator {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2008,7 +2008,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Behavioral cohort builder for user segmentation (v3.1.0)
         $this->app->singleton(BehavioralCohortBuilder::class, function (Application $app): BehavioralCohortBuilder {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2032,7 +2032,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Session replay service for user journey reconstruction (v2.98.0)
         $this->app->singleton(SessionReplayService::class, function (Application $app): SessionReplayService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $replayConfig = $config->get('zeroboiler.analytics.session_replay', []);
@@ -2053,7 +2053,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var QueuedAnalyticsDispatcher $queue */
             $queue = $app->make(QueuedAnalyticsDispatcher::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2067,7 +2067,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsMetrics $metrics */
             $metrics = $manager->metrics();
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2107,7 +2107,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsMetrics $metrics */
             $metrics = $manager->metrics();
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $correlationConfig = $config->get('zeroboiler.analytics.correlation', []);
@@ -2148,7 +2148,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Tenant isolation service for multi-tenant SaaS analytics
         $this->app->singleton(TenantIsolationService::class, function (Application $app): TenantIsolationService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2158,7 +2158,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Data retention policy service for GDPR compliance
         $this->app->singleton(DataRetentionPolicyService::class, function (Application $app): DataRetentionPolicyService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2168,7 +2168,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics gate service for per-plan feature access control
         $this->app->singleton(AnalyticsGateService::class, function (Application $app): AnalyticsGateService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2180,7 +2180,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2203,7 +2203,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2215,7 +2215,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2227,7 +2227,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2239,7 +2239,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2249,7 +2249,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // UTM aggregation service for marketing attribution
         $this->app->singleton(UtmAggregationService::class, function (Application $app): UtmAggregationService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2275,7 +2275,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event forwarding service for external platforms (Segment, Mixpanel, Amplitude, custom)
         $this->app->singleton(EventForwardingService::class, function (Application $app): EventForwardingService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2293,7 +2293,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // UTM attribution service with first-touch, last-touch, and multi-touch models
         $this->app->singleton(UTMAttributionService::class, function (Application $app): UTMAttributionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2303,7 +2303,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Cross-platform attribution service with 5 attribution models
         $this->app->singleton(CrossPlatformAttributionService::class, function (Application $app): CrossPlatformAttributionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2313,7 +2313,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Daily health report — unified health aggregation for SaaS operators (v116.0.0)
         $this->app->singleton(AnalyticsDailyHealthReportService::class, function (Application $app): AnalyticsDailyHealthReportService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2323,7 +2323,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Replay auditor — event replay audit for data integrity (v118.0.0)
         $this->app->singleton(AnalyticsReplayAuditor::class, function (Application $app): AnalyticsReplayAuditor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2361,7 +2361,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event cache service — L1 memory + L2 Laravel cache for high-performance lookups
         $this->app->singleton(EventCacheService::class, function (Application $app): EventCacheService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2371,7 +2371,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event buckets service — time-binned event aggregation for dashboards
         $this->app->singleton(EventBucketsService::class, function (Application $app): EventBucketsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2381,7 +2381,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS health score service — composite health scoring from KPIs
         $this->app->singleton(SaaSHealthScoreService::class, function (Application $app): SaaSHealthScoreService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var SaasKpiTracker $kpiTracker */
@@ -2393,7 +2393,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Throttle Service — per-client rate limiting
         $this->app->singleton(EventThrottleService::class, function (Application $app): EventThrottleService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2403,7 +2403,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Health Score Aggregator — 12-dimension composite health scoring
         $this->app->singleton(SaaSHealthScoreAggregator::class, function (Application $app): SaaSHealthScoreAggregator {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2413,7 +2413,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Catalog Diff Service — catalog version comparison and regression detection
         $this->app->singleton(EventCatalogDiffService::class, function (Application $app): EventCatalogDiffService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new EventCatalogDiffService($cache);
         });
@@ -2423,7 +2423,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make(AnalyticsManager::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2435,7 +2435,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make(AnalyticsManager::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2447,7 +2447,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make(AnalyticsManager::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2459,7 +2459,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make(AnalyticsManager::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2469,7 +2469,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v187.0.0 — DAG pipeline orchestrator
         $this->app->singleton(PipelineOrchestratorService::class, function (Application $app): PipelineOrchestratorService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2479,7 +2479,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v187.0.0 — Sentry error analytics integration
         $this->app->singleton(SentryErrorAnalyticsService::class, function (Application $app): SentryErrorAnalyticsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2489,7 +2489,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v188.0.0 — Data lake export service
         $this->app->singleton(AnalyticsDataLakeService::class, function (Application $app): AnalyticsDataLakeService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2514,7 +2514,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v189.0.0 — Cross-provider event schema validation
         $this->app->singleton(EventSchemaValidatorService::class, function (Application $app): EventSchemaValidatorService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2524,7 +2524,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v189.0.0 — Config drift detection
         $this->app->singleton(ConfigDriftDetectionService::class, function (Application $app): ConfigDriftDetectionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2534,7 +2534,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v190.0.0 — Provider dispatch order optimization
         $this->app->singleton(ProviderDispatchOrderService::class, function (Application $app): ProviderDispatchOrderService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2544,7 +2544,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // v190.0.0 — Event catalog explorer with fuzzy search
         $this->app->singleton(EventCatalogExplorerService::class, function (Application $app): EventCatalogExplorerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2562,7 +2562,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event envelope service — context-rich event building from HTTP requests
         $this->app->singleton(EventEnvelopeService::class, function (Application $app): EventEnvelopeService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2596,7 +2596,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2606,7 +2606,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Campaign ROI analytics service (v2.62.0)
         $this->app->singleton(CampaignRoiService::class, function (Application $app): CampaignRoiService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2624,7 +2624,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event priority gate service (v2.66.0)
         $this->app->singleton(EventPriorityGate::class, function (Application $app): EventPriorityGate {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2636,7 +2636,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2648,7 +2648,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make('zeroboiler.analytics');
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -2720,7 +2720,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new AnalyticsSandboxService($app->make('cache'), $config);
+            return new AnalyticsSandboxService($app->make(CacheRepository::class), $config);
         });
 
         // Per-Provider Rate Limiting (v2.71.0)
@@ -2728,7 +2728,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new ProviderRateLimitService($app->make('cache'), $config);
+            return new ProviderRateLimitService($app->make(CacheRepository::class), $config);
         });
 
         // Provider Auto-Failover Orchestration (v145.0.0)
@@ -2736,7 +2736,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new ProviderFailoverService($app->make('cache'), $config);
+            return new ProviderFailoverService($app->make(CacheRepository::class), $config);
         });
 
         // Revenue Attribution Dashboard Service (v148.0.0)
@@ -2762,7 +2762,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
-            return new AnalyticsReadinessService($app->make('cache'), $config);
+            return new AnalyticsReadinessService($app->make(CacheRepository::class), $config);
         });
 
         // Analytics Insights Service (v2.82.0)
@@ -2792,7 +2792,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Metrics Benchmark Service (v2.87.0)
         $this->app->singleton(SaaSMetricsBenchmarkService::class, function (Application $app): SaaSMetricsBenchmarkService {
             return new SaaSMetricsBenchmarkService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2800,7 +2800,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Coverage Report Service (v67.0.0)
         $this->app->singleton(SaaSCoverageReportService::class, function (Application $app): SaaSCoverageReportService {
             return new SaaSCoverageReportService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2823,7 +2823,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Sequence Value Attribution Service (v212.0.0) — business-value scoring for user journey sequences
         $this->app->singleton(EventSequenceValueAttributionService::class, function (Application $app): EventSequenceValueAttributionService {
             return new EventSequenceValueAttributionService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2831,7 +2831,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Pipeline Health Service (v213.0.0) — composite infrastructure health score
         $this->app->singleton(AnalyticsPipelineHealthService::class, function (Application $app): AnalyticsPipelineHealthService {
             return new AnalyticsPipelineHealthService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $app->make('zeroboiler.analytics'),
             );
@@ -2840,7 +2840,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Dispatch Latency Tracker (v206.0.0)
         $this->app->singleton(EventDispatchLatencyTracker::class, function (Application $app): EventDispatchLatencyTracker {
             return new EventDispatchLatencyTracker(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2848,7 +2848,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Replay Audit Ledger (v206.0.0)
         $this->app->singleton(EventReplayAuditLedger::class, function (Application $app): EventReplayAuditLedger {
             return new EventReplayAuditLedger(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2856,7 +2856,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Dispatch Orchestration Engine (v207.0.0)
         $this->app->singleton(EventDispatchOrchestrator::class, function (Application $app): EventDispatchOrchestrator {
             return new EventDispatchOrchestrator(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2864,14 +2864,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Delivery Watermark Service (v245.0.0)
         $this->app->singleton(EventDeliveryWatermarkService::class, function (Application $app): EventDeliveryWatermarkService {
             return new EventDeliveryWatermarkService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
 
         $this->app->singleton(DispatchDecisionReplayService::class, function (Application $app): DispatchDecisionReplayService {
             return new DispatchDecisionReplayService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2879,7 +2879,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Event Gateway (v208.0.0)
         $this->app->singleton(AnalyticsEventGateway::class, function (Application $app): AnalyticsEventGateway {
             return new AnalyticsEventGateway(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $app->make(AnalyticsEventDispatcher::class),
                 $app->make(EventDeduplicationService::class),
@@ -2891,7 +2891,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Contract Testing Service (v208.0.0)
         $this->app->singleton(EventContractTestingService::class, function (Application $app): EventContractTestingService {
             return new EventContractTestingService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2899,7 +2899,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Reprocessor Service (v209.0.0)
         $this->app->singleton(EventReprocessorService::class, function (Application $app): EventReprocessorService {
             return new EventReprocessorService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2909,7 +2909,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(AnalyticsConfig::class);
 
             return new WebVitalsAggregatorService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 maxSamples: $config->rumMaxSamples(),
                 ttl: $config->rumTtl(),
                 window: $config->rumWindow(),
@@ -2923,7 +2923,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(AnalyticsConfig::class);
 
             return new EventInspectorService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 enabled: $config->inspectorEnabled(),
                 maxTraces: $config->inspectorMaxTraces(),
                 ttl: $config->inspectorTtl(),
@@ -2933,7 +2933,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Privacy Sandbox Service (v2.93.0)
         $this->app->singleton(PrivacySandboxService::class, function (Application $app): PrivacySandboxService {
             return new PrivacySandboxService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2945,7 +2945,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new CartStateManager(
                 $manager,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2957,7 +2957,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new CheckoutFlowTracker(
                 $manager,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2965,7 +2965,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS KPI Calculator Service (v6.8.0)
         $this->app->singleton(SaaSKpiCalculatorService::class, function (Application $app): SaaSKpiCalculatorService {
             return new SaaSKpiCalculatorService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -2979,7 +2979,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $manager = $app->make('zeroboiler.analytics');
 
             return new EventAffinityService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager->metrics(),
                 $app->make(ConfigRepository::class),
             );
@@ -2992,7 +2992,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
             return new FunnelProgressTracker(
                 $manager,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3007,7 +3007,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new OnboardingCompletionService(
                 $manager,
                 $queue,
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3039,7 +3039,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Window Aggregator (v2.95.0)
         $this->app->singleton(EventWindowAggregator::class, function (Application $app): EventWindowAggregator {
             return new EventWindowAggregator(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3047,7 +3047,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Feature Adoption Tracker (v2.95.0)
         $this->app->singleton(FeatureAdoptionTracker::class, function (Application $app): FeatureAdoptionTracker {
             return new FeatureAdoptionTracker(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3055,7 +3055,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics API Guard (v2.95.0)
         $this->app->singleton(AnalyticsApiGuard::class, function (Application $app): AnalyticsApiGuard {
             return new AnalyticsApiGuard(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3063,7 +3063,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Identity Resolution Service (v3.2.0)
         $this->app->singleton(IdentityResolutionService::class, function (Application $app): IdentityResolutionService {
             return new IdentityResolutionService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3071,7 +3071,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Identity Graph Service — Cross-Device Identity Resolution (v8.7.0)
         $this->app->singleton(IdentityGraphService::class, function (Application $app): IdentityGraphService {
             return new IdentityGraphService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3092,13 +3092,13 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $fpConfig = $config->get('zeroboiler.analytics.session_fingerprint', []);
 
-            return new SessionFingerprintService($app->make('cache'), $fpConfig);
+            return new SessionFingerprintService($app->make(CacheRepository::class), $fpConfig);
         });
 
         // Event Context Snapshot Service (v8.5.0)
         $this->app->singleton(EventContextSnapshotService::class, function (Application $app): EventContextSnapshotService {
             return new EventContextSnapshotService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3106,7 +3106,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // User Journey Reconstruction Service (v8.5.0)
         $this->app->singleton(UserJourneyReconstructionService::class, function (Application $app): UserJourneyReconstructionService {
             return new UserJourneyReconstructionService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(AnalyticsMetrics::class),
                 $app->make(ConfigRepository::class),
             );
@@ -3115,7 +3115,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Debounce Service (v3.2.0)
         $this->app->singleton(EventDebounceService::class, function (Application $app): EventDebounceService {
             return new EventDebounceService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3158,7 +3158,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Revenue Intelligence Service (v3.7.0)
         $this->app->singleton(RevenueIntelligenceService::class, function (Application $app): RevenueIntelligenceService {
             return new RevenueIntelligenceService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -3242,7 +3242,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsMetrics $metrics */
             $metrics = $manager->metrics();
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3252,7 +3252,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Notification Webhook Service (v4.4.0) — alert notifications to Slack/Discord/webhook
         $this->app->singleton(NotificationWebhookService::class, function (Application $app): NotificationWebhookService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3300,7 +3300,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(AnalyticsAIService::class, function (Application $app): AnalyticsAIService {
             return new AnalyticsAIService(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -3308,7 +3308,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventExperimentTracker::class, function (Application $app): EventExperimentTracker {
             return new EventExperimentTracker(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -3327,7 +3327,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new EventCostEstimator($config, $manager, $cache);
         });
@@ -3339,7 +3339,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new SaaSOnboardingFunnelTracker($config, $manager, $cache);
         });
@@ -3347,7 +3347,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Anonymous Event Aggregation (v148.0.0)
         $this->app->singleton(AnonymousEventAggregationService::class, function (Application $app): AnonymousEventAggregationService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3357,7 +3357,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Funnel Leak Detection (v148.0.0)
         $this->app->singleton(FunnelLeakDetectionService::class, function (Application $app): FunnelLeakDetectionService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3367,7 +3367,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // First-Party Data Service (v148.0.0)
         $this->app->singleton(FirstPartyDataService::class, function (Application $app): FirstPartyDataService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3418,7 +3418,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{ttl?: int, daily_ttl?: int} $dataConfig */
 
             return new AnalyticsDataService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager->metrics(),
                 (int) ($dataConfig['ttl'] ?? 3600),
                 (int) ($dataConfig['daily_ttl'] ?? 86400),
@@ -3436,7 +3436,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{ttl?: int} $dataConfig */
 
             return new EventQueryEngine(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $manager->metrics(),
                 (int) ($dataConfig['ttl'] ?? 300),
             );
@@ -3454,7 +3454,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{ttl?: int, tags?: array<string, list<string>>} $taxonomyConfig */
 
             return new EventTaxonomyService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 (array) ($taxonomyConfig['tags'] ?? []),
                 (int) ($taxonomyConfig['ttl'] ?? 3600),
             );
@@ -3469,7 +3469,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var array{ttl?: int} $tenantConfig */
 
             return new TenantAnalyticsContext(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 (int) ($tenantConfig['ttl'] ?? 3600),
             );
         });
@@ -3499,7 +3499,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Data Mart Service (v7.0.0) — OLAP-style pre-aggregated event rollup cubes
         $this->app->singleton(EventDataMartService::class, function (Application $app): EventDataMartService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3514,7 +3514,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Cohort Waterfall Analysis Service (v7.5.0)
         $this->app->singleton(CohortWaterfallService::class, function (Application $app): CohortWaterfallService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3524,7 +3524,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Funnel Drop-off Intelligence Service (v7.5.0)
         $this->app->singleton(FunnelDropoffIntelligenceService::class, function (Application $app): FunnelDropoffIntelligenceService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3533,7 +3533,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         $this->app->singleton(EventSignalIntelligenceService::class, function (Application $app): EventSignalIntelligenceService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var AnalyticsMetrics $metrics */
@@ -3545,7 +3545,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Sequence Rule Engine (v261.0.0)
         $this->app->singleton(EventSequenceRuleEngine::class, function (Application $app): EventSequenceRuleEngine {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3555,7 +3555,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Composite Health Index (v204.0.0)
         $this->app->singleton(AnalyticsCompositeHealthIndex::class, function (Application $app): AnalyticsCompositeHealthIndex {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var AnalyticsMetrics $metrics */
@@ -3567,7 +3567,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Multi-Touch Attribution (v204.0.0)
         $this->app->singleton(MultiTouchAttributionService::class, function (Application $app): MultiTouchAttributionService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3577,7 +3577,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Real-Time Event Correlation Engine (v204.0.0)
         $this->app->singleton(RealTimeEventCorrelationEngine::class, function (Application $app): RealTimeEventCorrelationEngine {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3587,7 +3587,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Cohort Intelligence (v8.1.0)
         $this->app->singleton(CohortBehaviorProfilerService::class, function (Application $app): CohortBehaviorProfilerService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3603,7 +3603,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         $this->app->singleton(EventPredictiveScoringService::class, function (Application $app): EventPredictiveScoringService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3628,7 +3628,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Bot Detection (v8.4.0)
         $this->app->singleton(BotDetectionService::class, function (Application $app): BotDetectionService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3638,7 +3638,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Correlation Heatmap (v8.8.0)
         $this->app->singleton(EventCorrelationHeatmapService::class, function (Application $app): EventCorrelationHeatmapService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3648,7 +3648,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Health Monitor Dashboard (v8.8.0)
         $this->app->singleton(AnalyticsHealthMonitorService::class, function (Application $app): AnalyticsHealthMonitorService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3657,7 +3657,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
 
         $this->app->singleton(TrackingGuardRailsService::class, function (Application $app): TrackingGuardRailsService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var AnalyticsManager $manager */
@@ -3671,7 +3671,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var AnalyticsManager $manager */
             $manager = $app->make(AnalyticsManager::class);
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3681,7 +3681,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Idempotency Service (v9.3.0) — deduplicate analytics event dispatches
         $this->app->singleton(EventIdempotencyService::class, function (Application $app): EventIdempotencyService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3691,7 +3691,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Privacy Manifest Service (v9.3.0) — GDPR Article 30 processing records
         $this->app->singleton(PrivacyManifestService::class, function (Application $app): PrivacyManifestService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3701,7 +3701,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Annotation Service (v9.3.0) — deployment markers and event tagging
         $this->app->singleton(EventAnnotationService::class, function (Application $app): EventAnnotationService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3711,7 +3711,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Provider Fallback Service (v9.4.0) — multi-provider failover with circuit breaker
         $this->app->singleton(ProviderFallbackService::class, function (Application $app): ProviderFallbackService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3721,7 +3721,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Provider SLA Monitor (v84.0.0) — uptime, latency, and breach tracking
         $this->app->singleton(ProviderSLAMonitor::class, function (Application $app): ProviderSLAMonitor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3731,7 +3731,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SLO Service (v157.0.0) — error budget tracking, burn rate analysis, compliance reporting
         $this->app->singleton(SLOService::class, function (Application $app): SLOService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3741,7 +3741,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Outbound Webhook Relay (v157.0.0) — event forwarding to external webhooks
         $this->app->singleton(OutboundWebhookRelay::class, function (Application $app): OutboundWebhookRelay {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3751,7 +3751,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Cost Forecast Service (v84.0.0) — provider cost projections
         $this->app->singleton(AnalyticsCostForecastService::class, function (Application $app): AnalyticsCostForecastService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3761,7 +3761,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Policy Engine (v84.0.0) — governance compliance rules
         $this->app->singleton(EventPolicyEngine::class, function (Application $app): EventPolicyEngine {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3771,7 +3771,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // B2B Group Analytics Service (v9.5.0) — account/company-level analytics
         $this->app->singleton(GroupAnalyticsService::class, function (Application $app): GroupAnalyticsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3781,7 +3781,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Feature Usage Tracker (v85.0.0) — DAU/WAU/MAU, feature streaks, adoption
         $this->app->singleton(SaaSFeatureUsageTrackerService::class, function (Application $app): SaaSFeatureUsageTrackerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $ttl = (int) $config->get('zeroboiler.feature_usage.cache_ttl', 86400);
@@ -3792,7 +3792,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Budget Optimizer (v85.0.0) — cost-aware intelligent event routing
         $this->app->singleton(EventBudgetOptimizerService::class, function (Application $app): EventBudgetOptimizerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $budgetConfig = $config->get('zeroboiler.budget_optimizer', []);
@@ -3809,7 +3809,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Tenant Analytics Dashboard (v85.0.0) — multi-tenant analytics aggregation
         $this->app->singleton(TenantAnalyticsDashboardService::class, function (Application $app): TenantAnalyticsDashboardService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $ttl = (int) $config->get('zeroboiler.tenant_dashboard.cache_ttl', 86400);
@@ -3820,7 +3820,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Sequence Prediction Service (v86.0.0) — Markov chain next-event prediction
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventSequencePredictionService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventSequencePredictionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make('config');
 
@@ -3830,7 +3830,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Cost Ledger Service (v86.0.0) — per-event dispatch cost tracking
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventCostLedgerService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventCostLedgerService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make('config');
 
@@ -3850,7 +3850,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new \ZeroBoiler\Analytics\Services\DataDrivenAttributionService($cache, $config);
         });
@@ -3860,7 +3860,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new \ZeroBoiler\Analytics\Services\UnitEconomicsService($cache, $config);
         });
@@ -3873,7 +3873,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Benchmark Calibration Service (v174.0.0) — industry-standard metric comparison
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaasBenchmarkCalibrationService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3883,7 +3883,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Value Attribution Service (v175.0.0) — monetary value attribution for non-revenue events
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventValueAttributionService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventValueAttributionService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var AnalyticsMetrics $metrics */
@@ -3895,7 +3895,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Momentum Service (v175.0.0) — growth rate of change analytics
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSMomentumService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSMomentumService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3905,7 +3905,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Onboarding Wizard Service (v180.0.0) — step-by-step setup guidance
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSOnboardingWizardService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3915,7 +3915,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Instrumentation Advisor (v180.0.0) — SaaS event tracking recommendations
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventInstrumentationAdvisor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3933,7 +3933,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Goal Tracker (v180.0.0) — quantitative target tracking for SaaS KPIs
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsGoalTracker::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsGoalTracker {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3943,7 +3943,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Rolling Window Analytics Engine (v180.0.0) — time-series smoothing & trend analysis
         $this->app->singleton(\ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\RollingWindowAnalyticsEngine {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -3953,7 +3953,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // SaaS Quick Insights Service (v180.0.0) — automated pattern detection & actionable insights
         $this->app->singleton(\ZeroBoiler\Analytics\Services\SaaSQuickInsightsService::class, function (Application $app): \ZeroBoiler\Analytics\Services\SaaSQuickInsightsService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -4029,7 +4029,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Impact Score Service (v9.6.0) — composite event value scoring
         $this->app->singleton(EventImpactScoreService::class, function (Application $app): EventImpactScoreService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $impactTtl = (int) $config->get('zeroboiler.analytics.impact.cache_ttl', 300);
@@ -4043,7 +4043,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Provider Analytics Intelligence Service (v9.6.0) — multi-provider coverage analysis
         $this->app->singleton(ProviderAnalyticsIntelligenceService::class, function (Application $app): ProviderAnalyticsIntelligenceService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $intelligenceTtl = (int) $config->get('zeroboiler.analytics.provider_intelligence.cache_ttl', 300);
@@ -4060,7 +4060,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Stream Processor Service (v31.0.0) — sequential event analysis & pattern discovery
         $this->app->singleton(EventStreamProcessorService::class, function (Application $app): EventStreamProcessorService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             $streamConfig = $config->get('zeroboiler.analytics.stream_processing', []);
@@ -4071,7 +4071,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Timeline Service (v75.0.0) — chronological event timelines
         $this->app->singleton(EventTimelineService::class, function (Application $app): EventTimelineService {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var IdentityResolutionService $identityService */
@@ -4088,7 +4088,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             $enabledProviders = [
                 'ga4' => $manager->ga4()->isEnabled(),
@@ -4114,7 +4114,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
 
             return new AnalyticsConsistencyService($manager, $config, $cache);
         });
@@ -4179,7 +4179,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // User Engagement Scoring Service (v34.0.0) — composite engagement scoring
         $this->app->singleton(UserEngagementScoringService::class, function (Application $app): UserEngagementScoringService {
             return new UserEngagementScoringService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make('zeroboiler.analytics')->metrics(),
                 $app->make(ConfigRepository::class),
             );
@@ -4190,7 +4190,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             return new EventIngestionService(
                 $app->make('zeroboiler.analytics'),
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -4198,7 +4198,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(AnalyticsCommandScheduler::class, function (Application $app): AnalyticsCommandScheduler {
             return new AnalyticsCommandScheduler(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
@@ -4206,14 +4206,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(EventRouterService::class, function (Application $app): EventRouterService {
             return new EventRouterService(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
         // Analytics Workspace Service (v37.0.0) — multi-tenant workspace KPI rollups
         $this->app->singleton(AnalyticsWorkspaceService::class, function (Application $app): AnalyticsWorkspaceService {
             return new AnalyticsWorkspaceService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4222,14 +4222,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(OTLPExportService::class, function (Application $app): OTLPExportService {
             return new OTLPExportService(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
         // Event Replay Audit Service (v39.0.0)
         $this->app->singleton(EventReplayAuditService::class, function (Application $app): EventReplayAuditService {
             return new EventReplayAuditService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4237,7 +4237,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Audit Trail Service (v72.0.0)
         $this->app->singleton(EventAuditTrailService::class, function (Application $app): EventAuditTrailService {
             return new EventAuditTrailService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4245,7 +4245,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Attribution Trail Service (v72.0.0)
         $this->app->singleton(EventAttributionTrailService::class, function (Application $app): EventAttributionTrailService {
             return new EventAttributionTrailService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4253,7 +4253,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Data Retention Service (v39.0.0)
         $this->app->singleton(AnalyticsDataRetentionService::class, function (Application $app): AnalyticsDataRetentionService {
             return new AnalyticsDataRetentionService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(EventArchiveService::class),
                 $app->make(ConfigRepository::class),
             );
@@ -4262,7 +4262,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Dependency Graph Service (v40.0.0)
         $this->app->singleton(EventDependencyGraphService::class, function (Application $app): EventDependencyGraphService {
             return new EventDependencyGraphService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4270,7 +4270,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Multi-Currency Revenue Normalizer (v40.0.0)
         $this->app->singleton(MultiCurrencyRevenueNormalizer::class, function (Application $app): MultiCurrencyRevenueNormalizer {
             return new MultiCurrencyRevenueNormalizer(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4285,7 +4285,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Differential Privacy Service (v42.0.0)
         $this->app->singleton(DifferentialPrivacyService::class, function (Application $app): DifferentialPrivacyService {
             return new DifferentialPrivacyService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4293,7 +4293,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Clean Room Service (v198.0.0)
         $this->app->singleton(\ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService::class, function (Application $app): \ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService {
             return new \ZeroBoiler\Analytics\Services\AnalyticsCleanRoomService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4301,7 +4301,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Intelligence Copilot Service (v199.0.0)
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService {
             return new \ZeroBoiler\Analytics\Services\EventIntelligenceCopilotService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4309,7 +4309,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Flow Analyzer Service (v202.0.0)
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventFlowAnalyzerService::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventFlowAnalyzerService {
             return new \ZeroBoiler\Analytics\Services\EventFlowAnalyzerService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4319,7 +4319,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $ttlConfig = $config->get('zeroboiler.analytics.event_ttl', []);
             return new EventTtlService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 (int) ($ttlConfig['default_ttl_seconds'] ?? 86400),
                 (array) ($ttlConfig['event_overrides'] ?? []),
                 (array) ($ttlConfig['category_overrides'] ?? []),
@@ -4334,7 +4334,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $referralConfig = $config->get('zeroboiler.analytics.referral', []);
             return new ReferralTrackingService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 (int) ($referralConfig['code_length'] ?? 8),
                 (int) ($referralConfig['attribution_ttl'] ?? 2592000),
                 (int) ($referralConfig['metrics_ttl'] ?? 3600),
@@ -4346,7 +4346,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $shieldConfig = $config->get('zeroboiler.analytics.spike_shield', []);
             return new TrafficSpikeShield(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 (int) ($shieldConfig['normal_threshold'] ?? 1000),
                 (int) ($shieldConfig['spike_threshold'] ?? 5000),
                 (int) ($shieldConfig['window_size'] ?? 60),
@@ -4363,7 +4363,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
             $config = $app->make(ConfigRepository::class);
             $simConfig = $config->get('zeroboiler.analytics.simulator', []);
             return new EventReplaySimulator(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 [],
                 (int) ($simConfig['batch_size'] ?? 100),
                 (int) ($simConfig['rate_limit'] ?? 50),
@@ -4375,7 +4375,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Deprecation Service (v44.0.0) — lifecycle management, deprecation warnings
         $this->app->singleton(EventDeprecationService::class, function (Application $app): EventDeprecationService {
             return new EventDeprecationService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4386,7 +4386,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Sampling Strategy Service (v46.0.0) — config-driven sampling with 3 strategies
         $this->app->singleton(EventSamplingStrategyService::class, function (Application $app): EventSamplingStrategyService {
             return new EventSamplingStrategyService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4394,7 +4394,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Flow Analysis Service (v46.0.0) — real-time user flow/journey analysis
         $this->app->singleton(EventFlowAnalysisService::class, function (Application $app): EventFlowAnalysisService {
             return new EventFlowAnalysisService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4402,7 +4402,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Analytics Data Quality Firewall (v46.0.0) — pre-dispatch quality scoring
         $this->app->singleton(AnalyticsDataQualityFirewall::class, function (Application $app): AnalyticsDataQualityFirewall {
             return new AnalyticsDataQualityFirewall(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4410,7 +4410,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Fraud Detection Service (v47.0.0) — spam, bot flood, injection detection
         $this->app->singleton(EventFraudDetectionService::class, function (Application $app): EventFraudDetectionService {
             return new EventFraudDetectionService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4418,7 +4418,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Product-Market Fit Scoring Service (v47.0.0) — Sean Ellis, retention, activation
         $this->app->singleton(ProductMarketFitScoringService::class, function (Application $app): ProductMarketFitScoringService {
             return new ProductMarketFitScoringService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4426,7 +4426,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // First-Value Detection Service (v61.0.0) — "aha moment" milestone tracking
         $this->app->singleton(FirstValueDetectorService::class, function (Application $app): FirstValueDetectorService {
             return new FirstValueDetectorService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class)->get('zeroboiler.analytics.first_value', []),
             );
         });
@@ -4446,7 +4446,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Correlation Engine Service (v48.0.0) — causal event correlation analysis
         $this->app->singleton(EventCorrelationEngineService::class, function (Application $app): EventCorrelationEngineService {
             return new EventCorrelationEngineService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4454,7 +4454,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Anomaly Root Cause Analyzer (v48.0.0) — trace anomalies to root causes
         $this->app->singleton(AnomalyRootCauseAnalyzer::class, function (Application $app): AnomalyRootCauseAnalyzer {
             return new AnomalyRootCauseAnalyzer(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(EventCorrelationEngineService::class),
                 $app->make(ConfigRepository::class),
             );
@@ -4464,7 +4464,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(AnalyticsSelfHealingService::class, function (Application $app): AnalyticsSelfHealingService {
             $dlqService = $app->bound(DeadLetterQueueService::class) ? $app->make(DeadLetterQueueService::class) : null;
             return new AnalyticsSelfHealingService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
                 $app->make(UnifiedHealthEndpointService::class),
                 $dlqService,
@@ -4474,7 +4474,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Lineage Tracker Service (v49.0.0) — event lifecycle tracing
         $this->app->singleton(EventLineageTrackerService::class, function (Application $app): EventLineageTrackerService {
             return new EventLineageTrackerService(
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
                 $app->make(ConfigRepository::class),
             );
         });
@@ -4483,14 +4483,14 @@ final class AnalyticsServiceProvider extends ServiceProvider
         $this->app->singleton(\ZeroBoiler\Analytics\Services\EventTransformationEngine::class, function (Application $app): \ZeroBoiler\Analytics\Services\EventTransformationEngine {
             return new \ZeroBoiler\Analytics\Services\EventTransformationEngine(
                 $app->make(ConfigRepository::class),
-                $app->make('cache'),
+                $app->make(CacheRepository::class),
             );
         });
 
         // Geographic Analytics (v73.0.0)
         $this->app->singleton(GeographicAnalyticsService::class, function (Application $app): GeographicAnalyticsService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
             /** @var AnalyticsMetrics $metrics */
@@ -4502,7 +4502,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Experiment Analysis Engine (v75.0.0) — Bayesian + Frequentist hypothesis testing
         $this->app->singleton(ExperimentAnalysisEngine::class, function (Application $app): ExperimentAnalysisEngine {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -4512,7 +4512,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Contract Testing Engine (v266.0.0) — provider-specific contract validation
         $this->app->singleton(EventContractTestService::class, function (Application $app): EventContractTestService {
             /** @var CacheRepository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -4609,7 +4609,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Cardinality Limiter (v153.0.0) — prevents high-cardinality dimension explosion
         $this->app->singleton(EventCardinalityLimiter::class, function (Application $app): EventCardinalityLimiter {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
@@ -4619,7 +4619,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         // Event Delivery SLA Monitor (v153.0.0) — proactive per-provider SLA tracking
         $this->app->singleton(EventDeliverySlaMonitor::class, function (Application $app): EventDeliverySlaMonitor {
             /** @var \Illuminate\Contracts\Cache\Repository $cache */
-            $cache = $app->make('cache');
+            $cache = $app->make(CacheRepository::class);
             /** @var ConfigRepository $config */
             $config = $app->make(ConfigRepository::class);
 
