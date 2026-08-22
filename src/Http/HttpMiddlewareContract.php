@@ -8,13 +8,11 @@ declare(strict_types=1);
 namespace ZeroBoiler\Analytics\Http;
 
 use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Contract for HTTP middleware components.
- *
- * without requiring the full Illuminate framework to be present.
- * This interface mirrors Illuminate\Contracts\Http\Middleware but
- * uses simple types so standalone syntax checking succeeds.
  *
  * @since 1.0.0
  */
@@ -23,9 +21,9 @@ interface HttpMiddlewareContract
     /**
      * Handle an incoming request and return a response.
      *
-     * @param  object  $request  Request object (Illuminate\Http\Request in Laravel context)
+     * @param  Request  $request  Incoming HTTP request
      * @param  Closure  $next  Next middleware handler
-     * @return object  Response object
+     * @return Response  Response object
      */
-    public function handle(object $request, Closure $next): object;
+    public function handle(Request $request, Closure $next): Response;
 }

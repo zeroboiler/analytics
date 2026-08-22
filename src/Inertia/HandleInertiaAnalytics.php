@@ -14,7 +14,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use ZeroBoiler\Analytics\AnalyticsManager;
-use ZeroBoiler\Analytics\Http\HttpMiddlewareContract;
 use ZeroBoiler\Analytics\Services\CampaignContextHydratorService;
 
 /**
@@ -31,7 +30,7 @@ use ZeroBoiler\Analytics\Services\CampaignContextHydratorService;
  *
  * @since 1.0.0
  */
-final class HandleInertiaAnalytics implements HttpMiddlewareContract
+final class HandleInertiaAnalytics
 {
     private AnalyticsManager $manager;
 
