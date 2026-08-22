@@ -71,7 +71,6 @@ final class AnalyticsQualityGateCommand extends Command
         $this->complianceService = $complianceService;
     }
 
-    #[\Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

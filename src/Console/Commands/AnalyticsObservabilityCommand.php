@@ -66,7 +66,6 @@ final class AnalyticsObservabilityCommand extends Command
      *
      * @return int
      */
-    #[\Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

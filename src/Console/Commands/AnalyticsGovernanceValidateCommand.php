@@ -44,7 +44,6 @@ final class AnalyticsGovernanceValidateCommand extends Command
     /** @var string */
     protected $description = 'Validate event catalog governance rules and compute snapshot diffs';
 
-    #[\Override]
     public function handle(
         EventGovernanceRuntimeValidator $validator,
         ?CatalogSnapshotService $snapshotService = null,

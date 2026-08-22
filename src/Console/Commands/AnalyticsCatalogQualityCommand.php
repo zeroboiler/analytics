@@ -44,7 +44,6 @@ final class AnalyticsCatalogQualityCommand extends Command
     /**
      * Execute the catalog quality command.
      */
-    #[\Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

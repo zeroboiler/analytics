@@ -71,7 +71,6 @@ final class WebhookTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -94,14 +93,12 @@ final class WebhookTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled
             && $this->webhookUrl !== '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
@@ -114,20 +111,17 @@ final class WebhookTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         // Webhook tracker is server-side only — no client scripts
         return '';
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         // Webhook tracker is server-side only — no client scripts
@@ -190,13 +184,11 @@ final class WebhookTracker implements TrackerInterface
         return $client;
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         // Webhook tracker is a generic relay — no native identity system.
@@ -204,7 +196,6 @@ final class WebhookTracker implements TrackerInterface
         // event name 'identify' and include traits in the params.
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'webhook';

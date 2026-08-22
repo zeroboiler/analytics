@@ -44,7 +44,6 @@ final class AnalyticsSaaSQuickAuditCommand extends Command
     /**
      * Execute the SaaS starter audit.
      */
-    #[\Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

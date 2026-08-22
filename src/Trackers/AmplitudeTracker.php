@@ -47,7 +47,6 @@ final class AmplitudeTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -227,13 +226,11 @@ final class AmplitudeTracker implements TrackerInterface
         return $cleaned;
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->apiKey !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled()) {
@@ -249,19 +246,16 @@ final class AmplitudeTracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -294,13 +288,11 @@ HTML;
         );
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'amplitude';

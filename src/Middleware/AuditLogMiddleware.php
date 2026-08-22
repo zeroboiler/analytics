@@ -39,7 +39,6 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
         $this->priority = $priority;
     }
 
-    #[\Override]
     public function process(AnalyticsEvent $event, callable $next): ?AnalyticsEvent
     {
         $result = $next($event);
@@ -51,7 +50,6 @@ final class AuditLogMiddleware implements AnalyticsMiddlewareInterface
         return $result;
     }
 
-    #[\Override]
     public function getPriority(): int
     {
         return $this->priority;

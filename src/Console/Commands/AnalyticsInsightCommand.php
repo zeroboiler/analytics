@@ -65,7 +65,6 @@ final class AnalyticsInsightCommand extends Command
     /**
      * Execute the insight command.
      */
-    #[\Override]
     public function handle(): int
     {
         $mode = $this->argument('mode');

@@ -49,7 +49,6 @@ final class AnalyticsSemanticMetricsCommand extends Command
     /**
      * Execute the console command.
      */
-    #[\Override]
     public function handle(): int
     {
         $action = $this->argument('action') ?? 'list';

@@ -38,7 +38,6 @@ final class GA4Tracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -135,13 +134,11 @@ final class GA4Tracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->isValidMeasurementId($this->measurementId) && $this->apiSecret !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isValidMeasurementId($this->measurementId)) {
@@ -163,7 +160,6 @@ final class GA4Tracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
@@ -179,13 +175,11 @@ HTML;
         return $this->apiSecret;
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -245,7 +239,6 @@ HTML;
         return $baseUrl.'?'.$params;
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         if (empty($events) || !$this->isEnabled()) {
@@ -295,7 +288,6 @@ HTML;
         }
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
@@ -307,7 +299,6 @@ HTML;
         // subsequent event payloads. This no-op is intentional.
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'ga4';

@@ -40,7 +40,6 @@ final class EventPayloadEncryptionMiddleware implements AnalyticsMiddlewareInter
         $this->encryptionService = $encryptionService;
     }
 
-    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         if (! $this->encryptionService->isEnabled()) {
@@ -67,13 +66,11 @@ final class EventPayloadEncryptionMiddleware implements AnalyticsMiddlewareInter
         );
     }
 
-    #[\Override]
     public function priority(): int
     {
         return self::PRIORITY;
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'EventPayloadEncryption';

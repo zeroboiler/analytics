@@ -59,7 +59,6 @@ final class AnalyticsRequestTrackerMiddleware implements HttpMiddlewareContract
         $this->config = $config ?? $repo->get('zeroboiler.analytics.request_tracking', []);
     }
 
-    #[\Override]
     public function handle(Request $request, Closure $next): Response
     {
         $this->startTime = microtime(true);

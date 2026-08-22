@@ -56,19 +56,16 @@ final class PiiScanningStage implements ValidationStageInterface
         $this->skipPatterns = (array) ($config['skip_patterns'] ?? []);
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'pii_scanning';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 30;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return $this->enabled;
@@ -77,7 +74,6 @@ final class PiiScanningStage implements ValidationStageInterface
     /**
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         if (! $this->enabled) {
@@ -149,7 +145,6 @@ final class PiiScanningStage implements ValidationStageInterface
         ];
     }
 
-    #[\Override]
     public function description(): string
     {
         return 'Scans event parameters for PII: emails, phones, credit cards, SSNs, and disallowed sensitive keys';

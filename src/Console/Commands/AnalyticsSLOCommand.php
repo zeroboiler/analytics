@@ -48,7 +48,6 @@ final class AnalyticsSLOCommand extends Command
         $this->sloService = $sloService;
     }
 
-    #[\Override]
     public function handle(): int
     {
         $action = $this->argument('action');

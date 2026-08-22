@@ -48,19 +48,16 @@ final class FieldValidationStage implements ValidationStageInterface
         $this->validator = $validator;
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'field_validation';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 15;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return $this->validator->isEnabled();
@@ -74,7 +71,6 @@ final class FieldValidationStage implements ValidationStageInterface
      *
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int, coerced: int, coerced_params?: array<string, mixed>}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         if (! $this->validator->isEnabled()) {
@@ -119,7 +115,6 @@ final class FieldValidationStage implements ValidationStageInterface
     /**
      * Get a human-readable description of what this stage validates.
      */
-    #[\Override]
     public function description(): string
     {
         return 'Validates event parameters against config-driven field rules (required, type, min/max, enum, regex, format) with automatic type coercion.';

@@ -55,7 +55,6 @@ final class AnalyticsIncidentsCommand extends Command
 
     private ?AnalyticsOnCallRouter $onCallRouter;
 
-    #[\Override]
     public function handle(AnalyticsIncidentService $incidentService, ?AnalyticsOnCallRouter $onCallRouter = null): int
     {
         $this->incidentService = $incidentService;

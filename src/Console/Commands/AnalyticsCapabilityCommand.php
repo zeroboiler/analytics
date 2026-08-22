@@ -37,7 +37,6 @@ final class AnalyticsCapabilityCommand extends Command
     /**
      * Execute the command.
      */
-    #[\Override]
     public function handle(ProviderCapabilityMatrixService $service): int
     {
         $action = $this->argument('action');

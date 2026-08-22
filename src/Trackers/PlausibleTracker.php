@@ -52,7 +52,6 @@ final class PlausibleTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -305,7 +304,6 @@ final class PlausibleTracker implements TrackerInterface
         $this->track($event);
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled
@@ -313,7 +311,6 @@ final class PlausibleTracker implements TrackerInterface
             && $this->apiKey !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled()) {
@@ -335,19 +332,16 @@ HTML;
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -371,20 +365,17 @@ HTML;
         return $this->customScriptUrl !== null && $this->customScriptUrl !== '';
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         // Plausible is a privacy-focused, cookie-free analytics service.
         // It has no user identity or user profile API. No-op is intentional.
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'plausible';

@@ -47,7 +47,6 @@ final class AnalyticsWebhookRelayCommand extends Command
         $this->relay = $relay;
     }
 
-    #[\Override]
     public function handle(): int
     {
         $action = $this->argument('action');

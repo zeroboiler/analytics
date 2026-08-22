@@ -31,7 +31,6 @@ final class GTMTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -49,13 +48,11 @@ final class GTMTracker implements TrackerInterface
         ]);
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->isValidContainerId($this->containerId);
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isValidContainerId($this->containerId)) {
@@ -75,7 +72,6 @@ final class GTMTracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         if (! $this->isValidContainerId($this->containerId)) {
@@ -114,13 +110,11 @@ HTML;
         return $this->containerId;
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -148,13 +142,11 @@ HTML;
         return $output;
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
@@ -170,7 +162,6 @@ HTML;
         ]);
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'gtm';

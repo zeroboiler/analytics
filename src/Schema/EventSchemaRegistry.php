@@ -144,7 +144,6 @@ final class EventSchemaRegistry implements \Countable
     /**
      * Get the total number of registered schemas.
      */
-    #[\Override]
     public function count(): int
     {
         return count($this->schemas);

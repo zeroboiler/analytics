@@ -33,19 +33,16 @@ final class SchemaValidationStage implements ValidationStageInterface
         $this->enabled = (bool) ($config['enabled'] ?? false);
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'schema_validation';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 20;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return $this->enabled;
@@ -54,7 +51,6 @@ final class SchemaValidationStage implements ValidationStageInterface
     /**
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         if (! $this->enabled) {
@@ -168,7 +164,6 @@ final class SchemaValidationStage implements ValidationStageInterface
         }
     }
 
-    #[\Override]
     public function description(): string
     {
         return 'Validates event parameters against registered schemas: required params, types, lengths, and count limits';

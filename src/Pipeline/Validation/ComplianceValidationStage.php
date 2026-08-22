@@ -43,19 +43,16 @@ final class ComplianceValidationStage implements ValidationStageInterface
         $this->requireConsentForPii = (bool) ($config['require_consent_for_pii'] ?? true);
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'compliance';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 50;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return $this->enabled;
@@ -64,7 +61,6 @@ final class ComplianceValidationStage implements ValidationStageInterface
     /**
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         if (! $this->enabled) {
@@ -117,7 +113,6 @@ final class ComplianceValidationStage implements ValidationStageInterface
         ];
     }
 
-    #[\Override]
     public function description(): string
     {
         return 'Validates GDPR compliance: consent metadata for PII events and privacy manifest classification';

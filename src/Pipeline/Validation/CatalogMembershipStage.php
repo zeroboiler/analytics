@@ -36,19 +36,16 @@ final class CatalogMembershipStage implements ValidationStageInterface
         $this->enforceSnakeCase = (bool) ($config['enforce_snake_case'] ?? true);
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'catalog_membership';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 10;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return true;
@@ -57,7 +54,6 @@ final class CatalogMembershipStage implements ValidationStageInterface
     /**
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         $errors = [];
@@ -110,7 +106,6 @@ final class CatalogMembershipStage implements ValidationStageInterface
         ];
     }
 
-    #[\Override]
     public function description(): string
     {
         return 'Validates event name is registered in EventCatalog, follows naming conventions, and has valid length';

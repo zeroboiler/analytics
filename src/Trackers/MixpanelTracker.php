@@ -43,7 +43,6 @@ final class MixpanelTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -186,13 +185,11 @@ final class MixpanelTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->token !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled()) {
@@ -208,19 +205,16 @@ final class MixpanelTracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -248,13 +242,11 @@ HTML;
         );
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
@@ -265,7 +257,6 @@ HTML;
         $this->setUserProfile($userId, $traits);
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'mixpanel';

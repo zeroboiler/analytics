@@ -57,7 +57,6 @@ final class PosthogTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -161,7 +160,6 @@ final class PosthogTracker implements TrackerInterface
      *
      * @param array<string, mixed> $properties Person properties to set
      */
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
@@ -370,13 +368,11 @@ final class PosthogTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->apiKey !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled() || $this->projectId === '') {
@@ -393,19 +389,16 @@ final class PosthogTracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -500,7 +493,6 @@ HTML;
         );
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         if ($events === [] || ! $this->isEnabled()) {
@@ -560,7 +552,6 @@ HTML;
         }
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'posthog';

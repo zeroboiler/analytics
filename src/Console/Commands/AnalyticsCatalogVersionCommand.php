@@ -61,7 +61,6 @@ final class AnalyticsCatalogVersionCommand extends Command
         $this->snapshotService = $snapshotService;
     }
 
-    #[\Override]
     public function handle(): int
     {
         // --stats — show catalog statistics

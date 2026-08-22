@@ -54,7 +54,6 @@ final class LinkedInTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -91,13 +90,11 @@ final class LinkedInTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->partnerId !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isEnabled()) {
@@ -115,19 +112,16 @@ window._linkedin_data_partner_ids.push(_linkedin_partner_id);
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         return '';
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -197,13 +191,11 @@ HTML;
         return hash('xxh128', $event->name . ':' . json_encode($event->params, JSON_THROW_ON_ERROR));
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         return $this->defaultTrackBatch($events);
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         // LinkedIn Conversions API has no dedicated identify endpoint.
@@ -211,7 +203,6 @@ HTML;
         // No-op is intentional.
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'linkedin';

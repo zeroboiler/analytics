@@ -80,7 +80,6 @@ final class PiiSanitizationMiddleware implements AnalyticsMiddlewareInterface
         $this->priority = $priority;
     }
 
-    #[\Override]
     public function process(AnalyticsEvent $event): AnalyticsEvent
     {
         $params = $event->params;
@@ -97,7 +96,6 @@ final class PiiSanitizationMiddleware implements AnalyticsMiddlewareInterface
         );
     }
 
-    #[\Override]
     public function getPriority(): int
     {
         return $this->priority;

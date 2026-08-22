@@ -35,7 +35,6 @@ final readonly class SchemaValidationMiddleware implements AnalyticsMiddlewareIn
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         $result = $this->registry->validate($event->name, $event->params);
@@ -59,14 +58,12 @@ final readonly class SchemaValidationMiddleware implements AnalyticsMiddlewareIn
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function priority(): int
     {
         return 10; // High priority — validate early
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function name(): string
     {
         return 'schema_validation';

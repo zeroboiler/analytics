@@ -241,7 +241,6 @@ final readonly class EventCollection implements Countable, IteratorAggregate
     /**
      * @return Traversable<int, AnalyticsEvent>
      */
-    #[\Override]
     public function getIterator(): Traversable
     {
         return new \ArrayIterator($this->events);
@@ -250,7 +249,6 @@ final readonly class EventCollection implements Countable, IteratorAggregate
     /**
      * Count the events.
      */
-    #[\Override]
     public function count(): int
     {
         return count($this->events);

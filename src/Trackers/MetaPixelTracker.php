@@ -60,7 +60,6 @@ final class MetaPixelTracker implements TrackerInterface
         $this->consent = ConsentState::granted();
     }
 
-    #[\Override]
     public function track(AnalyticsEvent $event): void
     {
         if (! $this->isEnabled()) {
@@ -123,13 +122,11 @@ final class MetaPixelTracker implements TrackerInterface
         }
     }
 
-    #[\Override]
     public function isEnabled(): bool
     {
         return $this->enabled && $this->isValidPixelId($this->pixelId) && $this->accessToken !== '';
     }
 
-    #[\Override]
     public function headScripts(): string
     {
         if (! $this->isValidPixelId($this->pixelId)) {
@@ -154,7 +151,6 @@ final class MetaPixelTracker implements TrackerInterface
 HTML;
     }
 
-    #[\Override]
     public function bodyScripts(): string
     {
         if (! $this->isValidPixelId($this->pixelId)) {
@@ -178,13 +174,11 @@ HTML;
         return $this->accessToken;
     }
 
-    #[\Override]
     public function setConsent(ConsentState $state): void
     {
         $this->consent = $state;
     }
 
-    #[\Override]
     public function getConsent(): ConsentState
     {
         return $this->consent;
@@ -221,7 +215,6 @@ HTML;
         return self::GRAPH_API_URL."/{$this->pixelId}/events";
     }
 
-    #[\Override]
     public function trackBatch(array $events): int
     {
         if (empty($events) || !$this->isEnabled()) {
@@ -283,7 +276,6 @@ HTML;
         }
     }
 
-    #[\Override]
     public function identify(string $userId, array $traits = []): void
     {
         if (! $this->isEnabled()) {
@@ -296,7 +288,6 @@ HTML;
         // Advanced Matching specification.
     }
 
-    #[\Override]
     public function providerName(): string
     {
         return 'meta';

@@ -12,7 +12,6 @@ use Closure;
 /**
  * Contract for HTTP middleware components.
  *
- * Enables PHP 8.4+ #[\Override] attribute resolution on handle() methods
  * without requiring the full Illuminate framework to be present.
  * This interface mirrors Illuminate\Contracts\Http\Middleware but
  * uses simple types so standalone syntax checking succeeds.

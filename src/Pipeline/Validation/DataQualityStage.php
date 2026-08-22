@@ -35,19 +35,16 @@ final class DataQualityStage implements ValidationStageInterface
         $this->maxEmptyParams = (int) ($config['max_empty_params'] ?? 10);
     }
 
-    #[\Override]
     public function name(): string
     {
         return 'data_quality';
     }
 
-    #[\Override]
     public function priority(): int
     {
         return 40;
     }
 
-    #[\Override]
     public function enabled(): bool
     {
         return $this->enabled;
@@ -56,7 +53,6 @@ final class DataQualityStage implements ValidationStageInterface
     /**
      * @return array{passed: bool, errors: list<array{code: string, message: string, field?: string, severity: 'error'|'warning'|'info'}>, metrics: array{checked: int, failed: int, skipped: int}}
      */
-    #[\Override]
     public function validate(AnalyticsEvent $event): array
     {
         if (! $this->enabled) {
@@ -132,7 +128,6 @@ final class DataQualityStage implements ValidationStageInterface
         ];
     }
 
-    #[\Override]
     public function description(): string
     {
         return 'Validates data quality: empty values, completeness ratio, HTML content, and parameter distribution';

@@ -527,7 +527,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    #[\Override]
     public function register(): void
     {
         $this->mergeConfigFrom(
@@ -4735,7 +4734,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    #[\Override]
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {
@@ -5501,7 +5499,6 @@ final class AnalyticsServiceProvider extends ServiceProvider
      *
      * @return list<string>
      */
-    #[\Override]
     public function provides(): array
     {
         return [

@@ -42,7 +42,6 @@ final class AnalyticsDecompositionCommand extends Command
         $this->service = $service;
     }
 
-    #[\Override]
     public function handle(): int
     {
         if (! $this->service->isEnabled()) {

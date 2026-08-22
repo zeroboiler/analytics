@@ -191,7 +191,6 @@ final class AnalyticsMiddlewareStack implements \Countable
     /**
      * Get the number of middleware in the stack.
      */
-    #[\Override]
     public function count(): int
     {
         return count($this->middleware);

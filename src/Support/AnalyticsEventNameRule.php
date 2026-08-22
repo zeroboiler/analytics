@@ -38,7 +38,6 @@ final class AnalyticsEventNameRule implements Rule
     /**
      * Determine if the validation rule passes.
      */
-    #[\Override]
     public function passes(mixed $attribute, mixed $value): bool
     {
         if (! is_string($value) || $value === '') {
@@ -66,7 +65,6 @@ final class AnalyticsEventNameRule implements Rule
     /**
      * Get the validation error message.
      */
-    #[\Override]
     public function message(): string
     {
         $base = 'The :attribute must be a valid analytics event name (lowercase, underscores, max 100 chars).';

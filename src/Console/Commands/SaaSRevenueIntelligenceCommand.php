@@ -64,7 +64,6 @@ final class SaaSRevenueIntelligenceCommand extends Command
         $this->config = $config;
     }
 
-    #[\Override]
     public function handle(): int
     {
         $outputJson = (bool) $this->option('json');

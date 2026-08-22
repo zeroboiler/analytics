@@ -40,7 +40,6 @@ final class AnalyticsSaaSQuickDeployCommand extends Command
 
     protected $description = 'SaaS Starter deployment readiness check — validates analytics instrumentation completeness';
 
-    #[\Override]
     public function handle(): int
     {
         $checks = $this->runAllChecks();

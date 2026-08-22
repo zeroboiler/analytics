@@ -30,7 +30,6 @@ final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function process(AnalyticsEvent $event): ?AnalyticsEvent
     {
         $logData = [
@@ -49,14 +48,12 @@ final readonly class LoggingMiddleware implements AnalyticsMiddlewareInterface
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function priority(): int
     {
         return 90; // Very low priority — log after everything else
     }
 
     /** {@inheritdoc} */
-    #[\Override]
     public function name(): string
     {
         return 'logging';
