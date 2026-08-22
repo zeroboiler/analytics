@@ -2331,7 +2331,7 @@ final class AnalyticsServiceProvider extends ServiceProvider
         });
 
         // Macro registry — load config-based macro definitions (v118.0.0)
-        $this->app->afterResolving(function (ConfigRepository $config): void {
+        $this->app->afterResolving(ConfigRepository::class, function (ConfigRepository $config): void {
             $macrosConfig = $config->get('zeroboiler.analytics.macros', []);
             $enabled = (bool) ($macrosConfig['enabled'] ?? true);
 
